@@ -6,7 +6,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
@@ -27,29 +26,29 @@ namespace dMobile.Controller.Activity_Detail
     public class AdjActDetail : ActDetail
     {
         /// <summary>
+        /// Defines the resourceDictionary.
+        /// </summary>
+        private readonly ResourceDictionary resourceDictionary = new ResourceDictionary();
+
+        /// <summary>
         /// Defines the columnWidth0.
         /// </summary>
-        private double columnWidth0 = 0;
+        private double columnWidth0;
 
         /// <summary>
         /// Defines the columnWidth1.
         /// </summary>
-        private double columnWidth1 = 0;
+        private double columnWidth1;
 
         /// <summary>
         /// Defines the columnWidth2.
         /// </summary>
-        private double columnWidth2 = 0;
+        private double columnWidth2;
 
         /// <summary>
         /// Defines the columnWidth3.
         /// </summary>
-        private double columnWidth3 = 0;
-
-        /// <summary>
-        /// Defines the resourceDictionary.
-        /// </summary>
-        private ResourceDictionary resourceDictionary = new ResourceDictionary();
+        private double columnWidth3;
 
         /// <summary>
         /// Defines the listAdjustmentDetails.
@@ -132,27 +131,28 @@ namespace dMobile.Controller.Activity_Detail
         /// <summary>
         /// Find or insert an activity detail into the list details.
         /// </summary>
-        /// <param name="mainActivityItems"><see cref="ObservableCollection{object}"/> Main activity items.</param>
         /// <returns><see cref="ActivityDetail"/> Activity detail.</returns>
-        public override ActivityDetail InsertListDetail(ObservableCollection<object> mainActivityItems)
+        public override ActivityDetail GatherDetail()
         {
             AdjustmentDetail detail = null;
             if (this.ListDetails != null)
             {
-                detail = new AdjustmentDetail();
-                detail.ActivityDetailRefno = this.DetailRefno;
-                detail.ActivityDetailFKRefno = this.DetailFkRefno;
+                detail = new AdjustmentDetail
+                {
+                    // KLUDGE: Restore the new detail reference number's that got over written somehow.
+                    ActivityDetailRefno = this.SysEnv.InsertedDetailRefno,
+                    ActivityDetailFKRefno = this.SysEnv.InsertedDetailFkRefno,
+                };
 
-                this.InsertListDetailProduct(detail);
-                this.InsertListDetailQuantity(detail);
-                this.InsertListDetailScheme(detail);
-                this.InsertListDetailExtra(detail);
-                this.InsertListDetailLocation(detail);
+                this.GatherProductDetail(detail);
+                this.GatherQuantityDetail(detail);
+                this.GatherSchemeDetail(detail);
+                this.GatherExtraDetail(detail);
+                this.GatherLocationDetail(detail);
 
                 detail.ActivityDetailSchemeID = this.SchemeId;
                 detail.ActivityDetailUniqueSchemeID = this.UniqueSchemeId;
                 detail.ActivityDetailStatus = (int)SysCommon.ActStatus.Inserted;
-                this.ListDetails.Add(detail);
             }
 
             return detail;
@@ -165,11 +165,6 @@ namespace dMobile.Controller.Activity_Detail
         public override void UpdateListDetail(int listDetailIdx)
         {
             var detail = (AdjustmentDetail)this.ListDetails[listDetailIdx];
-            if (detail.ActivityDetailStatus == (int)SysCommon.ActStatus.NoChange)
-            {
-                detail.ActivityDetailStatus = (int)SysCommon.ActStatus.Updated;
-            }
-
             detail.ActivityDetailQuantity += Math.Round(this.Quantity, 3);
             detail.ActivityDetailBaseQuantity += Math.Round(this.BaseQuantity, 3);
             detail.ActivityDetailWeightQuantity += Math.Round(this.WeightQuantity, 3);
@@ -192,11 +187,14 @@ namespace dMobile.Controller.Activity_Detail
             var responseData = SysCommon.SubmitComm(xmlSend);
             var xmlDoc = new XmlDocument();
             xmlDoc.LoadXml(responseData);
-            this.DetailFkRefno = int.Parse(xmlDoc.DocumentElement["ser_refno"].InnerText);
-            this.ActItem.ItemFkRefno = int.Parse(xmlDoc.DocumentElement["itm_refno"].InnerText);
-            this.Quantity = decimal.Parse(xmlDoc.DocumentElement["alt_qty"].InnerText);
-            this.BaseQuantity = decimal.Parse(xmlDoc.DocumentElement["base_qty"].InnerText);
-            this.WeightQuantity = decimal.Parse(xmlDoc.DocumentElement["wt_qty"].InnerText);
+            if (xmlDoc.DocumentElement != null)
+            {
+                this.DetailFkRefno = int.Parse(xmlDoc.DocumentElement["ser_refno"].InnerText);
+                this.ActItem.ItemFkRefno = int.Parse(xmlDoc.DocumentElement["itm_refno"].InnerText);
+                this.Quantity = decimal.Parse(xmlDoc.DocumentElement["alt_qty"].InnerText);
+                this.BaseQuantity = decimal.Parse(xmlDoc.DocumentElement["base_qty"].InnerText);
+                this.WeightQuantity = decimal.Parse(xmlDoc.DocumentElement["wt_qty"].InnerText);
+            }
         }
 
         /// <summary>
@@ -225,10 +223,11 @@ namespace dMobile.Controller.Activity_Detail
         }
 
         /// <summary>
-        /// The Insert.
+        /// Call submit, also insert a new records into tables, do not if one exists.
         /// </summary>
+        /// <remarks>Assign the found or inserted DetailRefno and DetailFKRefno.</remarks>
         /// <param name="data">.</param>
-        /// <returns>The <see cref="Task"/>.</returns>
+        /// <returns>The <see cref="Task"/> Task.</returns>
         public override async Task Insert(XDocument data)
         {
             await this.FillActDetailObjFromXml(data);
@@ -246,11 +245,11 @@ namespace dMobile.Controller.Activity_Detail
             }
 
             // In order to support base tracking the DetailFKRefno is the itm_refno rather than the serial.refno.
-            var foundIdx = this.FindListDetailIndex(this.DetailFkRefno);
-            if (foundIdx < 0)
+            this.DetailRefno = this.FindListDetailRefno(this.DetailFkRefno);
+            if (this.DetailRefno < 0)
             {
                 this.DetailRefno = await this.InsertDetailIntoTablesDetail();
-                var query = "INSERT INTO tActivityDetailAdjustment (ActivityDetailRefno, ActivityDetailFKRefno) VALUES (?, ?)";
+                const string query = "INSERT INTO tActivityDetailAdjustment (ActivityDetailRefno, ActivityDetailFKRefno) VALUES (?, ?)";
                 var rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
                     query,
                     this.DetailRefno,
@@ -260,6 +259,10 @@ namespace dMobile.Controller.Activity_Detail
                     throw new Exception("Unable to insert activity detail.");
                 }
             }
+
+            // KLUDGE: Save the new detail reference number's to be restored.
+            this.SysEnv.InsertedDetailRefno = this.DetailRefno;
+            this.SysEnv.InsertedDetailFkRefno = this.DetailFkRefno;
         }
 
         /// <summary>
@@ -341,6 +344,21 @@ namespace dMobile.Controller.Activity_Detail
                     if (this.ActItem.SelectedItem is AdjustmentItem item)
                     {
                         item.ActivityItemFKRefno = this.ActItem.ItemFkRefno;
+                        item.ActivityItemStringFKRefno = this.ActItem.ItemFkRefno.ToString();
+
+                        rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
+                            "UPDATE tActivityItemAdjustment SET ActivityItemFKRefno = ?" +
+                            ",ActivityItemStringFKRefno = ?" +
+                            " WHERE ActivityItemRefno = ?",
+                            item.ActivityItemFKRefno,
+                            item.ActivityItemStringFKRefno,
+                            this.ActItem.ItemRefno);
+                        if (rowsAffected < 0)
+                        {
+                            throw new Exception(
+                                "Unable to locate and update the adjustment activity line item with a new foreign" +
+                                " key upon inserting.");
+                        }
                     }
 
                     this.ActItem.ActStatus = SysCommon.ActStatus.NoChange;
@@ -375,35 +393,20 @@ namespace dMobile.Controller.Activity_Detail
                     break;
 
                 case SysCommon.ActStatus.Inserted:
+
+                    // Submit occurs before adding the data to the tables.
                     this.DetailFkRefno = int.Parse(xmlDoc.DocumentElement["ser_refno"] !.InnerText);
-
-                    if (selectedActivityDetail is AdjustmentDetail selectedInserted)
-                    {
-                        selectedInserted.ActivityDetailFKRefno = this.DetailFkRefno;
-                        selectedInserted.ActivityDetailStatus = Convert.ToInt32(SysCommon.ActStatus.NoChange);
-                    }
-
-                    rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
-                        "UPDATE tActivityDetail SET ActivityDetailStatus = ? WHERE ActivityDetailRefno = ?",
-                        Convert.ToInt32(SysCommon.ActStatus.NoChange),
-                        this.DetailRefno);
-
-                    if (rowsAffected < 0)
-                    {
-                        throw new Exception("Unable to locate and update the activity detail status to no change.");
-                    }
-
                     break;
 
                 case SysCommon.ActStatus.Updated:
                     if (selectedActivityDetail is AdjustmentDetail selectedUpdated)
                     {
-                        selectedUpdated.ActivityDetailStatus = Convert.ToInt32(SysCommon.ActStatus.NoChange);
+                        selectedUpdated.ActivityDetailStatus = Convert.ToInt32(SysCommon.ActStatus.Updated);
                     }
 
                     rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
                         "UPDATE tActivityDetail SET ActivityDetailStatus = ? WHERE ActivityDetailRefno = ?",
-                        Convert.ToInt32(SysCommon.ActStatus.NoChange),
+                        Convert.ToInt32(SysCommon.ActStatus.Updated),
                         this.DetailRefno);
 
                     if (rowsAffected < 0)
@@ -416,12 +419,12 @@ namespace dMobile.Controller.Activity_Detail
                 case SysCommon.ActStatus.Deleted:
                     if (selectedActivityDetail is AdjustmentDetail selectedDeleted)
                     {
-                        selectedDeleted.ActivityDetailStatus = Convert.ToInt32(SysCommon.ActStatus.NoChange);
+                        selectedDeleted.ActivityDetailStatus = Convert.ToInt32(SysCommon.ActStatus.Deleted);
                     }
 
                     rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
                         "UPDATE tActivityDetail SET ActivityDetailStatus = ? WHERE ActivityDetailRefno = ?",
-                        Convert.ToInt32(SysCommon.ActStatus.NoChange),
+                        Convert.ToInt32(SysCommon.ActStatus.Deleted),
                         this.DetailRefno);
 
                     if (rowsAffected < 0)
@@ -448,17 +451,14 @@ namespace dMobile.Controller.Activity_Detail
             }
             else
             {
-                if (this.ActItem.ActStatus != SysCommon.ActStatus.Inserted)
-                {
-                    this.DataLayerProgressOutHandler(this, EventArgs.Empty, 2);
-                    var adjDetail = new TableActivityAdjustmentDetail();
-                    await adjDetail.PurgeData();
-                    this.DataLayerProgressOutHandler(this, EventArgs.Empty, 5);
+                this.DataLayerProgressOutHandler(this, EventArgs.Empty, 2);
+                var adjDetail = new TableActivityAdjustmentDetail();
+                await adjDetail.PurgeData();
+                this.DataLayerProgressOutHandler(this, EventArgs.Empty, 5);
 
-                    adjDetail.RegisterDataAccessListenerProgressOut((AdjActDetail)this);
-                    await adjDetail.RequestDetailData(this.ActItem.ItemRefno);
-                    adjDetail.UnregisterDataAccessListenerProgressOut((AdjActDetail)this);
-                }
+                adjDetail.RegisterDataAccessListenerProgressOut(this);
+                await adjDetail.RequestDetailData(this.ActItem.ItemRefno);
+                adjDetail.UnregisterDataAccessListenerProgressOut(this);
             }
         }
 
@@ -469,7 +469,7 @@ namespace dMobile.Controller.Activity_Detail
         /// <returns>.</returns>
         public override int GetRefno(object selectedActivityDetail)
         {
-            return (selectedActivityDetail as AdjustmentDetail).ActivityDetailRefno;
+            return ((AdjustmentDetail)selectedActivityDetail).ActivityDetailRefno;
         }
 
         /// <summary>
@@ -479,7 +479,7 @@ namespace dMobile.Controller.Activity_Detail
         /// <returns>.</returns>
         public override int GetFkRefno(object selectedActivityDetail)
         {
-            return (selectedActivityDetail as AdjustmentDetail).ActivityDetailFKRefno;
+            return ((AdjustmentDetail)selectedActivityDetail).ActivityDetailFKRefno;
         }
 
         /// <summary>
@@ -844,7 +844,7 @@ namespace dMobile.Controller.Activity_Detail
         /// </summary>
         /// <param name="gridMain"><see cref="Grid"/> Activity grid.</param>
         /// <param name="actDetail"><see cref="ActivityDetail"/> Activity detail.</param>
-        /// <param name="mainActivityItems"><see cref="ObservableCollection(object)"/> Main activity items list.</param>
+        /// <param name="mainActivityItems"> Main activity items list.</param>
         /// <returns><see cref="DataTemplate"/> Data template.</returns>
         public override DataTemplate DesignGrid(
             ref Grid gridMain,
@@ -954,14 +954,13 @@ namespace dMobile.Controller.Activity_Detail
         /// </summary>
         /// <param name="gridMain">The gridMain<see cref="Grid"/>.</param>
         /// <param name="listViewMain">The listViewMain<see cref="ListView"/>.</param>
-        /// <returns><see cref="ObservableCollection{object}"/> Constructed observable collection.</returns>
+        /// <returns>Constructed observable collection.</returns>
         public override ObservableCollection<object> DesignGrid(
             ref Grid gridMain,
             ref ListView listViewMain)
         {
             var observableCollection = new ObservableCollection<object>();
-
-            foreach (AdjustmentDetail adjustmentDetail in this.ListDetails)
+            foreach (var adjustmentDetail in this.ListDetails.Cast<AdjustmentDetail>())
             {
                 observableCollection.Add(adjustmentDetail);
             }
@@ -1027,7 +1026,7 @@ namespace dMobile.Controller.Activity_Detail
 
             gridMain.Children.Add(gridHeader);
 
-            foreach (AdjustmentDetail adjustmentDetail in observableCollection)
+            foreach (var adjustmentDetail in observableCollection.Cast<AdjustmentDetail>())
             {
                 var detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(
                     $"{adjustmentDetail.ActivityDetailQuantity:F3}");
@@ -1072,14 +1071,14 @@ namespace dMobile.Controller.Activity_Detail
         /// The Search.
         /// </summary>
         /// <param name="searchText">.</param>
-        /// <returns>.</returns>
+        /// <returns>Observable collection of adjustment detail.</returns>
         public override ObservableCollection<object> Search(string searchText)
         {
             var observableCollection = new ObservableCollection<object>();
             this.ListDetails = this.listAdjustmentDetails.Where(adjDetail =>
-                adjDetail.ActivityDetailFKRefno.ToString().ToLower().Contains(searchText.ToLower().Trim())).Cast<object>().ToList();
+                adjDetail.ActivityDetailSchemeID.ToUpper().Contains(searchText.ToUpper().Trim())).Cast<object>().ToList();
 
-            foreach (AdjustmentDetail adjustmentDetail in this.ListDetails)
+            foreach (var adjustmentDetail in this.ListDetails.Cast<AdjustmentDetail>())
             {
                 observableCollection.Add(adjustmentDetail);
             }
@@ -1091,7 +1090,7 @@ namespace dMobile.Controller.Activity_Detail
         /// The CreateSubmitXML.
         /// </summary>
         /// <param name="data">.</param>
-        /// <returns>.</returns>
+        /// <returns> Submission string.</returns>
         public override async Task<string> CreateSubmitXml(XDocument data)
         {
             var xmlString = new StringBuilder();
@@ -1127,7 +1126,7 @@ namespace dMobile.Controller.Activity_Detail
             }
             else
             {
-                int itemFKRefno = (this.ActItem.ActStatus == SysCommon.ActStatus.Inserted) ? 0 : this.ActItem.ItemFkRefno;
+                var itemFkRefno = (this.ActItem.ActStatus == SysCommon.ActStatus.Inserted) ? 0 : this.ActItem.ItemFkRefno;
                 request = XDocument.Parse(
                     "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                     + "<imclient>"
@@ -1141,7 +1140,7 @@ namespace dMobile.Controller.Activity_Detail
                     + "<skid_data>" + data.Root.Element("skid_data").Value + "</skid_data>"
                     + "<whs_id>" + this.LocMap.CurrLocMap.WhsFKRefno + "</whs_id>"
                     + "<refno>" + this.ActItem.ActHdr.HdrFkRefno.ToString() + "</refno>"
-                    + "<itm_refno>" + itemFKRefno.ToString() + "</itm_refno>"
+                    + "<itm_refno>" + itemFkRefno.ToString() + "</itm_refno>"
                     + "<is_negate_qty>" + adjSettings.NegateScanQuantity + "</is_negate_qty>"
                     + "<extra1>" + this.ActExtra.Text1 + "</extra1>"
                     + "<extra2>" + this.ActExtra.Text2 + "</extra2>"
@@ -1162,7 +1161,7 @@ namespace dMobile.Controller.Activity_Detail
         /// The CreateDeleteXML.
         /// </summary>
         /// <param name="data">.</param>
-        /// <returns>.</returns>
+        /// <returns> Delete submission string.</returns>
         public override async Task<string> CreateDeleteXml(XDocument data)
         {
             var xmlString = new StringBuilder();

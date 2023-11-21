@@ -5,32 +5,26 @@
 namespace dMobile.View.Activity
 {
     using System;
-    using System.Collections.Generic;
-    using System.ComponentModel;
-    using System.Linq;
-    using System.Text;
     using System.Threading.Tasks;
     using System.Xml.Linq;
     using Android.Views;
-    using dMobile.Bedrock;
-    using dMobile.Controller;
-    using dMobile.Resources.Enums;
-    using dMobile.View.CustomPages.Modal;
-    using dMobile.View.Forms;
+    using Bedrock;
+    using Controller.Activity;
+    using CustomPages.Modal;
+    using Forms;
+    using Resources.Enums;
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;
-    using Resource = dMobile.Resources.Properties.Resources;
+    using Resource = Resources.Properties.Resources;
 
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class ActivityShippingLabelEdit : DMobileModal, IAppArea
     {
-        private SLabelQuantity labelQtyEdit = new SLabelQuantity();
-        private bool isFirstAppearance = true;
-        Controller.Activity.Activity Activity;
-        ShippingLabelQuantitySelectionMode SelectMode;
+        private readonly Activity Activity;
+        private readonly ShippingLabelQuantitySelectionMode SelectMode;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ActivityShippingLabelEdit"/> class.
+        ///     Initializes a new instance of the <see cref="ActivityShippingLabelEdit" /> class.
         /// </summary>
         /// <param name="actSubTypes"></param>
         /// <param name="labelQtyEdit"></param>
@@ -39,11 +33,12 @@ namespace dMobile.View.Activity
         public ActivityShippingLabelEdit(
             SysCommon.ActSubTypes actSubTypes,
             SLabelQuantity labelQtyEdit,
-            Controller.Activity.Activity activity,
+            Activity activity,
             ShippingLabelQuantitySelectionMode selectMode)
         {
             this.InitializeComponent();
 
+            this.IsIndicatorRunning = false;
             this.Title = this.GetControlDescription();
             this.lblFullUnitQuantity.Text = "Full Cases";
             this.lblRepackQuantity.Text = "Repacks";
@@ -66,156 +61,20 @@ namespace dMobile.View.Activity
             }
         }
 
-        /// <summary>
-        /// The OnAppearing.
-        /// </summary>
-        protected override async void OnAppearing()
-        {
-            base.OnAppearing();
+        private LocationMap LocMap { get; } = LocationMap.GetInstance();
 
-            MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
-            {
-                _ = Enum.TryParse(keyPressed, out Keycode keycode);
+        private SLabelQuantity LabelQtyEdit { get; set; } = new SLabelQuantity();
 
-                if (!this.IsPageLoading)
-                {
-                    if (keycode == Keycode.F1)
-                    {
-                        if (await this.SaveChanges())
-                        {
-                            this.DialogResult = DialogResult.OK;
-                            await this.Close();
-                        }
-                    }
-                }
-            });
+        private SysEnvironment SysEnv { get; }
 
-            try
-            {
-                if (this.isFirstAppearance)
-                {
-                    this.isFirstAppearance = false;
+        private SysCommon.ActSubTypes ActSubType { get; } = SysCommon.ActSubTypes.NotApplicable;
 
-                    if (this.LocMap.CurrLocMap.WhsLocMapRefno <= 0)
-                    {
-                        this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(this.LocMap.LoginWhsLocMapRefno);
-                        _ = await Device.InvokeOnMainThreadAsync(() => this.cmdLocation.Text = LocationMapTasks.GetCurrentReadableLocation());
-                    }
-                    else
-                    {
-                        _ = await Device.InvokeOnMainThreadAsync(() => this.cmdLocation.Text = LocationMapTasks.GetCurrentReadableLocation());
-                    }
+        private bool IsControlLoaded { get; set; }
 
-                    _ = await Device.InvokeOnMainThreadAsync(() => this.lblOrderNumber.Text = Convert.ToString("Order # " + this.Activity.HdrFkRefno.ToString()));
-
-                    if (this.SelectMode == ShippingLabelQuantitySelectionMode.BothFullRepack || this.SelectMode == ShippingLabelQuantitySelectionMode.FullOnly)
-                    {
-                        this.txtFullCaseAltQty.IsEnabled = this.SysEnv.SysSettings.IsFullQuantityEnabled;
-                        this.txtFreshAltQty.IsEnabled = this.SysEnv.SysSettings.IsFreshQuantityEnabled;
-                        this.txtDryAltQty.IsEnabled = this.SysEnv.SysSettings.IsDryQuantityEnabled;
-                        this.txtLiveAltQty.IsEnabled = this.SysEnv.SysSettings.IsLiveQuantityEnabled;
-                        this.txtFrozenAltQty.IsEnabled = this.SysEnv.SysSettings.IsFrozenQuantityEnabled;
-                        this.txtPalletAltQty.IsEnabled = this.SysEnv.SysSettings.IsPalletQuantityEnabled;
-                    }
-
-                    if (this.SelectMode == ShippingLabelQuantitySelectionMode.BothFullRepack || this.SelectMode == ShippingLabelQuantitySelectionMode.RepackOnly)
-                    {
-                        this.txtRepackAltQty.IsEnabled = this.SysEnv.SysSettings.IsRepackQuantityEnabled;
-                        this.txtRepackFreshAltQty.IsEnabled = this.SysEnv.SysSettings.IsFreshRepackQuantityEnabled;
-                        this.txtRepackDryAltQty.IsEnabled = this.SysEnv.SysSettings.IsDryRepackQuantityEnabled;
-                        this.txtRepackLiveAltQty.IsEnabled = this.SysEnv.SysSettings.IsLiveRepackQuantityEnabled;
-                        this.txtRepackFrozenAltQty.IsEnabled = this.SysEnv.SysSettings.IsFrozenRepackQuantityEnabled;
-                    }
-                }
-
-                this.ucActivityShippingLabelEdit_GotFocus(this, EventArgs.Empty);
-            }
-            catch (CommunicationException commEx)
-            {
-                this.isFirstAppearance = true;
-
-                // Question should a communication error, be reported as an error or just a messagebox?
-                await Device.InvokeOnMainThreadAsync(async () =>
-                {
-                    var msg = $"Unable to load skid info.{Environment.NewLine}" +
-                        $"Because of a communication problem.{Environment.NewLine}" +
-                        $"Detail:{commEx.Message}{Environment.NewLine}" +
-                        "Please exit and try again.";
-
-                    await Application.Current.MainPage.DisplayAlert(
-                        this.Activity.GetControlDescription(),
-                        msg,
-                        Resource.OK);
-                });
-            }
-            catch (Exception ex)
-            {
-                this.isFirstAppearance = true;
-                await Device.InvokeOnMainThreadAsync(async () =>
-                {
-                    var msg = $"Unable to load skid info.{Environment.NewLine}" +
-                        $"General exception.{Environment.NewLine}" +
-                        $"Detail:{ex.Message}{Environment.NewLine}" +
-                        "Please exit and try again.";
-                    var errorReport = new FormErrorReport(msg, ex);
-                    _ = await errorReport.ShowDialog();
-                });
-            }
-        }
+        private bool IsChangesMade { get; set; }
 
         /// <summary>
-        /// The OnDisappearing.
-        /// </summary>
-        protected override async void OnDisappearing()
-        {
-            MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
-            await this.ScannerDisable();
-            base.OnDisappearing();
-            GC.Collect();
-            GC.WaitForPendingFinalizers();
-        }
-
-        /// <inheritdoc/>
-        protected override bool OnBackButtonPressed()
-        {
-            Device.BeginInvokeOnMainThread(async () =>
-            {
-                _ = base.OnBackButtonPressed();
-
-                if (await this.SaveChanges())
-                {
-                    this.DialogResult = DialogResult.OK;
-                    await this.Close();
-                }
-                else if (await this.CancelChanges())
-                {
-                    this.DialogResult = DialogResult.None;
-                    await this.Close();
-                }
-            });
-
-            return true;
-        }
-
-        private LocationMap LocMap { get; set; } = LocationMap.GetInstance();
-
-        private SLabelQuantity LabelQtyEdit
-        {
-            get => this.labelQtyEdit;
-
-            set => this.labelQtyEdit = value;
-        }
-
-        private SysEnvironment SysEnv { get; set; }
-
-        private SysCommon.ActSubTypes ActSubType { get; set; } = SysCommon.ActSubTypes.NotApplicable;
-
-        private bool IsControlLoaded { get; set; } = false;
-
-        private bool IsChangesMade { get; set; } = false;
-
-        /// <summary>
-        /// Unregister the bar code scan event handler and disable the scanner.
+        ///     Unregister the bar code scan event handler and disable the scanner.
         /// </summary>
         /// <remarks></remarks>
         public async Task ScannerDisable()
@@ -223,7 +82,7 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// Registers the bar code scan event handler and enables the scanner.
+        ///     Registers the bar code scan event handler and enables the scanner.
         /// </summary>
         /// <remarks></remarks>
         public async Task ScannerEnable()
@@ -231,27 +90,10 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        ///
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        /// <remarks></remarks>
-        public void ucActivityShippingLabelEdit_GotFocus(object sender, EventArgs e)
-        {
-            if (!this.IsControlLoaded)
-            {
-                this.IsControlLoaded = true;
-
-                this.LoadData();
-            }
-        }
-
-        /// <summary>
-        ///
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public async Task<bool> IsReadyToSave()
         {
             var isReadyToSave = true;
@@ -340,11 +182,10 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        ///
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public async Task<bool> IsReadyToClose()
         {
             var isReadyToClose = true;
@@ -388,21 +229,10 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        ///
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public string GetControlDescription()
-        {
-            return "Shipping Label Edit";
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public async Task<bool> SaveChanges()
         {
             var saveComplete = true;
@@ -443,11 +273,10 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        ///
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public async Task<bool> CancelChanges()
         {
             var cancelChanges = true;
@@ -485,11 +314,10 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        ///
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public async Task<XDocument> GetXML()
         {
             var request = XDocument.Parse(
@@ -516,7 +344,169 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// Returns the sum of all quantities.
+        ///     The OnAppearing.
+        /// </summary>
+        protected override async void OnAppearing()
+        {
+            if (!this.IsIndicatorRunning)
+            {
+                try
+                {
+                    this.IsIndicatorRunning = true;
+                    base.OnAppearing();
+
+                    MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async keyPressed =>
+                    {
+                        _ = Enum.TryParse(keyPressed, out Keycode keycode);
+
+                        if (!this.IsIndicatorRunning)
+                        {
+                            if (keycode == Keycode.F1)
+                            {
+                                if (await this.SaveChanges())
+                                {
+                                    this.DialogResult = DialogResult.OK;
+                                    await this.Close();
+                                }
+                            }
+                        }
+                    });
+
+                    if (this.LocMap.CurrLocMap.WhsLocMapRefno <= 0)
+                    {
+                        this.LocMap.CurrLocMap =
+                            await LocationMapTasks.GetSLocMapFromLocMapRefno(this.LocMap.LoginWhsLocMapRefno);
+                        _ = await Device.InvokeOnMainThreadAsync(() =>
+                            this.cmdLocation.Text = LocationMapTasks.GetCurrentReadableLocation());
+                    }
+                    else
+                    {
+                        _ = await Device.InvokeOnMainThreadAsync(() =>
+                            this.cmdLocation.Text = LocationMapTasks.GetCurrentReadableLocation());
+                    }
+
+                    _ = await Device.InvokeOnMainThreadAsync(() =>
+                        this.lblOrderNumber.Text = Convert.ToString("Order # " + this.Activity.HdrFkRefno));
+
+                    if (this.SelectMode == ShippingLabelQuantitySelectionMode.BothFullRepack ||
+                        this.SelectMode == ShippingLabelQuantitySelectionMode.FullOnly)
+                    {
+                        this.txtFullCaseAltQty.IsEnabled = this.SysEnv.SysSettings.IsFullQuantityEnabled;
+                        this.txtFreshAltQty.IsEnabled = this.SysEnv.SysSettings.IsFreshQuantityEnabled;
+                        this.txtDryAltQty.IsEnabled = this.SysEnv.SysSettings.IsDryQuantityEnabled;
+                        this.txtLiveAltQty.IsEnabled = this.SysEnv.SysSettings.IsLiveQuantityEnabled;
+                        this.txtFrozenAltQty.IsEnabled = this.SysEnv.SysSettings.IsFrozenQuantityEnabled;
+                        this.txtPalletAltQty.IsEnabled = this.SysEnv.SysSettings.IsPalletQuantityEnabled;
+                    }
+
+                    if (this.SelectMode == ShippingLabelQuantitySelectionMode.BothFullRepack ||
+                        this.SelectMode == ShippingLabelQuantitySelectionMode.RepackOnly)
+                    {
+                        this.txtRepackAltQty.IsEnabled = this.SysEnv.SysSettings.IsRepackQuantityEnabled;
+                        this.txtRepackFreshAltQty.IsEnabled = this.SysEnv.SysSettings.IsFreshRepackQuantityEnabled;
+                        this.txtRepackDryAltQty.IsEnabled = this.SysEnv.SysSettings.IsDryRepackQuantityEnabled;
+                        this.txtRepackLiveAltQty.IsEnabled = this.SysEnv.SysSettings.IsLiveRepackQuantityEnabled;
+                        this.txtRepackFrozenAltQty.IsEnabled = this.SysEnv.SysSettings.IsFrozenRepackQuantityEnabled;
+                    }
+
+                    this.ucActivityShippingLabelEdit_GotFocus(this, EventArgs.Empty);
+                }
+                catch (CommunicationException commEx)
+                {
+                    // Question should a communication error, be reported as an error or just a messagebox?
+                    await Device.InvokeOnMainThreadAsync(async () =>
+                    {
+                        var msg = $"Unable to load skid info.{Environment.NewLine}" +
+                                  $"Because of a communication problem.{Environment.NewLine}" +
+                                  $"Detail:{commEx.Message}{Environment.NewLine}" +
+                                  "Please exit and try again.";
+
+                        await Application.Current.MainPage.DisplayAlert(
+                            this.Activity.GetControlDescription(),
+                            msg,
+                            Resource.OK);
+                    });
+                }
+                catch (Exception ex)
+                {
+                    await Device.InvokeOnMainThreadAsync(async () =>
+                    {
+                        var msg = $"Unable to load skid info.{Environment.NewLine}" +
+                                  $"General exception.{Environment.NewLine}" +
+                                  $"Detail:{ex.Message}{Environment.NewLine}" +
+                                  "Please exit and try again.";
+                        var errorReport = new FormErrorReport(msg, ex);
+                        _ = await errorReport.ShowDialog();
+                    });
+                }
+                finally
+                {
+                    this.IsIndicatorRunning = false;
+                }
+            }
+        }
+
+        /// <summary>
+        ///     The OnDisappearing.
+        /// </summary>
+        protected override async void OnDisappearing()
+        {
+            MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
+            await this.ScannerDisable();
+            base.OnDisappearing();
+            this.IsIndicatorRunning = false;
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+        }
+
+        /// <inheritdoc />
+        protected override bool OnBackButtonPressed()
+        {
+            Device.BeginInvokeOnMainThread(async () =>
+            {
+                _ = base.OnBackButtonPressed();
+
+                if (await this.SaveChanges())
+                {
+                    this.DialogResult = DialogResult.OK;
+                    await this.Close();
+                }
+                else if (await this.CancelChanges())
+                {
+                    this.DialogResult = DialogResult.None;
+                    await this.Close();
+                }
+            });
+
+            return true;
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        /// <remarks></remarks>
+        public void ucActivityShippingLabelEdit_GotFocus(object sender, EventArgs e)
+        {
+            if (!this.IsControlLoaded)
+            {
+                this.IsControlLoaded = true;
+
+                this.LoadData();
+            }
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <returns></returns>
+        /// <remarks></remarks>
+        public string GetControlDescription()
+        {
+            return "Shipping Label Edit";
+        }
+
+        /// <summary>
+        ///     Returns the sum of all quantities.
         /// </summary>
         /// <returns></returns>
         private int GetTotalQty()
@@ -524,20 +514,19 @@ namespace dMobile.View.Activity
             // Bundle and Pallet not include for the purpose of printing shipping labels.
             ////this.LabelQtyEdit.BundleQuantity + this.LabelQtyEdit.PalletQuantity
 
-            return this.labelQtyEdit.DryQuantity
-                + this.LabelQtyEdit.FreshQuantity
-                + this.LabelQtyEdit.FrozenQuantity
-                + this.LabelQtyEdit.FullQuantity
-                + this.LabelQtyEdit.LiveQuantity
-                + this.LabelQtyEdit.RepackDryQuantity
-                + this.LabelQtyEdit.RepackFreshQuantity
-                + this.LabelQtyEdit.RepackFrozenQuantity
-                + this.LabelQtyEdit.RepackLiveQuantity
-                + this.LabelQtyEdit.RepackQuantity;
+            return this.LabelQtyEdit.DryQuantity
+                   + this.LabelQtyEdit.FreshQuantity
+                   + this.LabelQtyEdit.FrozenQuantity
+                   + this.LabelQtyEdit.FullQuantity
+                   + this.LabelQtyEdit.LiveQuantity
+                   + this.LabelQtyEdit.RepackDryQuantity
+                   + this.LabelQtyEdit.RepackFreshQuantity
+                   + this.LabelQtyEdit.RepackFrozenQuantity
+                   + this.LabelQtyEdit.RepackLiveQuantity
+                   + this.LabelQtyEdit.RepackQuantity;
         }
 
         /// <summary>
-        ///
         /// </summary>
         /// <remarks></remarks>
         private void LoadData()
@@ -552,29 +541,26 @@ namespace dMobile.View.Activity
             this.txtRepackFreshAltQty.Text = this.LabelQtyEdit.RepackFreshQuantity.ToString();
             this.txtRepackFrozenAltQty.Text = this.LabelQtyEdit.RepackFrozenQuantity.ToString();
             this.txtRepackLiveAltQty.Text = this.LabelQtyEdit.RepackLiveQuantity.ToString();
-            this.txtPalletAltQty.Text = this.labelQtyEdit.PalletQuantity.ToString();
+            this.txtPalletAltQty.Text = this.LabelQtyEdit.PalletQuantity.ToString();
         }
 
         /// <summary>
-        ///
         /// </summary>
         /// <returns></returns>
         private void IsValidDataFullCase()
         {
             if (decimal.Parse(this.txtFullCaseAltQty.Text) < 0 && this.LabelQtyEdit.FullQuantity != 0)
             {
-                throw new MessageOnlyException("Invalid quantity entered. Full case quantity must be greater than zero.");
+                throw new MessageOnlyException(
+                    "Invalid quantity entered. Full case quantity must be greater than zero.");
             }
-            else
-            {
-                var lbl = this.LabelQtyEdit;
-                lbl.FullQuantity = int.Parse(this.txtFullCaseAltQty.Text);
-                this.LabelQtyEdit = lbl;
-            }
+
+            var lbl = this.LabelQtyEdit;
+            lbl.FullQuantity = int.Parse(this.txtFullCaseAltQty.Text);
+            this.LabelQtyEdit = lbl;
         }
 
         /// <summary>
-        ///
         /// </summary>
         /// <returns></returns>
         private void IsValidDataRepack()
@@ -583,16 +569,13 @@ namespace dMobile.View.Activity
             {
                 throw new MessageOnlyException("Invalid quantity entered. Repack quantity must be greater than zero.");
             }
-            else
-            {
-                var lbl = this.LabelQtyEdit;
-                lbl.RepackQuantity = int.Parse(this.txtRepackAltQty.Text);
-                this.LabelQtyEdit = lbl;
-            }
+
+            var lbl = this.LabelQtyEdit;
+            lbl.RepackQuantity = int.Parse(this.txtRepackAltQty.Text);
+            this.LabelQtyEdit = lbl;
         }
 
         /// <summary>
-        ///
         /// </summary>
         /// <returns></returns>
         private void IsValidDataDry()
@@ -601,16 +584,13 @@ namespace dMobile.View.Activity
             {
                 throw new MessageOnlyException("Invalid quantity entered. Dry quantity must be greater than zero.");
             }
-            else
-            {
-                var lbl = this.LabelQtyEdit;
-                lbl.DryQuantity = int.Parse(this.txtDryAltQty.Text);
-                this.LabelQtyEdit = lbl;
-            }
+
+            var lbl = this.LabelQtyEdit;
+            lbl.DryQuantity = int.Parse(this.txtDryAltQty.Text);
+            this.LabelQtyEdit = lbl;
         }
 
         /// <summary>
-        ///
         /// </summary>
         /// <returns></returns>
         private void IsValidDataFresh()
@@ -619,16 +599,13 @@ namespace dMobile.View.Activity
             {
                 throw new MessageOnlyException("Invalid quantity entered. Fresh quantity must be greater than zero.");
             }
-            else
-            {
-                var lbl = this.LabelQtyEdit;
-                lbl.FreshQuantity = int.Parse(this.txtFreshAltQty.Text);
-                this.LabelQtyEdit = lbl;
-            }
+
+            var lbl = this.LabelQtyEdit;
+            lbl.FreshQuantity = int.Parse(this.txtFreshAltQty.Text);
+            this.LabelQtyEdit = lbl;
         }
 
         /// <summary>
-        ///
         /// </summary>
         /// <returns></returns>
         private void IsValidDataFrozen()
@@ -637,16 +614,13 @@ namespace dMobile.View.Activity
             {
                 throw new MessageOnlyException("Invalid quantity entered. Frozen quantity must be greater than zero.");
             }
-            else
-            {
-                var lbl = this.LabelQtyEdit;
-                lbl.FrozenQuantity = int.Parse(this.txtFrozenAltQty.Text);
-                this.LabelQtyEdit = lbl;
-            }
+
+            var lbl = this.LabelQtyEdit;
+            lbl.FrozenQuantity = int.Parse(this.txtFrozenAltQty.Text);
+            this.LabelQtyEdit = lbl;
         }
 
         /// <summary>
-        ///
         /// </summary>
         /// <returns></returns>
         private void IsValidDataLive()
@@ -655,88 +629,77 @@ namespace dMobile.View.Activity
             {
                 throw new MessageOnlyException("Invalid quantity entered. Live quantity must be greater than zero.");
             }
-            else
-            {
-                var lbl = this.LabelQtyEdit;
-                lbl.LiveQuantity = int.Parse(this.txtLiveAltQty.Text);
-                this.LabelQtyEdit = lbl;
-            }
+
+            var lbl = this.LabelQtyEdit;
+            lbl.LiveQuantity = int.Parse(this.txtLiveAltQty.Text);
+            this.LabelQtyEdit = lbl;
         }
 
         /// <summary>
-        ///
         /// </summary>
         /// <returns></returns>
         private void IsValidDataRepackDry()
         {
             if (int.Parse(this.txtRepackDryAltQty.Text) <= 0 && this.LabelQtyEdit.IsRepackDry)
             {
-                throw new MessageOnlyException("Invalid quantity entered. Repack dry quantity must be greater than zero.");
+                throw new MessageOnlyException(
+                    "Invalid quantity entered. Repack dry quantity must be greater than zero.");
             }
-            else
-            {
-                var lbl = this.LabelQtyEdit;
-                lbl.RepackDryQuantity = int.Parse(this.txtRepackDryAltQty.Text);
-                this.LabelQtyEdit = lbl;
-            }
+
+            var lbl = this.LabelQtyEdit;
+            lbl.RepackDryQuantity = int.Parse(this.txtRepackDryAltQty.Text);
+            this.LabelQtyEdit = lbl;
         }
 
         /// <summary>
-        ///
         /// </summary>
         /// <returns></returns>
         private void IsValidDataRepackFresh()
         {
             if (int.Parse(this.txtRepackFreshAltQty.Text) <= 0 && this.LabelQtyEdit.IsRepackFresh)
             {
-                throw new MessageOnlyException("Invalid quantity entered. Repack fresh quantity must be greater than zero.");
+                throw new MessageOnlyException(
+                    "Invalid quantity entered. Repack fresh quantity must be greater than zero.");
             }
-            else
-            {
-                var lbl = this.LabelQtyEdit;
-                lbl.RepackFreshQuantity = int.Parse(this.txtRepackFreshAltQty.Text);
-                this.LabelQtyEdit = lbl;
-            }
+
+            var lbl = this.LabelQtyEdit;
+            lbl.RepackFreshQuantity = int.Parse(this.txtRepackFreshAltQty.Text);
+            this.LabelQtyEdit = lbl;
         }
 
         /// <summary>
-        ///
         /// </summary>
         /// <returns></returns>
         private void IsValidDataRepackFrozen()
         {
             if (int.Parse(this.txtRepackFrozenAltQty.Text) <= 0 && this.LabelQtyEdit.IsRepackFrozen)
             {
-                throw new MessageOnlyException("Invalid quantity entered. Repack frozen quantity must be greater than zero.");
+                throw new MessageOnlyException(
+                    "Invalid quantity entered. Repack frozen quantity must be greater than zero.");
             }
-            else
-            {
-                var lbl = this.LabelQtyEdit;
-                lbl.RepackFrozenQuantity = int.Parse(this.txtRepackFrozenAltQty.Text);
-                this.LabelQtyEdit = lbl;
-            }
+
+            var lbl = this.LabelQtyEdit;
+            lbl.RepackFrozenQuantity = int.Parse(this.txtRepackFrozenAltQty.Text);
+            this.LabelQtyEdit = lbl;
         }
 
         /// <summary>
-        ///
         /// </summary>
         /// <returns></returns>
         private void IsValidDataRepackLive()
         {
             if (int.Parse(this.txtRepackLiveAltQty.Text) <= 0 && this.LabelQtyEdit.IsRepackLive)
             {
-                throw new MessageOnlyException("Invalid quantity entered. Repack live quantity must be greater than zero.");
+                throw new MessageOnlyException(
+                    "Invalid quantity entered. Repack live quantity must be greater than zero.");
             }
-            else
-            {
-                var lbl = this.LabelQtyEdit;
-                lbl.RepackLiveQuantity = int.Parse(this.txtRepackLiveAltQty.Text);
-                this.LabelQtyEdit = lbl;
-            }
+
+            var lbl = this.LabelQtyEdit;
+            lbl.RepackLiveQuantity = int.Parse(this.txtRepackLiveAltQty.Text);
+            this.LabelQtyEdit = lbl;
         }
 
         /// <summary>
-        ///
         /// </summary>
         /// <returns></returns>
         private void IsValidDataPallet()
@@ -745,16 +708,13 @@ namespace dMobile.View.Activity
             {
                 throw new MessageOnlyException("Invalid quantity entered. Pallet quantity must be greater than zero.");
             }
-            else
-            {
-                var lbl = this.LabelQtyEdit;
-                lbl.PalletQuantity = int.Parse(this.txtPalletAltQty.Text);
-                this.LabelQtyEdit = lbl;
-            }
+
+            var lbl = this.LabelQtyEdit;
+            lbl.PalletQuantity = int.Parse(this.txtPalletAltQty.Text);
+            this.LabelQtyEdit = lbl;
         }
 
         /// <summary>
-        ///
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
@@ -774,7 +734,6 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        ///
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -789,7 +748,6 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        ///
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -805,7 +763,6 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        ///
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -820,7 +777,6 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        ///
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -835,7 +791,6 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        ///
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -850,7 +805,6 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        ///
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -865,7 +819,6 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        ///
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -880,7 +833,6 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        ///
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -895,7 +847,6 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        ///
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -910,7 +861,6 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        ///
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -925,7 +875,6 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        ///
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -940,7 +889,6 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        ///
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -953,7 +901,8 @@ namespace dMobile.View.Activity
                 this.LocMap.CurrLocMap = this.LocMap.ChosenLocMap.Clone();
                 if (this.LocMap.CurrLocMap.WhsLocMapRefno <= 0)
                 {
-                    this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(this.LocMap.LoginWhsLocMapRefno);
+                    this.LocMap.CurrLocMap =
+                        await LocationMapTasks.GetSLocMapFromLocMapRefno(this.LocMap.LoginWhsLocMapRefno);
                     this.cmdLocation.Text = LocationMapTasks.GetCurrentReadableLocation();
                 }
                 else
@@ -965,7 +914,8 @@ namespace dMobile.View.Activity
             {
                 if (this.LocMap.CurrLocMap.WhsLocMapRefno == 0)
                 {
-                    this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(this.LocMap.LoginWhsLocMapRefno);
+                    this.LocMap.CurrLocMap =
+                        await LocationMapTasks.GetSLocMapFromLocMapRefno(this.LocMap.LoginWhsLocMapRefno);
                     this.cmdLocation.Text = LocationMapTasks.GetCurrentReadableLocation();
                 }
             }

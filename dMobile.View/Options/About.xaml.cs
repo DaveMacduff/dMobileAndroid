@@ -34,6 +34,7 @@ namespace dMobile.View.Options
         {
             this.InitializeComponent();
 
+            this.IsIndicatorRunning = false;
             this.Title = this.GetControlDescription();
 
             this.lblDeviceNameIP.Text = "Device Serial Number";
@@ -157,27 +158,33 @@ namespace dMobile.View.Options
         /// </summary>
         protected override void OnAppearing()
         {
-            base.OnAppearing();
-
-            this.lstDeviceNameIP.ItemsSource = this.itemsList;
-
-            if (this.itemsList.Count > 0)
+            if (!this.IsIndicatorRunning)
             {
-                this.lstDeviceNameIP.SelectedItem = this.itemsList[0];
-            }
+                this.IsIndicatorRunning = true;
+                base.OnAppearing();
 
-            MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
-            {
-                _ = Enum.TryParse(keyPressed, out Keycode keycode);
+                this.lstDeviceNameIP.ItemsSource = this.itemsList;
 
-                if (keycode == Keycode.Enter || keycode == Keycode.F1)
+                if (this.itemsList.Count > 0)
                 {
-                    if (await this.SaveChanges())
-                    {
-                        await this.Close();
-                    }
+                    this.lstDeviceNameIP.SelectedItem = this.itemsList[0];
                 }
-            });
+
+                MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
+                {
+                    _ = Enum.TryParse(keyPressed, out Keycode keycode);
+
+                    if (keycode == Keycode.Enter || keycode == Keycode.F1)
+                    {
+                        if (await this.SaveChanges())
+                        {
+                            await this.Close();
+                        }
+                    }
+                });
+
+                this.IsIndicatorRunning = false;
+            }
         }
 
         /// <inheritdoc/>
@@ -202,6 +209,7 @@ namespace dMobile.View.Options
         {
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
             base.OnDisappearing();
+            this.IsIndicatorRunning = false;
             GC.Collect();
             GC.WaitForPendingFinalizers();
         }

@@ -35,14 +35,14 @@ namespace dMobile.View.CustomPages
         public DMobileContentPage()
         {
             this.BindingContext = this;
-            this.IsPageLoading = false;
+            this.IsIndicatorRunning = false;
             this.OptionsIconSource = Convert.ToString(Application.Current.Resources["OptionsIcon"]);
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether the page content is loading.
+        /// Gets or sets a value indicating whether the activity indicator should run.
         /// </summary>
-        public bool IsPageLoading
+        public bool IsIndicatorRunning
         {
             get => this.isPageLoading;
 
@@ -97,7 +97,7 @@ namespace dMobile.View.CustomPages
 
                     await Task.Run(() =>
                     {
-                        while (this.IsPageLoading)
+                        while (this.IsIndicatorRunning)
                         {
                             // Wait for loading to complete
                         }

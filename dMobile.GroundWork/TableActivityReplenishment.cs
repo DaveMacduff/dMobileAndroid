@@ -268,6 +268,8 @@ namespace dMobile.GroundWork
                     throw;
                 }
 
+                return;
+
                 //////////////////////////////////////////////////////////////////////////
                 int InsertHeader(SQLiteConnection transaction, DataRow drow)
                 {

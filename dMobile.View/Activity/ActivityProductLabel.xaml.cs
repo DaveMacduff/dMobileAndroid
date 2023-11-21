@@ -2,47 +2,45 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
-using dMobile.Controller.Activity;
-using dMobile.Controller.Activity_Detail;
-using dMobile.Controller.Activity_Item;
-
 namespace dMobile.View.Activity
 {
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Threading.Tasks;
-    using System.Xml;
     using System.Xml.Linq;
     using Android.Views;
-    using dMobile.Bedrock;
-    using dMobile.Controller;
-    using dMobile.Resources.Enums;
-    using dMobile.Resources.Types;
-    using dMobile.View.CustomPages.Modal;
-    using dMobile.View.Forms;
+    using Bedrock;
+    using Controller.Activity;
+    using Controller.Activity_Detail;
+    using Controller.Activity_Item;
+    using CustomPages.Modal;
+    using Forms;
+    using Resources.Enums;
+    using Resources.Types;
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;
-    using Resource = dMobile.Resources.Properties.Resources;
+    using Resource = Resources.Properties.Resources;
 
     /// <summary>
-    /// Defines the <see cref="ActivityProductLabel" />.
+    ///     Defines the <see cref="ActivityProductLabel" />.
     /// </summary>
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class ActivityProductLabel : DMobileModal, IAppArea
     {
         /// <summary>
-        /// Defines the itemsList.
+        ///     Defines the itemsList.
         /// </summary>
         private ObservableCollection<string> itemsList = new ObservableCollection<string>();
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ActivityProductLabel"/> class.
+        ///     Initializes a new instance of the <see cref="ActivityProductLabel" /> class.
         /// </summary>
         public ActivityProductLabel()
         {
             this.InitializeComponent();
 
+            this.IsIndicatorRunning = false;
             this.Title = this.GetControlDescription();
             this.lblWtUnit.Text = "KG";
             this.lblWeight.Text = "Weight";
@@ -62,7 +60,7 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ActivityProductLabel"/> class.
+        ///     Initializes a new instance of the <see cref="ActivityProductLabel" /> class.
         /// </summary>
         /// <param name="actDetail">.</param>
         /// <param name="actSubTypes">.</param>
@@ -70,6 +68,7 @@ namespace dMobile.View.Activity
         {
             this.InitializeComponent();
 
+            this.IsIndicatorRunning = false;
             this.Title = this.GetControlDescription();
             this.lblWtUnit.Text = "KG";
             this.lblWeight.Text = "Weight";
@@ -104,151 +103,82 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// The OnAppearing.
-        /// </summary>
-        protected override async void OnAppearing()
-        {
-            base.OnAppearing();
-
-            this.ListViewDisplayExtraInfo.ItemsSource = this.ExtraInfoItems;
-
-            MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
-            {
-                _ = Enum.TryParse(keyPressed, out Keycode keycode);
-
-                if (!this.IsPageLoading)
-                {
-                    if (keycode == Keycode.F1 || keycode == Keycode.Enter)
-                    {
-                        if (await this.SaveChanges())
-                        {
-                            this.DialogResult = DialogResult.OK;
-                            await this.Close();
-                        }
-                    }
-                }
-            });
-
-            try
-            {
-                await this.ucActivityProductLabel_GotFocus(this, EventArgs.Empty);
-            }
-            catch (Exception ex)
-            {
-                await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert("Error", "this.ucActivityProductLabel_GotFocus threw an error " + ex, "OK"));
-            }
-        }
-
-        /// <summary>
-        /// The OnDisappearing.
-        /// </summary>
-        protected override async void OnDisappearing()
-        {
-            MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
-            await this.ScannerDisable();
-            base.OnDisappearing();
-            GC.Collect();
-            GC.WaitForPendingFinalizers();
-        }
-
-        /// <summary>
-        /// The OnBackButtonPressed.
-        /// </summary>
-        /// <returns>The <see cref="bool"/>.</returns>
-        protected override bool OnBackButtonPressed()
-        {
-            Device.BeginInvokeOnMainThread(async () =>
-            {
-                _ = base.OnBackButtonPressed();
-
-                if (await this.SaveChanges())
-                {
-                    this.DialogResult = DialogResult.OK;
-                    await this.Close();
-                }
-                else if (await this.CancelChanges())
-                {
-                    this.DialogResult = DialogResult.None;
-                    await this.Close();
-                }
-            });
-
-            return true;
-        }
-
-        /// <summary>
-        /// Gets or sets the SysEnv.
+        ///     Gets or sets the SysEnv.
         /// </summary>
         public SysEnvironment SysEnv { get; set; }
 
         /// <summary>
-        /// Gets or sets the ActSubType.
+        ///     Gets or sets the ActSubType.
         /// </summary>
         public SysCommon.ActSubTypes ActSubType { get; set; } = SysCommon.ActSubTypes.PrintProductLabel;
 
         /// <summary>
-        /// Gets or sets a value indicating whether IsEditTrapped.
+        ///     Gets or sets a value indicating whether IsEditTrapped.
         /// </summary>
         public bool IsEditTrapped { get; set; } = false;
 
         /// <summary>
-        /// Gets or sets the ListSerialNumbers.
+        ///     Gets or sets the ListSerialNumbers.
         /// </summary>
-        public List<SerialNumber> ListSerialNumbers { get; set; } = null;
+        public List<SerialNumber> ListSerialNumbers { get; set; }
 
         /// <summary>
-        /// Gets or sets the ListLots.
+        ///     Gets or sets the ListLots.
         /// </summary>
-        public List<LotNumber> ListLots { get; set; } = null;
+        public List<LotNumber> ListLots { get; set; }
 
         /// <summary>
-        /// Gets or sets the ListVariants.
+        ///     Gets or sets the ListVariants.
         /// </summary>
-        public List<ProductVariant> ListVariants { get; set; } = null;
+        public List<ProductVariant> ListVariants { get; set; }
 
         /// <summary>
-        /// Gets or sets the ActDetailEdit.
+        ///     Gets or sets the ActDetailEdit.
         /// </summary>
         public ActDetailEdit ActDetailEdit { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether IsControlLoaded.
+        ///     Gets or sets a value indicating whether IsControlLoaded.
         /// </summary>
-        public bool IsControlLoaded { get; set; } = false;
+        public bool IsControlLoaded { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether IsChangesMade.
+        ///     Gets or sets a value indicating whether IsChangesMade.
         /// </summary>
-        public bool IsChangesMade { get; set; } = false;
+        public bool IsChangesMade { get; set; }
 
         /// <summary>
-        /// Gets or sets the ActDetail.
+        ///     Gets or sets the ActDetail.
         /// </summary>
-        public ActDetail ActDetail { get; set; } = null;
+        public ActDetail ActDetail { get; set; }
 
         /// <summary>
-        /// Gets or sets the ExtraInfoItems.
+        ///     Gets or sets the ExtraInfoItems.
         /// </summary>
-        public ObservableCollection<string> ExtraInfoItems { get => this.itemsList; set => this.itemsList = value; }
+        public ObservableCollection<string> ExtraInfoItems
+        {
+            get => this.itemsList;
+            set => this.itemsList = value;
+        }
 
         /// <summary>
-        /// Unregister the bar code scan event handler and disable the scanner.
+        ///     Unregister the bar code scan event handler and disable the scanner.
         /// </summary>
-        /// <returns>The <see cref="Task"/>.</returns>
+        /// <returns>The <see cref="Task" />.</returns>
         public async Task ScannerDisable()
         {
         }
 
         /// <summary>
-        /// Registers the bar code scan event handler and enables the scanner.
+        ///     Registers the bar code scan event handler and enables the scanner.
         /// </summary>
-        /// <returns>The <see cref="Task"/>.</returns>
+        /// <returns>The <see cref="Task" />.</returns>
         public async Task ScannerEnable()
         {
         }
 
         /// <summary>
-        /// The IsReadyToSave.
+        ///     The IsReadyToSave.
         /// </summary>
         /// <returns>.</returns>
         public async Task<bool> IsReadyToSave()
@@ -305,7 +235,7 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// The IsReadyToClose.
+        ///     The IsReadyToClose.
         /// </summary>
         /// <returns>.</returns>
         public async Task<bool> IsReadyToClose()
@@ -347,16 +277,7 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// The GetControlDescription.
-        /// </summary>
-        /// <returns>.</returns>
-        public string GetControlDescription()
-        {
-            return "Product Label Edit";
-        }
-
-        /// <summary>
-        /// The SaveChanges.
+        ///     The SaveChanges.
         /// </summary>
         /// <returns>.</returns>
         public async Task<bool> SaveChanges()
@@ -367,7 +288,9 @@ namespace dMobile.View.Activity
             {
                 if (await this.IsReadyToSave())
                 {
-                    if (await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(this.GetControlDescription(), "Print product labels?", "Yes", "No")))
+                    if (await Device.InvokeOnMainThreadAsync(async () =>
+                            await this.DisplayAlert(this.GetControlDescription(), "Print product labels?", "Yes",
+                                "No")))
                     {
                         var sendReq = await this.ActDetail.CreateSubmitProductLabelXml(await this.GetXML());
                         SysCommon.SubmitComm(sendReq);
@@ -382,7 +305,9 @@ namespace dMobile.View.Activity
             }
             catch (CommunicationException commEx)
             {
-                var msg = (commEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1) ? commEx.Message : commEx.Message["MSGBOX-".Length..];
+                var msg = commEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1
+                    ? commEx.Message
+                    : commEx.Message["MSGBOX-".Length..];
                 saveComplete = false;
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
@@ -414,7 +339,7 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// The CancelChanges.
+        ///     The CancelChanges.
         /// </summary>
         /// <returns>.</returns>
         public async Task<bool> CancelChanges()
@@ -456,7 +381,7 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// The GetXML.
+        ///     The GetXML.
         /// </summary>
         /// <returns>.</returns>
         public async Task<XDocument> GetXML()
@@ -465,7 +390,95 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// The txtWtQty_GotFocus.
+        ///     The OnAppearing.
+        /// </summary>
+        protected override async void OnAppearing()
+        {
+            if (!this.IsIndicatorRunning)
+            {
+                try
+                {
+                    this.IsIndicatorRunning = true;
+                    base.OnAppearing();
+                    this.ListViewDisplayExtraInfo.ItemsSource = this.ExtraInfoItems;
+
+                    MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async keyPressed =>
+                    {
+                        _ = Enum.TryParse(keyPressed, out Keycode keycode);
+
+                        if (!this.IsIndicatorRunning)
+                        {
+                            if (keycode == Keycode.F1 || keycode == Keycode.Enter)
+                            {
+                                if (await this.SaveChanges())
+                                {
+                                    this.DialogResult = DialogResult.OK;
+                                    await this.Close();
+                                }
+                            }
+                        }
+                    });
+
+                    await this.ucActivityProductLabel_GotFocus(this, EventArgs.Empty);
+                }
+                catch (Exception ex)
+                {
+                    await Device.InvokeOnMainThreadAsync(async () =>
+                        await this.DisplayAlert("Error", "this.ucActivityProductLabel_GotFocus threw an error " + ex,
+                            "OK"));
+                }
+            }
+        }
+
+        /// <summary>
+        ///     The OnDisappearing.
+        /// </summary>
+        protected override async void OnDisappearing()
+        {
+            MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
+            await this.ScannerDisable();
+            base.OnDisappearing();
+            this.IsIndicatorRunning = false;
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+        }
+
+        /// <summary>
+        ///     The OnBackButtonPressed.
+        /// </summary>
+        /// <returns>The <see cref="bool" />.</returns>
+        protected override bool OnBackButtonPressed()
+        {
+            Device.BeginInvokeOnMainThread(async () =>
+            {
+                _ = base.OnBackButtonPressed();
+
+                if (await this.SaveChanges())
+                {
+                    this.DialogResult = DialogResult.OK;
+                    await this.Close();
+                }
+                else if (await this.CancelChanges())
+                {
+                    this.DialogResult = DialogResult.None;
+                    await this.Close();
+                }
+            });
+
+            return true;
+        }
+
+        /// <summary>
+        ///     The GetControlDescription.
+        /// </summary>
+        /// <returns>.</returns>
+        public string GetControlDescription()
+        {
+            return "Product Label Edit";
+        }
+
+        /// <summary>
+        ///     The txtWtQty_GotFocus.
         /// </summary>
         /// <param name="sender">.</param>
         /// <param name="e">.</param>
@@ -479,10 +492,10 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// The txtQuantity_GotFocus.
+        ///     The txtQuantity_GotFocus.
         /// </summary>
-        /// <param name="sender">The sender<see cref="object"/>.</param>
-        /// <param name="e">The e<see cref="EventArgs"/>.</param>
+        /// <param name="sender">The sender<see cref="object" />.</param>
+        /// <param name="e">The e<see cref="EventArgs" />.</param>
         private void txtQuantity_GotFocus(object sender, EventArgs e)
         {
             if (this.txtAltQuantity.Text != null)
@@ -493,16 +506,17 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// /// </summary>
+        ///     ///
+        /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks></remarks>
         /// <summary>
-        ///.
+        ///     .
         /// </summary>
         /// <param name="sender">.</param>
         /// <param name="e">.</param>
-        /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
+        /// <returns>A <see cref="Task" /> representing the result of the asynchronous operation.</returns>
         public async Task ucActivityProductLabel_GotFocus(object sender, EventArgs e)
         {
             if (!this.IsControlLoaded)
@@ -558,7 +572,7 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// The LoadData.
+        ///     The LoadData.
         /// </summary>
         private void LoadData()
         {
@@ -699,10 +713,10 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// The GetProductVariantList.
+        ///     The GetProductVariantList.
         /// </summary>
         /// <param name="prodRefno">.</param>
-        /// <returns>The <see cref="Task"/>.</returns>
+        /// <returns>The <see cref="Task" />.</returns>
         private async Task GetProductVariantList(int prodRefno)
         {
             this.ListVariants = await this.ActDetailEdit.GetVariantList(prodRefno);
@@ -724,10 +738,10 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// The GetLotNumberList.
+        ///     The GetLotNumberList.
         /// </summary>
         /// <param name="prodRefno">.</param>
-        /// <returns>The <see cref="Task"/>.</returns>
+        /// <returns>The <see cref="Task" />.</returns>
         private async Task GetLotNumberList(int prodRefno)
         {
             this.ListLots = await this.ActDetailEdit.GetLotList(prodRefno);
@@ -747,10 +761,10 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// The GetSerialNumberList.
+        ///     The GetSerialNumberList.
         /// </summary>
         /// <param name="prodRefno">.</param>
-        /// <returns>The <see cref="Task"/>.</returns>
+        /// <returns>The <see cref="Task" />.</returns>
         private async Task GetSerialNumberList(int prodRefno)
         {
             this.ListSerialNumbers = await this.ActDetailEdit.GetSerialNumberList(prodRefno);
@@ -760,7 +774,8 @@ namespace dMobile.View.Activity
 
             if (selectedSerialNumberItem != null)
             {
-                selectedSerialNumber.ActivityDetailSingleTradeItemSerialNumber = Convert.ToString(selectedSerialNumberItem);
+                selectedSerialNumber.ActivityDetailSingleTradeItemSerialNumber =
+                    Convert.ToString(selectedSerialNumberItem);
                 serialNumberList.Add(selectedSerialNumber);
             }
 
@@ -783,7 +798,7 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// The IsValidData.
+        ///     The IsValidData.
         /// </summary>
         /// <returns>.</returns>
         private async Task<bool> IsValidData()
@@ -809,13 +824,15 @@ namespace dMobile.View.Activity
 
             if (this.ActDetailEdit.AltQuantity == 0)
             {
-                await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(this.GetControlDescription(), "Invalid Quantity.", "OK"));
+                await Device.InvokeOnMainThreadAsync(async () =>
+                    await this.DisplayAlert(this.GetControlDescription(), "Invalid Quantity.", "OK"));
                 isRetVal = false;
             }
 
             this.ActDetailEdit.WeightQuantity = decimal.Parse(this.txtWtQty.Text);
 
-            if (this.ActDetail.ActItem.ProdInfo.BaseUnitCode == "LB" || this.ActDetail.ActItem.ProdInfo.BaseUnitCode == "KG")
+            if (this.ActDetail.ActItem.ProdInfo.BaseUnitCode == "LB" ||
+                this.ActDetail.ActItem.ProdInfo.BaseUnitCode == "KG")
             {
                 this.ActDetailEdit.BaseQuantity = this.ActDetailEdit.WeightQuantity;
             }
@@ -823,7 +840,8 @@ namespace dMobile.View.Activity
             {
                 if (this.ActDetailEdit.AltQuantity != 0 && this.ActDetail.ActItem.ProdInfo.Unit2BaseUnitFactor != 0)
                 {
-                    this.ActDetailEdit.BaseQuantity = this.ActDetailEdit.AltQuantity * this.ActDetail.ActItem.ProdInfo.Unit2BaseUnitFactor;
+                    this.ActDetailEdit.BaseQuantity = this.ActDetailEdit.AltQuantity *
+                                                      this.ActDetail.ActItem.ProdInfo.Unit2BaseUnitFactor;
                 }
                 else
                 {
@@ -833,32 +851,39 @@ namespace dMobile.View.Activity
 
             if (isRetVal)
             {
-                if ((scheme.IsSerialTracked || scheme.LabelInfo.IsSerialTracked) && this.ActDetailEdit.SchemeData.SingleTradeItemSerialNumber == string.Empty)
+                if ((scheme.IsSerialTracked || scheme.LabelInfo.IsSerialTracked) &&
+                    this.ActDetailEdit.SchemeData.SingleTradeItemSerialNumber == string.Empty)
                 {
-                    await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(this.GetControlDescription(), "Serial number required.", "OK"));
+                    await Device.InvokeOnMainThreadAsync(async () =>
+                        await this.DisplayAlert(this.GetControlDescription(), "Serial number required.", "OK"));
                     isRetVal = false;
                 }
             }
 
             if (isRetVal)
             {
-                if ((scheme.IsLotTracked || scheme.LabelInfo.IsLotTracked) && this.ActDetailEdit.SchemeData.LogisticUnitBatchLotNumber == string.Empty)
+                if ((scheme.IsLotTracked || scheme.LabelInfo.IsLotTracked) &&
+                    this.ActDetailEdit.SchemeData.LogisticUnitBatchLotNumber == string.Empty)
                 {
-                    await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(this.GetControlDescription(), "Lot number required.", "OK"));
+                    await Device.InvokeOnMainThreadAsync(async () =>
+                        await this.DisplayAlert(this.GetControlDescription(), "Lot number required.", "OK"));
                     isRetVal = false;
                 }
             }
 
             if (isRetVal)
             {
-                if ((scheme.IsVariantTracked || scheme.LabelInfo.IsVariantTracked) && this.ActDetailEdit.SchemeData.VariantCode == string.Empty)
+                if ((scheme.IsVariantTracked || scheme.LabelInfo.IsVariantTracked) &&
+                    this.ActDetailEdit.SchemeData.VariantCode == string.Empty)
                 {
-                    await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(this.GetControlDescription(), "Variant code required.", "OK"));
+                    await Device.InvokeOnMainThreadAsync(async () =>
+                        await this.DisplayAlert(this.GetControlDescription(), "Variant code required.", "OK"));
                     isRetVal = false;
                 }
             }
 
-            if (scheme.IsBestBeforeDateTracked && SysCommon.IsEmptyDateTime(this.ActDetailEdit.SchemeData.LogisticUnitBestBeforeSellByDate))
+            if (scheme.IsBestBeforeDateTracked &&
+                SysCommon.IsEmptyDateTime(this.ActDetailEdit.SchemeData.LogisticUnitBestBeforeSellByDate))
             {
                 throw new MessageOnlyException("Best before date required.");
             }
@@ -874,7 +899,8 @@ namespace dMobile.View.Activity
                 }
             }
 
-            if (scheme.IsProductionDateTracked && SysCommon.IsEmptyDateTime(this.ActDetailEdit.SchemeData.LogisticUnitProductionDate))
+            if (scheme.IsProductionDateTracked &&
+                SysCommon.IsEmptyDateTime(this.ActDetailEdit.SchemeData.LogisticUnitProductionDate))
             {
                 throw new MessageOnlyException("Production date required.");
             }
@@ -909,7 +935,8 @@ namespace dMobile.View.Activity
                     + "<itm_refno>" + this.ActDetail.ActItem.ItemFkRefno + "</itm_refno>"
                     + "<alt_qty>" + this.ActDetailEdit.AltQuantity + "</alt_qty>"
                     + "<wt_qty>" + this.ActDetailEdit.AltQuantity + "</wt_qty>"
-                    + "<ActivityDetailUniqueSchemeID>" + this.ActDetail.UniqueSchemeId + "</ActivityDetailUniqueSchemeID>"
+                    + "<ActivityDetailUniqueSchemeID>" + this.ActDetail.UniqueSchemeId +
+                    "</ActivityDetailUniqueSchemeID>"
                     + "</imclient>");
 
                 await this.ActDetail.ActItem.IsReadyToApply(xmlParam);
@@ -919,18 +946,20 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// The ShowProductInfo.
+        ///     The ShowProductInfo.
         /// </summary>
         private void ShowProductInfo()
         {
             this.ExtraInfoItems.Clear();
 
-            this.ExtraInfoItems.Add("PROD: " + this.ActDetail.ActItem.ProdInfo.Code + this.ActDetail.ActItem.ProdInfo.UnitBC + "  " + this.ActDetail.ActItem.ProdInfo.Desc);
+            this.ExtraInfoItems.Add("PROD: " + this.ActDetail.ActItem.ProdInfo.Code +
+                                    this.ActDetail.ActItem.ProdInfo.UnitBC + "  " +
+                                    this.ActDetail.ActItem.ProdInfo.Desc);
             this.ExtraInfoItems.Add("SIZE: " + this.ActDetail.ActItem.ProdInfo.UnitSizeDesc);
         }
 
         /// <summary>
-        /// The cmdSelectProduct_Click.
+        ///     The cmdSelectProduct_Click.
         /// </summary>
         /// <param name="sender">.</param>
         /// <param name="e">.</param>
@@ -959,10 +988,10 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// The txtQuantity_TextChanged.
+        ///     The txtQuantity_TextChanged.
         /// </summary>
-        /// <param name="sender">The sender<see cref="object"/>.</param>
-        /// <param name="e">The e<see cref="EventArgs"/>.</param>
+        /// <param name="sender">The sender<see cref="object" />.</param>
+        /// <param name="e">The e<see cref="EventArgs" />.</param>
         private void txtQuantity_TextChanged(object sender, EventArgs e)
         {
             this.IsChangesMade = true;
@@ -996,10 +1025,10 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// The cmdSave_Clicked.
+        ///     The cmdSave_Clicked.
         /// </summary>
-        /// <param name="sender">The sender<see cref="object"/>.</param>
-        /// <param name="e">The e<see cref="EventArgs"/>.</param>
+        /// <param name="sender">The sender<see cref="object" />.</param>
+        /// <param name="e">The e<see cref="EventArgs" />.</param>
         private async void cmdSave_Clicked(object sender, EventArgs e)
         {
             if (await this.SaveChanges())

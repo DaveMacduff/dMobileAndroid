@@ -32,14 +32,14 @@ namespace dMobile.View.CustomPages.Modal
         {
             this.Tcs = new TaskCompletionSource<bool>();
             this.BindingContext = this;
-            this.IsPageLoading = false;
+            this.IsIndicatorRunning = false;
             this.OptionsIconSource = Convert.ToString(Application.Current.Resources["OptionsIcon"]);
         }
 
         /// <summary>
         /// Gets or sets a value indicating whether Loading.
         /// </summary>
-        public bool IsPageLoading
+        public bool IsIndicatorRunning
         {
             get => this.isPageLoading;
 

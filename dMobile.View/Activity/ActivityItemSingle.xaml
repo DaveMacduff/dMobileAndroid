@@ -6,7 +6,7 @@
                     xmlns:customcontrols="clr-namespace:dMobile.View.CustomControls"
                     x:Class="dMobile.View.Activity.ActivityItemSingle">
     <ContentPage.ToolbarItems>
-        <ToolbarItem x:Name="optionsMenu" IconImageSource="{Binding OptionsIconSource}" Clicked="OptionsMenu_Clicked" IsEnabled="{Binding IsPageLoading, Converter={Helpers:BoolConverter}}"/>
+        <ToolbarItem x:Name="optionsMenu" IconImageSource="{Binding OptionsIconSource}" Clicked="OptionsMenu_Clicked" IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}"/>
     </ContentPage.ToolbarItems>
     <ContentPage.Content>
         <AbsoluteLayout VerticalOptions="Center">
@@ -38,7 +38,7 @@
                 </Grid>
 
                 <Frame VerticalOptions="Start" Grid.Row="1" OutlineColor="{DynamicResource BorderColor}">
-                    <ListView x:Name="ListViewDisplayExtraInfo" SelectionMode="None" HasUnevenRows="True" IsEnabled="{Binding IsPageLoading, Converter={Helpers:BoolConverter}}" SeparatorVisibility="None">
+                    <ListView x:Name="ListViewDisplayExtraInfo" SelectionMode="None" HasUnevenRows="True" IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}" SeparatorVisibility="None">
                         <ListView.ItemTemplate>
                             <DataTemplate>
                                 <ViewCell>
@@ -57,20 +57,20 @@
                         <ColumnDefinition Width="30*"/>
                     </Grid.ColumnDefinitions>
 
-                    <Entry x:Name="txtSearchItem" Grid.Row="0" Grid.Column="0" Focused="txtSearchItem_GotFocus" TextChanged="txtSearchHdr_TextChanged" IsEnabled="{Binding IsPageLoading, Converter={Helpers:BoolConverter}}"/>
-                    <customcontrols:CustomPicker x:Name="BarCodeModifier1Picker" Grid.Row="0" Grid.Column="1" Image="arrow_drop_down" SelectedIndexChanged="BarCodeModifier1Picker_SelectedIndexChanged" IsEnabled="{Binding IsPageLoading, Converter={Helpers:BoolConverter}}"/>
-                    <!--<Button x:Name="cmdFilter" Grid.Row="0" Grid.Column="1" Clicked="CmdFilter_Clicked" IsEnabled="{Binding IsPageLoading, Converter={Helpers:BoolConverter}}"/>-->
+                    <Entry x:Name="txtSearchItem" Grid.Row="0" Grid.Column="0" Focused="txtSearchItem_GotFocus" TextChanged="txtSearchHdr_TextChanged" IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}"/>
+                    <customcontrols:CustomPicker x:Name="BarCodeModifier1Picker" Grid.Row="0" Grid.Column="1" Image="arrow_drop_down" SelectedIndexChanged="BarCodeModifier1Picker_SelectedIndexChanged" IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}"/>
+                    <!--<Button x:Name="cmdFilter" Grid.Row="0" Grid.Column="1" Clicked="CmdFilter_Clicked" IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}"/>-->
                 </Grid>
 
                 <Grid Grid.Row="3">
-                    <Button x:Name="cmdDetails" Grid.Row="0" Grid.Column="0" Clicked="CmdDetails_Click" IsEnabled="{Binding IsPageLoading, Converter={Helpers:BoolConverter}}"/>
-                    <Button x:Name="cmdPrevious" Grid.Row="0" Grid.Column="1" Clicked="cmdPrevious_Click" IsEnabled="{Binding IsPageLoading, Converter={Helpers:BoolConverter}}"/>
-                    <Button x:Name="cmdNext" Grid.Row="0" Grid.Column="2" Clicked="CmdNext_Click" IsEnabled="{Binding IsPageLoading, Converter={Helpers:BoolConverter}}"/>
+                    <Button x:Name="cmdDetails" Grid.Row="0" Grid.Column="0" Clicked="CmdDetails_Click" IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}"/>
+                    <Button x:Name="cmdPrevious" Grid.Row="0" Grid.Column="1" Clicked="cmdPrevious_Click" IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}"/>
+                    <Button x:Name="cmdNext" Grid.Row="0" Grid.Column="2" Clicked="CmdNext_Click" IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}"/>
                 </Grid>
             </Grid>
 
-            <ActivityIndicator IsVisible="{Binding IsPageLoading}" 
-                                   IsRunning="{Binding IsPageLoading}"
+            <ActivityIndicator IsVisible="{Binding IsIndicatorRunning}" 
+                                   IsRunning="{Binding IsIndicatorRunning}"
                                    AbsoluteLayout.LayoutFlags="All" 
                                    AbsoluteLayout.LayoutBounds="0.5,0.5,0.3,0.3"/>
         </AbsoluteLayout>

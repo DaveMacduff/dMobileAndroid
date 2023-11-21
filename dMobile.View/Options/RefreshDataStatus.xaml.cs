@@ -36,6 +36,7 @@ namespace dMobile.View.Options
         public RefreshDataStatus()
         {
             this.InitializeComponent();
+            this.IsIndicatorRunning = false;
         }
 
         /// <summary>
@@ -47,78 +48,74 @@ namespace dMobile.View.Options
             this.InitializeComponent();
 
             this.Title = this.GetControlDescription();
-
-            if (!DesignMode.IsDesignModeEnabled)
-            {
-                this.SysEnv = SysEnvironment.GetInstance();
-                this.LocMapWarehouse = new TableLocationMapWarehouse();
-                this.LocMapSection = new TableLocationMapSection();
-                this.LocMapType = new TableLocationMapType();
-                this.LocMapSlotCoordinate = new TableLocationMapSlotCoordinate();
-                this.LocMapSlot = new TableLocationMapSlot();
-                this.WhsLocMapType = new TableWarehouseLocationMapType();
-                this.Unit = new TableUnit();
-                this.Route = new TableRoute();
-                this.ProdScheme = new TableProductScheme();
-                this.ProdSchemeVariant = new TableProductSchemeVariant();
-                this.ProdSchemeVariantXRef = new TableProductSchemeVariantXRef();
-                this.ProdSchemeLot = new TableProductSchemeLotNumber();
-                this.ProdSchemeLotXRef = new TableProductSchemeLotNumberXRef();
-                this.Product = new TableProduct();
-                this.Family = new TableFamily();
-                this.ProdUnit = new TableProductUnit();
-                this.ProdUnitRelation = new TableProductUnitRelation();
-                this.ProdUnitBarCode = new TableProductUnitBarCode();
-                this.ProdLocMapType = new TableProductLocationMapType();
-                this.ProdLocMapWhsProdScheme = new TableLocationMapWarehouseProductScheme();
-                this.ContactUsers = new TableContactUsers();
-                this.PhysicalCount = new TableActivityPhysicalCount();
-                this.PhysicalCountItem = new TableActivityPhysicalCountItem();
-                this.PhysicalCountDetail = new TableActivityPhysicalCountDetail();
-                this.CycleCount = new TableActivityCycleCount();
-                this.CycleCountItem = new TableActivityCycleCountItem();
-                this.CycleCountDetail = new TableActivityCycleCountDetail();
-                this.ActDetailProdSchemeVariantXRef = new TableActivityDetailProductSchemeVariantXRef();
-                this.ActItemBarCodeAssocXRef = new TableActivityItemBarCodeAssociationXRef();
-                this.Picking = new TableActivityPicking();
-                this.PickingItem = new TableActivityPickingItem();
-                this.PickingItemComment = new TableActivityPickingItemComment();
-                this.PickingDetail = new TableActivityPickingDetail();
-                this.PickingRoute = new TableActivityPickingRoute();
-                this.Receiving = new TableActivityReceiving();
-                this.ReceivingItem = new TableActivityRecevingItem();
-                this.ReceivingItemComment = new TableActivityReceivingItemComment();
-                this.ReceivingDetail = new TableActivityReceivingDetail();
-                this.TransferFrom = new TableActivityTransferFrom();
-                this.TransferFromItem = new TableActivityTransferFromItem();
-                this.TransferFromDetail = new TableActivityTransferFromDetail();
-                this.TransferTo = new TableActivityTransferTo();
-                this.TransferToItem = new TableActivityTransferToItem();
-                this.TransferToDetail = new TableActivityTransferToDetail();
-                this.Returns = new TableActivityReturns();
-                this.ReturnsItem = new TableActivityReturnsItem();
-                this.ReturnsItemComment = new TableActivityReturnsItemComment();
-                this.ReturnsDetail = new TableActivityReturnsDetail();
-                this.Adjustment = new TableActivityAdjustment();
-                this.AdjustmentItem = new TableActivityAdjustmentItem();
-                this.AdjustmentDetail = new TableActivityAdjustmentDetail();
-                this.Activity = new TableActivity();
-                this.ActivityItem = new TableActivityItem();
-                this.TicketFinished = new TableActivityProductionTicketFinished();
-                this.TicketMaterial = new TableActivityProductionTicketMaterial();
-                this.TicketByProduct = new TableActivityProductionTicketByProduct();
-                this.TicketFinishedItem = new TableActivityProductionTicketFinishedItem();
-                this.TicketMaterialItem = new TableActivityProductionTicketMaterialItem();
-                this.TicketByProductItem = new TableActivityProductionTicketByProductItem();
-                this.TicketFinishedDetail = new TableActivityProductionTicketFinishedDetail();
-                this.TicketMaterialDetail = new TableActivityProductionTicketMaterialDetail();
-                this.TicketByProductDetail = new TableActivityProductionTicketByProductDetail();
-                this.PurchaseOrderWorkSheetItem = new TableActivityPurchaseOrderWorkSheetItem();
-                this.PrinterSettings = new PrinterSettings();
-                this.SchemeLabelSettings = new ProdSchemeLabelSettings();
-                this.ExtraInfoItems = new ObservableCollection<Message>();
-            }
-
+            this.IsIndicatorRunning = false;
+            this.SysEnv = SysEnvironment.GetInstance();
+            this.LocMapWarehouse = new TableLocationMapWarehouse();
+            this.LocMapSection = new TableLocationMapSection();
+            this.LocMapType = new TableLocationMapType();
+            this.LocMapSlotCoordinate = new TableLocationMapSlotCoordinate();
+            this.LocMapSlot = new TableLocationMapSlot();
+            this.WhsLocMapType = new TableWarehouseLocationMapType();
+            this.Unit = new TableUnit();
+            this.Route = new TableRoute();
+            this.ProdScheme = new TableProductScheme();
+            this.ProdSchemeVariant = new TableProductSchemeVariant();
+            this.ProdSchemeVariantXRef = new TableProductSchemeVariantXRef();
+            this.ProdSchemeLot = new TableProductSchemeLotNumber();
+            this.ProdSchemeLotXRef = new TableProductSchemeLotNumberXRef();
+            this.Product = new TableProduct();
+            this.Family = new TableFamily();
+            this.ProdUnit = new TableProductUnit();
+            this.ProdUnitRelation = new TableProductUnitRelation();
+            this.ProdUnitBarCode = new TableProductUnitBarCode();
+            this.ProdLocMapType = new TableProductLocationMapType();
+            this.ProdLocMapWhsProdScheme = new TableLocationMapWarehouseProductScheme();
+            this.ContactUsers = new TableContactUsers();
+            this.PhysicalCount = new TableActivityPhysicalCount();
+            this.PhysicalCountItem = new TableActivityPhysicalCountItem();
+            this.PhysicalCountDetail = new TableActivityPhysicalCountDetail();
+            this.CycleCount = new TableActivityCycleCount();
+            this.CycleCountItem = new TableActivityCycleCountItem();
+            this.CycleCountDetail = new TableActivityCycleCountDetail();
+            this.ActDetailProdSchemeVariantXRef = new TableActivityDetailProductSchemeVariantXRef();
+            this.ActItemBarCodeAssocXRef = new TableActivityItemBarCodeAssociationXRef();
+            this.Picking = new TableActivityPicking();
+            this.PickingItem = new TableActivityPickingItem();
+            this.PickingItemComment = new TableActivityPickingItemComment();
+            this.PickingDetail = new TableActivityPickingDetail();
+            this.PickingRoute = new TableActivityPickingRoute();
+            this.Receiving = new TableActivityReceiving();
+            this.ReceivingItem = new TableActivityRecevingItem();
+            this.ReceivingItemComment = new TableActivityReceivingItemComment();
+            this.ReceivingDetail = new TableActivityReceivingDetail();
+            this.TransferFrom = new TableActivityTransferFrom();
+            this.TransferFromItem = new TableActivityTransferFromItem();
+            this.TransferFromDetail = new TableActivityTransferFromDetail();
+            this.TransferTo = new TableActivityTransferTo();
+            this.TransferToItem = new TableActivityTransferToItem();
+            this.TransferToDetail = new TableActivityTransferToDetail();
+            this.Returns = new TableActivityReturns();
+            this.ReturnsItem = new TableActivityReturnsItem();
+            this.ReturnsItemComment = new TableActivityReturnsItemComment();
+            this.ReturnsDetail = new TableActivityReturnsDetail();
+            this.Adjustment = new TableActivityAdjustment();
+            this.AdjustmentItem = new TableActivityAdjustmentItem();
+            this.AdjustmentDetail = new TableActivityAdjustmentDetail();
+            this.Activity = new TableActivity();
+            this.ActivityItem = new TableActivityItem();
+            this.TicketFinished = new TableActivityProductionTicketFinished();
+            this.TicketMaterial = new TableActivityProductionTicketMaterial();
+            this.TicketByProduct = new TableActivityProductionTicketByProduct();
+            this.TicketFinishedItem = new TableActivityProductionTicketFinishedItem();
+            this.TicketMaterialItem = new TableActivityProductionTicketMaterialItem();
+            this.TicketByProductItem = new TableActivityProductionTicketByProductItem();
+            this.TicketFinishedDetail = new TableActivityProductionTicketFinishedDetail();
+            this.TicketMaterialDetail = new TableActivityProductionTicketMaterialDetail();
+            this.TicketByProductDetail = new TableActivityProductionTicketByProductDetail();
+            this.PurchaseOrderWorkSheetItem = new TableActivityPurchaseOrderWorkSheetItem();
+            this.PrinterSettings = new PrinterSettings();
+            this.SchemeLabelSettings = new ProdSchemeLabelSettings();
+            this.ExtraInfoItems = new ObservableCollection<Message>();
             this.ActSubType = actSubTypes;
         }
 
@@ -127,19 +124,25 @@ namespace dMobile.View.Options
         /// </summary>
         protected override async void OnAppearing()
         {
-            base.OnAppearing();
-
-            this.lstStatus.ItemsSource = this.ExtraInfoItems;
-
-            MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), (keyPressed) =>
+            if (!this.IsIndicatorRunning)
             {
-                _ = Enum.TryParse(keyPressed, out Keycode keycode);
-            });
+                this.IsIndicatorRunning = true;
+                base.OnAppearing();
 
-            if (this.isFirstAppearance)
-            {
-                this.isFirstAppearance = false;
-                await this.RefreshDataStatus_GotFocus(this, EventArgs.Empty);
+                this.lstStatus.ItemsSource = this.ExtraInfoItems;
+
+                MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), (keyPressed) =>
+                {
+                    _ = Enum.TryParse(keyPressed, out Keycode keycode);
+                });
+
+                if (this.isFirstAppearance)
+                {
+                    this.isFirstAppearance = false;
+                    await this.RefreshDataStatus_GotFocus(this, EventArgs.Empty);
+                }
+
+                this.IsIndicatorRunning = false;
             }
         }
 
@@ -150,6 +153,7 @@ namespace dMobile.View.Options
         {
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
             base.OnDisappearing();
+            this.IsIndicatorRunning = false;
             GC.Collect();
             GC.WaitForPendingFinalizers();
         }
@@ -622,7 +626,7 @@ namespace dMobile.View.Options
         {
             var refreshLast = new DateTime(1900, 1, 1);
 
-            this.IsPageLoading = true;
+            this.IsIndicatorRunning = true;
 
             await Task.Run(async () =>
             {
@@ -726,7 +730,7 @@ namespace dMobile.View.Options
                 // }
             });
 
-            this.IsPageLoading = false;
+            this.IsIndicatorRunning = false;
         }
 
         /// <summary>

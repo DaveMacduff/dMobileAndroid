@@ -35,6 +35,7 @@ namespace dMobile.View.Options
 
             this.Title = this.GetControlDescription();
 
+            this.IsIndicatorRunning = false;
             this.lblMobileServerIP.Text = "Mobile Server IP Address";
             this.lblBasePort.Text = "Base Port";
             this.lblMaxPorts.Text = "Max Ports";
@@ -55,28 +56,36 @@ namespace dMobile.View.Options
         /// </summary>
         protected override async void OnAppearing()
         {
-            base.OnAppearing();
-
-            MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
+            if (!this.IsIndicatorRunning)
             {
-                _ = Enum.TryParse(keyPressed, out Keycode keycode);
+                this.IsIndicatorRunning = true;
+                base.OnAppearing();
 
-                if (keycode == Keycode.Enter || keycode == Keycode.F1)
+                MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
                 {
-                    if (await this.SaveChanges())
-                    {
-                        await this.Close();
-                    }
-                }
-            });
+                    _ = Enum.TryParse(keyPressed, out Keycode keycode);
 
-            try
-            {
-                await this.ucCommunicationSetup_GotFocus(this, null);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("ucCommunicationSetup_GotFocus threw an error" + ex);
+                    if (keycode == Keycode.Enter || keycode == Keycode.F1)
+                    {
+                        if (await this.SaveChanges())
+                        {
+                            await this.Close();
+                        }
+                    }
+                });
+
+                try
+                {
+                    await this.ucCommunicationSetup_GotFocus(this, null);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("ucCommunicationSetup_GotFocus threw an error" + ex);
+                }
+                finally
+                {
+                    this.IsIndicatorRunning = false;
+                }
             }
         }
 
@@ -87,6 +96,7 @@ namespace dMobile.View.Options
         {
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
             base.OnDisappearing();
+            this.IsIndicatorRunning = false;
             GC.Collect();
             GC.WaitForPendingFinalizers();
         }
@@ -646,7 +656,7 @@ namespace dMobile.View.Options
         /// <remarks></remarks>
         private async Task Connect()
         {
-            this.IsPageLoading = true;
+            this.IsIndicatorRunning = true;
 
             await Task.Run(() =>
             {
@@ -766,7 +776,7 @@ namespace dMobile.View.Options
                 }
             });
 
-            this.IsPageLoading = false;
+            this.IsIndicatorRunning = false;
         }
 
         /// <summary>

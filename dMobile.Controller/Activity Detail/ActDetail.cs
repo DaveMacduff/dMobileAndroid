@@ -418,6 +418,8 @@ namespace dMobile.Controller.Activity_Detail
                 throw new Exception("Expected actDetail parameter to be of type ActivityDetail.");
             }
 
+            return;
+
             //////////////////////////////////////////////////////////////////////////
             void AssignExtra(ActivityDetail detail)
             {
@@ -782,31 +784,31 @@ namespace dMobile.Controller.Activity_Detail
         /// <summary>
         /// Find the current detail in the list detail.
         /// </summary>
-        /// <param name="activityDetailFKRefno"><see cref="int"/> Activity detail FK reference number.</param>
-        /// <returns><see cref="int"/> Found list detail index or negative one if not found.</returns>
-        public virtual int FindListDetailIndex(int activityDetailFKRefno)
+        /// <param name="activityDetailFkRefno"><see cref="int"/> Activity detail FK reference number.</param>
+        /// <returns><see cref="int"/> Found list detail refno or negative one if not found.</returns>
+        public virtual int FindListDetailRefno(int activityDetailFkRefno)
         {
-            var foundIdx = -1;
+            var detailRefno = -1;
 
             // Go to the list item to update the detail quantity.
             for (var idx = 0; idx < this.ListDetails.Count; idx++)
             {
-                if (((ActivityDetail)this.ListDetails[idx]).ActivityDetailFKRefno == activityDetailFKRefno)
+                var detail = (ActivityDetail)this.ListDetails[idx];
+                if (detail.ActivityDetailFKRefno == activityDetailFkRefno)
                 {
-                    foundIdx = idx;
+                    detailRefno = detail.ActivityDetailRefno;
                     break;
                 }
             }
 
-            return foundIdx;
+            return detailRefno;
         }
 
         /// <summary>
-        /// Find or insert an activity detail into the list details.
+        /// Add an activity detail into the list details.
         /// </summary>
-        /// <param name="mainActivityItems"><see cref="ObservableCollection{object}"/> Main activity items.</param>
         /// <returns><see cref="ActivityDetail"/> Activity detail.</returns>
-        public abstract ActivityDetail InsertListDetail(ObservableCollection<object> mainActivityItems);
+        public abstract ActivityDetail GatherDetail();
 
         /// <summary>
         /// Update detail in the detail list.
@@ -945,7 +947,7 @@ namespace dMobile.Controller.Activity_Detail
         /// Assign activity detail product information from the activity item.
         /// </summary>
         /// <param name="detail"><see cref="ActivityDetail"/> detail object.</param>
-        protected virtual void InsertListDetailProduct(ActivityDetail detail)
+        protected virtual void GatherProductDetail(ActivityDetail detail)
         {
             detail.ProductRefno = this.ActItem.ProdInfo.Refno;
             detail.ProductUnitRefno = this.ActItem.ProdInfo.UnitRefno;
@@ -964,13 +966,12 @@ namespace dMobile.Controller.Activity_Detail
         /// Assign activity detail location information from the current location.
         /// </summary>
         /// <param name="detail"><see cref="ActivityDetail"/> detail object.</param>
-        protected virtual void InsertListDetailLocation(ActivityDetail detail)
+        protected virtual void GatherLocationDetail(ActivityDetail detail)
         {
             detail.LocationMapRefno = this.LocMap.CurrLocMapRefno;
 
-            var locCode = 0;
-            var locName = string.Empty;
-
+            string locName;
+            int locCode;
             if (this.LocMap.CurrLocMap.SlotLocMapRefno > 0)
             {
                 locCode = this.LocMap.CurrLocMap.SlotCode;
@@ -995,7 +996,7 @@ namespace dMobile.Controller.Activity_Detail
         /// Assign activity detail scheme information from the scheme data.
         /// </summary>
         /// <param name="detail"><see cref="ActivityDetail"/> detail object.</param>
-        protected virtual void InsertListDetailScheme(ActivityDetail detail)
+        protected virtual void GatherSchemeDetail(ActivityDetail detail)
         {
             detail.ProductSchemeVariantCode = this.SchemeData.VariantCode;
             detail.ProductSchemeVariantNo = this.SchemeData.VariantNumber;
@@ -1010,7 +1011,7 @@ namespace dMobile.Controller.Activity_Detail
         /// Assign activity detail extra information from the activity extra data.
         /// </summary>
         /// <param name="detail"><see cref="ActivityDetail"/> detail object.</param>
-        protected virtual void InsertListDetailExtra(ActivityDetail detail)
+        protected virtual void GatherExtraDetail(ActivityDetail detail)
         {
             detail.ActivityDetailExtra1Text = this.ActExtra.Text1;
             detail.ActivityDetailExtra2Text = this.ActExtra.Text2;
@@ -1023,7 +1024,7 @@ namespace dMobile.Controller.Activity_Detail
         /// Assign activity detail quantity information from the activity quantity data.
         /// </summary>
         /// <param name="detail"><see cref="ActivityDetail"/> detail object.</param>
-        protected virtual void InsertListDetailQuantity(ActivityDetail detail)
+        protected virtual void GatherQuantityDetail(ActivityDetail detail)
         {
             detail.ActivityDetailQuantity = Math.Round(this.Quantity, 3);
             detail.ActivityDetailBaseQuantity = Math.Round(this.BaseQuantity, 3);
@@ -1040,54 +1041,54 @@ namespace dMobile.Controller.Activity_Detail
             int actDetailRefno;
             try
             {
-                if (string.CompareOrdinal(this.UniqueSchemeId, string.Empty) > 0)
-                {
-                    var isDupSchemeId = await ProductInfoTasks.IsDuplicateUniqueSchemeID(this.UniqueSchemeId);
-                    if (isDupSchemeId)
-                    {
-                        throw new Exception("Duplicate scheme ID!" + Environment.NewLine + this.UniqueSchemeId);
-                    }
-                }
+                ////if (string.CompareOrdinal(this.UniqueSchemeId, string.Empty) > 0)
+                ////{
+                ////    var isDupSchemeId = await ProductInfoTasks.IsDuplicateUniqueSchemeID(this.UniqueSchemeId);
+                ////    if (isDupSchemeId)
+                ////    {
+                ////        throw new Exception("Duplicate scheme ID!" + Environment.NewLine + this.UniqueSchemeId);
+                ////    }
+                ////}
 
-                var query = "INSERT INTO tActivityDetail (" +
-                            "ActivityDetailSubType, " +
-                            "ActivityDetailStatus, " +
-                            "ActivityItemRefno, " +
-                            "LocationMapRefno, " +
-                            "ProductUnitRefno, " +
-                            "ActivityDetailUniqueSchemeID, " +
-                            "ActivityDetailSchemeID, " +
-                            "ActivityDetailQuantity, " +
-                            "ActivityDetailBaseQuantity, " +
-                            "ActivityDetailWeightQuantity, " +
-                            "ActivityDetailSingleTradeItemSerialNumber, " +
-                            "ActivityDetailLogisticUnitBatchLotNumber, " +
-                            "ActivityDetailLogisticUnitBestBeforeSellByDate, " +
-                            "ActivityDetailLogisticUnitExpiryUseByDate, " +
-                            "ActivityDetailLogisticUnitProductionDate, " +
-                            "ActivityDetailLogisticUnitDueDate, " +
-                            "ActivityDetailLogisticUnitPackagingDate, " +
-                            "ActivityDetailLogisticUnitSkidNumber" +
-                            ") VALUES (" +
-                            "?, " +
-                            "?, " +
-                            "?, " +
-                            "?, " +
-                            "?, " +
-                            "?, " +
-                            "?, " +
-                            "?, " +
-                            "?, " +
-                            "?, " +
-                            "?, " +
-                            "?, " +
-                            "?, " +
-                            "?, " +
-                            "?, " +
-                            "?, " +
-                            "?, " +
-                            "?" +
-                            ")";
+                const string query = "INSERT INTO tActivityDetail (" +
+                                     "ActivityDetailSubType, " +
+                                     "ActivityDetailStatus, " +
+                                     "ActivityItemRefno, " +
+                                     "LocationMapRefno, " +
+                                     "ProductUnitRefno, " +
+                                     "ActivityDetailUniqueSchemeID, " +
+                                     "ActivityDetailSchemeID, " +
+                                     "ActivityDetailQuantity, " +
+                                     "ActivityDetailBaseQuantity, " +
+                                     "ActivityDetailWeightQuantity, " +
+                                     "ActivityDetailSingleTradeItemSerialNumber, " +
+                                     "ActivityDetailLogisticUnitBatchLotNumber, " +
+                                     "ActivityDetailLogisticUnitBestBeforeSellByDate, " +
+                                     "ActivityDetailLogisticUnitExpiryUseByDate, " +
+                                     "ActivityDetailLogisticUnitProductionDate, " +
+                                     "ActivityDetailLogisticUnitDueDate, " +
+                                     "ActivityDetailLogisticUnitPackagingDate, " +
+                                     "ActivityDetailLogisticUnitSkidNumber" +
+                                     ") VALUES (" +
+                                     "?, " +
+                                     "?, " +
+                                     "?, " +
+                                     "?, " +
+                                     "?, " +
+                                     "?, " +
+                                     "?, " +
+                                     "?, " +
+                                     "?, " +
+                                     "?, " +
+                                     "?, " +
+                                     "?, " +
+                                     "?, " +
+                                     "?, " +
+                                     "?, " +
+                                     "?, " +
+                                     "?, " +
+                                     "?" +
+                                     ")";
 
                 var parameters = new object[]
                 {

@@ -12,47 +12,45 @@ namespace dMobile.View.Activity
     using System.Threading.Tasks;
     using System.Xml.Linq;
     using Android.Views;
-    using dMobile.BarCodeScanner.BarCodeParsing;
-    using dMobile.BarCodeScanner.BarCodeScanners;
-    using dMobile.Bedrock;
-    using dMobile.Controller;
-    using dMobile.Controller.Activity;
-    using dMobile.Resources.Enums;
-    using dMobile.Resources.Types;
-    using dMobile.View.CustomPages;
-    using dMobile.View.Forms;
+    using BarCodeScanner.BarCodeParsing;
+    using BarCodeScanner.BarCodeScanners;
+    using Bedrock;
+    using Controller;
+    using Controller.Activity;
+    using CustomPages;
+    using Forms;
+    using Resources.Enums;
+    using Resources.Types;
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;
     using Resource = dMobile.Resources.Properties.Resources;
 
     /// <summary>
-    /// Defines the <see cref="ActivityHdr" /> Activity header.
+    ///     Defines the <see cref="ActivityHdr" /> Activity header.
     /// </summary>
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class ActivityHdr : DMobileContentPage, IAppArea, IDataLayerEventListener
     {
         /// <summary>
-        /// Defines the text filter.
+        ///     Define the filter text was enabled.
+        /// </summary>
+        private bool filterIsEnabled;
+
+        /// <summary>
+        ///     Defines the text filter.
         /// </summary>
         private string filterText = string.Empty;
 
         /// <summary>
-        /// Define the filter text was enabled.
-        /// </summary>
-        private bool filterIsEnabled = false;
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="ActivityHdr"/> class.
         /// </summary>
-        /// <param name="activitySubType"><see cref="SysCommon.ActSubTypes"/> Activity sub type.</param>
-        /// <remarks>
-        /// Page refresh does not invoke this constructor.
-        /// </remarks>
-        public ActivityHdr(SysCommon.ActSubTypes activitySubType)
+        /// <param name="activitySubType"><see cref="SysCommon.ActSubTypes" /> Activity sub type.</param>
+        /// <param name="xmlDataCriteria"><see cref="XDocument"/> Activity data filter criteria.</param>
+        /// <param name="pickingLocMapFilter"><see cref="SLocMap"/> Picking filter location map.</param>
+        public ActivityHdr(SysCommon.ActSubTypes activitySubType, XDocument xmlDataCriteria, SLocMap pickingLocMapFilter)
         {
             this.InitializeComponent();
 
-            this.IsPageLoading = false;
             this.cmdAdd.Text = "Add";
             this.cmdAdd.IsEnabled = false;
             this.FilterText = "Filter";
@@ -63,71 +61,100 @@ namespace dMobile.View.Activity
             this.ActSubType = activitySubType;
             this.ActHdr = ActivityFacade.GetActivity(this.ActSubType);
             this.Title = this.ActHdr.GetControlDescription();
+            this.IsDataLoading = false;
 
             // If the activity header object does not have a skid already initialize the instance.
-            if (this.ActHdr.SkidInfo == null)
-            {
-                this.ActHdr.SkidInfo = new SysSkidInfo();
-            }
+            this.ActHdr.SkidInfo ??= new SysSkidInfo();
+            this.ActHdr.XmlDataCriteria = xmlDataCriteria;
+            ((PickingActivity)this.ActHdr).PickingLocationMapFilter = pickingLocMapFilter;
+
+            _ = Task.Run(this.LoadAndBindData);
         }
 
         /// <summary>
-        /// Gets or sets the selected activity foreign key reference number.
+        ///     Initializes a new instance of the <see cref="ActivityHdr" /> class.
         /// </summary>
-        private int SelectedActivityFkRefno { get; set; } = 0;
+        /// <param name="activitySubType"><see cref="SysCommon.ActSubTypes" /> Activity sub type.</param>
+        public ActivityHdr(SysCommon.ActSubTypes activitySubType)
+        {
+            this.InitializeComponent();
+
+            this.cmdAdd.Text = "Add";
+            this.cmdAdd.IsEnabled = false;
+            this.FilterText = "Filter";
+            this.FilterIsEnabled = true;
+            this.SysEnv = SysEnvironment.GetInstance();
+            this.SysEnv.SysSettings.IsShowActivityFilterSelection = true;
+            this.Scanner = ScannerEngine.GetInstance().Scanner;
+            this.ActSubType = activitySubType;
+            this.ActHdr = ActivityFacade.GetActivity(this.ActSubType);
+            this.Title = this.ActHdr.GetControlDescription();
+            this.IsDataLoading = false;
+
+            // If the activity header object does not have a skid already initialize the instance.
+            this.ActHdr.SkidInfo ??= new SysSkidInfo();
+            this.ActHdr.XmlDataCriteria = XDocument.Parse(
+                "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" +
+                "<params>" +
+                "<whs_id>0</whs_id>" +
+                "<sect_refno>0</sect_refno>" +
+                "</params>");
+
+            _ = Task.Run(this.LoadAndBindData);
+        }
 
         /// <summary>
-        /// Gets or sets a value indicating whether any data changes have be made.
+        ///     Gets or sets the selected activity foreign key reference number.
         /// </summary>
-        private bool IsChangesMade { get; set; } = false;
+        private int SelectedActivityFkRefno { get; set; }
 
         /// <summary>
-        /// Gets or sets the bar code parsed data.
+        ///     Gets or sets a value indicating whether any data changes have be made.
+        /// </summary>
+        private bool IsChangesMade { get; set; }
+
+        /// <summary>
+        ///     Gets or sets the bar code parsed data.
         /// </summary>
         private BarCodeParse BarParse { get; set; }
 
         /// <summary>
-        /// Gets or sets the bar code scanner instance.
+        ///     Gets the bar code scanner instance.
         /// </summary>
-        private BarCodeScanner Scanner { get; set; } = ScannerEngine.GetInstance().Scanner;
+        private BarCodeScanner Scanner { get; }
 
         /// <summary>
-        /// Gets or sets the global system environment object.
+        ///     Gets the global system environment object.
         /// </summary>
-        private SysEnvironment SysEnv { get; set; }
+        private SysEnvironment SysEnv { get; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether bar code handler is registered / enabled.
+        ///     Gets the activity header instance.
         /// </summary>
-        private bool IsBarCodeHandlerRegistered { get; set; }
+        private Activity ActHdr { get; }
 
         /// <summary>
-        /// Gets or sets the activity header instance.
+        ///     Gets the activity header sub type.
         /// </summary>
-        private Controller.Activity.Activity ActHdr { get; set; }
+        private SysCommon.ActSubTypes ActSubType { get; }
 
         /// <summary>
-        /// Gets or sets the activity header sub type.
+        ///     Gets the list of items.
         /// </summary>
-        private SysCommon.ActSubTypes ActSubType { get; set; } = SysCommon.ActSubTypes.InventoryReplenishment;
+        private ObservableCollection<string> ExtraInfoItems { get; } = new ObservableCollection<string>();
 
         /// <summary>
-        /// Gets or sets the list of items.
-        /// </summary>
-        private ObservableCollection<string> ExtraInfoItems { get; set; } = new ObservableCollection<string>();
-
-        /// <summary>
-        /// Gets or sets the list of items bound to data grid / list main activity.
+        ///     Gets or sets the list of items bound to data grid / list main activity.
         /// </summary>
         private ObservableCollection<object> MainActivityItems { get; set; } = new ObservableCollection<object>();
 
         /// <summary>
-        /// Gets or sets the OptionsMenuItems.
+        ///     Gets the OptionsMenuItems.
         /// </summary>
-        private List<string> OptionsMenuItems { get; set; } = new List<string>();
+        private List<string> OptionsMenuItems { get; } = new List<string>();
 
         /// <summary>
-        /// Gets or sets the filter text.
+        ///     Gets or sets the filter text.
         /// </summary>
         private string FilterText
         {
@@ -140,7 +167,7 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether entering a filter was performed.
+        ///     Gets or sets a value indicating whether entering a filter was performed.
         /// </summary>
         private bool FilterIsEnabled
         {
@@ -153,121 +180,89 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// Gets or sets a number of screen taps tracker for Xamarin bug that prevents
-        /// selectedItemChanged from firing.
+        ///     Gets or sets a number of screen taps tracker for Xamarin bug that prevents
+        ///     selectedItemChanged from firing.
         /// </summary>
-        private int NumTaps { get; set; } = 0;
+        private int NumTaps { get; set; }
 
         /// <summary>
-        /// Gets or sets the previous sender used in tracking the number of screen taps for
-        /// Xamarin bug that prevents selectedItemChanged from firing.
+        ///     Gets or sets the previous sender used in tracking the number of screen taps for
+        ///     Xamarin bug that prevents selectedItemChanged from firing.
         /// </summary>
         private object PreviousSender { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether the header listview is in focus.
+        ///     Gets or sets a value indicating whether the search text box is in focus.
         /// </summary>
-        private bool IsHdrListViewInFocus { get; set; } = false;
+        private bool IsSearchEntryFocused { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether the list display data is in focus.
+        /// Gets or sets a value indicating whether the data is being loaded.
         /// </summary>
-        private bool IsDisplayListViewInFocus { get; set; } = false;
+        private bool IsDataLoading { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether the search text box is in focus.
+        ///     Registers the bar code scan event handler and enables the scanner.
         /// </summary>
-        private bool IsSearchEntryFocused { get; set; } = false;
-
-        /// <summary>
-        /// Gets or sets a value indicating whether the add button is in focus.
-        /// </summary>
-        private bool IsAddButtonFocused { get; set; } = false;
-
-        /// <summary>
-        /// Unregister the bar code scan event handler and disable the scanner.
-        /// </summary>
-        /// <returns><see cref="Task"/> Task operation.</returns>
-        public async Task ScannerDisable()
-        {
-            if (this.Scanner != null)
-            {
-                if (this.IsBarCodeHandlerRegistered)
-                {
-                    this.Scanner.BarCodeScan -= new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
-                    await this.Scanner.Stop();
-                    this.IsBarCodeHandlerRegistered = false;
-                }
-            }
-        }
-
-        /// <summary>
-        /// Registers the bar code scan event handler and enables the scanner.
-        /// </summary>
-        /// <returns><see cref="Task"/> Task operation.</returns>
+        /// <returns><see cref="Task" /> Task operation.</returns>
         public async Task ScannerEnable()
         {
             if (this.Scanner != null)
             {
-                if (!this.IsBarCodeHandlerRegistered)
-                {
-                    await this.Scanner.Start();
-                    this.Scanner.BarCodeScan += new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
-                    this.IsBarCodeHandlerRegistered = true;
-                }
+                await this.Scanner.Start();
+                this.Scanner.BarCodeScan += this.BarCodeHandler;
             }
         }
 
         /// <summary>
-        /// Registers the bar code scan event handler and enables the scanner.
+        ///     Unregister the bar code scan event handler and disable the scanner.
         /// </summary>
-        /// <returns><see cref="Task"/> Task operation.</returns>
-        public async Task ScannerStart()
+        /// <returns><see cref="Task" /> Task operation.</returns>
+        public async Task ScannerDisable()
         {
             if (this.Scanner != null)
             {
-                await this.Scanner.Start();
-                this.Scanner.BarCodeScan += new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
-                this.IsBarCodeHandlerRegistered = true;
+                this.Scanner.BarCodeScan -= this.BarCodeHandler;
+                await this.Scanner.Stop();
             }
         }
 
         /// <summary>
-        /// Check if the activity header data is ready to be saved.
+        ///     Check if the activity header data is ready to be saved.
         /// </summary>
-        /// <returns><see cref="bool"/> True if the data is ready to be saved else false.</returns>
+        /// <returns><see cref="bool" /> True if the data is ready to be saved else false.</returns>
         public async Task<bool> IsReadyToSave()
         {
             var isReadyToSave = !this.IsChangesMade;
+
             if (isReadyToSave && (this.ActSubType == SysCommon.ActSubTypes.Picking
-                || this.ActSubType == SysCommon.ActSubTypes.PickingSingle))
+                                  || this.ActSubType == SysCommon.ActSubTypes.PickingSingle))
             {
-                isReadyToSave = await IsReadyToSavePicking(isReadyToSave);
+                isReadyToSave = await IsReadyToSavePicking();
             }
 
             return isReadyToSave;
 
             //////////////////////////////////////////////////////////////////////////
-            async Task<bool> IsReadyToSavePicking(bool isReadyToSave)
+            async Task<bool> IsReadyToSavePicking()
             {
+                var isReadyToSavePicking = true;
+
                 // If activity is picking and confirm to exit form is enabled.
                 // This code should be moved into an picking header class inherited from ucActivityHdr.
                 if (this.SysEnv.SysSettings.IsPickConfirmExit)
                 {
-                    await Device.InvokeOnMainThreadAsync(async () =>
-                    {
-                        isReadyToSave = await this.AskConfirmExit();
-                    });
+                    await Device.InvokeOnMainThreadAsync(async () => { isReadyToSavePicking = await this.AskConfirmExit(); });
                 }
 
-                return isReadyToSave;
+                return isReadyToSavePicking;
             }
         }
 
         /// <summary>
-        /// Check if this form is ready to close, that is can be closed.
+        ///     Check if this form is ready to close, that is can be closed.
         /// </summary>
-        /// <returns><see cref="Task{bool}"/> True if the form is ready to close else false.</returns>
+        /// <returns><see cref="bool" /> True if the form is ready to close else false.</returns>
         public async Task<bool> IsReadyToClose()
         {
             var isReadyToClose = !this.IsChangesMade;
@@ -286,9 +281,9 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// Check if a save can be performed and do so.
+        ///     Check if a save can be performed and do so.
         /// </summary>
-        /// <returns><see cref="bool"/> True if a save was performed successfully else false.</returns>
+        /// <returns><see cref="bool" /> True if a save was performed successfully else false.</returns>
         public async Task<bool> SaveChanges()
         {
             var saveComplete = false;
@@ -331,9 +326,9 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// Check if there are any pending changes, if so cancel them.
+        ///     Check if there are any pending changes, if so cancel them.
         /// </summary>
-        /// <returns><see cref="bool"/>. True if the changes where canceled, else false.</returns>
+        /// <returns><see cref="bool" />. True if the changes where canceled, else false.</returns>
         public async Task<bool> CancelChanges()
         {
             var cancelChanges = true;
@@ -380,9 +375,9 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// Assemble a XML string of activity data to return to the calling parent form.
+        ///     Assemble a XML string of activity data to return to the calling parent form.
         /// </summary>
-        /// <returns><see cref="Task"/> Task operation containing an XDocument.</returns>
+        /// <returns><see cref="Task" /> Task operation containing an XDocument.</returns>
 #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
         public async Task<XDocument> GetXML()
 #pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
@@ -396,12 +391,16 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// Data layer status out event handler.
+        ///     Data layer status out event handler.
         /// </summary>
-        /// <param name="publisher"><see cref="IDataLayerEventPublisher"/> Data layer
-        /// publisher delegate.</param>
-        /// <param name="dataLayerEventArgs"><see cref="DataGridEnableEventArgs"/> Data layer
-        /// publisher event arguments.</param>
+        /// <param name="publisher">
+        ///     <see cref="IDataLayerEventPublisher" /> Data layer
+        ///     publisher delegate.
+        /// </param>
+        /// <param name="dataLayerEventArgs">
+        ///     <see cref="DataGridEnableEventArgs" /> Data layer
+        ///     publisher event arguments.
+        /// </param>
         public void OnLayerStatOut(IDataLayerEventPublisher publisher, DataLayerEventArgs dataLayerEventArgs)
         {
             this.ExtraInfoItems.Clear();
@@ -412,28 +411,36 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// Data layer progress out event handler.
+        ///     Data layer progress out event handler.
         /// </summary>
-        /// <param name="publisher"><see cref="IDataLayerEventPublisher"/> Data layer
-        /// publisher delegate.</param>
-        /// <param name="dataLayerEventArgs"><see cref="DataGridEnableEventArgs"/> Data layer
-        /// publisher event arguments.</param>
+        /// <param name="publisher">
+        ///     <see cref="IDataLayerEventPublisher" /> Data layer
+        ///     publisher delegate.
+        /// </param>
+        /// <param name="dataLayerEventArgs">
+        ///     <see cref="DataGridEnableEventArgs" /> Data layer
+        ///     publisher event arguments.
+        /// </param>
         public void OnLayerProgressOut(IDataLayerEventPublisher publisher, DataLayerEventArgs dataLayerEventArgs)
         {
             if (dataLayerEventArgs.CurrentValue > 0 && dataLayerEventArgs.MaxValue > 0)
             {
                 ////double percent = 100 * dataLayerEventArgs.CurrentValue / dataLayerEventArgs.MaxValue;
-                ////this.ProgBarMain.Progress = percent / 100;
+                ////this.ProgressBarMain.Progress = percent / 100;
             }
         }
 
         /// <summary>
-        /// Back button pressed event handler.
+        ///     Back button pressed event handler.
         /// </summary>
-        /// <returns>The <see cref="bool"/> True.</returns>
+        /// <returns>The <see cref="bool" /> True.</returns>
         protected override bool OnBackButtonPressed()
         {
-            Device.BeginInvokeOnMainThread(async () =>
+            Device.BeginInvokeOnMainThread(PerformBackButton);
+            return true;
+
+            //////////////////////////////////////////////////////////////////////////
+            async void PerformBackButton()
             {
                 if (await this.CancelChanges())
                 {
@@ -441,15 +448,13 @@ namespace dMobile.View.Activity
                     _ = base.OnBackButtonPressed();
                     await this.Close();
                 }
-            });
-
-            return true;
+            }
         }
 
         /// <summary>
-        /// Check if options in displayActionSheet are enabled/disabled and rebuild list.
+        ///     Check if options in displayActionSheet are enabled/disabled and rebuild list.
         /// </summary>
-        /// <param name="propertyName"><see cref="string"/> Option property name..</param>
+        /// <param name="propertyName"><see cref="string" /> Option property name..</param>
         protected override void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             base.OnPropertyChanged(propertyName);
@@ -465,156 +470,24 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// Customize behavior immediately prior to the 'Page' becoming visible.
+        ///     Customize behavior immediately prior to the 'Page' becoming visible.
         /// </summary>
         protected override async void OnAppearing()
         {
-            if (!this.IsPageLoading)
+            base.OnAppearing();
+            this.NumTaps = 0;
+            this.SubscribeKeyUpHandlers();
+            this.ListViewMainActivity.ItemTapped += this.ListViewMainActivity_ItemTapped;
+            await this.ScannerEnable();
+            if (!this.IsSearchEntryFocused)
             {
-                var performRefreshData = true;
-                try
-                {
-                    this.IsPageLoading = true;
-                    base.OnAppearing();
-                    this.NumTaps = 0;
-                    this.SubscribeKeyUpHandlers();
-                    this.ListViewMainActivity.ItemTapped += this.ListViewMainActivity_ItemTapped;
-                    this.ExtraInfoItems.Clear();
-
-                    this.ActHdr.XmlDataCriteria = XDocument.Parse(
-                                "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" +
-                                "<params>" +
-                                "<whs_id>0</whs_id>" +
-                                "<sect_refno>0</sect_refno>" +
-                                "</params>");
-
-                    // Note: This filter request will be asked for upon a page refresh.
-                    // IsShowActivityFilterSelection flag stored in singleton so it is not reset on a page refresh.
-                    if ((this.ActSubType == SysCommon.ActSubTypes.Picking
-                        || this.ActSubType == SysCommon.ActSubTypes.PickingSingle)
-                         && this.SysEnv.SysSettings.IsPrePickCrit && this.SysEnv.SysSettings.IsShowActivityFilterSelection)
-                    {
-                        this.SysEnv.SysSettings.IsShowActivityFilterSelection = false;
-
-                        // Override performRefreshData, WO#12906 do not load any orders if no section was selected.
-                        performRefreshData = await HandlePrePickCriteria();
-                    }
-
-                    if (performRefreshData)
-                    {
-                        await this.RefreshDataBySubType();
-                        this.ListViewDisplayExtraInfo.ItemsSource = this.ExtraInfoItems;
-                    }
-
-                    // If not headers where loaded clear the extra info list.
-                    if (this.MainActivityItems == null || this.MainActivityItems.Count == 0)
-                    {
-                        Device.BeginInvokeOnMainThread(() => this.ExtraInfoItems.Clear());
-                    }
-                    else
-                    {
-                        await this.FindSelectedItemAsync();
-                    }
-                }
-                catch (MessageOnlyException msgEx)
-                {
-                    var msg = SysCommon.GetMessageFromMessageException(msgEx);
-                    await Device.InvokeOnMainThreadAsync(async () =>
-                        await Application.Current.MainPage.DisplayAlert(
-                            this.ActHdr.GetControlDescription(),
-                            msg,
-                            Resource.OK));
-                }
-                catch (CommunicationException commEx)
-                {
-                    // Question should a communication error, be reported as an error or just a messagebox?
-                    await Device.InvokeOnMainThreadAsync(async () =>
-                    {
-                        var msg = $"Unable to load activity headers.{Environment.NewLine}" +
-                            $"Because of a communication problem.{Environment.NewLine}" +
-                            $"Detail:{commEx.Message}{Environment.NewLine}" +
-                            "Please exit and try again.";
-
-                        await Application.Current.MainPage.DisplayAlert(
-                            this.ActHdr.GetControlDescription(),
-                            msg,
-                            Resource.OK);
-                    });
-                }
-                catch (Exception ex)
-                {
-                    await Device.InvokeOnMainThreadAsync(async () =>
-                    {
-                        var msg = $"Unable to load activity headers.{Environment.NewLine}" +
-                            $"General exception.{Environment.NewLine}" +
-                            $"Detail:{ex.Message}{Environment.NewLine}" +
-                            "Please exit and try again.";
-                        var errorReport = new FormErrorReport(msg, ex);
-                        _ = await errorReport.ShowDialog();
-                    });
-                }
-                finally
-                {
-                    this.IsPageLoading = false;
-                    if (!performRefreshData)
-                    {
-                        this.SysEnv.SysSettings.IsShowActivityFilterSelection = true;
-                        await this.Close();
-                    }
-
-                    await this.ScannerStart();
-                }
-            }
-
-            //////////////////////////////////////////////////////////////////////////
-            async Task<bool> HandlePrePickCriteria()
-            {
-                var performRefreshData = true;
-
-                // This code should be moved into an picking header class inherited from ucActivityHdr.
-                var sectFKRefno = 0;
-
-                // Scanning in the picking selection criteria form is possible, which means the
-                // the last parse bar code data would be overwritten.
-                // However because the bar code parse object at this point does not contain any
-                // valuable data we do not need to preserve it before calling the picking
-                // selection form.
-                var formPickSelect = new FormDialogContainer(
-                    EDialogTypes.ActivityPickingSelectCriteria,
-                    this.ActSubType);
-
-                if (await Device.InvokeOnMainThreadAsync(async () =>
-                    await formPickSelect.DisplayControl.ShowDialog() == DialogResult.OK))
-                {
-                    var xmlResult = await formPickSelect.GetXML();
-                    var locMap = LocationMap.GetInstance();
-                    var tmpLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
-                        int.Parse(xmlResult.Root.Element("LocationMapRefno").Value));
-                    locMap.CurrLocMap = tmpLocMap;
-                    ((PickingActivity)this.ActHdr).PickingLocationMapFilter = tmpLocMap;
-                    sectFKRefno = tmpLocMap.SectFKRefno;
-
-                    this.ActHdr.XmlDataCriteria = XDocument.Parse(
-                                "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
-                                + "<params>"
-                                + "<whs_id>" + tmpLocMap.WhsFKRefno + "</whs_id>"
-                                + "<sect_refno>" + tmpLocMap.SectFKRefno + "</sect_refno>"
-                                + "</params>");
-                }
-
-                // See WO#12906 do not load any orders if no section was selected, rather than
-                // load all the orders.
-                if (this.SysEnv.SysSettings.IsPickingModuleDisallowLoadingAllOrders && sectFKRefno == 0)
-                {
-                    performRefreshData = false;
-                }
-
-                return performRefreshData;
+                this.ListViewMainActivity.Focus();
+                await this.FindSelectedItemAsync();
             }
         }
 
         /// <summary>
-        /// Clean up before the 'Page' becomes invisible.
+        ///     Clean up before the 'Page' becomes invisible.
         /// </summary>
         protected override async void OnDisappearing()
         {
@@ -627,7 +500,57 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// Subscribe key up handlers.
+        ///     Load and bind the data.
+        /// </summary>
+        /// <returns><see cref="Task"/> Task complete.</returns>
+        private async Task LoadAndBindData()
+        {
+            try
+            {
+                if (!this.IsDataLoading)
+                {
+                    this.IsDataLoading = true;
+
+                    // The activity indicator control messes up the search text control focus. Disable for searching.
+                    if (!this.IsSearchEntryFocused)
+                    {
+                        this.IsIndicatorRunning = true;
+                    }
+
+                    await this.RefreshDataBySubType();
+                    await this.DesignGrid();
+                    if (this.MainActivityItems == null || this.MainActivityItems.Count == 0)
+                    {
+                        Device.BeginInvokeOnMainThread(() => this.ExtraInfoItems.Clear());
+                    }
+                    else
+                    {
+                        await this.FindSelectedItemAsync();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                await Device.InvokeOnMainThreadAsync(async () =>
+                {
+                    var errRpt = new FormErrorReport(this.ActSubType, ex);
+                    _ = await errRpt.ShowDialog();
+                });
+            }
+            finally
+            {
+                // The activity indicator control messes up the search text control focus. Disable for searching.
+                if (!this.IsSearchEntryFocused)
+                {
+                    this.IsIndicatorRunning = false;
+                }
+
+                this.IsDataLoading = false;
+            }
+        }
+
+        /// <summary>
+        ///     Subscribe key up handlers.
         /// </summary>
         private void SubscribeKeyUpHandlers()
         {
@@ -635,18 +558,19 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// Key up handler call back.
+        ///     Key up handler call back.
         /// </summary>
-        /// <param name="keyPressed"><see cref="string"/> Key pressed value.</param>
+        /// <param name="keyPressed"><see cref="string" /> Key pressed value.</param>
         private async void KeyUpHandlerCallback(string keyPressed)
         {
-            if (this.IsPageLoading)
+            if (this.IsDataLoading)
             {
                 return;
             }
 
             try
             {
+                await this.ScannerDisable();
                 _ = Enum.TryParse(keyPressed, out Keycode keycode);
                 switch (keycode)
                 {
@@ -708,6 +632,12 @@ namespace dMobile.View.Activity
                     _ = await errRpt.ShowDialog();
                 });
             }
+            finally
+            {
+                await this.ScannerEnable();
+            }
+
+            return;
 
             //////////////////////////////////////////////////////////////////////////
             void AppearingDpadDownKey()
@@ -726,9 +656,9 @@ namespace dMobile.View.Activity
 
                 this.ListViewMainActivity.SelectedItem = this.MainActivityItems[selItemIdx + 1];
                 this.ListViewMainActivity.ScrollTo(
-                    item: this.ListViewMainActivity.SelectedItem,
-                    position: ScrollToPosition.MakeVisible,
-                    animated: true);
+                    this.ListViewMainActivity.SelectedItem,
+                    ScrollToPosition.MakeVisible,
+                    true);
             }
 
             //////////////////////////////////////////////////////////////////////////
@@ -748,9 +678,9 @@ namespace dMobile.View.Activity
 
                 this.ListViewMainActivity.SelectedItem = this.MainActivityItems[selItemIdx - 1];
                 this.ListViewMainActivity.ScrollTo(
-                    item: this.ListViewMainActivity.SelectedItem,
-                    position: ScrollToPosition.MakeVisible,
-                    animated: true);
+                    this.ListViewMainActivity.SelectedItem,
+                    ScrollToPosition.MakeVisible,
+                    true);
             }
 
             //////////////////////////////////////////////////////////////////////////
@@ -785,71 +715,69 @@ namespace dMobile.View.Activity
                     }
 
                     if (await Device.InvokeOnMainThreadAsync(async () =>
-                        await this.ActHdr.ChangeStatus(this.ListViewMainActivity.SelectedItem)))
+                            await this.ActHdr.ChangeStatus(this.ListViewMainActivity.SelectedItem)))
                     {
-                        // Print labels after release
-                        // Lekker Foods wants to be ask to print labels after the order has been released.
-                        // There is no opportunity to reprint after the release.
-                        if (this.ActSubType == SysCommon.ActSubTypes.Picking ||
-                            this.ActSubType == SysCommon.ActSubTypes.PickingSingle)
+                        switch (this.ActSubType)
                         {
-                            // Shipping labels
-                            if (this.SysEnv.SysSettings.CanPrintShippingLabel &&
-                                !this.SysEnv.SysSettings.IsDisconnectedMode)
+                            // Print labels after release
+                            // Lekker Foods wants to be ask to print labels after the order has been released.
+                            // There is no opportunity to reprint after the release.
+                            case SysCommon.ActSubTypes.Picking:
+                            case SysCommon.ActSubTypes.PickingSingle:
                             {
-                                labelQuantity = await PrintLabelsAfterRelease(labelQuantity);
+                                // Shipping labels
+                                if (this.SysEnv.SysSettings.CanPrintShippingLabel &&
+                                    !this.SysEnv.SysSettings.IsDisconnectedMode)
+                                {
+                                    labelQuantity = await PrintLabelsAfterRelease(labelQuantity);
+                                }
+
+                                if (this.SysEnv.SysSettings.IsPickRefreshOrdAfterRel)
+                                {
+                                    await this.RefreshDataBySubType();
+                                }
+                                else
+                                {
+                                    _ = this.ActHdr.ListHdrs.Remove(this.ListViewMainActivity.SelectedItem);
+                                    await this.DesignGrid();
+                                }
+
+                                break;
                             }
 
-                            if (this.SysEnv.SysSettings.IsPickRefreshOrdAfterRel)
+                            case SysCommon.ActSubTypes.Adjustment:
                             {
-                                await this.RefreshDataBySubType();
-                            }
-                            else
-                            {
-                                _ = this.ActHdr.ListHdrs.Remove(this.ListViewMainActivity.SelectedItem);
-                                await this.DesignGrid();
-                            }
-                        }
-                        else if (this.ActSubType == SysCommon.ActSubTypes.Adjustment)
-                        {
-                            // <WO ID="14748" comment="Printing after deboxing" />
-                            // If DEBOX, prompt for label
-                            if (this.ActHdr is AdjActivity adjustment)
-                            {
-                                if (adjustment.AdjSettings != null &&
-                                    adjustment.AdjSettings.AdjustmentType == SysCommon.AdjTypes.Debox)
+                                // <WO ID="14748" comment="Printing after deboxing" />
+                                // If DEBOX, prompt for label
+                                if (this.ActHdr is AdjActivity { AdjSettings: { AdjustmentType: SysCommon.AdjTypes.Debox } })
                                 {
-                                    // Show pop up screen
-                                    var form = new FormDialogContainer(
-                                        EDialogTypes.ActivityDeboxLabelCount,
-                                        this.ActSubType);
+                                    var form = new FormDialogContainer(EDialogTypes.ActivityDeboxLabelCount, this.ActSubType);
 
                                     if (await Device.InvokeOnMainThreadAsync(async () =>
-                                        await form.DisplayControl.ShowDialog() == DialogResult.OK))
+                                            await form.DisplayControl.ShowDialog() == DialogResult.OK))
                                     {
                                         var doc = await form.GetXML();
                                         await this.ActHdr.PrintLabel(doc);
                                     }
                                 }
+
+                                break;
                             }
                         }
                     }
-                }
-                catch
-                {
-                    throw;
                 }
                 finally
                 {
                     await this.FindSelectedItemAsync();
                 }
 
+                return;
+
                 //////////////////////////////////////////////////////////////////////////
                 async Task<SLabelQuantity> PrintLabelsAfterRelease(
                     SLabelQuantity labelQuantity)
                 {
-                    if (this.ActSubType == SysCommon.ActSubTypes.PickingSingle ||
-                        this.ActSubType == SysCommon.ActSubTypes.Picking)
+                    if (this.ActSubType == SysCommon.ActSubTypes.PickingSingle || this.ActSubType == SysCommon.ActSubTypes.Picking)
                     {
                         if (this.SysEnv.SysSettings.IsPickSinglePrintShipLabelFullQuantity)
                         {
@@ -860,13 +788,15 @@ namespace dMobile.View.Activity
                                 ShippingLabelQuantitySelectionMode.RepackOnly);
 
                             if (await Device.InvokeOnMainThreadAsync(async () =>
-                                await form.DisplayControl.ShowDialog() == DialogResult.OK))
+                                    await form.DisplayControl.ShowDialog() == DialogResult.OK))
                             {
                                 var request = await form.GetXML();
 
                                 // The itm_refno elements is used to mark the ar_oeitm.slbl_prtd as true.
                                 // If itm_refno is zero then no line is updated as printed.
-                                request.Element("params").Element("whs_id").AddAfterSelf(
+                                request.Element("params")
+                                    ?.Element("whs_id")
+                                    ?.AddAfterSelf(
                                     new XElement("itm_refno", 0));
                                 await this.ActHdr.PrintLabel(request);
                             }
@@ -880,13 +810,15 @@ namespace dMobile.View.Activity
                                 ShippingLabelQuantitySelectionMode.BothFullRepack);
 
                             if (await Device.InvokeOnMainThreadAsync(async () =>
-                                await form.DisplayControl.ShowDialog() == DialogResult.OK))
+                                    await form.DisplayControl.ShowDialog() == DialogResult.OK))
                             {
                                 var request = await form.GetXML();
 
                                 // The itm_refno elements is used to mark the ar_oeitm.slbl_prtd as true.
                                 // If itm_refno is zero then no line is updated as printed.
-                                request.Element("params").Element("whs_id").AddAfterSelf(
+                                request.Element("params")
+                                    ?.Element("whs_id")
+                                    ?.AddAfterSelf(
                                     new XElement("itm_refno", 0));
                                 await this.ActHdr.PrintLabel(request);
                             }
@@ -916,41 +848,34 @@ namespace dMobile.View.Activity
                 // Change pick selection.
                 await Task.Run(async () =>
                 {
-                    try
+                    if ((this.ActSubType == SysCommon.ActSubTypes.Picking ||
+                         this.ActSubType == SysCommon.ActSubTypes.PickingSingle) &&
+                        this.SysEnv.SysSettings.IsPrePickCrit)
                     {
-                        if ((this.ActSubType == SysCommon.ActSubTypes.Picking ||
-                            this.ActSubType == SysCommon.ActSubTypes.PickingSingle) &&
-                            this.SysEnv.SysSettings.IsPrePickCrit)
-                        {
-                            // NOTE: oBarCodeParse is not initialized yet so there is not reason to
-                            // preserve its values
-                            var form = new FormDialogContainer(
-                                EDialogTypes.ActivityPickingSelectCriteria,
-                                this.ActSubType);
+                        // NOTE: oBarCodeParse is not initialized yet so there is not reason to
+                        // preserve its values
+                        var form = new FormDialogContainer(
+                            EDialogTypes.ActivityPickingSelectCriteria,
+                            this.ActSubType);
 
-                            if (await Device.InvokeOnMainThreadAsync(async () =>
+                        if (await Device.InvokeOnMainThreadAsync(async () =>
                                 await form.DisplayControl.ShowDialog() == DialogResult.OK))
-                            {
-                                var locMap = LocationMap.GetInstance();
-                                var result = await form.GetXML();
-                                var sLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
-                                    int.Parse(result.Root.Element("LocationMapRefno").Value));
-                                locMap.CurrLocMap = sLocMap;
+                        {
+                            var locMap = LocationMap.GetInstance();
+                            var result = await form.GetXML();
+                            var sLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
+                                int.Parse(result.Root.Element("LocationMapRefno").Value));
+                            locMap.CurrLocMap = sLocMap;
 
-                                this.ActHdr.XmlDataCriteria = XDocument.Parse(
-                                    "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
-                                    + "<params>"
-                                    + "<whs_id>" + sLocMap.WhsFKRefno + "</whs_id>"
-                                    + "<sect_refno>" + sLocMap.SectFKRefno + "</sect_refno>"
-                                    + "</params>");
-                            }
-
-                            await this.RefreshDataBySubType();
+                            this.ActHdr.XmlDataCriteria = XDocument.Parse(
+                                "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
+                                + "<params>"
+                                + "<whs_id>" + sLocMap.WhsFKRefno + "</whs_id>"
+                                + "<sect_refno>" + sLocMap.SectFKRefno + "</sect_refno>"
+                                + "</params>");
                         }
-                    }
-                    catch
-                    {
-                        throw;
+
+                        await this.RefreshDataBySubType();
                     }
                 });
             }
@@ -972,20 +897,21 @@ namespace dMobile.View.Activity
                         this.ActSubType);
                     this.IsChangesMade = false;
                     _ = await Device.InvokeOnMainThreadAsync(async () =>
-                            await form.DisplayControl.ShowDialog());
+                        await form.DisplayControl.ShowDialog());
+                    await this.LoadAndBindData();
                 }
             }
         }
 
         /// <summary>
-        /// Ask to confirm to exit.
+        ///     Ask to confirm to exit.
         /// </summary>
-        /// <returns><see cref="Task"/> Task operation.</returns>
+        /// <returns><see cref="Task" /> Task operation.</returns>
         private async Task<bool> AskConfirmExit()
         {
             var isReadyToClose = !this.IsChangesMade;
             await this.DisplayAlert(this.ActHdr.GetControlDescription(), "Confirm exit?", "Yes", "No")
-                .ContinueWith((result) =>
+                .ContinueWith(result =>
                 {
                     if (!result.Result)
                     {
@@ -997,40 +923,41 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// Bar code event handler.
+        ///     Bar code event handler.
         /// </summary>
         /// <param name="sender">.</param>
-        /// <param name="scanArgs"><see cref="BarCodeScannerEventArgs"/> Bar code information.</param>
-        /// <returns>The <see cref="Task"/>. Task operation.</returns>
+        /// <param name="scanArgs"><see cref="BarCodeScannerEventArgs" /> Bar code information.</param>
+        /// <returns>The <see cref="Task" />. Task operation.</returns>
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
-            if (this.IsPageLoading)
+            if (scanArgs == null)
             {
+                const string msg = "Scanner event fired but no data was received.";
+                await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert(
+                        this.ActHdr.GetControlDescription(),
+                        msg,
+                        Resource.OK));
                 return;
             }
 
-            ////if (scanArgs == null)
-            ////{
-            ////    var msg = "Scanner event fired but not data was received.";
-            ////    await Device.InvokeOnMainThreadAsync(async () =>
-            ////        await Application.Current.MainPage.DisplayAlert(
-            ////            this.ActHdr.GetControlDescription(),
-            ////            msg,
-            ////            Resource.OK));
-            ////    return;
-            ////}
+            if (this.IsDataLoading)
+            {
+                return;
+            }
 
             var message = string.Empty;
 
             try
             {
+                // Turn off the scanner because we do not want more events to fire until we are finished with
+                // the execution path.
                 await this.ScannerDisable();
                 this.BarParse = scanArgs.ParseInfo;
                 if (!string.IsNullOrEmpty(this.BarParse.ActFKRefno))
                 {
                     // this.BarParse.ActFKRefno e.g. format is 'OE:12345678'.
                     // Start at 3th position for the foreign key reference number.
-                    await BarCodeHandlerFKRefno(this.BarParse.ActFKRefno);
+                    await BarCodeHandlerFkRefno(this.BarParse.ActFKRefno);
                 }
                 else if (!string.IsNullOrEmpty(this.BarParse.ActItemFKRefno))
                 {
@@ -1080,14 +1007,17 @@ namespace dMobile.View.Activity
                 await this.ScannerEnable();
             }
 
+            return;
+
             //////////////////////////////////////////////////////////////////////////
-            async Task BarCodeHandlerFKRefno(string actHdrStringFKRefno)
+            async Task BarCodeHandlerFkRefno(string actHdrStringFkRefno)
             {
                 // Remember that the headers have been filtered by the login warehouse.
-                var selectedActivity = this.ActHdr.ListHdrs.OfType<object>().FirstOrDefault(
+                var selectedActivity = this.ActHdr.ListHdrs.FirstOrDefault(
                     activity => Convert.ToString(activity.GetType().GetProperty(
-                        this.ActHdr.GetFkRefnoIdx()).GetValue(activity)) ==
-                        actHdrStringFKRefno);
+                                    this.ActHdr.GetFkRefnoIdx())
+                                    ?.GetValue(activity)) ==
+                                actHdrStringFkRefno);
                 if (selectedActivity != null)
                 {
                     this.ActHdr.HdrRefno = this.ActHdr.GetRefnoFromRowIdx(selectedActivity);
@@ -1100,24 +1030,25 @@ namespace dMobile.View.Activity
                         this.IsChangesMade = false;
                         _ = await form.DisplayControl.ShowDialog();
                     });
+                    await this.LoadAndBindData();
                 }
                 else
                 {
                     this.ActHdr.HdrFkRefno = 0;
                     this.ActHdr.HdrRefno = 0;
                     throw new MessageOnlyException(
-                        $"Unable to find reference # {actHdrStringFKRefno}. Perhaps change your login warehouse.");
+                        $"Unable to find reference # {actHdrStringFkRefno}. Perhaps change your login warehouse.");
                 }
             }
         }
 
         /// <summary>
-        /// Handle double click on list view item.
-        /// Using a tap gesture recognizer in the designGrid would be optimal, however there is
-        /// currently a known bug that prevents selectedItemChanged from firing.
+        ///     Handle double click on list view item.
+        ///     Using a tap gesture recognizer in the designGrid would be optimal, however there is
+        ///     currently a known bug that prevents selectedItemChanged from firing.
         /// </summary>
-        /// <param name="sender"><see cref="object"/> Sender object.</param>
-        /// <param name="e">The e<see cref="ItemTappedEventArgs"/> Item tapped event arguments.</param>
+        /// <param name="sender"><see cref="object" /> Sender object.</param>
+        /// <param name="e">The e<see cref="ItemTappedEventArgs" /> Item tapped event arguments.</param>
         private async void ListViewMainActivity_ItemTapped(object sender, ItemTappedEventArgs e)
         {
             this.NumTaps++;
@@ -1130,6 +1061,7 @@ namespace dMobile.View.Activity
 
                     try
                     {
+                        await this.ScannerDisable();
                         this.ActHdr.HdrRefno = this.ActHdr.GetRefnoFromRowIdx(this.ListViewMainActivity.SelectedItem);
                         if (this.SysEnv.SysSettings.IsPickSingleProd &&
                             this.ActSubType == SysCommon.ActSubTypes.PickingSingle)
@@ -1144,13 +1076,15 @@ namespace dMobile.View.Activity
                                 this.ActSubType);
                             this.IsChangesMade = false;
                             _ = await Device.InvokeOnMainThreadAsync(async () =>
-                                    await form.DisplayControl.ShowDialog());
+                                await form.DisplayControl.ShowDialog());
+                            await this.LoadAndBindData();
                         }
                     }
                     catch (MessageOnlyException msgEx)
                     {
-                        var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1)
-                            ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
+                        var msg = msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1
+                            ? msgEx.Message
+                            : msgEx.Message["MSGBOX-".Length..];
                         await Device.InvokeOnMainThreadAsync(async () =>
                             await Application.Current.MainPage.DisplayAlert(
                                 this.ActHdr.GetControlDescription(),
@@ -1165,6 +1099,10 @@ namespace dMobile.View.Activity
                             _ = await errRpt.ShowDialog();
                         });
                     }
+                    finally
+                    {
+                        await this.ScannerEnable();
+                    }
                 }
             }
             else
@@ -1178,9 +1116,9 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// Call refresh data, unique to the activity sub type.
+        ///     Call refresh data, unique to the activity sub type.
         /// </summary>
-        /// <returns><see cref="Task"/> Task operation.</returns>
+        /// <returns><see cref="Task" /> Task operation.</returns>
         private async Task RefreshDataBySubType()
         {
             // NOTE: So far all sub types will be refreshed.
@@ -1192,6 +1130,8 @@ namespace dMobile.View.Activity
                     break;
             }
 
+            return;
+
             //////////////////////////////////////////////////////////////////////////
             async Task RefreshData()
             {
@@ -1201,12 +1141,8 @@ namespace dMobile.View.Activity
                     this.ActHdr.RegLayerListenerStatOut(this);
                     this.ActHdr.RegLayerListenerProgOut(this);
                     await this.ActHdr.Refresh(this.ActHdr.XmlDataCriteria);
-                    this.ActHdr.ListHdrs = await this.ActHdr.GetActivityList(isSubmitBatch: false);
+                    this.ActHdr.ListHdrs = await this.ActHdr.GetActivityList(false);
                     await this.DesignGrid();
-                }
-                catch (Exception)
-                {
-                    throw;
                 }
                 finally
                 {
@@ -1217,16 +1153,17 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// Design the main activity grid / list.
+        ///     Design the main activity grid / list.
         /// </summary>
         /// <remarks>Search text is applied as a filter to list of headers.</remarks>
-        /// <returns>The <see cref="Task"/>. Task operation.</returns>
+        /// <returns>The <see cref="Task" />. Task operation.</returns>
         private async Task DesignGrid()
         {
             // Bind the filtered activity items to the list view.
             await Device.InvokeOnMainThreadAsync(() =>
             {
-                this.MainActivityItems = this.ActHdr.DesignGrid(ref this.GridMainActivity, ref this.ListViewMainActivity);
+                this.MainActivityItems =
+                    this.ActHdr.DesignGrid(ref this.GridMainActivity, ref this.ListViewMainActivity);
 
                 if (!string.IsNullOrEmpty(this.txtSearchHdr.Text))
                 {
@@ -1238,9 +1175,9 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// Find the selected item in the data list.
+        ///     Find the selected item in the data list.
         /// </summary>
-        /// <returns><see cref="Task"/> Task operation.</returns>
+        /// <returns><see cref="Task" /> Task operation.</returns>
         private async Task FindSelectedItemAsync()
         {
             if (this.ActHdr.ListHdrs.Count > 0 && this.MainActivityItems.Count > 0)
@@ -1265,13 +1202,16 @@ namespace dMobile.View.Activity
                 {
                     // Goto the first one in the list.
                     this.ActHdr.SelectedListItemIdx = 0;
-                    this.ListViewMainActivity.SelectedItem = this.MainActivityItems[this.ActHdr.SelectedListItemIdx];
+                    Device.BeginInvokeOnMainThread(() =>
+                    {
+                        this.ListViewMainActivity.SelectedItem = this.MainActivityItems[this.ActHdr.SelectedListItemIdx];
+                    });
                     await this.ActHdr.SelectActivity(this.ListViewMainActivity.SelectedItem);
                 }
                 else
                 {
                     await this.ActHdr.SelectActivity(selectedItem);
-                    this.ListViewMainActivity.SelectedItem = this.ActHdr.SelectedActivity;
+                    Device.BeginInvokeOnMainThread(() => { this.ListViewMainActivity.SelectedItem = this.ActHdr.SelectedActivity; });
                 }
 
                 Device.BeginInvokeOnMainThread(() =>
@@ -1289,37 +1229,40 @@ namespace dMobile.View.Activity
                 this.ActHdr.SelectedActivity = null;
                 this.ActHdr.HdrFkRefno = 0;
                 this.ActHdr.HdrRefno = 0;
-                Device.BeginInvokeOnMainThread(() =>
-                {
-                    this.ListViewMainActivity.SelectedItem = null;
-                });
+                Device.BeginInvokeOnMainThread(() => { this.ListViewMainActivity.SelectedItem = null; });
             }
         }
 
         /// <summary>
-        /// Add item command button event handler.
+        ///     Add item command button event handler.
         /// </summary>
-        /// <param name="sender"><see cref="object"/> Sender object.</param>
-        /// <param name="e"><see cref="EventArgs"/> Event arguments.</param>
+        /// <param name="sender"><see cref="object" /> Sender object.</param>
+        /// <param name="e"><see cref="EventArgs" /> Event arguments.</param>
         private async void CmdAdd_Click(object sender, EventArgs e)
         {
-            if (this.IsPageLoading)
+            if (this.IsDataLoading)
             {
                 return;
             }
 
             try
             {
+                await this.ScannerDisable();
+
                 // Needed to check if the enter key was pressed last, because it seems that
                 // SelectNextControl in the key press event causes a click event to fire if a
                 // command button is the next control rather than just giving the button focus.
-                XDocument xmlDoc = null;
-                _ = await this.ActHdr.Insert(xmlDoc);
+                var activityRefno = await this.ActHdr.Insert(null);
+                if (activityRefno > 0)
+                {
+                    await this.LoadAndBindData();
+                }
             }
             catch (MessageOnlyException msgEx)
             {
-                var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1)
-                    ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
+                var msg = msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1
+                    ? msgEx.Message
+                    : msgEx.Message["MSGBOX-".Length..];
 
                 // Do not set the IsChangesMade. MessageOnlyException is really not
                 // and error.
@@ -1338,72 +1281,16 @@ namespace dMobile.View.Activity
                     _ = await errRpt.ShowDialog();
                 });
             }
-        }
-
-        /// <summary>
-        /// Main data grid key up enter event handler.
-        /// </summary>
-        /// <returns>The <see cref="Task"/> Task operation.</returns>
-        private async Task ListViewMainActivity_KeyUpEnter()
-        {
-            if (this.IsPageLoading)
+            finally
             {
-                return;
-            }
-
-            if (this.ListViewMainActivity.SelectedItem == null)
-            {
-                return;
-            }
-
-            if (Convert.ToInt32(this.MainActivityItems.IndexOf(this.ListViewMainActivity.SelectedItem)) < 0)
-            {
-                return;
-            }
-
-            try
-            {
-                this.ActHdr.HdrRefno = this.ActHdr.GetRefnoFromRowIdx(this.ListViewMainActivity.SelectedItem);
-                if (this.SysEnv.SysSettings.IsPickSingleProd &&
-                    this.ActSubType == SysCommon.ActSubTypes.PickingSingle)
-                {
-                    await this.ListViewMainActivity_KeyUpEnter_PickingSingle();
-                }
-                else
-                {
-                    var form = new FormDialogContainer(
-                        EDialogTypes.ActivityItem,
-                        this.ActHdr,
-                        this.ActSubType);
-                    this.IsChangesMade = false;
-                    _ = await Device.InvokeOnMainThreadAsync(async () =>
-                            await form.DisplayControl.ShowDialog());
-                }
-            }
-            catch (MessageOnlyException msgEx)
-            {
-                var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1)
-                    ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
-                await Device.InvokeOnMainThreadAsync(async () =>
-                    await Application.Current.MainPage.DisplayAlert(
-                        this.ActHdr.GetControlDescription(),
-                        msg,
-                        Resource.OK));
-            }
-            catch (Exception ex)
-            {
-                await Device.InvokeOnMainThreadAsync(async () =>
-                {
-                    var errRpt = new FormErrorReport(this.ActSubType, ex);
-                    _ = await errRpt.ShowDialog();
-                });
+                await this.ScannerEnable();
             }
         }
 
         /// <summary>
-        /// Perform key up enter picking single.
+        ///     Perform key up enter picking single.
         /// </summary>
-        /// <returns><see cref="Task"/> Task operation.</returns>
+        /// <returns><see cref="Task" /> Task operation.</returns>
         private async Task ListViewMainActivity_KeyUpEnter_PickingSingle()
         {
             var isAllowedToPick = true;
@@ -1414,11 +1301,11 @@ namespace dMobile.View.Activity
                 {
                     // TODO: Test
                     if (await Device.InvokeOnMainThreadAsync(async () =>
-                        await this.DisplayAlert(
-                            "Picker Override",
-                            "Do you wish to clear the current picker?",
-                            "Yes",
-                            "No")))
+                            await this.DisplayAlert(
+                                "Picker Override",
+                                "Do you wish to clear the current picker?",
+                                "Yes",
+                                "No")))
                     {
                         if (await ((PickingActivity)this.ActHdr).ClearSalesOrderBeingPicked(false))
                         {
@@ -1449,81 +1336,23 @@ namespace dMobile.View.Activity
                     this.ActSubType);
                 this.IsChangesMade = false;
                 _ = await Device.InvokeOnMainThreadAsync(async () =>
-                        await form.DisplayControl.ShowDialog());
+                    await form.DisplayControl.ShowDialog());
+                await this.LoadAndBindData();
             }
         }
 
         /// <summary>
-        /// Headers list view focused event handler.
+        ///     The ListViewMainActivity_ItemSelected.
         /// </summary>
-        /// <param name="sender"><see cref="object"/> Object that generated the event.</param>
-        /// <param name="e"><see cref="FocusEventArgs"/> Focus event arguments.</param>
-        private void ListView_Focused(object sender, FocusEventArgs e)
-        {
-            this.IsHdrListViewInFocus = true;
-        }
-
-        /// <summary>
-        /// Headers list view unfocused event handler.
-        /// </summary>
-        /// <param name="sender"><see cref="object"/> Object that generated the event.</param>
-        /// <param name="e"><see cref="FocusEventArgs"/> Focus event arguments.</param>
-        private void ListView_Unfocused(object sender, FocusEventArgs e)
-        {
-            this.IsHdrListViewInFocus = false;
-        }
-
-        /// <summary>
-        /// Headers list view focused event handler.
-        /// </summary>
-        /// <param name="sender"><see cref="object"/> Object that generated the event.</param>
-        /// <param name="e"><see cref="FocusEventArgs"/> Focus event arguments.</param>
-        private void ListDisplay_Focused(object sender, FocusEventArgs e)
-        {
-            this.IsDisplayListViewInFocus = true;
-        }
-
-        /// <summary>
-        /// Headers list view unfocused event handler.
-        /// </summary>
-        /// <param name="sender"><see cref="object"/> Object that generated the event.</param>
-        /// <param name="e"><see cref="FocusEventArgs"/> Focus event arguments.</param>
-        private void ListDisplay_Unfocused(object sender, FocusEventArgs e)
-        {
-            this.IsDisplayListViewInFocus = false;
-        }
-
-        /// <summary>
-        /// Headers list view focused event handler.
-        /// </summary>
-        /// <param name="sender"><see cref="object"/> Object that generated the event.</param>
-        /// <param name="e"><see cref="FocusEventArgs"/> Focus event arguments.</param>
-        private void CmdAdd_Focused(object sender, FocusEventArgs e)
-        {
-            this.IsAddButtonFocused = true;
-        }
-
-        /// <summary>
-        /// Headers list view unfocused event handler.
-        /// </summary>
-        /// <param name="sender"><see cref="object"/> Object that generated the event.</param>
-        /// <param name="e"><see cref="FocusEventArgs"/> Focus event arguments.</param>
-        private void CmdAdd_Unfocused(object sender, FocusEventArgs e)
-        {
-            this.IsAddButtonFocused = false;
-        }
-
-        /// <summary>
-        /// The ListViewMainActivity_ItemSelected.
-        /// </summary>
-        /// <param name="sender"><see cref="object"/> Sender object.</param>
-        /// <param name="e"><see cref="SelectedItemChangedEventArgs"/> Select item changed event arguments.</param>
+        /// <param name="sender"><see cref="object" /> Sender object.</param>
+        /// <param name="e"><see cref="SelectedItemChangedEventArgs" /> Select item changed event arguments.</param>
         private async void ListViewMainActivity_ItemSelected(object sender, SelectedItemChangedEventArgs e)
         {
             this.ActHdr.SelectedListItemIdx = e.SelectedItemIndex;
             await this.ActHdr.SelectActivity(e.SelectedItem);
             this.SelectedActivityFkRefno = this.ActHdr.HdrFkRefno;
             await DisplayData();
+            return;
 
             //////////////////////////////////////////////////////////////////////////
             async Task DisplayData()
@@ -1686,11 +1515,11 @@ namespace dMobile.View.Activity
 
                         case SysCommon.ActSubTypes.ConvertProduct:
                             throw new NotImplementedException("SysCommon.ActSubTypes.ConvertProduct");
-
-                        default:
-                            break;
                     }
+
+                    this.ListViewDisplayExtraInfo.ItemsSource = this.ExtraInfoItems;
                 });
+                return;
 
                 //////////////////////////////////////////////////////////////////////////
                 void DisplayDataAdjustments()
@@ -1698,7 +1527,7 @@ namespace dMobile.View.Activity
                     if (this.ActHdr.SelectedActivity is Adjustment adjustment)
                     {
                         this.ExtraInfoItems.Add("Adjustment type: " + adjustment.ActivityAdjustmentTypeDescription);
-                        this.ExtraInfoItems.Add("Warehouse:  " + adjustment.LocationMapWarehouseName.ToString());
+                        this.ExtraInfoItems.Add("Warehouse:  " + adjustment.LocationMapWarehouseName);
                     }
                 }
 
@@ -1717,14 +1546,14 @@ namespace dMobile.View.Activity
                 {
                     if (this.ActHdr.SelectedActivity is Count count)
                     {
-                        const int LineLength = 30;
+                        const int lineLength = 30;
                         var lines = SysCommon.WordWrap2List(
                             count.ActivityCountDescription.TrimEnd(),
-                            LineLength);
+                            lineLength);
 
-                        for (var i = 0; i < lines.Count; i++)
+                        foreach (var line in lines)
                         {
-                            this.ExtraInfoItems.Add(lines[i]);
+                            this.ExtraInfoItems.Add(line);
                         }
                     }
                 }
@@ -1734,14 +1563,14 @@ namespace dMobile.View.Activity
                 {
                     if (this.ActHdr.SelectedActivity is Count count)
                     {
-                        const int LineLength = 30;
+                        const int lineLength = 30;
                         var lines = SysCommon.WordWrap2List(
                             count.ActivityCountDescription.TrimEnd(),
-                            LineLength);
+                            lineLength);
 
-                        for (var i = 0; i < lines.Count; i++)
+                        foreach (var line in lines)
                         {
-                            this.ExtraInfoItems.Add(lines[i]);
+                            this.ExtraInfoItems.Add(line);
                         }
                     }
                 }
@@ -1753,7 +1582,8 @@ namespace dMobile.View.Activity
                     {
                         this.ExtraInfoItems.Add("Customer: " + picking.ActivityPickingCustomerContactName);
                         this.ExtraInfoItems.Add("Ship to:   " + picking.ActivityPickingCustomerShipToInfo);
-                        this.ExtraInfoItems.Add($"Order warehouse:   {picking.LocationMapWarehouseFKRefno} - {picking.LocationMapWarehouseName}");
+                        this.ExtraInfoItems.Add(
+                            $"Order warehouse:   {picking.LocationMapWarehouseFKRefno} - {picking.LocationMapWarehouseName}");
                     }
                 }
 
@@ -1764,7 +1594,8 @@ namespace dMobile.View.Activity
                     {
                         this.ExtraInfoItems.Add("Customer: " + pickingSingle.ActivityPickingCustomerContactName);
                         this.ExtraInfoItems.Add("Ship to:   " + pickingSingle.ActivityPickingCustomerShipToInfo);
-                        this.ExtraInfoItems.Add($"Order warehouse:   {pickingSingle.LocationMapWarehouseFKRefno} - {pickingSingle.LocationMapWarehouseName}");
+                        this.ExtraInfoItems.Add(
+                            $"Order warehouse:   {pickingSingle.LocationMapWarehouseFKRefno} - {pickingSingle.LocationMapWarehouseName}");
                     }
                 }
 
@@ -1813,8 +1644,10 @@ namespace dMobile.View.Activity
                 {
                     if (this.ActHdr.SelectedActivity is Picking pickingReleaseByOrder)
                     {
-                        this.ExtraInfoItems.Add("Customer: " + pickingReleaseByOrder.ActivityPickingCustomerContactName);
-                        this.ExtraInfoItems.Add("Ship to:   " + pickingReleaseByOrder.ActivityPickingCustomerShipToInfo);
+                        this.ExtraInfoItems.Add("Customer: " +
+                                                pickingReleaseByOrder.ActivityPickingCustomerContactName);
+                        this.ExtraInfoItems.Add("Ship to:   " +
+                                                pickingReleaseByOrder.ActivityPickingCustomerShipToInfo);
                     }
                 }
 
@@ -1841,68 +1674,43 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// Text box search item focused event handler.
+        ///     Text box search item focused event handler.
         /// </summary>
-        /// <param name="sender"><see cref="object"/> Object that generated the event.</param>
-        /// <param name="e"><see cref="FocusEventArgs"/> Focus event arguments.</param>
-        private void TxtSearchItem_Focused(object sender, FocusEventArgs e)
+        /// <param name="sender"><see cref="object" /> Object that generated the event.</param>
+        /// <param name="e"><see cref="FocusEventArgs" /> Focus event arguments.</param>
+        private void TxtSearchHdr_Focused(object sender, FocusEventArgs e)
         {
             this.IsSearchEntryFocused = true;
         }
 
         /// <summary>
-        /// Text box search item unfocused event handler.
+        ///     Text box search item unfocused event handler.
         /// </summary>
-        /// <param name="sender"><see cref="object"/> Object that generated the event.</param>
-        /// <param name="e"><see cref="FocusEventArgs"/> Focus event arguments.</param>
-        private void TxtSearchItem_Unfocused(object sender, FocusEventArgs e)
+        /// <param name="sender"><see cref="object" /> Object that generated the event.</param>
+        /// <param name="e"><see cref="FocusEventArgs" /> Focus event arguments.</param>
+        private void TxtSearchHdr_Unfocused(object sender, FocusEventArgs e)
         {
             this.IsSearchEntryFocused = false;
         }
 
         /// <summary>
-        /// Text search text changed event handler.
+        ///     Text search text changed event handler.
         /// </summary>
-        /// <param name="sender"><see cref="object"/> Sender object.</param>
-        /// <param name="e"><see cref="TextChangedEventArgs"/> Text changed event arguments.</param>
+        /// <param name="sender"><see cref="object" /> Sender object.</param>
+        /// <param name="e"><see cref="TextChangedEventArgs" /> Text changed event arguments.</param>
         private async void TxtSearchHdr_TextChanged(object sender, TextChangedEventArgs e)
         {
-            try
-            {
-                if (string.IsNullOrEmpty(this.txtSearchHdr.Text))
-                {
-                    await this.RefreshDataBySubType();
-                }
-
-                await this.DesignGrid();
-            }
-            catch (MessageOnlyException msgEx)
-            {
-                var msg = SysCommon.GetMessageFromMessageException(msgEx);
-                await Device.InvokeOnMainThreadAsync(async () =>
-                    await Application.Current.MainPage.DisplayAlert(
-                        this.ActHdr.GetControlDescription(),
-                        msg,
-                        Resource.OK));
-            }
-            catch (Exception ex)
-            {
-                await Device.InvokeOnMainThreadAsync(async () =>
-                {
-                    var errRpt = new FormErrorReport(this.ActSubType, ex);
-                    _ = await errRpt.ShowDialog();
-                });
-            }
+            await this.LoadAndBindData();
         }
 
         /// <summary>
-        /// Option menu click handler.
+        ///     Option menu click handler.
         /// </summary>
-        /// <param name="sender"><see cref="object"/> Sender object.</param>
-        /// <param name="e"><see cref="EventArgs"/> Event arguments.</param>
+        /// <param name="sender"><see cref="object" /> Sender object.</param>
+        /// <param name="e"><see cref="EventArgs" /> Event arguments.</param>
         private async void OptionsMenu_Clicked(object sender, EventArgs e)
         {
-            if (this.IsPageLoading)
+            if (this.IsDataLoading)
             {
                 return;
             }
@@ -1962,7 +1770,7 @@ namespace dMobile.View.Activity
                         SysCommon.ActSubTypes.SetupDefaults => throw new NotImplementedException(),
                         SysCommon.ActSubTypes.InventoryInquirySummary => throw new NotImplementedException(),
                         SysCommon.ActSubTypes.ConvertProduct => throw new NotImplementedException(),
-                        _ => throw new NotImplementedException("eActivitySubType"),
+                        _ => throw new NotImplementedException("eActivitySubType")
                     };
 
                     var form = new FormDialogContainer(dlgType, this.ActSubType);
@@ -1975,6 +1783,8 @@ namespace dMobile.View.Activity
                             {
                                 this.MainActivityItems = this.ActHdr.Search(this.txtSearchHdr.Text);
                             }
+
+                            await this.LoadAndBindData();
                         }
                     });
                 }

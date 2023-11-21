@@ -9,13 +9,13 @@ namespace dMobile.View.Options
     using System.Threading.Tasks;
     using System.Xml.Linq;
     using Android.Views;
-    using dMobile.Bedrock;
-    using dMobile.Resources.Enums;
-    using dMobile.View.CustomPages;
-    using dMobile.View.Forms;
+    using Bedrock;
+    using CustomPages;
+    using Forms;
+    using Resources.Enums;
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;
-    using Resource = dMobile.Resources.Properties.Resources;
+    using Resource = Resources.Properties.Resources;
 
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class CommunicationSetupAdvanced : DMobileContentPage
@@ -35,7 +35,7 @@ namespace dMobile.View.Options
         private bool isChangesMade;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="CommunicationSetupAdvanced" /> class.
+        ///     Initializes a new instance of the <see cref="CommunicationSetupAdvanced" /> class.
         /// </summary>
         public CommunicationSetupAdvanced()
         {
@@ -43,6 +43,7 @@ namespace dMobile.View.Options
 
             this.Title = this.GetControlDescription();
 
+            this.IsIndicatorRunning = false;
             this.lblConnectionAttempts.Text = "Connection Attempts";
             this.lblSendTimeOutSec.Text = "Send Timeout Seconds";
             this.lblSendAttempts.Text = "Send Attempts";
@@ -86,20 +87,26 @@ namespace dMobile.View.Options
         /// </summary>
         protected override void OnAppearing()
         {
-            base.OnAppearing();
-
-            MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async keyPressed =>
+            if (!this.IsIndicatorRunning)
             {
-                _ = Enum.TryParse(keyPressed, out Keycode keycode);
+                this.IsIndicatorRunning = true;
+                base.OnAppearing();
 
-                if (keycode == Keycode.Enter || keycode == Keycode.F1)
+                MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async keyPressed =>
                 {
-                    if (await this.SaveChanges())
+                    _ = Enum.TryParse(keyPressed, out Keycode keycode);
+
+                    if (keycode == Keycode.Enter || keycode == Keycode.F1)
                     {
-                        await this.Close();
+                        if (await this.SaveChanges())
+                        {
+                            await this.Close();
+                        }
                     }
-                }
-            });
+                });
+
+                this.IsIndicatorRunning = false;
+            }
         }
 
         /// <summary>
@@ -109,11 +116,12 @@ namespace dMobile.View.Options
         {
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
             base.OnDisappearing();
+            this.IsIndicatorRunning = false;
             GC.Collect();
             GC.WaitForPendingFinalizers();
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         protected override bool OnBackButtonPressed()
         {
             Device.BeginInvokeOnMainThread(async () =>

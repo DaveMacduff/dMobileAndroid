@@ -83,12 +83,12 @@
                                              Grid.Column="1"
                                              FontSize="Body"
                                              Image="arrow_drop_down"
-                                             IsEnabled="{Binding IsPageLoading, Converter={helpers:BoolConverter}}"/>
+                                             IsEnabled="{Binding IsIndicatorRunning, Converter={helpers:BoolConverter}}"/>
                 <Entry x:Name="TxtSearchSection"
                        Grid.Row="0"
                        Grid.Column="2"
                        TextChanged="TxtSearchSection_TextChanged"
-                       IsEnabled="{Binding IsPageLoading, Converter={helpers:BoolConverter}}"/>
+                       IsEnabled="{Binding IsIndicatorRunning, Converter={helpers:BoolConverter}}"/>
             </Grid>
 
             <Frame VerticalOptions="Start" Grid.Row="2" OutlineColor="{DynamicResource BorderColor}">
@@ -244,13 +244,13 @@
                     <Label x:Name="lblSlot" Text="Slot" Grid.Row="2" Grid.Column="0"/>
                     <Label x:Name="lblSlotData" Text="Unknown" Grid.Row="2" Grid.Column="1"/>
 
-                    <Button x:Name="btnSave" Text="Save" Grid.Row="0" Grid.Column="0" Clicked="BtnSave_Clicked" IsEnabled="{Binding IsPageLoading, Converter={Helpers:BoolConverter}}"/>
-                    <Button x:Name="btnCancel" Text="Cancel" Grid.Row="0" Grid.Column="1" Clicked="BtnCancel_Clicked" IsEnabled="{Binding IsPageLoading, Converter={Helpers:BoolConverter}}"/>
+                    <Button x:Name="btnSave" Text="Save" Grid.Row="0" Grid.Column="0" Clicked="BtnSave_Clicked" IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}"/>
+                    <Button x:Name="btnCancel" Text="Cancel" Grid.Row="0" Grid.Column="1" Clicked="BtnCancel_Clicked" IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}"/>
                 </Grid>
             </Frame>
 
-            <ActivityIndicator IsVisible="{Binding IsPageLoading}" 
-                                   IsRunning="{Binding IsPageLoading}" 
+            <ActivityIndicator IsVisible="{Binding IsIndicatorRunning}" 
+                                   IsRunning="{Binding IsIndicatorRunning}" 
                                    AbsoluteLayout.LayoutFlags="All" 
                                    AbsoluteLayout.LayoutBounds="0.5,0.5,0.3,0.3"/>
 

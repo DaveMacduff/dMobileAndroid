@@ -143,27 +143,27 @@ namespace dMobile.Controller.Activity_Detail
         /// <summary>
         /// Find or insert an activity detail into the list details.
         /// </summary>
-        /// <param name="mainActivityItems"><see cref="ObservableCollection{object}"/> Main activity items.</param>
         /// <returns><see cref="ActivityDetail"/> Activity detail.</returns>
-        public override ActivityDetail InsertListDetail(ObservableCollection<object> mainActivityItems)
+        public override ActivityDetail GatherDetail()
         {
             SkidInfoDetail detail = null;
             if (this.ListDetails != null)
             {
-                detail = new SkidInfoDetail();
-                detail.ActivityDetailRefno = this.DetailRefno;
-                detail.ActivityDetailFKRefno = this.DetailFkRefno;
+                detail = new SkidInfoDetail
+                {
+                    // KLUDGE: Restore the new detail reference number's that got over written somehow.
+                    ActivityDetailRefno = this.SysEnv.InsertedDetailRefno,
+                    ActivityDetailFKRefno = this.SysEnv.InsertedDetailFkRefno,
+                };
 
-                this.InsertListDetailProduct(detail);
-                this.InsertListDetailQuantity(detail);
-                this.InsertListDetailScheme(detail);
-                this.InsertListDetailExtra(detail);
-                this.InsertListDetailLocation(detail);
+                this.GatherProductDetail(detail);
+                this.GatherQuantityDetail(detail);
+                this.GatherSchemeDetail(detail);
+                this.GatherExtraDetail(detail);
+                this.GatherLocationDetail(detail);
 
                 detail.ActivityDetailSchemeID = this.SchemeId;
                 detail.ActivityDetailUniqueSchemeID = this.UniqueSchemeId;
-                ////detail.ActivityDetailStatus = (int)SysCommon.ActStatus.Inserted;
-                this.ListDetails.Add(detail);
             }
 
             return detail;
@@ -176,11 +176,6 @@ namespace dMobile.Controller.Activity_Detail
         public override void UpdateListDetail(int listDetailIdx)
         {
             var detail = (SkidInfoDetail)this.ListDetails[listDetailIdx];
-            ////if (detail.ActivityDetailStatus == (int)SysCommon.ActStatus.NoChange)
-            ////{
-            ////    detail.ActivityDetailStatus = (int)SysCommon.ActStatus.Updated;
-            ////}
-
             detail.ActivityDetailQuantity += Math.Round(this.Quantity, 3);
             detail.ActivityDetailBaseQuantity += Math.Round(this.BaseQuantity, 3);
             detail.ActivityDetailWeightQuantity += Math.Round(this.WeightQuantity, 3);
@@ -222,6 +217,10 @@ namespace dMobile.Controller.Activity_Detail
             xmlDoc.LoadXml(responseData);
             this.DetailFkRefno = int.Parse(xmlDoc.DocumentElement["ser_refno"].InnerText);
             this.DetailRefno = this.DetailFkRefno;
+
+            // KLUDGE: Save the new detail reference number's to be restored.
+            this.SysEnv.InsertedDetailRefno = this.DetailRefno;
+            this.SysEnv.InsertedDetailFkRefno = this.DetailFkRefno;
         }
 
         /// <summary>

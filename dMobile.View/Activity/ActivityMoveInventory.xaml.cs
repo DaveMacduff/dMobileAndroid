@@ -38,6 +38,7 @@ namespace dMobile.View.Activity
         public ActivityMoveInventory()
         {
             this.InitializeComponent();
+            this.IsIndicatorRunning = false;
         }
 
         /// <summary>
@@ -48,6 +49,7 @@ namespace dMobile.View.Activity
         {
             this.InitializeComponent();
 
+            this.IsIndicatorRunning = false;
             this.Title = this.GetControlDescription();
             this.LblScanToLocation.Text = "Scan To Loc.";
             this.CmdFromLocation.Text = "Set From Location";
@@ -74,6 +76,7 @@ namespace dMobile.View.Activity
 
             CreateOptionsMenu();
             ParseAndSeedBarCodeModifier();
+            return;
 
             //////////////////////////////////////////////////////////////////////////
             void CreateOptionsMenu()
@@ -610,88 +613,89 @@ namespace dMobile.View.Activity
         /// </summary>
         protected override async void OnAppearing()
         {
-            base.OnAppearing();
-            try
+            if (!this.IsIndicatorRunning)
             {
-                this.IsPageLoading = true;
-                if (this.IsFirstAppearance)
+                this.IsIndicatorRunning = true;
+                base.OnAppearing();
+                try
                 {
-                    this.IsFirstAppearance = false;
-                    this.ListViewDisplayExtraInfo.ItemsSource = this.ExtraInfoItems;
-
-                    await ScannerStart();
-
-                    if (this.MainActivityItems == null || this.MainActivityItems.Count == 0)
+                    this.IsIndicatorRunning = true;
+                    if (this.IsFirstAppearance)
                     {
-                        Device.BeginInvokeOnMainThread(() => this.ExtraInfoItems.Clear());
-                    }
-                    else
-                    {
-                        await this.ActAppearing();
+                        this.IsFirstAppearance = false;
+                        this.ListViewDisplayExtraInfo.ItemsSource = this.ExtraInfoItems;
+
+                        await ScannerStart();
+
+                        if (this.MainActivityItems == null || this.MainActivityItems.Count == 0)
+                        {
+                            Device.BeginInvokeOnMainThread(() => this.ExtraInfoItems.Clear());
+                        }
+                        else
+                        {
+                            await this.ActAppearing();
+                        }
                     }
                 }
-            }
-            catch (MessageOnlyException msgEx)
-            {
-                var msg = SysCommon.GetMessageFromMessageException(msgEx);
-                await Device.InvokeOnMainThreadAsync(async () =>
-                    await Application.Current.MainPage.DisplayAlert(
-                        this.ActItem.GetControlDescription(),
-                        msg,
-                        Resource.OK));
-            }
-            catch (CommunicationException commEx)
-            {
-                this.IsFirstAppearance = true;
-
-                // Question should a communication error, be reported as an error or just a messagebox?
-                await Device.InvokeOnMainThreadAsync(async () =>
+                catch (MessageOnlyException msgEx)
                 {
-                    var msg = $"Unable to load activity moves.{Environment.NewLine}" +
-                        $"Because of a communication problem.{Environment.NewLine}" +
-                        $"Detail:{commEx.Message}{Environment.NewLine}" +
-                        "Please exit and try again.";
-
-                    await Application.Current.MainPage.DisplayAlert(
-                        this.ActItem.GetControlDescription(),
-                        msg,
-                        Resource.OK);
-                });
-            }
-            catch (Exception ex)
-            {
-                this.IsFirstAppearance = true;
-                await Device.InvokeOnMainThreadAsync(async () =>
+                    var msg = SysCommon.GetMessageFromMessageException(msgEx);
+                    await Device.InvokeOnMainThreadAsync(async () =>
+                        await Application.Current.MainPage.DisplayAlert(
+                            this.ActItem.GetControlDescription(),
+                            msg,
+                            Resource.OK));
+                }
+                catch (CommunicationException commEx)
                 {
-                    var msg = $"Unable to load activity moves.{Environment.NewLine}" +
-                        $"General exception.{Environment.NewLine}" +
-                        $"Detail:{ex.Message}{Environment.NewLine}" +
-                        "Please exit and try again.";
-                    var errorReport = new FormErrorReport(msg, ex);
-                    _ = await errorReport.ShowDialog();
-                });
-            }
-            finally
-            {
-                this.IsPageLoading = false;
+                    this.IsFirstAppearance = true;
+
+                    // Question should a communication error, be reported as an error or just a messagebox?
+                    await Device.InvokeOnMainThreadAsync(async () =>
+                    {
+                        var msg = $"Unable to load activity moves.{Environment.NewLine}" +
+                            $"Because of a communication problem.{Environment.NewLine}" +
+                            $"Detail:{commEx.Message}{Environment.NewLine}" +
+                            "Please exit and try again.";
+
+                        await Application.Current.MainPage.DisplayAlert(
+                            this.ActItem.GetControlDescription(),
+                            msg,
+                            Resource.OK);
+                    });
+                }
+                catch (Exception ex)
+                {
+                    this.IsFirstAppearance = true;
+                    await Device.InvokeOnMainThreadAsync(async () =>
+                    {
+                        var msg = $"Unable to load activity moves.{Environment.NewLine}" +
+                            $"General exception.{Environment.NewLine}" +
+                            $"Detail:{ex.Message}{Environment.NewLine}" +
+                            "Please exit and try again.";
+                        var errorReport = new FormErrorReport(msg, ex);
+                        _ = await errorReport.ShowDialog();
+                    });
+                }
+
+                try
+                {
+                    await Task.Run(async () => await this.ActivityMoveInventory_GotFocus());
+                }
+                catch (Exception ex)
+                {
+                    await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(
+                        "Error",
+                        "this.ActivityMoveInventory_GotFocus threw an error " + ex,
+                        "OK"));
+                }
+                finally
+                {
+                    this.IsIndicatorRunning = false;
+                }
             }
 
-            try
-            {
-                this.IsPageLoading = true;
-                await Task.Run(async () => await this.ActivityMoveInventory_GotFocus());
-            }
-            catch (Exception ex)
-            {
-                await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(
-                    "Error",
-                    "this.ActivityMoveInventory_GotFocus threw an error " + ex,
-                    "OK"));
-            }
-            finally
-            {
-                this.IsPageLoading = false;
-            }
+            return;
 
             //////////////////////////////////////////////////////////////////////////
             async Task ScannerStart()
@@ -713,6 +717,7 @@ namespace dMobile.View.Activity
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
             await this.ScannerDisable();
             base.OnDisappearing();
+            this.IsIndicatorRunning = false;
             GC.Collect();
             GC.WaitForPendingFinalizers();
         }
@@ -831,6 +836,7 @@ namespace dMobile.View.Activity
             this.ListViewMainActivity.ItemsSource = this.MainActivityItems;
 
             await this.FindSelectedItemAsync();
+            return;
 
             //////////////////////////////////////////////////////////////////////////
             void SubscribeKeyUpHandlers()
@@ -839,6 +845,7 @@ namespace dMobile.View.Activity
                     this,
                     EventTypes.OnKeyUp.ToString(),
                     KeyUpCallback);
+                return;
 
                 //////////////////////////////////////////////////////////////////////////
                 async void KeyUpCallback(string keyPressed)
@@ -849,6 +856,7 @@ namespace dMobile.View.Activity
                     _ = Enum.TryParse(keyPressed, out Keycode keycode);
 
                     await KeyUpHandlerDelKey();
+                    return;
 
                     //////////////////////////////////////////////////////////////////////////
                     async Task KeyUpHandlerDelKey()
@@ -941,7 +949,7 @@ namespace dMobile.View.Activity
         {
             try
             {
-                this.IsPageLoading = true;
+                this.IsIndicatorRunning = true;
                 await this.ScannerDisable();
 
                 var form = new FormDialogContainer(EDialogTypes.SelectLocationMap, SysCommon.ActSubTypes.NotApplicable);
@@ -974,7 +982,7 @@ namespace dMobile.View.Activity
             finally
             {
                 await this.ScannerEnable();
-                this.IsPageLoading = false;
+                this.IsIndicatorRunning = false;
             }
         }
 
@@ -1111,6 +1119,8 @@ namespace dMobile.View.Activity
                 await this.ActAppearing();
             }
 
+            return;
+
             //////////////////////////////////////////////////////////////////////////
             async Task<bool> GatherActivityDetail()
             {
@@ -1174,7 +1184,8 @@ namespace dMobile.View.Activity
             if (isInsertDetailReady)
             {
                 actDetail.DetailFkRefno = 0;
-                var inserted = this.ActDetail.InsertListDetail(this.MainActivityItems);
+                var inserted = this.ActDetail.GatherDetail();
+                this.ActDetail.ListDetails.Add(inserted);
                 this.SelectedActivityDetailFKRefno = inserted.ActivityDetailFKRefno;
                 await Device.InvokeOnMainThreadAsync(() =>
                 {
@@ -1196,12 +1207,12 @@ namespace dMobile.View.Activity
         /// <returns>The <see cref="Task"/>.</returns>
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
-            if (this.IsPageLoading || scanArgs == null)
+            if (this.IsIndicatorRunning || scanArgs == null)
             {
                 return;
             }
 
-            this.IsPageLoading = true;
+            this.IsIndicatorRunning = true;
             var listItemRowIdx = 0;
 
             try
@@ -1280,8 +1291,10 @@ namespace dMobile.View.Activity
                 });
 
                 await this.ActAppearing();
-                this.IsPageLoading = false;
+                this.IsIndicatorRunning = false;
             }
+
+            return;
 
             //////////////////////////////////////////////////////////////////////////
             async Task ProductIdentifierHandler()
@@ -1333,6 +1346,8 @@ namespace dMobile.View.Activity
                 {
                     await AssignFromLocMap();
                 }
+
+                return;
 
                 //////////////////////////////////////////////////////////////////////////
                 async Task AssignFromLocMap()
@@ -1408,7 +1423,7 @@ namespace dMobile.View.Activity
         /// <param name="e"><see cref="EventArgs"/> Event arguments.</param>
         private async void OptionsMenu_Clicked(object sender, EventArgs e)
         {
-            if (this.IsPageLoading)
+            if (this.IsIndicatorRunning)
             {
                 return;
             }
@@ -1448,7 +1463,7 @@ namespace dMobile.View.Activity
         /// <param name="e"><see cref="EventArgs"/> Event arguments.</param>
         private async void CmdPerformMove_Clicked(object sender, EventArgs e)
         {
-            if (this.IsPageLoading)
+            if (this.IsIndicatorRunning)
             {
                 return;
             }

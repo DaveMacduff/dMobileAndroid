@@ -127,27 +127,29 @@ namespace dMobile.Controller.Activity_Detail
         /// <summary>
         /// Find or insert an activity detail into the list details.
         /// </summary>
-        /// <param name="mainActivityItems"><see cref="ObservableCollection{object}"/> Main activity items.</param>
         /// <returns><see cref="ActivityDetail"/> Activity detail.</returns>
-        public override ActivityDetail InsertListDetail(ObservableCollection<object> mainActivityItems)
+        public override ActivityDetail GatherDetail()
         {
             CountDetail detail = null;
             if (this.ListDetails != null)
             {
-                detail = new CountDetail();
-                detail.ActivityDetailRefno = this.DetailRefno;
-                detail.ActivityDetailFKRefno = this.DetailFkRefno;
+                var sysEnv = SysEnvironment.GetInstance();
+                detail = new CountDetail
+                {
+                    // KLUDGE: Restore the new detail reference number's that got over written somehow.
+                    ActivityDetailRefno = sysEnv.InsertedDetailRefno,
+                    ActivityDetailFKRefno = sysEnv.InsertedDetailFkRefno,
+                };
 
-                this.InsertListDetailProduct(detail);
-                this.InsertListDetailQuantity(detail);
-                this.InsertListDetailScheme(detail);
-                this.InsertListDetailExtra(detail);
-                this.InsertListDetailLocation(detail);
+                this.GatherProductDetail(detail);
+                this.GatherQuantityDetail(detail);
+                this.GatherSchemeDetail(detail);
+                this.GatherExtraDetail(detail);
+                this.GatherLocationDetail(detail);
 
                 detail.ActivityDetailSchemeID = this.SchemeId;
                 detail.ActivityDetailUniqueSchemeID = this.UniqueSchemeId;
                 detail.ActivityDetailStatus = (int)SysCommon.ActStatus.Inserted;
-                this.ListDetails.Add(detail);
             }
 
             return detail;
@@ -160,11 +162,6 @@ namespace dMobile.Controller.Activity_Detail
         public override void UpdateListDetail(int listDetailIdx)
         {
             var detail = (CountDetail)this.ListDetails[listDetailIdx];
-            if (detail.ActivityDetailStatus == (int)SysCommon.ActStatus.NoChange)
-            {
-                detail.ActivityDetailStatus = (int)SysCommon.ActStatus.Updated;
-            }
-
             detail.ActivityDetailQuantity += Math.Round(this.Quantity, 3);
             detail.ActivityDetailBaseQuantity += Math.Round(this.BaseQuantity, 3);
             detail.ActivityDetailWeightQuantity += Math.Round(this.WeightQuantity, 3);
@@ -229,12 +226,11 @@ namespace dMobile.Controller.Activity_Detail
             }
 
             // In order to support base tracking the DetailFKRefno is the itm_refno rather than the serial.refno.
-            var foundIdx = this.FindListDetailIndex(this.DetailFkRefno);
-            if (foundIdx < 0)
+            this.DetailRefno = this.FindListDetailRefno(this.DetailFkRefno);
+            if (this.DetailRefno < 0)
             {
                 this.DetailRefno = await this.InsertDetailIntoTablesDetail();
-                var query =
-                    "INSERT INTO tActivityDetailCount (ActivityDetailRefno, ActivityDetailFKRefno) VALUES (?, ?)";
+                const string query = "INSERT INTO tActivityDetailCount (ActivityDetailRefno, ActivityDetailFKRefno) VALUES (?, ?)";
                 var rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
                     query,
                     this.DetailRefno,
@@ -244,6 +240,10 @@ namespace dMobile.Controller.Activity_Detail
                     throw new Exception("Unable to insert activity detail.");
                 }
             }
+
+            // KLUDGE: Save the new detail reference number's to be restored.
+            this.SysEnv.InsertedDetailRefno = this.DetailRefno;
+            this.SysEnv.InsertedDetailFkRefno = this.DetailFkRefno;
         }
 
         /// <summary>
@@ -317,6 +317,21 @@ namespace dMobile.Controller.Activity_Detail
                     if (this.ActItem.SelectedItem is CountItem item)
                     {
                         item.ActivityItemFKRefno = this.ActItem.ItemFkRefno;
+                        item.ActivityItemStringFKRefno = this.ActItem.ItemFkRefno.ToString();
+
+                        rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
+                            "UPDATE tActivityItemCount SET ActivityItemFKRefno = ?" +
+                            ",ActivityItemStringFKRefno = ?" +
+                            " WHERE ActivityItemRefno = ?",
+                            item.ActivityItemFKRefno,
+                            item.ActivityItemStringFKRefno,
+                            this.ActItem.ItemRefno);
+                        if (rowsAffected < 0)
+                        {
+                            throw new Exception(
+                                "Unable to locate and update the cycle count activity line item with a new foreign" +
+                                " key upon inserting.");
+                        }
                     }
 
                     this.ActItem.ActStatus = SysCommon.ActStatus.NoChange;
@@ -378,6 +393,84 @@ namespace dMobile.Controller.Activity_Detail
                     rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
                         "UPDATE tActivityDetail SET ActivityDetailStatus = ? WHERE ActivityDetailRefno = ?",
                         Convert.ToInt32(SysCommon.ActStatus.NoChange),
+                        this.DetailRefno);
+
+                    if (rowsAffected < 0)
+                    {
+                        throw new Exception("Unable to locate and update the activity detail status to no change.");
+                    }
+
+                    break;
+
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+
+            switch (this.ActStatus)
+            {
+                case SysCommon.ActStatus.NoChange:
+                    break;
+
+                case SysCommon.ActStatus.Inserted:
+
+                    // Submit occurs before adding the data to the tables.
+                    this.DetailFkRefno = int.Parse(xmlDoc.DocumentElement["ser_refno"] !.InnerText);
+
+                    ////if (selectedActivityDetail is AdjustmentDetail selectedInserted)
+                    ////{
+                    ////    selectedInserted.ActivityDetailFKRefno = this.DetailFkRefno;
+                    ////    selectedInserted.ActivityDetailStatus = Convert.ToInt32(SysCommon.ActStatus.NoChange);
+
+                    ////    rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
+                    ////        "UPDATE tActivityDetail SET ActivityDetailStatus = ? WHERE ActivityDetailRefno = ?",
+                    ////        Convert.ToInt32(SysCommon.ActStatus.NoChange),
+                    ////        this.DetailRefno);
+
+                    ////    if (rowsAffected < 0)
+                    ////    {
+                    ////        throw new Exception("Unable to locate and update the activity detail status to no change.");
+                    ////    }
+
+                    ////    rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
+                    ////        "UPDATE tActivityDetailAdjustment SET ActivityDetailFKRefno = ? WHERE ActivityDetailRefno = ?",
+                    ////        selectedInserted.ActivityDetailFKRefno,
+                    ////        this.DetailRefno);
+
+                    ////    if (rowsAffected < 0)
+                    ////    {
+                    ////        throw new Exception("Unable to locate and update the activity detail status to no change.");
+                    ////    }
+                    ////}
+
+                    break;
+
+                case SysCommon.ActStatus.Updated:
+                    if (selectedActivityDetail is AdjustmentDetail selectedUpdated)
+                    {
+                        selectedUpdated.ActivityDetailStatus = Convert.ToInt32(SysCommon.ActStatus.Updated);
+                    }
+
+                    rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
+                        "UPDATE tActivityDetail SET ActivityDetailStatus = ? WHERE ActivityDetailRefno = ?",
+                        Convert.ToInt32(SysCommon.ActStatus.Updated),
+                        this.DetailRefno);
+
+                    if (rowsAffected < 0)
+                    {
+                        throw new Exception("Unable to locate and update the activity detail status to no change.");
+                    }
+
+                    break;
+
+                case SysCommon.ActStatus.Deleted:
+                    if (selectedActivityDetail is AdjustmentDetail selectedDeleted)
+                    {
+                        selectedDeleted.ActivityDetailStatus = Convert.ToInt32(SysCommon.ActStatus.Deleted);
+                    }
+
+                    rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
+                        "UPDATE tActivityDetail SET ActivityDetailStatus = ? WHERE ActivityDetailRefno = ?",
+                        Convert.ToInt32(SysCommon.ActStatus.Deleted),
                         this.DetailRefno);
 
                     if (rowsAffected < 0)
@@ -618,9 +711,9 @@ namespace dMobile.Controller.Activity_Detail
             }
             else
             {
-                // This large query failed on large datasets like Prairie most of the time. Out of memory exception.
+                // This large query failed on large data sets like Prairie most of the time. Out of memory exception.
                 // The queries are identical other than Slot, Section, Warehouse location labels
-                // Run 3 seperate queries and then join them afterwards.
+                // Run 3 separate queries and then join them afterwards.
                 var slotList = await this.GetSlotDetails(this.ActItem.ItemRefno);
                 var sectionList = await this.GetSectionDetails(this.ActItem.ItemRefno);
                 var warehouseList = await this.GetWarehouseDetails(this.ActItem.ItemRefno);
@@ -941,9 +1034,8 @@ namespace dMobile.Controller.Activity_Detail
         public override ObservableCollection<object> Search(string searchText)
         {
             var searchData = searchText.ToLower().Trim();
-            this.ListDetails = this.ListCountDetails.Where(
-                countDetail => countDetail.ActivityDetailFKRefno.ToString().ToLower().Contains(
-                    searchData)).Cast<object>().ToList();
+            this.ListDetails = this.ListCountDetails.Where(adjDetail =>
+                adjDetail.ActivityDetailSchemeID.ToUpper().Contains(searchText.ToUpper().Trim())).Cast<object>().ToList();
 
             var details = new ObservableCollection<object>();
             foreach (var countDetail in this.ListDetails.Cast<CountDetail>())

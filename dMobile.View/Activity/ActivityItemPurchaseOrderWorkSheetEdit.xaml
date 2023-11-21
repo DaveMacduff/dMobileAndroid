@@ -44,8 +44,8 @@
 
             </Grid>
 
-            <ActivityIndicator IsVisible="{Binding IsPageLoading}" 
-                               IsRunning="{Binding IsPageLoading}"
+            <ActivityIndicator IsVisible="{Binding IsIndicatorRunning}" 
+                               IsRunning="{Binding IsIndicatorRunning}"
                                AbsoluteLayout.LayoutFlags="All" 
                                AbsoluteLayout.LayoutBounds="0.5,0.5,0.3,0.3"/>
         </AbsoluteLayout>

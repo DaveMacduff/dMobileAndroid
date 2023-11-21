@@ -116,7 +116,7 @@ namespace dMobile.View.Activity
             {
                 _ = Enum.TryParse(keyPressed, out Keycode keycode);
 
-                if (!this.IsPageLoading)
+                if (!this.IsIndicatorRunning)
                 {
                     if (keycode == Keycode.F1)
                     {

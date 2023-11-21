@@ -44,7 +44,7 @@ namespace dMobile.BarCodeScanner.BarCodeScanners
         /// <summary>
         /// Initialize the scanner engine.
         /// </summary>
-        /// <returns><see cref="bool"/> True if the scanner was initialized succesfully, else false.</returns>
+        /// <returns><see cref="bool"/> True if the scanner was initialized successfully, else false.</returns>
         public abstract bool Initialize();
 
         /// <summary>

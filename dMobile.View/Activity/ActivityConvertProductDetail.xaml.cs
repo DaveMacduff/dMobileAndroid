@@ -9,34 +9,33 @@ namespace dMobile.View.Activity
     using System.Threading.Tasks;
     using System.Xml.Linq;
     using Android.Views;
-    using BarCodeScanner.BarCodeParsing;
     using BarCodeScanner.BarCodeScanners;
     using Bedrock;
     using Controller.Activity_Detail;
-    using Controller.Activity_Item;
-    using Resources.Enums;
-    using Resources.Types;
     using CustomPages.Modal;
     using Forms;
+    using Resources.Enums;
+    using Resources.Types;
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;
-    using Resource = dMobile.Resources.Properties.Resources;
+    using Resource = Resources.Properties.Resources;
 
     /// <summary>
-    /// Activity convert product detail.
+    ///     Activity convert product detail.
     /// </summary>
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class ActivityConvertProductDetail : DMobileModal, IAppArea
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="ActivityConvertProductDetail"/> class.
+        ///     Initializes a new instance of the <see cref="ActivityConvertProductDetail" /> class.
         /// </summary>
-        /// <param name="actDetail"><see cref="ActDetail"/> Convert product activity detail.</param>
-        /// <param name="actSubTypes"><see cref="SysCommon.ActSubTypes"/> Activity sub types.</param>
+        /// <param name="actDetail"><see cref="ActDetail" /> Convert product activity detail.</param>
+        /// <param name="actSubTypes"><see cref="SysCommon.ActSubTypes" /> Activity sub types.</param>
         public ActivityConvertProductDetail(ActDetail actDetail, SysCommon.ActSubTypes actSubTypes)
         {
             this.InitializeComponent();
 
+            this.IsIndicatorRunning = false;
             this.CmdAdd.Text = "Add";
             this.SysEnv = SysEnvironment.GetInstance();
             this.Scanner = ScannerEngine.GetInstance().Scanner;
@@ -50,86 +49,76 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// Gets or sets the product we are changing out of.
+        ///     Gets or sets the product we are changing out of.
         /// </summary>
         private int FromProdRefno { get; set; }
 
         /// <summary>
-        /// Gets or sets the desired product to change into.
+        ///     Gets or sets the desired product to change into.
         /// </summary>
         private int ToProdRefno { get; set; }
 
         /// <summary>
-        /// Gets or set the to product information.
+        ///     Gets or set the to product information.
         /// </summary>
         private ProductInfo ToProduct { get; set; }
 
         /// <summary>
-        /// Gets or sets the from product information.
+        ///     Gets or sets the from product information.
         /// </summary>
         private ProductInfo FromProduct { get; set; }
 
         /// <summary>
-        /// Gets or sets the system environment.
+        ///     Gets or sets the system environment.
         /// </summary>
-        private SysEnvironment SysEnv { get; set; }
+        private SysEnvironment SysEnv { get; }
 
         /// <summary>
-        /// Gets or sets the bar code scanner engine.
+        ///     Gets or sets the bar code scanner engine.
         /// </summary>
-        private BarCodeScanner Scanner { get; set; }
+        private BarCodeScanner Scanner { get; }
 
         /// <summary>
-        /// Gets or sets the activity sub type.
+        ///     Gets or sets the activity sub type.
         /// </summary>
-        private SysCommon.ActSubTypes ActSubType { get; set; }
+        private SysCommon.ActSubTypes ActSubType { get; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether the bar code handler is registered.
+        ///     Gets or sets a value indicating whether the bar code handler is registered.
         /// </summary>
-        private bool IsBarCodeHandlerRegistered { get; set; } = false;
+        private bool IsBarCodeHandlerRegistered { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether the control is loaded.
+        ///     Gets or sets a value indicating whether changes have been made.
         /// </summary>
-        private bool IsControlLoaded { get; set; } = false;
+        private bool IsChangesMade { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether changes have been made.
+        ///     Gets or sets the convert product activity detail.
         /// </summary>
-        private bool IsChangesMade { get; set; } = false;
+        private ActDetail ActDetail { get; }
 
         /// <summary>
-        /// Gets or sets the convert product activity detail.
+        ///     Gets or sets the activity convert product extra info items.
         /// </summary>
-        private ActDetail ActDetail { get; set; } = null;
+        private ObservableCollection<string> ExtraInfoItems { get; } = new ObservableCollection<string>();
 
         /// <summary>
-        /// Gets or sets the activity convert product extra info items.
-        /// </summary>
-        private ObservableCollection<string> ExtraInfoItems { get; set; } = new ObservableCollection<string>();
-
-        /// <summary>
-        /// Gets or sets the main activity items.
+        ///     Gets or sets the main activity items.
         /// </summary>
         private ObservableCollection<object> MainActivityItems { get; set; } = new ObservableCollection<object>();
 
         /// <summary>
-        /// Gets or sets a value indicating whether to performing loading data upon got focus.
+        ///     Un-register the bar code scan event handler and disable the scanner.
         /// </summary>
-        private bool IsFirstAppearance { get; set; } = true;
-
-        /// <summary>
-        /// Un-register the bar code scan event handler and disable the scanner.
-        /// </summary>
-        /// <returns><see cref="Task"/> Task operation.</returns>
+        /// <returns><see cref="Task" /> Task operation.</returns>
         public async Task ScannerDisable()
         {
             if (this.Scanner != null)
             {
                 if (this.IsBarCodeHandlerRegistered)
                 {
-                    this.Scanner.BarCodeScan -= new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
+                    this.Scanner.BarCodeScan -= this.BarCodeHandler;
                     await this.Scanner.Stop();
                     this.IsBarCodeHandlerRegistered = false;
                 }
@@ -137,9 +126,9 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// Registers the bar code scan event handler and enables the scanner.
+        ///     Registers the bar code scan event handler and enables the scanner.
         /// </summary>
-        /// <returns><see cref="Task"/> Task operation.</returns>
+        /// <returns><see cref="Task" /> Task operation.</returns>
         public async Task ScannerEnable()
         {
             if (this.Scanner != null)
@@ -147,16 +136,16 @@ namespace dMobile.View.Activity
                 if (!this.IsBarCodeHandlerRegistered)
                 {
                     await this.Scanner.Start();
-                    this.Scanner.BarCodeScan += new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
+                    this.Scanner.BarCodeScan += this.BarCodeHandler;
                     this.IsBarCodeHandlerRegistered = true;
                 }
             }
         }
 
         /// <summary>
-        /// Check if the activity item is ready to save.
+        ///     Check if the activity item is ready to save.
         /// </summary>
-        /// <returns><see cref="bool"/> True if it is ready to save, else false.</returns>
+        /// <returns><see cref="bool" /> True if it is ready to save, else false.</returns>
         public async Task<bool> IsReadyToSave()
         {
             var isReadyToSave = true;
@@ -189,9 +178,9 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// Check if the activity item is ready to close.
+        ///     Check if the activity item is ready to close.
         /// </summary>
-        /// <returns><see cref="bool"/> True if the activity item is ready to close, else false.</returns>
+        /// <returns><see cref="bool" /> True if the activity item is ready to close, else false.</returns>
         public async Task<bool> IsReadyToClose()
         {
             var isReadyToClose = true;
@@ -241,9 +230,9 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// Save any activity item data changes.
+        ///     Save any activity item data changes.
         /// </summary>
-        /// <returns><see cref="bool"/> True if the save was successful, else false.</returns>
+        /// <returns><see cref="bool" /> True if the save was successful, else false.</returns>
         public async Task<bool> SaveChanges()
         {
             var saveComplete = false;
@@ -295,9 +284,9 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// Cancel any pending activity item changes.
+        ///     Cancel any pending activity item changes.
         /// </summary>
-        /// <returns><see cref="bool"/> True if the pending changes where canceled, else false.</returns>
+        /// <returns><see cref="bool" /> True if the pending changes where canceled, else false.</returns>
         public async Task<bool> CancelChanges()
         {
             var cancelChanges = true;
@@ -329,9 +318,9 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// Get the activity item return XDocument information.
+        ///     Get the activity item return XDocument information.
         /// </summary>
-        /// <returns><see cref="XDocument"/> Activity item return information.</returns>
+        /// <returns><see cref="XDocument" /> Activity item return information.</returns>
 #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
         public async Task<XDocument> GetXML()
 #pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
@@ -368,20 +357,20 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// Fires just before the page is displayed.
+        ///     Fires just before the page is displayed.
         /// </summary>
         protected override async void OnAppearing()
         {
-            base.OnAppearing();
-            this.ListViewDisplayExtraInfo.ItemsSource = this.ExtraInfoItems;
-            MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), KeyUpHandlerCallback);
-
-            try
+            if (this.IsIndicatorRunning)
             {
-                if (this.IsFirstAppearance)
+                try
                 {
+                    this.IsIndicatorRunning = false;
+                    base.OnAppearing();
+                    this.ListViewDisplayExtraInfo.ItemsSource = this.ExtraInfoItems;
+                    MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), KeyUpHandlerCallback);
+
                     await ScannerStart();
-                    this.IsFirstAppearance = false;
                     _ = await this.ActDetail.GetActivityDetailList(false);
 
                     await Device.InvokeOnMainThreadAsync(() =>
@@ -405,59 +394,57 @@ namespace dMobile.View.Activity
 
                     // fill in all the activity data
                     this.ActDetail.ActItem.ProdInfo = this.ToProduct;
+
+                    await this.ScannerEnable();
                 }
-
-                await this.ScannerEnable();
-
-                if (!this.IsControlLoaded)
+                catch (TaskCanceledException)
                 {
-                    this.IsControlLoaded = true;
+                    // Do nothing, task canceled by user
+                }
+                catch (MessageOnlyException msgEx)
+                {
+                    var msg = SysCommon.GetMessageFromMessageException(msgEx);
+                    await Device.InvokeOnMainThreadAsync(async () =>
+                        await Application.Current.MainPage.DisplayAlert(
+                            this.GetControlDescription(),
+                            msg,
+                            Resource.OK));
+                }
+                catch (CommunicationException commEx)
+                {
+                    // Question should a communication error, be reported as an error or just a messagebox?
+                    await Device.InvokeOnMainThreadAsync(async () =>
+                    {
+                        var msg = $"Unable to load activity details.{Environment.NewLine}" +
+                                  $"Because of a communication problem.{Environment.NewLine}" +
+                                  $"Detail:{commEx.Message}{Environment.NewLine}" +
+                                  "Please exit and try again.";
+
+                        await Application.Current.MainPage.DisplayAlert(
+                            this.ActDetail.GetControlDescription(),
+                            msg,
+                            Resource.OK);
+                    });
+                }
+                catch (Exception ex)
+                {
+                    await Device.InvokeOnMainThreadAsync(async () =>
+                    {
+                        var msg = $"Unable to load activity details.{Environment.NewLine}" +
+                                  $"General exception.{Environment.NewLine}" +
+                                  $"Detail:{ex.Message}{Environment.NewLine}" +
+                                  "Please exit and try again.";
+                        var errorReport = new FormErrorReport(msg, ex);
+                        _ = await errorReport.ShowDialog();
+                    });
+                }
+                finally
+                {
+                    this.IsIndicatorRunning = false;
                 }
             }
-            catch (TaskCanceledException)
-            {
-                // Do nothing, task canceled by user
-            }
-            catch (MessageOnlyException msgEx)
-            {
-                var msg = SysCommon.GetMessageFromMessageException(msgEx);
-                await Device.InvokeOnMainThreadAsync(async () =>
-                    await Application.Current.MainPage.DisplayAlert(
-                        this.GetControlDescription(),
-                        msg,
-                        Resource.OK));
-            }
-            catch (CommunicationException commEx)
-            {
-                this.IsFirstAppearance = true;
 
-                // Question should a communication error, be reported as an error or just a messagebox?
-                await Device.InvokeOnMainThreadAsync(async () =>
-                {
-                    var msg = $"Unable to load activity details.{Environment.NewLine}" +
-                        $"Because of a communication problem.{Environment.NewLine}" +
-                        $"Detail:{commEx.Message}{Environment.NewLine}" +
-                        "Please exit and try again.";
-
-                    await Application.Current.MainPage.DisplayAlert(
-                        this.ActDetail.GetControlDescription(),
-                        msg,
-                        Resource.OK);
-                });
-            }
-            catch (Exception ex)
-            {
-                this.IsFirstAppearance = true;
-                await Device.InvokeOnMainThreadAsync(async () =>
-                {
-                    var msg = $"Unable to load activity details.{Environment.NewLine}" +
-                        $"General exception.{Environment.NewLine}" +
-                        $"Detail:{ex.Message}{Environment.NewLine}" +
-                        "Please exit and try again.";
-                    var errorReport = new FormErrorReport(msg, ex);
-                    _ = await errorReport.ShowDialog();
-                });
-            }
+            return;
 
             //////////////////////////////////////////////////////////////////////////
             async Task ScannerStart()
@@ -465,7 +452,7 @@ namespace dMobile.View.Activity
                 if (this.Scanner != null)
                 {
                     await this.Scanner.Start();
-                    this.Scanner.BarCodeScan += new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
+                    this.Scanner.BarCodeScan += this.BarCodeHandler;
                     this.IsBarCodeHandlerRegistered = true;
                 }
             }
@@ -475,7 +462,7 @@ namespace dMobile.View.Activity
             {
                 _ = Enum.TryParse(keyPressed, out Keycode keycode);
 
-                if (!this.IsPageLoading)
+                if (!this.IsIndicatorRunning)
                 {
                     if (keycode == Keycode.Enter)
                     {
@@ -497,9 +484,9 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// On back button pressed handler.
+        ///     On back button pressed handler.
         /// </summary>
-        /// <returns><see cref="bool"/> True upon completion.</returns>
+        /// <returns><see cref="bool" /> True upon completion.</returns>
         /// <remarks>Code lens reports no references yet this event does fire.</remarks>
         protected override bool OnBackButtonPressed()
         {
@@ -516,21 +503,22 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// Fires just before the page disappears.
+        ///     Fires just before the page disappears.
         /// </summary>
         protected override async void OnDisappearing()
         {
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
             await this.ScannerDisable();
             base.OnDisappearing();
+            this.IsIndicatorRunning = false;
             GC.Collect();
             GC.WaitForPendingFinalizers();
         }
 
         /// <summary>
-        /// Add manually new activity detail.
+        ///     Add manually new activity detail.
         /// </summary>
-        /// <returns><see cref="Task"/> Task operation.</returns>
+        /// <returns><see cref="Task" /> Task operation.</returns>
         private async Task AddManually()
         {
             var form = new FormDialogContainer(
@@ -568,28 +556,28 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// Get the control description.
+        ///     Get the control description.
         /// </summary>
-        /// <returns><see cref="string"/> Control description.</returns>
+        /// <returns><see cref="string" /> Control description.</returns>
         private string GetControlDescription()
         {
             return "Convert Products";
         }
 
         /// <summary>
-        /// Bar code scan event handler.
+        ///     Bar code scan event handler.
         /// </summary>
-        /// <param name="sender"><see cref="object"/> Object that generated the event.</param>
-        /// <param name="scanArgs"><see cref="BarCodeScannerEventArgs"/> Sender bar code scanner event arguments.</param>
+        /// <param name="sender"><see cref="object" /> Object that generated the event.</param>
+        /// <param name="scanArgs"><see cref="BarCodeScannerEventArgs" /> Sender bar code scanner event arguments.</param>
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
-            if (this.IsPageLoading)
+            if (this.IsIndicatorRunning)
             {
                 return;
             }
 
             scanArgs = scanArgs ?? throw new ArgumentNullException(nameof(scanArgs));
-            this.IsPageLoading = true;
+            this.IsIndicatorRunning = true;
 
             try
             {
@@ -598,21 +586,26 @@ namespace dMobile.View.Activity
                 // GLOBAL LOCATION IDENTIFIER SCANNED
                 if (!string.IsNullOrEmpty(parse.LocationIdentifier))
                 {
-                    throw new MessageOnlyException("Scanning a global location identifier bar code is not supported here.");
+                    throw new MessageOnlyException(
+                        "Scanning a global location identifier bar code is not supported here.");
                 }
-                else if (!string.IsNullOrEmpty(parse.ProductIdentifier))
+
+                if (!string.IsNullOrEmpty(parse.ProductIdentifier))
                 {
                     throw new MessageOnlyException("Scanning a product identifier bar code is not supported here.");
                 }
-                else if (!string.IsNullOrEmpty(parse.ActItemFKRefno))
+
+                if (!string.IsNullOrEmpty(parse.ActItemFKRefno))
                 {
                     throw new MessageOnlyException("Scanning a line item bar code is not supported here.");
                 }
-                else if (!string.IsNullOrEmpty(parse.ActDetailFKRefno))
+
+                if (!string.IsNullOrEmpty(parse.ActDetailFKRefno))
                 {
                     throw new MessageOnlyException("Scanning a line item detail bar code is not supported here.");
                 }
-                else if (!string.IsNullOrEmpty(parse.SSCC18))
+
+                if (!string.IsNullOrEmpty(parse.SSCC18))
                 {
                     throw new MessageOnlyException("Scanning a shipping container bar code is not supported here.");
                 }
@@ -656,11 +649,10 @@ namespace dMobile.View.Activity
                 });
             }
 
-            this.IsPageLoading = false;
+            this.IsIndicatorRunning = false;
         }
 
         /// <summary>
-        ///
         /// </summary>
         /// <remarks></remarks>
         private void DisplaySummary()
@@ -678,21 +670,16 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        ///
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks></remarks>
         private void IdentifyChangesMade(object sender, EventArgs e)
         {
-            if (this.IsControlLoaded)
-            {
-                this.IsChangesMade = true;
-            }
+            this.IsChangesMade = true;
         }
 
         /// <summary>
-        ///
         /// </summary>
         /// <remarks></remarks>
         private void LoadData()
@@ -700,13 +687,13 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// Creates an adjustment for the product.
+        ///     Creates an adjustment for the product.
         /// </summary>
         /// <remarks>
-        /// This sends what we wish to be an activity detail to the
-        /// COM server. The COM server sees it doesn't exist and creates it,
-        /// then it sends back three fk_refnos for activity, activity item, and activity detail.
-        /// Once received it will then need to update the table values with the fk_refnos.
+        ///     This sends what we wish to be an activity detail to the
+        ///     COM server. The COM server sees it doesn't exist and creates it,
+        ///     then it sends back three fk_refnos for activity, activity item, and activity detail.
+        ///     Once received it will then need to update the table values with the fk_refnos.
         /// </remarks>
         /// <param name="data">Data used for the row to be created.</param>
         private async Task CreateAdjustment(XDocument data)
@@ -728,7 +715,8 @@ namespace dMobile.View.Activity
                 data.Root.Add(new XElement("itm_refno", this.ActDetail.ActItem.ItemFkRefno));
                 data.Root.Element("ser_refno").SetValue(this.ActDetail.DetailFkRefno);
 
-                var detail = this.ActDetail.InsertListDetail(this.MainActivityItems);
+                var detail = this.ActDetail.GatherDetail();
+                this.ActDetail.ListDetails.Add(detail);
             }
             catch (MessageOnlyException msgEx)
             {
@@ -750,10 +738,10 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// Removes the adjustment from happening.
+        ///     Removes the adjustment from happening.
         /// </summary>
         /// <remarks>
-        /// Sends the fk_refno of the detail to remove to the COM server.
+        ///     Sends the fk_refno of the detail to remove to the COM server.
         /// </remarks>
         private async Task DeleteAdjustment()
         {
@@ -775,7 +763,8 @@ namespace dMobile.View.Activity
                 var selectedIndex = this.MainActivityItems.IndexOf(this.ListViewMainActivity.SelectedItem);
 
                 this.ActDetail.ListDetails.RemoveAt(selectedIndex);
-                this.MainActivityItems = this.ActDetail.DesignGrid(ref this.GridMainActivity, ref this.ListViewMainActivity);
+                this.MainActivityItems =
+                    this.ActDetail.DesignGrid(ref this.GridMainActivity, ref this.ListViewMainActivity);
                 this.ListViewMainActivity.ItemsSource = this.MainActivityItems;
 
                 selectedIndex--;
@@ -810,7 +799,7 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// Prints all product labels if batch.
+        ///     Prints all product labels if batch.
         /// </summary>
         private async Task PrintBatchProductLabels()
         {
@@ -830,10 +819,10 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// Causes all current adjustments to print product labels.
+        ///     Causes all current adjustments to print product labels.
         /// </summary>
         /// <remarks>
-        /// Sends an xml string to the COM server to print the product labels.
+        ///     Sends an xml string to the COM server to print the product labels.
         /// </remarks>
         private async Task PrintProductLabel()
         {
@@ -869,7 +858,7 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// Checks if the Activity Detail has 0 data rows.
+        ///     Checks if the Activity Detail has 0 data rows.
         /// </summary>
         /// <returns>True if there are no data rows.</returns>
         private bool NoData()
@@ -878,16 +867,16 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// Check if there is any activity detail exists.
+        ///     Check if there is any activity detail exists.
         /// </summary>
-        /// <returns><see cref="bool"/> True if activity detail exists.</returns>
+        /// <returns><see cref="bool" /> True if activity detail exists.</returns>
         private bool HasData()
         {
             return !this.NoData();
         }
 
         /// <summary>
-        /// Saves or cancels changes and exits.
+        ///     Saves or cancels changes and exits.
         /// </summary>
         private async Task CloseForm()
         {
@@ -903,10 +892,10 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// Click handler for the Add button.
+        ///     Click handler for the Add button.
         /// </summary>
-        /// <param name="sender"><see cref="object"/> Object that generated the event.</param>
-        /// <param name="e"><see cref="EventArgs"/> Event arguments.</param>
+        /// <param name="sender"><see cref="object" /> Object that generated the event.</param>
+        /// <param name="e"><see cref="EventArgs" /> Event arguments.</param>
         private async void CmdAdd_Click(object sender, EventArgs e)
         {
             try
@@ -962,7 +951,6 @@ namespace dMobile.View.Activity
 
 
             this.DisplaySummary();
-
         }
 
         private void TxtSearch_TextChanged(object sender, TextChangedEventArgs e)

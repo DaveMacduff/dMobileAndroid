@@ -2,37 +2,36 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
-using System;
-using System.ComponentModel;
-using System.Diagnostics;
-using System.Linq;
-using System.Net.Sockets;
-using System.Threading.Tasks;
-using System.Xml.Linq;
-using Android.Views;
-using dMobile.Bedrock;
-using dMobile.Resources.Enums;
-using dMobile.Resources.Models;
-using dMobile.Resources.Types;
-using dMobile.View.CustomPages;
-using dMobile.View.Forms;
-using dMobile.View.Pages;
-using SQLite;
-using Xamarin.Forms;
-using Xamarin.Forms.Xaml;
-
 namespace dMobile.View.Views
 {
+    using System;
+    using System.ComponentModel;
+    using System.Diagnostics;
+    using System.Linq;
+    using System.Net.Sockets;
+    using System.Threading.Tasks;
+    using System.Xml.Linq;
+    using Android.Views;
+    using Bedrock;
+    using CustomPages;
+    using Forms;
+    using Pages;
+    using Resources.Enums;
+    using Resources.Models;
+    using Resources.Types;
+    using SQLite;
+    using Xamarin.Forms;
+    using Xamarin.Forms.Xaml;
     using Resource = Resources.Properties.Resources;
 
     /// <summary>
-    /// Defines the <see cref="LoginStartup" /> Login startup form.
+    ///     Defines the <see cref="LoginStartup" /> Login startup form.
     /// </summary>
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class LoginStartup : DMobileContentPage, IAppArea
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="LoginStartup"/> class.
+        ///     Initializes a new instance of the <see cref="LoginStartup" /> class.
         /// </summary>
         public LoginStartup()
         {
@@ -52,65 +51,65 @@ namespace dMobile.View.Views
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether LogInPressed.
+        ///     Gets or sets a value indicating whether LogInPressed.
         /// </summary>
-        private bool LogInPressed { get; set; } = false;
+        private bool LogInPressed { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether ChangesMade.
+        ///     Gets or sets a value indicating whether ChangesMade.
         /// </summary>
-        private bool ChangesMade { get; set; } = false;
+        private bool ChangesMade { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether IsAllowedOverridePicker.
+        ///     Gets or sets a value indicating whether IsAllowedOverridePicker.
         /// </summary>
-        private bool IsAllowedOverridePicker { get; set; } = false;
+        private bool IsAllowedOverridePicker { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether IsAllowedAssocBarCode.
+        ///     Gets or sets a value indicating whether IsAllowedAssocBarCode.
         /// </summary>
         private bool IsAllowedAssocBarCode { get; set; } = true;
 
         /// <summary>
-        /// Gets or sets a value indicating whether IsOverrideAddManualDetail.
+        ///     Gets or sets a value indicating whether IsOverrideAddManualDetail.
         /// </summary>
-        private bool IsOverrideAddManualDetail { get; set; } = false;
+        private bool IsOverrideAddManualDetail { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether IsControlLoaded.
+        ///     Gets or sets a value indicating whether IsControlLoaded.
         /// </summary>
-        private bool IsControlLoaded { get; set; } = false;
+        private bool IsControlLoaded { get; set; }
 
         /// <summary>
-        /// Gets or sets the SysEnv.
+        ///     Gets or sets the SysEnv.
         /// </summary>
-        private SysEnvironment SysEnv { get; set; }
+        private SysEnvironment SysEnv { get; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether IsEnableAllModuleBypassLicense.
+        ///     Gets or sets a value indicating whether IsEnableAllModuleBypassLicense.
         /// </summary>
-        private bool IsEnableAllModuleBypassLicense { get; set; } = false;
+        private bool IsEnableAllModuleBypassLicense { get; set; }
 
         /// <summary>
-        /// Unregister the bar code scan event handler and disable the scanner.
+        ///     Unregister the bar code scan event handler and disable the scanner.
         /// </summary>
-        /// <returns>The <see cref="Task"/>.</returns>
+        /// <returns>The <see cref="Task" />.</returns>
         public async Task ScannerDisable()
         {
         }
 
         /// <summary>
-        /// Registers the bar code scan event handler and enables the scanner.
+        ///     Registers the bar code scan event handler and enables the scanner.
         /// </summary>
-        /// <returns>The <see cref="Task"/>.</returns>
+        /// <returns>The <see cref="Task" />.</returns>
         public async Task ScannerEnable()
         {
         }
 
         /// <summary>
-        /// Check if the activity header data is ready to be saved.
+        ///     Check if the activity header data is ready to be saved.
         /// </summary>
-        /// <returns><see cref="bool"/> True if the data is ready to be saved else false.</returns>
+        /// <returns><see cref="bool" /> True if the data is ready to be saved else false.</returns>
         public async Task<bool> IsReadyToSave()
         {
             var isReadyToSave = true;
@@ -129,8 +128,7 @@ namespace dMobile.View.Views
                 }
 
                 // Check if user exists.
-                var results = await DatabaseConnection.GetInstance().SQLConn.
-                    QueryAsync<tContactUserModel>(
+                var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tContactUserModel>(
                     "SELECT * FROM tContactUser WHERE ContactUserCode = ?",
                     Convert.ToInt32(this.txtLoginID.Text));
 
@@ -141,7 +139,8 @@ namespace dMobile.View.Views
                     password = results[0].ContactUserPassword;
                     this.IsAllowedAssocBarCode = results[0].ContactUserIsAllowedAssociateProductBarCode;
                     this.IsAllowedOverridePicker = results[0].ContactUserIsAllowedPickingModuleOverridePicker;
-                    this.IsOverrideAddManualDetail = results[0].ContactUserIsAllowedPickingModuleOverrideAddManualDetail;
+                    this.IsOverrideAddManualDetail =
+                        results[0].ContactUserIsAllowedPickingModuleOverrideAddManualDetail;
                 }
 
                 // Override the contact login password with the system one if bypass licenses is enabled.
@@ -182,18 +181,18 @@ namespace dMobile.View.Views
         }
 
         /// <summary>
-        /// Check if this form is ready to close, that is can be closed.
+        ///     Check if this form is ready to close, that is can be closed.
         /// </summary>
-        /// <returns><see cref="Task{bool}"/> True if the form is ready to close else false.</returns>
+        /// <returns><see cref="Task{bool}" /> True if the form is ready to close else false.</returns>
         public async Task<bool> IsReadyToClose()
         {
             if (!this.LogInPressed)
             {
                 // attempt to record login
                 if (!this.SysEnv.SysSettings.IsDisconnectedMode
-                    && (this.SysEnv.CommSetup.HostIPAddressComponent1
+                    && this.SysEnv.CommSetup.HostIPAddressComponent1
                     + this.SysEnv.CommSetup.HostIPAddressComponent2
-                    + this.SysEnv.CommSetup.HostIPAddressComponent3) != 0)
+                    + this.SysEnv.CommSetup.HostIPAddressComponent3 != 0)
                 {
                     if (this.SysEnv.ContactLog.IsLoggedIn)
                     {
@@ -224,9 +223,9 @@ namespace dMobile.View.Views
         }
 
         /// <summary>
-        /// Check if a save can be performed and do so.
+        ///     Check if a save can be performed and do so.
         /// </summary>
-        /// <returns><see cref="bool"/> True if a save was performed successfully else false.</returns>
+        /// <returns><see cref="bool" /> True if a save was performed successfully else false.</returns>
         public async Task<bool> SaveChanges()
         {
             var saveComplete = false;
@@ -251,15 +250,16 @@ namespace dMobile.View.Views
                     this.SysEnv.ContactLog.IsLoggedIn = true;
                     this.SysEnv.ContactLog.IsAllowedAssociateProductBarCode = this.IsAllowedAssocBarCode;
                     this.SysEnv.ContactLog.IsAllowedPickingModuleOverridePicker = this.IsAllowedOverridePicker;
-                    this.SysEnv.ContactLog.IsAllowedPickingModuleOverrideAddManualDetail = this.IsOverrideAddManualDetail;
+                    this.SysEnv.ContactLog.IsAllowedPickingModuleOverrideAddManualDetail =
+                        this.IsOverrideAddManualDetail;
 
                     // attempt to record login
                     this.LogInPressed = true;
 
                     if (!this.SysEnv.SysSettings.IsDisconnectedMode
-                        && (this.SysEnv.CommSetup.HostIPAddressComponent1
+                        && this.SysEnv.CommSetup.HostIPAddressComponent1
                         + this.SysEnv.CommSetup.HostIPAddressComponent2
-                        + this.SysEnv.CommSetup.HostIPAddressComponent3) != 0)
+                        + this.SysEnv.CommSetup.HostIPAddressComponent3 != 0)
                     {
                         try
                         {
@@ -302,9 +302,8 @@ namespace dMobile.View.Views
             catch (Exception ex)
             {
                 var errReport = new FormErrorReport(SysCommon.ActSubTypes.LoginStartup, ex);
-                await Device.InvokeOnMainThreadAsync(async () => await errReport.ShowDialog().ContinueWith(result =>
-                {
-                }));
+                await Device.InvokeOnMainThreadAsync(async () =>
+                    await errReport.ShowDialog().ContinueWith(result => { }));
 
                 saveComplete = false;
             }
@@ -313,9 +312,9 @@ namespace dMobile.View.Views
         }
 
         /// <summary>
-        /// Check if there are any pending changes, if so cancel them.
+        ///     Check if there are any pending changes, if so cancel them.
         /// </summary>
-        /// <returns><see cref="bool"/>. True if the changes where canceled, else false.</returns>
+        /// <returns><see cref="bool" />. True if the changes where canceled, else false.</returns>
         public async Task<bool> CancelChanges()
         {
             var cancelChanges = true;
@@ -332,18 +331,16 @@ namespace dMobile.View.Views
             catch (Exception ex)
             {
                 var errReport = new FormErrorReport(SysCommon.ActSubTypes.LoginStartup, ex);
-                await errReport.ShowDialog().ContinueWith(result =>
-                {
-                });
+                await errReport.ShowDialog().ContinueWith(result => { });
             }
 
             return cancelChanges;
         }
 
         /// <summary>
-        /// Assemble a XML string of activity data to return to the calling parent form.
+        ///     Assemble a XML string of activity data to return to the calling parent form.
         /// </summary>
-        /// <returns><see cref="Task"/> Task operation containing an XDocument.</returns>
+        /// <returns><see cref="Task" /> Task operation containing an XDocument.</returns>
         public async Task<XDocument> GetXML()
         {
             var xmldocParams = XDocument.Parse(
@@ -355,7 +352,7 @@ namespace dMobile.View.Views
         }
 
         /// <summary>
-        /// Customize behavior immediately prior to the 'Page' becoming visible.
+        ///     Customize behavior immediately prior to the 'Page' becoming visible.
         /// </summary>
         protected override async void OnAppearing()
         {
@@ -364,7 +361,7 @@ namespace dMobile.View.Views
                 try
                 {
                     base.OnAppearing();
-                    this.IsPageLoading = true;
+                    this.IsIndicatorRunning = true;
                     SubscribeKeyUpHandlers();
                     await this.LoginStartup_GotFocus();
                 }
@@ -389,13 +386,14 @@ namespace dMobile.View.Views
                 }
                 finally
                 {
-                    this.IsPageLoading = false;
+                    this.IsIndicatorRunning = false;
                 }
             });
+            return;
 
             void SubscribeKeyUpHandlers()
             {
-                MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
+                MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async keyPressed =>
                 {
                     try
                     {
@@ -430,14 +428,14 @@ namespace dMobile.View.Views
                     }
                     finally
                     {
-                        this.IsPageLoading = false;
+                        this.IsIndicatorRunning = false;
                     }
                 });
             }
         }
 
         /// <summary>
-        /// Clean up before the 'Page' becomes invisible.
+        ///     Clean up before the 'Page' becomes invisible.
         /// </summary>
         protected override void OnDisappearing()
         {
@@ -448,29 +446,31 @@ namespace dMobile.View.Views
         }
 
         /// <summary>
-        /// Load the warehouses to display for selection.
+        ///     Load the warehouses to display for selection.
         /// </summary>
-        /// <returns><see cref="Task"/> Task operation.</returns>
+        /// <returns><see cref="Task" /> Task operation.</returns>
         private async Task LoadData()
         {
             this.txtLoginID.Text = this.SysEnv.ContactLog.LoginID.ToString();
             this.txtLoginPassword.Text = this.SysEnv.ContactLog.LoginPassword;
 
-            var resultsWarehouse = await DatabaseConnection.GetInstance().SQLConn.
-                QueryAsync<Warehouse>(
+            var resultsWarehouse = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<Warehouse>(
                 "SELECT LocationMapRefno, LocationMapWarehouseCode, LocationMapWarehouseName FROM tLocationMapWarehouse");
 
             if (resultsWarehouse?.Count > 0)
             {
                 foreach (var warehouse in resultsWarehouse)
                 {
-                    warehouse.DisplayName = warehouse.LocationMapWarehouseCode + " " + warehouse.LocationMapWarehouseName;
+                    warehouse.DisplayName =
+                        warehouse.LocationMapWarehouseCode + " " + warehouse.LocationMapWarehouseName;
                 }
 
                 this.lstWarehouse.ItemsSource = resultsWarehouse;
                 this.lstWarehouse.ItemDisplayBinding = new Binding("DisplayName");
                 var selectedWarehouse = resultsWarehouse.Where(warehouse => warehouse.LocationMapRefno ==
-                                                                            this.SysEnv.ContactLog.WarehouseLocationMapRefno).FirstOrDefault();
+                                                                            this.SysEnv.ContactLog
+                                                                                .WarehouseLocationMapRefno)
+                    .FirstOrDefault();
 
                 if (selectedWarehouse != null)
                 {
@@ -481,9 +481,9 @@ namespace dMobile.View.Views
         }
 
         /// <summary>
-        /// The LoginStartup_GotFocus.
+        ///     The LoginStartup_GotFocus.
         /// </summary>
-        /// <returns>The <see cref="Task"/>.</returns>
+        /// <returns>The <see cref="Task" />.</returns>
         private async Task LoginStartup_GotFocus()
         {
             if (!this.IsControlLoaded)
@@ -507,7 +507,7 @@ namespace dMobile.View.Views
         }
 
         /// <summary>
-        /// The IdentifyChangesMade.
+        ///     The IdentifyChangesMade.
         /// </summary>
         /// <param name="sender">.</param>
         /// <param name="e">.</param>
@@ -520,11 +520,11 @@ namespace dMobile.View.Views
         }
 
         /// <summary>
-        /// The ValidateEntry.
+        ///     The ValidateEntry.
         /// </summary>
         /// <param name="sender">.</param>
         /// <param name="e">.</param>
-        /// <returns>The <see cref="Task"/>.</returns>
+        /// <returns>The <see cref="Task" />.</returns>
         private async Task ValidateEntry(object sender, CancelEventArgs e)
         {
             var userCode = 0;
@@ -532,8 +532,7 @@ namespace dMobile.View.Views
 
             try
             {
-                var results = await DatabaseConnection.GetInstance().SQLConn.
-                    QueryAsync<tContactUserModel>(
+                var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tContactUserModel>(
                     "SELECT * FROM tContactUser WHERE ContactUserCode = ?",
                     Convert.ToInt32(this.txtLoginID.Text));
 
@@ -547,7 +546,8 @@ namespace dMobile.View.Views
                     // and used in SysShared.IdentifyProductScanned.
                     this.IsAllowedAssocBarCode = results[0].ContactUserIsAllowedAssociateProductBarCode;
                     this.IsAllowedOverridePicker = results[0].ContactUserIsAllowedPickingModuleOverridePicker;
-                    this.IsOverrideAddManualDetail = results[0].ContactUserIsAllowedPickingModuleOverrideAddManualDetail;
+                    this.IsOverrideAddManualDetail =
+                        results[0].ContactUserIsAllowedPickingModuleOverrideAddManualDetail;
                 }
 
                 if (string.IsNullOrEmpty(this.txtLoginID.Text))
@@ -556,16 +556,19 @@ namespace dMobile.View.Views
                     password = string.Empty;
                     throw new MessageOnlyException("Please enter a user ID.");
                 }
-                else if (string.IsNullOrEmpty(this.txtLoginPassword.Text))
+
+                if (string.IsNullOrEmpty(this.txtLoginPassword.Text))
                 {
                     password = string.Empty;
                     throw new MessageOnlyException("Please enter a password.");
                 }
-                else if (userCode != Convert.ToInt32(this.txtLoginID.Text))
+
+                if (userCode != Convert.ToInt32(this.txtLoginID.Text))
                 {
                     throw new MessageOnlyException(Resource.InvalidLoginId + " " + this.txtLoginID.Text);
                 }
-                else if (password != this.txtLoginPassword.Text)
+
+                if (password != this.txtLoginPassword.Text)
                 {
                     throw new MessageOnlyException(Resource.InvalidLoginPassword);
                 }
@@ -607,9 +610,7 @@ namespace dMobile.View.Views
             {
                 e.Cancel = true;
                 var errReport = new FormErrorReport(ex);
-                await errReport.ShowDialog().ContinueWith(result =>
-                {
-                });
+                await errReport.ShowDialog().ContinueWith(result => { });
             }
             catch (Exception ex)
             {
@@ -620,7 +621,7 @@ namespace dMobile.View.Views
         }
 
         /// <summary>
-        /// The cmdLogin_Click.
+        ///     The cmdLogin_Click.
         /// </summary>
         /// <param name="sender">.</param>
         /// <param name="e">.</param>
@@ -628,7 +629,7 @@ namespace dMobile.View.Views
         {
             try
             {
-                this.IsPageLoading = true;
+                this.IsIndicatorRunning = true;
 
                 await Task.Run(async () =>
                 {
@@ -654,16 +655,17 @@ namespace dMobile.View.Views
             }
             catch (Exception ex)
             {
-                await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(Resource.Error, ex.Message, Resource.OK));
+                await Device.InvokeOnMainThreadAsync(async () =>
+                    await this.DisplayAlert(Resource.Error, ex.Message, Resource.OK));
             }
             finally
             {
-                this.IsPageLoading = false;
+                this.IsIndicatorRunning = false;
             }
         }
 
         /// <summary>
-        /// The PictureBoxLogo_DoubleClick.
+        ///     The PictureBoxLogo_DoubleClick.
         /// </summary>
         /// <param name="sender">.</param>
         /// <param name="e">.</param>
@@ -687,19 +689,19 @@ namespace dMobile.View.Views
         }
 
         /// <summary>
-        /// The GetControlDescription.
+        ///     The GetControlDescription.
         /// </summary>
-        /// <returns>The <see cref="string"/>.</returns>
+        /// <returns>The <see cref="string" />.</returns>
         private string GetControlDescription()
         {
             return "dMobile Login";
         }
 
         /// <summary>
-        /// The LstWarehouse_SelectedIndexChanged.
+        ///     The LstWarehouse_SelectedIndexChanged.
         /// </summary>
-        /// <param name="sender">The sender<see cref="object"/>.</param>
-        /// <param name="e">The e<see cref="EventArgs"/>.</param>
+        /// <param name="sender">The sender<see cref="object" />.</param>
+        /// <param name="e">The e<see cref="EventArgs" />.</param>
         private void LstWarehouse_SelectedIndexChanged(object sender, EventArgs e)
         {
             var selectedWarehouse = (Warehouse)this.lstWarehouse.SelectedItem;

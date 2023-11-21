@@ -33,6 +33,7 @@ namespace dMobile.View.Activity
         {
             this.InitializeComponent();
 
+            this.IsIndicatorRunning = false;
             this.SysEnv = SysEnvironment.GetInstance();
             this.Scanner = ScannerEngine.GetInstance().Scanner;
 
@@ -47,71 +48,84 @@ namespace dMobile.View.Activity
         /// </summary>
         protected override async void OnAppearing()
         {
-            base.OnAppearing();
-
-            this.ListViewDisplayExtraInfo.ItemsSource = this.ExtraInfoItems;
-            this.ListViewMainActivity.ItemsSource = this.MainActivityItems;
-
-            MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
+            if (!this.IsIndicatorRunning)
             {
-                _ = Enum.TryParse(keyPressed, out Keycode keycode);
-
-                if (!this.IsPageLoading)
+                try
                 {
-                    if (keycode == Keycode.Enter)
+                    this.IsIndicatorRunning = true;
+                    base.OnAppearing();
+
+                    this.ListViewDisplayExtraInfo.ItemsSource = this.ExtraInfoItems;
+                    this.ListViewMainActivity.ItemsSource = this.MainActivityItems;
+
+                    MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
                     {
-                        var svdProdInfo = this.ActItem.ProdInfo;
+                        _ = Enum.TryParse(keyPressed, out Keycode keycode);
 
-                        try
+                        if (!this.IsIndicatorRunning)
                         {
-                            this.IsEnterTrapped = true;
-                            this.IsEnabled = false;
-
-                            await this.ScannerDisable();
-                            var index = 0;
-
-                            if (this.ListViewMainActivity.SelectedItem != null && this.MainActivityItems.IndexOf(this.ListViewMainActivity.SelectedItem) >= 0)
+                            if (keycode == Keycode.Enter)
                             {
-                                index = this.MainActivityItems.IndexOf(this.ListViewMainActivity.SelectedItem);
+                                var svdProdInfo = this.ActItem.ProdInfo;
 
-                                // TODO: test
-                                this.ActItem.ProdInfo = ProductInfoTasks.GetInfoFromCodeBCUnit(Convert.ToString((this.ActItem.ListItems[index] as dynamic).productcode),
-                                    Convert.ToString((this.ActItem.ListItems[index] as dynamic).productunitbc),
-                                    Convert.ToString((this.ActItem.ListItems[index] as dynamic).unitcode));
+                                try
+                                {
+                                    this.IsEnterTrapped = true;
+                                    this.IsEnabled = false;
 
-                                var actDetail = ActDetailFacade.GetActDetail(this.ActItem, SysCommon.ActSubTypes.InventoryInquiry);
+                                    await this.ScannerDisable();
+                                    var index = 0;
 
-                                var form = new FormDialogContainer(EDialogTypes.ActivityInventoryInquiryDetail, actDetail, this.ActSubType);
-                                _ = await form.DisplayControl.ShowDialog();
+                                    if (this.ListViewMainActivity.SelectedItem != null &&
+                                        this.MainActivityItems.IndexOf(this.ListViewMainActivity.SelectedItem) >= 0)
+                                    {
+                                        index = this.MainActivityItems.IndexOf(this.ListViewMainActivity.SelectedItem);
+
+                                        // TODO: test
+                                        this.ActItem.ProdInfo = ProductInfoTasks.GetInfoFromCodeBCUnit(
+                                            Convert.ToString((this.ActItem.ListItems[index] as dynamic).productcode),
+                                            Convert.ToString((this.ActItem.ListItems[index] as dynamic).productunitbc),
+                                            Convert.ToString((this.ActItem.ListItems[index] as dynamic).unitcode));
+
+                                        var actDetail = ActDetailFacade.GetActDetail(this.ActItem,
+                                            SysCommon.ActSubTypes.InventoryInquiry);
+
+                                        var form = new FormDialogContainer(EDialogTypes.ActivityInventoryInquiryDetail,
+                                            actDetail, this.ActSubType);
+                                        _ = await form.DisplayControl.ShowDialog();
+                                    }
+                                }
+                                catch (Exception ex)
+                                {
+                                    await Device.InvokeOnMainThreadAsync(async () =>
+                                    {
+                                        var errRpt = new FormErrorReport(this.ActSubType, ex);
+                                        _ = await errRpt.ShowDialog();
+                                    });
+                                }
+                                finally
+                                {
+                                    this.ActItem.ProdInfo = svdProdInfo;
+                                    await this.ScannerEnable();
+
+                                    this.IsEnabled = true;
+                                }
                             }
                         }
-                        catch (Exception ex)
-                        {
-                            await Device.InvokeOnMainThreadAsync(async () =>
-                            {
-                                var errRpt = new FormErrorReport(this.ActSubType, ex);
-                                _ = await errRpt.ShowDialog();
-                            });
-                        }
-                        finally
-                        {
-                            this.ActItem.ProdInfo = svdProdInfo;
-                            await this.ScannerEnable();
-
-                            this.IsEnabled = true;
-                        }
-                    }
+                    });
+                    await this.ActItemInventoryInquiry_GotFocus(this, EventArgs.Empty);
+                    await this.RefreshData();
                 }
-            });
-
-            try
-            {
-                await this.ActItemInventoryInquiry_GotFocus(this, EventArgs.Empty);
-                await this.RefreshData();
-            }
-            catch (Exception ex)
-            {
-                await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert("Error", "this.ActItemInventoryInquiry_GotFocus threw an error " + ex, "OK"));
+                catch (Exception ex)
+                {
+                    await Device.InvokeOnMainThreadAsync(async () =>
+                        await this.DisplayAlert("Error", "this.ActItemInventoryInquiry_GotFocus threw an error " + ex,
+                            "OK"));
+                }
+                finally
+                {
+                    this.IsIndicatorRunning = true;
+                }
             }
         }
 
@@ -411,12 +425,12 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
-            if (this.IsPageLoading || scanArgs == null)
+            if (this.IsIndicatorRunning || scanArgs == null)
             {
                 return;
             }
 
-            this.IsPageLoading = true;
+            this.IsIndicatorRunning = true;
             this.BarParse = scanArgs.ParseInfo;
             await this.ScannerDisable();
 
@@ -458,7 +472,7 @@ namespace dMobile.View.Activity
             finally
             {
                 await this.ScannerEnable();
-                this.IsPageLoading = false;
+                this.IsIndicatorRunning = false;
             }
         }
     }

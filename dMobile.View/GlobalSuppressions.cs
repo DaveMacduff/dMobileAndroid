@@ -23,3 +23,4 @@ using System.Diagnostics.CodeAnalysis;
 [assembly: SuppressMessage("StyleCop.CSharp.ReadabilityRules", "SA1135:Using directives should be qualified", Justification = "<Pending>", Scope = "namespace", Target = "~N:dMobile.View.Views")]
 [assembly: SuppressMessage("StyleCop.CSharp.ReadabilityRules", "SA1135:Using directives should be qualified", Justification = "<Pending>", Scope = "namespace", Target = "~N:dMobile.View.Activity")]
 [assembly: SuppressMessage("StyleCop.CSharp.ReadabilityRules", "SA1135:Using directives should be qualified", Justification = "<Pending>", Scope = "namespace", Target = "~N:dMobile.View.Activity")]
+[assembly: SuppressMessage("StyleCop.CSharp.ReadabilityRules", "SA1135:Using directives should be qualified", Justification = "<Pending>", Scope = "namespace", Target = "~N:dMobile.View.Pages")]

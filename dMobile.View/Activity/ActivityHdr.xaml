@@ -31,10 +31,8 @@
                             <ListView x:Name="ListViewMainActivity"
                                       ItemSelected="ListViewMainActivity_ItemSelected"
                                       HasUnevenRows="True"
-                                      IsEnabled="{Binding IsPageLoading, Converter={Helpers:BoolConverter}}"
+                                      IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}"
                                       Grid.Row="1"
-                                      Focused="ListView_Focused"
-                                      Unfocused="ListView_Focused"
                                       VerticalScrollBarVisibility="Always"
                                       HorizontalScrollBarVisibility="Always" SelectionMode="Single" />
                         </Grid>
@@ -45,15 +43,13 @@
                     <ListView x:Name="ListViewDisplayExtraInfo"
                               SelectionMode="None"
                               HasUnevenRows="True"
-                              IsEnabled="{Binding IsPageLoading, Converter={Helpers:BoolConverter}}"
+                              IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}"
                               SeparatorVisibility="None">
                         <ListView.ItemTemplate>
                             <DataTemplate>
                                 <ViewCell>
                                     <StackLayout Padding="5,1,5,1">
-                                        <Label Text="{Binding}" VerticalOptions="Center"
-                                               Focused="ListDisplay_Focused"
-                                               Unfocused="ListDisplay_Unfocused"/>
+                                        <Label Text="{Binding}" VerticalOptions="Center"></Label>
                                     </StackLayout>
                                 </ViewCell>
                             </DataTemplate>
@@ -62,7 +58,7 @@
                 </Frame>
 
                 <!--
-                <Button x:Name="cmdFilter" Grid.Row="2" Grid.Column="1" Text="Filter" Clicked="cmdFilter_Click" IsEnabled="{Binding IsPageLoading, Converter={Helpers:BoolConverter}}"/>
+                <Button x:Name="cmdFilter" Grid.Row="2" Grid.Column="1" Text="Filter" Clicked="cmdFilter_Click" IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}"/>
                 -->
                 
                 <Grid Grid.Row="2">
@@ -70,18 +66,16 @@
                            Grid.Row="0"
                            Grid.Column="0"
                            TextChanged="TxtSearchHdr_TextChanged"
-                           Focused="TxtSearchItem_Focused"
-                           Unfocused="TxtSearchItem_Unfocused"
-                           IsEnabled="{Binding IsPageLoading, Converter={Helpers:BoolConverter}}"/>
+                           Focused="TxtSearchHdr_Focused"
+                           Unfocused="TxtSearchHdr_Unfocused"
+                           IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}"/>
                    
                     <Button x:Name="cmdAdd"
                             Grid.Row="0"
                             Grid.Column="1"
                             Text="Add"
                             Clicked="CmdAdd_Click"
-                            Focused="CmdAdd_Focused"
-                            Unfocused="CmdAdd_Unfocused"
-                            IsEnabled="{Binding IsPageLoading, Converter={Helpers:BoolConverter}}"/>
+                            IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}"/>
                 </Grid>
                 <!--
                 <Grid Grid.Row="3">
@@ -90,8 +84,9 @@
                 -->
             </Grid>
 
-            <ActivityIndicator IsVisible="{Binding IsPageLoading}" 
-                               IsRunning="{Binding IsPageLoading}"
+            <!-- This control takes focus away from the current control. Watch for this. -->
+            <ActivityIndicator IsVisible="{Binding IsIndicatorRunning}" 
+                               IsRunning="{Binding IsIndicatorRunning}"
                                AbsoluteLayout.LayoutFlags="All" 
                                AbsoluteLayout.LayoutBounds="0.5,0.5,0.3,0.3"/>
         </AbsoluteLayout>

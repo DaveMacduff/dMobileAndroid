@@ -461,6 +461,8 @@ namespace dMobile.GroundWork
                 throw;
             }
 
+            return;
+
             //////////////////////////////////////////////////////////////////////////
             async Task RequestDataAll()
             {

@@ -433,6 +433,8 @@ namespace dMobile.View.Activity
                     "OK"));
             }
 
+            return;
+
             //////////////////////////////////////////////////////////////////////////
             void SubscribeKeyHandlers()
             {
@@ -440,7 +442,7 @@ namespace dMobile.View.Activity
                 {
                     _ = Enum.TryParse(keyPressed, out Keycode keycode);
 
-                    if (!this.IsPageLoading)
+                    if (!this.IsIndicatorRunning)
                     {
                         if (keycode == Keycode.Enter)
                         {
@@ -490,7 +492,7 @@ namespace dMobile.View.Activity
         {
             await Task.Run(async () =>
             {
-                this.IsPageLoading = true;
+                this.IsIndicatorRunning = true;
                 this.BarParse = scanArgs.ParseInfo;
 
                 await this.ScannerDisable();
@@ -562,7 +564,7 @@ namespace dMobile.View.Activity
                 finally
                 {
                     await this.ScannerEnable();
-                    this.IsPageLoading = false;
+                    this.IsIndicatorRunning = false;
                 }
             });
         }
@@ -1094,7 +1096,7 @@ namespace dMobile.View.Activity
             {
                 try
                 {
-                    this.IsPageLoading = true;
+                    this.IsIndicatorRunning = true;
 
                     if (this.ActItem.ProdInfo.Refno > 0)
                     {
@@ -1138,7 +1140,7 @@ namespace dMobile.View.Activity
                 }
                 finally
                 {
-                    this.IsPageLoading = false;
+                    this.IsIndicatorRunning = false;
                 }
             });
         }

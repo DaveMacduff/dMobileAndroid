@@ -215,11 +215,10 @@ namespace dMobile.GroundWork
                         {
                             errMsg = "Arguments:";
                             InsertActivityDetail(actItemRefno, transaction, actItemModel, row);
-                            errMsg = InsertActivityAdjustmentDetail(
+                            errMsg = InsertActivityDetailAdjustment(
                                 transaction,
                                 errMsg,
                                 out var actDetailRefno,
-                                out _,
                                 row);
                             InsertActivityDetailProductSchemeXRef(transaction, actDetailRefno, row);
                             InsertActivityDetailExtraInfo(transaction, actDetailRefno, row);
@@ -294,6 +293,7 @@ namespace dMobile.GroundWork
                     throw;
                 }
             });
+            return;
 
             //////////////////////////////////////////////////////////////////////////
             static void InsertActivityDetailExtraInfo(SQLiteConnection transaction, int actDetailRefno, DataRow drow)
@@ -360,18 +360,17 @@ namespace dMobile.GroundWork
             }
 
             //////////////////////////////////////////////////////////////////////////
-            static string InsertActivityAdjustmentDetail(
+            static string InsertActivityDetailAdjustment(
                 SQLiteConnection transaction,
                 string errMsg,
                 out int actDetailRefno,
-                out int actDetailAdjFKRefno,
                 DataRow drow)
             {
                 // Read the new activity detail reference number.
                 var query = "SELECT last_insert_rowid() FROM tActivityDetail";
                 actDetailRefno = Convert.ToInt32(transaction.ExecuteScalar<int>(query));
-                actDetailAdjFKRefno = Convert.ToInt32(drow["ActivityDetailFKRefno"]);
-                errMsg += $"{Environment.NewLine}Detail foreign key reference number {actDetailAdjFKRefno}";
+                var actDetailAdjFkRefno = Convert.ToInt32(drow["ActivityDetailFKRefno"]);
+                errMsg += $"{Environment.NewLine}Detail foreign key reference number {actDetailAdjFkRefno}";
 
                 // Create the activity detail adjustment record.
                 query = "INSERT INTO tActivityDetailAdjustment (ActivityDetailRefno, ActivityDetailFKRefno) VALUES" +
@@ -379,7 +378,7 @@ namespace dMobile.GroundWork
                 transaction.Execute(
                     query,
                     actDetailRefno,
-                    actDetailAdjFKRefno);
+                    actDetailAdjFkRefno);
                 return errMsg;
             }
 

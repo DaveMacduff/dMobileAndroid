@@ -26,7 +26,7 @@
                     <ListView x:Name="ListViewDisplayExtraInfo"
                               SelectionMode="None"
                               HasUnevenRows="true"
-                              IsEnabled="{Binding IsPageLoading, Converter={helpers:BoolConverter}}"
+                              IsEnabled="{Binding IsIndicatorRunning, Converter={helpers:BoolConverter}}"
                               SeparatorVisibility="None" >
                         <ListView.ItemTemplate>
                             <DataTemplate>
@@ -56,36 +56,36 @@
                             Grid.Row="0"
                             Grid.Column="0"
                             Clicked="CmdLocation_Click"
-                            IsEnabled="{Binding IsPageLoading, Converter={helpers:BoolConverter}}"/>
+                            IsEnabled="{Binding IsIndicatorRunning, Converter={helpers:BoolConverter}}"/>
                     <customcontrols:CustomPicker x:Name="BarCodeModifier1Picker"
                                                  Grid.Row="0"
                                                  Grid.Column="1"
                                                  Image="arrow_drop_down"
                                                  SelectedIndexChanged="BarCodeModifier1Picker_SelectedIndexChanged"
-                                                 IsEnabled="{Binding IsPageLoading, Converter={helpers:BoolConverter}}"/>
+                                                 IsEnabled="{Binding IsIndicatorRunning, Converter={helpers:BoolConverter}}"/>
                     <Button x:Name="CmdSelectFromProduct"
                             Grid.Row="1"
                             Grid.Column="0"
                             Grid.ColumnSpan="2"
                             Clicked="CmdSelectFromUnit_Click"
-                            IsEnabled="{Binding IsPageLoading, Converter={helpers:BoolConverter}}"/>
+                            IsEnabled="{Binding IsIndicatorRunning, Converter={helpers:BoolConverter}}"/>
                     <Button x:Name="CmdSelectToProduct"
                             Grid.Row="2"
                             Grid.Column="0"
                             Grid.ColumnSpan="2"
                             Clicked="CmdSelectToUnit_Click"
-                            IsEnabled="{Binding IsPageLoading, Converter={helpers:BoolConverter}}"/>
+                            IsEnabled="{Binding IsIndicatorRunning, Converter={helpers:BoolConverter}}"/>
                     <Button x:Name="CmdDetail"
                             Grid.Row="3"
                             Grid.Column="0"
                             Grid.ColumnSpan="2"
                             Clicked="CmdDetail_Click"
-                            IsEnabled="{Binding IsPageLoading, Converter={helpers:BoolConverter}}"/>
+                            IsEnabled="{Binding IsIndicatorRunning, Converter={helpers:BoolConverter}}"/>
                 </Grid>
             </Grid>
 
-            <ActivityIndicator IsVisible="{Binding IsPageLoading}" 
-                               IsRunning="{Binding IsPageLoading}"
+            <ActivityIndicator IsVisible="{Binding IsIndicatorRunning}" 
+                               IsRunning="{Binding IsIndicatorRunning}"
                                AbsoluteLayout.LayoutFlags="All" 
                                AbsoluteLayout.LayoutBounds="0.5,0.5,0.3,0.3"/>
         </AbsoluteLayout>

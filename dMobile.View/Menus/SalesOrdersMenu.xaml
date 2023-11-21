@@ -6,14 +6,14 @@
     <ContentPage.Content>
         <AbsoluteLayout>
             <StackLayout AbsoluteLayout.LayoutFlags="All" AbsoluteLayout.LayoutBounds="0,0,1,1">
-                <Button x:Name="cmdPicking" Clicked="cmdPicking_Click" Text="1) Picking" />
-                <Button x:Name="cmdReturns" Clicked="cmdReturns_Click" Text="2) Returns" />
-                <Button x:Name="cmdReleaseByOrder" Clicked="cmdReleaseByOrder_Click" Text="3) Release By Order #" />
-                <Button x:Name="cmdReleaseBySection" Clicked="cmdReleaseBySection_Click" Text="4) Release By Section" />
+                <Button x:Name="CmdPicking" Clicked="CmdPicking_Click" Text="1) Picking" />
+                <Button x:Name="CmdReturns" Clicked="CmdReturns_Click" Text="2) Returns" />
+                <Button x:Name="CmdReleaseByOrder" Clicked="CmdReleaseByOrder_Click" Text="3) Release By Order #" />
+                <Button x:Name="CmdReleaseBySection" Clicked="CmdReleaseBySection_Click" Text="4) Release By Section" />
             </StackLayout>
 
-            <ActivityIndicator IsVisible="{Binding IsPageLoading}" 
-                               IsRunning="{Binding IsPageLoading}" 
+            <ActivityIndicator IsVisible="{Binding IsIndicatorRunning}" 
+                               IsRunning="{Binding IsIndicatorRunning}" 
                                AbsoluteLayout.LayoutFlags="All" 
                                AbsoluteLayout.LayoutBounds="0.5,0.5,0.3,0.3"/>
         </AbsoluteLayout>

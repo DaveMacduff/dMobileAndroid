@@ -6,7 +6,7 @@ namespace dMobile.View.CustomPages.Modal
 {
     using System;
     using System.Threading.Tasks;
-    using dMobile.Resources.Enums;
+    using Resources.Enums;
     using Xamarin.Forms;
     using Resource = dMobile.Resources.Properties.Resources;
 
@@ -18,7 +18,7 @@ namespace dMobile.View.CustomPages.Modal
         /// <summary>
         /// Defines the is loading.
         /// </summary>
-        private bool isPageLoading = false;
+        private bool isPageLoading;
 
         /// <summary>
         /// Defines the optionsIconSource.
@@ -28,23 +28,23 @@ namespace dMobile.View.CustomPages.Modal
         /// <summary>
         /// Defines the isClosing.
         /// </summary>
-        private bool isClosing = false;
+        private bool isClosing;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DMobileModal"/> class.
         /// </summary>
-        public DMobileModal()
+        protected DMobileModal()
         {
             this.Tcs = new TaskCompletionSource<bool>();
             this.BindingContext = this;
-            this.IsPageLoading = false;
+            this.IsIndicatorRunning = false;
             this.OptionsIconSource = Convert.ToString(Application.Current.Resources["OptionsIcon"]);
         }
 
         /// <summary>
         /// Gets or sets a value indicating whether Loading.
         /// </summary>
-        public bool IsPageLoading
+        public bool IsIndicatorRunning
         {
             get => this.isPageLoading;
 
@@ -126,13 +126,13 @@ namespace dMobile.View.CustomPages.Modal
                 {
                     this.isClosing = true;
 
-                    await Task.Run((Action)(() =>
+                    await Task.Run(() =>
                     {
-                        while (this.IsPageLoading)
+                        while (this.IsIndicatorRunning)
                         {
                             // Wait for loading to complete
                         }
-                    }));
+                    });
 
                     while (!this.Tcs.Task.IsCompleted)
                     {

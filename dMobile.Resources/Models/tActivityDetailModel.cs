@@ -12,6 +12,7 @@ namespace dMobile.Resources.Models
     public class tActivityDetailModel
     {
         [Indexed(Name = "UQ_ActivityDetailOnActivityDetailRefnoAndActivityDetailSubType", Order = 1, Unique = true)]
+        [AutoIncrement]
         [PrimaryKey]
         [NotNull]
         public int ActivityDetailRefno { get; set; }

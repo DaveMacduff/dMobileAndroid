@@ -10,7 +10,7 @@
         <ToolbarItem x:Name="optionsMenu"
                      IconImageSource="{Binding OptionsIconSource}"
                      Clicked="OptionsMenu_Clicked"
-                     IsEnabled="{Binding IsPageLoading, Converter={Helpers:BoolConverter}}"/>
+                     IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}"/>
     </ContentPage.ToolbarItems>
     <ContentPage.Content>
         <AbsoluteLayout VerticalOptions="Center">
@@ -44,7 +44,7 @@
 
                             <ListView x:Name="ListViewMoveFrom"
                                       HasUnevenRows="True"
-                                      IsEnabled="{Binding IsPageLoading, Converter={Helpers:BoolConverter}}"
+                                      IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}"
                                       Grid.Row="1"
                                       VerticalScrollBarVisibility="Always"
                                       HorizontalScrollBarVisibility="Always" SelectionMode="Single"
@@ -59,7 +59,7 @@
                     <ListView x:Name="ListViewMoveTo"
                               SelectionMode="None"
                               HasUnevenRows="True"
-                              IsEnabled="{Binding IsPageLoading, Converter={Helpers:BoolConverter}}"
+                              IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}"
                               SeparatorVisibility="None">
                         <ListView.ItemTemplate>
                             <DataTemplate>
@@ -83,7 +83,7 @@
                             Clicked="CmdSetFromLocation_Click"
                             Focused="CmdSetFromLocation_Focused"
                             Unfocused="CmdSetFromLocation_Unfocused"
-                            IsEnabled="{Binding IsPageLoading, Converter={Helpers:BoolConverter}}"/>
+                            IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}"/>
                 </Grid>
 
                 <Grid Grid.Row="4">
@@ -94,7 +94,7 @@
                             Clicked="CmdSetToLocation_Click"
                             Focused="CmdSetToLocation_Focused"
                             Unfocused="CmdSetToLocation_Unfocused"
-                            IsEnabled="{Binding IsPageLoading, Converter={Helpers:BoolConverter}}"/>
+                            IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}"/>
                 </Grid>
 
                 <Grid Grid.Row="5">
@@ -105,12 +105,12 @@
                             Clicked="CmdPerformMove_Click"
                             Focused="CmdPerformMove_Focused"
                             Unfocused="CmdPerformMove_Unfocused"
-                            IsEnabled="{Binding IsPageLoading, Converter={Helpers:BoolConverter}}"/>
+                            IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}"/>
                 </Grid>
             </Grid>
 
-            <ActivityIndicator IsVisible="{Binding IsPageLoading}" 
-                               IsRunning="{Binding IsPageLoading}"
+            <ActivityIndicator IsVisible="{Binding IsIndicatorRunning}" 
+                               IsRunning="{Binding IsIndicatorRunning}"
                                AbsoluteLayout.LayoutFlags="All" 
                                AbsoluteLayout.LayoutBounds="0.5,0.5,0.3,0.3"/>
         </AbsoluteLayout>

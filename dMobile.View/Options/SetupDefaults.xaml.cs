@@ -2,26 +2,23 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
-using dMobile.View.Pages.Themes;
-
 namespace dMobile.View.Options
 {
     using System;
-    using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.ComponentModel;
-    using System.Data;
     using System.Threading.Tasks;
     using System.Xml.Linq;
     using Android.Views;
-    using dMobile.Bedrock;
-    using dMobile.Resources.Enums;
-    using dMobile.View.CustomPages;
-    using dMobile.View.Forms;
+    using Bedrock;
+    using CustomPages;
+    using Forms;
+    using Pages.Themes;
+    using Resources.Enums;
     using SQLite;
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;
-    using Resource = dMobile.Resources.Properties.Resources;
+    using Resource = Resources.Properties.Resources;
 
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class SetupDefaults : DMobileContentPage
@@ -30,18 +27,17 @@ namespace dMobile.View.Options
         public ObservableCollection<Theme> themesList;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SetupDefaults"/> class.
+        ///     Initializes a new instance of the <see cref="SetupDefaults" /> class.
         /// </summary>
         public SetupDefaults()
         {
             this.InitializeComponent();
 
-            this.Title = this.GetControlDescription();
-            this.IsChangesMade = false;
-            this.IsControlLoaded = false;
-
-            if (!DesignMode.IsDesignModeEnabled)
+            try
             {
+                this.IsIndicatorRunning = false;
+                this.Title = this.GetControlDescription();
+                this.IsChangesMade = false;
                 this.SysEnv = SysEnvironment.GetInstance();
                 this.PrnSettings = new PrinterSettings().LoadData();
                 this.ActSubType = SysCommon.ActSubTypes.SetupDefaults;
@@ -52,64 +48,85 @@ namespace dMobile.View.Options
                     this.themesList.Add(theme);
                 }
 
-                try
-                {
-                    this.ucSetupDefaults_GotFocus(this, EventArgs.Empty);
-                }
-                catch (Exception ex)
-                {
-                    Device.BeginInvokeOnMainThread(() => this.DisplayAlert("Error", "ucSetupDefaults_GotFocus exception: " + ex.Message, "OK"));
-                }
-            }
+                this.ucSetupDefaults_GotFocus(this, EventArgs.Empty);
 
-            this.tabSetupDefaults.Text = "Setup";
-            this.lblDisconnectMode.Text = "Disconnected Mode";
-            this.lblDisconnectedModeLoadDetail.Text = "Disconnected Mode Load Detail";
-            this.lblVerifyLocationWhenProductChanged.Text = "Verify Location";
-            this.lblPrintProductLabelsAsBatch.Text = "Print Product Labels as a Batch";
-            this.lblEnableShippingMobilePrinter.Text = "Shipping Label Printer";
-            this.lblEnableShelfMobilePrinter.Text = "Shelf Label Printer";
-            this.lblEnableProductMobilePrinter.Text = "Product Label Printer";
-            this.btnSave.Text = "Save";
+                this.tabSetupDefaults.Text = "Setup";
+                this.lblDisconnectMode.Text = "Disconnected Mode";
+                this.lblDisconnectedModeLoadDetail.Text = "Disconnected Mode Load Detail";
+                this.lblVerifyLocationWhenProductChanged.Text = "Verify Location";
+                this.lblPrintProductLabelsAsBatch.Text = "Print Product Labels as a Batch";
+                this.lblEnableShippingMobilePrinter.Text = "Shipping Label Printer";
+                this.lblEnableShelfMobilePrinter.Text = "Shelf Label Printer";
+                this.lblEnableProductMobilePrinter.Text = "Product Label Printer";
+                this.btnSave.Text = "Save";
+            }
+            catch (Exception ex)
+            {
+                Device.BeginInvokeOnMainThread(() =>
+                    this.DisplayAlert("Error", "ucSetupDefaults_GotFocus exception: " + ex.Message, "OK"));
+            }
         }
 
+        private SysCommon.ActSubTypes ActSubType { get; }
+
+        private PrinterSettings PrnSettings { get; set; }
+
+        public bool IsChangesMade
+        {
+            get => this.isChangesMade;
+
+            set
+            {
+                this.isChangesMade = value;
+                this.OnPropertyChanged();
+            }
+        }
+
+        private SysEnvironment SysEnv { get; }
+
         /// <summary>
-        /// The OnAppearing.
+        ///     The OnAppearing.
         /// </summary>
         protected override void OnAppearing()
         {
-            base.OnAppearing();
-
-            MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
+            if (!this.IsIndicatorRunning)
             {
-                _ = Enum.TryParse(keyPressed, out Keycode keycode);
+                this.IsIndicatorRunning = true;
+                base.OnAppearing();
 
-                if (keycode == Keycode.Enter)
+                MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async keyPressed =>
                 {
-                    this.BtnSave_Clicked(this, EventArgs.Empty);
-                }
-                else if (keycode == Keycode.F1)
-                {
-                    this.BtnSave_Clicked(this, EventArgs.Empty);
-                }
-            });
+                    _ = Enum.TryParse(keyPressed, out Keycode keycode);
 
-            this.themePicker.ItemsSource = this.themesList;
-            this.themePicker.SelectedItem = this.SysEnv.SysSettings.Theme;
+                    if (keycode == Keycode.Enter)
+                    {
+                        this.BtnSave_Clicked(this, EventArgs.Empty);
+                    }
+                    else if (keycode == Keycode.F1)
+                    {
+                        this.BtnSave_Clicked(this, EventArgs.Empty);
+                    }
+                });
+
+                this.themePicker.ItemsSource = this.themesList;
+                this.themePicker.SelectedItem = this.SysEnv.SysSettings.Theme;
+                this.IsIndicatorRunning = false;
+            }
         }
 
         /// <summary>
-        /// The OnDisappearing.
+        ///     The OnDisappearing.
         /// </summary>
         protected override void OnDisappearing()
         {
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
             base.OnDisappearing();
+            this.IsIndicatorRunning = false;
             GC.Collect();
             GC.WaitForPendingFinalizers();
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         protected override bool OnBackButtonPressed()
         {
             Device.BeginInvokeOnMainThread(async () =>
@@ -129,27 +146,8 @@ namespace dMobile.View.Options
             return true;
         }
 
-        private SysCommon.ActSubTypes ActSubType { get; set; }
-
-        private PrinterSettings PrnSettings { get; set; }
-
-        public bool IsChangesMade
-        {
-            get => this.isChangesMade;
-
-            set
-            {
-                this.isChangesMade = value;
-                this.OnPropertyChanged();
-            }
-        }
-
-        private bool IsControlLoaded { get; set; }
-
-        private SysEnvironment SysEnv { get; set; }
-
         /// <summary>
-        /// Unregister the bar code scan event handler and disable the scanner.
+        ///     Unregister the bar code scan event handler and disable the scanner.
         /// </summary>
         /// <remarks></remarks>
         public async Task ScannerDisable()
@@ -157,7 +155,7 @@ namespace dMobile.View.Options
         }
 
         /// <summary>
-        /// Registers the bar code scan event handler and enables the scanner.
+        ///     Registers the bar code scan event handler and enables the scanner.
         /// </summary>
         /// <remarks></remarks>
         public async Task ScannerEnable()
@@ -165,7 +163,6 @@ namespace dMobile.View.Options
         }
 
         /// <summary>
-        ///
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
@@ -182,10 +179,10 @@ namespace dMobile.View.Options
                 var msg = SysCommon.GetMessageFromMessageException(msgEx);
                 isReadyToSave = false;
                 _ = Device.InvokeOnMainThreadAsync(async () =>
-                      await Application.Current.MainPage.DisplayAlert(
-                          this.GetControlDescription(),
-                          msg,
-                          Resource.OK));
+                    await Application.Current.MainPage.DisplayAlert(
+                        this.GetControlDescription(),
+                        msg,
+                        Resource.OK));
             }
             catch (Exception ex)
             {
@@ -202,14 +199,12 @@ namespace dMobile.View.Options
         }
 
         /// <summary>
-        ///
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
         /// <summary>
-        ///
         /// </summary>
-        /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
+        /// <returns>A <see cref="Task{TResult}" /> representing the result of the asynchronous operation.</returns>
         public async Task<bool> IsReadyToClose()
         {
             var isReadyToClose = true;
@@ -259,7 +254,6 @@ namespace dMobile.View.Options
         }
 
         /// <summary>
-        ///
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
@@ -269,14 +263,12 @@ namespace dMobile.View.Options
         }
 
         /// <summary>
-        ///
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
         /// <summary>
-        ///
         /// </summary>
-        /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
+        /// <returns>A <see cref="Task{TResult}" /> representing the result of the asynchronous operation.</returns>
         public async Task<bool> SaveChanges()
         {
             var saveComplete = false;
@@ -285,32 +277,44 @@ namespace dMobile.View.Options
             {
                 if (this.IsReadyToSave())
                 {
-                    if (this.IsChangesMade && !(this.chkDisconnectMode.IsToggled == this.SysEnv.SysSettings.IsDisconnectedMode && this.chkDisconnectedModeLoadDetail.IsToggled == this.SysEnv.SysSettings.IsDisconnectedModeLoadDetail))
+                    if (this.IsChangesMade &&
+                        !(this.chkDisconnectMode.IsToggled == this.SysEnv.SysSettings.IsDisconnectedMode &&
+                          this.chkDisconnectedModeLoadDetail.IsToggled ==
+                          this.SysEnv.SysSettings.IsDisconnectedModeLoadDetail))
                     {
-                        _ = await this.DisplayAlert(this.GetControlDescription(), "Confirm disconnected mode changes?" + Environment.NewLine + "This will purge any un-submitted data.", "Yes", "No").ContinueWith(async (result) =>
-                          {
-                              if (result.Result)
-                              {
-                                  var form = new FormDialogContainer(EDialogTypes.RefreshDataStatus, SysCommon.ActSubTypes.PurgeActivityData);
-                                  _ = await Device.InvokeOnMainThreadAsync(async () => await form.DisplayControl.ShowDialog());
-                                  var xmlDoc = await form.GetXML();
-                              }
-                              else
-                              {
-                                  await Device.InvokeOnMainThreadAsync(() =>
-                                  {
-                                      this.chkDisconnectMode.IsToggled = this.SysEnv.SysSettings.IsDisconnectedMode;
-                                      this.chkDisconnectedModeLoadDetail.IsToggled = this.SysEnv.SysSettings.IsDisconnectedModeLoadDetail;
-                                      this.chkVerifyLocationWhenProductChanged.IsToggled = this.SysEnv.SysSettings.IsVerifyProductLocation;
-                                      this.chkPrintProductLabelsAsBatch.IsToggled = this.SysEnv.SysSettings.IsPrintProductLabelsAsBatch;
-                                  });
-                              }
-                          });
+                        _ = await this
+                            .DisplayAlert(this.GetControlDescription(),
+                                "Confirm disconnected mode changes?" + Environment.NewLine +
+                                "This will purge any un-submitted data.", "Yes", "No").ContinueWith(async result =>
+                            {
+                                if (result.Result)
+                                {
+                                    var form = new FormDialogContainer(EDialogTypes.RefreshDataStatus,
+                                        SysCommon.ActSubTypes.PurgeActivityData);
+                                    _ = await Device.InvokeOnMainThreadAsync(async () =>
+                                        await form.DisplayControl.ShowDialog());
+                                    var xmlDoc = await form.GetXML();
+                                }
+                                else
+                                {
+                                    await Device.InvokeOnMainThreadAsync(() =>
+                                    {
+                                        this.chkDisconnectMode.IsToggled = this.SysEnv.SysSettings.IsDisconnectedMode;
+                                        this.chkDisconnectedModeLoadDetail.IsToggled =
+                                            this.SysEnv.SysSettings.IsDisconnectedModeLoadDetail;
+                                        this.chkVerifyLocationWhenProductChanged.IsToggled =
+                                            this.SysEnv.SysSettings.IsVerifyProductLocation;
+                                        this.chkPrintProductLabelsAsBatch.IsToggled =
+                                            this.SysEnv.SysSettings.IsPrintProductLabelsAsBatch;
+                                    });
+                                }
+                            });
                     }
 
                     this.SysEnv.SysSettings.IsDisconnectedMode = this.chkDisconnectMode.IsToggled;
                     this.SysEnv.SysSettings.IsDisconnectedModeLoadDetail = this.chkDisconnectedModeLoadDetail.IsToggled;
-                    this.SysEnv.SysSettings.IsVerifyProductLocation = this.chkVerifyLocationWhenProductChanged.IsToggled;
+                    this.SysEnv.SysSettings.IsVerifyProductLocation =
+                        this.chkVerifyLocationWhenProductChanged.IsToggled;
                     this.SysEnv.SysSettings.IsPrintProductLabelsAsBatch = this.chkPrintProductLabelsAsBatch.IsToggled;
 
                     var tempSystemSettings = this.SysEnv.SysSettings;
@@ -322,9 +326,11 @@ namespace dMobile.View.Options
 
                     if (this.PrnSettings.IsEnabledShippingLabelPrinter)
                     {
-                        if (this.cboShippingMobilePrinter.Items.Count > 0 && this.cboShippingMobilePrinter.SelectedIndex > -1)
+                        if (this.cboShippingMobilePrinter.Items.Count > 0 &&
+                            this.cboShippingMobilePrinter.SelectedIndex > -1)
                         {
-                            this.PrnSettings.ShippingLabelPrinterName = this.cboShippingMobilePrinter.SelectedItem.ToString();
+                            this.PrnSettings.ShippingLabelPrinterName =
+                                this.cboShippingMobilePrinter.SelectedItem.ToString();
                         }
                     }
 
@@ -345,9 +351,11 @@ namespace dMobile.View.Options
                     {
                         this.PrnSettings.IsEnabledProductLabelPrinter = this.chkEnableProductMobilePrinter.IsToggled;
 
-                        if (this.cboProductMobilePrinter.Items.Count > 0 && this.cboProductMobilePrinter.SelectedIndex > -1)
+                        if (this.cboProductMobilePrinter.Items.Count > 0 &&
+                            this.cboProductMobilePrinter.SelectedIndex > -1)
                         {
-                            this.PrnSettings.ProductLabelPrinterName = this.cboProductMobilePrinter.SelectedItem.ToString();
+                            this.PrnSettings.ProductLabelPrinterName =
+                                this.cboProductMobilePrinter.SelectedItem.ToString();
                         }
                     }
 
@@ -388,14 +396,12 @@ namespace dMobile.View.Options
         }
 
         /// <summary>
-        ///
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
         /// <summary>
-        ///
         /// </summary>
-        /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
+        /// <returns>A <see cref="Task{TResult}" /> representing the result of the asynchronous operation.</returns>
         public async Task<bool> CancelChanges()
         {
             var cancelChanges = true;
@@ -445,14 +451,12 @@ namespace dMobile.View.Options
         }
 
         /// <summary>
-        ///
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
         /// <summary>
-        ///
         /// </summary>
-        /// <returns>A <see cref="Task{TResult}"/> representing the result of the asynchronous operation.</returns>
+        /// <returns>A <see cref="Task{TResult}" /> representing the result of the asynchronous operation.</returns>
         public async Task<XDocument> GetXML()
         {
             var xmldocParams = XDocument.Parse(
@@ -464,19 +468,21 @@ namespace dMobile.View.Options
         }
 
         /// <summary>
-        ///
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks></remarks>
         private void ucSetupDefaults_GotFocus(object sender, EventArgs e)
         {
+            if (this.IsIndicatorRunning)
+            {
+                return;
+            }
+
             this.LoadData();
-            this.IsControlLoaded = true;
         }
 
         /// <summary>
-        ///
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -485,10 +491,7 @@ namespace dMobile.View.Options
         {
             try
             {
-                if (this.IsControlLoaded)
-                {
-                    this.IsChangesMade = true;
-                }
+                this.IsChangesMade = true;
             }
             catch (MessageOnlyException msgEx)
             {
@@ -497,10 +500,10 @@ namespace dMobile.View.Options
                 // Do not set the IsChangesMade. MessageOnlyException is really not and error.
                 // Allow the validation to handle the setting for IsChangesMade.
                 _ = Device.InvokeOnMainThreadAsync(async () =>
-                      await Application.Current.MainPage.DisplayAlert(
-                          this.GetControlDescription(),
-                          msg,
-                          Resource.OK));
+                    await Application.Current.MainPage.DisplayAlert(
+                        this.GetControlDescription(),
+                        msg,
+                        Resource.OK));
             }
             catch (Exception ex)
             {
@@ -515,118 +518,114 @@ namespace dMobile.View.Options
         }
 
         /// <summary>
-        ///
         /// </summary>
         /// <remarks></remarks>
         private void LoadData()
         {
-            if (!this.IsControlLoaded)
+            this.chkDisconnectMode.IsToggled = this.SysEnv.SysSettings.IsDisconnectedMode;
+            this.chkDisconnectedModeLoadDetail.IsToggled = this.SysEnv.SysSettings.IsDisconnectedModeLoadDetail;
+            this.chkVerifyLocationWhenProductChanged.IsToggled = this.SysEnv.SysSettings.IsVerifyProductLocation;
+            this.chkPrintProductLabelsAsBatch.IsToggled = this.SysEnv.SysSettings.IsPrintProductLabelsAsBatch;
+
+            this.cboShippingMobilePrinter.Items.Clear();
+
+            foreach (PrinterSettings.PrinterInfo prnDef in this.PrnSettings.AllPrinters)
             {
-                this.chkDisconnectMode.IsToggled = this.SysEnv.SysSettings.IsDisconnectedMode;
-                this.chkDisconnectedModeLoadDetail.IsToggled = this.SysEnv.SysSettings.IsDisconnectedModeLoadDetail;
-                this.chkVerifyLocationWhenProductChanged.IsToggled = this.SysEnv.SysSettings.IsVerifyProductLocation;
-                this.chkPrintProductLabelsAsBatch.IsToggled = this.SysEnv.SysSettings.IsPrintProductLabelsAsBatch;
-
-                this.cboShippingMobilePrinter.Items.Clear();
-
-                foreach (PrinterSettings.PrinterInfo prnDef in this.PrnSettings.AllPrinters)
-                {
-                    this.cboShippingMobilePrinter.Items.Add(prnDef.Name);
-                }
-
-                var isPrinterMatchFound = false;
-                this.chkEnableShippingMobilePrinter.IsToggled = false;
-
-                if (this.cboShippingMobilePrinter.Items.Count > 0 && !string.IsNullOrEmpty(this.PrnSettings.ShippingLabelPrinterName))
-                {
-                    for (var idx = 0; idx <= this.cboShippingMobilePrinter.Items.Count - 1; idx++)
-                    {
-                        if (this.cboShippingMobilePrinter.Items[idx].ToString() == this.PrnSettings.ShippingLabelPrinterName)
-                        {
-                            isPrinterMatchFound = true;
-                            this.cboShippingMobilePrinter.SelectedIndex = idx;
-                            this.PrnSettings.IsEnabledShippingLabelPrinter = true;
-                            this.PrnSettings.ShippingLabelPrinterName = this.cboShippingMobilePrinter.Items[idx].ToString();
-                            break;
-                        }
-                    }
-
-                    if (!isPrinterMatchFound)
-                    {
-                        this.PrnSettings.ShippingLabelPrinterName = string.Empty;
-                    }
-                }
-
-                this.chkEnableShippingMobilePrinter.IsToggled = this.PrnSettings.IsEnabledShippingLabelPrinter;
-
-                this.cboShelfMobilePrinter.Items.Clear();
-
-                foreach (PrinterSettings.PrinterInfo prnDef in this.PrnSettings.AllPrinters)
-                {
-                    this.cboShelfMobilePrinter.Items.Add(prnDef.Name);
-                }
-
-                isPrinterMatchFound = false;
-                this.PrnSettings.IsEnabledShelfLabelPrinter = false;
-
-                if (this.cboShelfMobilePrinter.Items.Count > 0)
-                {
-                    for (var idx = 0; idx <= this.cboShelfMobilePrinter.Items.Count - 1; idx++)
-                    {
-                        if (this.cboShelfMobilePrinter.Items[idx].ToString() == this.PrnSettings.ShelfLabelPrinterName)
-                        {
-                            isPrinterMatchFound = true;
-                            this.cboShelfMobilePrinter.SelectedIndex = idx;
-                            this.PrnSettings.IsEnabledShelfLabelPrinter = true;
-                            this.PrnSettings.ShelfLabelPrinterName = this.cboShelfMobilePrinter.Items[idx].ToString();
-                            break;
-                        }
-                    }
-
-                    if (!isPrinterMatchFound)
-                    {
-                        this.PrnSettings.ShelfLabelPrinterName = string.Empty;
-                    }
-                }
-
-                this.chkEnableShelfMobilePrinter.IsToggled = this.PrnSettings.IsEnabledShelfLabelPrinter;
-
-                this.cboProductMobilePrinter.Items.Clear();
-
-                foreach (PrinterSettings.PrinterInfo prnDef in this.PrnSettings.AllPrinters)
-                {
-                    this.cboProductMobilePrinter.Items.Add(prnDef.Name);
-                }
-
-                isPrinterMatchFound = false;
-                this.PrnSettings.IsEnabledProductLabelPrinter = false;
-
-                if (this.cboProductMobilePrinter.Items.Count > 0)
-                {
-                    for (var idx = 0; idx <= this.cboProductMobilePrinter.Items.Count - 1; idx++)
-                    {
-                        if (this.cboProductMobilePrinter.Items[idx].ToString() == this.PrnSettings.ProductLabelPrinterName)
-                        {
-                            isPrinterMatchFound = true;
-                            this.cboProductMobilePrinter.SelectedIndex = idx;
-                            this.PrnSettings.IsEnabledProductLabelPrinter = true;
-                            this.PrnSettings.ProductLabelPrinterName = this.cboProductMobilePrinter.Items[idx].ToString();
-                            break;
-                        }
-                    }
-
-                    if (!isPrinterMatchFound)
-                    {
-                        this.PrnSettings.ProductLabelPrinterName = string.Empty;
-                    }
-                }
-
-                this.chkEnableProductMobilePrinter.IsToggled = this.PrnSettings.IsEnabledProductLabelPrinter;
+                this.cboShippingMobilePrinter.Items.Add(prnDef.Name);
             }
+
+            var isPrinterMatchFound = false;
+            this.chkEnableShippingMobilePrinter.IsToggled = false;
+
+            if (this.cboShippingMobilePrinter.Items.Count > 0 &&
+                !string.IsNullOrEmpty(this.PrnSettings.ShippingLabelPrinterName))
+            {
+                for (var idx = 0; idx <= this.cboShippingMobilePrinter.Items.Count - 1; idx++)
+                {
+                    if (this.cboShippingMobilePrinter.Items[idx] == this.PrnSettings.ShippingLabelPrinterName)
+                    {
+                        isPrinterMatchFound = true;
+                        this.cboShippingMobilePrinter.SelectedIndex = idx;
+                        this.PrnSettings.IsEnabledShippingLabelPrinter = true;
+                        this.PrnSettings.ShippingLabelPrinterName = this.cboShippingMobilePrinter.Items[idx];
+                        break;
+                    }
+                }
+
+                if (!isPrinterMatchFound)
+                {
+                    this.PrnSettings.ShippingLabelPrinterName = string.Empty;
+                }
+            }
+
+            this.chkEnableShippingMobilePrinter.IsToggled = this.PrnSettings.IsEnabledShippingLabelPrinter;
+
+            this.cboShelfMobilePrinter.Items.Clear();
+
+            foreach (PrinterSettings.PrinterInfo prnDef in this.PrnSettings.AllPrinters)
+            {
+                this.cboShelfMobilePrinter.Items.Add(prnDef.Name);
+            }
+
+            isPrinterMatchFound = false;
+            this.PrnSettings.IsEnabledShelfLabelPrinter = false;
+
+            if (this.cboShelfMobilePrinter.Items.Count > 0)
+            {
+                for (var idx = 0; idx <= this.cboShelfMobilePrinter.Items.Count - 1; idx++)
+                {
+                    if (this.cboShelfMobilePrinter.Items[idx] == this.PrnSettings.ShelfLabelPrinterName)
+                    {
+                        isPrinterMatchFound = true;
+                        this.cboShelfMobilePrinter.SelectedIndex = idx;
+                        this.PrnSettings.IsEnabledShelfLabelPrinter = true;
+                        this.PrnSettings.ShelfLabelPrinterName = this.cboShelfMobilePrinter.Items[idx];
+                        break;
+                    }
+                }
+
+                if (!isPrinterMatchFound)
+                {
+                    this.PrnSettings.ShelfLabelPrinterName = string.Empty;
+                }
+            }
+
+            this.chkEnableShelfMobilePrinter.IsToggled = this.PrnSettings.IsEnabledShelfLabelPrinter;
+
+            this.cboProductMobilePrinter.Items.Clear();
+
+            foreach (PrinterSettings.PrinterInfo prnDef in this.PrnSettings.AllPrinters)
+            {
+                this.cboProductMobilePrinter.Items.Add(prnDef.Name);
+            }
+
+            isPrinterMatchFound = false;
+            this.PrnSettings.IsEnabledProductLabelPrinter = false;
+
+            if (this.cboProductMobilePrinter.Items.Count > 0)
+            {
+                for (var idx = 0; idx <= this.cboProductMobilePrinter.Items.Count - 1; idx++)
+                {
+                    if (this.cboProductMobilePrinter.Items[idx] == this.PrnSettings.ProductLabelPrinterName)
+                    {
+                        isPrinterMatchFound = true;
+                        this.cboProductMobilePrinter.SelectedIndex = idx;
+                        this.PrnSettings.IsEnabledProductLabelPrinter = true;
+                        this.PrnSettings.ProductLabelPrinterName = this.cboProductMobilePrinter.Items[idx];
+                        break;
+                    }
+                }
+
+                if (!isPrinterMatchFound)
+                {
+                    this.PrnSettings.ProductLabelPrinterName = string.Empty;
+                }
+            }
+
+            this.chkEnableProductMobilePrinter.IsToggled = this.PrnSettings.IsEnabledProductLabelPrinter;
         }
 
         /// <summary>
-        ///
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -642,7 +641,9 @@ namespace dMobile.View.Options
                     var isUnSubmittedTrx = false;
                     var rowsAffected = 0;
 
-                    rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tActivity WHERE ActivityStatus <> ?", Convert.ToInt32(SysCommon.ActStatus.NoChange)));
+                    rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn
+                        .ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tActivity WHERE ActivityStatus <> ?",
+                            Convert.ToInt32(SysCommon.ActStatus.NoChange)));
 
                     if (rowsAffected > 0)
                     {
@@ -651,7 +652,9 @@ namespace dMobile.View.Options
 
                     if (!isUnSubmittedTrx)
                     {
-                        rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tActivityItem WHERE ActivityItemStatus <> ?", Convert.ToInt32(SysCommon.ActStatus.NoChange)));
+                        rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn
+                            .ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tActivityItem WHERE ActivityItemStatus <> ?",
+                                Convert.ToInt32(SysCommon.ActStatus.NoChange)));
 
                         if (rowsAffected > 0)
                         {
@@ -661,7 +664,10 @@ namespace dMobile.View.Options
 
                     if (!isUnSubmittedTrx)
                     {
-                        rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tActivityDetail WHERE ActivityDetailStatus <> ?", Convert.ToInt32(SysCommon.ActStatus.NoChange)));
+                        rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn
+                            .ExecuteScalarAsync<int>(
+                                "SELECT COUNT(*) FROM tActivityDetail WHERE ActivityDetailStatus <> ?",
+                                Convert.ToInt32(SysCommon.ActStatus.NoChange)));
 
                         if (rowsAffected > 0)
                         {
@@ -772,6 +778,7 @@ namespace dMobile.View.Options
                             mergedDictionaries.Add(new DarkTheme());
                             this.SysEnv.SysSettings.Theme = Theme.Dark;
                             break;
+
                         case Theme.Light:
                         default:
                             mergedDictionaries.Add(new LightTheme());

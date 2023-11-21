@@ -358,7 +358,7 @@ namespace dMobile.Controller.Activity
                 adjustment.ActivityStringFKRefno.ToLower().Contains(
                     searchText.ToLower().Trim())).Cast<object>().ToList();
 
-            foreach (Adjustment adjustment in this.ListHdrs)
+            foreach (var adjustment in this.ListHdrs.Cast<Adjustment>())
             {
                 activityHeaders.Add(adjustment);
             }

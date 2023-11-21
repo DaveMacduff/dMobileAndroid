@@ -5,33 +5,32 @@
 namespace dMobile.View.Forms
 {
     using System;
-    using System.Collections.Generic;
     using System.ComponentModel;
     using System.Threading.Tasks;
     using Android.Views;
-    using dMobile.BarCodeScanner.BarCodeScanners;
-    using dMobile.Bedrock;
-    using dMobile.Resources.Enums;
-    using dMobile.Resources.Models;
-    using dMobile.View.CustomPages.Modal;
+    using BarCodeScanner.BarCodeScanners;
+    using Bedrock;
+    using CustomPages.Modal;
+    using Resources.Enums;
+    using Resources.Models;
     using SQLite;
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;
-    using Color = Xamarin.Forms.Color;
 
     /// <summary>
-    /// Add manual detail override.
+    ///     Add manual detail override.
     /// </summary>
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class FormAddManualDetailOverride : DMobileModal
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="FormAddManualDetailOverride"/> class.
+        ///     Initializes a new instance of the <see cref="FormAddManualDetailOverride" /> class.
         /// </summary>
         public FormAddManualDetailOverride()
         {
             this.InitializeComponent();
 
+            this.IsIndicatorRunning = false;
             this.Title = "Manual Detail Override";
             this.cmdCancel.Text = "Cancel";
             this.lblLoginPassword.Text = "Password";
@@ -53,44 +52,44 @@ namespace dMobile.View.Forms
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether is allowed to add manual detail.
+        ///     Gets or sets a value indicating whether is allowed to add manual detail.
         /// </summary>
-        private bool IsAllowedAddManualDetail { get; set; } = false;
+        private bool IsAllowedAddManualDetail { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether bypass license all modules is enabled.
+        ///     Gets or sets a value indicating whether bypass license all modules is enabled.
         /// </summary>
-        private bool IsEnableAllModuleBypassLicense { get; set; } = false;
+        private bool IsEnableAllModuleBypassLicense { get; }
 
         /// <summary>
-        /// Gets or sets the staff user login code.
+        ///     Gets or sets the staff user login code.
         /// </summary>
-        private int UserCode { get; set; } = 0;
+        private int UserCode { get; set; }
 
         /// <summary>
-        /// Gets or sets the staff user login password.
+        ///     Gets or sets the staff user login password.
         /// </summary>
         private string Password { get; set; } = string.Empty;
 
         /// <summary>
-        /// Gets or sets a value indicating whether the bar code handler is registered.
+        ///     Gets or sets a value indicating whether the bar code handler is registered.
         /// </summary>
-        private bool IsBarCodeHandlerRegistered { get; set; } = false;
+        private bool IsBarCodeHandlerRegistered { get; set; }
 
         /// <summary>
-        /// Gets or sets the bar code scanner instance.
+        ///     Gets or sets the bar code scanner instance.
         /// </summary>
-        private BarCodeScanner Scanner { get; set; } = ScannerEngine.GetInstance().Scanner;
+        private BarCodeScanner Scanner { get; } = ScannerEngine.GetInstance().Scanner;
 
         /// <summary>
-        /// Unregister the bar code scan event handler and disable the scanner.
+        ///     Unregister the bar code scan event handler and disable the scanner.
         /// </summary>
-        /// <returns><see cref="Task"/> Task operation.</returns>
+        /// <returns><see cref="Task" /> Task operation.</returns>
         public async Task ScannerDisable()
         {
             if (this.Scanner != null)
             {
-                this.Scanner.BarCodeScan -= new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
+                this.Scanner.BarCodeScan -= this.BarCodeHandler;
                 await this.Scanner.Stop();
             }
 
@@ -98,45 +97,53 @@ namespace dMobile.View.Forms
         }
 
         /// <summary>
-        /// Registers the bar code scan event handler and enables the scanner.
+        ///     Registers the bar code scan event handler and enables the scanner.
         /// </summary>
-        /// <returns><see cref="Task"/> Task operation.</returns>
+        /// <returns><see cref="Task" /> Task operation.</returns>
         public async Task ScannerEnable()
         {
             if (!this.IsBarCodeHandlerRegistered)
             {
                 await this.Scanner.Start();
-                this.Scanner.BarCodeScan += new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
+                this.Scanner.BarCodeScan += this.BarCodeHandler;
                 this.IsBarCodeHandlerRegistered = true;
             }
         }
 
         /// <summary>
-        /// On appearing event handler.
+        ///     On appearing event handler.
         /// </summary>
         protected override void OnAppearing()
         {
-            base.OnAppearing();
-
-            MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), (keyPressed) =>
+            if (!this.IsIndicatorRunning)
             {
-                // TODO: Verify key codes.
-                _ = Enum.TryParse(keyPressed, out Keycode keycode);
+                this.IsIndicatorRunning = true;
+                base.OnAppearing();
 
-                if (!this.IsPageLoading)
+                MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), keyPressed =>
                 {
+                    if (this.IsIndicatorRunning)
+                    {
+                        return;
+                    }
+
+                    // TODO: Verify key codes.
+                    _ = Enum.TryParse(keyPressed, out Keycode keycode);
+
                     if (keycode == Keycode.Enter || keycode == Keycode.F1)
                     {
                         this.CmdOK_Click(null, EventArgs.Empty);
                     }
-                }
-            });
+                });
+
+                this.IsIndicatorRunning = false;
+            }
         }
 
         /// <summary>
-        /// On back button pressed event handler.
+        ///     On back button pressed event handler.
         /// </summary>
-        /// <returns><see cref="bool"/> True.</returns>
+        /// <returns><see cref="bool" /> True.</returns>
         protected override bool OnBackButtonPressed()
         {
             Device.BeginInvokeOnMainThread(async () =>
@@ -150,31 +157,32 @@ namespace dMobile.View.Forms
         }
 
         /// <summary>
-        /// On disappearing event handler.
+        ///     On disappearing event handler.
         /// </summary>
         protected override void OnDisappearing()
         {
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
             base.OnDisappearing();
+            this.IsIndicatorRunning = false;
             GC.Collect();
             GC.WaitForPendingFinalizers();
         }
 
         /// <summary>
-        /// Bar code scan handler.
+        ///     Bar code scan handler.
         /// </summary>
-        /// <param name="sender"><see cref="object"/> Sender object.</param>
-        /// <param name="scanArgs"><see cref="BarCodeScannerEventArgs"/> Scan event arguments.</param>
+        /// <param name="sender"><see cref="object" /> Sender object.</param>
+        /// <param name="scanArgs"><see cref="BarCodeScannerEventArgs" /> Scan event arguments.</param>
         private Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        /// Command OK click event handler.
+        ///     Command OK click event handler.
         /// </summary>
-        /// <param name="sender"><see cref="object"/> Sender object.</param>
-        /// <param name="e"><see cref="EventArgs"/> Event arguments.</param>
+        /// <param name="sender"><see cref="object" /> Sender object.</param>
+        /// <param name="e"><see cref="EventArgs" /> Event arguments.</param>
         private async void CmdOK_Click(object sender, EventArgs e)
         {
             var isValidData = true;
@@ -210,30 +218,30 @@ namespace dMobile.View.Forms
         }
 
         /// <summary>
-        /// Command cancel click event handler.
+        ///     Command cancel click event handler.
         /// </summary>
-        /// <param name="sender"><see cref="object"/> Sender object.</param>
-        /// <param name="e"><see cref="EventArgs"/> Event arugments.</param>
+        /// <param name="sender"><see cref="object" /> Sender object.</param>
+        /// <param name="e"><see cref="EventArgs" /> Event arguments.</param>
         private async void CmdCancel_Click(object sender, EventArgs e)
         {
             await this.Close();
         }
 
         /// <summary>
-        /// Validate manual detail override entry data.
+        ///     Validate manual detail override entry data.
         /// </summary>
-        /// <param name="sender"><see cref="object"/> Sender object.</param>
-        /// <param name="e"><see cref="CancelEventArgs"/> Cancel event arugments.</param>
+        /// <param name="sender"><see cref="object" /> Sender object.</param>
+        /// <param name="e"><see cref="CancelEventArgs" /> Cancel event arguments.</param>
         private async void ValidateEntry(object sender, CancelEventArgs e)
         {
             try
             {
                 if (!string.IsNullOrEmpty(this.txtLoginID.Text))
                 {
-                    var resultsContactUser = await DatabaseConnection.GetInstance().SQLConn.
-                        QueryAsync<tContactUserModel>(
-                        "SELECT * FROM tContactUser WHERE ContactUserCode = ?",
-                        Convert.ToInt32(this.txtLoginID.Text));
+                    var resultsContactUser = await DatabaseConnection.GetInstance().SQLConn
+                        .QueryAsync<tContactUserModel>(
+                            "SELECT * FROM tContactUser WHERE ContactUserCode = ?",
+                            Convert.ToInt32(this.txtLoginID.Text));
 
                     if (resultsContactUser?.Count > 0)
                     {

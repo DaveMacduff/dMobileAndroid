@@ -31,6 +31,7 @@ namespace dMobile.View.Forms
             // TODO: Test this form
             this.InitializeComponent();
 
+            this.IsIndicatorRunning = false;
             this.lblLoginID.Text = Resource.LoginID;
             this.lblLoginPassword.Text = Resource.Password;
             this.cmdCancel.Text = Resource.Cancel;

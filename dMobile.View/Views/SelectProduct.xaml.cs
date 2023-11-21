@@ -39,7 +39,7 @@ namespace dMobile.View.Views
         {
             this.InitializeComponent();
 
-            this.IsPageLoading = false;
+            this.IsIndicatorRunning = false;
             this.Title = this.GetControlDescription();
             this.lblSearch.Text = "Search";
             this.lblProductDescription.Text = string.Empty;
@@ -83,9 +83,9 @@ namespace dMobile.View.Views
         /// </summary>
         protected override async void OnAppearing()
         {
-            if (!this.IsPageLoading)
+            if (!this.IsIndicatorRunning)
             {
-                this.IsPageLoading = true;
+                this.IsIndicatorRunning = true;
                 base.OnAppearing();
                 MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
                 {
@@ -134,7 +134,7 @@ namespace dMobile.View.Views
                 }
                 finally
                 {
-                    this.IsPageLoading = false;
+                    this.IsIndicatorRunning = false;
                 }
             }
         }
@@ -461,7 +461,7 @@ namespace dMobile.View.Views
         {
             if (!this.IsControlLoaded)
             {
-                this.IsPageLoading = true;
+                this.IsIndicatorRunning = true;
 
                 _ = await Task.Run(() => this.LoadData()).ContinueWith(async (_) =>
                     {
@@ -474,7 +474,7 @@ namespace dMobile.View.Views
                                 this.dgProducts.SelectedItem = this.ProductFilteredObservableCollection[0];
                             }
 
-                            this.IsPageLoading = false;
+                            this.IsIndicatorRunning = false;
                         });
                     });
 

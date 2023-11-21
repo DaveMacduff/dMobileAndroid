@@ -101,6 +101,7 @@ namespace dMobile.View.Activity
         {
             this.InitializeComponent();
 
+            this.IsIndicatorRunning = false;
             this.cmdLocationText = "Set Location";
             this.cmdDetails.Text = "Details";
             this.cmdNext.Text = "Next";
@@ -859,12 +860,12 @@ namespace dMobile.View.Activity
         /// <returns>The <see cref="Task"/>.</returns>
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
-            if (this.IsPageLoading || scanArgs == null)
+            if (this.IsIndicatorRunning || scanArgs == null)
             {
                 return;
             }
 
-            this.IsPageLoading = true;
+            this.IsIndicatorRunning = true;
 
             // TODO: Test BarCodeHandler
             var msg = string.Empty;
@@ -1371,7 +1372,7 @@ namespace dMobile.View.Activity
             finally
             {
                 await this.ScannerEnable();
-                this.IsPageLoading = false;
+                this.IsIndicatorRunning = false;
             }
         }
 
@@ -1404,79 +1405,83 @@ namespace dMobile.View.Activity
         /// </summary>
         protected override async void OnAppearing()
         {
-            base.OnAppearing();
-
-            this.ListViewDisplayExtraInfo.ItemsSource = this.ExtraInfoItems;
-
-            MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
+            if (!this.IsIndicatorRunning)
             {
-                _ = Enum.TryParse(keyPressed, out Keycode keycode);
-
-                if (!this.IsPageLoading)
+                try
                 {
-                    switch (keycode)
+                    this.IsIndicatorRunning = true;
+                    base.OnAppearing();
+
+                    this.ListViewDisplayExtraInfo.ItemsSource = this.ExtraInfoItems;
+
+                    MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
                     {
-                        case Keycode.Enter:
+                        _ = Enum.TryParse(keyPressed, out Keycode keycode);
 
-                        case Keycode.F1:
+                        if (!this.IsIndicatorRunning)
+                        {
+                            switch (keycode)
                             {
-                                if (await this.SaveChanges())
-                                {
-                                    this.DialogResult = DialogResult.OK;
-                                    await this.Close();
-                                }
+                                case Keycode.Enter:
 
-                                break;
+                                case Keycode.F1:
+                                    {
+                                        if (await this.SaveChanges())
+                                        {
+                                            this.DialogResult = DialogResult.OK;
+                                            await this.Close();
+                                        }
+
+                                        break;
+                                    }
+
+                                case Keycode.F2:
+                                    await this.KeyUpF2_ShowLineItemComment(this, null);
+                                    break;
+
+                                case Keycode.F3:
+                                    await this.KeyUpF3_ShowTotalQuantity(this, null);
+                                    break;
+
                             }
+                        }
+                    });
 
-                        case Keycode.F2:
-                            await this.KeyUpF2_ShowLineItemComment(this, null);
-                            break;
-
-                        case Keycode.F3:
-                            await this.KeyUpF3_ShowTotalQuantity(this, null);
-                            break;
-
-                    }
+                    await this.ucActivityItem_GotFocus(this, EventArgs.Empty);
+                    await this.tmrActivityItemLoaded_Tick(this, EventArgs.Empty);
                 }
-            });
-
-            try
-            {
-                await this.ucActivityItem_GotFocus(this, EventArgs.Empty);
-                await this.tmrActivityItemLoaded_Tick(this, EventArgs.Empty);
-            }
-            catch (CommunicationException commEx)
-            {
-                // Question should a communication error, be reported as an error or just a messagebox?
-                await Device.InvokeOnMainThreadAsync(async () =>
+                catch (CommunicationException commEx)
                 {
-                    var msg = $"Unable to load activity items.{Environment.NewLine}" +
-                        $"Because of a communication problem.{Environment.NewLine}" +
-                        $"Detail:{commEx.Message}{Environment.NewLine}" +
-                        "Please exit and try again.";
+                    // Question should a communication error, be reported as an error or just a messagebox?
+                    await Device.InvokeOnMainThreadAsync(async () =>
+                    {
+                        var msg = $"Unable to load activity items.{Environment.NewLine}" +
+                            $"Because of a communication problem.{Environment.NewLine}" +
+                            $"Detail:{commEx.Message}{Environment.NewLine}" +
+                            "Please exit and try again.";
 
-                    await Application.Current.MainPage.DisplayAlert(
-                        this.ActItem.GetControlDescription(),
-                        msg,
-                        Resource.OK);
-                });
-            }
-            catch (Exception ex)
-            {
-                await Device.InvokeOnMainThreadAsync(async () =>
+                        await Application.Current.MainPage.DisplayAlert(
+                            this.ActItem.GetControlDescription(),
+                            msg,
+                            Resource.OK);
+                    });
+                }
+                catch (Exception ex)
                 {
-                    var msg = $"Unable to load activity items.{Environment.NewLine}" +
-                        $"General exception.{Environment.NewLine}" +
-                        $"Detail:{ex.Message}{Environment.NewLine}" +
-                        "Please exit and try again.";
-                    var errorReport = new FormErrorReport(msg, ex);
-                    _ = await errorReport.ShowDialog();
-                });
-            }
-            finally
-            {
-                this.IsPageLoading = false;
+                    await Device.InvokeOnMainThreadAsync(async () =>
+                    {
+                        var msg = $"Unable to load activity items.{Environment.NewLine}" +
+                            $"General exception.{Environment.NewLine}" +
+                            $"Detail:{ex.Message}{Environment.NewLine}" +
+                            "Please exit and try again.";
+                        var errorReport = new FormErrorReport(msg, ex);
+                        _ = await errorReport.ShowDialog();
+                    });
+                }
+                finally
+                {
+                    this.IsIndicatorRunning = false;
+                }
             }
         }
 
@@ -1488,6 +1493,7 @@ namespace dMobile.View.Activity
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
             await this.ScannerDisable();
             base.OnDisappearing();
+            this.IsIndicatorRunning = false;
             GC.Collect();
             GC.WaitForPendingFinalizers();
         }
@@ -2937,7 +2943,7 @@ namespace dMobile.View.Activity
         /// <param name="e">The e<see cref="EventArgs"/>.</param>
         private async void OptionsMenu_Clicked(object sender, EventArgs e)
         {
-            if (this.IsPageLoading)
+            if (this.IsIndicatorRunning)
             {
                 return;
             }

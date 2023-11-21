@@ -2,9 +2,6 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
-using dMobile.Controller.Activity;
-using dMobile.Controller.Activity_Item;
-
 namespace dMobile.View.Utilities
 {
     using System;
@@ -13,26 +10,26 @@ namespace dMobile.View.Utilities
     using System.Xml;
     using System.Xml.Linq;
     using Android.Views;
-    using dMobile.BarCodeScanner.BarCodeParsing;
-    using dMobile.BarCodeScanner.BarCodeScanners;
-    using dMobile.Bedrock;
-    using dMobile.Controller;
-    using dMobile.Resources.Enums;
-    using dMobile.View.CustomPages;
-    using dMobile.View.Forms;
+    using BarCodeScanner.BarCodeParsing;
+    using BarCodeScanner.BarCodeScanners;
+    using Bedrock;
+    using Controller.Activity;
+    using Controller.Activity_Item;
+    using CustomPages;
+    using Forms;
+    using Resources.Enums;
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;
-    using Color = Xamarin.Forms.Color;
-    using Resource = dMobile.Resources.Properties.Resources;
+    using Resource = Resources.Properties.Resources;
 
     /// <summary>
-    /// Defines the <see cref="AssignDefaultLocation" />.
+    ///     Defines the <see cref="AssignDefaultLocation" />.
     /// </summary>
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class AssignDefaultLocation : DMobileContentPage, IAppArea
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="AssignDefaultLocation"/> class.
+        ///     Initializes a new instance of the <see cref="AssignDefaultLocation" /> class.
         /// </summary>
         public AssignDefaultLocation()
         {
@@ -65,6 +62,8 @@ namespace dMobile.View.Utilities
                 ////this.ActDetail = ActDetailFacade.GetActDetail(this.ActItem, SysCommon.ActSubTypes.AssignDefaultLocation);
             }
 
+            return;
+
             void ParseAndSeedBarCodeModifier()
             {
                 this.BarCodeModifier1Picker.Items.Clear();
@@ -90,37 +89,37 @@ namespace dMobile.View.Utilities
         }
 
         /// <summary>
-        /// Gets or sets the current receiving default location map reference number.
+        ///     Gets or sets the current receiving default location map reference number.
         /// </summary>
-        private int CurrLocMapDefRecvRefno { get; set; } = 0;
+        private int CurrLocMapDefRecvRefno { get; set; }
 
         /// <summary>
-        /// Gets or sets the current picking default location map reference number.
+        ///     Gets or sets the current picking default location map reference number.
         /// </summary>
-        private int CurrLocMapDefPickingRefno { get; set; } = 0;
+        private int CurrLocMapDefPickingRefno { get; set; }
 
         /// <summary>
-        /// Gets or sets the bar code scanner instance.
+        ///     Gets or sets the bar code scanner instance.
         /// </summary>
-        private BarCodeScanner Scanner { get; set; }
+        private BarCodeScanner Scanner { get; }
 
         /// <summary>
-        /// Gets or sets the new receiving default location map reference number.
+        ///     Gets or sets the new receiving default location map reference number.
         /// </summary>
-        private int NewLocMapDefRecvRefno { get; set; } = 0;
+        private int NewLocMapDefRecvRefno { get; set; }
 
         /// <summary>
-        /// Gets or sets the new picking default location map reference number.
+        ///     Gets or sets the new picking default location map reference number.
         /// </summary>
-        private int NewLocMapDefPickingRefno { get; set; } = 0;
+        private int NewLocMapDefPickingRefno { get; set; }
 
         /// <summary>
-        /// Gets or sets the default receiving location map.
+        ///     Gets or sets the default receiving location map.
         /// </summary>
         private SLocMap LocMapDefRecv { get; set; }
 
         /// <summary>
-        /// Gets or sets the default picking location map.
+        ///     Gets or sets the default picking location map.
         /// </summary>
         private SLocMap LocMapDefPicking { get; set; }
 
@@ -130,64 +129,64 @@ namespace dMobile.View.Utilities
         ////private ActDetail ActDetail { get; set; } = null;
 
         /// <summary>
-        /// Gets or sets the activity item.
+        ///     Gets or sets the activity item.
         /// </summary>
-        private ActItem ActItem { get; set; } = null;
+        private ActItem ActItem { get; }
 
         /// <summary>
-        /// Gets or sets the activity.
+        ///     Gets or sets the activity.
         /// </summary>
-        private Controller.Activity.Activity Activity { get; set; } = null;
+        private Activity Activity { get; }
 
         /// <summary>
-        /// Gets or sets the activity sub type.
+        ///     Gets or sets the activity sub type.
         /// </summary>
-        private SysCommon.ActSubTypes ActSubType { get; set; }
+        private SysCommon.ActSubTypes ActSubType { get; }
 
         /// <summary>
-        /// Gets or sets the location map.
+        ///     Gets or sets the location map.
         /// </summary>
-        private LocationMap LocMap { get; set; }
+        private LocationMap LocMap { get; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether changes have been made.
+        ///     Gets or sets a value indicating whether changes have been made.
         /// </summary>
-        private bool IsChangesMade { get; set; } = false;
+        private bool IsChangesMade { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether all controls have finished loading.
+        ///     Gets or sets a value indicating whether all controls have finished loading.
         /// </summary>
-        private bool IsControlLoaded { get; set; } = false;
+        private bool IsControlLoaded { get; set; }
 
         /// <summary>
-        /// Gets or sets the system environment.
+        ///     Gets or sets the system environment.
         /// </summary>
-        private SysEnvironment SysEnv { get; set; }
+        private SysEnvironment SysEnv { get; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether the bar code handler has been registered.
+        ///     Gets or sets a value indicating whether the bar code handler has been registered.
         /// </summary>
-        private bool IsBarCodeHandlerRegistered { get; set; } = false;
+        private bool IsBarCodeHandlerRegistered { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether the saved bar code scanner enabled status.
+        ///     Gets or sets a value indicating whether the saved bar code scanner enabled status.
         /// </summary>
-        private bool IsSvdBarScannerEnabled { get; set; } = false;
+        private bool IsSvdBarScannerEnabled { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether to performing loading data upon got focus.
+        ///     Gets or sets a value indicating whether to performing loading data upon got focus.
         /// </summary>
         private bool IsFirstAppearance { get; set; } = true;
 
         /// <summary>
-        /// Unregister the bar code scan event handler and disable the scanner.
+        ///     Unregister the bar code scan event handler and disable the scanner.
         /// </summary>
-        /// <returns><see cref="Task"/> Task operation.</returns>
+        /// <returns><see cref="Task" /> Task operation.</returns>
         public async Task ScannerDisable()
         {
             if (this.Scanner != null)
             {
-                this.Scanner.BarCodeScan -= new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
+                this.Scanner.BarCodeScan -= this.BarCodeHandler;
                 await this.Scanner.Stop();
             }
 
@@ -195,21 +194,21 @@ namespace dMobile.View.Utilities
         }
 
         /// <summary>
-        /// Registers the bar code scan event handler and enables the scanner.
+        ///     Registers the bar code scan event handler and enables the scanner.
         /// </summary>
-        /// <returns><see cref="Task"/> Task operation.</returns>
+        /// <returns><see cref="Task" /> Task operation.</returns>
         public async Task ScannerEnable()
         {
             if (this.Scanner != null)
             {
                 await this.Scanner.Start();
-                this.Scanner.BarCodeScan += new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
+                this.Scanner.BarCodeScan += this.BarCodeHandler;
                 this.IsBarCodeHandlerRegistered = true;
             }
         }
 
         /// <summary>
-        /// The IsReadyToSave.
+        ///     The IsReadyToSave.
         /// </summary>
         /// <returns>.</returns>
         public async Task<bool> IsReadyToSave()
@@ -332,7 +331,7 @@ namespace dMobile.View.Utilities
         }
 
         /// <summary>
-        /// The IsReadyToClose.
+        ///     The IsReadyToClose.
         /// </summary>
         /// <returns>.</returns>
         public async Task<bool> IsReadyToClose()
@@ -348,16 +347,7 @@ namespace dMobile.View.Utilities
         }
 
         /// <summary>
-        /// The GetControlDescription.
-        /// </summary>
-        /// <returns>.</returns>
-        public string GetControlDescription()
-        {
-            return "Assign Default Location";
-        }
-
-        /// <summary>
-        /// The CancelChanges.
+        ///     The CancelChanges.
         /// </summary>
         /// <returns>.</returns>
         public async Task<bool> CancelChanges()
@@ -397,7 +387,7 @@ namespace dMobile.View.Utilities
         }
 
         /// <summary>
-        /// The GetXML.
+        ///     The GetXML.
         /// </summary>
         /// <returns>.</returns>
         public async Task<XDocument> GetXML()
@@ -411,7 +401,7 @@ namespace dMobile.View.Utilities
         }
 
         /// <summary>
-        /// The SaveChanges.
+        ///     The SaveChanges.
         /// </summary>
         /// <returns>.</returns>
         public async Task<bool> SaveChanges()
@@ -430,7 +420,7 @@ namespace dMobile.View.Utilities
                     var settings = new XmlWriterSettings
                     {
                         Async = true,
-                        Indent = false,
+                        Indent = false
                     };
                     var xml = XmlWriter.Create(xmlString, settings);
 
@@ -449,11 +439,13 @@ namespace dMobile.View.Utilities
 
                     if (this.NewLocMapDefRecvRefno == 0)
                     {
-                        this.LocMapDefRecv = await LocationMapTasks.GetSLocMapFromLocMapRefno(this.CurrLocMapDefRecvRefno);
+                        this.LocMapDefRecv =
+                            await LocationMapTasks.GetSLocMapFromLocMapRefno(this.CurrLocMapDefRecvRefno);
                     }
                     else
                     {
-                        this.LocMapDefRecv = await LocationMapTasks.GetSLocMapFromLocMapRefno(this.NewLocMapDefRecvRefno);
+                        this.LocMapDefRecv =
+                            await LocationMapTasks.GetSLocMapFromLocMapRefno(this.NewLocMapDefRecvRefno);
                     }
 
                     request = XDocument.Parse(
@@ -504,12 +496,14 @@ namespace dMobile.View.Utilities
                         + "<receiving_warehouse_location_refno>" + this.LocMapDefRecv.WhsLocMapRefno
                         + "</receiving_warehouse_location_refno>"
                         + "<receiving_old_location_refno>" + origLocMapDefRecvRefno + "</receiving_old_location_refno>"
-                        + "<receiving_new_location_refno>" + this.NewLocMapDefRecvRefno + "</receiving_new_location_refno>"
+                        + "<receiving_new_location_refno>" + this.NewLocMapDefRecvRefno +
+                        "</receiving_new_location_refno>"
                         + "<picking_is_update>" + this.chkDefaultPicking.IsToggled + "</picking_is_update>"
                         + "<picking_warehouse_location_refno>" + this.LocMapDefPicking.WhsLocMapRefno
                         + "</picking_warehouse_location_refno>"
                         + "<picking_old_location_refno>" + origLocMapDefPickingRefno + "</picking_old_location_refno>"
-                        + "<picking_new_location_refno>" + this.NewLocMapDefPickingRefno + "</picking_new_location_refno>"
+                        + "<picking_new_location_refno>" + this.NewLocMapDefPickingRefno +
+                        "</picking_new_location_refno>"
                         + "</param>");
 
                     await this.ActItem.Update(dataUpdate);
@@ -564,7 +558,16 @@ namespace dMobile.View.Utilities
         }
 
         /// <summary>
-        /// The OnAppearing.
+        ///     The GetControlDescription.
+        /// </summary>
+        /// <returns>.</returns>
+        public string GetControlDescription()
+        {
+            return "Assign Default Location";
+        }
+
+        /// <summary>
+        ///     The OnAppearing.
         /// </summary>
         protected override async void OnAppearing()
         {
@@ -576,7 +579,7 @@ namespace dMobile.View.Utilities
 
             SubscribeKeyUpHandlers();
 
-            this.IsPageLoading = true;
+            this.IsIndicatorRunning = true;
 
             try
             {
@@ -621,7 +624,7 @@ namespace dMobile.View.Utilities
             }
             finally
             {
-                this.IsPageLoading = false;
+                this.IsIndicatorRunning = false;
                 await this.ScannerEnable();
                 await Task.Run(() =>
                 {
@@ -631,9 +634,11 @@ namespace dMobile.View.Utilities
                 });
             }
 
+            return;
+
             void SubscribeKeyUpHandlers()
             {
-                MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
+                MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async keyPressed =>
                 {
                     _ = Enum.TryParse(keyPressed, out Keycode keycode);
 
@@ -649,7 +654,7 @@ namespace dMobile.View.Utilities
         }
 
         /// <summary>
-        /// The OnDisappearing.
+        ///     The OnDisappearing.
         /// </summary>
         protected override async void OnDisappearing()
         {
@@ -661,9 +666,9 @@ namespace dMobile.View.Utilities
         }
 
         /// <summary>
-        /// The OnBackButtonPressed.
+        ///     The OnBackButtonPressed.
         /// </summary>
-        /// <returns>The <see cref="bool"/>.</returns>
+        /// <returns>The <see cref="bool" />.</returns>
         protected override bool OnBackButtonPressed()
         {
             Device.BeginInvokeOnMainThread(async () =>
@@ -708,10 +713,10 @@ namespace dMobile.View.Utilities
         }
 
         /// <summary>
-        /// Check if changes have been made.
+        ///     Check if changes have been made.
         /// </summary>
-        /// <param name="sender"><see cref="object"/> Object that generated the event.</param>
-        /// <param name="e"><see cref="EventArgs"/> Event arguments.</param>
+        /// <param name="sender"><see cref="object" /> Object that generated the event.</param>
+        /// <param name="e"><see cref="EventArgs" /> Event arguments.</param>
         private void IdentifyChangesMade(object sender, EventArgs e)
         {
             if (this.IsControlLoaded)
@@ -741,10 +746,10 @@ namespace dMobile.View.Utilities
         }
 
         /// <summary>
-        /// Command location click event handler.
+        ///     Command location click event handler.
         /// </summary>
-        /// <param name="sender"><see cref="object"/> Object that generated the event.</param>
-        /// <param name="e"><see cref="EventArgs"/> Event arguments.</param>
+        /// <param name="sender"><see cref="object" /> Object that generated the event.</param>
+        /// <param name="e"><see cref="EventArgs" /> Event arguments.</param>
         private async void CmdLocation_Click(object sender, EventArgs e)
         {
             await this.ScannerDisable();
@@ -760,27 +765,25 @@ namespace dMobile.View.Utilities
                 {
                     throw new Exception("Unexpected result this.LocMap.CurrLocMap.WhsLocMapRefno == 0.");
                 }
+
+                this.ActItem.LocMap = this.LocMap.CurrLocMap;
+
+                if (this.chkDefaultPicking.IsToggled)
+                {
+                    this.NewLocMapDefPickingRefno = this.LocMap.CurrLocMapRefno;
+                }
                 else
                 {
-                    this.ActItem.LocMap = this.LocMap.CurrLocMap;
+                    this.NewLocMapDefPickingRefno = this.CurrLocMapDefPickingRefno;
+                }
 
-                    if (this.chkDefaultPicking.IsToggled)
-                    {
-                        this.NewLocMapDefPickingRefno = this.LocMap.CurrLocMapRefno;
-                    }
-                    else
-                    {
-                        this.NewLocMapDefPickingRefno = this.CurrLocMapDefPickingRefno;
-                    }
-
-                    if (this.chkDefaultReceiving.IsToggled)
-                    {
-                        this.NewLocMapDefRecvRefno = this.LocMap.CurrLocMapRefno;
-                    }
-                    else
-                    {
-                        this.NewLocMapDefRecvRefno = this.CurrLocMapDefRecvRefno;
-                    }
+                if (this.chkDefaultReceiving.IsToggled)
+                {
+                    this.NewLocMapDefRecvRefno = this.LocMap.CurrLocMapRefno;
+                }
+                else
+                {
+                    this.NewLocMapDefRecvRefno = this.CurrLocMapDefRecvRefno;
                 }
             }
 
@@ -789,10 +792,10 @@ namespace dMobile.View.Utilities
         }
 
         /// <summary>
-        /// Command select product click event handler.
+        ///     Command select product click event handler.
         /// </summary>
-        /// <param name="sender"><see cref="object"/> Object that generated the event.</param>
-        /// <param name="e"><see cref="EventArgs"/> Event arguments.</param>
+        /// <param name="sender"><see cref="object" /> Object that generated the event.</param>
+        /// <param name="e"><see cref="EventArgs" /> Event arguments.</param>
         private async void CmdProduct_Click(object sender, EventArgs e)
         {
             await this.ScannerDisable();
@@ -834,14 +837,14 @@ namespace dMobile.View.Utilities
         }
 
         /// <summary>
-        /// The BarCodeHandler.
+        ///     The BarCodeHandler.
         /// </summary>
         /// <param name="sender">.</param>
-        /// <param name="scanArgs">The scanArgs<see cref="BarCodeScannerEventArgs"/>.</param>
-        /// <returns>The <see cref="Task"/>.</returns>
+        /// <param name="scanArgs">The scanArgs<see cref="BarCodeScannerEventArgs" />.</param>
+        /// <returns>The <see cref="Task" />.</returns>
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
-            if (this.IsPageLoading || scanArgs == null)
+            if (this.IsIndicatorRunning || scanArgs == null)
             {
                 return;
             }
@@ -851,7 +854,7 @@ namespace dMobile.View.Utilities
 
             try
             {
-                this.IsPageLoading = true;
+                this.IsIndicatorRunning = true;
                 await this.ScannerDisable();
 
                 parse = scanArgs.ParseInfo;
@@ -906,10 +909,11 @@ namespace dMobile.View.Utilities
 
                         if (this.LocMap.CurrLocMap.WhsLocMapRefno != 0)
                         {
-                            this.CurrLocMapDefPickingRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(
-                                this.LocMap.CurrLocMap.WhsLocMapRefno,
-                                this.ActItem.ProdInfo.Refno,
-                                SysCommon.ProdLocMapTypes.Picking);
+                            this.CurrLocMapDefPickingRefno =
+                                await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(
+                                    this.LocMap.CurrLocMap.WhsLocMapRefno,
+                                    this.ActItem.ProdInfo.Refno,
+                                    SysCommon.ProdLocMapTypes.Picking);
                             this.CurrLocMapDefRecvRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(
                                 this.LocMap.CurrLocMap.WhsLocMapRefno,
                                 this.ActItem.ProdInfo.Refno,
@@ -956,14 +960,14 @@ namespace dMobile.View.Utilities
             finally
             {
                 await this.ScannerEnable();
-                this.IsPageLoading = false;
+                this.IsIndicatorRunning = false;
             }
         }
 
         /// <summary>
-        /// Activity default location display data.
+        ///     Activity default location display data.
         /// </summary>
-        /// <returns><see cref="Task"/> Task operation.</returns>
+        /// <returns><see cref="Task" /> Task operation.</returns>
         private async Task DisplayData()
         {
             if (this.ActItem.ProdInfo.UnitRefno != 0)
@@ -1004,10 +1008,10 @@ namespace dMobile.View.Utilities
         }
 
         /// <summary>
-        /// The CmdSave_Clicked.
+        ///     The CmdSave_Clicked.
         /// </summary>
-        /// <param name="sender">The sender<see cref="object"/>.</param>
-        /// <param name="e">The e<see cref="EventArgs"/>.</param>
+        /// <param name="sender">The sender<see cref="object" />.</param>
+        /// <param name="e">The e<see cref="EventArgs" />.</param>
         private async void CmdSave_Clicked(object sender, EventArgs e)
         {
             try

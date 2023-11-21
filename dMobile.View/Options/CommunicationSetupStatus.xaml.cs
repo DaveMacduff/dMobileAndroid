@@ -33,7 +33,7 @@ namespace dMobile.View.Options
         public CommunicationSetupStatus()
         {
             this.InitializeComponent();
-
+            this.IsIndicatorRunning = false;
             this.Title = "Communication Status";
         }
 
@@ -42,19 +42,25 @@ namespace dMobile.View.Options
         /// </summary>
         protected override async void OnAppearing()
         {
-            base.OnAppearing();
-
-            this.lstStatus.ItemsSource = this.ExtraInfoItems;
-
-            await Device.InvokeOnMainThreadAsync(() =>
+            if (!this.IsIndicatorRunning)
             {
-                this.lstStatus.ScrollTo(this.ExtraInfoItems[this.ExtraInfoItems.Count - 1], ScrollToPosition.MakeVisible, false);
-            });
+                this.IsIndicatorRunning = true;
+                base.OnAppearing();
 
-            MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), (keyPressed) =>
-            {
-                _ = Enum.TryParse(keyPressed, out Keycode keycode);
-            });
+                this.lstStatus.ItemsSource = this.ExtraInfoItems;
+
+                await Device.InvokeOnMainThreadAsync(() =>
+                {
+                    this.lstStatus.ScrollTo(this.ExtraInfoItems[this.ExtraInfoItems.Count - 1], ScrollToPosition.MakeVisible, false);
+                });
+
+                MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), (keyPressed) =>
+                {
+                    _ = Enum.TryParse(keyPressed, out Keycode keycode);
+                });
+
+                this.IsIndicatorRunning = false;
+            }
         }
 
         /// <summary>
@@ -64,6 +70,7 @@ namespace dMobile.View.Options
         {
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
             base.OnDisappearing();
+            this.IsIndicatorRunning = false;
             GC.Collect();
             GC.WaitForPendingFinalizers();
         }

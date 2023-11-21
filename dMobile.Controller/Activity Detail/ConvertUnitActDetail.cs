@@ -125,28 +125,26 @@ namespace dMobile.Controller.Activity_Detail
         /// <summary>
         /// Find or insert an activity detail into the list details.
         /// </summary>
-        /// <param name="mainActivityItems"><see cref="ObservableCollection{T}"/> Main activity items.</param>
         /// <returns><see cref="ActivityDetail"/> Activity detail.</returns>
-        public override ActivityDetail InsertListDetail(ObservableCollection<object> mainActivityItems)
+        public override ActivityDetail GatherDetail()
         {
             var count = this.ListDetails.Count + 1;
             var detail = new ConvertUnitDetail
             {
-                ActivityDetailRefno = this.DetailRefno,
-                ActivityDetailFKRefno = this.DetailFkRefno,
+                // KLUDGE: Restore the new detail reference number's that got over written somehow.
+                ActivityDetailRefno = this.SysEnv.InsertedDetailRefno,
+                ActivityDetailFKRefno = this.SysEnv.InsertedDetailFkRefno,
                 CountNumber = count,
-                ActivityDetailSchemeID = this.SchemeId,
-                ActivityDetailUniqueSchemeID = this.UniqueSchemeId,
-                ////detail.ActivityDetailStatus = (int)SysCommon.ActStatus.Inserted,
             };
 
-            this.InsertListDetailProduct(detail);
-            this.InsertListDetailQuantity(detail);
-            this.InsertListDetailScheme(detail);
-            this.InsertListDetailExtra(detail);
-            this.InsertListDetailLocation(detail);
+            this.GatherProductDetail(detail);
+            this.GatherQuantityDetail(detail);
+            this.GatherSchemeDetail(detail);
+            this.GatherExtraDetail(detail);
+            this.GatherLocationDetail(detail);
 
-            this.ListDetails.Add(detail);
+            detail.ActivityDetailSchemeID = this.SchemeId;
+            detail.ActivityDetailUniqueSchemeID = this.UniqueSchemeId;
 
             return detail;
         }
@@ -158,11 +156,6 @@ namespace dMobile.Controller.Activity_Detail
         public override void UpdateListDetail(int listDetailIdx)
         {
             var detail = (ConvertUnitDetail)this.ListDetails[listDetailIdx];
-            ////if (detail.ActivityDetailStatus == (int)SysCommon.ActStatus.NoChange)
-            ////{
-            ////    detail.ActivityDetailStatus = (int)SysCommon.ActStatus.Updated;
-            ////}
-
             detail.ActivityDetailQuantity += Math.Round(this.Quantity, 3);
             detail.ActivityDetailBaseQuantity += Math.Round(this.BaseQuantity, 3);
             detail.ActivityDetailWeightQuantity += Math.Round(this.WeightQuantity, 3);

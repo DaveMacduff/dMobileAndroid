@@ -7,32 +7,30 @@ namespace dMobile.View.Activity
     using System;
     using System.Collections;
     using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
-    using System.Threading;
     using System.Threading.Tasks;
     using System.Xml.Linq;
     using Android.Views;
-    using dMobile.Bedrock;
-    using dMobile.Resources.Enums;
-    using dMobile.Resources.Types;
-    using dMobile.View.CustomPages.Modal;
-    using dMobile.View.Forms;
+    using Bedrock;
+    using CustomPages.Modal;
+    using Forms;
+    using Resources.Enums;
+    using Resources.Types;
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;
 
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class ucActivityHdrCycleCountFilter : DMobileModal, IAppArea
     {
-        private Dictionary<string, Sort> filters = new Dictionary<string, Sort>();
+        private readonly Dictionary<string, Sort> filters = new Dictionary<string, Sort>();
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ucActivityHdrCycleCountFilter"/> class.
+        ///     Initializes a new instance of the <see cref="ucActivityHdrCycleCountFilter" /> class.
         /// </summary>
         public ucActivityHdrCycleCountFilter()
         {
             this.InitializeComponent();
 
+            this.IsIndicatorRunning = false;
             this.Title = this.GetControlDescription();
             this.lblApplyCountDate.Text = "Apply Date Filter";
             this.lblDate.Text = "Count Date";
@@ -61,105 +59,34 @@ namespace dMobile.View.Activity
             this.cboSortBy2.SelectedIndex = this.CountSettings.iSortBy2Index;
 
             this.filters.Add(string.Empty, null);
-            this.filters.Add("Count # Ascending", new Sort() { SortValue = "ActivityFKRefno", SortOrder = SortOrder.ASC });
-            this.filters.Add("Count # Descending", new Sort() { SortValue = "ActivityFKRefno", SortOrder = SortOrder.DESC });
-            this.filters.Add("Count Date Ascending", new Sort() { SortValue = "ActivityCountDateTime", SortOrder = SortOrder.ASC });
-            this.filters.Add("Count Date Descending", new Sort() { SortValue = "ActivityCountDateTime", SortOrder = SortOrder.DESC });
+            this.filters.Add("Count # Ascending", new Sort
+                { SortValue = "ActivityFKRefno", SortOrder = SortOrder.ASC });
+            this.filters.Add("Count # Descending", new Sort
+                { SortValue = "ActivityFKRefno", SortOrder = SortOrder.DESC });
+            this.filters.Add("Count Date Ascending", new Sort
+                { SortValue = "ActivityCountDateTime", SortOrder = SortOrder.ASC });
+            this.filters.Add("Count Date Descending", new Sort
+                { SortValue = "ActivityCountDateTime", SortOrder = SortOrder.DESC });
         }
 
-        /// <summary>
-        /// The OnAppearing.
-        /// </summary>
-        protected override async void OnAppearing()
-        {
-            base.OnAppearing();
+        private ArrayList SortBy1 { get; } = new ArrayList();
 
-            MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
-            {
-                _ = Enum.TryParse(keyPressed, out Keycode keycode);
-
-                if (!this.IsPageLoading)
-                {
-                    if (keycode == Keycode.F1)
-                    {
-                        if (await this.SaveChanges())
-                        {
-                            this.DialogResult = DialogResult.OK;
-                            await this.Close();
-                        }
-                        else
-                        {
-                            this.DialogResult = DialogResult.None;
-                            _ = await this.CancelChanges();
-                            await this.Close();
-                        }
-                    }
-                }
-            });
-
-            try
-            {
-                this.ucActivityHdrCycleCountFilter_GotFocus(this, EventArgs.Empty);
-            }
-            catch (Exception ex)
-            {
-                await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert("Error", "this.ucActivityHdrCycleCountFilter_GotFocus threw an error " + ex, "OK"));
-            }
-        }
-
-        /// <summary>
-        /// The OnDisappearing.
-        /// </summary>
-        protected override async void OnDisappearing()
-        {
-            MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
-            await this.ScannerDisable();
-            base.OnDisappearing();
-            GC.Collect();
-            GC.WaitForPendingFinalizers();
-        }
-
-        /// <inheritdoc/>
-        protected override bool OnBackButtonPressed()
-        {
-            Device.BeginInvokeOnMainThread(async () =>
-            {
-                _ = base.OnBackButtonPressed();
-
-                if (await this.SaveChanges())
-                {
-                    this.DialogResult = DialogResult.OK;
-                    await this.Close();
-                }
-                else
-                {
-                    this.DialogResult = DialogResult.None;
-                    _ = await this.CancelChanges();
-                    await this.Close();
-                }
-            });
-
-            return true;
-        }
-
-        private ArrayList SortBy1 { get; set; } = new ArrayList();
-
-        private ArrayList SortBy2 { get; set; } = new ArrayList();
+        private ArrayList SortBy2 { get; } = new ArrayList();
 
         private bool EnterTrapped { get; set; } = false;
 
-        private bool IsControlLoaded { get; set; } = false;
+        private bool IsControlLoaded { get; set; }
 
         private CycleCountSettings CountSettings { get; set; } = new CycleCountSettings();
 
         private string SQLSortBy { get; set; } = string.Empty;
 
-        private string FullClassName { get; set; } = "dMobile.ucActivityHdrCycleCountFilter";
+        private string FullClassName { get; } = "dMobile.ucActivityHdrCycleCountFilter";
 
-        private bool ChangesMade { get; set; } = false;
+        private bool ChangesMade { get; set; }
 
         /// <summary>
-        /// Unregister the bar code scan event handler and disable the scanner.
+        ///     Unregister the bar code scan event handler and disable the scanner.
         /// </summary>
         /// <remarks></remarks>
         public async Task ScannerDisable()
@@ -167,7 +94,7 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// Registers the bar code scan event handler and enables the scanner.
+        ///     Registers the bar code scan event handler and enables the scanner.
         /// </summary>
         /// <remarks></remarks>
         public async Task ScannerEnable()
@@ -175,32 +102,10 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        ///
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        /// <remarks></remarks>
-        public void ucActivityHdrCycleCountFilter_GotFocus(object sender, EventArgs e)
-        {
-            // Reload oCycleCountSettings because intial values will be scewed because of SelectedIndexChanged events firing
-            if (!this.IsControlLoaded)
-            {
-                this.LoadData();
-            }
-
-            this.chkApplyCountDate.IsToggled = this.CountSettings.IsApplyCountDate;
-            this.dtpCountDate.Date = this.CountSettings.dtCountDate;
-
-            this.cboSortBy1.SelectedIndex = this.CountSettings.iSortBy1Index;
-            this.cboSortBy2.SelectedIndex = this.CountSettings.iSortBy2Index;
-        }
-
-        /// <summary>
-        ///
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public async Task<bool> IsReadyToSave()
         {
             var isReadyToSave = true;
@@ -221,32 +126,20 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        ///
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public async Task<bool> IsReadyToClose()
         {
             return !this.ChangesMade;
         }
 
         /// <summary>
-        ///
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public string GetControlDescription()
-        {
-            return "Cycle Count Filter";
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public async Task<bool> SaveChanges()
         {
             var saveComplete = false;
@@ -276,7 +169,9 @@ namespace dMobile.View.Activity
                 }
                 else
                 {
-                    await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(this.GetControlDescription(), "Data failed validation. Check your data.", "OK"));
+                    await Device.InvokeOnMainThreadAsync(async () =>
+                        await this.DisplayAlert(this.GetControlDescription(),
+                            "Data failed validation. Check your data.", "OK"));
                 }
             }
             catch (Exception ex)
@@ -292,11 +187,10 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        ///
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public async Task<bool> CancelChanges()
         {
             var cancelChanges = true;
@@ -333,11 +227,10 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        ///
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public async Task<XDocument> GetXML()
         {
             var request = XDocument.Parse(
@@ -351,7 +244,120 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        ///
+        ///     The OnAppearing.
+        /// </summary>
+        protected override async void OnAppearing()
+        {
+            if (!this.IsIndicatorRunning)
+            {
+                try
+                {
+                    this.IsIndicatorRunning = true;
+                    base.OnAppearing();
+
+                    MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async keyPressed =>
+                    {
+                        _ = Enum.TryParse(keyPressed, out Keycode keycode);
+
+                        if (!this.IsIndicatorRunning)
+                        {
+                            if (keycode == Keycode.F1)
+                            {
+                                if (await this.SaveChanges())
+                                {
+                                    this.DialogResult = DialogResult.OK;
+                                    await this.Close();
+                                }
+                                else
+                                {
+                                    this.DialogResult = DialogResult.None;
+                                    _ = await this.CancelChanges();
+                                    await this.Close();
+                                }
+                            }
+                        }
+                    });
+
+                    this.ucActivityHdrCycleCountFilter_GotFocus(this, EventArgs.Empty);
+                }
+                catch (Exception ex)
+                {
+                    await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert("Error",
+                        "this.ucActivityHdrCycleCountFilter_GotFocus threw an error " + ex, "OK"));
+                }
+                finally
+                {
+                    this.IsIndicatorRunning = false;
+                }
+            }
+        }
+
+        /// <summary>
+        ///     The OnDisappearing.
+        /// </summary>
+        protected override async void OnDisappearing()
+        {
+            MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
+            await this.ScannerDisable();
+            base.OnDisappearing();
+            this.IsIndicatorRunning = false;
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+        }
+
+        /// <inheritdoc />
+        protected override bool OnBackButtonPressed()
+        {
+            Device.BeginInvokeOnMainThread(async () =>
+            {
+                _ = base.OnBackButtonPressed();
+
+                if (await this.SaveChanges())
+                {
+                    this.DialogResult = DialogResult.OK;
+                    await this.Close();
+                }
+                else
+                {
+                    this.DialogResult = DialogResult.None;
+                    _ = await this.CancelChanges();
+                    await this.Close();
+                }
+            });
+
+            return true;
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        /// <remarks></remarks>
+        public void ucActivityHdrCycleCountFilter_GotFocus(object sender, EventArgs e)
+        {
+            // Reload oCycleCountSettings because intial values will be scewed because of SelectedIndexChanged events firing
+            if (!this.IsControlLoaded)
+            {
+                this.LoadData();
+            }
+
+            this.chkApplyCountDate.IsToggled = this.CountSettings.IsApplyCountDate;
+            this.dtpCountDate.Date = this.CountSettings.dtCountDate;
+
+            this.cboSortBy1.SelectedIndex = this.CountSettings.iSortBy1Index;
+            this.cboSortBy2.SelectedIndex = this.CountSettings.iSortBy2Index;
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <returns></returns>
+        /// <remarks></remarks>
+        public string GetControlDescription()
+        {
+            return "Cycle Count Filter";
+        }
+
+        /// <summary>
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -374,7 +380,6 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        ///
         /// </summary>
         /// <remarks></remarks>
         private void MakeSQLSortBy()
@@ -387,7 +392,8 @@ namespace dMobile.View.Activity
             {
                 this.CountSettings.SortBy2Value = this.filters[this.cboSortBy2.Items[this.cboSortBy2.SelectedIndex]];
 
-                if (this.CountSettings.SortBy2Value != null && !string.IsNullOrEmpty(this.CountSettings.SortBy2Value.SortValue))
+                if (this.CountSettings.SortBy2Value != null &&
+                    !string.IsNullOrEmpty(this.CountSettings.SortBy2Value.SortValue))
                 {
                     this.SQLSortBy = this.SQLSortBy + ", " + this.CountSettings.SortBy2Value;
                 }
@@ -395,7 +401,6 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        ///
         /// </summary>
         /// <remarks></remarks>
         private void LoadData()

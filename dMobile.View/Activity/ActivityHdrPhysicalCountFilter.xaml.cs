@@ -37,6 +37,7 @@ namespace dMobile.View.Activity
         {
             this.InitializeComponent();
 
+            this.IsIndicatorRunning = false;
             this.Title = this.GetControlDescription();
             this.lblSort.Text = "Sort By";
             this.lblApplyCountDate.Text = "Apply Physical Count Date Filter";
@@ -75,38 +76,42 @@ namespace dMobile.View.Activity
         /// </summary>
         protected override async void OnAppearing()
         {
-            base.OnAppearing();
-
-            MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
+            if (!this.IsIndicatorRunning)
             {
-                _ = Enum.TryParse(keyPressed, out Keycode keycode);
-
-                if (!this.IsPageLoading)
+                try
                 {
-                    if (keycode == Keycode.F1)
-                    {
-                        if (await this.SaveChanges())
-                        {
-                            this.DialogResult = DialogResult.OK;
-                            await this.Close();
-                        }
-                        else
-                        {
-                            this.DialogResult = DialogResult.None;
-                            _ = await this.CancelChanges();
-                            await this.Close();
-                        }
-                    }
-                }
-            });
+                    this.IsIndicatorRunning = true;
+                    base.OnAppearing();
 
-            try
-            {
-                this.ucActivityHdrPhysicalCountFilter_GotFocus(this, EventArgs.Empty);
-            }
-            catch (Exception ex)
-            {
-                await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert("Error", "this.ucActivityHdrPhysicalCountFilter_GotFocus threw an error " + ex, "OK"));
+                    MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
+                    {
+                        _ = Enum.TryParse(keyPressed, out Keycode keycode);
+
+                        if (!this.IsIndicatorRunning)
+                        {
+                            if (keycode == Keycode.F1)
+                            {
+                                if (await this.SaveChanges())
+                                {
+                                    this.DialogResult = DialogResult.OK;
+                                    await this.Close();
+                                }
+                                else
+                                {
+                                    this.DialogResult = DialogResult.None;
+                                    _ = await this.CancelChanges();
+                                    await this.Close();
+                                }
+                            }
+                        }
+                    });
+
+                    this.ucActivityHdrPhysicalCountFilter_GotFocus(this, EventArgs.Empty);
+                }
+                catch (Exception ex)
+                {
+                    await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert("Error", "this.ucActivityHdrPhysicalCountFilter_GotFocus threw an error " + ex, "OK"));
+                }
             }
         }
 
@@ -118,6 +123,7 @@ namespace dMobile.View.Activity
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
             _ = this.ScannerDisable();
             base.OnDisappearing();
+            this.IsIndicatorRunning = false;
             GC.Collect();
             GC.WaitForPendingFinalizers();
         }

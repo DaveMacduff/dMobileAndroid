@@ -44,6 +44,7 @@ namespace dMobile.View.Activity
         {
             this.InitializeComponent();
 
+            this.IsIndicatorRunning = false;
             this.CmdLocation.Text = "Set Location";
             this.CmdSelectToProduct.Text = "Select To Product";
             this.CmdSelectFromProduct.Text = "Select From Product";
@@ -57,6 +58,7 @@ namespace dMobile.View.Activity
 
             this.Title = GetControlDescription();
             this.PopulateOptionsMenu();
+            return;
 
             //////////////////////////////////////////////////////////////////////////
             void ParseAndSeedBarCodeModifier()
@@ -82,11 +84,6 @@ namespace dMobile.View.Activity
                 this.BarCodeModifier1Picker.SelectedItem = this.SysEnv.CurrentBarCodeModifier1;
             }
         }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether to performing loading data upon got focus.
-        /// </summary>
-        private bool IsFirstAppearance { get; set; } = true;
 
         /// <summary>
         /// Gets or sets the bar code scanner engine instance.
@@ -445,11 +442,11 @@ namespace dMobile.View.Activity
         /// </summary>
         protected override async void OnAppearing()
         {
-            if (!this.IsPageLoading)
+            if (!this.IsIndicatorRunning)
             {
                 try
                 {
-                    this.IsPageLoading = true;
+                    this.IsIndicatorRunning = true;
                     base.OnAppearing();
                     await ScannerStart();
                     this.ListViewDisplayExtraInfo.ItemsSource = this.ExtraInfoItems;
@@ -484,8 +481,6 @@ namespace dMobile.View.Activity
                 }
                 catch (CommunicationException commEx)
                 {
-                    this.IsFirstAppearance = true;
-
                     // Question should a communication error, be reported as an error or just a messagebox?
                     await Device.InvokeOnMainThreadAsync(async () =>
                     {
@@ -502,7 +497,6 @@ namespace dMobile.View.Activity
                 }
                 catch (Exception ex)
                 {
-                    this.IsFirstAppearance = true;
                     await Device.InvokeOnMainThreadAsync(async () =>
                     {
                         var msg = $"Unable to load activity items.{Environment.NewLine}" +
@@ -515,10 +509,12 @@ namespace dMobile.View.Activity
                 }
                 finally
                 {
-                    this.IsPageLoading = false;
+                    this.IsIndicatorRunning = false;
                     await this.ScannerEnable();
                 }
             }
+
+            return;
 
             //////////////////////////////////////////////////////////////////////////
             async Task ScannerStart()
@@ -557,6 +553,7 @@ namespace dMobile.View.Activity
         {
             await this.ActDisappearing();
             base.OnDisappearing();
+            this.IsIndicatorRunning = false;
             GC.Collect();
             GC.WaitForPendingFinalizers();
         }
@@ -578,18 +575,20 @@ namespace dMobile.View.Activity
             await this.ScannerEnable();
             this.ListViewDisplayExtraInfo.ItemsSource = this.ExtraInfoItems;
             SubscribeKeyUpHandlers();
+            return;
 
             //////////////////////////////////////////////////////////////////////////
             void SubscribeKeyUpHandlers()
             {
                 MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), KeyUpHandlerCallback);
+                return;
 
                 //////////////////////////////////////////////////////////////////////////
                 async void KeyUpHandlerCallback(string keyPressed)
                 {
                     _ = Enum.TryParse(keyPressed, out Keycode keycode);
 
-                    if (!this.IsPageLoading)
+                    if (!this.IsIndicatorRunning)
                     {
                         var svdIsScanReg = this.IsBarCodeHandlerRegistered;
                         await this.ScannerDisable();
@@ -628,13 +627,13 @@ namespace dMobile.View.Activity
         /// event arguments.</param>
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
-            if (this.IsPageLoading)
+            if (this.IsIndicatorRunning)
             {
                 return;
             }
 
             scanArgs = scanArgs ?? throw new ArgumentNullException(nameof(scanArgs));
-            this.IsPageLoading = true;
+            this.IsIndicatorRunning = true;
 
             try
             {
@@ -704,7 +703,8 @@ namespace dMobile.View.Activity
                 });
             }
 
-            this.IsPageLoading = false;
+            this.IsIndicatorRunning = false;
+            return;
 
             //////////////////////////////////////////////////////////////////////////
             async Task BarCodeHandlerLocationIdentifier(BarCodeParse parse)
@@ -874,6 +874,8 @@ namespace dMobile.View.Activity
             {
                 throw new MessageOnlyException("Location must be set.");
             }
+
+            return;
 
             //////////////////////////////////////////////////////////////////////////
             async Task<bool> IsLocationSet()
@@ -1347,6 +1349,7 @@ namespace dMobile.View.Activity
             }
 
             this.DisplaySummary();
+            return;
 
             //////////////////////////////////////////////////////////////////////////
             // Validate whether allowed to perform the click detail event.
@@ -1404,7 +1407,7 @@ namespace dMobile.View.Activity
         /// <param name="e"><see cref="EventArgs"/> Event arguments.</param>
         private async void OptionsMenu_Clicked(object sender, EventArgs e)
         {
-            if (this.IsPageLoading)
+            if (this.IsIndicatorRunning)
             {
                 return;
             }

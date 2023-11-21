@@ -266,6 +266,7 @@ namespace dMobile.Controller.Activity_Item
 
             await InsertActivityItemInTables(prodUnitRefno);
             AddActivityItemToList(prodUnitRefno);
+            return;
 
             //////////////////////////////////////////////////////////////////////////
             async Task InsertActivityItemInTables(int prodUnitRefno)
@@ -415,7 +416,7 @@ namespace dMobile.Controller.Activity_Item
         {
             var observableCollection = new ObservableCollection<object>();
 
-            foreach (AdjustmentItem adjustmentItem in this.ListItems.Cast<AdjustmentItem>())
+            foreach (var adjustmentItem in this.ListItems.Cast<AdjustmentItem>())
             {
                 if (adjustmentItem.ActivityItemFKRefno >= 0)
                 {
@@ -424,7 +425,7 @@ namespace dMobile.Controller.Activity_Item
             }
 
             // Add negative new line items to the bottom.
-            foreach (AdjustmentItem adjustmentItem in this.ListItems.Cast<AdjustmentItem>())
+            foreach (var adjustmentItem in this.ListItems.Cast<AdjustmentItem>())
             {
                 if (adjustmentItem.ActivityItemFKRefno < 0)
                 {
@@ -581,7 +582,7 @@ namespace dMobile.Controller.Activity_Item
                 sql.Append("tLocationMapWarehouse.LocationMapRefno AS LocationMapRefno,");
                 sql.Append("tLocationMapWarehouse.LocationMapWarehouseCode AS LocationCode,");
                 sql.Append("tLocationMapWarehouse.LocationMapWarehouseName AS LocationName,");
-                sql.Append("tActivityitem.ActivityItemStatus AS ActivityItemStatus ");
+                sql.Append("tActivityItem.ActivityItemStatus AS ActivityItemStatus ");
                 sql.Append("FROM tActivityItemAdjustment ");
                 sql.Append("INNER JOIN tActivityItem ON tActivityItem.ActivityItemRefno ");
                 sql.Append("= tActivityItemAdjustment.ActivityItemRefno ");
@@ -610,7 +611,7 @@ namespace dMobile.Controller.Activity_Item
                 sql.Append("tLocationMapWarehouse.LocationMapRefno,");
                 sql.Append("tLocationMapWarehouse.LocationMapWarehouseCode AS LocationCode,");
                 sql.Append("tLocationMapWarehouse.LocationMapWarehouseName AS LocationName,");
-                sql.Append("tActivityitem.ActivityItemStatus ");
+                sql.Append("tActivityItem.ActivityItemStatus ");
                 sql.Append("FROM tActivityItemAdjustment ");
                 sql.Append("INNER JOIN tActivityItem ON tActivityItem.ActivityItemRefno ");
                 sql.Append("= tActivityItemAdjustment.ActivityItemRefno ");
@@ -644,7 +645,7 @@ namespace dMobile.Controller.Activity_Item
                 sql.Append("tLocationMapWarehouse.LocationMapRefno AS LocationMapRefno,");
                 sql.Append("tLocationMapWarehouse.LocationMapWarehouseCode AS LocationCode,");
                 sql.Append("tLocationMapWarehouse.LocationMapWarehouseName AS LocationName,");
-                sql.Append("tActivityitem.ActivityItemStatus AS ActivityItemStatus ");
+                sql.Append("tActivityItem.ActivityItemStatus AS ActivityItemStatus ");
                 sql.Append("FROM tActivityItemAdjustment ");
                 sql.Append("INNER JOIN tActivityItem ON tActivityItem.ActivityItemRefno ");
                 sql.Append("= tActivityItemAdjustment.ActivityItemRefno ");
@@ -676,7 +677,7 @@ namespace dMobile.Controller.Activity_Item
             this.ListItems = this.ListAdjustmentItems.Where(adjItem => adjItem.ProductCode.
                 ToString().ToLower().Contains(searchText.ToLower().Trim())).Cast<object>().ToList();
 
-            foreach (AdjustmentItem adjustmentItem in this.ListItems)
+            foreach (var adjustmentItem in this.ListItems.Cast<AdjustmentItem>())
             {
                 observableCollection.Add(adjustmentItem);
             }
@@ -931,7 +932,7 @@ namespace dMobile.Controller.Activity_Item
         public override int GetFkRefno(object resourceType)
         {
             object tmpFkItRefno = ((AdjustmentItem)resourceType).ActivityItemFKRefno;
-            return tmpFkItRefno == null ? 0 : Convert.ToInt32(tmpFkItRefno);
+            return Convert.ToInt32(tmpFkItRefno);
         }
 
         /// <summary>

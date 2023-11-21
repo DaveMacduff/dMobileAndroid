@@ -36,6 +36,7 @@ namespace dMobile.View.Activity
         {
             this.InitializeComponent();
 
+            this.IsIndicatorRunning = false;
             this.Title = this.GetControlDescription();
             this.SysEnv = SysEnvironment.GetInstance();
             this.Scanner = ScannerEngine.GetInstance().Scanner;
@@ -318,60 +319,64 @@ namespace dMobile.View.Activity
         /// </summary>
         protected override async void OnAppearing()
         {
-            base.OnAppearing();
-
-            try
+            if (!this.IsIndicatorRunning)
             {
-                this.IsPageLoading = true;
-                this.ListViewMainActivity.ItemsSource = this.MainActivityItems;
-                this.ListViewDisplayExtraInfo.ItemsSource = this.ExtraInfoItems;
-                SubscribeKeyUpHandlers();
-                await this.ActItemInventoryInquiry_GotFocus(this, EventArgs.Empty);
-                await this.RefreshData();
-            }
-            catch (MessageOnlyException msgEx)
-            {
-                var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1)
-                    ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
-                await Device.InvokeOnMainThreadAsync(async () =>
-                    await Application.Current.MainPage.DisplayAlert(
-                        this.ActItem.GetControlDescription(),
-                        msg,
-                        "OK"));
-            }
-            catch (CommunicationException commEx)
-            {
-                // Question should a communication error, be reported as an error or just a message box?
-                await Device.InvokeOnMainThreadAsync(async () =>
+                try
                 {
-                    var msg = $"Unable to load activity items.{Environment.NewLine}" +
-                        $"Because of a communication problem.{Environment.NewLine}" +
-                        $"Detail:{commEx.Message}{Environment.NewLine}" +
-                        "Please exit and try again.";
-
-                    await Application.Current.MainPage.DisplayAlert(
-                        this.ActItem.GetControlDescription(),
-                        msg,
-                        "OK");
-                });
-            }
-            catch (Exception ex)
-            {
-                await Device.InvokeOnMainThreadAsync(async () =>
+                    this.IsIndicatorRunning = true;
+                    base.OnAppearing();
+                    this.ListViewMainActivity.ItemsSource = this.MainActivityItems;
+                    this.ListViewDisplayExtraInfo.ItemsSource = this.ExtraInfoItems;
+                    SubscribeKeyUpHandlers();
+                    await this.ActItemInventoryInquiry_GotFocus(this, EventArgs.Empty);
+                    await this.RefreshData();
+                }
+                catch (MessageOnlyException msgEx)
                 {
-                    var msg = $"Unable to load activity items.{Environment.NewLine}" +
-                        $"General exception.{Environment.NewLine}" +
-                        $"Detail:{ex.Message}{Environment.NewLine}" +
-                        "Please exit and try again.";
-                    var errorReport = new FormErrorReport(msg, ex);
-                    _ = await errorReport.ShowDialog();
-                });
+                    var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1)
+                        ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
+                    await Device.InvokeOnMainThreadAsync(async () =>
+                        await Application.Current.MainPage.DisplayAlert(
+                            this.ActItem.GetControlDescription(),
+                            msg,
+                            "OK"));
+                }
+                catch (CommunicationException commEx)
+                {
+                    // Question should a communication error, be reported as an error or just a message box?
+                    await Device.InvokeOnMainThreadAsync(async () =>
+                    {
+                        var msg = $"Unable to load activity items.{Environment.NewLine}" +
+                            $"Because of a communication problem.{Environment.NewLine}" +
+                            $"Detail:{commEx.Message}{Environment.NewLine}" +
+                            "Please exit and try again.";
+
+                        await Application.Current.MainPage.DisplayAlert(
+                            this.ActItem.GetControlDescription(),
+                            msg,
+                            "OK");
+                    });
+                }
+                catch (Exception ex)
+                {
+                    await Device.InvokeOnMainThreadAsync(async () =>
+                    {
+                        var msg = $"Unable to load activity items.{Environment.NewLine}" +
+                            $"General exception.{Environment.NewLine}" +
+                            $"Detail:{ex.Message}{Environment.NewLine}" +
+                            "Please exit and try again.";
+                        var errorReport = new FormErrorReport(msg, ex);
+                        _ = await errorReport.ShowDialog();
+                    });
+                }
+                finally
+                {
+                    this.IsIndicatorRunning = false;
+                    await this.ScannerEnable();
+                }
             }
-            finally
-            {
-                this.IsPageLoading = false;
-                await this.ScannerEnable();
-            }
+
+            return;
 
             //////////////////////////////////////////////////////////////////////////
             void SubscribeKeyUpHandlers()
@@ -379,11 +384,12 @@ namespace dMobile.View.Activity
                 MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
                 {
                     await KeyUpHandlerCallback(keyPressed);
+                    return;
 
                     //////////////////////////////////////////////////////////////////////////
                     async Task KeyUpHandlerCallback(string keyPressed)
                     {
-                        if (this.IsPageLoading)
+                        if (this.IsIndicatorRunning)
                         {
                             return;
                         }
@@ -400,19 +406,21 @@ namespace dMobile.View.Activity
                             {
                                 await OnAppearingKeyUpF1();
                             }
-                            }
-                            catch (Exception ex)
+                        }
+                        catch (Exception ex)
+                        {
+                            await Device.InvokeOnMainThreadAsync(async () =>
                             {
-                                await Device.InvokeOnMainThreadAsync(async () =>
-                                {
-                                    var errRpt = new FormErrorReport(this.ActSubType, ex);
-                                    _ = await errRpt.ShowDialog();
-                                });
-                            }
-                            finally
-                            {
-                                this.IsPageLoading = false;
-                            }
+                                var errRpt = new FormErrorReport(this.ActSubType, ex);
+                                _ = await errRpt.ShowDialog();
+                            });
+                        }
+                        finally
+                        {
+                            this.IsIndicatorRunning = false;
+                        }
+
+                        return;
 
                         //////////////////////////////////////////////////////////////////////////
                         async Task OnAppearingKeyUpF1()
@@ -469,6 +477,7 @@ namespace dMobile.View.Activity
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
             await this.ScannerDisable();
             base.OnDisappearing();
+            this.IsIndicatorRunning = false;
             GC.Collect();
             GC.WaitForPendingFinalizers();
         }
@@ -565,12 +574,12 @@ namespace dMobile.View.Activity
         /// <returns>The <see cref="Task"/>.</returns>
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
-            if (this.IsPageLoading || scanArgs == null)
+            if (this.IsIndicatorRunning || scanArgs == null)
             {
                 return;
             }
 
-            this.IsPageLoading = true;
+            this.IsIndicatorRunning = true;
             this.BarParse = scanArgs.ParseInfo;
             await this.ScannerDisable();
 
@@ -612,7 +621,7 @@ namespace dMobile.View.Activity
             finally
             {
                 await this.ScannerEnable();
-                this.IsPageLoading = false;
+                this.IsIndicatorRunning = false;
             }
         }
 

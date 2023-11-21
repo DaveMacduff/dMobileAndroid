@@ -74,7 +74,7 @@ namespace dMobile.View.Views
         {
             this.InitializeComponent();
 
-            this.IsPageLoading = false;
+            this.IsIndicatorRunning = false;
             this.Title = this.GetControlDescription();
             this.TabWarehouse.Text = "Warehouse";
             this.TabSection.Text = "Section";
@@ -483,9 +483,9 @@ namespace dMobile.View.Views
         {
             try
             {
-                if (!this.IsPageLoading)
+                if (!this.IsIndicatorRunning)
                 {
-                    this.IsPageLoading = true;
+                    this.IsIndicatorRunning = true;
                     base.OnAppearing();
                     SubscribeKeyUpHandlers();
                     this.IsEnabled = false;
@@ -527,14 +527,16 @@ namespace dMobile.View.Views
             finally
             {
                 this.IsEnabled = true;
-                this.IsPageLoading = false;
+                this.IsIndicatorRunning = false;
             }
+
+            return;
 
             void SubscribeKeyUpHandlers()
             {
                 MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async keyPressed =>
                 {
-                    if (this.IsPageLoading)
+                    if (this.IsIndicatorRunning)
                     {
                         return;
                     }
@@ -1132,6 +1134,7 @@ namespace dMobile.View.Views
             this.ListWarehouse = await LocationMapTasks.GetWhsList();
             this.FilteredWarehouses = this.ListWarehouse;
             await PopulateWarehouseList();
+            return;
 
             async Task PopulateWarehouseList()
             {
@@ -1538,7 +1541,7 @@ namespace dMobile.View.Views
         /// <param name="scanArgs"><see cref="BarCodeScannerEventArgs" /> Scan event arguments.</param>
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
-            if (this.IsPageLoading || scanArgs == null)
+            if (this.IsIndicatorRunning || scanArgs == null)
             {
                 return;
             }
@@ -1546,7 +1549,7 @@ namespace dMobile.View.Views
             try
             {
                 await this.ScannerDisable();
-                this.IsPageLoading = true;
+                this.IsIndicatorRunning = true;
 
                 // No need to disable/enable scanner because only message box are called.
                 // GoFocus and LostFocus events will handle the scanner
@@ -1621,7 +1624,7 @@ namespace dMobile.View.Views
             finally
             {
                 await this.ScannerEnable();
-                this.IsPageLoading = false;
+                this.IsIndicatorRunning = false;
             }
         }
 
@@ -1632,7 +1635,7 @@ namespace dMobile.View.Views
         /// <param name="e"><see cref="SelectedItemChangedEventArgs" /> Selected item changed event arguments.</param>
         private async void Whs_ItemSelected(object sender, SelectedItemChangedEventArgs e)
         {
-            if (this.IsPageLoading)
+            if (this.IsIndicatorRunning)
             {
                 return;
             }
@@ -1691,7 +1694,7 @@ namespace dMobile.View.Views
         /// <param name="e"><see cref="SelectedItemChangedEventArgs" /> Selected item changed event arguments.</param>
         private async void Sections_ItemSelected(object sender, SelectedItemChangedEventArgs e)
         {
-            if (this.IsPageLoading)
+            if (this.IsIndicatorRunning)
             {
                 return;
             }
@@ -1745,7 +1748,7 @@ namespace dMobile.View.Views
         /// <param name="e"><see cref="SelectedItemChangedEventArgs" /> Selected item changed event arguments.</param>
         private async void Coord1_ItemSelected(object sender, SelectedItemChangedEventArgs e)
         {
-            if (this.IsPageLoading)
+            if (this.IsIndicatorRunning)
             {
                 return;
             }
@@ -1808,7 +1811,7 @@ namespace dMobile.View.Views
         /// <param name="e"><see cref="SelectedItemChangedEventArgs" /> Selected item changed event arguments.</param>
         private async void Coord2_ItemSelected(object sender, SelectedItemChangedEventArgs e)
         {
-            if (this.IsPageLoading)
+            if (this.IsIndicatorRunning)
             {
                 return;
             }
@@ -1871,7 +1874,7 @@ namespace dMobile.View.Views
         /// <param name="e"><see cref="SelectedItemChangedEventArgs" /> Selected item changed event arguments.</param>
         private async void Coord3_ItemSelected(object sender, SelectedItemChangedEventArgs e)
         {
-            if (this.IsPageLoading)
+            if (this.IsIndicatorRunning)
             {
                 return;
             }

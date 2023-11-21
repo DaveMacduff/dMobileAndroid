@@ -25,6 +25,7 @@ namespace dMobile.View.Forms
         {
             this.InitializeComponent();
 
+            this.IsIndicatorRunning = false;
             this.Title = "Ship Label Quantity";
             this.cmdCancel.Text = "Cancel";
             this.cmdOK.Text = "OK";
@@ -47,22 +48,29 @@ namespace dMobile.View.Forms
         /// </summary>
         protected override void OnAppearing()
         {
-            base.OnAppearing();
-
-            MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
+            if (!this.IsIndicatorRunning)
             {
-                _ = Enum.TryParse(keyPressed, out Keycode keycode);
+                this.IsIndicatorRunning = true;
 
-                if (keycode == Keycode.Enter || keycode == Keycode.F1)
+                base.OnAppearing();
+
+                MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
                 {
-                    if (this.txtQuantity.Text != null)
+                    _ = Enum.TryParse(keyPressed, out Keycode keycode);
+
+                    if (keycode == Keycode.Enter || keycode == Keycode.F1)
                     {
-                        this.DialogResult = DialogResult.OK;
-                        this.Quantity = Convert.ToInt32(this.txtQuantity.Text);
-                        await this.Close();
+                        if (this.txtQuantity.Text != null)
+                        {
+                            this.DialogResult = DialogResult.OK;
+                            this.Quantity = Convert.ToInt32(this.txtQuantity.Text);
+                            await this.Close();
+                        }
                     }
-                }
-            });
+                });
+
+                this.IsIndicatorRunning = false;
+            }
         }
 
         /// <summary>
@@ -72,6 +80,7 @@ namespace dMobile.View.Forms
         {
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
             base.OnDisappearing();
+            this.IsIndicatorRunning = false;
             GC.Collect();
             GC.WaitForPendingFinalizers();
         }

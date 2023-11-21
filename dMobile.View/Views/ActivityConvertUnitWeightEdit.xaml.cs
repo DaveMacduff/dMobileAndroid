@@ -5,29 +5,30 @@
 namespace dMobile.View.Views
 {
     using System;
-    using dMobile.Resources.Enums;
-    using dMobile.Resources.Types;
-    using dMobile.View.CustomPages.Modal;
+    using CustomPages.Modal;
+    using Resources.Enums;
+    using Resources.Types;
     using Xamarin.Forms.Xaml;
 
     /// <summary>
-    /// Defines the <see cref="ActivityConvertUnitWeightEdit" />.
+    ///     Defines the <see cref="ActivityConvertUnitWeightEdit" />.
     /// </summary>
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class ActivityConvertUnitWeightEdit : DMobileModal
     {
         /// <summary>
-        /// Defines the convertUnitDetail.
+        ///     Defines the convertUnitDetail.
         /// </summary>
-        private ConvertUnitDetail convertUnitDetail;
+        private readonly ConvertUnitDetail convertUnitDetail;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ActivityConvertUnitWeightEdit"/> class.
+        ///     Initializes a new instance of the <see cref="ActivityConvertUnitWeightEdit" /> class.
         /// </summary>
         public ActivityConvertUnitWeightEdit()
         {
             this.InitializeComponent();
 
+            this.IsIndicatorRunning = false;
             this.Title = "Unit Weight Edit";
 
             this.lblUnitNumber.Text = "Unit Number";
@@ -44,13 +45,14 @@ namespace dMobile.View.Views
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ActivityConvertUnitWeightEdit"/> class.
+        ///     Initializes a new instance of the <see cref="ActivityConvertUnitWeightEdit" /> class.
         /// </summary>
         /// <param name="convertUnitDetail">.</param>
         public ActivityConvertUnitWeightEdit(ConvertUnitDetail convertUnitDetail)
         {
             this.InitializeComponent();
 
+            this.IsIndicatorRunning = false;
             this.convertUnitDetail = convertUnitDetail;
 
             this.Title = "Unit Weight Edit";
@@ -59,30 +61,32 @@ namespace dMobile.View.Views
             this.lblUnitNumberValue.Text = Convert.ToString(convertUnitDetail.CountNumber) ?? string.Empty;
 
             this.lblQuantity.Text = "Quantity";
-            this.lblQuantityValue.Text = Convert.ToString($"{convertUnitDetail.ActivityDetailQuantity:F3}") ?? string.Empty;
+            this.lblQuantityValue.Text =
+                Convert.ToString($"{convertUnitDetail.ActivityDetailQuantity:F3}") ?? string.Empty;
 
             this.lblWeight.Text = "Weight";
-            this.entryWeight.Text = Convert.ToString($"{convertUnitDetail.ActivityDetailWeightQuantity:F3}") ?? string.Empty;
+            this.entryWeight.Text =
+                Convert.ToString($"{convertUnitDetail.ActivityDetailWeightQuantity:F3}") ?? string.Empty;
 
             this.cmdSave.Text = "Save";
             this.cmdCancel.Text = "Cancel";
         }
 
         /// <summary>
-        /// Gets or sets the EditedWeight.
+        ///     Gets or sets the EditedWeight.
         /// </summary>
         public decimal EditedWeight { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether WeightHasChanged.
+        ///     Gets or sets a value indicating whether WeightHasChanged.
         /// </summary>
-        public bool WeightHasChanged { get; set; } = false;
+        public bool WeightHasChanged { get; set; }
 
         /// <summary>
-        /// The cmdSave_Clicked.
+        ///     The cmdSave_Clicked.
         /// </summary>
-        /// <param name="sender">The sender<see cref="object"/>.</param>
-        /// <param name="e">The e<see cref="EventArgs"/>.</param>
+        /// <param name="sender">The sender<see cref="object" />.</param>
+        /// <param name="e">The e<see cref="EventArgs" />.</param>
         private async void cmdSave_Clicked(object sender, EventArgs e)
         {
             this.DialogResult = DialogResult.OK;
@@ -99,10 +103,10 @@ namespace dMobile.View.Views
         }
 
         /// <summary>
-        /// The cmdCancel_Clicked.
+        ///     The cmdCancel_Clicked.
         /// </summary>
-        /// <param name="sender">The sender<see cref="object"/>.</param>
-        /// <param name="e">The e<see cref="EventArgs"/>.</param>
+        /// <param name="sender">The sender<see cref="object" />.</param>
+        /// <param name="e">The e<see cref="EventArgs" />.</param>
         private async void cmdCancel_Clicked(object sender, EventArgs e)
         {
             this.DialogResult = DialogResult.None;

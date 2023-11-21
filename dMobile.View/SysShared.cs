@@ -6,7 +6,6 @@ namespace dMobile.View
 {
     using System;
     using System.Reflection;
-    using System.Runtime.CompilerServices;
     using System.Threading.Tasks;
     using System.Xml.Linq;
     using BarCodeScanner;
@@ -22,7 +21,6 @@ namespace dMobile.View
     using Xamarin.Forms;
     using static Bedrock.LocationMapTasks;
     using static Bedrock.ProductInfoTasks;
-    using static dMobile.Bedrock.SysCommon;
 
     /// <summary>
     ///     Defines the <see cref="SysShared" />.
@@ -93,15 +91,14 @@ namespace dMobile.View
             var prodUnitBarCodeRefno = 0;
             var actBarCode = ActivityFacade.GetActivity(SysCommon.ActSubTypes.BarCodeAssociation);
             var actItemBarCode = ActItemFacade.GetActItem(actBarCode, SysCommon.ActSubTypes.BarCodeAssociation);
-            var actDetailBarCode =
-                ActDetailFacade.GetActDetail(actItemBarCode, SysCommon.ActSubTypes.BarCodeAssociation);
+            ActDetailFacade.GetActDetail(actItemBarCode, SysCommon.ActSubTypes.BarCodeAssociation);
             var sysEnv = SysEnvironment.GetInstance();
 
             // Initialize by reference parameter variables
             prodUnitRefno = 0;
 
             // Attempt to find the product in local database.
-            // Do not look up gtin in bar code database for this rule, product will be identified by a range
+            // Do not look up GTIN in bar code database for this rule, product will be identified by a range
             // of fixed weights.
             if (sysEnv.BarCodeSettings.IsRuleEnabled_ParseSumwaFarmFedWholeDuck_UseWeightRangeToIDProduct &&
                 barCodeParse.ProductIdentifier == "90695955110022")
@@ -252,16 +249,6 @@ namespace dMobile.View
             }
 
             return prodUnitRefno;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="barParse"></param>
-        /// <param name="actDetail"></param>
-        /// <exception cref="ArgumentOutOfRangeException"></exception>
-        public static async void GatherScanDetail(BarCodeParse barParse, ActDetail actDetail, bool isInsertDetailReady)
-        {
         }
 
         /// <summary>

@@ -7,30 +7,29 @@ namespace dMobile.View.Activity
     using System;
     using System.Collections;
     using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
     using System.Threading.Tasks;
     using System.Xml.Linq;
     using Android.Views;
-    using dMobile.Bedrock;
-    using dMobile.Resources.Enums;
-    using dMobile.Resources.Types;
-    using dMobile.View.CustomPages.Modal;
+    using Bedrock;
+    using CustomPages.Modal;
+    using Resources.Enums;
+    using Resources.Types;
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;
 
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class ActivityHdrProductionTicketFilter : DMobileModal, IAppArea
     {
-        private Dictionary<string, Sort> filters = new Dictionary<string, Sort>();
+        private readonly Dictionary<string, Sort> filters = new Dictionary<string, Sort>();
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ActivityHdrProductionTicketFilter"/> class.
+        ///     Initializes a new instance of the <see cref="ActivityHdrProductionTicketFilter" /> class.
         /// </summary>
         public ActivityHdrProductionTicketFilter()
         {
             this.InitializeComponent();
 
+            this.IsIndicatorRunning = false;
             this.Title = this.GetControlDescription();
             this.lblApplyProductionDate.Text = "Apply Production Date Filter";
             this.lblAdjustmentDate.Text = "Date";
@@ -68,85 +67,14 @@ namespace dMobile.View.Activity
             this.cboSortBy3.ItemsSource = this.aSortBy3;
             this.cboSortBy3.SelectedIndex = this.TicketSettings.iSortBy3Index;
 
-            this.filters.Add("Production # Ascending", new Sort() { SortValue = "ActivityFKRefno", SortOrder = SortOrder.ASC });
-            this.filters.Add("Production # Descending", new Sort() { SortValue = "ActivityFKRefno", SortOrder = SortOrder.DESC });
-            this.filters.Add("Production Date Ascending", new Sort() { SortValue = "ActivityProductionDateTime", SortOrder = SortOrder.ASC });
-            this.filters.Add("Production Date Descending", new Sort() { SortValue = "ActivityProductionDateTime", SortOrder = SortOrder.DESC });
-        }
-
-        /// <summary>
-        /// The OnAppearing.
-        /// </summary>
-        protected override async void OnAppearing()
-        {
-            base.OnAppearing();
-
-            MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
-            {
-                _ = Enum.TryParse(keyPressed, out Keycode keycode);
-
-                if (!this.IsPageLoading)
-                {
-                    if (keycode == Keycode.F1)
-                    {
-                        if (await this.SaveChanges())
-                        {
-                            this.DialogResult = DialogResult.OK;
-                            await this.Close();
-                        }
-                        else
-                        {
-                            this.DialogResult = DialogResult.None;
-                            _ = await this.CancelChanges();
-                            await this.Close();
-                        }
-                    }
-                }
-            });
-
-            try
-            {
-                this.ucActivityHdrProductionFilter_GotFocus();
-            }
-            catch (Exception ex)
-            {
-                await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert("Error", "this.ucActivityHdrProductionFilter_GotFocus threw an error " + ex, "OK"));
-            }
-        }
-
-        /// <summary>
-        /// The OnDisappearing.
-        /// </summary>
-        protected override async void OnDisappearing()
-        {
-            MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
-            await this.ScannerDisable();
-            base.OnDisappearing();
-            GC.Collect();
-            GC.WaitForPendingFinalizers();
-        }
-
-        /// <inheritdoc/>
-        protected override bool OnBackButtonPressed()
-        {
-            Device.BeginInvokeOnMainThread(async () =>
-            {
-                _ = base.OnBackButtonPressed();
-
-                if (await this.SaveChanges())
-                {
-                    this.DialogResult = DialogResult.OK;
-                    await this.Close();
-                }
-                else
-                {
-                    this.DialogResult = DialogResult.None;
-                    _ = await this.CancelChanges();
-                    await this.Close();
-                }
-            });
-
-            return true;
+            this.filters.Add("Production # Ascending", new Sort
+                { SortValue = "ActivityFKRefno", SortOrder = SortOrder.ASC });
+            this.filters.Add("Production # Descending", new Sort
+                { SortValue = "ActivityFKRefno", SortOrder = SortOrder.DESC });
+            this.filters.Add("Production Date Ascending", new Sort
+                { SortValue = "ActivityProductionDateTime", SortOrder = SortOrder.ASC });
+            this.filters.Add("Production Date Descending", new Sort
+                { SortValue = "ActivityProductionDateTime", SortOrder = SortOrder.DESC });
         }
 
         public ProductionTicketSettings TicketSettings { get; set; } = new ProductionTicketSettings();
@@ -159,62 +87,16 @@ namespace dMobile.View.Activity
 
         public bool bEnterTrapped { get; set; } = false;
 
-        public bool IsControlLoaded { get; set; } = false;
+        public bool IsControlLoaded { get; set; }
 
         public string strSQLSortBy { get; set; } = string.Empty;
 
         public string strFullClassName { get; set; } = "dMobile.ucActivityHdrProductionTicketFilter";
 
-        public bool bChangesMade { get; set; } = false;
+        public bool bChangesMade { get; set; }
 
         /// <summary>
-        ///
-        /// </summary>
-        /// <remarks></remarks>
-        private void LoadData()
-        {
-            this.TicketSettings = this.TicketSettings.LoadData();
-
-            if (SysCommon.IsEmptyDate(this.TicketSettings.ProductionDateFilter))
-            {
-                this.TicketSettings.ProductionDateFilter = DateTime.Now;
-            }
-
-            this.IsControlLoaded = true;
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <remarks></remarks>
-        private void MakeSQLSortBy()
-        {
-            this.strSQLSortBy = this.filters[this.cboSortBy1.Items[this.cboSortBy1.SelectedIndex]].SortValue;
-            this.TicketSettings.SortBy1Value = this.filters[this.cboSortBy1.Items[this.cboSortBy1.SelectedIndex]];
-
-            if (this.cboSortBy2.SelectedIndex >= 0)
-            {
-                this.TicketSettings.SortBy2Value = this.filters[this.cboSortBy2.Items[this.cboSortBy2.SelectedIndex]];
-
-                if (this.TicketSettings.SortBy2Value != null && !string.IsNullOrEmpty(this.TicketSettings.SortBy2Value.SortValue))
-                {
-                    this.strSQLSortBy = this.strSQLSortBy + ", " + this.TicketSettings.SortBy2Value;
-                }
-            }
-
-            if (this.cboSortBy3.SelectedIndex >= 0)
-            {
-                this.TicketSettings.SortBy3Value = this.filters[this.cboSortBy3.Items[this.cboSortBy3.SelectedIndex]];
-
-                if (this.TicketSettings.SortBy3Value != null && !string.IsNullOrEmpty(this.TicketSettings.SortBy3Value.SortValue))
-                {
-                    this.strSQLSortBy = this.strSQLSortBy + ", " + this.TicketSettings.SortBy3Value;
-                }
-            }
-        }
-
-        /// <summary>
-        /// Unregister the bar code scan event handler and disable the scanner.
+        ///     Unregister the bar code scan event handler and disable the scanner.
         /// </summary>
         /// <remarks></remarks>
         public async Task ScannerDisable()
@@ -222,7 +104,7 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// Registers the bar code scan event handler and enables the scanner.
+        ///     Registers the bar code scan event handler and enables the scanner.
         /// </summary>
         /// <remarks></remarks>
         public async Task ScannerEnable()
@@ -230,28 +112,10 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        ///
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        /// <remarks></remarks>
-        public void ucActivityHdrProductionFilter_GotFocus()
-        {
-            this.LoadData();
-            this.dtpProductionDate.Date = this.TicketSettings.ProductionDateFilter;
-            this.chkApplyProductionDate.IsToggled = this.TicketSettings.IsApplyProductionDateFilter;
-
-            this.cboSortBy1.SelectedIndex = this.TicketSettings.iSortBy1Index;
-            this.cboSortBy2.SelectedIndex = this.TicketSettings.iSortBy2Index;
-            this.cboSortBy3.SelectedIndex = this.TicketSettings.iSortBy3Index;
-        }
-
-        /// <summary>
-        ///
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public async Task<bool> IsReadyToSave()
         {
             var IsReadyToSave = true;
@@ -272,37 +136,27 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        ///
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public async Task<bool> IsReadyToClose()
         {
             return !this.bChangesMade;
         }
 
         /// <summary>
-        ///
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public string GetControlDescription()
-        {
-            return "Activity Production Filter";
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public async Task<XDocument> GetXML()
         {
             var request = XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" +
                                           "<params>" +
-                                          "<production_date>" + this.TicketSettings.ProductionDateFilter.ToShortDateString() + "</production_date>" +
+                                          "<production_date>" +
+                                          this.TicketSettings.ProductionDateFilter.ToShortDateString() +
+                                          "</production_date>" +
                                           "<sortby>" + this.strSQLSortBy + "</sortby>" +
                                           "</params>");
 
@@ -310,11 +164,10 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        ///
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public async Task<bool> CancelChanges()
         {
             var bCancelChanges = true;
@@ -350,11 +203,10 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        ///
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public async Task<bool> SaveChanges()
         {
             var bSaveComplete = false;
@@ -384,7 +236,9 @@ namespace dMobile.View.Activity
                 }
                 else
                 {
-                    await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(this.GetControlDescription(), "Data Failed Validation. Check Your Data.", "OK"));
+                    await Device.InvokeOnMainThreadAsync(async () =>
+                        await this.DisplayAlert(this.GetControlDescription(),
+                            "Data Failed Validation. Check Your Data.", "OK"));
                 }
             }
             catch (Exception Ex)
@@ -400,7 +254,162 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        ///
+        ///     The OnAppearing.
+        /// </summary>
+        protected override async void OnAppearing()
+        {
+            if (!this.IsIndicatorRunning)
+            {
+                try
+                {
+                    this.IsIndicatorRunning = true;
+                    base.OnAppearing();
+
+                    MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async keyPressed =>
+                    {
+                        _ = Enum.TryParse(keyPressed, out Keycode keycode);
+
+                        if (!this.IsIndicatorRunning)
+                        {
+                            if (keycode == Keycode.F1)
+                            {
+                                if (await this.SaveChanges())
+                                {
+                                    this.DialogResult = DialogResult.OK;
+                                    await this.Close();
+                                }
+                                else
+                                {
+                                    this.DialogResult = DialogResult.None;
+                                    _ = await this.CancelChanges();
+                                    await this.Close();
+                                }
+                            }
+                        }
+                    });
+
+                    this.ucActivityHdrProductionFilter_GotFocus();
+                }
+                catch (Exception ex)
+                {
+                    await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert("Error",
+                        "this.ucActivityHdrProductionFilter_GotFocus threw an error " + ex, "OK"));
+                }
+                finally
+                {
+                    this.IsIndicatorRunning = false;
+                }
+            }
+        }
+
+        /// <summary>
+        ///     The OnDisappearing.
+        /// </summary>
+        protected override async void OnDisappearing()
+        {
+            MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
+            await this.ScannerDisable();
+            base.OnDisappearing();
+            this.IsIndicatorRunning = false;
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+        }
+
+        /// <inheritdoc />
+        protected override bool OnBackButtonPressed()
+        {
+            Device.BeginInvokeOnMainThread(async () =>
+            {
+                _ = base.OnBackButtonPressed();
+
+                if (await this.SaveChanges())
+                {
+                    this.DialogResult = DialogResult.OK;
+                    await this.Close();
+                }
+                else
+                {
+                    this.DialogResult = DialogResult.None;
+                    _ = await this.CancelChanges();
+                    await this.Close();
+                }
+            });
+
+            return true;
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <remarks></remarks>
+        private void LoadData()
+        {
+            this.TicketSettings = this.TicketSettings.LoadData();
+
+            if (SysCommon.IsEmptyDate(this.TicketSettings.ProductionDateFilter))
+            {
+                this.TicketSettings.ProductionDateFilter = DateTime.Now;
+            }
+
+            this.IsControlLoaded = true;
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <remarks></remarks>
+        private void MakeSQLSortBy()
+        {
+            this.strSQLSortBy = this.filters[this.cboSortBy1.Items[this.cboSortBy1.SelectedIndex]].SortValue;
+            this.TicketSettings.SortBy1Value = this.filters[this.cboSortBy1.Items[this.cboSortBy1.SelectedIndex]];
+
+            if (this.cboSortBy2.SelectedIndex >= 0)
+            {
+                this.TicketSettings.SortBy2Value = this.filters[this.cboSortBy2.Items[this.cboSortBy2.SelectedIndex]];
+
+                if (this.TicketSettings.SortBy2Value != null &&
+                    !string.IsNullOrEmpty(this.TicketSettings.SortBy2Value.SortValue))
+                {
+                    this.strSQLSortBy = this.strSQLSortBy + ", " + this.TicketSettings.SortBy2Value;
+                }
+            }
+
+            if (this.cboSortBy3.SelectedIndex >= 0)
+            {
+                this.TicketSettings.SortBy3Value = this.filters[this.cboSortBy3.Items[this.cboSortBy3.SelectedIndex]];
+
+                if (this.TicketSettings.SortBy3Value != null &&
+                    !string.IsNullOrEmpty(this.TicketSettings.SortBy3Value.SortValue))
+                {
+                    this.strSQLSortBy = this.strSQLSortBy + ", " + this.TicketSettings.SortBy3Value;
+                }
+            }
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        /// <remarks></remarks>
+        public void ucActivityHdrProductionFilter_GotFocus()
+        {
+            this.LoadData();
+            this.dtpProductionDate.Date = this.TicketSettings.ProductionDateFilter;
+            this.chkApplyProductionDate.IsToggled = this.TicketSettings.IsApplyProductionDateFilter;
+
+            this.cboSortBy1.SelectedIndex = this.TicketSettings.iSortBy1Index;
+            this.cboSortBy2.SelectedIndex = this.TicketSettings.iSortBy2Index;
+            this.cboSortBy3.SelectedIndex = this.TicketSettings.iSortBy3Index;
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <returns></returns>
+        /// <remarks></remarks>
+        public string GetControlDescription()
+        {
+            return "Activity Production Filter";
+        }
+
+        /// <summary>
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>

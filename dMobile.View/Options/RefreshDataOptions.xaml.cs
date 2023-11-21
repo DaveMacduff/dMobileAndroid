@@ -31,6 +31,7 @@ namespace dMobile.View.Options
         {
             this.InitializeComponent();
 
+            this.IsIndicatorRunning = false;
             this.Title = this.GetControlDescription();
 
             if (!DesignMode.IsDesignModeEnabled)
@@ -67,20 +68,26 @@ namespace dMobile.View.Options
         /// </summary>
         protected override void OnAppearing()
         {
-            base.OnAppearing();
-
-            MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
+            if (!this.IsIndicatorRunning)
             {
-                _ = Enum.TryParse(keyPressed, out Keycode keycode);
+                this.IsIndicatorRunning = true;
+                base.OnAppearing();
 
-                if (keycode == Keycode.F1)
+                MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
                 {
-                    if (await this.SaveChanges())
+                    _ = Enum.TryParse(keyPressed, out Keycode keycode);
+
+                    if (keycode == Keycode.F1)
                     {
-                        await this.Close();
+                        if (await this.SaveChanges())
+                        {
+                            await this.Close();
+                        }
                     }
-                }
-            });
+                });
+
+                this.IsIndicatorRunning = false;
+            }
         }
 
         /// <summary>
@@ -90,6 +97,7 @@ namespace dMobile.View.Options
         {
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
             base.OnDisappearing();
+            this.IsIndicatorRunning = false;
             GC.Collect();
             GC.WaitForPendingFinalizers();
         }

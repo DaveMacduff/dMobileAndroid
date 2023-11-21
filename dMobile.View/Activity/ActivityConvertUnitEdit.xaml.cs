@@ -5,39 +5,33 @@
 namespace dMobile.View.Activity
 {
     using System;
-    using System.Collections.Generic;
     using System.Collections.ObjectModel;
-    using System.ComponentModel;
     using System.Data;
-    using System.Linq;
-    using System.Text;
     using System.Threading.Tasks;
     using System.Xml.Linq;
     using Android.Views;
-    using dMobile.Bedrock;
-    using dMobile.Controller;
-    using dMobile.Controller.Activity_Detail;
-    using dMobile.Resources.Enums;
-    using dMobile.View.CustomPages.Modal;
-    using dMobile.View.Forms;
+    using Bedrock;
+    using Controller.Activity_Detail;
+    using CustomPages.Modal;
+    using Forms;
+    using Resources.Enums;
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;
-    using Resource = dMobile.Resources.Properties.Resources;
+    using Resource = Resources.Properties.Resources;
 
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class ActivityConvertUnitEdit : DMobileModal, IAppArea
     {
-        private ObservableCollection<string> itemsList = new ObservableCollection<string>();
-
         /// <summary>
-        /// Initializes a new instance of the <see cref="ActivityConvertUnitEdit"/> class.
+        ///     Initializes a new instance of the <see cref="ActivityConvertUnitEdit" /> class.
         /// </summary>
-        /// <param name="actDetail"><see cref="ActDetail"/> Activity detail.</param>
-        /// <param name="actSubTypes"><see cref="SysCommon.ActSubTypes"/> Activity sub type.</param>
+        /// <param name="actDetail"><see cref="ActDetail" /> Activity detail.</param>
+        /// <param name="actSubTypes"><see cref="SysCommon.ActSubTypes" /> Activity sub type.</param>
         public ActivityConvertUnitEdit(ActDetail actDetail, SysCommon.ActSubTypes actSubTypes)
         {
             this.InitializeComponent();
 
+            this.IsIndicatorRunning = false;
             this.Title = this.GetControlDescription();
             this.LblWtUnit.Text = "KG";
             this.LblUnit.Text = "KG";
@@ -65,7 +59,7 @@ namespace dMobile.View.Activity
 
         private SysEnvironment SysEnv { get; set; }
 
-        private SysCommon.ActSubTypes ActSubType { get; set; } = SysCommon.ActSubTypes.ConvertUnit;
+        private SysCommon.ActSubTypes ActSubType { get; } = SysCommon.ActSubTypes.ConvertUnit;
 
         private DataView DataViewSerialNumbers { get; set; } = null;
 
@@ -75,76 +69,18 @@ namespace dMobile.View.Activity
 
         private DataTable DataTableActDetail { get; set; }
 
-        private ActDetailEdit ActDetailEdit { get; set; }
+        private ActDetailEdit ActDetailEdit { get; }
 
-        private bool IsControlLoaded { get; set; } = false;
+        private bool IsControlLoaded { get; set; }
 
-        private bool IsChangesMade { get; set; } = false;
+        private bool IsChangesMade { get; set; }
 
-        private ActDetail ActDetail { get; set; } = null;
+        private ActDetail ActDetail { get; }
 
-        public ObservableCollection<string> ExtraInfoItems { get => this.itemsList; set => this.itemsList = value; }
-
-        /// <summary>
-        /// The OnAppearing.
-        /// </summary>
-        protected override async void OnAppearing()
-        {
-            base.OnAppearing();
-            MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
-            {
-                _ = Enum.TryParse(keyPressed, out Keycode keycode);
-            });
-
-            try
-            {
-                this.ucActivityDetailEdit_GotFocus(this, EventArgs.Empty);
-            }
-            catch (Exception ex)
-            {
-                await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(
-                    "Error",
-                    "this.ucActivityDetailEdit_GotFocus threw an error " + ex,
-                    "OK"));
-            }
-        }
+        public ObservableCollection<string> ExtraInfoItems { get; set; } = new ObservableCollection<string>();
 
         /// <summary>
-        /// The OnDisappearing.
-        /// </summary>
-        protected override void OnDisappearing()
-        {
-            MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
-            base.OnDisappearing();
-            GC.Collect();
-            GC.WaitForPendingFinalizers();
-        }
-
-        /// <inheritdoc/>
-        protected override bool OnBackButtonPressed()
-        {
-            Device.BeginInvokeOnMainThread(async () =>
-            {
-                _ = base.OnBackButtonPressed();
-
-                if (await this.SaveChanges())
-                {
-                    this.DialogResult = DialogResult.OK;
-                    await this.Close();
-                }
-                else
-                {
-                    this.DialogResult = DialogResult.None;
-                    _ = await this.CancelChanges();
-                    await this.Close();
-                }
-            });
-
-            return true;
-        }
-
-        /// <summary>
-        /// Unregister the bar code scan event handler and disable the scanner.
+        ///     Unregister the bar code scan event handler and disable the scanner.
         /// </summary>
         /// <remarks></remarks>
         public async Task ScannerDisable()
@@ -152,7 +88,7 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// Registers the bar code scan event handler and enables the scanner.
+        ///     Registers the bar code scan event handler and enables the scanner.
         /// </summary>
         /// <remarks></remarks>
         public async Task ScannerEnable()
@@ -160,11 +96,10 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        ///
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public async Task<bool> IsReadyToSave()
         {
             var isReadyToSave = false;
@@ -172,7 +107,8 @@ namespace dMobile.View.Activity
             try
             {
                 isReadyToSave = true;
-                isReadyToSave = isReadyToSave && !(decimal.Parse(this.TxtAltQty.Text) == 0 && decimal.Parse(this.TxtWtQty.Text) == 0);
+                isReadyToSave = isReadyToSave &&
+                                !(decimal.Parse(this.TxtAltQty.Text) == 0 && decimal.Parse(this.TxtWtQty.Text) == 0);
                 isReadyToSave = isReadyToSave && this.IsValidData();
             }
             catch (MessageOnlyException msgEx)
@@ -200,11 +136,10 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        ///
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public async Task<bool> IsReadyToClose()
         {
             var isReadyToClose = false;
@@ -254,21 +189,10 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        ///
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public string GetControlDescription()
-        {
-            return "Convert Units Edit";
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public async Task<bool> SaveChanges()
         {
             var saveComplete = false;
@@ -282,7 +206,8 @@ namespace dMobile.View.Activity
                 }
                 else
                 {
-                    await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert("Data Validation", "Data failed validation. Check your data.", "OK"));
+                    await Device.InvokeOnMainThreadAsync(async () =>
+                        await this.DisplayAlert("Data Validation", "Data failed validation. Check your data.", "OK"));
                 }
             }
             catch (Exception ex)
@@ -300,11 +225,10 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        ///
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public async Task<bool> CancelChanges()
         {
             var cancelChanges = true;
@@ -339,11 +263,10 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        ///
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public async Task<XDocument> GetXML()
         {
             var unqScheme = ProductInfoTasks.GetUniqueSchemeIDFromSProdSchemeData(
@@ -378,7 +301,80 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        ///
+        ///     The OnAppearing.
+        /// </summary>
+        protected override async void OnAppearing()
+        {
+            if (!this.IsIndicatorRunning)
+            {
+                this.IsIndicatorRunning =true;
+                base.OnAppearing();
+                MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(),
+                    async keyPressed => { _ = Enum.TryParse(keyPressed, out Keycode keycode); });
+
+                try
+                {
+                    this.ucActivityDetailEdit_GotFocus(this, EventArgs.Empty);
+                }
+                catch (Exception ex)
+                {
+                    await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(
+                        "Error",
+                        "this.ucActivityDetailEdit_GotFocus threw an error " + ex,
+                        "OK"));
+                }
+                finally
+                {
+                    this.IsIndicatorRunning = false;
+                }
+            }
+        }
+
+        /// <summary>
+        ///     The OnDisappearing.
+        /// </summary>
+        protected override void OnDisappearing()
+        {
+            MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
+            base.OnDisappearing();
+            this.IsIndicatorRunning = false;
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+        }
+
+        /// <inheritdoc />
+        protected override bool OnBackButtonPressed()
+        {
+            Device.BeginInvokeOnMainThread(async () =>
+            {
+                _ = base.OnBackButtonPressed();
+
+                if (await this.SaveChanges())
+                {
+                    this.DialogResult = DialogResult.OK;
+                    await this.Close();
+                }
+                else
+                {
+                    this.DialogResult = DialogResult.None;
+                    _ = await this.CancelChanges();
+                    await this.Close();
+                }
+            });
+
+            return true;
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <returns></returns>
+        /// <remarks></remarks>
+        public string GetControlDescription()
+        {
+            return "Convert Units Edit";
+        }
+
+        /// <summary>
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
@@ -389,7 +385,8 @@ namespace dMobile.View.Activity
             this.ActDetailEdit.AltQuantity = decimal.Parse(this.TxtAltQty.Text);
             this.ActDetailEdit.WeightQuantity = decimal.Parse(this.TxtWtQty.Text);
 
-            if (this.ActDetail.ActItem.ProdInfo.BaseUnitCode == "LB" || this.ActDetail.ActItem.ProdInfo.BaseUnitCode == "KG")
+            if (this.ActDetail.ActItem.ProdInfo.BaseUnitCode == "LB" ||
+                this.ActDetail.ActItem.ProdInfo.BaseUnitCode == "KG")
             {
                 this.ActDetailEdit.BaseQuantity = this.ActDetailEdit.WeightQuantity;
             }
@@ -397,7 +394,8 @@ namespace dMobile.View.Activity
             {
                 if (this.ActDetailEdit.AltQuantity != 0 && this.ActDetail.ActItem.ProdInfo.Unit2BaseUnitFactor != 0)
                 {
-                    this.ActDetailEdit.BaseQuantity = this.ActDetailEdit.AltQuantity * this.ActDetail.ActItem.ProdInfo.Unit2BaseUnitFactor;
+                    this.ActDetailEdit.BaseQuantity = this.ActDetailEdit.AltQuantity *
+                                                      this.ActDetail.ActItem.ProdInfo.Unit2BaseUnitFactor;
                 }
                 else
                 {
@@ -409,7 +407,6 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        ///
         /// </summary>
         /// <remarks></remarks>
         private void ShowProductInfo()
@@ -422,14 +419,15 @@ namespace dMobile.View.Activity
                 this.ActDetail.ActItem.ProdInfo.WeightUnitCode);
 
             this.ExtraInfoItems = new ObservableCollection<string>();
-            this.ExtraInfoItems.Add("PROD: " + this.ActDetail.ActItem.ProdInfo.Code + this.ActDetail.ActItem.ProdInfo.UnitBC + "  " + this.ActDetail.ActItem.ProdInfo.Desc);
+            this.ExtraInfoItems.Add("PROD: " + this.ActDetail.ActItem.ProdInfo.Code +
+                                    this.ActDetail.ActItem.ProdInfo.UnitBC + "  " +
+                                    this.ActDetail.ActItem.ProdInfo.Desc);
             this.ExtraInfoItems.Add("SIZE: " + this.ActDetail.ActItem.ProdInfo.UnitSizeDesc);
 
             this.ListViewDisplayExtraInfo.ItemsSource = this.ExtraInfoItems;
         }
 
         /// <summary>
-        ///
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -443,7 +441,6 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        ///
         /// </summary>
         /// <remarks></remarks>
         private void LoadData()
@@ -451,7 +448,8 @@ namespace dMobile.View.Activity
             // Default quantities if zero
             if (this.ActDetail.Quantity == 0)
             {
-                if (this.ActDetail.ActItem.ProdInfo.UnitCode == "LB" || this.ActDetail.ActItem.ProdInfo.UnitCode == "KG")
+                if (this.ActDetail.ActItem.ProdInfo.UnitCode == "LB" ||
+                    this.ActDetail.ActItem.ProdInfo.UnitCode == "KG")
                 {
                     if (this.ActDetail.WeightQuantity != 0)
                     {
@@ -474,7 +472,8 @@ namespace dMobile.View.Activity
 
             if (this.ActDetail.WeightQuantity == 0)
             {
-                if (this.ActDetail.ActItem.ProdInfo.UnitCode == "LB" || this.ActDetail.ActItem.ProdInfo.UnitCode == "KG")
+                if (this.ActDetail.ActItem.ProdInfo.UnitCode == "LB" ||
+                    this.ActDetail.ActItem.ProdInfo.UnitCode == "KG")
                 {
                     if (this.ActDetail.Quantity != 0)
                     {
@@ -487,7 +486,8 @@ namespace dMobile.View.Activity
                 }
                 else
                 {
-                    if (this.ActDetail.ActItem.ProdInfo.BaseUnitCode == "KG" || this.ActDetail.ActItem.ProdInfo.BaseUnitCode == "LB")
+                    if (this.ActDetail.ActItem.ProdInfo.BaseUnitCode == "KG" ||
+                        this.ActDetail.ActItem.ProdInfo.BaseUnitCode == "LB")
                     {
                         this.ActDetailEdit.WeightQuantity = this.ActDetail.ActItem.ProdInfo.UnitGrossWeight;
                     }
@@ -504,7 +504,8 @@ namespace dMobile.View.Activity
 
             if (this.ActDetail.BaseQuantity == 0)
             {
-                if (this.ActDetail.ActItem.ProdInfo.BaseUnitCode == "LB" || this.ActDetail.ActItem.ProdInfo.BaseUnitCode == "KG")
+                if (this.ActDetail.ActItem.ProdInfo.BaseUnitCode == "LB" ||
+                    this.ActDetail.ActItem.ProdInfo.BaseUnitCode == "KG")
                 {
                     this.ActDetailEdit.BaseQuantity = this.ActDetail.WeightQuantity;
                 }
@@ -512,7 +513,8 @@ namespace dMobile.View.Activity
                 {
                     if (this.ActDetail.Quantity != 0 && this.ActDetail.ActItem.ProdInfo.Unit2BaseUnitFactor != 0)
                     {
-                        this.ActDetailEdit.BaseQuantity = this.ActDetail.Quantity * this.ActDetail.ActItem.ProdInfo.Unit2BaseUnitFactor;
+                        this.ActDetailEdit.BaseQuantity = this.ActDetail.Quantity *
+                                                          this.ActDetail.ActItem.ProdInfo.Unit2BaseUnitFactor;
                     }
                     else
                     {
@@ -534,7 +536,6 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        ///
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -547,7 +548,9 @@ namespace dMobile.View.Activity
                 this.LblUnit.Text = this.ActDetail.ActItem.ProdInfo.UnitCode;
                 this.LblWtUnit.Text = this.ActDetail.ActItem.ProdInfo.WeightUnitCode;
 
-                if (!this.ActDetail.ActItem.ProdInfo.IsCatchWeight || this.ActDetail.ActItem.ProdInfo.UnitCode == "LB" || this.ActDetail.ActItem.ProdInfo.UnitCode == "KG")
+                if (!this.ActDetail.ActItem.ProdInfo.IsCatchWeight ||
+                    this.ActDetail.ActItem.ProdInfo.UnitCode == "LB" ||
+                    this.ActDetail.ActItem.ProdInfo.UnitCode == "KG")
                 {
                     this.TxtWtQty.IsEnabled = false;
                 }
@@ -560,7 +563,6 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        ///
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>

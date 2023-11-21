@@ -9,7 +9,7 @@
         <ToolbarItem x:Name="optionsMenu"
                      IconImageSource="{Binding OptionsIconSource}"
                      Clicked="OptionsMenu_Clicked"
-                     IsEnabled="{Binding IsPageLoading, Converter={Helpers:BoolConverter}}"/>
+                     IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}"/>
     </ContentPage.ToolbarItems>
     <ContentPage.Content>
         <AbsoluteLayout VerticalOptions="Center">
@@ -36,7 +36,7 @@
                             <ListView x:Name="ListViewMainActivity"
                                       ItemSelected="ListViewMainActivity_ItemSelected"
                                       HasUnevenRows="True"
-                                      IsEnabled="{Binding IsPageLoading, Converter={Helpers:BoolConverter}}"
+                                      IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}"
                                       Grid.Row="1"
                                       VerticalScrollBarVisibility="Always"
                                       HorizontalScrollBarVisibility="Always" />
@@ -48,7 +48,7 @@
                     <ListView x:Name="ListViewDisplayExtraInfo"
                               SelectionMode="None"
                               HasUnevenRows="True"
-                              IsEnabled="{Binding IsPageLoading, Converter={Helpers:BoolConverter}}"
+                              IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}"
                               SeparatorVisibility="None">
                         <ListView.ItemTemplate>
                             <DataTemplate>
@@ -71,7 +71,7 @@
                     <Entry x:Name="txtSearchItem" Grid.Row="0"
                            Grid.Column="0"
                            TextChanged="TxtSearchItem_TextChanged"
-                           IsEnabled="{Binding IsPageLoading, Converter={Helpers:BoolConverter}}"
+                           IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}"
                            Focused="TxtSearchItem_Focused"
                            Unfocused="TxtSearchItem_Unfocused"
                            />
@@ -82,12 +82,12 @@
                                                  SelectedIndexChanged="UpdnBarCodeModifier1_SelectedIndexChanged"
                                                  Focused="BarCodeModifierPicker_Focused"
                                                  Unfocused="BarCodeModifierPicker_Unfocused"
-                                                 IsEnabled="{Binding IsPageLoading, Converter={Helpers:BoolConverter}}"/>
+                                                 IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}"/>
                     <!--<Button x:Name="cmdFilter"
                                 Grid.Row="0"
                                 Grid.Column="1"
                                 Clicked="CmdFilter_Clicked"
-                                IsEnabled="{Binding IsPageLoading, Converter={Helpers:BoolConverter}}"/>-->
+                                IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}"/>-->
                 </Grid>
 
                 <!--<Grid Grid.Row="5">
@@ -96,18 +96,18 @@
                 
                 <!--<StackLayout Grid.Row="5">
                     <Grid>
-                    <Button x:Name="cmdAddProduct" Grid.Row="0" Grid.Column="0" Clicked="cmdAddProduct_Click" IsEnabled="{Binding IsPageLoading, Converter={Helpers:BoolConverter}}"/>
-                    <Button x:Name="cmdAddSkid" Grid.Row="0" Grid.Column="1" Clicked="cmdAddSkid_Click" IsEnabled="{Binding IsPageLoading, Converter={Helpers:BoolConverter}}"/>
+                    <Button x:Name="cmdAddProduct" Grid.Row="0" Grid.Column="0" Clicked="cmdAddProduct_Click" IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}"/>
+                    <Button x:Name="cmdAddSkid" Grid.Row="0" Grid.Column="1" Clicked="cmdAddSkid_Click" IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}"/>
 
-                    <Button x:Name="cmdLocation" Grid.Row="1" Grid.Column="0" Clicked="cmdLocation_Click" IsEnabled="{Binding IsPageLoading, Converter={Helpers:BoolConverter}}"/>
-                    <Button x:Name="cmdSelectSkid" Grid.Row="1" Grid.Column="1" Clicked="cmdSelectSkid_Click" IsEnabled="{Binding IsPageLoading, Converter={Helpers:BoolConverter}}"/>
+                    <Button x:Name="cmdLocation" Grid.Row="1" Grid.Column="0" Clicked="cmdLocation_Click" IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}"/>
+                    <Button x:Name="cmdSelectSkid" Grid.Row="1" Grid.Column="1" Clicked="cmdSelectSkid_Click" IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}"/>
                 </Grid>
                 </StackLayout>-->
 
             </Grid>
 
-            <ActivityIndicator IsVisible="{Binding IsPageLoading}" 
-                                   IsRunning="{Binding IsPageLoading}"
+            <ActivityIndicator IsVisible="{Binding IsIndicatorRunning}" 
+                                   IsRunning="{Binding IsIndicatorRunning}"
                                    AbsoluteLayout.LayoutFlags="All" 
                                    AbsoluteLayout.LayoutBounds="0.5,0.5,0.3,0.3"/>
         </AbsoluteLayout>

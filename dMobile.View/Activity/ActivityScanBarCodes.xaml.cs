@@ -10,39 +10,38 @@ namespace dMobile.View.Activity
     using System.Threading.Tasks;
     using System.Xml.Linq;
     using Android.Views;
-    using dMobile.BarCodeScanner;
-    using dMobile.BarCodeScanner.BarCodeParsing;
-    using dMobile.BarCodeScanner.BarCodeScanners;
-    using dMobile.Bedrock;
-    using dMobile.Controller.Activity;
-    using dMobile.Controller.Activity_Item;
-    using dMobile.GroundWork;
-    using dMobile.Resources.Enums;
-    using dMobile.Resources.Models;
-    using dMobile.Resources.QueryResults;
-    using dMobile.Resources.Types;
-    using dMobile.View.CustomPages;
-    using dMobile.View.Forms;
+    using BarCodeScanner;
+    using BarCodeScanner.BarCodeParsing;
+    using BarCodeScanner.BarCodeScanners;
+    using Bedrock;
+    using Controller.Activity;
+    using Controller.Activity_Item;
+    using CustomPages;
+    using Forms;
+    using GroundWork;
+    using Resources.Enums;
+    using Resources.Models;
+    using Resources.QueryResults;
+    using Resources.Types;
     using SQLite;
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;
-    using Color = Xamarin.Forms.Color;
-    using Resource = dMobile.Resources.Properties.Resources;
+    using Resource = Resources.Properties.Resources;
 
     /// <summary>
-    /// Define the bar code scanning activity.
+    ///     Define the bar code scanning activity.
     /// </summary>
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class ActivityScanBarCodes : DMobileContentPage, IAppArea
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="ActivityScanBarCodes"/> class.
+        ///     Initializes a new instance of the <see cref="ActivityScanBarCodes" /> class.
         /// </summary>
         public ActivityScanBarCodes()
         {
             this.InitializeComponent();
 
-            this.IsPageLoading = false;
+            this.IsIndicatorRunning = false;
             this.Title = this.GetControlDescription();
 
             this.cmdAssignProduct.Text = "Assign Scan To Product";
@@ -54,6 +53,7 @@ namespace dMobile.View.Activity
             this.ExtraInfoItems = new ObservableCollection<string>();
 
             ParseAndSeedBarCodeModifier();
+            return;
             ////this.BarCodeModifier1Picker.Items.Clear();
 
             ////if (this.SysEnv.SysSettings.IsProductUnitBarCodeModifier1)
@@ -104,81 +104,76 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// Gets or sets the activity sub type.
+        ///     Gets or sets the activity sub type.
         /// </summary>
-        private SysCommon.ActSubTypes ActSubType { get; set; } = SysCommon.ActSubTypes.BarCodeAssociation;
+        private SysCommon.ActSubTypes ActSubType { get; } = SysCommon.ActSubTypes.BarCodeAssociation;
 
         /// <summary>
-        /// Gets or sets the bar code parse instance.
+        ///     Gets or sets the bar code parse instance.
         /// </summary>
-        private BarCodeParse Parse { get; set; } = null;
+        private BarCodeParse Parse { get; set; }
 
         /// <summary>
-        /// Gets or sets the activity item bar code instance.
+        ///     Gets or sets the activity item bar code instance.
         /// </summary>
-        private ActItem ActItemBarCode { get; set; } = null;
+        private ActItem ActItemBarCode { get; set; }
 
         /// <summary>
-        /// Gets or sets the activity bar code instance.
+        ///     Gets or sets the activity bar code instance.
         /// </summary>
-        private Controller.Activity.Activity ActBarCode { get; set; } = null;
+        private Activity ActBarCode { get; set; }
 
         /// <summary>
-        /// Gets or sets the bar code scanner instance.
+        ///     Gets or sets the bar code scanner instance.
         /// </summary>
-        private BarCodeScanner Scanner { get; set; } = ScannerEngine.GetInstance().Scanner;
+        private BarCodeScanner Scanner { get; } = ScannerEngine.GetInstance().Scanner;
 
         /// <summary>
-        /// Gets or sets the system environment instance.
+        ///     Gets or sets the system environment instance.
         /// </summary>
-        private SysEnvironment SysEnv { get; set; } = SysEnvironment.GetInstance();
+        private SysEnvironment SysEnv { get; } = SysEnvironment.GetInstance();
 
         /// <summary>
-        /// Gets or sets the items list collection.
+        ///     Gets or sets the items list collection.
         /// </summary>
-        private ObservableCollection<string> ExtraInfoItems { get; set; } = new ObservableCollection<string>();
+        private ObservableCollection<string> ExtraInfoItems { get; } = new ObservableCollection<string>();
 
         /// <summary>
-        /// Gets or sets a value indicating whether the bar code handler has be registered.
+        ///     Gets or sets a value indicating whether the bar code handler has be registered.
         /// </summary>
-        private bool IsBarCodeHandlerRegistered { get; set; } = false;
+        private bool IsBarCodeHandlerRegistered { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether the activity has been initialized.
+        ///     Gets or sets a value indicating whether any changes have been made.
         /// </summary>
-        private bool IsFirstAppearance { get; set; } = true;
+        private bool IsChangesMade { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether any changes have been made.
+        ///     Gets or sets the product unit reference number.
         /// </summary>
-        private bool IsChangesMade { get; set; } = false;
+        private int ProductUnitRefno { get; set; }
 
         /// <summary>
-        /// Gets or sets the product unit reference number.
+        ///     Gets or sets the product unit bar code reference number.
         /// </summary>
-        private int ProductUnitRefno { get; set; } = 0;
+        private int ProductUnitBarCodeRefno { get; set; }
 
         /// <summary>
-        /// Gets or sets the product unit bar code reference number.
+        ///     Gets or sets a value indicating whether the bar code scan parse instance has data.
         /// </summary>
-        private int ProductUnitBarCodeRefno { get; set; } = 0;
+        private bool ScanHasData { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether the bar code scan parse instance has data.
+        ///     Unregister the bar code scan event handler and disable the scanner.
         /// </summary>
-        private bool ScanHasData { get; set; } = false;
-
-        /// <summary>
-        /// Unregister the bar code scan event handler and disable the scanner.
-        /// </summary>
-        /// <returns><see cref="Task"/> Task operation.</returns>
+        /// <returns><see cref="Task" /> Task operation.</returns>
         public async Task ScannerDisable()
         {
             if (this.Scanner != null)
             {
                 if (this.IsBarCodeHandlerRegistered)
                 {
-                    this.Scanner.BarCodeScan -= new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
+                    this.Scanner.BarCodeScan -= this.BarCodeHandler;
                     await this.Scanner.Stop();
                     this.IsBarCodeHandlerRegistered = false;
                 }
@@ -186,9 +181,9 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// Registers the bar code scan event handler and enables the scanner.
+        ///     Registers the bar code scan event handler and enables the scanner.
         /// </summary>
-        /// <returns><see cref="Task"/> Task operation.</returns>
+        /// <returns><see cref="Task" /> Task operation.</returns>
         public async Task ScannerEnable()
         {
             if (this.Scanner != null)
@@ -196,30 +191,16 @@ namespace dMobile.View.Activity
                 if (!this.IsBarCodeHandlerRegistered)
                 {
                     await this.Scanner.Start();
-                    this.Scanner.BarCodeScan += new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
+                    this.Scanner.BarCodeScan += this.BarCodeHandler;
                     this.IsBarCodeHandlerRegistered = true;
                 }
             }
         }
 
         /// <summary>
-        /// Registers the bar code scan event handler and enables the scanner.
+        ///     Check if the activity header data is ready to be saved.
         /// </summary>
-        /// <returns><see cref="Task"/> Task operation.</returns>
-        public async Task ScannerStart()
-        {
-            if (this.Scanner != null)
-            {
-                await this.Scanner.Start();
-                this.Scanner.BarCodeScan += new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
-                this.IsBarCodeHandlerRegistered = true;
-            }
-        }
-
-        /// <summary>
-        /// Check if the activity header data is ready to be saved.
-        /// </summary>
-        /// <returns><see cref="bool"/> True if the data is ready to be saved else false.</returns>
+        /// <returns><see cref="bool" /> True if the data is ready to be saved else false.</returns>
         public async Task<bool> IsReadyToSave()
         {
             var isReadyToSave = false;
@@ -253,9 +234,9 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// Check if this form is ready to close, that is can be closed.
+        ///     Check if this form is ready to close, that is can be closed.
         /// </summary>
-        /// <returns><see cref="Task{bool}"/> True if the form is ready to close else false.</returns>
+        /// <returns><see cref="Task{bool}" /> True if the form is ready to close else false.</returns>
         public async Task<bool> IsReadyToClose()
         {
             var isReadyToClose = true;
@@ -294,18 +275,9 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// Get the activity description.
+        ///     Check if a save can be performed and do so.
         /// </summary>
-        /// <returns><see cref="string"/> Activity description.</returns>
-        public string GetControlDescription()
-        {
-            return "Bar Code Association";
-        }
-
-        /// <summary>
-        /// Check if a save can be performed and do so.
-        /// </summary>
-        /// <returns><see cref="bool"/> True if a save was performed successfully else false.</returns>
+        /// <returns><see cref="bool" /> True if a save was performed successfully else false.</returns>
         public async Task<bool> SaveChanges()
         {
             var saveComplete = false;
@@ -350,9 +322,9 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// Check if there are any pending changes, if so cancel them.
+        ///     Check if there are any pending changes, if so cancel them.
         /// </summary>
-        /// <returns><see cref="bool"/>. True if the changes where canceled, else false.</returns>
+        /// <returns><see cref="bool" />. True if the changes where canceled, else false.</returns>
         public async Task<bool> CancelChanges()
         {
             var cancelChanges = true;
@@ -402,9 +374,9 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// Assemble a XML string of activity data to return to the calling parent form.
+        ///     Assemble a XML string of activity data to return to the calling parent form.
         /// </summary>
-        /// <returns><see cref="Task"/> Task operation containing an XDocument.</returns>
+        /// <returns><see cref="Task" /> Task operation containing an XDocument.</returns>
 #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
         public async Task<XDocument> GetXML()
 #pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
@@ -418,18 +390,40 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// Customize behavior immediately prior to the 'Page' becoming visible.
+        ///     Registers the bar code scan event handler and enables the scanner.
+        /// </summary>
+        /// <returns><see cref="Task" /> Task operation.</returns>
+        public async Task ScannerStart()
+        {
+            if (this.Scanner != null)
+            {
+                await this.Scanner.Start();
+                this.Scanner.BarCodeScan += this.BarCodeHandler;
+                this.IsBarCodeHandlerRegistered = true;
+            }
+        }
+
+        /// <summary>
+        ///     Get the activity description.
+        /// </summary>
+        /// <returns><see cref="string" /> Activity description.</returns>
+        public string GetControlDescription()
+        {
+            return "Bar Code Association";
+        }
+
+        /// <summary>
+        ///     Customize behavior immediately prior to the 'Page' becoming visible.
         /// </summary>
         protected override async void OnAppearing()
         {
-            try
+            if (!this.IsIndicatorRunning)
             {
-                base.OnAppearing();
-                SubscribeKeyUpHandlers();
-
-                if (this.IsFirstAppearance)
+                try
                 {
-                    this.IsFirstAppearance = false;
+                    this.IsIndicatorRunning = true;
+                    base.OnAppearing();
+                    SubscribeKeyUpHandlers();
                     this.lstScannedData.ItemsSource = this.ExtraInfoItems;
                     var tableActItemBarCodeXRef =
                         new TableActivityItemBarCodeAssociationXRef();
@@ -449,40 +443,41 @@ namespace dMobile.View.Activity
 
                     await this.ScannerStart();
                 }
-            }
-            catch (MessageOnlyException msgEx)
-            {
-                var msg = SysCommon.GetMessageFromMessageException(msgEx);
-                await Device.InvokeOnMainThreadAsync(async () =>
-                    await Application.Current.MainPage.DisplayAlert(
-                        this.GetControlDescription(),
-                        msg,
-                        Resource.OK));
-            }
-            catch (Exception ex)
-            {
-                await Device.InvokeOnMainThreadAsync(async () =>
+                catch (MessageOnlyException msgEx)
                 {
-                    var errRpt = new FormErrorReport(this.ActSubType, ex);
-                    _ = await errRpt.ShowDialog();
-                });
+                    var msg = SysCommon.GetMessageFromMessageException(msgEx);
+                    await Device.InvokeOnMainThreadAsync(async () =>
+                        await Application.Current.MainPage.DisplayAlert(
+                            this.GetControlDescription(),
+                            msg,
+                            Resource.OK));
+                }
+                catch (Exception ex)
+                {
+                    await Device.InvokeOnMainThreadAsync(async () =>
+                    {
+                        var errRpt = new FormErrorReport(this.ActSubType, ex);
+                        _ = await errRpt.ShowDialog();
+                    });
+                }
+                finally
+                {
+                    this.IsIndicatorRunning = false;
+                    ////await Task.Run(() =>
+                    ////{
+                    ////    // Explicit GC, Xamarin forms not disposing of objects properly
+                    ////    GC.Collect();
+                    ////    GC.WaitForPendingFinalizers();
+                    ////});
+                }
             }
-            finally
-            {
-                this.IsPageLoading = false;
 
-                await Task.Run(() =>
-                {
-                    // Explicit GC, Xamarin forms not disposing of objects properly
-                    GC.Collect();
-                    GC.WaitForPendingFinalizers();
-                });
-            }
+            return;
 
             //////////////////////////////////////////////////////////////////////////
             void SubscribeKeyUpHandlers()
             {
-                MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
+                MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async keyPressed =>
                 {
                     _ = Enum.TryParse(keyPressed, out Keycode keycode);
 
@@ -498,21 +493,22 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// On disappearing event handler.
+        ///     On disappearing event handler.
         /// </summary>
         protected override async void OnDisappearing()
         {
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
             await this.ScannerDisable();
             base.OnDisappearing();
+            this.IsIndicatorRunning = false;
             GC.Collect();
             GC.WaitForPendingFinalizers();
         }
 
         /// <summary>
-        /// Back button pressed event handler.
+        ///     Back button pressed event handler.
         /// </summary>
-        /// <returns>The <see cref="bool"/> True.</returns>
+        /// <returns>The <see cref="bool" /> True.</returns>
         protected override bool OnBackButtonPressed()
         {
             Device.BeginInvokeOnMainThread(async () =>
@@ -533,28 +529,25 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// Add the scan message to the items list.
+        ///     Add the scan message to the items list.
         /// </summary>
-        /// <param name="sender"><see cref="object"/> Sender object.</param>
-        /// <param name="e"><see cref="EventArgs"/> Event arguments.</param>
-        /// <param name="msg"><see cref="string"/> Message to add.</param>
+        /// <param name="sender"><see cref="object" /> Sender object.</param>
+        /// <param name="e"><see cref="EventArgs" /> Event arguments.</param>
+        /// <param name="msg"><see cref="string" /> Message to add.</param>
         private async Task AddScanMsg(object sender, EventArgs e, string msg)
         {
-            await Device.InvokeOnMainThreadAsync(() =>
-            {
-                this.ExtraInfoItems.Add(msg);
-            });
+            await Device.InvokeOnMainThreadAsync(() => { this.ExtraInfoItems.Add(msg); });
         }
 
         /// <summary>
-        /// Bar code event handler.
+        ///     Bar code event handler.
         /// </summary>
         /// <param name="sender">.</param>
-        /// <param name="scanArgs"><see cref="BarCodeScannerEventArgs"/> Bar code information.</param>
-        /// <returns>The <see cref="Task"/>. Task operation.</returns>
+        /// <param name="scanArgs"><see cref="BarCodeScannerEventArgs" /> Bar code information.</param>
+        /// <returns>The <see cref="Task" />. Task operation.</returns>
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
-            if (this.IsPageLoading || scanArgs == null)
+            if (this.IsIndicatorRunning || scanArgs == null)
             {
                 return;
             }
@@ -649,36 +642,38 @@ namespace dMobile.View.Activity
                                                        + "AND tLocationMapWarehouseProductScheme.WarehouseLocationMapRefno = ?";
 
                                 var resultsProductUnit =
-                                    await DatabaseConnection.GetInstance().SQLConn.QueryAsync<ProductUnitBarcodeQueryResult>(
-                                        queryProductUnit,
-                                        this.ProductUnitRefno,
-                                        currLocMap.WhsLocMapRefno);
+                                    await DatabaseConnection.GetInstance().SQLConn
+                                        .QueryAsync<ProductUnitBarcodeQueryResult>(
+                                            queryProductUnit,
+                                            this.ProductUnitRefno,
+                                            currLocMap.WhsLocMapRefno);
 
                                 if (resultsProductUnit?.Count > 0)
                                 {
                                     this.ProductUnitRefno = Convert.ToInt32(resultsProductUnit[0].ProductUnitRefno);
                                     this.ProductUnitBarCodeRefno = 0;
                                     prodSchemeRefno = Convert.ToInt32(resultsProductUnit[0].ProductSchemeRefno);
-                                    prodCode = resultsProductUnit[0].ProductCode.ToString();
+                                    prodCode = resultsProductUnit[0].ProductCode;
 
                                     // If product was found associated display it.  'ProductID+BC+UOM'
                                     await this.AddScanMsg(sender, scanArgs, "Product Associated To Bar Code");
 
-                                    var prodbcuom = resultsProductUnit[0].ProductCode.ToString() + " " +
-                                                    resultsProductUnit[0].ProductUnitBC.ToString() + " " +
-                                                    resultsProductUnit[0].UnitCode.ToString();
+                                    var prodbcuom = resultsProductUnit[0].ProductCode + " " +
+                                                    resultsProductUnit[0].ProductUnitBC + " " +
+                                                    resultsProductUnit[0].UnitCode;
                                     await this.AddScanMsg(sender, scanArgs, prodbcuom);
 
                                     if (this.Parse.DeliScaleAmount != 0 &&
                                         (this.Parse.Symbology == BarCodeSymbologies.UCC_12_UPC_E ||
-                                        this.Parse.Symbology == BarCodeSymbologies.EAN_UCC_13))
+                                         this.Parse.Symbology == BarCodeSymbologies.EAN_UCC_13))
                                     {
                                         await this.AddScanMsg(sender, scanArgs,
                                             $"Product Deli Scale Amount {this.Parse.DeliScaleAmount}");
                                         await this.AddScanMsg(sender, scanArgs,
                                             $"Product Deli Scale Weight {deliScaleWeight} {deliScaleWeightUnit}");
 
-                                        if (this.SysEnv.BarCodeSettings.IsRuleEnabled_Parse_UCC_12_UPC_E_as_Deli_PLU_4_Digit_Amount)
+                                        if (this.SysEnv.BarCodeSettings
+                                            .IsRuleEnabled_Parse_UCC_12_UPC_E_as_Deli_PLU_4_Digit_Amount)
                                         {
                                             await this.AddScanMsg(sender, scanArgs, "Barcode Rule: 4 digit amount");
                                         }
@@ -749,17 +744,11 @@ namespace dMobile.View.Activity
                 // do not allow product bar code reassignment
                 if (this.ProductUnitRefno == 0)
                 {
-                    await Device.InvokeOnMainThreadAsync(() =>
-                    {
-                        this.cmdAssignProduct.IsEnabled = true;
-                    });
+                    await Device.InvokeOnMainThreadAsync(() => { this.cmdAssignProduct.IsEnabled = true; });
                 }
                 else
                 {
-                    await Device.InvokeOnMainThreadAsync(() =>
-                    {
-                        this.cmdAssignProduct.IsEnabled = false;
-                    });
+                    await Device.InvokeOnMainThreadAsync(() => { this.cmdAssignProduct.IsEnabled = false; });
                 }
 
                 if (!string.IsNullOrEmpty(scanArgs.ParseInfo.SSCC18))
@@ -923,6 +912,8 @@ namespace dMobile.View.Activity
                 await this.ScannerEnable();
             }
 
+            return;
+
             //////////////////////////////////////////////////////////////////////////
             async Task BarCodeHandlerSSCC18(object sender, BarCodeScannerEventArgs scanArgs)
             {
@@ -1083,6 +1074,8 @@ namespace dMobile.View.Activity
                         "Length Meters: " + scanArgs.ParseInfo.LengthOr1stDimensionMeters);
                 }
 
+                return;
+
                 async Task DisplayParsedWeights(object sender, BarCodeScannerEventArgs scanArgs)
                 {
                     if (scanArgs.ParseInfo.NetWeightMetricKGFoundAI)
@@ -1202,7 +1195,8 @@ namespace dMobile.View.Activity
                             await this.AddScanMsg(
                                 sender,
                                 scanArgs,
-                                "Production Date: " + scanArgs.ParseInfo.LogisticUnitProductionDate.ToShortDateString());
+                                "Production Date: " +
+                                scanArgs.ParseInfo.LogisticUnitProductionDate.ToShortDateString());
                         }
                     }
                     else
@@ -1342,9 +1336,9 @@ namespace dMobile.View.Activity
                 // If product was found associated display it.  'ProductID+BC+UOM'
                 await this.AddScanMsg(sender, scanArgs, "Product associated to bar code");
 
-                var prodBCUnit = resultsProductUnitBarcode[0].ProductCode.ToString() + " " +
-                                 resultsProductUnitBarcode[0].ProductUnitBC.ToString() + " " +
-                                 resultsProductUnitBarcode[0].UnitCode.ToString();
+                var prodBCUnit = resultsProductUnitBarcode[0].ProductCode + " " +
+                                 resultsProductUnitBarcode[0].ProductUnitBC + " " +
+                                 resultsProductUnitBarcode[0].UnitCode;
 
                 await this.AddScanMsg(sender, scanArgs, prodBCUnit);
 
@@ -1357,15 +1351,15 @@ namespace dMobile.View.Activity
                 await this.AddScanMsg(
                     sender,
                     scanArgs,
-                    resultsProductUnitBarcode[0].ProductDescription.ToString());
+                    resultsProductUnitBarcode[0].ProductDescription);
             }
         }
 
         /// <summary>
-        /// Bar code modifier change made event handler.
+        ///     Bar code modifier change made event handler.
         /// </summary>
-        /// <param name="sender"><see cref="object"/> Sender object.</param>
-        /// <param name="e"><see cref="EventArgs"/> Event arguments.</param>
+        /// <param name="sender"><see cref="object" /> Sender object.</param>
+        /// <param name="e"><see cref="EventArgs" /> Event arguments.</param>
         private void BarCodeModifierChangesMade(object sender, EventArgs e)
         {
             try
@@ -1384,10 +1378,10 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// Assign product click event handler.
+        ///     Assign product click event handler.
         /// </summary>
-        /// <param name="sender"><see cref="object"/> Sender object.</param>
-        /// <param name="e"><see cref="EventArgs"/> Event arguments.</param>
+        /// <param name="sender"><see cref="object" /> Sender object.</param>
+        /// <param name="e"><see cref="EventArgs" /> Event arguments.</param>
         private async void CmdAssignProduct_Click(object sender, EventArgs e)
         {
             try
@@ -1401,11 +1395,9 @@ namespace dMobile.View.Activity
                     {
                         await AssignProduct(sender);
                     }
-                    else
-                    {
-                        // Just return without a message because the user will
-                        // already see a permission denied if they failed to enter override code.
-                    }
+
+                    // Just return without a message because the user will
+                    // already see a permission denied if they failed to enter override code.
                 }
             }
             catch (MessageOnlyException msgEx)
@@ -1443,6 +1435,8 @@ namespace dMobile.View.Activity
 
                 await this.ScannerEnable();
             }
+
+            return;
 
             //////////////////////////////////////////////////////////////////////////
             async Task<bool> CheckAllowedToAssignProduct()
@@ -1482,6 +1476,8 @@ namespace dMobile.View.Activity
                     }
                 }
 
+                return;
+
                 //////////////////////////////////////////////////////////////////////////
                 async Task DisplayProductAssocData(List<ProductUnit> productUnit)
                 {
@@ -1489,8 +1485,8 @@ namespace dMobile.View.Activity
                     if (productUnit?.Count > 0)
                     {
                         productDataText = Convert.ToString(productUnit[0].ProductCode).TrimEnd() +
-                            (" " + Convert.ToString(productUnit[0].ProductUnitBC)).TrimEnd() + " " +
-                            Convert.ToString(productUnit[0].UnitCode);
+                                          (" " + Convert.ToString(productUnit[0].ProductUnitBC)).TrimEnd() + " " +
+                                          Convert.ToString(productUnit[0].UnitCode);
                     }
 
                     if (!string.IsNullOrEmpty(productDataText))
@@ -1514,8 +1510,8 @@ namespace dMobile.View.Activity
                                            + "INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno "
                                            + "WHERE tProductUnit.ProductUnitRefno = ?";
 
-                    var productUnit = await DatabaseConnection.GetInstance().SQLConn.
-                        QueryAsync<ProductUnit>(queryProductUnit, this.ProductUnitRefno);
+                    var productUnit = await DatabaseConnection.GetInstance().SQLConn
+                        .QueryAsync<ProductUnit>(queryProductUnit, this.ProductUnitRefno);
                     return productUnit;
                 }
 
@@ -1527,20 +1523,21 @@ namespace dMobile.View.Activity
                     var svdSymbologyPrefix = this.Parse.SymbologyPrefix;
 
                     var xmlDoc = XDocument.Parse(
-                         "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
-                         + "<params>"
-                         + "<ProductUnitRefno>" + this.ProductUnitRefno + "</ProductUnitRefno>"
-                         + "<ProductUnitBarCodeRefno>" + this.ProductUnitBarCodeRefno + "</ProductUnitBarCodeRefno>"
-                         + "<ProductIdentifier>" + svdProductIdentifier + "</ProductIdentifier>"
-                         + "<ProductUnitBarCodeModifier1>" + this.SysEnv.CurrentBarCodeModifier1
-                         + "</ProductUnitBarCodeModifier1>"
-                         + "<RawData></RawData>"
-                         + "<enumBarCodeSymbology>" + (int)svdSymbology + "</enumBarCodeSymbology>"
-                         + "<BarCodeSymbologyPrefix>" + svdSymbologyPrefix + "</BarCodeSymbologyPrefix>"
-                         + "</params>");
+                        "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
+                        + "<params>"
+                        + "<ProductUnitRefno>" + this.ProductUnitRefno + "</ProductUnitRefno>"
+                        + "<ProductUnitBarCodeRefno>" + this.ProductUnitBarCodeRefno + "</ProductUnitBarCodeRefno>"
+                        + "<ProductIdentifier>" + svdProductIdentifier + "</ProductIdentifier>"
+                        + "<ProductUnitBarCodeModifier1>" + this.SysEnv.CurrentBarCodeModifier1
+                        + "</ProductUnitBarCodeModifier1>"
+                        + "<RawData></RawData>"
+                        + "<enumBarCodeSymbology>" + (int)svdSymbology + "</enumBarCodeSymbology>"
+                        + "<BarCodeSymbologyPrefix>" + svdSymbologyPrefix + "</BarCodeSymbologyPrefix>"
+                        + "</params>");
                     await this.ActItemBarCode.Insert(xmlDoc);
 
-                    _ = await Device.InvokeOnMainThreadAsync(() => this.ExtraInfoItems[0] = "Product associated to bar code");
+                    _ = await Device.InvokeOnMainThreadAsync(() =>
+                        this.ExtraInfoItems[0] = "Product associated to bar code");
                 }
             }
         }

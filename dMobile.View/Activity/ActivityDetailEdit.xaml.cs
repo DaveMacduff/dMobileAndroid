@@ -18,24 +18,26 @@ namespace dMobile.View.Activity
     using Resources.Enums;
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;
-    using Resource = dMobile.Resources.Properties.Resources;
+    using Resource = Resources.Properties.Resources;
 
     /// <summary>
-    /// Define the <see cref="ActivityDetailEdit"/> activity detail edit.
+    ///     Define the <see cref="ActivityDetailEdit" /> activity detail edit.
     /// </summary>
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class ActivityDetailEdit : DMobileModal, IAppArea
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="ActivityDetailEdit"/> class.
+        ///     Initializes a new instance of the <see cref="ActivityDetailEdit" /> class.
         /// </summary>
-        /// <param name="actDetail"><see cref="ActDetail"/> Activity detail object.</param>
-        /// <param name="actSubTypes"><see cref="SysCommon.ActSubTypes"/> Activity sub types.</param>
+        /// <param name="actDetail"><see cref="ActDetail" /> Activity detail object.</param>
+        /// <param name="actSubTypes"><see cref="SysCommon.ActSubTypes" /> Activity sub types.</param>
         public ActivityDetailEdit(ActDetail actDetail, SysCommon.ActSubTypes actSubTypes)
         {
             this.InitializeComponent();
 
-            this.IsPageLoading = false;
+            this.IsDataLoading = false;
+            this.IsIndicatorRunning = false;
+            this.IsFirstAppearance = true;
             this.ExtraInfoItems = new ObservableCollection<string>();
             this.SysEnv = SysEnvironment.GetInstance();
             this.ActSubType = actSubTypes;
@@ -51,21 +53,6 @@ namespace dMobile.View.Activity
             this.lblLotNo.Text = "Lot No";
             this.lblBestBeforeDate.Text = "Best Before";
             this.lblVariantCode.Text = "Variant";
-            this.dtBestBeforeDate.Date = DateTime.Now;
-            this.dtProductionDate.Date = DateTime.Now;
-            this.dtExtraDetail5.Date = DateTime.Now;
-            if (this.SysEnv.SysSettings.DetailDateMinMaxValidYearRange != 0)
-            {
-                var lower = DateTime.Now.AddYears(this.SysEnv.SysSettings.DetailDateMinMaxValidYearRange * -1);
-                this.dtBestBeforeDate.MinimumDate = lower;
-                this.dtProductionDate.MinimumDate = lower;
-                this.dtExtraDetail5.MinimumDate = lower;
-
-                var upper = DateTime.Now.AddYears(this.SysEnv.SysSettings.DetailDateMinMaxValidYearRange);
-                this.dtBestBeforeDate.MaximumDate = upper;
-                this.dtProductionDate.MaximumDate = upper;
-                this.dtExtraDetail5.MaximumDate = upper;
-            }
 
             this.ActDetail = actDetail;
             this.ActDetail.ActSubType = this.ActSubType;
@@ -84,125 +71,200 @@ namespace dMobile.View.Activity
                     Text2 = this.ActDetail.ActExtra.Text2,
                     Text3 = this.ActDetail.ActExtra.Text3,
                     Text4 = this.ActDetail.ActExtra.Text4,
-                    DateTime1 = this.ActDetail.ActExtra.DateTime1,
-                },
+                    DateTime1 = this.ActDetail.ActExtra.DateTime1
+                }
             };
 
-            ////if (!this.ActDetail.ActItem.ProdInfo.Scheme.IsBestBeforeDateTrackedDefault)
-            ////{
-            ////    this.dtBestBeforeDate.Date = DateTime.Now;
-            ////}
+            InitControlState();
 
-            ////if (!this.ActDetail.ActItem.ProdInfo.Scheme.IsProductionDateTrackedDefault)
-            ////{
-            ////    this.dtProductionDate.Date = DateTime.Now;
-            ////}
+            _ = Task.Run(this.LoadAndBindData);
 
-            this.Title = this.ActDetail.GetControlDescription();
-            this.lbl1.Text = this.ActDetail.ActItem.ProdInfo.Scheme.Extra1Caption;
-            this.lbl2.Text = this.ActDetail.ActItem.ProdInfo.Scheme.Extra2Caption;
-            this.lbl3.Text = this.ActDetail.ActItem.ProdInfo.Scheme.Extra3Caption;
-            this.lbl4.Text = this.ActDetail.ActItem.ProdInfo.Scheme.Extra4Caption;
-            this.lbl5.Text = this.ActDetail.ActItem.ProdInfo.Scheme.Extra5Caption;
+            return;
+
+            //////////////////////////////////////////////////////////////////////////
+            void InitControlState()
+            {
+                var prodInfo = this.ActDetail.ActItem.ProdInfo;
+                var scheme = prodInfo.Scheme;
+
+                this.Title = this.ActDetail.GetControlDescription();
+                this.lblUnit.Text = prodInfo.UnitCode;
+                this.lblBaseUnit.Text = prodInfo.BaseUnitCode;
+                this.lblWtUnit.Text = prodInfo.WeightUnitCode;
+
+                this.lbl1.Text = this.ActDetail.ActItem.ProdInfo.Scheme.Extra1Caption;
+                this.lbl2.Text = this.ActDetail.ActItem.ProdInfo.Scheme.Extra2Caption;
+                this.lbl3.Text = this.ActDetail.ActItem.ProdInfo.Scheme.Extra3Caption;
+                this.lbl4.Text = this.ActDetail.ActItem.ProdInfo.Scheme.Extra4Caption;
+                this.lbl5.Text = this.ActDetail.ActItem.ProdInfo.Scheme.Extra5Caption;
+
+                if (!prodInfo.IsCatchWeight || prodInfo.UnitCode == "LB" || prodInfo.UnitCode == "KG")
+                {
+                    this.txtWtQty.IsEnabled = false;
+                }
+
+                InitControlStateScheme();
+                InitControlStateExtra();
+                return;
+
+                //////////////////////////////////////////////////////////////////////////
+                // Enable scheme controls state.
+                void InitControlStateScheme()
+                {
+                    if (!scheme.IsBestBeforeDateTracked)
+                    {
+                        this.dtBestBeforeDate.IsEnabled = false;
+                    }
+
+                    if (!scheme.IsProductionDateTracked)
+                    {
+                        this.dtProductionDate.IsEnabled = false;
+                    }
+
+                    this.dtBestBeforeDate.Date = DateTime.Now;
+                    this.dtProductionDate.Date = DateTime.Now;
+                    this.dtExtraDetail5.Date = DateTime.Now;
+                    if (this.SysEnv.SysSettings.DetailDateMinMaxValidYearRange != 0)
+                    {
+                        var lower = DateTime.Now.AddYears(this.SysEnv.SysSettings.DetailDateMinMaxValidYearRange * -1);
+                        this.dtBestBeforeDate.MinimumDate = lower;
+                        this.dtProductionDate.MinimumDate = lower;
+                        this.dtExtraDetail5.MinimumDate = lower;
+
+                        var upper = DateTime.Now.AddYears(this.SysEnv.SysSettings.DetailDateMinMaxValidYearRange);
+                        this.dtBestBeforeDate.MaximumDate = upper;
+                        this.dtProductionDate.MaximumDate = upper;
+                        this.dtExtraDetail5.MaximumDate = upper;
+                    }
+
+                    if (!scheme.IsLotTracked)
+                    {
+                        this.txtLotNo.IsEnabled = false;
+                    }
+
+                    if (!scheme.IsSerialTracked)
+                    {
+                        this.txtSerialNo.IsEnabled = false;
+                    }
+
+                    if (!scheme.IsVariantTracked)
+                    {
+                        this.txtVariantCode.IsEnabled = false;
+                    }
+                }
+
+                /////////////////////////////////////////////////////////////////////////
+                // Enable extra data controls state.
+                void InitControlStateExtra()
+                {
+                    if (scheme.Extra1Type == (int)SysCommon.SchemeExtraTypes.Disabled)
+                    {
+                        this.txtExtraDetail1.IsEnabled = false;
+                    }
+
+                    if (scheme.Extra2Type == (int)SysCommon.SchemeExtraTypes.Disabled)
+                    {
+                        this.txtExtraDetail2.IsEnabled = false;
+                    }
+
+                    if (scheme.Extra3Type == (int)SysCommon.SchemeExtraTypes.Disabled)
+                    {
+                        this.txtExtraDetail3.IsEnabled = false;
+                    }
+
+                    if (scheme.Extra4Type == (int)SysCommon.SchemeExtraTypes.Disabled)
+                    {
+                        this.txtExtraDetail4.IsEnabled = false;
+                    }
+
+                    if (scheme.Extra5Type == (int)SysCommon.SchemeExtraTypes.Disabled)
+                    {
+                        this.dtExtraDetail5.IsEnabled = false;
+                    }
+                }
+            }
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether to print product labels.
+        /// Gets or sets a value indicating whether the data is being loaded.
         /// </summary>
-        private bool AskToPrintProductLabels { get; set; } = false;
+        private bool IsDataLoading { get; set; }
 
         /// <summary>
-        /// Gets or sets the system environment object.
+        ///     Gets or sets a value indicating whether to print product labels.
         /// </summary>
-        private SysEnvironment SysEnv { get; set; }
+        private bool AskToPrintProductLabels { get; set; }
 
         /// <summary>
-        /// Gets or sets the activity sub type.
+        ///     Gets the system environment object.
         /// </summary>
-        private SysCommon.ActSubTypes ActSubType { get; set; }
+        private SysEnvironment SysEnv { get; }
 
         /// <summary>
-        /// Gets or sets the activity detail edit.
+        ///     Gets the activity sub type.
         /// </summary>
-        private ActDetailEdit ActDetailEdit { get; set; }
+        private SysCommon.ActSubTypes ActSubType { get; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether changes have been made.
+        ///     Gets the activity detail edit.
         /// </summary>
-        private bool IsChangesMade { get; set; } = false;
+        private ActDetailEdit ActDetailEdit { get; }
 
         /// <summary>
-        /// Gets or sets the activity detail.
+        ///     Gets or sets a value indicating whether changes have been made.
         /// </summary>
-        private ActDetail ActDetail { get; set; }
+        private bool IsChangesMade { get; set; }
 
         /// <summary>
-        /// Gets or sets the activity detail edit items list.
+        /// Gets or sets a value indicating whether this is the first form appearance.
         /// </summary>
-        private ObservableCollection<string> ExtraInfoItems { get; set; }
+        private bool IsFirstAppearance { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether the bar code handler has been registered.
+        ///     Gets the activity detail.
         /// </summary>
-        private bool IsBarCodeHandlerRegistered { get; set; } = false;
+        private ActDetail ActDetail { get; }
 
         /// <summary>
-        /// Gets or sets the bar code scanner instance.
+        ///     Gets the activity detail edit items list.
         /// </summary>
-        private BarCodeScanner Scanner { get; set; } = ScannerEngine.GetInstance().Scanner;
+        private ObservableCollection<string> ExtraInfoItems { get; }
 
         /// <summary>
-        /// Unregister the bar code scan event handler and disable the scanner.
+        ///     Gets the bar code scanner instance.
         /// </summary>
-        /// <returns><see cref="Task"/> Task operation.</returns>
+        private BarCodeScanner Scanner { get; } = ScannerEngine.GetInstance().Scanner;
+
+        /// <summary>
+        ///     Unregister the bar code scan event handler and disable the scanner.
+        /// </summary>
+        /// <returns><see cref="Task" /> Task operation.</returns>
         public async Task ScannerDisable()
         {
             if (this.Scanner != null)
             {
-                if (this.IsBarCodeHandlerRegistered)
-                {
-                    this.Scanner.BarCodeScan -= new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
-                    await this.Scanner.Stop();
-                    this.IsBarCodeHandlerRegistered = false;
-                }
+                this.Scanner.BarCodeScan -= this.BarCodeHandler;
+                await this.Scanner.Stop();
             }
         }
 
         /// <summary>
-        /// Registers the bar code scan event handler and enables the scanner.
+        ///     Registers the bar code scan event handler and enables the scanner.
         /// </summary>
-        /// <returns><see cref="Task"/> Task operation.</returns>
+        /// <returns><see cref="Task" /> Task operation.</returns>
         public async Task ScannerEnable()
         {
             if (this.Scanner != null)
             {
-                if (!this.IsBarCodeHandlerRegistered)
-                {
-                    await this.Scanner.Start();
-                    this.Scanner.BarCodeScan += new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
-                    this.IsBarCodeHandlerRegistered = true;
-                }
-            }
-        }
-
-        /// <summary>
-        /// Registers the bar code scan event handler and enables the scanner.
-        /// </summary>
-        /// <returns><see cref="Task"/> Task operation.</returns>
-        public async Task ScannerStart()
-        {
-            if (this.Scanner != null)
-            {
                 await this.Scanner.Start();
-                this.Scanner.BarCodeScan += new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
-                this.IsBarCodeHandlerRegistered = true;
+                this.Scanner.BarCodeScan += this.BarCodeHandler;
             }
         }
 
         /// <summary>
-        /// Check if the activity item is ready to save.
+        ///     Check if the activity item is ready to save.
         /// </summary>
-        /// <returns><see cref="bool"/> True if it is ready to save, else false.</returns>
+        /// <returns><see cref="bool" /> True if it is ready to save, else false.</returns>
         public async Task<bool> IsReadyToSave()
         {
             var isReadyToSave = true;
@@ -278,6 +340,7 @@ namespace dMobile.View.Activity
                     + "</imclient>");
 
                 await this.ActDetail.ActItem.IsReadyToApply(xmlParam);
+                return;
 
                 //////////////////////////////////////////////////////////////////////////
                 async Task ValidateQuantity()
@@ -298,7 +361,8 @@ namespace dMobile.View.Activity
 
                     if (this.ActDetailEdit.WeightQuantity == 0)
                     {
-                        throw new MessageOnlyException("Weight quantity is expected to have a value not equal to zero.");
+                        throw new MessageOnlyException(
+                            "Weight quantity is expected to have a value not equal to zero.");
                     }
 
                     // Alt quantity equal to zero will be considered valid for these activity sub types.
@@ -315,7 +379,7 @@ namespace dMobile.View.Activity
 
                     if (Math.Sign(this.ActDetailEdit.AltQuantity) == 0 &&
                         (this.ActDetail.ActSubType == SysCommon.ActSubTypes.Adjustment ||
-                            this.ActDetail.ActSubType == SysCommon.ActSubTypes.TicketMaterial))
+                         this.ActDetail.ActSubType == SysCommon.ActSubTypes.TicketMaterial))
                     {
                         // Alt quantity is not validated.
                         await ValidateBaseAndWeightAsync();
@@ -325,6 +389,8 @@ namespace dMobile.View.Activity
                         await ValidateAltBaseAndWeightAsync();
                     }
 
+                    return;
+
                     //////////////////////////////////////////////////////////////////////////
                     // Check the quantity if the UOM match.
                     void CheckEqualQuantity()
@@ -333,21 +399,21 @@ namespace dMobile.View.Activity
                             this.ActDetailEdit.AltQuantity != this.ActDetailEdit.BaseQuantity)
                         {
                             throw new MessageOnlyException("Quantity and base quantity are expected" +
-                                " to be the same, because the units are the same.");
+                                                           " to be the same, because the units are the same.");
                         }
 
                         if (productInfo.UnitCode == productInfo.WeightUnitCode &&
                             this.ActDetailEdit.AltQuantity != this.ActDetailEdit.WeightQuantity)
                         {
                             throw new MessageOnlyException("Quantity and weight quantity are expected" +
-                                " to be the same, because the units are the same.");
+                                                           " to be the same, because the units are the same.");
                         }
 
                         if (productInfo.BaseUnitCode == productInfo.WeightUnitCode &&
                             this.ActDetailEdit.BaseQuantity != this.ActDetailEdit.WeightQuantity)
                         {
                             throw new MessageOnlyException("Base quantity and weight quantity are expected" +
-                                " to be the same, because the units are the same.");
+                                                           " to be the same, because the units are the same.");
                         }
                     }
 
@@ -372,26 +438,30 @@ namespace dMobile.View.Activity
                             {
                                 // Any base quantity value is acceptable.
                                 // Integer check override does not apply to weighted units.
-                                if (!productInfo.IsCatchWeight && expectedWeightQty != this.ActDetailEdit.WeightQuantity)
+                                if (!productInfo.IsCatchWeight &&
+                                    expectedWeightQty != this.ActDetailEdit.WeightQuantity)
                                 {
-                                    throw new MessageOnlyException($"Weight quantity {this.ActDetailEdit.WeightQuantity}" +
+                                    throw new MessageOnlyException(
+                                        $"Weight quantity {this.ActDetailEdit.WeightQuantity}" +
                                         $" {productInfo.WeightUnitCode} does not match the expected weight quantity" +
                                         $"{expectedWeightQty} {productInfo.WeightUnitCode}.");
                                 }
-                                else if (productInfo.IsCatchWeight)
+
+                                if (productInfo.IsCatchWeight)
                                 {
                                     // TODO: Add weight tolerance check warning.
                                 }
                                 else if (productInfo.IsCatchCount)
                                 {
-                                    throw new NotSupportedException($"Product '{productInfo.Code}' cannot be flagged as" +
-                                        $" catch count and the base unit code be a weighted unit.");
+                                    throw new NotSupportedException(
+                                        $"Product '{productInfo.Code}' cannot be flagged as" +
+                                        " catch count and the base unit code be a weighted unit.");
                                 }
                             }
                             else if (productInfo.IsCatchWeight)
                             {
                                 throw new NotSupportedException($"Product '{productInfo.Code}' cannot be flagged as" +
-                                    $" catch weight and the base unit code not be a weighted unit.");
+                                                                " catch weight and the base unit code not be a weighted unit.");
                             }
                             else
                             {
@@ -401,7 +471,8 @@ namespace dMobile.View.Activity
                                 // Weight quantity must match the expected.
                                 if (expectedWeightQty != this.ActDetailEdit.WeightQuantity)
                                 {
-                                    throw new MessageOnlyException($"Weight quantity {this.ActDetailEdit.WeightQuantity}" +
+                                    throw new MessageOnlyException(
+                                        $"Weight quantity {this.ActDetailEdit.WeightQuantity}" +
                                         $" {productInfo.WeightUnitCode} does not match the expected weight quantity" +
                                         $" {expectedWeightQty} {productInfo.WeightUnitCode}.");
                                 }
@@ -413,26 +484,30 @@ namespace dMobile.View.Activity
                             {
                                 // Any base quantity value is acceptable.
                                 // Integer check override does not apply to weighted units.
-                                if (!productInfo.IsCatchWeight && expectedWeightQty != this.ActDetailEdit.WeightQuantity)
+                                if (!productInfo.IsCatchWeight &&
+                                    expectedWeightQty != this.ActDetailEdit.WeightQuantity)
                                 {
-                                    throw new MessageOnlyException($"Weight quantity {this.ActDetailEdit.WeightQuantity}" +
+                                    throw new MessageOnlyException(
+                                        $"Weight quantity {this.ActDetailEdit.WeightQuantity}" +
                                         $" {productInfo.WeightUnitCode} does not match the expected weight quantity" +
                                         $"{expectedWeightQty} {productInfo.WeightUnitCode}.");
                                 }
-                                else if (productInfo.IsCatchWeight)
+
+                                if (productInfo.IsCatchWeight)
                                 {
                                     // TODO: Add weight tolerance check warning.
                                 }
                                 else if (productInfo.IsCatchCount)
                                 {
-                                    throw new NotSupportedException($"Product '{productInfo.Code}' cannot be flagged as" +
-                                        $" catch count and the base unit code be a weighted unit.");
+                                    throw new NotSupportedException(
+                                        $"Product '{productInfo.Code}' cannot be flagged as" +
+                                        " catch count and the base unit code be a weighted unit.");
                                 }
                             }
                             else if (productInfo.IsCatchWeight)
                             {
                                 throw new NotSupportedException($"Product '{productInfo.Code}' cannot be flagged as" +
-                                    $" catch weight and the base unit code not be a weighted unit.");
+                                                                " catch weight and the base unit code not be a weighted unit.");
                             }
                             else
                             {
@@ -454,7 +529,8 @@ namespace dMobile.View.Activity
                                 // Weight quantity must match the expected.
                                 if (expectedWeightQty != this.ActDetailEdit.WeightQuantity)
                                 {
-                                    throw new MessageOnlyException($"Weight quantity {this.ActDetailEdit.WeightQuantity}" +
+                                    throw new MessageOnlyException(
+                                        $"Weight quantity {this.ActDetailEdit.WeightQuantity}" +
                                         $" {productInfo.WeightUnitCode} does not match the expected weight quantity" +
                                         $" {expectedWeightQty} {productInfo.WeightUnitCode}.");
                                 }
@@ -484,9 +560,11 @@ namespace dMobile.View.Activity
                             {
                                 // Any base quantity value is acceptable.
                                 // Integer check override does not apply to weighted units.
-                                if (!productInfo.IsCatchWeight && expectedWeightQty != this.ActDetailEdit.WeightQuantity)
+                                if (!productInfo.IsCatchWeight &&
+                                    expectedWeightQty != this.ActDetailEdit.WeightQuantity)
                                 {
-                                    throw new MessageOnlyException($"Weight quantity {this.ActDetailEdit.WeightQuantity}" +
+                                    throw new MessageOnlyException(
+                                        $"Weight quantity {this.ActDetailEdit.WeightQuantity}" +
                                         $" {productInfo.WeightUnitCode} does not match the expected weight quantity" +
                                         $"{expectedWeightQty} {productInfo.WeightUnitCode}.");
                                 }
@@ -496,22 +574,26 @@ namespace dMobile.View.Activity
                             {
                                 // Any base quantity value is acceptable.
                                 // Integer check override does not apply to weighted units.
-                                if (!productInfo.IsCatchWeight && expectedWeightQty != this.ActDetailEdit.WeightQuantity)
+                                if (!productInfo.IsCatchWeight &&
+                                    expectedWeightQty != this.ActDetailEdit.WeightQuantity)
                                 {
-                                    throw new MessageOnlyException($"Weight quantity {this.ActDetailEdit.WeightQuantity}" +
+                                    throw new MessageOnlyException(
+                                        $"Weight quantity {this.ActDetailEdit.WeightQuantity}" +
                                         $" {productInfo.WeightUnitCode} does not match the expected weight quantity" +
                                         $"{expectedWeightQty} {productInfo.WeightUnitCode}.");
                                 }
-                                else if (productInfo.IsCatchCount)
+
+                                if (productInfo.IsCatchCount)
                                 {
-                                    throw new NotSupportedException($"Product '{productInfo.Code}' cannot be flagged as" +
-                                        $" catch count and the base unit code be a weighted unit.");
+                                    throw new NotSupportedException(
+                                        $"Product '{productInfo.Code}' cannot be flagged as" +
+                                        " catch count and the base unit code be a weighted unit.");
                                 }
                             }
                             else if (productInfo.IsCatchWeight)
                             {
                                 throw new NotSupportedException($"Product '{productInfo.Code}' cannot be flagged as" +
-                                    $" catch weight and the base unit code not be a weighted unit.");
+                                                                " catch weight and the base unit code not be a weighted unit.");
                             }
                             else if (productInfo.IsCatchCount)
                             {
@@ -520,7 +602,8 @@ namespace dMobile.View.Activity
                                 // Weight must be match calculated.
                                 if (expectedWeightQty != this.ActDetailEdit.WeightQuantity)
                                 {
-                                    throw new MessageOnlyException($"Weight quantity {this.ActDetailEdit.WeightQuantity}" +
+                                    throw new MessageOnlyException(
+                                        $"Weight quantity {this.ActDetailEdit.WeightQuantity}" +
                                         $" {productInfo.WeightUnitCode} does not match the expected weight quantity" +
                                         $" {expectedWeightQty} {productInfo.WeightUnitCode}.");
                                 }
@@ -532,7 +615,8 @@ namespace dMobile.View.Activity
                                 // Weight quantity must match the expected.
                                 if (expectedWeightQty != this.ActDetailEdit.WeightQuantity)
                                 {
-                                    throw new MessageOnlyException($"Weight quantity {this.ActDetailEdit.WeightQuantity}" +
+                                    throw new MessageOnlyException(
+                                        $"Weight quantity {this.ActDetailEdit.WeightQuantity}" +
                                         $" {productInfo.WeightUnitCode} does not match the expected weight quantity" +
                                         $"{expectedWeightQty} {productInfo.WeightUnitCode}.");
                                 }
@@ -546,13 +630,16 @@ namespace dMobile.View.Activity
                             {
                                 // Any base quantity value is acceptable.
                                 // Integer check override does not apply to weighted units.
-                                if (!productInfo.IsCatchWeight && expectedWeightQty != this.ActDetailEdit.WeightQuantity)
+                                if (!productInfo.IsCatchWeight &&
+                                    expectedWeightQty != this.ActDetailEdit.WeightQuantity)
                                 {
-                                    throw new MessageOnlyException($"Weight quantity {this.ActDetailEdit.WeightQuantity}" +
+                                    throw new MessageOnlyException(
+                                        $"Weight quantity {this.ActDetailEdit.WeightQuantity}" +
                                         $" {productInfo.WeightUnitCode} does not match the expected weight quantity" +
                                         $"{expectedWeightQty} {productInfo.WeightUnitCode}.");
                                 }
-                                else if (productInfo.IsCatchWeight)
+
+                                if (productInfo.IsCatchWeight)
                                 {
                                     // TODO: Add weight tolerance check warning.
                                 }
@@ -571,26 +658,30 @@ namespace dMobile.View.Activity
                             {
                                 // Any base quantity value is acceptable.
                                 // Integer check override does not apply to weighted units.
-                                if (!productInfo.IsCatchWeight && expectedWeightQty != this.ActDetailEdit.WeightQuantity)
+                                if (!productInfo.IsCatchWeight &&
+                                    expectedWeightQty != this.ActDetailEdit.WeightQuantity)
                                 {
-                                    throw new MessageOnlyException($"Weight quantity {this.ActDetailEdit.WeightQuantity}" +
+                                    throw new MessageOnlyException(
+                                        $"Weight quantity {this.ActDetailEdit.WeightQuantity}" +
                                         $" {productInfo.WeightUnitCode} does not match the expected weight quantity" +
                                         $"{expectedWeightQty} {productInfo.WeightUnitCode}.");
                                 }
-                                else if (productInfo.IsCatchWeight)
+
+                                if (productInfo.IsCatchWeight)
                                 {
                                     // TODO: Add weight tolerance check warning.
                                 }
                                 else if (productInfo.IsCatchCount)
                                 {
-                                    throw new NotSupportedException($"Product '{productInfo.Code}' cannot be flagged as" +
-                                        $" catch count and the base unit code be a weighted unit.");
+                                    throw new NotSupportedException(
+                                        $"Product '{productInfo.Code}' cannot be flagged as" +
+                                        " catch count and the base unit code be a weighted unit.");
                                 }
                             }
                             else if (productInfo.IsCatchWeight)
                             {
                                 throw new NotSupportedException($"Product '{productInfo.Code}' cannot be flagged as" +
-                                    $" catch weight and the base unit code not be a weighted unit.");
+                                                                " catch weight and the base unit code not be a weighted unit.");
                             }
                             else if (productInfo.IsCatchCount)
                             {
@@ -599,7 +690,8 @@ namespace dMobile.View.Activity
                                 // Weight must be match calculated.
                                 if (expectedWeightQty != this.ActDetailEdit.WeightQuantity)
                                 {
-                                    throw new MessageOnlyException($"Weight quantity {this.ActDetailEdit.WeightQuantity}" +
+                                    throw new MessageOnlyException(
+                                        $"Weight quantity {this.ActDetailEdit.WeightQuantity}" +
                                         $" {productInfo.WeightUnitCode} does not match the expected weight quantity" +
                                         $"{expectedWeightQty} {productInfo.WeightUnitCode}.");
                                 }
@@ -620,8 +712,8 @@ namespace dMobile.View.Activity
                                 if (this.ActDetailEdit.BaseQuantity != expectedBaseQty)
                                 {
                                     throw new MessageOnlyException($"Base quantity {this.ActDetailEdit.BaseQuantity}" +
-                                        $" {productInfo.BaseUnitCode} does not match the expected base quantity" +
-                                        $"{expectedBaseQty} {productInfo.BaseUnitCode}.");
+                                                                   $" {productInfo.BaseUnitCode} does not match the expected base quantity" +
+                                                                   $"{expectedBaseQty} {productInfo.BaseUnitCode}.");
                                 }
 
                                 // Base unit is not a weighted unit.
@@ -629,7 +721,8 @@ namespace dMobile.View.Activity
                                 // Weight quantity must match the expected.
                                 if (expectedWeightQty != this.ActDetailEdit.WeightQuantity)
                                 {
-                                    throw new MessageOnlyException($"Weight quantity {this.ActDetailEdit.WeightQuantity}" +
+                                    throw new MessageOnlyException(
+                                        $"Weight quantity {this.ActDetailEdit.WeightQuantity}" +
                                         $" {productInfo.WeightUnitCode} does not match the expected weight quantity" +
                                         $" {expectedWeightQty} {productInfo.WeightUnitCode}.");
                                 }
@@ -647,6 +740,7 @@ namespace dMobile.View.Activity
                     ValidateSchemeBestBeforeDateTracked();
                     ValidateSchemeProductionDateTracked();
                     ValidateSchemeIsVariantTracked();
+                    return;
 
                     //////////////////////////////////////////////////////////////////////////
                     async Task AssignScheme()
@@ -779,6 +873,7 @@ namespace dMobile.View.Activity
                     ValidateSchemeExtra3Required();
                     ValidateSchemeExtra4Required();
                     ValidateSchemeExtra5Required();
+                    return;
 
                     //////////////////////////////////////////////////////////////////////////
                     void ValidateSchemeExtra1Required()
@@ -844,10 +939,12 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// Check if the activity detail edit is ready to close.
+        ///     Check if the activity detail edit is ready to close.
         /// </summary>
-        /// <returns><see cref="bool"/> True if the activity detail edit is ready to close,
-        /// else false.</returns>
+        /// <returns>
+        ///     <see cref="bool" /> True if the activity detail edit is ready to close,
+        ///     else false.
+        /// </returns>
         public async Task<bool> IsReadyToClose()
         {
             var isReadyToClose = !this.IsChangesMade;
@@ -882,9 +979,9 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// Save any activity detail edit data changes.
+        ///     Save any activity detail edit data changes.
         /// </summary>
-        /// <returns><see cref="bool"/> True if the save was successful, else false.</returns>
+        /// <returns><see cref="bool" /> True if the save was successful, else false.</returns>
         public async Task<bool> SaveChanges()
         {
             var saveComplete = true;
@@ -961,9 +1058,9 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// Cancel any pending activity detail edit changes.
+        ///     Cancel any pending activity detail edit changes.
         /// </summary>
-        /// <returns><see cref="bool"/> True if the pending changes where canceled, else false.</returns>
+        /// <returns><see cref="bool" /> True if the pending changes where canceled, else false.</returns>
         public async Task<bool> CancelChanges()
         {
             var cancelChanges = true;
@@ -1013,38 +1110,37 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// Get the activity detail edit return XDocument information.
+        ///     Get the activity detail edit return XDocument information.
         /// </summary>
-        /// <returns><see cref="XDocument"/> Activity item return information.</returns>
+        /// <returns><see cref="XDocument" /> Activity item return information.</returns>
         public async Task<XDocument> GetXML()
         {
             return await this.ActDetailEdit.GetXmlFromActivityDetailEdit(this.ActDetailEdit);
         }
 
         /// <summary>
-        /// On appearing event handler.
+        ///     On appearing event handler.
         /// </summary>
         protected override async void OnAppearing()
         {
-            if (!this.IsPageLoading)
+            if (!this.IsIndicatorRunning)
             {
                 try
                 {
-                    this.IsPageLoading = true;
+                    ////this.IsIndicatorRunning = true;
                     base.OnAppearing();
 
                     // Note: Do we want to disable the scanner here. It may not even be enabled before at all.
                     // It is my understanding that the OnAppearing event only occurs once when the control
                     // is loading.
-                    await this.ScannerDisable();
+                    await this.ScannerEnable();
                     SubscribeKeyUpHandlers();
-                    this.txtAltQty.TextChanged += this.TxtAltQty_TextChanged;
-                    this.txtBaseQty.TextChanged += this.TxtBaseQty_TextChanged;
 
-                    ////this.ListViewDisplayExtraInfo.ItemsSource = this.ExtraInfoItems;
-                    await InitControlState();
-                    await LoadData();
-                    await ShowProductInfo();
+                    // Set the focus to the first control, if this is the first appearance.
+                    if (this.IsFirstAppearance)
+                    {
+                        await this.SetStartingFocus();
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -1056,387 +1152,34 @@ namespace dMobile.View.Activity
                 }
                 finally
                 {
-                    this.IsPageLoading = false;
-                    await ScannerStart();
+                    this.IsIndicatorRunning = false;
                 }
             }
 
-            //////////////////////////////////////////////////////////////////////////
-            async Task ScannerStart()
-            {
-                if (this.Scanner != null)
-                {
-                    await this.Scanner.Start();
-                    this.Scanner.BarCodeScan += this.BarCodeHandler;
-                    this.IsBarCodeHandlerRegistered = true;
-                }
-            }
-
-            //////////////////////////////////////////////////////////////////////////
-            async Task ShowProductInfo()
-            {
-                await Device.InvokeOnMainThreadAsync(() =>
-                {
-                    this.ExtraInfoItems.Clear();
-
-                    this.ExtraInfoItems.Add("PROD: " + this.ActDetail.ActItem.ProdInfo.Code +
-                        this.ActDetail.ActItem.ProdInfo.UnitBC + "  " +
-                        this.ActDetail.ActItem.ProdInfo.Desc);
-                    this.ExtraInfoItems.Add("SIZE: " + this.ActDetail.ActItem.ProdInfo.UnitSizeDesc);
-                });
-            }
-
-            //////////////////////////////////////////////////////////////////////////
-            async Task InitControlState()
-            {
-                var prodInfo = this.ActDetail.ActItem.ProdInfo;
-                var scheme = prodInfo.Scheme;
-
-                await Device.InvokeOnMainThreadAsync(() =>
-                {
-                    this.lblUnit.Text = prodInfo.UnitCode;
-                    this.lblBaseUnit.Text = prodInfo.BaseUnitCode;
-                    this.lblWtUnit.Text = prodInfo.WeightUnitCode;
-                    if (!prodInfo.IsCatchWeight || prodInfo.UnitCode == "LB" || prodInfo.UnitCode == "KG")
-                    {
-                        this.txtWtQty.IsEnabled = false;
-                    }
-
-                    InitControlStateScheme();
-                    InitControlStateExtra();
-                });
-
-                //////////////////////////////////////////////////////////////////////////
-                // Enable scheme controls state.
-                void InitControlStateScheme()
-                {
-                    if (!scheme.IsBestBeforeDateTracked)
-                    {
-                        this.dtBestBeforeDate.IsEnabled = false;
-                    }
-
-                    if (!scheme.IsProductionDateTracked)
-                    {
-                        this.dtProductionDate.IsEnabled = false;
-                    }
-
-                    if (!scheme.IsLotTracked)
-                    {
-                        this.txtLotNo.IsEnabled = false;
-                    }
-
-                    if (!scheme.IsSerialTracked)
-                    {
-                        this.txtSerialNo.IsEnabled = false;
-                    }
-
-                    if (!scheme.IsVariantTracked)
-                    {
-                        this.txtVariantCode.IsEnabled = false;
-                    }
-                }
-
-                /////////////////////////////////////////////////////////////////////////
-                // Enable extra data controls state.
-                void InitControlStateExtra()
-                {
-                    if (scheme.Extra1Type == (int)SysCommon.SchemeExtraTypes.Disabled)
-                    {
-                        this.txtExtraDetail1.IsEnabled = false;
-                    }
-
-                    if (scheme.Extra2Type == (int)SysCommon.SchemeExtraTypes.Disabled)
-                    {
-                        this.txtExtraDetail2.IsEnabled = false;
-                    }
-
-                    if (scheme.Extra3Type == (int)SysCommon.SchemeExtraTypes.Disabled)
-                    {
-                        this.txtExtraDetail3.IsEnabled = false;
-                    }
-
-                    if (scheme.Extra4Type == (int)SysCommon.SchemeExtraTypes.Disabled)
-                    {
-                        this.txtExtraDetail4.IsEnabled = false;
-                    }
-
-                    if (scheme.Extra5Type == (int)SysCommon.SchemeExtraTypes.Disabled)
-                    {
-                        this.dtExtraDetail5.IsEnabled = false;
-                    }
-                }
-            }
-
-            //////////////////////////////////////////////////////////////////////////
-            async Task LoadData()
-            {
-                await Device.InvokeOnMainThreadAsync(() =>
-                {
-                    LoadQuantityDetailAltQuantity();
-                    LoadQuantityDetailBaseQuantity();
-                    LoadQuantityDetailWeightQuantity();
-                    LoadSchemeDetail();
-                    LoadExtraDetail();
-                });
-
-                //////////////////////////////////////////////////////////////////////////
-                // Load the extra detail controls with the activity detail extra values.
-                void LoadExtraDetail()
-                {
-                    if (!string.IsNullOrEmpty(this.ActDetail.ActExtra.Text1))
-                    {
-                        this.txtExtraDetail1.Text = this.ActDetail.ActExtra.Text1;
-                    }
-
-                    if (!string.IsNullOrEmpty(this.ActDetail.ActExtra.Text2))
-                    {
-                        this.txtExtraDetail2.Text = this.ActDetail.ActExtra.Text2;
-                    }
-
-                    if (!string.IsNullOrEmpty(this.ActDetail.ActExtra.Text3))
-                    {
-                        this.txtExtraDetail3.Text = this.ActDetail.ActExtra.Text3;
-                    }
-
-                    if (!string.IsNullOrEmpty(this.ActDetail.ActExtra.Text4))
-                    {
-                        this.txtExtraDetail4.Text = this.ActDetail.ActExtra.Text4;
-                    }
-
-                    if (!SysCommon.IsEmptyDate(this.ActDetail.ActExtra.DateTime1))
-                    {
-                        this.dtExtraDetail5.Date = this.ActDetail.ActExtra.DateTime1;
-                    }
-                }
-
-                //////////////////////////////////////////////////////////////////////////
-                // Load the scheme controls with the activity detail scheme values.
-                void LoadSchemeDetail()
-                {
-                    var schemeData = this.ActDetailEdit.SchemeData;
-                    var prodInfo = this.ActDetail.ActItem.ProdInfo;
-
-                    if (prodInfo.Scheme.IsBestBeforeDateTracked)
-                    {
-                        if (!SysCommon.IsEmptyDateTime(schemeData.LogisticUnitBestBeforeSellByDate))
-                        {
-                            this.dtBestBeforeDate.Date = schemeData.LogisticUnitBestBeforeSellByDate;
-                        }
-                    }
-
-                    if (prodInfo.Scheme.IsProductionDateTracked)
-                    {
-                        if (!SysCommon.IsEmptyDate(this.ActDetailEdit.SchemeData.LogisticUnitProductionDate))
-                        {
-                            this.dtProductionDate.Date = schemeData.LogisticUnitProductionDate;
-                        }
-                    }
-
-                    if (prodInfo.Scheme.IsSerialTracked)
-                    {
-                        GetNextDefaultSerialNumber(schemeData);
-                        this.txtSerialNo.Text = schemeData.SingleTradeItemSerialNumber;
-                    }
-
-                    if (prodInfo.Scheme.IsLotTracked)
-                    {
-                        this.txtLotNo.Text = schemeData.LogisticUnitBatchLotNumber;
-                    }
-
-                    if (prodInfo.Scheme.IsVariantTracked)
-                    {
-                        this.txtVariantCode.Text = schemeData.VariantNumber.ToString();
-                    }
-
-                    //////////////////////////////////////////////////////////////////////////
-                    // Get the default serial number and assign it to the activity edit detail scheme data.
-                    void GetNextDefaultSerialNumber(ProductSchemeData schemeData)
-                    {
-                        if (string.IsNullOrEmpty(schemeData.SingleTradeItemSerialNumber))
-                        {
-                            schemeData.SingleTradeItemSerialNumber =
-                                ProductInfoTasks.GetProdSchemeSingleTradeItemSerialNumber();
-                            this.ActDetailEdit.SchemeData = schemeData;
-                        }
-                    }
-                }
-
-                //////////////////////////////////////////////////////////////////////////
-                void LoadQuantityDetailAltQuantity()
-                {
-                    var prodInfo = this.ActDetail.ActItem.ProdInfo;
-                    var isSetCatchWeightZero = this.ActDetail.ActItem.ProdInfo.IsCatchWeight
-                                               && this.SysEnv.SysSettings.IsSetCatchWeightZero &&
-                                               (prodInfo.UnitCode == "LB" || prodInfo.UnitCode == "KG");
-                    var isSetCatchCountZero = this.ActDetail.ActItem.ProdInfo.IsCatchCount &&
-                                               this.SysEnv.SysSettings.IsSetCatchCountZero &&
-                                               prodInfo.UnitCode == prodInfo.BaseUnitCode;
-
-                    if (this.ActDetail.ActItem.IsCatchAskZero())
-                    {
-                        this.ActDetailEdit.AltQuantity = 0;
-                    }
-                    else if (isSetCatchWeightZero)
-                    {
-                        this.ActDetailEdit.AltQuantity = 0;
-                    }
-                    else if (isSetCatchCountZero)
-                    {
-                        this.ActDetailEdit.AltQuantity = 0;
-                    }
-                    else if (this.ActDetail.Quantity == 0)
-                    {
-                        if (prodInfo.UnitCode == "LB" || prodInfo.UnitCode == "KG")
-                        {
-                            this.ActDetailEdit.AltQuantity = this.ActDetail.WeightQuantity != 0
-                                ? this.ActDetail.WeightQuantity
-                                : prodInfo.UnitGrossWeight;
-                        }
-                        else if (prodInfo.UnitCode == prodInfo.BaseUnitCode && this.ActDetailEdit.BaseQuantity != 0)
-                        {
-                            this.ActDetailEdit.AltQuantity = this.ActDetailEdit.BaseQuantity;
-                        }
-                        else
-                        {
-                            this.ActDetailEdit.AltQuantity = 1;
-                        }
-                    }
-                    else
-                    {
-                        this.ActDetailEdit.AltQuantity = this.ActDetail.Quantity;
-                    }
-
-                    this.ActDetailEdit.AltQuantity = decimal.Round(this.ActDetailEdit.AltQuantity, 3);
-                    this.txtAltQty.Text = this.ActDetailEdit.AltQuantity.ToString(CultureInfo.CurrentCulture);
-                }
-
-                //////////////////////////////////////////////////////////////////////////
-                void LoadQuantityDetailBaseQuantity()
-                {
-                    var prodInfo = this.ActDetail.ActItem.ProdInfo;
-                    if (this.ActDetail.ActItem.IsCatchAskZero())
-                    {
-                        this.ActDetailEdit.BaseQuantity = 0;
-                    }
-                    else if (this.ActDetail.ActItem.ProdInfo.IsCatchWeight &&
-                        this.SysEnv.SysSettings.IsSetCatchWeightZero &&
-                        (prodInfo.BaseUnitCode == "LB" || prodInfo.BaseUnitCode == "KG"))
-                    {
-                        this.ActDetailEdit.BaseQuantity = 0;
-                    }
-                    else if (this.ActDetail.ActItem.ProdInfo.IsCatchCount &&
-                        this.SysEnv.SysSettings.IsSetCatchCountZero &&
-                        prodInfo.UnitCode == prodInfo.BaseUnitCode)
-                    {
-                        this.ActDetailEdit.BaseQuantity = 0;
-                    }
-                    else if (this.ActDetail.BaseQuantity == 0)
-                    {
-                        if (prodInfo.BaseUnitCode == "LB" || prodInfo.BaseUnitCode == "KG")
-                        {
-                            this.ActDetailEdit.BaseQuantity = this.ActDetail.WeightQuantity != 0
-                                ? this.ActDetail.WeightQuantity
-                                : prodInfo.UnitGrossWeight;
-                        }
-                        else if (prodInfo.UnitCode == prodInfo.BaseUnitCode && this.ActDetailEdit.AltQuantity != 0)
-                        {
-                            this.ActDetailEdit.BaseQuantity = this.ActDetailEdit.AltQuantity;
-                        }
-                        else
-                        {
-                            if (this.ActDetailEdit.AltQuantity != 0 && prodInfo.Unit2BaseUnitFactor != 0)
-                            {
-                                this.ActDetailEdit.BaseQuantity =
-                                    this.ActDetailEdit.AltQuantity * prodInfo.Unit2BaseUnitFactor;
-                            }
-                            else
-                            {
-                                this.ActDetailEdit.BaseQuantity = this.ActDetailEdit.AltQuantity;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        this.ActDetailEdit.BaseQuantity = this.ActDetail.BaseQuantity;
-                    }
-
-                    this.ActDetailEdit.BaseQuantity = decimal.Round(this.ActDetailEdit.BaseQuantity, 3);
-                    this.txtBaseQty.Text = this.ActDetailEdit.BaseQuantity.ToString(CultureInfo.CurrentCulture);
-                }
-
-                //////////////////////////////////////////////////////////////////////////
-                void LoadQuantityDetailWeightQuantity()
-                {
-                    var prodInfo = this.ActDetail.ActItem.ProdInfo;
-                    if (this.ActDetail.ActItem.IsCatchAskZero())
-                    {
-                        this.ActDetailEdit.WeightQuantity = 0;
-                    }
-                    else if (this.ActDetail.ActItem.ProdInfo.IsCatchWeight &&
-                        this.SysEnv.SysSettings.IsSetCatchWeightZero &&
-                        (prodInfo.BaseUnitCode == "LB" || prodInfo.BaseUnitCode == "KG"))
-                    {
-                        this.ActDetailEdit.WeightQuantity = 0;
-                    }
-                    else if (this.ActDetail.WeightQuantity == 0)
-                    {
-                        if (this.ActDetailEdit.BaseQuantity != 0 &&
-                            (prodInfo.BaseUnitCode == "LB" || prodInfo.BaseUnitCode == "KG"))
-                        {
-                            this.ActDetailEdit.WeightQuantity = this.ActDetailEdit.BaseQuantity;
-                        }
-                        else if (this.ActDetailEdit.AltQuantity != 0 &&
-                            (prodInfo.UnitCode == "LB" || prodInfo.UnitCode == "KG"))
-                        {
-                            this.ActDetailEdit.WeightQuantity = this.ActDetailEdit.AltQuantity;
-                        }
-                        else if (this.ActDetailEdit.BaseQuantity != 0)
-                        {
-                            ////this.ActDetailEdit.WeightQuantity =
-                            ////    this.ActDetailEdit.BaseQuantity * prodInfo.UnitGrossWeight;
-                            this.ActDetailEdit.WeightQuantity =
-                                this.ActDetailEdit.AltQuantity * prodInfo.UnitGrossWeight;
-                        }
-                    }
-                    else
-                    {
-                        this.ActDetailEdit.WeightQuantity = this.ActDetail.WeightQuantity;
-                    }
-
-                    this.ActDetailEdit.WeightQuantity = decimal.Round(this.ActDetailEdit.WeightQuantity, 3);
-                    this.txtWtQty.Text = this.ActDetailEdit.WeightQuantity.ToString(CultureInfo.CurrentCulture);
-                }
-            }
+            return;
 
             //////////////////////////////////////////////////////////////////////////
             void SubscribeKeyUpHandlers()
             {
-                MessagingCenter.Subscribe<string>(
-                    this,
-                    EventTypes.OnKeyUp.ToString(),
-                    async (keyPressed) =>
+                MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), KeyUpHandlerCallback);
+                return;
+
+                //////////////////////////////////////////////////////////////////////////
+                async void KeyUpHandlerCallback(string keyPressed)
+                {
+                    if (this.IsDataLoading)
                     {
-                        if (this.IsPageLoading)
-                        {
-                            return;
-                        }
+                        return;
+                    }
 
-                        var svdIsScanReg = this.IsBarCodeHandlerRegistered;
-                        await this.ScannerDisable();
+                    // TODO: Verify key codes.
+                    _ = Enum.TryParse(keyPressed, out Keycode keycode);
 
-                        // TODO: Verify key codes.
-                        _ = Enum.TryParse(keyPressed, out Keycode keycode);
-
-                        if (keycode == Keycode.F1 || keycode == Keycode.Enter)
-                        {
-                            await AppearingEnterKey();
-                        }
-
-                        if (svdIsScanReg)
-                        {
-                            await this.ScannerEnable();
-                        }
-                    });
+                    if (keycode == Keycode.F1 || keycode == Keycode.Enter)
+                    {
+                        await AppearingEnterKey();
+                    }
+                }
 
                 //////////////////////////////////////////////////////////////////////////
                 async Task AppearingEnterKey()
@@ -1453,15 +1196,17 @@ namespace dMobile.View.Activity
                         await this.Close();
                     }
 
+                    return;
+
                     //////////////////////////////////////////////////////////////////////////
                     async Task AskToPrintProductLabels()
                     {
                         if (await Device.InvokeOnMainThreadAsync(async () =>
-                            await this.DisplayAlert(
-                                this.ActDetail.GetControlDescription(),
-                                "Print product labels?",
-                                "Yes",
-                                "No")))
+                                await this.DisplayAlert(
+                                    this.ActDetail.GetControlDescription(),
+                                    "Print product labels?",
+                                    "Yes",
+                                    "No")))
                         {
                             try
                             {
@@ -1469,7 +1214,7 @@ namespace dMobile.View.Activity
                             }
                             catch (MessageOnlyException msgEx)
                             {
-                                var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1)
+                                var msg = msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1
                                     ? msgEx.Message
                                     : msgEx.Message["MSGBOX-".Length..];
                                 await Device.InvokeOnMainThreadAsync(async () =>
@@ -1494,43 +1239,32 @@ namespace dMobile.View.Activity
                     }
                 }
             }
-
-            //////////////////////////////////////////////////////////////////////////
-            async Task SetStartingFocus()
-            {
-                await Device.InvokeOnMainThreadAsync(() =>
-                {
-                    var prodInfo = this.ActDetail.ActItem.ProdInfo;
-                    _ = this.SysEnv.SysSettings.IsDetailEditScreenSetFocus2CatchWeight
-                        ? prodInfo.IsCatchWeight ? this.txtWtQty.Focus() : this.txtAltQty.Focus()
-                        : prodInfo.Scheme.IsSerialTracked && prodInfo.IsCatchWeight ?
-                            this.txtWtQty.Focus() : this.txtAltQty.Focus();
-                });
-            }
         }
 
         /// <summary>
-        /// Fires just before the page disappears.
+        ///     Fires just before the page disappears.
         /// </summary>
         protected override async void OnDisappearing()
         {
-            this.txtAltQty.TextChanged -= this.TxtAltQty_TextChanged;
-            this.txtBaseQty.TextChanged -= this.TxtBaseQty_TextChanged;
+            base.OnDisappearing();
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
             await this.ScannerDisable();
-            base.OnDisappearing();
             GC.Collect();
             GC.WaitForPendingFinalizers();
         }
 
         /// <summary>
-        /// On back button pressed handler.
+        ///     On back button pressed handler.
         /// </summary>
-        /// <returns><see cref="bool"/> True upon completion.</returns>
+        /// <returns><see cref="bool" /> True upon completion.</returns>
         /// <remarks>Code lens reports no references yet this event does fire.</remarks>
         protected override bool OnBackButtonPressed()
         {
-            Device.BeginInvokeOnMainThread(async () =>
+            Device.BeginInvokeOnMainThread(CancelAndClose);
+            return true;
+
+            //////////////////////////////////////////////////////////////////////////
+            async void CancelAndClose()
             {
                 if (await this.CancelChanges())
                 {
@@ -1538,24 +1272,320 @@ namespace dMobile.View.Activity
                     _ = base.OnBackButtonPressed();
                     await this.Close();
                 }
-            });
-
-            return true;
+            }
         }
 
         /// <summary>
-        /// Get the control description.
+        ///     Get the control description.
         /// </summary>
-        /// <returns><see cref="string"/> Control description.</returns>
+        /// <returns><see cref="string" /> Control description.</returns>
         private static string GetControlDescription()
         {
             return "Activity Detail Editing";
         }
 
         /// <summary>
-        /// Print product labels.
+        /// Load and bind the data.
         /// </summary>
         /// <returns><see cref="Task"/> Task operation.</returns>
+        private async Task LoadAndBindData()
+        {
+            try
+            {
+                if (!this.IsDataLoading)
+                {
+                    this.IsDataLoading = true;
+                    this.IsIndicatorRunning = true;
+                    await Device.InvokeOnMainThreadAsync(() =>
+                    {
+                        AssignExtraInfoControl();
+                        AssignAltQuantityToControls();
+                        AssignBaseQuantityToControls();
+                        AssignWeightQuantityToControls();
+                        AssignSchemeDataToControls();
+                        AssignExtraDetailToControls();
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                await Device.InvokeOnMainThreadAsync(async () =>
+                {
+                    var errRpt = new FormErrorReport(this.ActSubType, ex);
+                    _ = await errRpt.ShowDialog();
+                });
+            }
+            finally
+            {
+                this.IsIndicatorRunning = false;
+                this.IsDataLoading = false;
+            }
+
+            return;
+
+            //////////////////////////////////////////////////////////////////////////
+            void AssignExtraInfoControl()
+            {
+                this.ExtraInfoItems.Clear();
+
+                this.ExtraInfoItems.Add("PROD: " + this.ActDetail.ActItem.ProdInfo.Code +
+                                        this.ActDetail.ActItem.ProdInfo.UnitBC + "  " +
+                                        this.ActDetail.ActItem.ProdInfo.Desc);
+                this.ExtraInfoItems.Add("SIZE: " + this.ActDetail.ActItem.ProdInfo.UnitSizeDesc);
+            }
+
+            //////////////////////////////////////////////////////////////////////////
+            // Load the extra detail controls with the activity detail extra values.
+            void AssignExtraDetailToControls()
+            {
+                if (!string.IsNullOrEmpty(this.ActDetail.ActExtra.Text1))
+                {
+                    this.txtExtraDetail1.Text = this.ActDetail.ActExtra.Text1;
+                }
+
+                if (!string.IsNullOrEmpty(this.ActDetail.ActExtra.Text2))
+                {
+                    this.txtExtraDetail2.Text = this.ActDetail.ActExtra.Text2;
+                }
+
+                if (!string.IsNullOrEmpty(this.ActDetail.ActExtra.Text3))
+                {
+                    this.txtExtraDetail3.Text = this.ActDetail.ActExtra.Text3;
+                }
+
+                if (!string.IsNullOrEmpty(this.ActDetail.ActExtra.Text4))
+                {
+                    this.txtExtraDetail4.Text = this.ActDetail.ActExtra.Text4;
+                }
+
+                if (!SysCommon.IsEmptyDate(this.ActDetail.ActExtra.DateTime1))
+                {
+                    this.dtExtraDetail5.Date = this.ActDetail.ActExtra.DateTime1;
+                }
+            }
+
+            //////////////////////////////////////////////////////////////////////////
+            // Load the scheme controls with the activity detail scheme values.
+            void AssignSchemeDataToControls()
+            {
+                var schemeData = this.ActDetailEdit.SchemeData;
+                var prodInfo = this.ActDetail.ActItem.ProdInfo;
+
+                if (prodInfo.Scheme.IsBestBeforeDateTracked)
+                {
+                    if (!SysCommon.IsEmptyDateTime(schemeData.LogisticUnitBestBeforeSellByDate))
+                    {
+                        this.dtBestBeforeDate.Date = schemeData.LogisticUnitBestBeforeSellByDate;
+                    }
+                }
+
+                if (prodInfo.Scheme.IsProductionDateTracked)
+                {
+                    if (!SysCommon.IsEmptyDate(this.ActDetailEdit.SchemeData.LogisticUnitProductionDate))
+                    {
+                        this.dtProductionDate.Date = schemeData.LogisticUnitProductionDate;
+                    }
+                }
+
+                if (prodInfo.Scheme.IsSerialTracked)
+                {
+                    GetNextDefaultSerialNumber();
+                    this.txtSerialNo.Text = schemeData.SingleTradeItemSerialNumber;
+                }
+
+                if (prodInfo.Scheme.IsLotTracked)
+                {
+                    this.txtLotNo.Text = schemeData.LogisticUnitBatchLotNumber;
+                }
+
+                if (prodInfo.Scheme.IsVariantTracked)
+                {
+                    this.txtVariantCode.Text = schemeData.VariantNumber.ToString();
+                }
+
+                return;
+
+                //////////////////////////////////////////////////////////////////////////
+                // Get the default serial number and assign it to the activity edit detail scheme data.
+                void GetNextDefaultSerialNumber()
+                {
+                    if (string.IsNullOrEmpty(schemeData.SingleTradeItemSerialNumber))
+                    {
+                        schemeData.SingleTradeItemSerialNumber =
+                            ProductInfoTasks.GetProdSchemeSingleTradeItemSerialNumber();
+                        this.ActDetailEdit.SchemeData = schemeData;
+                    }
+                }
+            }
+
+            //////////////////////////////////////////////////////////////////////////
+            void AssignAltQuantityToControls()
+            {
+                var prodInfo = this.ActDetail.ActItem.ProdInfo;
+                var isSetCatchWeightZero = this.ActDetail.ActItem.ProdInfo.IsCatchWeight
+                                           && this.SysEnv.SysSettings.IsSetCatchWeightZero &&
+                                           (prodInfo.UnitCode == "LB" || prodInfo.UnitCode == "KG");
+                var isSetCatchCountZero = this.ActDetail.ActItem.ProdInfo.IsCatchCount &&
+                                          this.SysEnv.SysSettings.IsSetCatchCountZero &&
+                                          prodInfo.UnitCode == prodInfo.BaseUnitCode;
+
+                if (this.ActDetail.ActItem.IsCatchAskZero())
+                {
+                    this.ActDetailEdit.AltQuantity = 0;
+                }
+                else if (isSetCatchWeightZero)
+                {
+                    this.ActDetailEdit.AltQuantity = 0;
+                }
+                else if (isSetCatchCountZero)
+                {
+                    this.ActDetailEdit.AltQuantity = 0;
+                }
+                else if (this.ActDetail.Quantity == 0)
+                {
+                    if (prodInfo.UnitCode == "LB" || prodInfo.UnitCode == "KG")
+                    {
+                        this.ActDetailEdit.AltQuantity = this.ActDetail.WeightQuantity != 0
+                            ? this.ActDetail.WeightQuantity
+                            : prodInfo.UnitGrossWeight;
+                    }
+                    else if (prodInfo.UnitCode == prodInfo.BaseUnitCode && this.ActDetailEdit.BaseQuantity != 0)
+                    {
+                        this.ActDetailEdit.AltQuantity = this.ActDetailEdit.BaseQuantity;
+                    }
+                    else
+                    {
+                        this.ActDetailEdit.AltQuantity = 1;
+                    }
+                }
+                else
+                {
+                    this.ActDetailEdit.AltQuantity = this.ActDetail.Quantity;
+                }
+
+                this.ActDetailEdit.AltQuantity = decimal.Round(this.ActDetailEdit.AltQuantity, 3);
+                this.txtAltQty.Text = this.ActDetailEdit.AltQuantity.ToString(CultureInfo.CurrentCulture);
+            }
+
+            //////////////////////////////////////////////////////////////////////////
+            void AssignBaseQuantityToControls()
+            {
+                var prodInfo = this.ActDetail.ActItem.ProdInfo;
+                if (this.ActDetail.ActItem.IsCatchAskZero())
+                {
+                    this.ActDetailEdit.BaseQuantity = 0;
+                }
+                else if (this.ActDetail.ActItem.ProdInfo.IsCatchWeight &&
+                         this.SysEnv.SysSettings.IsSetCatchWeightZero &&
+                         (prodInfo.BaseUnitCode == "LB" || prodInfo.BaseUnitCode == "KG"))
+                {
+                    this.ActDetailEdit.BaseQuantity = 0;
+                }
+                else if (this.ActDetail.ActItem.ProdInfo.IsCatchCount &&
+                         this.SysEnv.SysSettings.IsSetCatchCountZero &&
+                         prodInfo.UnitCode == prodInfo.BaseUnitCode)
+                {
+                    this.ActDetailEdit.BaseQuantity = 0;
+                }
+                else if (this.ActDetail.BaseQuantity == 0)
+                {
+                    if (prodInfo.BaseUnitCode == "LB" || prodInfo.BaseUnitCode == "KG")
+                    {
+                        this.ActDetailEdit.BaseQuantity = this.ActDetail.WeightQuantity != 0
+                            ? this.ActDetail.WeightQuantity
+                            : prodInfo.UnitGrossWeight;
+                    }
+                    else if (prodInfo.UnitCode == prodInfo.BaseUnitCode && this.ActDetailEdit.AltQuantity != 0)
+                    {
+                        this.ActDetailEdit.BaseQuantity = this.ActDetailEdit.AltQuantity;
+                    }
+                    else
+                    {
+                        if (this.ActDetailEdit.AltQuantity != 0 && prodInfo.Unit2BaseUnitFactor != 0)
+                        {
+                            this.ActDetailEdit.BaseQuantity =
+                                this.ActDetailEdit.AltQuantity * prodInfo.Unit2BaseUnitFactor;
+                        }
+                        else
+                        {
+                            this.ActDetailEdit.BaseQuantity = this.ActDetailEdit.AltQuantity;
+                        }
+                    }
+                }
+                else
+                {
+                    this.ActDetailEdit.BaseQuantity = this.ActDetail.BaseQuantity;
+                }
+
+                this.ActDetailEdit.BaseQuantity = decimal.Round(this.ActDetailEdit.BaseQuantity, 3);
+                this.txtBaseQty.Text = this.ActDetailEdit.BaseQuantity.ToString(CultureInfo.CurrentCulture);
+            }
+
+            //////////////////////////////////////////////////////////////////////////
+            void AssignWeightQuantityToControls()
+            {
+                var prodInfo = this.ActDetail.ActItem.ProdInfo;
+                if (this.ActDetail.ActItem.IsCatchAskZero())
+                {
+                    this.ActDetailEdit.WeightQuantity = 0;
+                }
+                else if (this.ActDetail.ActItem.ProdInfo.IsCatchWeight &&
+                         this.SysEnv.SysSettings.IsSetCatchWeightZero &&
+                         (prodInfo.BaseUnitCode == "LB" || prodInfo.BaseUnitCode == "KG"))
+                {
+                    this.ActDetailEdit.WeightQuantity = 0;
+                }
+                else if (this.ActDetail.WeightQuantity == 0)
+                {
+                    if (this.ActDetailEdit.BaseQuantity != 0 &&
+                        (prodInfo.BaseUnitCode == "LB" || prodInfo.BaseUnitCode == "KG"))
+                    {
+                        this.ActDetailEdit.WeightQuantity = this.ActDetailEdit.BaseQuantity;
+                    }
+                    else if (this.ActDetailEdit.AltQuantity != 0 &&
+                             (prodInfo.UnitCode == "LB" || prodInfo.UnitCode == "KG"))
+                    {
+                        this.ActDetailEdit.WeightQuantity = this.ActDetailEdit.AltQuantity;
+                    }
+                    else if (this.ActDetailEdit.BaseQuantity != 0)
+                    {
+                        ////this.ActDetailEdit.WeightQuantity =
+                        ////    this.ActDetailEdit.BaseQuantity * prodInfo.UnitGrossWeight;
+                        this.ActDetailEdit.WeightQuantity =
+                            this.ActDetailEdit.AltQuantity * prodInfo.UnitGrossWeight;
+                    }
+                }
+                else
+                {
+                    this.ActDetailEdit.WeightQuantity = this.ActDetail.WeightQuantity;
+                }
+
+                this.ActDetailEdit.WeightQuantity = decimal.Round(this.ActDetailEdit.WeightQuantity, 3);
+                this.txtWtQty.Text = this.ActDetailEdit.WeightQuantity.ToString(CultureInfo.CurrentCulture);
+            }
+        }
+
+        /// <summary>
+        /// Set the starting focus.
+        /// </summary>
+        /// <returns><see cref="Task"/> Task operation.</returns>
+        private async Task SetStartingFocus()
+        {
+            await Device.InvokeOnMainThreadAsync(() =>
+            {
+                var prodInfo = this.ActDetail.ActItem.ProdInfo;
+                _ = this.SysEnv.SysSettings.IsDetailEditScreenSetFocus2CatchWeight
+                    ? prodInfo.IsCatchWeight ? this.txtWtQty.Focus() : this.txtAltQty.Focus()
+                    : prodInfo.Scheme.IsSerialTracked && prodInfo.IsCatchWeight
+                        ? this.txtBaseQty.Focus()
+                        : this.txtAltQty.Focus();
+            });
+        }
+
+        /// <summary>
+        ///     Print product labels.
+        /// </summary>
+        /// <returns><see cref="Task" /> Task operation.</returns>
         private async Task PrintProductLabels()
         {
             if (this.ActDetail.ActSubType == SysCommon.ActSubTypes.Receiving ||
@@ -1601,14 +1631,16 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// Bar code scan event handler.
+        ///     Bar code scan event handler.
         /// </summary>
-        /// <param name="sender"><see cref="object"/> Object that generated the event.</param>
-        /// <param name="scanArgs"><see cref="BarCodeScannerEventArgs"/> Sender bar code scanner
-        /// event arguments.</param>
+        /// <param name="sender"><see cref="object" /> Object that generated the event.</param>
+        /// <param name="scanArgs">
+        ///     <see cref="BarCodeScannerEventArgs" /> Sender bar code scanner
+        ///     event arguments.
+        /// </param>
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
-            if (this.IsPageLoading)
+            if (this.IsDataLoading)
             {
                 return;
             }
@@ -1617,10 +1649,10 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// Button save click event handler.
+        ///     Button save click event handler.
         /// </summary>
-        /// <param name="sender"><see cref="object"/> Sender object.</param>
-        /// <param name="e"><see cref="EventArgs"/> Event arguments.</param>
+        /// <param name="sender"><see cref="object" /> Sender object.</param>
+        /// <param name="e"><see cref="EventArgs" /> Event arguments.</param>
         private async void BtnSave_Clicked(object sender, EventArgs e)
         {
             if (await this.SaveChanges())
@@ -1630,11 +1662,11 @@ namespace dMobile.View.Activity
                     if (!this.SysEnv.SysSettings.IsPrintProductLabelsAsBatch)
                     {
                         if (await Device.InvokeOnMainThreadAsync(async () =>
-                            await this.DisplayAlert(
-                                this.ActDetail.GetControlDescription(),
-                                "Print product labels?",
-                                "Yes",
-                                "No")))
+                                await this.DisplayAlert(
+                                    this.ActDetail.GetControlDescription(),
+                                    "Print product labels?",
+                                    "Yes",
+                                    "No")))
                         {
                             try
                             {
@@ -1642,7 +1674,7 @@ namespace dMobile.View.Activity
                             }
                             catch (MessageOnlyException msgEx)
                             {
-                                var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1)
+                                var msg = msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1
                                     ? msgEx.Message
                                     : msgEx.Message["MSGBOX-".Length..];
 
@@ -1672,10 +1704,10 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// Button cancel click handler.
+        ///     Button cancel click handler.
         /// </summary>
-        /// <param name="sender"><see cref="object"/> Sender object.</param>
-        /// <param name="e"><see cref="EventArgs"/> Event arguments.</param>
+        /// <param name="sender"><see cref="object" /> Sender object.</param>
+        /// <param name="e"><see cref="EventArgs" /> Event arguments.</param>
         private async void BtnCancel_Clicked(object sender, EventArgs e)
         {
             if (await this.CancelChanges())
@@ -1686,10 +1718,10 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// Text box alt quantity changed handler.
+        ///     Text box alt quantity changed handler.
         /// </summary>
-        /// <param name="sender"><see cref="object"/> Sender object.</param>
-        /// <param name="e"><see cref="TextChangedEventArgs"/> Event arguments.</param>
+        /// <param name="sender"><see cref="object" /> Sender object.</param>
+        /// <param name="e"><see cref="TextChangedEventArgs" /> Event arguments.</param>
         /// <remarks>Catch weight or catch ask is checked upon save validation.</remarks>
         private void TxtAltQty_TextChanged(object sender, TextChangedEventArgs e)
         {
@@ -1745,10 +1777,10 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// Text box base quantity changed handler.
+        ///     Text box base quantity changed handler.
         /// </summary>
-        /// <param name="sender"><see cref="object"/> Sender object.</param>
-        /// <param name="e"><see cref="TextChangedEventArgs"/> Event arguments.</param>
+        /// <param name="sender"><see cref="object" /> Sender object.</param>
+        /// <param name="e"><see cref="TextChangedEventArgs" /> Event arguments.</param>
         private void TxtBaseQty_TextChanged(object sender, TextChangedEventArgs e)
         {
             var prodInfo = this.ActDetail.ActItem.ProdInfo;

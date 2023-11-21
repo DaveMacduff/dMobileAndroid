@@ -2,9 +2,6 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
-using dMobile.Controller.Activity;
-using dMobile.Controller.Activity_Item;
-
 namespace dMobile.View.Activity
 {
     using System;
@@ -13,31 +10,33 @@ namespace dMobile.View.Activity
     using System.Threading.Tasks;
     using System.Xml.Linq;
     using Android.Views;
-    using dMobile.BarCodeScanner.BarCodeParsing;
-    using dMobile.BarCodeScanner.BarCodeScanners;
-    using dMobile.Bedrock;
-    using dMobile.Controller;
-    using dMobile.Resources.Enums;
-    using dMobile.View.CustomPages.Modal;
-    using dMobile.View.Forms;
+    using BarCodeScanner.BarCodeParsing;
+    using BarCodeScanner.BarCodeScanners;
+    using Bedrock;
+    using Controller.Activity;
+    using Controller.Activity_Item;
+    using CustomPages.Modal;
+    using Forms;
+    using Resources.Enums;
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;
     using static Android.Views.View;
-    using Resource = dMobile.Resources.Properties.Resources;
+    using Resource = Resources.Properties.Resources;
 
     /// <summary>
-    /// Defines the <see cref="ActivityHdrSkidInfo" /> Skid information maintenance header.
+    ///     Defines the <see cref="ActivityHdrSkidInfo" /> Skid information maintenance header.
     /// </summary>
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class ActivityHdrSkidInfo : DMobileModal, IAppArea
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="ActivityHdrSkidInfo"/> class.
+        ///     Initializes a new instance of the <see cref="ActivityHdrSkidInfo" /> class.
         /// </summary>
         public ActivityHdrSkidInfo()
         {
             this.InitializeComponent();
 
+            this.IsIndicatorRunning = false;
             this.cmdComplete.Text = "Build";
             this.cmdDetail.Text = "Detail";
             this.cmdSkidProduct.Text = "Select Product";
@@ -61,15 +60,16 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ActivityHdrSkidInfo"/> class.
+        ///     Initializes a new instance of the <see cref="ActivityHdrSkidInfo" /> class.
         /// </summary>
-        /// <param name="callingActSubType"><see cref="SysCommon.ActSubTypes"/> Calling activity sub type.</param>
-        /// <param name="activity"><see cref="Activity"/> Activity header.</param>
-        public ActivityHdrSkidInfo(SysCommon.ActSubTypes callingActSubType, Controller.Activity.Activity activity)
+        /// <param name="callingActSubType"><see cref="SysCommon.ActSubTypes" /> Calling activity sub type.</param>
+        /// <param name="activity"><see cref="Activity" /> Activity header.</param>
+        public ActivityHdrSkidInfo(SysCommon.ActSubTypes callingActSubType, Activity activity)
         {
             this.InitializeComponent();
 
             // Default control titles.
+            this.IsIndicatorRunning = false;
             this.Title = this.GetControlDescription();
             this.cmdComplete.Text = "Build";
             this.cmdDetail.Text = "Detail";
@@ -98,15 +98,16 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ActivityHdrSkidInfo"/> class.
+        ///     Initializes a new instance of the <see cref="ActivityHdrSkidInfo" /> class.
         /// </summary>
-        /// <param name="callingActSubType"><see cref="SysCommon.ActSubTypes"/> Calling activity sub type.</param>
-        /// <param name="actItem"><see cref="ActItem"/> Activity item.</param>
+        /// <param name="callingActSubType"><see cref="SysCommon.ActSubTypes" /> Calling activity sub type.</param>
+        /// <param name="actItem"><see cref="ActItem" /> Activity item.</param>
         public ActivityHdrSkidInfo(SysCommon.ActSubTypes callingActSubType, ActItem actItem)
         {
             this.InitializeComponent();
 
             // Default control titles.
+            this.IsIndicatorRunning = false;
             this.Title = this.GetControlDescription();
             this.cmdComplete.Text = "Build";
             this.cmdDetail.Text = "Detail";
@@ -138,107 +139,107 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// Gets or sets the calling activity sub type.
+        ///     Gets or sets the calling activity sub type.
         /// </summary>
-        private SysCommon.ActSubTypes CallingActSubType { get; set; } = SysCommon.ActSubTypes.SkidInfo;
+        private SysCommon.ActSubTypes CallingActSubType { get; } = SysCommon.ActSubTypes.SkidInfo;
 
         /// <summary>
-        /// Gets or sets a value indicating whether the skid code has changed.
+        ///     Gets or sets a value indicating whether the skid code has changed.
         /// </summary>
-        private bool IsSkidCodeChanged { get; set; } = false;
+        private bool IsSkidCodeChanged { get; set; }
 
         /// <summary>
-        /// Gets or sets the calling activity foreign key reference number.
+        ///     Gets or sets the calling activity foreign key reference number.
         /// </summary>
-        private int CallingActFKRefno { get; set; } = 0;
+        private int CallingActFKRefno { get; set; }
 
         /// <summary>
-        /// Gets or sets the calling activity item foreign key reference number.
+        ///     Gets or sets the calling activity item foreign key reference number.
         /// </summary>
-        private int CallingActItemFKRefno { get; set; } = 0;
+        private int CallingActItemFKRefno { get; set; }
 
         /// <summary>
-        /// Gets or sets the bar code scanner.
+        ///     Gets or sets the bar code scanner.
         /// </summary>
-        private BarCodeScanner Scanner { get; set; } = ScannerEngine.GetInstance().Scanner;
+        private BarCodeScanner Scanner { get; } = ScannerEngine.GetInstance().Scanner;
 
         /// <summary>
-        /// Gets or sets a value indicating whether the skid is new.
+        ///     Gets or sets a value indicating whether the skid is new.
         /// </summary>
         private bool IsNewSkid { get; set; } = true;
 
         /// <summary>
-        /// Gets or sets the saved skid information.
+        ///     Gets or sets the saved skid information.
         /// </summary>
         private SysSkidInfo SavedSkidInfo { get; set; } = new SysSkidInfo();
 
         /// <summary>
-        /// Gets or sets the saved location map.
+        ///     Gets or sets the saved location map.
         /// </summary>
         private SLocMap LocMap { get; set; } = new SLocMap();
 
         /// <summary>
-        /// Gets or sets the saved location map reference number.
+        ///     Gets or sets the saved location map reference number.
         /// </summary>
         private int LocMapRefno { get; set; } = 0;
 
         /// <summary>
-        /// Gets or sets the product unit reference number.
+        ///     Gets or sets the product unit reference number.
         /// </summary>
-        private int ProdUnitRefno { get; set; } = 0;
+        private int ProdUnitRefno { get; set; }
 
         /// <summary>
-        /// Gets or sets the system environment.
+        ///     Gets or sets the system environment.
         /// </summary>
-        private SysEnvironment SysEnv { get; set; } = SysEnvironment.GetInstance();
+        private SysEnvironment SysEnv { get; } = SysEnvironment.GetInstance();
 
         /// <summary>
-        /// Gets or sets a value indicating whether the bar code handler event is registered.
+        ///     Gets or sets a value indicating whether the bar code handler event is registered.
         /// </summary>
-        private bool IsBarCodeHandlerRegistered { get; set; } = false;
+        private bool IsBarCodeHandlerRegistered { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether changes have been made.
+        ///     Gets or sets a value indicating whether changes have been made.
         /// </summary>
-        private bool IsChangesMade { get; set; } = false;
+        private bool IsChangesMade { get; set; }
 
         /// <summary>
-        /// Gets or sets the skid information.
+        ///     Gets or sets the skid information.
         /// </summary>
         private SysSkidInfo SkidInfo { get; set; } = new SysSkidInfo();
 
         /// <summary>
-        /// Gets or sets the items list.
+        ///     Gets or sets the items list.
         /// </summary>
-        private ObservableCollection<string> ExtraInfoItems { get; set; } = new ObservableCollection<string>();
+        private ObservableCollection<string> ExtraInfoItems { get; } = new ObservableCollection<string>();
 
         /// <summary>
-        /// Gets or sets the main activity items list.
+        ///     Gets or sets the main activity items list.
         /// </summary>
         private ObservableCollection<object> MainActivityItems { get; set; } =
             new ObservableCollection<object>();
 
         /// <summary>
-        /// Gets or sets the activity item.
+        ///     Gets or sets the activity item.
         /// </summary>
-        private ActItem ActItem { get; set; }
+        private ActItem ActItem { get; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether is first appearance.
+        ///     Gets or sets a value indicating whether is first appearance.
         /// </summary>
         private bool IsFirstAppearance { get; set; } = true;
 
         /// <summary>
-        /// Unregister the bar code scan event handler and disable the scanner.
+        ///     Unregister the bar code scan event handler and disable the scanner.
         /// </summary>
-        /// <returns><see cref="Task"/> Task operation.</returns>
+        /// <returns><see cref="Task" /> Task operation.</returns>
         public async Task ScannerDisable()
         {
             if (this.Scanner != null)
             {
                 if (this.IsBarCodeHandlerRegistered)
                 {
-                    this.Scanner.BarCodeScan -= new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
+                    this.Scanner.BarCodeScan -= this.BarCodeHandler;
                     await this.Scanner.Stop();
                     this.IsBarCodeHandlerRegistered = false;
                 }
@@ -246,9 +247,9 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// Registers the bar code scan event handler and enables the scanner.
+        ///     Registers the bar code scan event handler and enables the scanner.
         /// </summary>
-        /// <returns><see cref="Task"/> Task operation.</returns>
+        /// <returns><see cref="Task" /> Task operation.</returns>
         public async Task ScannerEnable()
         {
             if (this.Scanner != null)
@@ -256,30 +257,16 @@ namespace dMobile.View.Activity
                 if (!this.IsBarCodeHandlerRegistered)
                 {
                     await this.Scanner.Start();
-                    this.Scanner.BarCodeScan += new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
+                    this.Scanner.BarCodeScan += this.BarCodeHandler;
                     this.IsBarCodeHandlerRegistered = true;
                 }
             }
         }
 
         /// <summary>
-        /// Registers the bar code scan event handler and enables the scanner.
+        ///     Check if the form data is in a state that can be saved.
         /// </summary>
-        /// <returns><see cref="Task"/> Task operation.</returns>
-        public async Task ScannerStart()
-        {
-            if (this.Scanner != null)
-            {
-                await this.Scanner.Start();
-                this.Scanner.BarCodeScan += new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
-                this.IsBarCodeHandlerRegistered = true;
-            }
-        }
-
-        /// <summary>
-        /// Check if the form data is in a state that can be saved.
-        /// </summary>
-        /// <returns><see cref="bool"/> True if ready to save else false.</returns>
+        /// <returns><see cref="bool" /> True if ready to save else false.</returns>
         public async Task<bool> IsReadyToSave()
         {
             var isReadyToSave = true;
@@ -301,7 +288,7 @@ namespace dMobile.View.Activity
 
             if (this.SysEnv.SysSettings.IsPickDisableMakeSkid && this.IsNewSkid &&
                 (this.CallingActSubType == SysCommon.ActSubTypes.Picking ||
-                this.CallingActSubType == SysCommon.ActSubTypes.PickingSingle))
+                 this.CallingActSubType == SysCommon.ActSubTypes.PickingSingle))
             {
                 throw new MessageOnlyException("Making a new skid has been disabled.");
             }
@@ -310,9 +297,9 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// Check if the form can be closed.
+        ///     Check if the form can be closed.
         /// </summary>
-        /// <returns><see cref="bool"/> True if the form can be closed.</returns>
+        /// <returns><see cref="bool" /> True if the form can be closed.</returns>
         public Task<bool> IsReadyToClose()
         {
             var isReadyToClose = true;
@@ -335,18 +322,9 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// Get the activity description.
+        ///     Cancel any pending form data changes.
         /// </summary>
-        /// <returns><see cref="string"/> Activity description.</returns>
-        public string GetControlDescription()
-        {
-            return "Skid Info";
-        }
-
-        /// <summary>
-        /// Cancel any pending form data changes.
-        /// </summary>
-        /// <returns><see cref="bool"/> True if the form changes where cancelled, else false.</returns>
+        /// <returns><see cref="bool" /> True if the form changes where cancelled, else false.</returns>
         public async Task<bool> CancelChanges()
         {
             var cancelChanges = true;
@@ -400,9 +378,9 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// Get the activity skid return XDocument information.
+        ///     Get the activity skid return XDocument information.
         /// </summary>
-        /// <returns><see cref="XDocument"/> Activity skid return information.</returns>
+        /// <returns><see cref="XDocument" /> Activity skid return information.</returns>
 #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
         public async Task<XDocument> GetXML()
 #pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
@@ -477,7 +455,8 @@ namespace dMobile.View.Activity
                     + "<logistic_unit_production_date>" + skidInfo.SchemeData.LogisticUnitProductionDate
                     + "</logistic_unit_production_date>"
                     + "<product_scheme_variant_no>" + skidInfo.SchemeData.VariantNumber + "</product_scheme_variant_no>"
-                    + "<product_scheme_variant_code>" + skidInfo.SchemeData.VariantCode + "</product_scheme_variant_code>"
+                    + "<product_scheme_variant_code>" + skidInfo.SchemeData.VariantCode +
+                    "</product_scheme_variant_code>"
                     + "<product_scheme_variant_description>" + skidInfo.SchemeData.VariantDescription
                     + "</product_scheme_variant_description>"
                     + "</params>");
@@ -487,9 +466,9 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// Save any activity item data changes.
+        ///     Save any activity item data changes.
         /// </summary>
-        /// <returns><see cref="bool"/> True if the save was successful, else false.</returns>
+        /// <returns><see cref="bool" /> True if the save was successful, else false.</returns>
         public async Task<bool> SaveChanges()
         {
             var saveComplete = false;
@@ -533,85 +512,112 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// Fires just before the page is displayed.
+        ///     Registers the bar code scan event handler and enables the scanner.
+        /// </summary>
+        /// <returns><see cref="Task" /> Task operation.</returns>
+        public async Task ScannerStart()
+        {
+            if (this.Scanner != null)
+            {
+                await this.Scanner.Start();
+                this.Scanner.BarCodeScan += this.BarCodeHandler;
+                this.IsBarCodeHandlerRegistered = true;
+            }
+        }
+
+        /// <summary>
+        ///     Get the activity description.
+        /// </summary>
+        /// <returns><see cref="string" /> Activity description.</returns>
+        public string GetControlDescription()
+        {
+            return "Skid Info";
+        }
+
+        /// <summary>
+        ///     Fires just before the page is displayed.
         /// </summary>
         protected override async void OnAppearing()
         {
-            base.OnAppearing();
-
-            try
+            if (!this.IsIndicatorRunning)
             {
-                this.IsPageLoading = true;
-                this.ListViewDisplayExtraInfo.ItemsSource = this.ExtraInfoItems;
-
-                if (this.IsFirstAppearance)
+                try
                 {
-                    this.IsFirstAppearance = false;
-                    await this.ScannerStart();
-                    SubscribeKeyUpHandlers();
-                    await this.InitSkidInfo();
+                    this.IsIndicatorRunning = true;
+                    base.OnAppearing();
+                    this.ListViewDisplayExtraInfo.ItemsSource = this.ExtraInfoItems;
+
+                    if (this.IsFirstAppearance)
+                    {
+                        this.IsFirstAppearance = false;
+                        await this.ScannerStart();
+                        SubscribeKeyUpHandlers();
+                        await this.InitSkidInfo();
+                    }
+
+                    ////if (!string.IsNullOrEmpty(this.txtSkidCode.Text))
+                    ////{
+                    ////    await this.SetupNewSkidFromSkidCode();
+                    ////}
+
+                    _ = await Device.InvokeOnMainThreadAsync(() =>
+                        this.BarCodeModifier1Picker.SelectedItem = this.SysEnv.CurrentBarCodeModifier1);
+
+                    await Device.InvokeOnMainThreadAsync(() => this.DisplayData());
                 }
-
-                ////if (!string.IsNullOrEmpty(this.txtSkidCode.Text))
-                ////{
-                ////    await this.SetupNewSkidFromSkidCode();
-                ////}
-
-                _ = await Device.InvokeOnMainThreadAsync(() =>
-                    this.BarCodeModifier1Picker.SelectedItem = this.SysEnv.CurrentBarCodeModifier1);
-
-                await Device.InvokeOnMainThreadAsync(() => this.DisplayData());
-            }
-            catch (CommunicationException commEx)
-            {
-                this.IsFirstAppearance = true;
-
-                // Question should a communication error, be reported as an error or just a messagebox?
-                await Device.InvokeOnMainThreadAsync(async () =>
+                catch (CommunicationException commEx)
                 {
-                    var msg = $"Unable to load skid info.{Environment.NewLine}" +
-                        $"Because of a communication problem.{Environment.NewLine}" +
-                        $"Detail:{commEx.Message}{Environment.NewLine}" +
-                        "Please exit and try again.";
+                    this.IsFirstAppearance = true;
 
-                    await Application.Current.MainPage.DisplayAlert(
-                        this.ActItem.GetControlDescription(),
-                        msg,
-                        Resource.OK);
-                });
-            }
-            catch (Exception ex)
-            {
-                this.IsFirstAppearance = true;
-                await Device.InvokeOnMainThreadAsync(async () =>
+                    // Question should a communication error, be reported as an error or just a messagebox?
+                    await Device.InvokeOnMainThreadAsync(async () =>
+                    {
+                        var msg = $"Unable to load skid info.{Environment.NewLine}" +
+                                  $"Because of a communication problem.{Environment.NewLine}" +
+                                  $"Detail:{commEx.Message}{Environment.NewLine}" +
+                                  "Please exit and try again.";
+
+                        await Application.Current.MainPage.DisplayAlert(
+                            this.ActItem.GetControlDescription(),
+                            msg,
+                            Resource.OK);
+                    });
+                }
+                catch (Exception ex)
                 {
-                    var msg = $"Unable to load skid info.{Environment.NewLine}" +
-                        $"General exception.{Environment.NewLine}" +
-                        $"Detail:{ex.Message}{Environment.NewLine}" +
-                        "Please exit and try again.";
-                    var errorReport = new FormErrorReport(msg, ex);
-                    _ = await errorReport.ShowDialog();
-                });
-            }
-            finally
-            {
-                this.IsPageLoading = false;
-                await Task.Run(() =>
+                    this.IsFirstAppearance = true;
+                    await Device.InvokeOnMainThreadAsync(async () =>
+                    {
+                        var msg = $"Unable to load skid info.{Environment.NewLine}" +
+                                  $"General exception.{Environment.NewLine}" +
+                                  $"Detail:{ex.Message}{Environment.NewLine}" +
+                                  "Please exit and try again.";
+                        var errorReport = new FormErrorReport(msg, ex);
+                        _ = await errorReport.ShowDialog();
+                    });
+                }
+                finally
                 {
-                    // Explicit GC, Xamarin forms not disposing of objects properly
-                    GC.Collect();
-                    GC.WaitForPendingFinalizers();
-                });
+                    this.IsIndicatorRunning = false;
+                    ////await Task.Run(() =>
+                    ////{
+                    ////    // Explicit GC, Xamarin forms not disposing of objects properly
+                    ////    GC.Collect();
+                    ////    GC.WaitForPendingFinalizers();
+                    ////});
+                }
             }
+
+            return;
 
             //////////////////////////////////////////////////////////////////////////
             void SubscribeKeyUpHandlers()
             {
-                MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
+                MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async keyPressed =>
                 {
                     _ = Enum.TryParse(keyPressed, out Keycode keycode);
 
-                    if (!this.IsPageLoading)
+                    if (!this.IsIndicatorRunning)
                     {
                         if (keycode == Keycode.F1)
                         {
@@ -627,10 +633,10 @@ namespace dMobile.View.Activity
                             {
                                 await this.ScannerDisable();
                                 if (await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(
-                                    this.GetControlDescription(),
-                                    "Do you wish to break this skid?",
-                                    "Yes",
-                                    "No")))
+                                        this.GetControlDescription(),
+                                        "Do you wish to break this skid?",
+                                        "Yes",
+                                        "No")))
                                 {
                                     SysSkidInfo.Break(this.SkidInfo);
 
@@ -672,9 +678,9 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// Initialize a new skid information.
+        ///     Initialize a new skid information.
         /// </summary>
-        /// <returns><see cref="Task"/> Task operation.</returns>
+        /// <returns><see cref="Task" /> Task operation.</returns>
         private async Task InitSkidInfo()
         {
             if (this.IsFirstAppearance)
@@ -759,21 +765,22 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// The OnDisappearing.
+        ///     The OnDisappearing.
         /// </summary>
         protected override async void OnDisappearing()
         {
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
             await this.ScannerDisable();
             base.OnDisappearing();
+            this.IsIndicatorRunning = false;
             GC.Collect();
             GC.WaitForPendingFinalizers();
         }
 
         /// <summary>
-        /// The OnBackButtonPressed.
+        ///     The OnBackButtonPressed.
         /// </summary>
-        /// <returns><see cref="bool"/> True.</returns>
+        /// <returns><see cref="bool" /> True.</returns>
         protected override bool OnBackButtonPressed()
         {
             var isClose = true;
@@ -793,7 +800,8 @@ namespace dMobile.View.Activity
                     {
                         if (this.IsChangesMade)
                         {
-                            if (await this.DisplayAlert("Save Changes", "Would you like to save any changes?", "Yes", "No"))
+                            if (await this.DisplayAlert("Save Changes", "Would you like to save any changes?", "Yes",
+                                    "No"))
                             {
                                 if (await this.SaveChanges())
                                 {
@@ -825,10 +833,10 @@ namespace dMobile.View.Activity
                     var msg = SysCommon.GetMessageFromMessageException(msgEx);
                     isClose = false;
                     _ = Device.InvokeOnMainThreadAsync(async () =>
-                            await Application.Current.MainPage.DisplayAlert(
-                                this.GetControlDescription(),
-                                msg,
-                                Resource.OK));
+                        await Application.Current.MainPage.DisplayAlert(
+                            this.GetControlDescription(),
+                            msg,
+                            Resource.OK));
                 }
                 catch (Exception ex)
                 {
@@ -846,7 +854,7 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// Initialize the bar code modifier items.
+        ///     Initialize the bar code modifier items.
         /// </summary>
         private void ParseAndSeedBarCodeModifier()
         {
@@ -872,14 +880,16 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// Bar code scan event handler.
+        ///     Bar code scan event handler.
         /// </summary>
-        /// <param name="sender"><see cref="object"/> Object that generated the event.</param>
-        /// <param name="scanArgs"><see cref="BarCodeScannerEventArgs"/> Sender bar code scanner
-        /// event arguments.</param>
+        /// <param name="sender"><see cref="object" /> Object that generated the event.</param>
+        /// <param name="scanArgs">
+        ///     <see cref="BarCodeScannerEventArgs" /> Sender bar code scanner
+        ///     event arguments.
+        /// </param>
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
-            if (this.IsPageLoading || scanArgs == null)
+            if (this.IsIndicatorRunning || scanArgs == null)
             {
                 return;
             }
@@ -893,7 +903,7 @@ namespace dMobile.View.Activity
             {
                 try
                 {
-                    this.IsPageLoading = true;
+                    this.IsIndicatorRunning = true;
                     ////this.IsSvdBarScannerEnabled = this.IsBarCodeHandlerRegistered;
                     await this.ScannerDisable();
 
@@ -989,7 +999,8 @@ namespace dMobile.View.Activity
                                 this.SkidInfo.CurrSkid = tempSkidInfo;
 
                                 // <issue="13609" author="RD" date="2016/02/22"/>
-                                SysShared.AssertSuppressedErrorsAgainstScheme(this.SkidInfo.CurrSkid.ProdInfo, codeParse);
+                                SysShared.AssertSuppressedErrorsAgainstScheme(this.SkidInfo.CurrSkid.ProdInfo,
+                                    codeParse);
                             }
 
                             await Device.InvokeOnMainThreadAsync(() => this.DisplayData());
@@ -1022,16 +1033,16 @@ namespace dMobile.View.Activity
                 finally
                 {
                     await this.ScannerEnable();
-                    this.IsPageLoading = false;
+                    this.IsIndicatorRunning = false;
                 }
             });
         }
 
         /// <summary>
-        /// Print skid label click event handler.
+        ///     Print skid label click event handler.
         /// </summary>
-        /// <param name="sender"><see cref="object"/> Object that generated the event.</param>
-        /// <param name="e"><see cref="EventArgs"/> Event arguments.</param>
+        /// <param name="sender"><see cref="object" /> Object that generated the event.</param>
+        /// <param name="e"><see cref="EventArgs" /> Event arguments.</param>
         private async void PictureBoxPrintLabel_Click(object sender, EventArgs e)
         {
             try
@@ -1043,10 +1054,10 @@ namespace dMobile.View.Activity
                     await Device.InvokeOnMainThreadAsync(() => this.DisplayData());
 
                     if (await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(
-                        this.GetControlDescription(),
-                        "Print skid label?",
-                        "Yes",
-                        "No")))
+                            this.GetControlDescription(),
+                            "Print skid label?",
+                            "Yes",
+                            "No")))
                     {
                         SysSkidInfo.PrintLabel(this.SkidInfo);
                     }
@@ -1073,9 +1084,9 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// Perform save skid information.
+        ///     Perform save skid information.
         /// </summary>
-        /// <returns><see cref="Task"/> Task operation.</returns>
+        /// <returns><see cref="Task" /> Task operation.</returns>
         private async Task SaveSkid()
         {
             if (this.IsChangesMade)
@@ -1091,7 +1102,8 @@ namespace dMobile.View.Activity
                 tempSkidInfo.Hi = string.IsNullOrEmpty(this.txtHi.Text) ? 0 : int.Parse(this.txtHi.Text);
                 tempSkidInfo.Ti = string.IsNullOrEmpty(this.txtTi.Text) ? 0 : int.Parse(this.txtTi.Text);
                 tempSkidInfo.Cube = string.IsNullOrEmpty(this.txtCube.Text) ? 0 : decimal.Parse(this.txtCube.Text);
-                tempSkidInfo.Height = string.IsNullOrEmpty(this.txtHeight.Text) ? 0 : decimal.Parse(this.txtHeight.Text);
+                tempSkidInfo.Height =
+                    string.IsNullOrEmpty(this.txtHeight.Text) ? 0 : decimal.Parse(this.txtHeight.Text);
                 tempSkidInfo.IsPutAway = this.chkIsPutAway.IsToggled;
                 tempSkidInfo.LocMap = this.LocMap.Clone();
                 tempSkidInfo.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(this.ProdUnitRefno);
@@ -1116,7 +1128,7 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// Enable all form controls.
+        ///     Enable all form controls.
         /// </summary>
         private void EnableControls()
         {
@@ -1142,7 +1154,7 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// Disable the form controls.
+        ///     Disable the form controls.
         /// </summary>
         private void DisableControls()
         {
@@ -1167,7 +1179,7 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// Display data.
+        ///     Display data.
         /// </summary>
         private void DisplayData()
         {
@@ -1237,10 +1249,10 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// Set location click event handler.
+        ///     Set location click event handler.
         /// </summary>
-        /// <param name="sender"><see cref="object"/> Object that generated the event.</param>
-        /// <param name="e"><see cref="EventArgs"/> Event arguments.</param>
+        /// <param name="sender"><see cref="object" /> Object that generated the event.</param>
+        /// <param name="e"><see cref="EventArgs" /> Event arguments.</param>
         private async void CmdLocation_Click(object sender, EventArgs e)
         {
             try
@@ -1257,7 +1269,7 @@ namespace dMobile.View.Activity
                     SysCommon.ActSubTypes.NotApplicable);
 
                 if (await Device.InvokeOnMainThreadAsync(async () =>
-                    await form.DisplayControl.ShowDialog() == DialogResult.OK))
+                        await form.DisplayControl.ShowDialog() == DialogResult.OK))
                 {
                     this.LocMap = LocationMap.GetInstance().ChosenLocMap.Clone();
                     var tempSkidInfo = this.SkidInfo.CurrSkid;
@@ -1290,15 +1302,15 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// Skid detail click event handler.
+        ///     Skid detail click event handler.
         /// </summary>
-        /// <param name="sender"><see cref="object"/> Object that generated the event.</param>
-        /// <param name="e"><see cref="EventArgs"/> Event arguments.</param>
+        /// <param name="sender"><see cref="object" /> Object that generated the event.</param>
+        /// <param name="e"><see cref="EventArgs" /> Event arguments.</param>
         private async void CmdDetail_Click(object sender, EventArgs e)
         {
             try
             {
-                this.IsPageLoading = true;
+                this.IsIndicatorRunning = true;
                 await this.ScannerDisable();
 
                 if (this.SkidInfo.CurrSkid.SkidFKRefno == 0)
@@ -1339,10 +1351,10 @@ namespace dMobile.View.Activity
                     this.CallingActSubType);
 
                 if (await Device.InvokeOnMainThreadAsync(
-                    async () => await form.DisplayControl.ShowDialog() == DialogResult.OK))
+                        async () => await form.DisplayControl.ShowDialog() == DialogResult.OK))
                 {
                     var xmlDoc = await form.GetXML();
-                    this.IsPageLoading = true;
+                    this.IsIndicatorRunning = true;
                     this.IsChangesMade = false;
 
                     if (this.SkidInfo.CurrSkid.IsConsumed)
@@ -1371,15 +1383,15 @@ namespace dMobile.View.Activity
             finally
             {
                 await this.ScannerEnable();
-                this.IsPageLoading = false;
+                this.IsIndicatorRunning = false;
             }
         }
 
         /// <summary>
-        /// Complete the skid click event handler.
+        ///     Complete the skid click event handler.
         /// </summary>
-        /// <param name="sender"><see cref="object"/> Object that generated the event.</param>
-        /// <param name="e"><see cref="EventArgs"/> Event arguments.</param>
+        /// <param name="sender"><see cref="object" /> Object that generated the event.</param>
+        /// <param name="e"><see cref="EventArgs" /> Event arguments.</param>
         private async void CmdComplete_Click(object sender, EventArgs e)
         {
             try
@@ -1409,15 +1421,15 @@ namespace dMobile.View.Activity
             finally
             {
                 await this.ScannerEnable();
-                this.IsPageLoading = false;
+                this.IsIndicatorRunning = false;
             }
         }
 
         /// <summary>
-        /// Select the skid product click event handler.
+        ///     Select the skid product click event handler.
         /// </summary>
-        /// <param name="sender"><see cref="object"/> Object that generated the event.</param>
-        /// <param name="e"><see cref="EventArgs"/> Event arguments.</param>
+        /// <param name="sender"><see cref="object" /> Object that generated the event.</param>
+        /// <param name="e"><see cref="EventArgs" /> Event arguments.</param>
         private async void CmdSkidProduct_Click(object sender, EventArgs e)
         {
             try
@@ -1473,15 +1485,15 @@ namespace dMobile.View.Activity
             finally
             {
                 await this.ScannerEnable();
-                this.IsPageLoading = false;
+                this.IsIndicatorRunning = false;
             }
         }
 
         /// <summary>
-        /// The IdentifyChangesMade.
+        ///     The IdentifyChangesMade.
         /// </summary>
-        /// <param name="sender"><see cref="object"/> Object that generated the event.</param>
-        /// <param name="e"><see cref="TextChangedEventArgs"/> Text changed event arguments.</param>
+        /// <param name="sender"><see cref="object" /> Object that generated the event.</param>
+        /// <param name="e"><see cref="TextChangedEventArgs" /> Text changed event arguments.</param>
         private void IdentifyChangesMade(object sender, TextChangedEventArgs e)
         {
             try
@@ -1489,7 +1501,7 @@ namespace dMobile.View.Activity
                 ////Device.BeginInvokeOnMainThread(async () => await this.ScannerDisable());
 
                 // Set as changed only after form has been loaded.
-                if (!this.IsPageLoading)
+                if (!this.IsIndicatorRunning)
                 {
                     if (sender == this.txtSkidCode && e.NewTextValue != e.OldTextValue)
                     {
@@ -1540,10 +1552,10 @@ namespace dMobile.View.Activity
                 // Allow the validation to handle the setting for IsChangesMade.
                 ////this.IsChangesMade = false;
                 _ = Device.InvokeOnMainThreadAsync(async () =>
-                      await Application.Current.MainPage.DisplayAlert(
-                          this.GetControlDescription(),
-                          msg,
-                          Resource.OK));
+                    await Application.Current.MainPage.DisplayAlert(
+                        this.GetControlDescription(),
+                        msg,
+                        Resource.OK));
             }
             catch (Exception ex)
             {
@@ -1555,13 +1567,8 @@ namespace dMobile.View.Activity
                     _ = await errRpt.ShowDialog();
                 });
             }
-            finally
-            {
-                ////if (this.IsSvdBarScannerEnabled)
-                ////{
-                ////    Device.BeginInvokeOnMainThread(async () => await this.ScannerEnable());
-                ////}
-            }
+
+            return;
 
             //////////////////////////////////////////////////////////////////////////
             async void ValidateEntry(object sender, CancelEventArgs e)
@@ -1629,19 +1636,19 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// Bar code modifier selected item changed event handler.
+        ///     Bar code modifier selected item changed event handler.
         /// </summary>
-        /// <param name="sender"><see cref="object"/> Sender object.</param>
-        /// <param name="e"><see cref="EventArgs"/> Event arguments.</param>
+        /// <param name="sender"><see cref="object" /> Sender object.</param>
+        /// <param name="e"><see cref="EventArgs" /> Event arguments.</param>
         private void UpdnBarCodeModifier1_SelectedItemChanged(object sender, EventArgs e)
         {
             this.SysEnv.CurrentBarCodeModifier1 = Convert.ToString(this.BarCodeModifier1Picker.SelectedItem);
         }
 
         /// <summary>
-        /// Setup a new skid from skid code or assigned from.
+        ///     Setup a new skid from skid code or assigned from.
         /// </summary>
-        /// <returns><see cref="Task"/> Task operation.</returns>
+        /// <returns><see cref="Task" /> Task operation.</returns>
         private async Task SetupNewSkidFromSkidCode()
         {
             // SkidInfo may be a new skid, skid numbers can be created from the comm server.
@@ -1663,10 +1670,10 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// The txtSkidCode_KeyUpEnter.
+        ///     The txtSkidCode_KeyUpEnter.
         /// </summary>
-        /// <param name="sender"><see cref="object"/> Sender object.</param>
-        /// <param name="e"><see cref="KeyEventArgs"/> Key event arguments.</param>
+        /// <param name="sender"><see cref="object" /> Sender object.</param>
+        /// <param name="e"><see cref="KeyEventArgs" /> Key event arguments.</param>
         private async void TxtSkidCode_KeyUpEnter(object sender, KeyEventArgs e)
         {
             try
@@ -1700,9 +1707,9 @@ namespace dMobile.View.Activity
             {
                 var msg = SysCommon.GetMessageFromMessageException(msgEx);
                 await Application.Current.MainPage.DisplayAlert(
-                        this.GetControlDescription(),
-                        msg,
-                        Resource.OK);
+                    this.GetControlDescription(),
+                    msg,
+                    Resource.OK);
             }
             catch (Exception ex)
             {
@@ -1718,6 +1725,8 @@ namespace dMobile.View.Activity
                 }
             }
 
+            return;
+
             //////////////////////////////////////////////////////////////////////////
             async Task SetupNewSkid()
             {
@@ -1729,6 +1738,8 @@ namespace dMobile.View.Activity
                 {
                     await this.SetupNewSkidFromSkidCode();
                 }
+
+                return;
 
                 //////////////////////////////////////////////////////////////////////////
                 void SetupNewSkid()
@@ -1742,10 +1753,10 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// The cmdNewSkid_Click.
+        ///     The cmdNewSkid_Click.
         /// </summary>
-        /// <param name="sender"><see cref="object"/> Sender object.</param>
-        /// <param name="e"><see cref="EventArgs"/> Event arguments.</param>
+        /// <param name="sender"><see cref="object" /> Sender object.</param>
+        /// <param name="e"><see cref="EventArgs" /> Event arguments.</param>
         private async void CmdNewSkid_Click(object sender, EventArgs e)
         {
             try
@@ -1773,9 +1784,9 @@ namespace dMobile.View.Activity
                     await this.SaveSkid();
                     this.IsNewSkid = false;
                     await Application.Current.MainPage.DisplayAlert(
-                            this.GetControlDescription(),
-                            "Skid created in DTEC.",
-                            Resource.OK);
+                        this.GetControlDescription(),
+                        "Skid created in DTEC.",
+                        Resource.OK);
                 }
                 else
                 {
@@ -1787,9 +1798,9 @@ namespace dMobile.View.Activity
             {
                 var msg = SysCommon.GetMessageFromMessageException(msgEx);
                 await Application.Current.MainPage.DisplayAlert(
-                        this.GetControlDescription(),
-                        msg,
-                        Resource.OK);
+                    this.GetControlDescription(),
+                    msg,
+                    Resource.OK);
             }
             catch (Exception ex)
             {
@@ -1805,10 +1816,10 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// The txtSkidCode_Completed.
+        ///     The txtSkidCode_Completed.
         /// </summary>
-        /// <param name="sender"><see cref="object"/> Sender object.</param>
-        /// <param name="e"><see cref="EventArgs"/> Event arguments.</param>
+        /// <param name="sender"><see cref="object" /> Sender object.</param>
+        /// <param name="e"><see cref="EventArgs" /> Event arguments.</param>
         private void TxtSkidCode_Completed(object sender, EventArgs e)
         {
             this.TxtSkidCode_KeyUpEnter(sender, new KeyEventArgs(
@@ -1818,20 +1829,20 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// The BarCodeModifier1Picker_SelectedIndexChanged.
+        ///     The BarCodeModifier1Picker_SelectedIndexChanged.
         /// </summary>
-        /// <param name="sender"><see cref="object"/> Sender object.</param>
-        /// <param name="e"><see cref="EventArgs"/> Event arguments.</param>
+        /// <param name="sender"><see cref="object" /> Sender object.</param>
+        /// <param name="e"><see cref="EventArgs" /> Event arguments.</param>
         private void UpdnBarCodeModifier1_SelectedIndexChanged(object sender, EventArgs e)
         {
             this.IdentifyChangesMade(sender, new TextChangedEventArgs(string.Empty, string.Empty));
         }
 
         /// <summary>
-        /// The chkIsPutAway_Toggled.
+        ///     The chkIsPutAway_Toggled.
         /// </summary>
-        /// <param name="sender"><see cref="object"/> Sender object.</param>
-        /// <param name="e"><see cref="EventArgs"/> Event arguments.</param>
+        /// <param name="sender"><see cref="object" /> Sender object.</param>
+        /// <param name="e"><see cref="EventArgs" /> Event arguments.</param>
         private void ChkIsPutAway_Toggled(object sender, ToggledEventArgs e)
         {
             this.IdentifyChangesMade(sender, new TextChangedEventArgs(string.Empty, string.Empty));

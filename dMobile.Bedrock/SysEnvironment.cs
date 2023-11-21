@@ -87,8 +87,6 @@ namespace dMobile.Bedrock
         {
         }
 
-        // PROPERTIES
-
         /// <summary>
         /// Gets or sets the current bar code modifier.
         /// </summary>
@@ -279,6 +277,16 @@ namespace dMobile.Bedrock
 
             set => isWindowsMobile6Device = value;
         }
+
+        /// <summary>
+        /// Gets or sets the inserted detail reference number.
+        /// </summary>
+        public int InsertedDetailRefno { get; set; }
+
+        /// <summary>
+        /// Gets or sets the inserted detail foreign key reference number.
+        /// </summary>
+        public int InsertedDetailFkRefno { get; set; }
 
         // METHODS
 

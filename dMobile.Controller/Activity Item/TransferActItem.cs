@@ -314,6 +314,7 @@ namespace dMobile.Controller.Activity_Item
 
             await InsertActivityItemInTables(prodUnitRefno);
             AddActivityItemToList(prodUnitRefno);
+            return;
 
             //////////////////////////////////////////////////////////////////////////
             async Task InsertActivityItemInTables(int prodUnitRefno)

@@ -34,7 +34,7 @@ namespace dMobile.View.Views
         public SelectProductUnit()
         {
             this.InitializeComponent();
-            this.IsPageLoading = false;
+            this.IsIndicatorRunning = false;
         }
 
         /// <summary>
@@ -45,7 +45,7 @@ namespace dMobile.View.Views
         {
             this.InitializeComponent();
 
-            this.IsPageLoading = false;
+            this.IsIndicatorRunning = false;
             this.Title = this.GetControlDescription();
             this.lblSearch.Text = "Search";
             this.lblProductDescription.Text = string.Empty;
@@ -68,7 +68,7 @@ namespace dMobile.View.Views
         {
             this.InitializeComponent();
 
-            this.IsPageLoading = false;
+            this.IsIndicatorRunning = false;
             this.Title = this.GetControlDescription();
             this.lblSearch.Text = "Search";
             this.lblProductDescription.Text = string.Empty;
@@ -409,11 +409,11 @@ namespace dMobile.View.Views
         /// </summary>
         protected override async void OnAppearing()
         {
-            if (!this.IsPageLoading)
+            if (!this.IsIndicatorRunning)
             {
                 try
                 {
-                    this.IsPageLoading = true;
+                    this.IsIndicatorRunning = true;
                     base.OnAppearing();
                     await Task.Run(async () => { await this.LoadData(); });
                     if (this.IsFirstAppearance)
@@ -448,7 +448,7 @@ namespace dMobile.View.Views
                 finally
                 {
                     await this.ScannerEnable();
-                    this.IsPageLoading = false;
+                    this.IsIndicatorRunning = false;
                     ////await Task.Run(() =>
                     ////{
                     ////    // Explicit GC, Xamarin forms not disposing of objects properly
@@ -457,6 +457,8 @@ namespace dMobile.View.Views
                     ////});
                 }
             }
+
+            return;
 
             //////////////////////////////////////////////////////////////////////////
             // Registers the bar code scan event handler and enables the scanner.
@@ -511,6 +513,7 @@ namespace dMobile.View.Views
         {
             SubscribeKeyUpHandlers();
             await this.ScannerEnable();
+            return;
 
             void SubscribeKeyUpHandlers()
             {
@@ -775,7 +778,7 @@ namespace dMobile.View.Views
         /// <remarks></remarks>
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
-            if (this.IsPageLoading || scanArgs == null)
+            if (this.IsIndicatorRunning || scanArgs == null)
             {
                 return;
             }

@@ -183,12 +183,11 @@ namespace dMobile.Controller.Activity_Detail
             }
 
             // In order to support base tracking the DetailFKRefno is the itm_refno rather than the serial.refno.
-            var foundIdx = this.FindListDetailIndex(this.DetailFkRefno);
-            if (foundIdx < 0)
+            this.DetailRefno = this.FindListDetailRefno(this.DetailFkRefno);
+            if (this.DetailRefno < 0)
             {
                 this.DetailRefno = await this.InsertDetailIntoTablesDetail();
-                var query =
-                    "INSERT INTO tActivityDetailProductionByProduct (ActivityDetailRefno, ActivityDetailFKRefno) VALUES (?, ?)";
+                const string query = "INSERT INTO tActivityDetailProductionByProduct (ActivityDetailRefno, ActivityDetailFKRefno) VALUES (?, ?)";
                 var rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
                     query,
                     Convert.ToInt32(this.DetailRefno),
@@ -198,6 +197,10 @@ namespace dMobile.Controller.Activity_Detail
                     throw new Exception("Unable to insert activity detail in disconnected mode.");
                 }
             }
+
+            // KLUDGE: Save the new detail reference number's to be restored.
+            this.SysEnv.InsertedDetailRefno = this.DetailRefno;
+            this.SysEnv.InsertedDetailFkRefno = this.DetailFkRefno;
         }
 
         /// <summary>
@@ -271,36 +274,21 @@ namespace dMobile.Controller.Activity_Detail
                     if (this.ActItem.SelectedItem is ProductionTicketByProductItem item)
                     {
                         item.ActivityItemFKRefno = this.ActItem.ItemFkRefno;
-                    }
+                        item.ActivityItemStringFKRefno = this.ActItem.ItemFkRefno.ToString();
 
-                    this.ActItem.ActStatus = SysCommon.ActStatus.NoChange;
-
-                    rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
-                        "UPDATE tActivityItem SET ActivityItemStatus = ? WHERE ActivityItemRefno = ?",
-                        Convert.ToInt32(SysCommon.ActStatus.NoChange),
-                        this.ActItem.ItemRefno);
-
-                    if (rowsAffected < 0)
-                    {
-                        throw new Exception(
-                            "Unable to locate and update the activity line item with a new foreign" +
-                            " key upon inserting.");
-                    }
-
-                    if (selectedActivityDetail is ProductionTicketByProductDetail selectedInserted)
-                    {
-                        selectedInserted.ActivityDetailFKRefno = this.DetailFkRefno;
-                        selectedInserted.ActivityDetailStatus = Convert.ToInt32(SysCommon.ActStatus.NoChange);
-                    }
-
-                    rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
-                        "UPDATE tActivityDetail SET ActivityDetailStatus = ? WHERE ActivityDetailRefno = ?",
-                        Convert.ToInt32(SysCommon.ActStatus.NoChange),
-                        this.DetailRefno);
-
-                    if (rowsAffected < 0)
-                    {
-                        throw new Exception("Unable to locate and update the activity detail status to no change.");
+                        rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
+                            "UPDATE tActivityDetailProductionByProduct SET ActivityItemFKRefno = ?" +
+                            ",ActivityItemStringFKRefno = ?" +
+                            " WHERE ActivityItemRefno = ?",
+                            item.ActivityItemFKRefno,
+                            item.ActivityItemStringFKRefno,
+                            this.ActItem.ItemRefno);
+                        if (rowsAffected < 0)
+                        {
+                            throw new Exception(
+                                "Unable to locate and update the production ticket by product activity line item" +
+                                " with a new foreign key upon inserting.");
+                        }
                     }
 
                     break;
@@ -332,6 +320,57 @@ namespace dMobile.Controller.Activity_Detail
                     rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
                         "UPDATE tActivityDetail SET ActivityDetailStatus = ? WHERE ActivityDetailRefno = ?",
                         Convert.ToInt32(SysCommon.ActStatus.NoChange),
+                        this.DetailRefno);
+
+                    if (rowsAffected < 0)
+                    {
+                        throw new Exception("Unable to locate and update the activity detail status to no change.");
+                    }
+
+                    break;
+
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+
+            switch (this.ActStatus)
+            {
+                case SysCommon.ActStatus.NoChange:
+                    break;
+
+                case SysCommon.ActStatus.Inserted:
+
+                    // Submit occurs before adding the data to the tables.
+                    this.DetailFkRefno = int.Parse(xmlDoc.DocumentElement["ser_refno"] !.InnerText);
+                    break;
+
+                case SysCommon.ActStatus.Updated:
+                    if (selectedActivityDetail is AdjustmentDetail selectedUpdated)
+                    {
+                        selectedUpdated.ActivityDetailStatus = Convert.ToInt32(SysCommon.ActStatus.Updated);
+                    }
+
+                    rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
+                        "UPDATE tActivityDetail SET ActivityDetailStatus = ? WHERE ActivityDetailRefno = ?",
+                        Convert.ToInt32(SysCommon.ActStatus.Updated),
+                        this.DetailRefno);
+
+                    if (rowsAffected < 0)
+                    {
+                        throw new Exception("Unable to locate and update the activity detail status to no change.");
+                    }
+
+                    break;
+
+                case SysCommon.ActStatus.Deleted:
+                    if (selectedActivityDetail is AdjustmentDetail selectedDeleted)
+                    {
+                        selectedDeleted.ActivityDetailStatus = Convert.ToInt32(SysCommon.ActStatus.Deleted);
+                    }
+
+                    rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
+                        "UPDATE tActivityDetail SET ActivityDetailStatus = ? WHERE ActivityDetailRefno = ?",
+                        Convert.ToInt32(SysCommon.ActStatus.Deleted),
                         this.DetailRefno);
 
                     if (rowsAffected < 0)
@@ -840,9 +879,8 @@ namespace dMobile.Controller.Activity_Detail
         public override ObservableCollection<object> Search(string searchText)
         {
             var observableCollection = new ObservableCollection<object>();
-            this.ListDetails = this.ListProductionTicketByProductDetail.Where(productionTicketByProductDetail =>
-            productionTicketByProductDetail.ActivityDetailFKRefno.ToString().ToLower().
-            Contains(searchText.ToLower().Trim())).Cast<object>().ToList();
+            this.ListDetails = this.ListProductionTicketByProductDetail.Where(adjDetail =>
+                adjDetail.ActivityDetailSchemeID.ToUpper().Contains(searchText.ToUpper().Trim())).Cast<object>().ToList();
 
             foreach (ProductionTicketByProductDetail productionTicketByProductDetail in this.ListDetails)
             {
@@ -1002,27 +1040,28 @@ namespace dMobile.Controller.Activity_Detail
         /// <summary>
         /// Find or insert an activity detail into the list details.
         /// </summary>
-        /// <param name="mainActivityItems"><see cref="ObservableCollection{object}"/> Main activity items.</param>
         /// <returns><see cref="ActivityDetail"/> Activity detail.</returns>
-        public override ActivityDetail InsertListDetail(ObservableCollection<object> mainActivityItems)
+        public override ActivityDetail GatherDetail()
         {
             ProductionTicketByProductDetail detail = null;
             if (this.ListDetails != null)
             {
-                detail = new ProductionTicketByProductDetail();
-                detail.ActivityDetailRefno = this.DetailRefno;
-                detail.ActivityDetailFKRefno = this.DetailFkRefno;
+                detail = new ProductionTicketByProductDetail
+                {
+                    // KLUDGE: Restore the new detail reference number's that got over written somehow.
+                    ActivityDetailRefno = this.SysEnv.InsertedDetailRefno,
+                    ActivityDetailFKRefno = this.SysEnv.InsertedDetailFkRefno,
+                };
 
-                this.InsertListDetailProduct(detail);
-                this.InsertListDetailQuantity(detail);
-                this.InsertListDetailScheme(detail);
-                this.InsertListDetailExtra(detail);
-                this.InsertListDetailLocation(detail);
+                this.GatherProductDetail(detail);
+                this.GatherQuantityDetail(detail);
+                this.GatherSchemeDetail(detail);
+                this.GatherExtraDetail(detail);
+                this.GatherLocationDetail(detail);
 
                 detail.ActivityDetailSchemeID = this.SchemeId;
                 detail.ActivityDetailUniqueSchemeID = this.UniqueSchemeId;
                 detail.ActivityDetailStatus = (int)SysCommon.ActStatus.Inserted;
-                this.ListDetails.Add(detail);
             }
 
             return detail;
@@ -1035,11 +1074,6 @@ namespace dMobile.Controller.Activity_Detail
         public override void UpdateListDetail(int listDetailIdx)
         {
             var detail = (ProductionTicketByProductDetail)this.ListDetails[listDetailIdx];
-            if (detail.ActivityDetailStatus == (int)SysCommon.ActStatus.NoChange)
-            {
-                detail.ActivityDetailStatus = (int)SysCommon.ActStatus.Updated;
-            }
-
             detail.ActivityDetailQuantity += Math.Round(this.Quantity, 3);
             detail.ActivityDetailBaseQuantity += Math.Round(this.BaseQuantity, 3);
             detail.ActivityDetailWeightQuantity += Math.Round(this.WeightQuantity, 3);

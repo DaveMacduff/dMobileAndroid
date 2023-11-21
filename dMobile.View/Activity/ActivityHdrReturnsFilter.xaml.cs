@@ -7,33 +7,31 @@ namespace dMobile.View.Activity
     using System;
     using System.Collections;
     using System.Collections.Generic;
-    using System.ComponentModel;
-    using System.Linq;
-    using System.Text;
     using System.Threading.Tasks;
     using System.Xml.Linq;
     using Android.Views;
-    using dMobile.Bedrock;
-    using dMobile.Resources.Enums;
-    using dMobile.Resources.Types;
-    using dMobile.View.CustomPages.Modal;
-    using dMobile.View.Forms;
+    using Bedrock;
+    using CustomPages.Modal;
+    using Forms;
+    using Resources.Enums;
+    using Resources.Types;
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;
-    using Resource = dMobile.Resources.Properties.Resources;
+    using Resource = Resources.Properties.Resources;
 
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class ActivityHdrReturnsFilter : DMobileModal, IAppArea
     {
-        private Dictionary<string, Sort> filters = new Dictionary<string, Sort>();
+        private readonly Dictionary<string, Sort> filters = new Dictionary<string, Sort>();
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ActivityHdrReturnsFilter"/> class.
+        ///     Initializes a new instance of the <see cref="ActivityHdrReturnsFilter" /> class.
         /// </summary>
         public ActivityHdrReturnsFilter()
         {
             this.InitializeComponent();
 
+            this.IsIndicatorRunning = false;
             this.Title = this.GetControlDescription();
             this.lblApplyReturnedDate.Text = "Apply Returned Date Filter";
             this.lblReturnedDate.Text = "Returned";
@@ -80,91 +78,29 @@ namespace dMobile.View.Activity
             this.cboSortBy3.SelectedIndex = this.RetSettings.iSortBy3Index;
 
             this.filters.Add(string.Empty, null);
-            this.filters.Add("Order # Ascending", new Sort() { SortValue = "ActivityFKRefno", SortOrder = SortOrder.ASC });
-            this.filters.Add("Order # Descending", new Sort() { SortValue = "ActivityFKRefno", SortOrder = SortOrder.DESC });
-            this.filters.Add("Entered Date Ascending", new Sort() { SortValue = "ActivityReturnsOrderedDateTime", SortOrder = SortOrder.ASC });
-            this.filters.Add("Entered Date Descending", new Sort() { SortValue = "ActivityReturnsOrderedDateTime", SortOrder = SortOrder.DESC });
-            this.filters.Add("Returned Ascending", new Sort() { SortValue = "ActivityReturnsDeliveryDateTime", SortOrder = SortOrder.ASC });
-            this.filters.Add("Returned Descending", new Sort() { SortValue = "ActivityReturnsDeliveryDateTime", SortOrder = SortOrder.DESC });
+            this.filters.Add("Order # Ascending", new Sort
+                { SortValue = "ActivityFKRefno", SortOrder = SortOrder.ASC });
+            this.filters.Add("Order # Descending", new Sort
+                { SortValue = "ActivityFKRefno", SortOrder = SortOrder.DESC });
+            this.filters.Add("Entered Date Ascending", new Sort
+                { SortValue = "ActivityReturnsOrderedDateTime", SortOrder = SortOrder.ASC });
+            this.filters.Add("Entered Date Descending", new Sort
+                { SortValue = "ActivityReturnsOrderedDateTime", SortOrder = SortOrder.DESC });
+            this.filters.Add("Returned Ascending", new Sort
+                { SortValue = "ActivityReturnsDeliveryDateTime", SortOrder = SortOrder.ASC });
+            this.filters.Add("Returned Descending", new Sort
+                { SortValue = "ActivityReturnsDeliveryDateTime", SortOrder = SortOrder.DESC });
         }
 
-        /// <summary>
-        /// The OnAppearing.
-        /// </summary>
-        protected override async void OnAppearing()
-        {
-            base.OnAppearing();
+        private ArrayList SortBy1 { get; } = new ArrayList();
 
-            MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
-            {
-                _ = Enum.TryParse(keyPressed, out Keycode keycode);
+        private ArrayList SortBy2 { get; } = new ArrayList();
 
-                if (!this.IsPageLoading)
-                {
-                    if (keycode == Keycode.F1)
-                    {
-                        if (await this.SaveChanges())
-                        {
-                            this.DialogResult = DialogResult.OK;
-                            await this.Close();
-                        }
-                    }
-                }
-            });
-
-            try
-            {
-                this.ucActivityReturnsFilter_GotFocus(this, EventArgs.Empty);
-            }
-            catch (Exception ex)
-            {
-                await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert("Error", "this.ucActivityReturnsFilter_GotFocus threw an error " + ex, "OK"));
-            }
-        }
-
-        /// <summary>
-        /// The OnDisappearing.
-        /// </summary>
-        protected override async void OnDisappearing()
-        {
-            MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
-            await this.ScannerDisable();
-            base.OnDisappearing();
-            GC.Collect();
-            GC.WaitForPendingFinalizers();
-        }
-
-        /// <inheritdoc/>
-        protected override bool OnBackButtonPressed()
-        {
-            Device.BeginInvokeOnMainThread(async () =>
-            {
-                _ = base.OnBackButtonPressed();
-
-                if (await this.SaveChanges())
-                {
-                    this.DialogResult = DialogResult.OK;
-                    await this.Close();
-                }
-                else if (await this.CancelChanges())
-                {
-                    this.DialogResult = DialogResult.None;
-                    await this.Close();
-                }
-            });
-
-            return true;
-        }
-
-        private ArrayList SortBy1 { get; set; } = new ArrayList();
-
-        private ArrayList SortBy2 { get; set; } = new ArrayList();
-
-        private ArrayList SortBy3 { get; set; } = new ArrayList();
+        private ArrayList SortBy3 { get; } = new ArrayList();
 
         private bool IsEnterTrapped { get; set; } = false;
 
-        private bool IsControlLoaded { get; set; } = false;
+        private bool IsControlLoaded { get; set; }
 
         private ReturnsSettings RetSettings { get; set; } = new ReturnsSettings();
 
@@ -172,12 +108,12 @@ namespace dMobile.View.Activity
 
         private string FullClassName { get; set; } = "dMobile.ucActivityHdrReturnsFilter";
 
-        private bool IsChangesMade { get; set; } = false;
+        private bool IsChangesMade { get; set; }
 
-        private SysCommon.ActSubTypes ActSubType { get; set; } = SysCommon.ActSubTypes.Returns;
+        private SysCommon.ActSubTypes ActSubType { get; } = SysCommon.ActSubTypes.Returns;
 
         /// <summary>
-        /// Unregister the bar code scan event handler and disable the scanner.
+        ///     Unregister the bar code scan event handler and disable the scanner.
         /// </summary>
         /// <remarks></remarks>
         public async Task ScannerDisable()
@@ -185,7 +121,7 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// Registers the bar code scan event handler and enables the scanner.
+        ///     Registers the bar code scan event handler and enables the scanner.
         /// </summary>
         /// <remarks></remarks>
         public async Task ScannerEnable()
@@ -193,11 +129,10 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        ///
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public async Task<bool> IsReadyToSave()
         {
             var isReadyToSave = false;
@@ -231,11 +166,10 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        ///
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public async Task<bool> IsReadyToClose()
         {
             var isReadyToClose = true;
@@ -279,21 +213,10 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        ///
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        public string GetControlDescription()
-        {
-            return "Returns Filter";
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public async Task<bool> SaveChanges()
         {
             var saveComplete = false;
@@ -359,11 +282,10 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        ///
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public async Task<bool> CancelChanges()
         {
             var cancelChanges = true;
@@ -423,11 +345,10 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        ///
         /// </summary>
         /// <returns></returns>
         /// <remarks></remarks>
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public async Task<XDocument> GetXML()
         {
             var request = XDocument.Parse(
@@ -442,7 +363,93 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        ///
+        ///     The OnAppearing.
+        /// </summary>
+        protected override async void OnAppearing()
+        {
+            if (!this.IsIndicatorRunning)
+            {
+                try
+                {
+                    this.IsIndicatorRunning = true;
+                    base.OnAppearing();
+
+                    MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async keyPressed =>
+                    {
+                        _ = Enum.TryParse(keyPressed, out Keycode keycode);
+
+                        if (!this.IsIndicatorRunning)
+                        {
+                            if (keycode == Keycode.F1)
+                            {
+                                if (await this.SaveChanges())
+                                {
+                                    this.DialogResult = DialogResult.OK;
+                                    await this.Close();
+                                }
+                            }
+                        }
+                    });
+
+                    this.ucActivityReturnsFilter_GotFocus(this, EventArgs.Empty);
+                }
+                catch (Exception ex)
+                {
+                    await Device.InvokeOnMainThreadAsync(async () =>
+                        await this.DisplayAlert("Error", "this.ucActivityReturnsFilter_GotFocus threw an error " + ex,
+                            "OK"));
+                }
+                finally
+                {
+                    this.IsIndicatorRunning = false;
+                }
+            }
+        }
+
+        /// <summary>
+        ///     The OnDisappearing.
+        /// </summary>
+        protected override async void OnDisappearing()
+        {
+            MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
+            await this.ScannerDisable();
+            base.OnDisappearing();
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+        }
+
+        /// <inheritdoc />
+        protected override bool OnBackButtonPressed()
+        {
+            Device.BeginInvokeOnMainThread(async () =>
+            {
+                _ = base.OnBackButtonPressed();
+
+                if (await this.SaveChanges())
+                {
+                    this.DialogResult = DialogResult.OK;
+                    await this.Close();
+                }
+                else if (await this.CancelChanges())
+                {
+                    this.DialogResult = DialogResult.None;
+                    await this.Close();
+                }
+            });
+
+            return true;
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <returns></returns>
+        /// <remarks></remarks>
+        public string GetControlDescription()
+        {
+            return "Returns Filter";
+        }
+
+        /// <summary>
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -467,7 +474,6 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        ///
         /// </summary>
         /// <remarks></remarks>
         private void MakeSQLSortBy()
@@ -479,7 +485,8 @@ namespace dMobile.View.Activity
             {
                 this.RetSettings.SortBy2Value = this.filters[this.cboSortBy2.Items[this.cboSortBy2.SelectedIndex]];
 
-                if (this.RetSettings.SortBy2Value != null && !string.IsNullOrEmpty(this.RetSettings.SortBy2Value.SortValue))
+                if (this.RetSettings.SortBy2Value != null &&
+                    !string.IsNullOrEmpty(this.RetSettings.SortBy2Value.SortValue))
                 {
                     this.SQLSortBy = this.SQLSortBy + ", " + this.RetSettings.SortBy2Value;
                 }
@@ -489,7 +496,8 @@ namespace dMobile.View.Activity
             {
                 this.RetSettings.SortBy3Value = this.filters[this.cboSortBy3.Items[this.cboSortBy3.SelectedIndex]];
 
-                if (this.RetSettings.SortBy3Value != null && !string.IsNullOrEmpty(this.RetSettings.SortBy3Value.SortValue))
+                if (this.RetSettings.SortBy3Value != null &&
+                    !string.IsNullOrEmpty(this.RetSettings.SortBy3Value.SortValue))
                 {
                     this.SQLSortBy = this.SQLSortBy + ", " + this.RetSettings.SortBy3Value;
                 }
@@ -497,7 +505,6 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        ///
         /// </summary>
         /// <remarks></remarks>
         private void LoadData()
