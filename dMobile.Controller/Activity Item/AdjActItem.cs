@@ -929,10 +929,17 @@ namespace dMobile.Controller.Activity_Item
         /// </summary>
         /// <param name="resourceType"><see cref="object"/> Resource model type.</param>
         /// <returns><see cref="int"/> Found activity item foreign key reference number, else 0 if not found.</returns>
-        public override int GetFkRefno(object resourceType)
+        public override int GetFkRefno(object selectedItem)
         {
-            object tmpFkItRefno = ((AdjustmentItem)resourceType).ActivityItemFKRefno;
-            return Convert.ToInt32(tmpFkItRefno);
+            var itemFkRefno = 0;
+            if (selectedItem is AdjustmentItem adjustmentItem)
+            {
+                this.ItemFkRefno = Convert.ToInt32(adjustmentItem.ActivityItemFKRefno);
+                this.ItemRefno = Convert.ToInt32(adjustmentItem.ActivityItemRefno);
+                itemFkRefno = this.ItemFkRefno;
+            }
+
+            return itemFkRefno;
         }
 
         /// <summary>

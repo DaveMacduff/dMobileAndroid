@@ -192,7 +192,7 @@ namespace dMobile.View.Activity
             if (this.Scanner != null)
             {
                 this.Scanner.BarCodeScan -= new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
-                await this.Scanner.Stop();
+                await this.Scanner.DisableScanning();
             }
 
             this.IsBarCodeHandlerRegistered = false;
@@ -206,7 +206,7 @@ namespace dMobile.View.Activity
         {
             if (!this.IsBarCodeHandlerRegistered && this.Scanner != null)
             {
-                await this.Scanner.Start();
+                await this.Scanner.EnableScanning();
                 this.Scanner.BarCodeScan += new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
                 this.IsBarCodeHandlerRegistered = true;
             }
@@ -228,7 +228,7 @@ namespace dMobile.View.Activity
         /// <returns></returns>
         /// <remarks></remarks>
         /// <inheritdoc/>
-        public async Task<XDocument> GetXML()
+        public async Task<XDocument> GetXml()
         {
             var xmldocParams = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"

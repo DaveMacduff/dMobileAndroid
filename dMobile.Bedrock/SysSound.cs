@@ -5,8 +5,17 @@
 namespace dMobile.Bedrock
 {
     using System;
-    using System.IO;
+    using System.Reflection;
     using System.Runtime.InteropServices;
+    using Android.Content.Res;
+    using Android.Media;
+    using Java.IO;
+    using Stream = System.IO.Stream;
+    using Android.Webkit;
+    using System.Threading.Tasks;
+    using Java.Nio.FileNio.Attributes;
+    using Xamarin.Forms;
+    using Plugin.SimpleAudioPlayer;
 
     /// <summary>
     /// Defines the <see cref="SysSound" />.
@@ -30,7 +39,7 @@ namespace dMobile.Bedrock
         /// <summary>
         /// Initializes a new instance of the <see cref="SysSound"/> class.
         /// </summary>
-        /// <param name="stream">The stream<see cref="Stream"/>.</param>
+        /// <param name="stream">The stream<see cref="System.IO.Stream"/>.</param>
         public SysSound(Stream stream)
         {
             // read the data from the stream

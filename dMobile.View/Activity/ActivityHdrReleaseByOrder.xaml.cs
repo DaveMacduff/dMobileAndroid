@@ -77,8 +77,8 @@ namespace dMobile.View.Activity
         {
             if (this.Scanner != null)
             {
-                this.Scanner.BarCodeScan -= this.BarCodeHandler;
-                await this.Scanner.Stop();
+                this.Scanner.ClearBarCodeScanEventHandlers();
+                await this.Scanner.DisableScanning();
             }
 
             this.IsBarCodeHandlerRegistered = false;
@@ -92,8 +92,12 @@ namespace dMobile.View.Activity
         {
             if (!this.IsBarCodeHandlerRegistered && this.Scanner != null)
             {
-                await this.Scanner.Start();
-                this.Scanner.BarCodeScan += this.BarCodeHandler;
+                await this.Scanner.EnableScanning();
+                if (!this.Scanner.IsBarCodeScanEventHandlerAdded())
+                {
+                    this.Scanner.BarCodeScan += this.BarCodeHandler;
+                }
+
                 this.IsBarCodeHandlerRegistered = true;
             }
         }
@@ -190,7 +194,7 @@ namespace dMobile.View.Activity
         /// <returns></returns>
         /// <remarks></remarks>
         /// <inheritdoc />
-        public async Task<XDocument> GetXML()
+        public async Task<XDocument> GetXml()
         {
             var xmldocParams = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
@@ -262,8 +266,7 @@ namespace dMobile.View.Activity
                     {
                         // Load activity properties, activity is an argument for the ShippingLabelControl
                         // SelectedIdx is not refreshed.
-                        this.Activity.HdrRefno =
-                            this.Activity.GetRefnoFromRowIdx(this.ListViewMainActivity.SelectedItem);
+                        this.Activity.AssignRefnoFromActivity(this.ListViewMainActivity.SelectedItem);
 
                         var labelQuantity = new SLabelQuantity();
                         labelQuantity = await this.Activity.GetLabelQuantity(false);
@@ -291,7 +294,7 @@ namespace dMobile.View.Activity
                     }
                     else
                     {
-                        _ = this.Activity.ListHdrs.Remove(this.ListViewMainActivity.SelectedItem);
+                        _ = this.Activity.ListHeaders.Remove(this.ListViewMainActivity.SelectedItem);
 
                         await Device.InvokeOnMainThreadAsync(async () =>
                         {
@@ -306,7 +309,7 @@ namespace dMobile.View.Activity
 
                             this.ListViewMainActivity.ItemsSource = this.MainActivityItems;
 
-                            if (this.Activity.ListHdrs.Count > 0 && this.MainActivityItems.Count > 0 &&
+                            if (this.Activity.ListHeaders.Count > 0 && this.MainActivityItems.Count > 0 &&
                                 this.MainActivityItems[0] != null)
                             {
                                 this.ListViewMainActivity.SelectedItem = this.MainActivityItems[0];
@@ -521,14 +524,13 @@ namespace dMobile.View.Activity
 
                     if (!string.IsNullOrEmpty(actStringFKRefno))
                     {
-                        var selectedActivity = this.Activity.ListHdrs.OfType<object>().Where(activity =>
+                        var selectedActivity = this.Activity.ListHeaders.OfType<object>().Where(activity =>
                             Convert.ToString(activity.GetType().GetProperty(this.Activity.GetFkRefnoIdx())
                                 .GetValue(activity)) == actStringFKRefno).FirstOrDefault();
 
                         if (selectedActivity != null)
                         {
-                            _ = this.Activity.GetRefnoFromRowIdx(selectedActivity);
-
+                            this.Activity.AssignRefnoFromActivity(selectedActivity);
                             var form = new FormDialogContainer(EDialogTypes.ActivityItem, this.Activity,
                                 this.ActSubType);
                             _ = await Device.InvokeOnMainThreadAsync(async () =>
@@ -628,7 +630,7 @@ namespace dMobile.View.Activity
                     this.IsIndicatorRunning = false;
                 }
 
-                this.Activity.ListHdrs = await this.Activity.GetActivityList(false);
+                this.Activity.ListHeaders = await this.Activity.GetActivityList(false);
 
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
@@ -643,7 +645,7 @@ namespace dMobile.View.Activity
 
                     this.ListViewMainActivity.ItemsSource = this.MainActivityItems;
 
-                    if (this.Activity.ListHdrs.Count > 0 && this.MainActivityItems.Count > 0 &&
+                    if (this.Activity.ListHeaders.Count > 0 && this.MainActivityItems.Count > 0 &&
                         this.MainActivityItems[0] != null)
                     {
                         this.ListViewMainActivity.SelectedItem = this.MainActivityItems[0];

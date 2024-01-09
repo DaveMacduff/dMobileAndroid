@@ -372,7 +372,7 @@ namespace dMobile.View.Forms
         /// <returns><see cref="Task(XDocument)"/> XML data.</returns>
         public async Task<XDocument> GetXML()
         {
-            return await ((IAppArea)this.DisplayControl).GetXML();
+            return await ((IAppArea)this.DisplayControl).GetXml();
         }
 
         /// <summary>

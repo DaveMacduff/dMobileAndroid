@@ -91,7 +91,7 @@ namespace dMobile.View.Forms
             if (this.Scanner != null)
             {
                 this.Scanner.BarCodeScan -= new BarCodeScanner.BarCodeScanEventHandler(BarCodeHandler);
-                await this.Scanner.Stop();
+                await this.Scanner.DisableScanning();
             }
 
             this.IsBarCodeHandlerRegistered = false;
@@ -105,7 +105,7 @@ namespace dMobile.View.Forms
         {
             if (!this.IsBarCodeHandlerRegistered)
             {
-                await this.Scanner.Start();
+                await this.Scanner.EnableScanning();
                 this.Scanner.BarCodeScan += new BarCodeScanner.BarCodeScanEventHandler(BarCodeHandler);
                 this.IsBarCodeHandlerRegistered = true;
             }

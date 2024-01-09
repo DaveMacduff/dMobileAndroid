@@ -38,41 +38,51 @@ namespace dMobile.GroundWork
         /// <returns><see cref="Task"/> Task complete.</returns>
         public override async Task PurgeData()
         {
-            try
-            {
-                // Corruption recovery cleanup.
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName}.", true);
-                var query = "DELETE FROM tActivityAdjustment WHERE tActivityAdjustment.ActivityRefno <= 0" +
-                            " OR tActivityAdjustment.ActivityFKRefno <= 0";
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query);
+            this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName}.", true);
 
-                // Corruption recovery cleanup.
-                query = "DELETE FROM tActivity WHERE tActivity.ActivityRefno <= 0";
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query);
-
-                query = "DELETE FROM tActivityAdjustment WHERE tActivityAdjustment.ActivitySubType = ?";
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
-                    query,
-                    Convert.ToInt32(this.CurrentSubType));
-
-                query = "DELETE FROM tActivity WHERE tActivity.ActivitySubType = ?";
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
-                    query,
-                    Convert.ToInt32(this.CurrentSubType));
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} complete.", true);
-            }
-            catch (SQLiteException sqlEx)
+            var conn = DatabaseConnection.GetInstance().SQLConn;
+            await conn.RunInTransactionAsync(transaction =>
             {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"{sqlEx.Message}", true);
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} failed.", true);
-                throw;
-            }
-            catch
-            {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} failed.", true);
-                throw;
-            }
+                try
+                {
+                    // Corruption recovery cleanup.
+                    var query = @"
+                        DELETE FROM tActivityAdjustment
+                            WHERE tActivityAdjustment.ActivityRefno <= 0
+                                OR tActivityAdjustment.ActivityFKRefno <= 0";
+                    transaction.Execute(query);
+
+                    query = @"
+                        DELETE FROM tActivityAdjustment
+                            WHERE tActivityAdjustment.ActivityRefno
+                                NOT IN (SELECT tActivity.ActivityRefno FROM tActivity)";
+                    transaction.Execute(query);
+
+                    query = "DELETE FROM tActivity WHERE tActivity.ActivityRefno <= 0";
+                    transaction.Execute(query);
+
+                    // REGULAR PURGE
+                    query = "DELETE FROM tActivityAdjustment WHERE tActivityAdjustment.ActivitySubType = ?";
+                    transaction.Execute(query, Convert.ToInt32(this.CurrentSubType));
+
+                    query = "DELETE FROM tActivity WHERE tActivity.ActivitySubType = ?";
+                    transaction.Execute(query, Convert.ToInt32(this.CurrentSubType));
+                }
+                catch (SQLiteException sqlEx)
+                {
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"{sqlEx.Message}", true);
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} failed.", true);
+                    throw;
+                }
+                catch
+                {
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} failed.", true);
+                    throw;
+                }
+            });
+
+            this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} complete.", true);
         }
 
         /// <summary>

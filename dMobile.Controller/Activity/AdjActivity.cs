@@ -199,7 +199,7 @@ namespace dMobile.Controller.Activity
 
             gridMainActivity.Children.Add(gridHeader);
 
-            foreach (Adjustment adjustment in this.ListHdrs)
+            foreach (Adjustment adjustment in this.ListHeaders)
             {
                 headersList.Add(adjustment);
 
@@ -340,8 +340,8 @@ namespace dMobile.Controller.Activity
 
             this.GetFilter();
 
-            this.ListHdrs = this.ListAdjustments.Cast<object>().ToList();
-            return this.ListHdrs;
+            this.ListHeaders = this.ListAdjustments.Cast<object>().ToList();
+            return this.ListHeaders;
         }
 
         /// <summary>
@@ -354,11 +354,11 @@ namespace dMobile.Controller.Activity
             // TODO: Test search
             var activityHeaders = new ObservableCollection<object>();
 
-            this.ListHdrs = this.ListAdjustments.Where(adjustment =>
+            this.ListHeaders = this.ListAdjustments.Where(adjustment =>
                 adjustment.ActivityStringFKRefno.ToLower().Contains(
                     searchText.ToLower().Trim())).Cast<object>().ToList();
 
-            foreach (var adjustment in this.ListHdrs.Cast<Adjustment>())
+            foreach (var adjustment in this.ListHeaders.Cast<Adjustment>())
             {
                 activityHeaders.Add(adjustment);
             }
@@ -382,29 +382,7 @@ namespace dMobile.Controller.Activity
 
                 if (this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc)
                 {
-                    // Set the current location to the header.
-                    if (LocationMap.GetInstance().CurrLocMap.WhsLocMapRefno != header.LocationMapRefno &&
-                            await LocationMapTasks.IsCompleteLocMap(header.LocationMapRefno))
-                    {
-                        LocationMap.GetInstance().CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
-                            header.LocationMapRefno);
-                    }
-
-                    // Override and set the chosen location to the current location.
-                    if (LocationMap.GetInstance().ChosenLocMap.WhsLocMapRefno != header.LocationMapRefno &&
-                            await LocationMapTasks.IsCompleteLocMap(header.LocationMapRefno))
-                    {
-                        LocationMap.GetInstance().ChosenLocMap = LocationMap.GetInstance().CurrLocMap.Clone();
-                    }
-
-                    // Override and set any selected skid location to the current location.
-                    if (this.SkidInfo.CurrSkid != null && this.SkidInfo.CurrSkid.SkidFKRefno > 0 &&
-                        this.SkidInfo.CurrSkid.LocMapRefno != header.LocationMapRefno &&
-                        await LocationMapTasks.IsCompleteLocMap(header.LocationMapRefno))
-                    {
-                        // NOTE: We may have to use a temp var to assign the current skid a new location.
-                        this.SkidInfo.CurrSkid.LocMap = LocationMap.GetInstance().CurrLocMap.Clone();
-                    }
+                    await DefaultLocation();
                 }
 
                 this.AdjSettings = this.AdjSettings.LoadData();
@@ -419,22 +397,49 @@ namespace dMobile.Controller.Activity
                     this.AdjSettings = tempAdjSettings;
                 }
             }
+
+            return;
+
+            //////////////////////////////////////////////////////////////////////////
+            async Task DefaultLocation()
+            {
+                // Set the current location to the header.
+                if (LocationMap.GetInstance().CurrLocMap.WhsLocMapRefno != header.LocationMapRefno &&
+                    await LocationMapTasks.IsCompleteLocMap(header.LocationMapRefno))
+                {
+                    LocationMap.GetInstance().CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
+                        header.LocationMapRefno);
+                }
+
+                // Override and set the chosen location to the current location.
+                if (LocationMap.GetInstance().ChosenLocMap.WhsLocMapRefno != header.LocationMapRefno &&
+                    await LocationMapTasks.IsCompleteLocMap(header.LocationMapRefno))
+                {
+                    LocationMap.GetInstance().ChosenLocMap = LocationMap.GetInstance().CurrLocMap.Clone();
+                }
+
+                // Override and set any selected skid location to the current location.
+                if (this.SkidInfo.CurrSkid != null && this.SkidInfo.CurrSkid.SkidFKRefno > 0 &&
+                    this.SkidInfo.CurrSkid.LocMapRefno != header.LocationMapRefno &&
+                    await LocationMapTasks.IsCompleteLocMap(header.LocationMapRefno))
+                {
+                    // NOTE: We may have to use a temp var to assign the current skid a new location.
+                    this.SkidInfo.CurrSkid.LocMap = LocationMap.GetInstance().CurrLocMap.Clone();
+                }
+            }
         }
 
         /// <summary>
         /// Get the activity reference number for the selected object.
         /// </summary>
         /// <param name="selectedItem"><see cref="object"/> Selected item.</param>
-        /// <returns><see cref="int"/> Selected activity reference number.</returns>
-        public override int GetRefnoFromRowIdx(object selectedItem)
+        public override void AssignRefnoFromActivity(object selectedItem)
         {
-            if (selectedItem is Adjustment adjustment)
+            if (selectedItem is Adjustment hdr)
             {
-                this.HdrFkRefno = Convert.ToInt32(adjustment.ActivityFKRefno);
-                this.HdrRefno = Convert.ToInt32(adjustment.ActivityRefno);
+                this.HdrFkRefno = hdr.ActivityFKRefno;
+                this.HdrRefno = hdr.ActivityRefno;
             }
-
-            return this.HdrRefno;
         }
 
         /// <summary>
@@ -476,16 +481,14 @@ namespace dMobile.Controller.Activity
                     adjSettings.AdjustmentType)).ToList();
             }
 
-            if (adjSettings.IsApplyAdjustmentDate)
+            if (adjSettings.IsApplyAdjustmentDate && !SysCommon.IsEmptyDate(adjSettings.AdjustmentDate))
             {
-                if (!SysCommon.IsEmptyDate(adjSettings.AdjustmentDate))
-                {
-                    var dt = adjSettings.AdjustmentDate;
-                    var minDate = new DateTime(dt.Year, dt.Month, dt.Day, 00, 00, 00);
-                    var maxDate = new DateTime(dt.Year, dt.Month, dt.Day, 23, 59, 59);
-                    this.ListAdjustments = this.ListAdjustments.Where(adj => adj.ActivityAdjustmentDateTime >= minDate &&
-                        adj.ActivityAdjustmentDateTime <= maxDate).ToList();
-                }
+                var dt = adjSettings.AdjustmentDate;
+                var minDate = new DateTime(dt.Year, dt.Month, dt.Day, 00, 00, 00);
+                var maxDate = new DateTime(dt.Year, dt.Month, dt.Day, 23, 59, 59);
+                this.ListAdjustments = this.ListAdjustments.Where(
+                    adj => adj.ActivityAdjustmentDateTime >= minDate &&
+                    adj.ActivityAdjustmentDateTime <= maxDate).ToList();
             }
         }
 
@@ -500,23 +503,21 @@ namespace dMobile.Controller.Activity
 
             if (adjSettings.IsApplyAdjustmentType)
             {
-                if (string.Compare(xmlDoc.Root.Element("adjustment_type").Value, string.Empty) > 0)
+                if (string.CompareOrdinal(xmlDoc.Root!.Element("adjustment_type") !.Value, string.Empty) > 0)
                 {
-                    this.ListAdjustments = this.ListAdjustments.Where(adj => adj.ActivityAdjustmentType == Convert.ToInt32(
-                        xmlDoc.Root.Element("adjustment_type").Value)).ToList();
+                    var adjType = Convert.ToInt32(xmlDoc.Root.Element("adjustment_type") !.Value);
+                    this.ListAdjustments = this.ListAdjustments.Where(adj => adj.ActivityAdjustmentType == adjType).ToList();
                 }
             }
 
-            if (adjSettings.IsApplyAdjustmentDate)
+            var foundDate = string.CompareOrdinal(xmlDoc.Root!.Element("adjustment_date") !.Value, string.Empty) > 0;
+            if (adjSettings.IsApplyAdjustmentDate && foundDate)
             {
-                if (string.Compare(xmlDoc.Root.Element("adjustment_date").Value, string.Empty) > 0)
-                {
-                    var dt = DateTime.Parse(xmlDoc.Root.Element("adjustment_date").Value);
-                    var minDate = new DateTime(dt.Year, dt.Month, dt.Day, 00, 00, 00);
-                    var maxDate = new DateTime(dt.Year, dt.Month, dt.Day, 23, 59, 59);
-                    this.ListAdjustments = this.ListAdjustments.Where(adj => adj.ActivityAdjustmentDateTime >= minDate &&
-                        adj.ActivityAdjustmentDateTime <= maxDate).ToList();
-                }
+                var dt = DateTime.Parse(xmlDoc.Root.Element("adjustment_date") !.Value);
+                var minDate = new DateTime(dt.Year, dt.Month, dt.Day, 00, 00, 00);
+                var maxDate = new DateTime(dt.Year, dt.Month, dt.Day, 23, 59, 59);
+                this.ListAdjustments = this.ListAdjustments.Where(adj => adj.ActivityAdjustmentDateTime >= minDate &&
+                                                                         adj.ActivityAdjustmentDateTime <= maxDate).ToList();
             }
         }
 
@@ -588,17 +589,6 @@ namespace dMobile.Controller.Activity
             }
 
             return result;
-        }
-
-        /// <summary>
-        /// Get the activity foreign key reference number.
-        /// </summary>
-        /// <param name="resourceType"><see cref="object"/> Resource model type (tActivity??Model).</param>
-        /// <returns><see cref="int"/> Found activity foreign key refno, else 0 if not found.</returns>
-        public override int GetFkRefno(object resourceType)
-        {
-            object tmpFkRefno = ((Adjustment)resourceType).ActivityFKRefno;
-            return tmpFkRefno == null ? 0 : Convert.ToInt32(tmpFkRefno);
         }
 
         /// <summary>

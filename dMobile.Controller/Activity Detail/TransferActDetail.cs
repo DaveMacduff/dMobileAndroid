@@ -189,7 +189,7 @@ namespace dMobile.Controller.Activity_Detail
                                      " ActivityDetailTransferIsConfirmed, ActivityDetailTransferTransModeEnum) VALUES (?, ?, ?, ?)";
                 var rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
                     query,
-                    Convert.ToInt32(this.DetailFkRefno),
+                    Convert.ToInt32(this.DetailRefno),
                     Convert.ToInt32(this.DetailFkRefno),
                     true,
                     GetTransferMode());
@@ -248,7 +248,7 @@ namespace dMobile.Controller.Activity_Detail
                     "DELETE FROM tActivityDetailProductSchemeVariantXRef WHERE ActivityDetailRefno = ?",
                     this.DetailRefno);
                 await conn.ExecuteAsync(
-                    "DELETE FROM tActivityDetailProductionTransfer WHERE ActivityDetailRefno = ?",
+                    "DELETE FROM tActivityDetailTransfer WHERE ActivityDetailRefno = ?",
                     this.DetailRefno);
                 await conn.ExecuteAsync(
                     "DELETE FROM tActivityDetailExtra WHERE ActivityDetailRefno = ?",

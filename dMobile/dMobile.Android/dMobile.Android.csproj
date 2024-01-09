@@ -56,6 +56,7 @@
     <BundleAssemblies>false</BundleAssemblies>
     <JavaMaximumHeapSize>1G</JavaMaximumHeapSize>
     <AndroidEnableProfiledAot>false</AndroidEnableProfiledAot>
+    <MandroidI18n />
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -82,10 +83,13 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Honeywell.BarcodeReader">
-      <Version>1.35.0.17</Version>
+      <Version>1.35.0.44</Version>
     </PackageReference>
     <PackageReference Include="System.Data.DataSetExtensions">
       <Version>4.5.0</Version>
+    </PackageReference>
+    <PackageReference Include="Xam.Plugin.SimpleAudioPlayer">
+      <Version>1.6.0</Version>
     </PackageReference>
     <PackageReference Include="Xamarin.Android.Support.Annotations">
       <Version>28.0.0.3</Version>
@@ -168,6 +172,10 @@
     <Folder Include="Resources\drawable-xxxhdpi\" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\dMobile.BarCodeScanner\dMobile.BarCodeScanner.csproj">
+      <Project>{5A612BC6-514C-4D1B-BFC4-0C2106C186F4}</Project>
+      <Name>dMobile.BarCodeScanner</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\dMobile.Bedrock\dMobile.Bedrock.csproj">
       <Project>{9a5c51a9-39e9-45f8-9d5e-18d88c91a321}</Project>
       <Name>dMobile.Bedrock</Name>
@@ -201,6 +209,9 @@
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\drawable\arrow_drop_down.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidAsset Include="Assets\InterfaceOptionSelect.wav" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <ProjectExtensions>

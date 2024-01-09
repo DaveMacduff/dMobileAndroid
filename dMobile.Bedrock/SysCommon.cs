@@ -1078,8 +1078,7 @@ namespace dMobile.Bedrock
         /// </summary>
         /// <param name="adjustmentType">.</param>
         /// <returns>.</returns>
-        public static bool DefaultNegateQuantityFromAdjType(AdjTypes
-            adjustmentType)
+        public static bool DefaultNegateQuantityFromAdjType(AdjTypes adjustmentType)
         {
             var isNegateQuantity = false;
 

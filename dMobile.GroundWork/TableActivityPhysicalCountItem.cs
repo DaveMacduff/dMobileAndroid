@@ -53,6 +53,11 @@ namespace dMobile.GroundWork
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query);
 
                 // Corruption recovery cleanup.
+                query = "DELETE FROM tActivityItemCount WHERE tActivityItemCount.ActivityItemRefno " +
+                        "NOT IN (SELECT tActivityItem.ActivityItemRefno FROM tActivityItem)";
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(this.CurrentSubType));
+
+                // Corruption recovery cleanup.
                 query = "DELETE FROM tActivityItem WHERE tActivityItem.ActivityRefno <= 0";
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query);
 
@@ -61,13 +66,13 @@ namespace dMobile.GroundWork
                             + "(SELECT tActivityItem.ActivityItemRefno "
                             + "FROM tActivityItem "
                             + "WHERE tActivityItem.ActivityItemSubType = ?)";
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.PhysicalCounts));
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(this.CurrentSubType));
 
                 query = "DELETE FROM tActivityItemCount WHERE tActivityItemCount.ActivityItemSubType = ?";
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.PhysicalCounts));
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(this.CurrentSubType));
 
                 query = "DELETE FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = ?";
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.PhysicalCounts));
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(this.CurrentSubType));
 
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging physical count items complete.", true);
             }

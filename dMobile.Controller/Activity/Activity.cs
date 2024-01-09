@@ -28,7 +28,7 @@ namespace dMobile.Controller.Activity
             this.HdrFkRefno = 0;
             this.HdrRefno = 0;
             this.SelectedListItemIdx = -1;
-            this.ListHdrs = new List<object>();
+            this.ListHeaders = new List<object>();
             this.ActSubType = SysCommon.ActSubTypes.NotApplicable;
             this.SkidInfo = new SysSkidInfo();
             this.SysEnv = SysEnvironment.GetInstance();
@@ -93,7 +93,7 @@ namespace dMobile.Controller.Activity
         /// <summary>
         /// Gets or sets the list of activity headers.
         /// </summary>
-        public List<object> ListHdrs { get; set; }
+        public List<object> ListHeaders { get; set; }
 
         /// <summary>
         /// Gets or sets the list of activity items.
@@ -161,7 +161,7 @@ namespace dMobile.Controller.Activity
         /// </summary>
         /// <param name="gridMainActivity"><see cref="Grid"/> Main activity grid.</param>
         /// <param name="listViewMainActivity"><see cref="ListView"/>.</param>
-        /// <returns>The <see cref="ObservableCollection{object}"/> Main activity list view.</returns>
+        /// <returns>Main activity collection bound to view.</returns>
         public abstract ObservableCollection<object> DesignGrid(ref Grid gridMainActivity, ref ListView listViewMainActivity);
 
         /// <summary>
@@ -172,11 +172,10 @@ namespace dMobile.Controller.Activity
         public abstract Task SelectActivity(object selectedActivity);
 
         /// <summary>
-        /// The GetRefnoFromRowIdx.
+        /// The AssignRefnoFromActivity.
         /// </summary>
         /// <param name="selectedActivity"><see cref="object"/> Selected activity to get the refno for.</param>
-        /// <returns>.</returns>
-        public abstract int GetRefnoFromRowIdx(object selectedActivity);
+        public abstract void AssignRefnoFromActivity(object selectedActivity);
 
         /// <summary>
         /// Get the activity filter.
@@ -200,13 +199,6 @@ namespace dMobile.Controller.Activity
         /// </summary>
         /// <returns>.</returns>
         public abstract string GetFkRefnoIdx();
-
-        /// <summary>
-        /// Get the activity foreign key reference number.
-        /// </summary>
-        /// <param name="resourceType"><see cref="object"/> Resource model type (t????Model).</param>
-        /// <returns><see cref="int"/> Found activity foreign key reference number, else 0 if not found.</returns>
-        public abstract int GetFkRefno(object resourceType);
 
         /// <summary>
         /// Purge all activity data.

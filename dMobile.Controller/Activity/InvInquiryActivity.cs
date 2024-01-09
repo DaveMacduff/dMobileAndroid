@@ -8,6 +8,7 @@ using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using dMobile.Bedrock;
+using dMobile.Resources.Types;
 using Xamarin.Forms;
 
 namespace dMobile.Controller.Activity
@@ -70,11 +71,10 @@ namespace dMobile.Controller.Activity
         }
 
         /// <summary>
-        /// The GetRefnoFromRowIdx.
+        /// Get the activity reference number for the selected object.
         /// </summary>
-        /// <param name="selectedItem">The selectedItem<see cref="object"/>.</param>
-        /// <returns>.</returns>
-        public override int GetRefnoFromRowIdx(object selectedItem)
+        /// <param name="selectedItem"><see cref="object"/> Selected item.</param>
+        public override void AssignRefnoFromActivity(object selectedItem)
         {
             if (selectedItem is InvInquirySummaryActivity inquiry)
             {
@@ -82,8 +82,6 @@ namespace dMobile.Controller.Activity
                 this.HdrFkRefno = Convert.ToInt32(inquiry.HdrRefno);
                 this.HdrRefno = Convert.ToInt32(inquiry.HdrRefno);
             }
-
-            return this.HdrRefno;
         }
 
         /// <summary>
@@ -144,16 +142,6 @@ namespace dMobile.Controller.Activity
         /// </summary>
         public override void GetFilter()
         {
-        }
-
-        /// <summary>
-        /// Get the activity foreign key reference number.
-        /// </summary>
-        /// <param name="resourceType"><see cref="object"/> Resource model (tActivity??Model).</param>
-        /// <returns><see cref="int"/> Found activity foreign key refno, else 0 if not found.</returns>
-        public override int GetFkRefno(object resourceType)
-        {
-            throw new NotImplementedException();
         }
 
         /// <summary>

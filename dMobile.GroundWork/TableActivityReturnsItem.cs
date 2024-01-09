@@ -52,22 +52,27 @@ namespace dMobile.GroundWork
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query);
 
                 // Corruption recovery cleanup.
+                query = "DELETE FROM tActivityItemReturns WHERE tActivityItemReturns.ActivityItemRefno " +
+                        "NOT IN (SELECT tActivityItem.ActivityItemRefno FROM tActivityItem)";
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(this.CurrentSubType));
+
+                // Corruption recovery cleanup.
                 query = "DELETE FROM tActivityItem WHERE tActivityItem.ActivityRefno <= 0";
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query);
 
                 query = "DELETE FROM tActivityItemBarCodeAssociationXRef "
                         + "WHERE tActivityItemBarCodeAssociationXRef.ActivityItemRefno IN "
                         + "(SELECT tActivityItem.ActivityItemRefno FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = ?)";
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.Returns));
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(this.CurrentSubType));
 
                 query = "DELETE FROM tActivityItemReturnsComment";
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query);
 
                 query = "DELETE FROM tActivityItemReturns WHERE ActivityItemSubType = ?";
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.Returns));
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(this.CurrentSubType));
 
                 query = "DELETE FROM tActivityItem WHERE ActivityItemSubType = ?";
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.Returns));
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(this.CurrentSubType));
 
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging sales return items complete.", true);
             }
@@ -144,7 +149,7 @@ namespace dMobile.GroundWork
                                 transaction.Execute(
                                     "INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus," +
                                     " ActivityRefno, ActivityItemIsAdded) VALUES (?, ?, ?, ?)",
-                                    Convert.ToInt32(SysCommon.ActSubTypes.Returns),
+                                    Convert.ToInt32(this.CurrentSubType),
                                     Convert.ToInt32(SysCommon.ActStatus.NoChange),
                                     actRefno,
                                     0);
@@ -181,7 +186,7 @@ namespace dMobile.GroundWork
                                 var parametersInsertItem = new object[]
                                 {
                                     Convert.ToInt32(actItemRefno),
-                                    Convert.ToInt32(SysCommon.ActSubTypes.Returns),
+                                    Convert.ToInt32(this.CurrentSubType),
                                     Convert.ToInt32(actItemReturnsFKRefno),
                                     Convert.ToString(actItemReturnsFKRefno),
                                     Convert.ToInt32(prodUnitRefno),

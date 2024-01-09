@@ -292,7 +292,7 @@ namespace dMobile.View.Activity
                             await this.DisplayAlert(this.GetControlDescription(), "Print product labels?", "Yes",
                                 "No")))
                     {
-                        var sendReq = await this.ActDetail.CreateSubmitProductLabelXml(await this.GetXML());
+                        var sendReq = await this.ActDetail.CreateSubmitProductLabelXml(await this.GetXml());
                         SysCommon.SubmitComm(sendReq);
                         this.IsChangesMade = false;
                         saveComplete = true;
@@ -384,7 +384,7 @@ namespace dMobile.View.Activity
         ///     The GetXML.
         /// </summary>
         /// <returns>.</returns>
-        public async Task<XDocument> GetXML()
+        public async Task<XDocument> GetXml()
         {
             return await this.ActDetailEdit.GetXmlFromActivityDetailEdit(this.ActDetailEdit);
         }

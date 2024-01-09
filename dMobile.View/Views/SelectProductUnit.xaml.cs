@@ -345,7 +345,7 @@ namespace dMobile.View.Views
         /// </summary>
         /// <returns><see cref="XDocument"/> Activity item return information.</returns>
 #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
-        public async Task<XDocument> GetXML()
+        public async Task<XDocument> GetXml()
 #pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
         {
             var request = XDocument.Parse(
@@ -380,7 +380,7 @@ namespace dMobile.View.Views
                 {
                     this.Scanner.BarCodeScan -=
                         new dMobile.BarCodeScanner.BarCodeScanners.BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
-                    await this.Scanner.Stop();
+                    await this.Scanner.DisableScanning();
                     this.IsBarCodeHandlerRegistered = false;
                 }
             }
@@ -396,7 +396,7 @@ namespace dMobile.View.Views
             {
                 if (!this.IsBarCodeHandlerRegistered)
                 {
-                    await this.Scanner.Start();
+                    await this.Scanner.EnableScanning();
                     this.Scanner.BarCodeScan +=
                         new dMobile.BarCodeScanner.BarCodeScanners.BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
                     this.IsBarCodeHandlerRegistered = true;
@@ -466,7 +466,7 @@ namespace dMobile.View.Views
             {
                 if (this.Scanner != null)
                 {
-                    await this.Scanner.Start();
+                    await this.Scanner.EnableScanning();
                     this.Scanner.BarCodeScan +=
                         new dMobile.BarCodeScanner.BarCodeScanners.BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
                     this.IsBarCodeHandlerRegistered = true;

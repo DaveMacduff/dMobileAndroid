@@ -20,6 +20,7 @@ namespace dMobile.View.Activity
     using Controller.Activity_Item;
     using CustomPages;
     using Forms;
+    using Helpers;
     using Resources.Enums;
     using Resources.Types;
     using SQLite;
@@ -49,12 +50,13 @@ namespace dMobile.View.Activity
             this.lblFullUnitInfo.Text = "Qty 0 UOM @ 0 KG/LB";
             this.cmdSave.Text = "Save";
             this.cmdCancel.Text = "Cancel";
+            this.Title = this.GetControlDescription();
 
             this.Scanner = ScannerEngine.GetInstance().Scanner;
             this.SysEnv = SysEnvironment.GetInstance();
             this.LocMap = LocationMap.GetInstance();
             ParseAndSeedBarCodeModifier();
-            this.Title = this.GetControlDescription();
+            this.ScannerEnable().FireAndForgetSafeAsync();
             return;
 
             //////////////////////////////////////////////////////////////////////////
@@ -63,25 +65,23 @@ namespace dMobile.View.Activity
                 this.BarCodeModifier1Picker.IsVisible = false;
                 this.BarCodeModifier1Picker.IsEnabled = false;
                 this.BarCodeModifier1Picker.Items.Clear();
-                if (!this.SysEnv.SysSettings.IsProductUnitBarCodeModifier1)
+                if (this.SysEnv.SysSettings.IsProductUnitBarCodeModifier1)
                 {
-                    return;
-                }
+                    this.BarCodeModifier1Picker.Items.Add(string.Empty);
+                    var modifiers = this.SysEnv.SysSettings.ProductUnitBarCodeModifier1Codes.Split(',');
+                    foreach (var item in modifiers)
+                    {
+                        this.BarCodeModifier1Picker.Items.Add(item);
+                    }
 
-                this.BarCodeModifier1Picker.Items.Add(string.Empty);
-                var modifiers = this.SysEnv.SysSettings.ProductUnitBarCodeModifier1Codes.Split(',');
-                foreach (var item in modifiers)
-                {
-                    this.BarCodeModifier1Picker.Items.Add(item);
-                }
+                    if (this.BarCodeModifier1Picker.Items.Count > 0)
+                    {
+                        this.BarCodeModifier1Picker.IsVisible = true;
+                        this.BarCodeModifier1Picker.IsEnabled = true;
+                    }
 
-                if (this.BarCodeModifier1Picker.Items.Count > 0)
-                {
-                    this.BarCodeModifier1Picker.IsVisible = true;
-                    this.BarCodeModifier1Picker.IsEnabled = true;
+                    this.BarCodeModifier1Picker.SelectedItem = this.SysEnv.CurrentBarCodeModifier1;
                 }
-
-                this.BarCodeModifier1Picker.SelectedItem = this.SysEnv.CurrentBarCodeModifier1;
             }
         }
 
@@ -111,8 +111,6 @@ namespace dMobile.View.Activity
 
         private SysEnvironment SysEnv { get; }
 
-        private bool IsBarCodeHandlerRegistered { get; set; }
-
         private bool IsControlLoaded { get; set; }
 
         private bool IsChangesMade { get; set; }
@@ -136,14 +134,8 @@ namespace dMobile.View.Activity
         /// <returns><see cref="Task" /> Task operation.</returns>
         public async Task ScannerDisable()
         {
-            if (this.Scanner != null)
-            {
-                this.Scanner.BarCodeScan -= this.BarCodeHandler;
-                await this.Scanner.Stop();
-            }
-
-            this.IsBarCodeHandlerRegistered = false;
-            this.IsIndicatorRunning = false;
+            this.Scanner.ClearBarCodeScanEventHandlers();
+            await this.Scanner.DisableScanning();
         }
 
         /// <summary>
@@ -152,11 +144,13 @@ namespace dMobile.View.Activity
         /// <returns><see cref="Task" /> Task operation.</returns>
         public async Task ScannerEnable()
         {
-            if (!this.IsBarCodeHandlerRegistered && this.Scanner != null)
+            await this.Scanner.EnableScanning();
+            if (!this.Scanner.IsBarCodeScanEventHandlerAdded())
             {
-                await this.Scanner.Start();
-                this.Scanner.BarCodeScan += this.BarCodeHandler;
-                this.IsBarCodeHandlerRegistered = true;
+                if (!this.Scanner.IsBarCodeScanEventHandlerAdded())
+                {
+                    this.Scanner.BarCodeScan += this.BarCodeHandler;
+                }
             }
         }
 
@@ -228,15 +222,6 @@ namespace dMobile.View.Activity
 
             try
             {
-                // NOTE: This code is needed to clean up the scanner driver.
-                // Symbol had threading issues without this call when dMobile was terminating.
-                // All user controls that initialize a bar code need this code.
-                // The parent form (not a user control) will call scanner.terminate and dispose
-                // of the scanner instance upon exiting dMobile.
-                if (this.Scanner != null)
-                {
-                    await this.ScannerDisable();
-                }
             }
             catch (MessageOnlyException msgEx)
             {
@@ -448,7 +433,7 @@ namespace dMobile.View.Activity
         /// </summary>
         /// <returns></returns>
         /// <inheritdoc />
-        public async Task<XDocument> GetXML()
+        public async Task<XDocument> GetXml()
         {
             var xmlDoc = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
@@ -521,7 +506,6 @@ namespace dMobile.View.Activity
                 }
                 finally
                 {
-                    await this.ScannerStart();
                     this.IsIndicatorRunning = false;
                 }
             }
@@ -569,6 +553,7 @@ namespace dMobile.View.Activity
                             {
                                 if (await this.SaveChanges())
                                 {
+                                    await this.ScannerDisable();
                                     await this.Close();
                                 }
 
@@ -611,6 +596,7 @@ namespace dMobile.View.Activity
             Device.BeginInvokeOnMainThread(async () =>
             {
                 _ = base.OnBackButtonPressed();
+                await this.ScannerDisable();
                 _ = await this.CancelChanges();
                 await this.Close();
             });
@@ -629,20 +615,6 @@ namespace dMobile.View.Activity
             this.IsIndicatorRunning = false;
             GC.Collect();
             GC.WaitForPendingFinalizers();
-        }
-
-        /// <summary>
-        ///     Registers the bar code scan event handler and enables the scanner.
-        /// </summary>
-        /// <returns><see cref="Task" /> Task operation.</returns>
-        private async Task ScannerStart()
-        {
-            if (this.Scanner != null)
-            {
-                await this.Scanner.Start();
-                this.Scanner.BarCodeScan += this.BarCodeHandler;
-                this.IsBarCodeHandlerRegistered = true;
-            }
         }
 
         /// <summary>
@@ -784,8 +756,6 @@ namespace dMobile.View.Activity
                             // Insert a new activity detail record
                             this.ActDetail.ActItem = this.ActItem;
 
-                            var isInsertReady = false;
-
                             this.ActDetail.Quantity = 0;
                             this.ActDetail.BaseQuantity = 0;
                             this.ActDetail.WeightQuantity = 0;
@@ -797,8 +767,8 @@ namespace dMobile.View.Activity
                             this.ActDetail.ActExtra.Text4 = string.Empty;
                             this.ActDetail.ActExtra.DateTime1 = new DateTime(1980, 1, 1);
 
-                            isInsertReady = await SysShared.GatherProductData(parse, this.ActSubType, this.ActItem,
-                                tempItemProdSchemeData, isInsertReady, this.ActDetail, false);
+                            var isInsertReady = await SysShared.GatherProductData(parse, this.ActSubType, this.ActItem,
+                                tempItemProdSchemeData, this.ActDetail);
 
                             var xmlDoc = this.ActDetail.GetXml(this.ActDetail);
 
@@ -1620,8 +1590,6 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         private async Task ucActivityConvertUnit_GotFocus(object sender, EventArgs e)
         {
-            await this.ScannerEnable();
-
             if (!this.IsControlLoaded)
             {
                 this.BarCodeModifier1Picker.SelectedItem = this.SysEnv.CurrentBarCodeModifier1;
@@ -1673,6 +1641,7 @@ namespace dMobile.View.Activity
             {
                 if (await this.SaveChanges())
                 {
+                    await this.ScannerDisable();
                     await this.Close();
                 }
             }
@@ -1681,6 +1650,7 @@ namespace dMobile.View.Activity
         private async void cmdCancel_Clicked(object sender, EventArgs e)
         {
             _ = await this.CancelChanges();
+            await this.ScannerDisable();
             await this.Close();
         }
 

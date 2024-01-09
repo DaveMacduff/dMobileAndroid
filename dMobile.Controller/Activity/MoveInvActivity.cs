@@ -55,11 +55,10 @@ namespace dMobile.Controller.Activity
         }
 
         /// <summary>
-        /// The GetRefnoFromRowIdx.
+        /// The AssignRefnoFromActivity.
         /// </summary>
         /// <param name="selectedItem">The selectedItem<see cref="object"/>.</param>
-        /// <returns>.</returns>
-        public override int GetRefnoFromRowIdx(object selectedItem)
+        public override void AssignRefnoFromActivity(object selectedItem)
         {
             throw new NotImplementedException();
         }
@@ -135,16 +134,6 @@ namespace dMobile.Controller.Activity
         /// <param name="data">The data<see cref="XDocument"/>.</param>
         public override void GetFilter(XDocument data)
         {
-        }
-
-        /// <summary>
-        /// Get the activity foreign key reference number.
-        /// </summary>
-        /// <param name="resourceType"><see cref="object"/> Resource model (tActivity??Model).</param>
-        /// <returns><see cref="int"/> Found activity foreign key refno, else 0 if not found.</returns>
-        public override int GetFkRefno(object resourceType)
-        {
-            throw new NotImplementedException();
         }
 
         /// <summary>

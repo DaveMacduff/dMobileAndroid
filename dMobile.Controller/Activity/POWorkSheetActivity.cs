@@ -131,7 +131,7 @@ namespace dMobile.Controller.Activity
         {
             var observableCollection = new ObservableCollection<object>();
 
-            foreach (PurchaseOrderWorkSheetItem purchaseOrderWorkSheetItem in this.ListHdrs)
+            foreach (PurchaseOrderWorkSheetItem purchaseOrderWorkSheetItem in this.ListHeaders)
             {
                 // PurchaseOrderWorkSheetItem purchaseOrderWorkSheetItem = new PurchaseOrderWorkSheetItem
                 // {
@@ -293,8 +293,8 @@ namespace dMobile.Controller.Activity
             }
 
             this.listPurchaseOrderWorkSheetItems = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<PurchaseOrderWorkSheetItem>(sql.ToString());
-            this.ListHdrs = this.listPurchaseOrderWorkSheetItems.Cast<object>().ToList();
-            return this.ListHdrs;
+            this.ListHeaders = this.listPurchaseOrderWorkSheetItems.Cast<object>().ToList();
+            return this.ListHeaders;
         }
 
         /// <summary>
@@ -351,21 +351,12 @@ namespace dMobile.Controller.Activity
         }
 
         /// <summary>
-        /// The GetRefnoFromRowIdx.
+        /// The AssignRefnoFromActivity.
         /// </summary>
         /// <param name="selectedItem">The selectedItem<see cref="object"/>.</param>
-        /// <returns>.</returns>
-        public override int GetRefnoFromRowIdx(object selectedItem)
+        public override void AssignRefnoFromActivity(object selectedItem)
         {
-            var poWorkSheet = selectedItem as dynamic;
-
-            if (poWorkSheet != null)
-            {
-                this.HdrFkRefno = Convert.ToInt32(poWorkSheet.ActivityRefno);
-                this.HdrRefno = Convert.ToInt32(poWorkSheet.ActivityRefno);
-            }
-
-            return this.HdrRefno;
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -411,16 +402,6 @@ namespace dMobile.Controller.Activity
         /// </summary>
         /// <param name="data">The data<see cref="XDocument"/>.</param>
         public override void GetFilter(XDocument data)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// Get the activity foreign key reference number.
-        /// </summary>
-        /// <param name="resourceType"><see cref="object"/> Resource model (tActivity??Model).</param>
-        /// <returns><see cref="int"/> Found activity foreign key refno, else 0 if not found.</returns>
-        public override int GetFkRefno(object resourceType)
         {
             throw new NotImplementedException();
         }

@@ -258,7 +258,7 @@ namespace dMobile.Controller.Activity
             Grid.SetRow(gridHeader, 0);
             gridMainActivity.Children.Add(gridHeader);
 
-            foreach (Replenishment replen in this.ListHdrs)
+            foreach (Replenishment replen in this.ListHeaders)
             {
                 headersList.Add(replen);
 
@@ -390,14 +390,14 @@ namespace dMobile.Controller.Activity
             var from = from item in this.ListReplenishments
                                 where item.ActivityItemFKRefno == item.ActivityItemFKParRefno
                                 select item;
-            this.ListHdrs = from.Cast<object>().ToList();
+            this.ListHeaders = from.Cast<object>().ToList();
 
             var to = from item in this.ListReplenishments
                      where item.ActivityItemFKRefno != item.ActivityItemFKParRefno
                      select item;
             this.ListItems = to.Cast<object>().ToList();
 
-            return this.ListHdrs;
+            return this.ListHeaders;
         }
 
         /// <summary>
@@ -421,16 +421,13 @@ namespace dMobile.Controller.Activity
         /// Get the activity reference number for the selected object.
         /// </summary>
         /// <param name="selectedItem"><see cref="object"/> Selected item.</param>
-        /// <returns><see cref="int"/> Selected activity reference number.</returns>
-        public override int GetRefnoFromRowIdx(object selectedItem)
+        public override void AssignRefnoFromActivity(object selectedItem)
         {
-            if (selectedItem is Replenishment replen)
+            if (selectedItem is Replenishment hdr)
             {
-                this.HdrFkRefno = Convert.ToInt32(replen.ActivityItemFKRefno);
-                this.HdrRefno = Convert.ToInt32(replen.ActivityRefno);
+                this.HdrFkRefno = Convert.ToInt32(hdr.ActivityItemFKRefno);
+                this.HdrRefno = Convert.ToInt32(hdr.ActivityRefno);
             }
-
-            return this.HdrRefno;
         }
 
         /// <summary>
@@ -456,17 +453,6 @@ namespace dMobile.Controller.Activity
                 await replen.RequestHeaderData();
                 replen.UnregisterDataAccessListenerProgressOut((IDataAccessEventListener)this);
             }
-        }
-
-        /// <summary>
-        /// Get the activity foreign key reference number.
-        /// </summary>
-        /// <param name="resourceType"><see cref="object"/> Resource model type (tActivity??Model).</param>
-        /// <returns><see cref="int"/> Found activity foreign key refno, else 0 if not found.</returns>
-        public override int GetFkRefno(object resourceType)
-        {
-            object tmpFkRefno = ((Replenishment)resourceType).ActivityItemFKRefno;
-            return tmpFkRefno == null ? 0 : Convert.ToInt32(tmpFkRefno);
         }
 
         /// <summary>

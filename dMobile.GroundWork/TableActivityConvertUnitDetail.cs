@@ -49,20 +49,35 @@ namespace dMobile.GroundWork
                                 " OR tActivityDetailProductSchemeVariantXRef.ProductSchemeVariantRefno <= 0";
                     transaction.Execute(query);
 
-                    // Corruption recovery cleanup.
-                    query = "DELETE FROM tActivityDetailExtra WHERE tActivityDetailExtra.ActivityDetailRefno <= 0";
+                    query = "DELETE FROM tActivityDetailProductSchemeVariantXRef" +
+                            " WHERE tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno " +
+                            "NOT IN (SELECT tActivityDetail.ActivityDetailRefno FROM tActivityDetail)";
                     transaction.Execute(query);
 
-                    // Corruption recovery cleanup.
-                    query = "DELETE FROM tActivityDetailAdjustment WHERE tActivityDetailConvertUnit.ActivityDetailRefno <= 0" +
+                    query = "DELETE FROM tActivityDetailConvertUnit WHERE tActivityDetailConvertUnit.ActivityDetailRefno <= 0" +
                             " OR tActivityDetailConvertUnit.ActivityDetailFKRefno <= 0";
                     transaction.Execute(query);
 
-                    // Corruption recovery cleanup.
+                    query = "DELETE FROM tActivityDetailConvertUnit WHERE tActivityDetailConvertUnit.ActivityDetailRefno " +
+                            "NOT IN (SELECT tActivityDetail.ActivityDetailRefno FROM tActivityDetail)";
+                    transaction.Execute(query);
+
+                    query = "DELETE FROM tActivityDetailExtra WHERE tActivityDetailExtra.ActivityDetailRefno <= 0";
+                    transaction.Execute(query);
+
+                    query = "DELETE FROM tActivityDetailExtra WHERE tActivityDetailExtra.ActivityDetailRefno " +
+                            "NOT IN (SELECT tActivityDetail.ActivityDetailRefno FROM tActivityDetail)";
+                    transaction.Execute(query);
+
                     query = "DELETE FROM tActivityDetail WHERE tActivityDetail.ActivityDetailSubType = ?" +
                             " AND tActivityDetail.ActivityDetailRefno <= 0";
                     transaction.Execute(query, subType);
 
+                    query = "DELETE FROM tActivityDetail WHERE tActivityDetail.ActivityItemRefno " +
+                            "NOT IN (SELECT tActivityItem.ActivityItemRefno FROM tActivityItem)";
+                    transaction.Execute(query, subType);
+
+                    // Regular purge.
                     query = "DELETE FROM tActivityDetailProductSchemeVariantXRef "
                         + "WHERE tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno IN "
                         + "(SELECT tActivityDetail.ActivityDetailRefno "

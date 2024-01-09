@@ -4,7 +4,6 @@
 
 namespace dMobile.Bedrock
 {
-    using Org.Apache.Http.Protocol;
     using System;
     using System.Data;
     using System.IO;
@@ -31,7 +30,7 @@ namespace dMobile.Bedrock
         /// </summary>
         /// <param name="skid"><see cref="SysSkidInfo"/> Skid information.</param>
         /// <returns><see cref="XDocument"/> Created skid XDocument.</returns>
-        public static XDocument SkidInfoToXML(SysSkidInfo skid)
+        public static XDocument SkidInfoToXml(SysSkidInfo skid)
         {
             var xmlResult = new XDocument(
                 new XDeclaration(
@@ -87,62 +86,66 @@ namespace dMobile.Bedrock
         /// </summary>
         /// <param name="data"><see cref="XDocument"/> Skid information.</param>
         /// <returns><see cref="SysSkidInfo"/> Create skid information object.</returns>
-        public static async Task<SysSkidInfo> GetSkidInfoFromXML(XDocument data)
+        public static async Task<SysSkidInfo> GetSkidInfoFromXml(XDocument data)
         {
-            var skid = new SysSkidInfo();
-            skid.CurrSkid = await FillSkidInfo(data);
+            var skid = new SysSkidInfo
+            {
+                CurrSkid = await FillSkidInfo(data)
+            };
             return skid;
 
             //////////////////////////////////////////////////////////////////////////
             static async Task<SSkidInfo> FillSkidInfo(XDocument data)
             {
+                if (!(data is { Root: { } }))
+                {
+                    throw new ArgumentNullException(nameof(data));
+                }
+
                 var skid = new SSkidInfo
                 {
-
-                    // Identifier information.
-                    SkidFKRefno = int.Parse(data.Root.Element("skid_fk_refno").Value),
-                    LogisticUnitSkidCode = data.Root.Element("logistic_unit_skid_code").Value,
-                    SkidCode = data.Root.Element("skid_code").Value,
+                    SkidFKRefno = int.Parse(data.Root.Element("skid_fk_refno") !.Value),
+                    LogisticUnitSkidCode = data.Root.Element("logistic_unit_skid_code") !.Value,
+                    SkidCode = data.Root.Element("skid_code") !.Value,
                 };
 
                 // Location.
-                var locMapRefno = int.Parse(data.Root.Element("location_map_refno").Value);
+                var locMapRefno = int.Parse(data.Root.Element("location_map_refno") !.Value);
                 skid.LocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(locMapRefno);
 
                 // Product unit.
-                var prodUnitRefno = int.Parse(data.Root.Element("product_unit_refno").Value);
+                var prodUnitRefno = int.Parse(data.Root.Element("product_unit_refno") !.Value);
                 skid.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
                 skid.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(skid.ProdInfo.Refno);
 
                 // Quantity
-                skid.Quantity = decimal.Parse(data.Root.Element("quantity").Value);
-                skid.BaseQuantity = decimal.Parse(data.Root.Element("base_quantity").Value);
-                skid.WeightQuantity = decimal.Parse(data.Root.Element("weight_quantity").Value);
+                skid.Quantity = decimal.Parse(data.Root.Element("quantity") !.Value);
+                skid.BaseQuantity = decimal.Parse(data.Root.Element("base_quantity") !.Value);
+                skid.WeightQuantity = decimal.Parse(data.Root.Element("weight_quantity") !.Value);
 
                 // Attributes.
-                skid.IsCHEP = bool.Parse(data.Root.Element("chep").Value);
-                skid.IsHold = bool.Parse(data.Root.Element("hold").Value);
-                skid.Ti = int.Parse(data.Root.Element("ti").Value);
-                skid.Hi = int.Parse(data.Root.Element("hi").Value);
-                skid.Height = decimal.Parse(data.Root.Element("height").Value);
-                skid.HeightUnit = data.Root.Element("height_unit").Value;
-                skid.Cube = decimal.Parse(data.Root.Element("cube").Value);
-                skid.CubeUnit = data.Root.Element("cube_unit").Value;
-                skid.IsCompleted = bool.Parse(data.Root.Element("completed").Value);
-                skid.IsConsumed = bool.Parse(data.Root.Element("consumed").Value);
-                skid.IsPutAway = bool.Parse(data.Root.Element("putaway").Value);
+                skid.IsCHEP = bool.Parse(data.Root.Element("chep") !.Value);
+                skid.IsHold = bool.Parse(data.Root.Element("hold") !.Value);
+                skid.Ti = int.Parse(data.Root.Element("ti") !.Value);
+                skid.Hi = int.Parse(data.Root.Element("hi") !.Value);
+                skid.Height = decimal.Parse(data.Root.Element("height") !.Value);
+                skid.HeightUnit = data.Root.Element("height_unit") !.Value;
+                skid.Cube = decimal.Parse(data.Root.Element("cube") !.Value);
+                skid.CubeUnit = data.Root.Element("cube_unit") !.Value;
+                skid.IsCompleted = bool.Parse(data.Root.Element("completed") !.Value);
+                skid.IsConsumed = bool.Parse(data.Root.Element("consumed") !.Value);
+                skid.IsPutAway = bool.Parse(data.Root.Element("putaway") !.Value);
 
                 // Default inventory detail, used with creating new skids.
                 var schemeData = skid.SchemeData;
-                schemeData.LogisticUnitBatchLotNumber =
-                    data.Root.Element("logistic_unit_batch_lot_number").Value;
-                schemeData.LogisticUnitBestBeforeSellByDate
-                    = DateTime.Parse(data.Root.Element("logistic_unit_best_before_sell_by_date").Value);
+                schemeData.LogisticUnitBatchLotNumber = data.Root.Element("logistic_unit_batch_lot_number") !.Value;
+                schemeData.LogisticUnitBestBeforeSellByDate = DateTime.Parse(
+                    data.Root.Element("logistic_unit_best_before_sell_by_date") !.Value);
                 schemeData.LogisticUnitProductionDate = DateTime.Parse(
-                    data.Root.Element("logistic_unit_production_date").Value);
-                schemeData.VariantNumber = int.Parse(data.Root.Element("product_scheme_variant_no").Value);
-                schemeData.VariantCode = data.Root.Element("product_scheme_variant_code").Value;
-                schemeData.VariantDescription = data.Root.Element("product_scheme_variant_description").Value;
+                    data.Root.Element("logistic_unit_production_date") !.Value);
+                schemeData.VariantNumber = int.Parse(data.Root.Element("product_scheme_variant_no") !.Value);
+                schemeData.VariantCode = data.Root.Element("product_scheme_variant_code") !.Value;
+                schemeData.VariantDescription = data.Root.Element("product_scheme_variant_description") !.Value;
                 skid.SchemeData = schemeData;
                 return skid;
             }
@@ -423,6 +426,11 @@ namespace dMobile.Bedrock
         /// <returns><see cref="Task{SysSkidInfo}"/> Created skid information.</returns>
         public static async Task<SysSkidInfo> Create(XDocument skidData)
         {
+            if (!(skidData is { Document: { } }))
+            {
+                throw new ArgumentNullException(nameof(skidData));
+            }
+
             var root = skidData.Document.Root;
             var sysEnv = SysEnvironment.GetInstance();
             var xmlString = new StringBuilder();
@@ -430,10 +438,10 @@ namespace dMobile.Bedrock
             var revDateTime = sysEnv.RefreshOpt.RefreshedDataLast.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
             var currDateTime = DateTime.Now.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
             var prodInfo = await ProductInfoTasks.GetInfoFromUnitRefno(
-                int.Parse(root.Element("product_unit_refno").Value));
+                int.Parse(root.Element("product_unit_refno") !.Value));
 
             var skidLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
-                int.Parse(root.Element("location_map_refno").Value));
+                int.Parse(root.Element("location_map_refno") !.Value));
             var request = new XDocument(
                 new XDeclaration("1.0", "utf-16", "yes"),
                 string.Empty,
@@ -444,19 +452,19 @@ namespace dMobile.Bedrock
                     new XElement("login_id", sysEnv.ContactLog.LoginID.ToString()),
                     new XElement("revision_datetime", revDateTime),
                     new XElement("stamp", currDateTime),
-                    new XElement("chep", root.Element("chep").Value),
-                    new XElement("hold", root.Element("hold").Value),
-                    new XElement("base_quantity", root.Element("base_quantity").Value),
-                    new XElement("cube", root.Element("cube").Value),
-                    new XElement("height", root.Element("height").Value),
-                    new XElement("quantity", root.Element("quantity").Value),
-                    new XElement("weight_quantity", root.Element("weight_quantity").Value),
-                    new XElement("hi", root.Element("hi").Value),
-                    new XElement("ti", root.Element("ti").Value),
-                    new XElement("cube_unit", root.Element("cube_unit").Value),
-                    new XElement("height_unit", root.Element("height_unit").Value),
-                    new XElement("logistic_unit_skid_code", root.Element("logistic_unit_skid_code").Value),
-                    new XElement("skid_code", root.Element("skid_code").Value),
+                    new XElement("chep", root.Element("chep") !.Value),
+                    new XElement("hold", root.Element("hold") !.Value),
+                    new XElement("base_quantity", root.Element("base_quantity") !.Value),
+                    new XElement("cube", root.Element("cube") !.Value),
+                    new XElement("height", root.Element("height") !.Value),
+                    new XElement("quantity", root.Element("quantity") !.Value),
+                    new XElement("weight_quantity", root.Element("weight_quantity") !.Value),
+                    new XElement("hi", root.Element("hi") !.Value),
+                    new XElement("ti", root.Element("ti") !.Value),
+                    new XElement("cube_unit", root.Element("cube_unit") !.Value),
+                    new XElement("height_unit", root.Element("height_unit") !.Value),
+                    new XElement("logistic_unit_skid_code", root.Element("logistic_unit_skid_code") !.Value),
+                    new XElement("skid_code", root.Element("skid_code") !.Value),
                     new XElement("whs_id", skidLocMap.WhsFKRefno),
                     new XElement("sect_refno", skidLocMap.SectFKRefno),
                     new XElement("slot_refno", skidLocMap.SlotFKRefno),
@@ -474,7 +482,7 @@ namespace dMobile.Bedrock
             SysSkidInfo skid;
             var result = new XmlDocument();
             result.LoadXml(responseData);
-            skid = await SysSkidInfo.GetSkidInfoFromXML(skidData);
+            skid = await SysSkidInfo.GetSkidInfoFromXml(skidData);
             var tempSkidInfo = skid.CurrSkid;
             tempSkidInfo.SkidFKRefno = int.Parse(result.DocumentElement["skid_fk_refno"].InnerText);
             tempSkidInfo.SkidCode = result.DocumentElement["skid_code"].InnerText;

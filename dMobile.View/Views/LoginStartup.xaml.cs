@@ -14,7 +14,9 @@ namespace dMobile.View.Views
     using Android.Views;
     using Bedrock;
     using CustomPages;
+    using dMobile.BarCodeScanner.BarCodeScanners;
     using Forms;
+    using Helpers;
     using Pages;
     using Resources.Enums;
     using Resources.Models;
@@ -43,11 +45,7 @@ namespace dMobile.View.Views
             this.lblLoginPassword.Text = Resource.Password;
             this.lblWarehouse.Text = Resource.Warehouse;
             this.lstWarehouse.Title = "Select Warehouse";
-
-            if (!DesignMode.IsDesignModeEnabled)
-            {
-                this.SysEnv = SysEnvironment.GetInstance();
-            }
+            this.SysEnv = SysEnvironment.GetInstance();
         }
 
         /// <summary>
@@ -341,7 +339,7 @@ namespace dMobile.View.Views
         ///     Assemble a XML string of activity data to return to the calling parent form.
         /// </summary>
         /// <returns><see cref="Task" /> Task operation containing an XDocument.</returns>
-        public async Task<XDocument> GetXML()
+        public async Task<XDocument> GetXml()
         {
             var xmldocParams = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
@@ -630,6 +628,7 @@ namespace dMobile.View.Views
             try
             {
                 this.IsIndicatorRunning = true;
+                ////SysShared.PlaySound("InterfaceOptionSelect.wav");
 
                 await Task.Run(async () =>
                 {

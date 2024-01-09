@@ -163,7 +163,7 @@ namespace dMobile.Controller.Activity
 
             gridMainActivity.Children.Add(gridHeaderPhysicalCount);
 
-            foreach (Count count in this.ListHdrs)
+            foreach (Count count in this.ListHeaders)
             {
                 var description = string.Empty;
                 var descriptionSubstring = Convert.ToString(count.ActivityCountTypeDescription).Split();
@@ -325,8 +325,8 @@ namespace dMobile.Controller.Activity
 
             this.GetFilter();
 
-            this.ListHdrs = this.listCounts.Cast<object>().ToList();
-            return this.ListHdrs;
+            this.ListHeaders = this.listCounts.Cast<object>().ToList();
+            return this.ListHeaders;
         }
 
         /// <summary>
@@ -338,9 +338,9 @@ namespace dMobile.Controller.Activity
         {
             var observableCollection = new ObservableCollection<object>();
 
-            this.ListHdrs = this.listCounts.Where(count => count.ActivityStringFKRefno.ToLower().Contains(searchText.ToLower().Trim())).Cast<object>().ToList();
+            this.ListHeaders = this.listCounts.Where(count => count.ActivityStringFKRefno.ToLower().Contains(searchText.ToLower().Trim())).Cast<object>().ToList();
 
-            foreach (Count count in this.ListHdrs)
+            foreach (Count count in this.ListHeaders)
             {
                 // string description = string.Empty;
                 // string[] descriptionSubstring = Convert.ToString(count.ActivityCountTypeDescription).Split();
@@ -399,19 +399,16 @@ namespace dMobile.Controller.Activity
         }
 
         /// <summary>
-        /// The GetRefnoFromRowIdx.
+        /// The AssignRefnoFromActivity.
         /// </summary>
         /// <param name="selectedItem">The selectedItem<see cref="object"/>.</param>
-        /// <returns>.</returns>
-        public override int GetRefnoFromRowIdx(object selectedItem)
+        public override void AssignRefnoFromActivity(object selectedItem)
         {
             if (selectedItem is Count count)
             {
                 this.HdrFkRefno = Convert.ToInt32(count.ActivityFKRefno);
                 this.HdrRefno = Convert.ToInt32(count.ActivityRefno);
             }
-
-            return this.HdrRefno;
         }
 
         /// <summary>
@@ -495,18 +492,6 @@ namespace dMobile.Controller.Activity
                     this.listCounts = this.listCounts.Where(count => count.ActivityCountDateTime >= minDate && count.ActivityCountDateTime <= maxDate).ToList();
                 }
             }
-        }
-
-        /// <summary>
-        /// Get the activity foreign key reference number.
-        /// </summary>
-        /// <param name="resourceType"><see cref="object"/> Resource model (ActivityCountModel).</param>
-        /// <returns><see cref="int"/> Found activity foreign key refno, else 0 if not found.</returns>
-        public override int GetFkRefno(object resourceType)
-        {
-            // Not sure why the cast to ActivityCountModel fails.
-            object tmpFkRefno = ((Count)resourceType).ActivityFKRefno;
-            return tmpFkRefno != null ? Convert.ToInt32(tmpFkRefno) : 0;
         }
 
         /// <summary>

@@ -21,6 +21,7 @@ namespace dMobile.View.Activity
     using Controller.Activity_Detail;
     using Controller.Activity_Item;
     using CustomPages.Modal;
+    using dMobile.View.Helpers;
     using Forms;
     using Resources.Enums;
     using Resources.Types;
@@ -91,23 +92,22 @@ namespace dMobile.View.Activity
             this.SysEnv.SysSettings.IsNewActivityDetailsAdded = false;
 
             this.LocMap = LocationMap.GetInstance();
-            this.Scanner = ScannerEngine.GetInstance().Scanner;
 
             actItem.ActHdr.SkidInfo ??= new SysSkidInfo();
-
             this.ActSubType = actSubTypes;
             this.ActDetail = ActDetailFacade.GetActDetail(actItem, actSubTypes);
             this.ActDetail.ActItem = actItem;
 
             this.Title = this.ActDetail.GetControlDescription();
-            _ = Task.Run(this.LoadAndBindData);
-            return;
+            this.Timer = new SysTimer(this.TimerTickCallback, 1000);
+            this.ScannerEnable().FireAndForgetSafeAsync();
+            this.LoadAndBindData().FireAndForgetSafeAsync();
         }
 
         /// <summary>
         ///     Gets the bar code scanner instance.
         /// </summary>
-        private BarCodeScanner Scanner { get; }
+        private BarCodeScanner Scanner { get; } = ScannerEngine.GetInstance().Scanner;
 
         /// <summary>
         ///     Gets the system environment instance.
@@ -165,11 +165,6 @@ namespace dMobile.View.Activity
         ///     Gets or sets a value indicating whether the data is being loaded.
         /// </summary>
         private bool IsDataLoading { get; set; }
-
-        /// <summary>
-        ///     Gets or sets a value indicating whether this is the first form appearance.
-        /// </summary>
-        private bool IsFirstAppearance { get; set; } = true;
 
         /// <summary>
         ///     Gets or sets the command location text.
@@ -250,16 +245,38 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
+        /// Gets or sets the system timer.
+        /// </summary>
+        private SysTimer Timer { get; set; }
+
+        /// <summary>
+        ///     Gets or sets the search text box original text.
+        /// </summary>
+        private string SearchTextOrig { get; set; } = string.Empty;
+
+        /// <summary>
+        ///     Timer tick call back.
+        /// </summary>
+        public void TimerTickCallback()
+        {
+            this.Timer.Stop();
+            if (this.IsSearchEntryFocused && this.txtSearchDetail.Text != this.SearchTextOrig)
+            {
+                this.SearchTextOrig = this.txtSearchDetail.Text;
+                this.LoadAndBindData().FireAndForgetSafeAsync();
+            }
+
+            // Did not start the timer again here because the timer is started in the OnTextChange event.
+        }
+
+        /// <summary>
         ///     Unregister the bar code scan event handler and disable the scanner.
         /// </summary>
         /// <returns><see cref="Task" /> Task operation.</returns>
         public async Task ScannerDisable()
         {
-            if (this.Scanner != null)
-            {
-                this.Scanner.BarCodeScan -= this.BarCodeHandler;
-                await this.Scanner.Stop();
-            }
+            this.Scanner.ClearBarCodeScanEventHandlers();
+            await this.Scanner.DisableScanning();
         }
 
         /// <summary>
@@ -268,11 +285,12 @@ namespace dMobile.View.Activity
         /// <returns><see cref="Task" /> Task operation.</returns>
         public async Task ScannerEnable()
         {
-            if (this.Scanner != null)
+            if (!this.Scanner.IsBarCodeScanEventHandlerAdded())
             {
-                await this.Scanner.Start();
                 this.Scanner.BarCodeScan += this.BarCodeHandler;
             }
+
+            await this.Scanner.EnableScanning();
         }
 
         /// <summary>
@@ -537,7 +555,7 @@ namespace dMobile.View.Activity
         ///     Get the activity detail return XDocument information.
         /// </summary>
         /// <returns><see cref="XDocument" /> Activity detail return information.</returns>
-        public async Task<XDocument> GetXML()
+        public async Task<XDocument> GetXml()
         {
             var fillQty = await this.ActDetail.GetTotalQuantityFromListDetail();
 
@@ -605,6 +623,7 @@ namespace dMobile.View.Activity
                 {
                     this.SysEnv.SysSettings.IsShowActivityFilterSelection = true;
                     this.SysEnv.SysSettings.IsNewActivityDetailsAdded = false;
+                    await this.ScannerDisable();
                     _ = base.OnBackButtonPressed();
                     await this.Close();
                 }
@@ -673,59 +692,12 @@ namespace dMobile.View.Activity
         /// </summary>
         protected override async void OnAppearing()
         {
-            try
+            base.OnAppearing();
+            this.SubscribeKeyUpHandlers();
+            if (!this.IsSearchEntryFocused)
             {
-                // Note: Do we want to disable the scanner here. It may not even be enabled before at all.
-                // It is my understanding that the OnAppearing event only occurs once when the control is loading.
-                base.OnAppearing();
-                this.SubscribeKeyUpHandlers();
-                await this.ScannerEnable();
-                if (!this.IsSearchEntryFocused)
-                {
-                    this.ListViewMainActivity.Focus();
-                    await this.FindSelectedItemAsync();
-                }
-            }
-            catch (MessageOnlyException msgEx)
-            {
-                var msg = SysCommon.GetMessageFromMessageException(msgEx);
-                await Device.InvokeOnMainThreadAsync(async () =>
-                    await Application.Current.MainPage.DisplayAlert(
-                        this.ActDetail.GetControlDescription(),
-                        msg,
-                        Resource.OK));
-            }
-            catch (CommunicationException commEx)
-            {
-                // Question should a communication error, be reported as an error or just a messagebox?
-                await Device.InvokeOnMainThreadAsync(async () =>
-                {
-                    var msg = $"Unable to load activity details.{Environment.NewLine}" +
-                              $"Because of a communication problem.{Environment.NewLine}" +
-                              $"Detail:{commEx.Message}{Environment.NewLine}" +
-                              "Please exit and try again.";
-
-                    await Application.Current.MainPage.DisplayAlert(
-                        this.ActDetail.GetControlDescription(),
-                        msg,
-                        Resource.OK);
-                });
-            }
-            catch (Exception ex)
-            {
-                await Device.InvokeOnMainThreadAsync(async () =>
-                {
-                    var msg = $"Unable to load activity details.{Environment.NewLine}" +
-                              $"General exception.{Environment.NewLine}" +
-                              $"Detail:{ex.Message}{Environment.NewLine}" +
-                              "Please exit and try again.";
-                    var errorReport = new FormErrorReport(msg, ex);
-                    _ = await errorReport.ShowDialog();
-                });
-            }
-            finally
-            {
-                this.IsIndicatorRunning = false;
+                this.ListViewMainActivity.Focus();
+                await this.FindSelectedItemAsync();
             }
         }
 
@@ -779,7 +751,7 @@ namespace dMobile.View.Activity
                     }
                     else
                     {
-                        this.FindSelectedItemAsync();
+                        await this.FindSelectedItemAsync();
                     }
                 }
             }
@@ -824,7 +796,7 @@ namespace dMobile.View.Activity
 
             try
             {
-                ////this.Loading = true;
+                await this.ScannerDisable();
 
                 // TODO: Verify key codes.
                 _ = Enum.TryParse(keyPressed, out Keycode keycode);
@@ -873,6 +845,10 @@ namespace dMobile.View.Activity
                     var errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
                 });
+            }
+            finally
+            {
+                await this.ScannerEnable();
             }
 
             return;
@@ -989,7 +965,7 @@ namespace dMobile.View.Activity
 
                     // Update the table item quantity.
                     await this.ActDetail.ActItem.UpdateItemTableQuantity(this.ActDetail.ActItem.SelectedItem);
-                    this.OnAppearing();
+                    await this.LoadAndBindData();
                 }
 
                 //////////////////////////////////////////////////////////////////////////
@@ -1020,7 +996,7 @@ namespace dMobile.View.Activity
                     await this.ActDetail.ActItem.UpdateItemTableQuantity(this.ActDetail.ActItem.SelectedItem);
                     this.ActDetail.ActItem.ListItems[this.ActDetail.ActItem.SelectedListIdx] =
                         this.ActDetail.ActItem.SelectedItem;
-                    this.OnAppearing();
+                    await this.LoadAndBindData();
                 }
             }
 
@@ -1036,6 +1012,7 @@ namespace dMobile.View.Activity
                         // TODO: DEV-5619
                         // Android dMobile F1 & F3 Button Not Working Same As Windows dMobile.
                         this.SysEnv.SysSettings.IsNewActivityDetailsAdded = false;
+                        await this.ScannerDisable();
                         await this.Close();
                     }
                 }
@@ -1255,6 +1232,7 @@ namespace dMobile.View.Activity
         private void TxtSearchDetail_Focused(object sender, EventArgs e)
         {
             this.IsSearchEntryFocused = true;
+            this.Timer.Start();
         }
 
         /// <summary>
@@ -1265,6 +1243,7 @@ namespace dMobile.View.Activity
         private void TxtSearchDetail_Unfocused(object sender, EventArgs e)
         {
             this.IsSearchEntryFocused = false;
+            this.Timer.Stop();
         }
 
         /// <summary>
@@ -1274,7 +1253,11 @@ namespace dMobile.View.Activity
         /// <param name="e"><see cref="EventArgs" /> Sender object event arguments.</param>
         private async void TxtSearchDetail_TextChanged(object sender, TextChangedEventArgs e)
         {
-            await this.LoadAndBindData();
+            // Timer was started in the focused event handler.
+            // Timer was stopped in the unfocused event handler.
+            // Timer was stopped in the timer tick call back event.
+            // Start the timer when the text changes. This will reset the timer and force a load data.
+            this.Timer.Start();
         }
 
         /// <summary>
@@ -1298,7 +1281,7 @@ namespace dMobile.View.Activity
         /// <returns>The <see cref="Task" />.</returns>
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
-            if (this.IsIndicatorRunning || scanArgs == null)
+            if (scanArgs == null)
             {
                 return;
             }
@@ -1306,7 +1289,6 @@ namespace dMobile.View.Activity
             var parse = scanArgs.ParseInfo;
             try
             {
-                this.IsIndicatorRunning = true;
                 await this.ScannerDisable();
                 var svdActDetailFkRefno = this.ActDetail.DetailFkRefno;
 
@@ -1390,15 +1372,13 @@ namespace dMobile.View.Activity
                                 this.ActSubType,
                                 this.ActDetail.ActItem,
                                 tempItemProdSchemeData,
-                                false,
-                                this.ActDetail,
-                                false);
+                                this.ActDetail);
                             if (isInsertReady)
                             {
                                 await this.InsertActivityDetail(this.ActDetail);
                             }
 
-                            this.FindSelectedItemAsync();
+                            await this.FindSelectedItemAsync();
                         }
                     }
                     else if (!string.IsNullOrEmpty(parse.ActFKRefno))
@@ -1562,9 +1542,8 @@ namespace dMobile.View.Activity
             }
             finally
             {
-                this.ListViewDisplayExtraInfo.ItemsSource = this.ExtraInfoItems;
                 await this.ScannerEnable();
-                this.IsIndicatorRunning = false;
+                this.ListViewDisplayExtraInfo.ItemsSource = this.ExtraInfoItems;
             }
 
             return;
@@ -1732,18 +1711,18 @@ namespace dMobile.View.Activity
                 }
 
                 // Goto the first one in the list if nothing found.
-                if (selectedItem == null)
-                {
-                    this.ActDetail.SelectedListIdx = 0;
-                    this.ListViewMainActivity.SelectedItem = this.ActDetail.ListDetails[this.ActDetail.SelectedListIdx];
-                }
-                else
-                {
-                    this.ListViewMainActivity.SelectedItem = selectedItem;
-                }
-
                 Device.BeginInvokeOnMainThread(() =>
                 {
+                    if (selectedItem == null)
+                    {
+                        this.ActDetail.SelectedListIdx = 0;
+                        this.ListViewMainActivity.SelectedItem = this.ActDetail.ListDetails[this.ActDetail.SelectedListIdx];
+                    }
+                    else
+                    {
+                        this.ListViewMainActivity.SelectedItem = selectedItem;
+                    }
+
                     this.ListViewMainActivity.ScrollTo(
                         this.ListViewMainActivity.SelectedItem,
                         ScrollToPosition.MakeVisible,
@@ -1813,7 +1792,6 @@ namespace dMobile.View.Activity
             });
 
             ////this.FindSelectedItemAsync();
-
             ////await AddOrUpdateDetailList();
         }
 
@@ -2489,7 +2467,7 @@ namespace dMobile.View.Activity
                 this.ActDetail.ActExtra.Text2 = string.Empty;
                 this.ActDetail.ActExtra.Text3 = string.Empty;
                 this.ActDetail.ActExtra.Text4 = string.Empty;
-                this.ActDetail.ActExtra.DateTime1 = new DateTime(1980, 1, 1);
+                this.ActDetail.ActExtra.DateTime1 = new DateTime(1900, 1, 1);
 
                 // Did not use this.ActItem.ActHdr.SkidInfo.CurrSkid.LogisticUnitSkidCode because of
                 // the length of the code and the fact is isn't human readable friendly.
@@ -2498,8 +2476,11 @@ namespace dMobile.View.Activity
                 var skidInfo = this.ActDetail.ActItem.ActHdr.SkidInfo.CurrSkid;
                 if (skidInfo.SkidFKRefno == 0)
                 {
+                    // Set to empty values, otherwise the detail edit screen may not be shown.
                     schemeData.LogisticUnitSkidNumber = string.Empty;
                     schemeData.LogisticUnitBatchLotNumber = string.Empty;
+                    ////schemeData.LogisticUnitBestBeforeSellByDate = new DateTime(1900, 1, 1);
+                    ////schemeData.LogisticUnitProductionDate = new DateTime(1900, 1, 1);
                     schemeData.LogisticUnitBestBeforeSellByDate = DateTime.Now;
                     schemeData.LogisticUnitProductionDate = DateTime.Now;
                     schemeData.VariantCode = string.Empty;
@@ -2564,9 +2545,7 @@ namespace dMobile.View.Activity
                     this.ActSubType,
                     this.ActDetail.ActItem,
                     tempItemProdSchemeData,
-                    false,
-                    gatherActDetail,
-                    true);
+                    gatherActDetail);
 
                 if (isInsertReady)
                 {
@@ -2690,7 +2669,7 @@ namespace dMobile.View.Activity
                     if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
                     {
                         var xmlDoc = await form.GetXML();
-                        this.ActDetail.ActItem.ActHdr.SkidInfo = await SysSkidInfo.GetSkidInfoFromXML(xmlDoc);
+                        this.ActDetail.ActItem.ActHdr.SkidInfo = await SysSkidInfo.GetSkidInfoFromXml(xmlDoc);
 
                         if (this.ActDetail.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno != 0)
                         {
@@ -2784,6 +2763,9 @@ namespace dMobile.View.Activity
                                 fillQty.Quantity,
                                 fillQty.BaseQuantity,
                                 fillQty.WeightQuantity);
+
+                            await Task.Run(this.LoadAndBindData);
+                            this.ListViewMainActivity.Focus();
                         }
                     }
                 }

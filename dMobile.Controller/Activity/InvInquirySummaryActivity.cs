@@ -70,11 +70,10 @@ namespace dMobile.Controller.Activity
         }
 
         /// <summary>
-        /// The GetRefnoFromRowIdx.
+        /// The AssignRefnoFromActivity.
         /// </summary>
         /// <param name="selectedItem">The selectedItem<see cref="object"/>.</param>
-        /// <returns>.</returns>
-        public override int GetRefnoFromRowIdx(object selectedItem)
+        public override void AssignRefnoFromActivity(object selectedItem)
         {
             if (selectedItem is InvInquirySummaryActivity inquiry)
             {
@@ -82,8 +81,6 @@ namespace dMobile.Controller.Activity
                 this.HdrFkRefno = Convert.ToInt32(inquiry.HdrRefno);
                 this.HdrRefno = Convert.ToInt32(inquiry.HdrRefno);
             }
-
-            return this.HdrRefno;
         }
 
         /// <summary>
@@ -152,16 +149,6 @@ namespace dMobile.Controller.Activity
         /// </summary>
         public override void GetFilter()
         {
-        }
-
-        /// <summary>
-        /// Get the activity foreign key reference number.
-        /// </summary>
-        /// <param name="resourceType"><see cref="object"/> Resource model (tActivity??Model).</param>
-        /// <returns><see cref="int"/> Found activity foreign key refno, else 0 if not found.</returns>
-        public override int GetFkRefno(object resourceType)
-        {
-            throw new NotImplementedException();
         }
 
         /// <summary>

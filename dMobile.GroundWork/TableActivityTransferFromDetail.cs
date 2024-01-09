@@ -25,8 +25,8 @@ namespace dMobile.GroundWork
         {
             this.FullClassName = "dMobile.GroundWork.TableActivityTransferFromDetail";
             this.CurrentSubType = SysCommon.ActSubTypes.TransferFrom;
-            this.LowerCaseName = "from transfer";
-            this.ProperCaseName = "From transfer";
+            this.LowerCaseName = "from transfer detail";
+            this.ProperCaseName = "From transfer detail";
         }
 
         /// <summary>
@@ -38,7 +38,7 @@ namespace dMobile.GroundWork
         {
             var conn = DatabaseConnection.GetInstance().SQLConn;
             var subType = Convert.ToInt32(this.CurrentSubType);
-            this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging transfer details.", true);
+            this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName}.", true);
 
             await conn.RunInTransactionAsync(transaction =>
             {
@@ -50,20 +50,36 @@ namespace dMobile.GroundWork
                                 " OR tActivityDetailProductSchemeVariantXRef.ProductSchemeVariantRefno <= 0";
                     transaction.Execute(query);
 
-                    // Corruption recovery cleanup.
+                    query = "DELETE FROM tActivityDetailProductSchemeVariantXRef "
+                            + "WHERE tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno NOT IN "
+                            + "(SELECT tActivityDetail.ActivityDetailRefno FROM tActivityDetail)";
+                    transaction.Execute(query);
+
                     query = "DELETE FROM tActivityDetailExtra WHERE tActivityDetailExtra.ActivityDetailRefno <= 0";
                     transaction.Execute(query);
 
-                    // Corruption recovery cleanup.
+                    query = "DELETE FROM tActivityDetailExtra "
+                            + "WHERE tActivityDetailExtra.ActivityDetailRefno NOT IN "
+                            + "(SELECT tActivityDetail.ActivityDetailRefno FROM tActivityDetail)";
+                    transaction.Execute(query);
+
                     query = "DELETE FROM tActivityDetailTransfer WHERE tActivityDetailTransfer.ActivityDetailRefno <= 0" +
                             " OR tActivityDetailTransfer.ActivityDetailFKRefno <= 0";
                     transaction.Execute(query);
 
-                    // Corruption recovery cleanup.
-                    query = "DELETE FROM tActivityDetail WHERE tActivityDetail.ActivityDetailSubType = ?" +
-                            " AND tActivityDetail.ActivityDetailRefno <= 0";
+                    query = "DELETE FROM tActivityDetailTransfer "
+                            + "WHERE tActivityDetailTransfer.ActivityDetailRefno NOT IN "
+                            + "(SELECT tActivityDetail.ActivityDetailRefno FROM tActivityDetail)";
+                    transaction.Execute(query);
+ 
+                    query = "DELETE FROM tActivityDetail WHERE tActivityDetail.ActivityDetailRefno <= 0";
                     transaction.Execute(query, subType);
 
+                    query = "DELETE FROM tActivityDetail WHERE tActivityDetail.ActivityItemRefno " +
+                            "NOT IN (SELECT tActivityItem.ActivityItemRefno FROM tActivityItem)";
+                    transaction.Execute(query, subType);
+
+                    // REGULAR PURGE.
                     query = "DELETE FROM tActivityDetailProductSchemeVariantXRef "
                         + "WHERE tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno IN "
                         + "(SELECT tActivityDetail.ActivityDetailRefno "

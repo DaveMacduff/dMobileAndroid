@@ -37,7 +37,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
     ///    8            10010       1101001
     ///    9            10000       110101
     ///    - (Dash)     00100       101101
-    ///    Start/Stop   00110       1011001.
+    ///    EnableScanning/DisableScanning   00110       1011001.
     ///
     /// </summary>
     public class BarCodeParseCode_11 : BarCodeParse

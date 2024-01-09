@@ -36,46 +36,68 @@ namespace dMobile.GroundWork
         /// <inheritdoc/>
         public override async Task PurgeData()
         {
-            this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging transfer items from.", true);
+            this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName}.", true);
 
-            try
+            var conn = DatabaseConnection.GetInstance().SQLConn;
+            await conn.RunInTransactionAsync(transaction =>
             {
-                // Corruption recovery cleanup.
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName}.", true);
-                var query = "DELETE FROM tActivityItemBarCodeAssociationXRef WHERE" +
-                            " tActivityItemBarCodeAssociationXRef.ActivityItemRefno <= 0";
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query);
+                try
+                {
+                    // Corruption recovery cleanup.
+                    var query = @"DELETE FROM tActivityItemBarCodeAssociationXRef
+                                WHERE tActivityItemBarCodeAssociationXRef.ActivityItemRefno <= 0";
+                    transaction.Execute(query);
 
-                // Corruption recovery cleanup.
-                query = "DELETE FROM tActivityItemTransfer WHERE tActivityItemTransfer.ActivityItemRefno <= 0" +
-                        " OR tActivityItemTransfer.ActivityItemFKRefno <= 0";
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query);
+                    query = @"DELETE FROM tActivityItemBarCodeAssociationXRef
+                            WHERE tActivityItemBarCodeAssociationXRef.ActivityItemRefno NOT IN
+                                (SELECT tActivityItem.ActivityItemRefno FROM tActivityItem)";
+                    transaction.Execute(query);
 
-                // Corruption recovery cleanup.
-                query = "DELETE FROM tActivityItem WHERE tActivityItem.ActivityRefno <= 0";
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query);
+                    query = @"DELETE FROM tActivityItemTransfer
+                            WHERE tActivityItemTransfer.ActivityItemRefno <= 0
+                                OR tActivityItemTransfer.ActivityItemFKRefno <= 0";
+                    transaction.Execute(query);
 
-                query = "DELETE FROM tActivityItemBarCodeAssociationXRef"
-                        + " WHERE tActivityItemBarCodeAssociationXRef.ActivityItemRefno IN"
-                        + " (SELECT tActivityItem.ActivityItemRefno"
-                        + " FROM tActivityItem"
-                        + " WHERE tActivityItem.ActivityItemSubType = ?)";
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.TransferFrom));
+                    query = @"DELETE FROM tActivityItemTransfer
+                            WHERE tActivityItemTransfer.ActivityItemRefno
+                                NOT IN (SELECT tActivityItem.ActivityItemRefno FROM tActivityItem)";
+                    transaction.Execute(query);
 
-                query = "DELETE FROM tActivityItemTransfer WHERE ActivityItemSubType = ?";
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.TransferFrom));
+                    query = "DELETE FROM tActivityItem WHERE tActivityItem.ActivityRefno <= 0";
+                    transaction.Execute(query);
 
-                query = "DELETE FROM tActivityItem WHERE ActivityItemSubType = ?";
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.TransferFrom));
+                    // Regular purge.
+                    query = "DELETE FROM tActivityItemBarCodeAssociationXRef"
+                            + " WHERE tActivityItemBarCodeAssociationXRef.ActivityItemRefno IN"
+                            + " (SELECT tActivityItem.ActivityItemRefno"
+                            + " FROM tActivityItem"
+                            + " WHERE tActivityItem.ActivityItemSubType = ?)";
+                    transaction.Execute(query, Convert.ToInt32(this.CurrentSubType));
 
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging transfer items from complete.", true);
-            }
-            catch (SQLiteException ex)
-            {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging transfer items from failed.", true);
-                throw new Exception("Database exception occurred. Purging transfer items from failed.", ex);
-            }
+                    query = "DELETE FROM tActivityItemTransfer WHERE ActivityItemSubType = ?";
+                    transaction.Execute(query, Convert.ToInt32(this.CurrentSubType));
+
+                    query = "DELETE FROM tActivityItem WHERE ActivityItemSubType = ?";
+                    transaction.Execute(query, Convert.ToInt32(this.CurrentSubType));
+
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging transfer items from complete.", true);
+
+                }
+                catch (SQLiteException sqlEx)
+                {
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"{sqlEx.Message}", true);
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} failed.", true);
+                    throw;
+                }
+                catch
+                {
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} failed.", true);
+                    throw;
+                }
+            });
+
+            this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} complete.", true);
         }
 
         /// <summary>
@@ -142,7 +164,7 @@ namespace dMobile.GroundWork
                                 transaction.Execute(
                                     "INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus," +
                                     " ActivityRefno, ActivityItemIsAdded) VALUES (?, ?, ?, ?)",
-                                    Convert.ToInt32(SysCommon.ActSubTypes.TransferFrom),
+                                    Convert.ToInt32(this.CurrentSubType),
                                     Convert.ToInt32(SysCommon.ActStatus.NoChange),
                                     Convert.ToInt32(actRefno),
                                     0);
@@ -193,7 +215,7 @@ namespace dMobile.GroundWork
                                 var parameters = new object[]
                                 {
                                     Convert.ToInt32(actItemRefno),
-                                    Convert.ToInt32(SysCommon.ActSubTypes.TransferFrom),
+                                    Convert.ToInt32(this.CurrentSubType),
                                     Convert.ToInt32(drow["ActivityItemFKRefno"]),
                                     Convert.ToString(transItemFKRefno),
                                     Convert.ToInt32(prodUnitRefno),

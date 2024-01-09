@@ -46,11 +46,16 @@ namespace dMobile.GroundWork
                 query = "DELETE FROM tActivityItem WHERE tActivityItem.ActivityRefno <= 0";
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query);
 
+                // Corruption recovery cleanup.
+                query = "DELETE FROM tActivityItemMoveInventory WHERE tActivityItemMoveInventory.ActivityItemRefno " +
+                        "NOT IN (SELECT tActivityItem.ActivityItemRefno FROM tActivityItem)";
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(this.CurrentSubType));
+
                 query = "DELETE FROM tActivityItemMoveInventory WHERE ActivityItemSubType = ?";
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.MoveInventory));
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(this.CurrentSubType));
 
                 query = "DELETE FROM tActivityItem WHERE ActivityItemSubType = ?";
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.MoveInventory));
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(this.CurrentSubType));
 
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging move inventory items complete.", true);
             }

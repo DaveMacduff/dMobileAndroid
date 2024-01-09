@@ -38,26 +38,52 @@ namespace dMobile.GroundWork
         {
             this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging transfers from.", true);
 
+            var conn = DatabaseConnection.GetInstance().SQLConn;
+            await conn.RunInTransactionAsync(transaction =>
+            {
+                try
+                {
+                    // Corruption recovery cleanup.
+                    var query = @"
+                        DELETE FROM tActivityTransfer
+                            WHERE tActivityTransfer.ActivityRefno <= 0
+                                OR tActivityTransfer.ActivityFKRefno <= 0";
+                    transaction.Execute(query);
+
+                    query = @"
+                        DELETE FROM tActivityTransfer
+                            WHERE tActivityTransfer.ActivityRefno
+                                NOT IN (SELECT tActivity.ActivityRefno FROM tActivity)";
+                    transaction.Execute(query);
+
+                    query = "DELETE FROM tActivity WHERE tActivity.ActivityRefno <= 0";
+                    transaction.Execute(query);
+
+                    // REGULAR PURGE
+                    query = "DELETE FROM tActivityAdjustment WHERE tActivityAdjustment.ActivitySubType = ?";
+                    transaction.Execute(query, Convert.ToInt32(this.CurrentSubType));
+
+                    query = "DELETE FROM tActivity WHERE tActivity.ActivitySubType = ?";
+                    transaction.Execute(query, Convert.ToInt32(this.CurrentSubType));
+
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging transfers from complete.", true);
+                }
+                catch (SQLiteException sqlEx)
+                {
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"{sqlEx.Message}", true);
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} failed.", true);
+                    throw;
+                }
+                catch
+                {
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} failed.", true);
+                    throw;
+                }
+            });
+
             try
             {
-                // Corruption recovery cleanup.
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName}.", true);
-                var query = "DELETE FROM tActivityTransfer WHERE tActivityTransfer.ActivityRefno <= 0" +
-                            " OR tActivityTransfer.ActivityFKRefno <= 0";
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query);
-
-                // Corruption recovery cleanup.
-                query = "DELETE FROM tActivity WHERE tActivity.ActivityRefno <= 0";
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query);
-
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
-                    "DELETE FROM tActivityTransfer WHERE ActivitySubType = ?",
-                    Convert.ToInt32(SysCommon.ActSubTypes.TransferFrom));
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
-                    "DELETE FROM tActivity WHERE ActivitySubType = ?",
-                    Convert.ToInt32(SysCommon.ActSubTypes.TransferFrom));
-
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging transfers from complete.", true);
             }
             catch (SQLiteException ex)
             {

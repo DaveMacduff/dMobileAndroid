@@ -11,6 +11,7 @@ namespace dMobile.View.Menus
     using Android.Views;
     using Bedrock;
     using CustomPages;
+    using dMobile.BarCodeScanner.BarCodeScanners;
     using Forms;
     using Resources.Enums;
     using Xamarin.Forms;
@@ -115,7 +116,7 @@ namespace dMobile.View.Menus
         ///     Get the xml data.
         /// </summary>
         /// <returns><see cref="Task"/> XML data.</returns>
-        public Task<XDocument> GetXML()
+        public Task<XDocument> GetXml()
         {
             var xmldocParams = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"

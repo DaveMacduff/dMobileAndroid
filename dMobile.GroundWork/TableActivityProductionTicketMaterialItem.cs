@@ -53,6 +53,11 @@ namespace dMobile.GroundWork
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query);
 
                 // Corruption recovery cleanup.
+                query = "DELETE FROM tActivityItemProductionMaterial WHERE tActivityItemProductionMaterial.ActivityItemRefno " +
+                        "NOT IN (SELECT tActivityItem.ActivityItemRefno FROM tActivityItem)";
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(this.CurrentSubType));
+
+                // Corruption recovery cleanup.
                 query = "DELETE FROM tActivityItemProduction WHERE tActivityItemProduction.ActivityItemRefno <= 0";
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query);
 
@@ -65,24 +70,24 @@ namespace dMobile.GroundWork
                             + "(SELECT tActivityItem.ActivityItemRefno "
                             + "FROM tActivityItem "
                             + "WHERE tActivityItem.ActivityItemSubType = ?)";
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.TicketMaterial));
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(this.CurrentSubType));
 
                 query = "DELETE FROM tActivityItemProductionMaterial "
                     + "WHERE tActivityItemProductionMaterial.ActivityItemRefno IN "
                     + "(SELECT tActivityItem.ActivityItemRefno "
                     + "FROM tActivityItem "
                     + "WHERE tActivityItem.ActivityItemSubType = ?)";
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.TicketMaterial));
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(this.CurrentSubType));
 
                 query = "DELETE FROM tActivityItemProduction "
                     + "WHERE tActivityItemProduction.ActivityItemRefno IN "
                     + "(SELECT tActivityItem.ActivityItemRefno "
                     + "FROM tActivityItem "
                     + "WHERE tActivityItem.ActivityItemSubType = ?)";
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.TicketMaterial));
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(this.CurrentSubType));
 
                 query = "DELETE FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = ?";
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.TicketMaterial));
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(this.CurrentSubType));
 
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging ticket material items complete.", true);
             }
@@ -154,7 +159,7 @@ namespace dMobile.GroundWork
                             transaction.Execute(
                                 "INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus, ActivityRefno," +
                                 " ActivityItemIsAdded) VALUES (?, ?, ?, ?)",
-                                Convert.ToInt32(SysCommon.ActSubTypes.TicketMaterial),
+                                Convert.ToInt32(this.CurrentSubType),
                                 Convert.ToInt32(SysCommon.ActStatus.NoChange),
                                 actRefno,
                                 0);
@@ -189,7 +194,7 @@ namespace dMobile.GroundWork
                             var parametersActivityItemProduction = new object[]
                             {
                                     actItemRefno,
-                                    Convert.ToInt32(SysCommon.ActSubTypes.TicketMaterial),
+                                    Convert.ToInt32(this.CurrentSubType),
                                     prodUnitRefno,
                                     locMapRefno,
                                     Convert.ToDecimal(drow["ActivityItemProductionQuantity"]),

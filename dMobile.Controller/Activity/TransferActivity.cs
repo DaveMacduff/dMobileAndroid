@@ -147,7 +147,7 @@ namespace dMobile.Controller.Activity
         {
             var observableCollection = new ObservableCollection<object>();
 
-            foreach (Transfer transfer in this.ListHdrs)
+            foreach (Transfer transfer in this.ListHeaders)
             {
                 // Transfer transfer = new Transfer
                 // {
@@ -353,8 +353,8 @@ namespace dMobile.Controller.Activity
 
             this.GetFilter();
 
-            this.ListHdrs = this.listTransfers.Cast<object>().ToList();
-            return this.ListHdrs;
+            this.ListHeaders = this.listTransfers.Cast<object>().ToList();
+            return this.ListHeaders;
         }
 
         /// <summary>
@@ -366,9 +366,9 @@ namespace dMobile.Controller.Activity
         {
             var observableCollection = new ObservableCollection<object>();
 
-            this.ListHdrs = this.listTransfers.Where(transfer => transfer.ActivityStringFKRefno.ToLower().Contains(searchText.ToLower().Trim())).Cast<object>().ToList();
+            this.ListHeaders = this.listTransfers.Where(transfer => transfer.ActivityStringFKRefno.ToLower().Contains(searchText.ToLower().Trim())).Cast<object>().ToList();
 
-            foreach (Transfer transfer in this.ListHdrs)
+            foreach (Transfer transfer in this.ListHeaders)
             {
                 // Transfer transfer = new Transfer
                 // {
@@ -433,19 +433,16 @@ namespace dMobile.Controller.Activity
         }
 
         /// <summary>
-        /// The GetRefnoFromRowIdx.
+        /// The AssignRefnoFromActivity.
         /// </summary>
         /// <param name="selectedItem">The selectedItem<see cref="object"/>.</param>
-        /// <returns>.</returns>
-        public override int GetRefnoFromRowIdx(object selectedItem)
+        public override void AssignRefnoFromActivity(object selectedItem)
         {
             if (selectedItem is Transfer transfer)
             {
                 this.HdrFkRefno = Convert.ToInt32(transfer.ActivityFKRefno);
                 this.HdrRefno = Convert.ToInt32(transfer.ActivityRefno);
             }
-
-            return this.HdrRefno;
         }
 
         /// <summary>
@@ -548,17 +545,6 @@ namespace dMobile.Controller.Activity
                     this.listTransfers = this.listTransfers.Where(transfer => transfer.ActivityTransferDateTime >= minDate && transfer.ActivityTransferDateTime <= maxDate).ToList();
                 }
             }
-        }
-
-        /// <summary>
-        /// Get the activity foreign key reference number.
-        /// </summary>
-        /// <param name="resourceType"><see cref="object"/> Resource model (tActivity??Model).</param>
-        /// <returns><see cref="int"/> Found activity foreign key refno, else 0 if not found.</returns>
-        public override int GetFkRefno(object resourceType)
-        {
-            object tmpFkRefno = ((Transfer)resourceType).ActivityFKRefno;
-            return tmpFkRefno == null ? 0 : Convert.ToInt32(tmpFkRefno);
         }
 
         /// <summary>

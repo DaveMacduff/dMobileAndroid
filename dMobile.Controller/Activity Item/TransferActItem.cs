@@ -718,7 +718,7 @@ namespace dMobile.Controller.Activity_Item
         /// <returns><see cref="Task{T}"/> Activity item foreign key reference number.</returns>
         public override async Task<int> AssignActivityItem(object selectedActivityItem)
         {
-            if (selectedActivityItem is ProductionTicketMaterialItem item)
+            if (selectedActivityItem is TransferItem item)
             {
                 this.SelectedItem = item;
                 this.ItemRefno = item.ActivityItemRefno;
@@ -735,7 +735,7 @@ namespace dMobile.Controller.Activity_Item
             return this.ItemFkRefno;
 
             //////////////////////////////////////////////////////////////////////////
-            async Task AssignItemLocation(ProductionTicketMaterialItem item)
+            async Task AssignItemLocation(TransferItem item)
             {
                 // This code needs to be before the call to GetSelectedItemLocation, because the skid location may be
                 // used if the product unit and warehouse match.
@@ -794,17 +794,17 @@ namespace dMobile.Controller.Activity_Item
         {
             var foundItemRefno = 0;
 
-            var query = "SELECT tActivityItem.ActivityItemRefno,"
-                        + "tActivityItemTransfer.ActivityItemFKRefno,"
-                        + "tActivityItemTransfer.ProductUnitRefno,"
-                        + "tLocationMapWarehouse.LocationMapRefno "
-                        + "FROM tActivityItemTransfer "
-                        + "INNER JOIN tActivityItem ON tActivityItem.ActivityItemRefno = tActivityItemTransfer.ActivityItemRefno "
-                        + "INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno "
-                        + "= tActivityItemTransfer.TransferFromWarehouseLocationMapRefno "
-                        + "WHERE tActivityItem.ActivityRefno = ? "
-                        + "AND tActivityItemTransfer.TransferFromWarehouseLocationMapRefno = ? "
-                        + "AND tActivityItemTransfer.ProductUnitRefno = ?";
+            const string query = "SELECT tActivityItem.ActivityItemRefno,"
+                                 + "tActivityItemTransfer.ActivityItemFKRefno,"
+                                 + "tActivityItemTransfer.ProductUnitRefno,"
+                                 + "tLocationMapWarehouse.LocationMapRefno "
+                                 + "FROM tActivityItemTransfer "
+                                 + "INNER JOIN tActivityItem ON tActivityItem.ActivityItemRefno = tActivityItemTransfer.ActivityItemRefno "
+                                 + "INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno "
+                                 + "= tActivityItemTransfer.TransferFromWarehouseLocationMapRefno "
+                                 + "WHERE tActivityItem.ActivityRefno = ? "
+                                 + "AND tActivityItemTransfer.TransferFromWarehouseLocationMapRefno = ? "
+                                 + "AND tActivityItemTransfer.ProductUnitRefno = ?";
 
             var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<TransferItem>(
                 query, this.ActHdr.HdrRefno, locMap.WhsLocMapRefno, prodUnitRefno);

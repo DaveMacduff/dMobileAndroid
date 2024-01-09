@@ -265,7 +265,7 @@ namespace dMobile.View.Options
         /// <returns></returns>
         /// <remarks></remarks>
         /// <inheritdoc />
-        public async Task<XDocument> GetXML()
+        public async Task<XDocument> GetXml()
         {
             var xmldocParams = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
@@ -450,7 +450,7 @@ namespace dMobile.View.Options
                             await this.DisplayAlert("Error", "Submit Batch", ex.Message, "OK"));
                     }
 
-                    this.Activity.ListHdrs = await this.Activity.GetActivityList(true);
+                    this.Activity.ListHeaders = await this.Activity.GetActivityList(true);
 
                     await Device.InvokeOnMainThreadAsync(async () =>
                     {
@@ -458,7 +458,7 @@ namespace dMobile.View.Options
                             this.Activity.DesignGrid(ref this.GridMainActivity, ref this.ListViewMainActivity);
                         this.ListViewMainActivity.ItemsSource = this.MainActivityItems;
 
-                        if (this.Activity.ListHdrs.Count > 0 && this.MainActivityItems.Count > 0)
+                        if (this.Activity.ListHeaders.Count > 0 && this.MainActivityItems.Count > 0)
                         {
                             this.ListViewMainActivity.SelectedItem = this.MainActivityItems[0];
                             await this.Activity.SelectActivity(this.MainActivityItems[0]);
@@ -509,12 +509,12 @@ namespace dMobile.View.Options
                 {
                     this.IsIndicatorRunning = true;
 
-                    if (this.Activity.ListHdrs.Count > 0)
+                    if (this.Activity.ListHeaders.Count > 0)
                     {
-                        for (var actRow = 0; actRow <= this.Activity.ListHdrs.Count - 1; actRow++)
+                        for (var actRow = 0; actRow <= this.Activity.ListHeaders.Count - 1; actRow++)
                         {
-                            actRefno = this.Activity.GetRefnoFromRowIdx(this.Activity.ListHdrs[actRow]);
-
+                            this.Activity.AssignRefnoFromActivity(this.Activity.ListHeaders[actRow]);
+                            actRefno = this.Activity.HdrRefno;
                             if (actItem == null)
                             {
                                 switch (this.SubmitBatchSettings.eActivitySubType)

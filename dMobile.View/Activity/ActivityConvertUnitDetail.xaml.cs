@@ -19,6 +19,7 @@ namespace dMobile.View.Activity
     using Controller.Activity_Item;
     using CustomPages.Modal;
     using Forms;
+    using Helpers;
     using Resources.Enums;
     using Resources.Types;
     using Xamarin.Forms;
@@ -46,14 +47,14 @@ namespace dMobile.View.Activity
             this.SysEnv = SysEnvironment.GetInstance();
             this.LocMap = LocationMap.GetInstance();
             this.Scanner = ScannerEngine.GetInstance().Scanner;
+            this.Title = this.ActDetail.GetControlDescription();
 
             actItem.ActHdr.SkidInfo ??= new SysSkidInfo();
 
             this.ActSubType = actSubTypes;
             this.ActDetail = ActDetailFacade.GetActDetail(actItem, actSubTypes);
             this.ActDetail.ActItem = actItem;
-
-            this.Title = this.ActDetail.GetControlDescription();
+            this.ScannerEnable().FireAndForgetSafeAsync();
         }
 
         /// <summary>
@@ -65,11 +66,6 @@ namespace dMobile.View.Activity
         ///     Gets or sets the system environment instance.
         /// </summary>
         private SysEnvironment SysEnv { get; }
-
-        /// <summary>
-        ///     Gets or sets a value indicating whether the bar code handler is registered.
-        /// </summary>
-        private bool IsBarCodeHandlerRegistered { get; set; }
 
         /// <summary>
         ///     Gets or sets the location map.
@@ -114,15 +110,8 @@ namespace dMobile.View.Activity
         /// <returns><see cref="Task" /> Task operation.</returns>
         public async Task ScannerDisable()
         {
-            if (this.Scanner != null)
-            {
-                if (this.IsBarCodeHandlerRegistered)
-                {
-                    this.IsBarCodeHandlerRegistered = false;
-                    this.Scanner.BarCodeScan -= this.BarCodeHandler;
-                    await this.Scanner.Stop();
-                }
-            }
+            this.Scanner.ClearBarCodeScanEventHandlers();
+            await this.Scanner.DisableScanning();
         }
 
         /// <summary>
@@ -131,14 +120,10 @@ namespace dMobile.View.Activity
         /// <returns><see cref="Task" /> Task operation.</returns>
         public async Task ScannerEnable()
         {
-            if (this.Scanner != null)
+            await this.Scanner.EnableScanning();
+            if (!this.Scanner.IsBarCodeScanEventHandlerAdded())
             {
-                if (!this.IsBarCodeHandlerRegistered)
-                {
-                    this.IsBarCodeHandlerRegistered = true;
-                    await this.Scanner.Start();
-                    this.Scanner.BarCodeScan += this.BarCodeHandler;
-                }
+                this.Scanner.BarCodeScan += this.BarCodeHandler;
             }
         }
 
@@ -317,7 +302,7 @@ namespace dMobile.View.Activity
         ///     Get the activity detail return XDocument information.
         /// </summary>
         /// <returns><see cref="XDocument" /> Activity detail return information.</returns>
-        public async Task<XDocument> GetXML()
+        public async Task<XDocument> GetXml()
         {
             var fillQty = await this.ActDetail.GetTotalQuantityFromListDetail();
 
@@ -400,7 +385,6 @@ namespace dMobile.View.Activity
                     // It is my understanding that the OnAppearing event only occurs once when the control is loading.
                     this.IsIndicatorRunning = true;
                     base.OnAppearing();
-                    await this.ScannerStart();
 
                     // NOTE: Not sure if this is needed at this anymore.
                     this.ActDetail.ActItem.ProdInfo.Unit2BaseUnitFactor =
@@ -463,20 +447,6 @@ namespace dMobile.View.Activity
             this.IsIndicatorRunning = false;
             GC.Collect();
             GC.WaitForPendingFinalizers();
-        }
-
-        /// <summary>
-        ///     Registers the bar code scan event handler and enables the scanner.
-        /// </summary>
-        /// <returns><see cref="Task" /> Task operation.</returns>
-        private async Task ScannerStart()
-        {
-            if (this.Scanner != null)
-            {
-                this.IsBarCodeHandlerRegistered = true;
-                await this.Scanner.Start();
-                this.Scanner.BarCodeScan += this.BarCodeHandler;
-            }
         }
 
         /// <summary>
@@ -943,8 +913,6 @@ namespace dMobile.View.Activity
                     }
                     else
                     {
-                        var isInsertReady = false;
-
                         // A skid may contain 'default' scheme data, fill the activity detail
                         // with the default skid schema.
                         var tempItemProdSchemeData = new ActItemSchemeData();
@@ -966,14 +934,12 @@ namespace dMobile.View.Activity
 
                         // Gather data is the meat and potatoes of collecting and assembling
                         // the product scheme data.
-                        isInsertReady = await SysShared.GatherProductData(
+                        var isInsertReady = await SysShared.GatherProductData(
                             parse,
                             this.ActSubType,
                             this.ActDetail.ActItem,
                             tempItemProdSchemeData,
-                            isInsertReady,
-                            this.ActDetail,
-                            false);
+                            this.ActDetail);
                         if (isInsertReady)
                         {
                             await this.InsertActivityDetail(this.ActDetail);
@@ -1338,8 +1304,6 @@ namespace dMobile.View.Activity
             //////////////////////////////////////////////////////////////////////////
             async Task PerformAddDetail()
             {
-                var isInsertReady = false;
-
                 // Not allowed to count individual boxes on a skid. Skids must be
                 // scanned as a whole unit or built in skid maintenance.
 
@@ -1359,14 +1323,12 @@ namespace dMobile.View.Activity
                 {
                     await this.ActDisappearing();
                     var tempItemProdSchemeData = InitDetailBeforeGather();
-                    isInsertReady = await SysShared.GatherProductData(
+                    var isInsertReady = await SysShared.GatherProductData(
                         parse,
                         this.ActSubType,
                         this.ActDetail.ActItem,
                         tempItemProdSchemeData,
-                        isInsertReady,
-                        this.ActDetail,
-                        true);
+                        this.ActDetail);
 
                     if (isInsertReady)
                     {

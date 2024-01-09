@@ -82,7 +82,7 @@ namespace dMobile.View.Activity
         }
 
         /// <inheritdoc/>
-        public async Task<XDocument> GetXML()
+        public async Task<XDocument> GetXml()
         {
             var result = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"

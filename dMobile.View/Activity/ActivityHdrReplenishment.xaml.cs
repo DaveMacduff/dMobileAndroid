@@ -363,8 +363,8 @@ namespace dMobile.View.Activity
             {
                 if (this.IsBarCodeHandlerRegistered)
                 {
-                    this.Scanner.BarCodeScan -= this.BarCodeHandler;
-                    await this.Scanner.Stop();
+                    this.Scanner.ClearBarCodeScanEventHandlers();
+                    await this.Scanner.DisableScanning();
                     this.IsBarCodeHandlerRegistered = false;
                 }
             }
@@ -380,8 +380,12 @@ namespace dMobile.View.Activity
             {
                 if (!this.IsBarCodeHandlerRegistered)
                 {
-                    await this.Scanner.Start();
-                    this.Scanner.BarCodeScan += this.BarCodeHandler;
+                    await this.Scanner.EnableScanning();
+                    if (!this.Scanner.IsBarCodeScanEventHandlerAdded())
+                    {
+                        this.Scanner.BarCodeScan += this.BarCodeHandler;
+                    }
+
                     this.IsBarCodeHandlerRegistered = true;
                 }
             }
@@ -511,7 +515,7 @@ namespace dMobile.View.Activity
         /// </summary>
         /// <returns><see cref="Task" /> Task operation containing an XDocument.</returns>
 #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
-        public async Task<XDocument> GetXML()
+        public async Task<XDocument> GetXml()
 #pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
         {
             var xmldocParams = XDocument.Parse(
@@ -1015,7 +1019,7 @@ namespace dMobile.View.Activity
                     this.ActHdr.RegLayerListenerStatOut(this);
                     this.ActHdr.RegLayerListenerProgOut(this);
                     await this.ActHdr.Refresh(this.ActHdr.XmlDataCriteria);
-                    this.ActHdr.ListHdrs = await this.ActHdr.GetActivityList(false);
+                    this.ActHdr.ListHeaders = await this.ActHdr.GetActivityList(false);
                     await this.DesignGrid();
                 }
                 finally
@@ -1047,15 +1051,16 @@ namespace dMobile.View.Activity
         /// <returns><see cref="Task" /> Task operation.</returns>
         private async Task FindSelectedItemAsyncMoveFrom()
         {
-            if (this.ActHdr.ListHdrs.Count > 0 && this.MainMoveFromItems.Count > 0)
+            if (this.ActHdr.ListHeaders.Count > 0 && this.MainMoveFromItems.Count > 0)
             {
                 // Iterate through the list of headers looking for a foreign key match.
                 // Faster than LINQ.
                 this.ActHdr.SelectedListItemIdx = 0;
                 object selectedItem = null;
-                foreach (var hdr in this.ActHdr.ListHdrs)
+                foreach (var hdr in this.ActHdr.ListHeaders)
                 {
-                    if (this.SelectedActivityFkRefno == this.ActHdr.GetFkRefno(hdr))
+                    this.ActHdr.AssignRefnoFromActivity(hdr);
+                    if (this.SelectedActivityFkRefno == this.ActHdr.HdrFkRefno)
                     {
                         selectedItem = hdr;
                         break;

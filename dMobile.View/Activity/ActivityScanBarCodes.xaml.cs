@@ -16,9 +16,9 @@ namespace dMobile.View.Activity
     using Bedrock;
     using Controller.Activity;
     using Controller.Activity_Item;
-    using CustomPages;
     using Forms;
     using GroundWork;
+    using Helpers;
     using Resources.Enums;
     using Resources.Models;
     using Resources.QueryResults;
@@ -32,7 +32,7 @@ namespace dMobile.View.Activity
     ///     Define the bar code scanning activity.
     /// </summary>
     [XamlCompilation(XamlCompilationOptions.Compile)]
-    public partial class ActivityScanBarCodes : DMobileContentPage, IAppArea
+    public partial class ActivityScanBarCodes : IAppArea
     {
         /// <summary>
         ///     Initializes a new instance of the <see cref="ActivityScanBarCodes" /> class.
@@ -52,41 +52,21 @@ namespace dMobile.View.Activity
             this.Scanner = ScannerEngine.GetInstance().Scanner;
             this.ExtraInfoItems = new ObservableCollection<string>();
 
+            LoadAndBindData().FireAndForgetSafeAsync();
             ParseAndSeedBarCodeModifier();
+            this.ScannerEnable().FireAndForgetSafeAsync();
             return;
-            ////this.BarCodeModifier1Picker.Items.Clear();
-
-            ////if (this.SysEnv.SysSettings.IsProductUnitBarCodeModifier1)
-            ////{
-            ////    this.BarCodeModifier1Picker.Items.Add(string.Empty);
-            ////    string[] modifiers = this.SysEnv.SysSettings.ProductUnitBarCodeModifier1Codes.Split(',');
-
-            ////    foreach (string item in modifiers)
-            ////    {
-            ////        this.BarCodeModifier1Picker.Items.Add(item);
-            ////    }
-            ////}
-            ////else
-            ////{
-            ////    this.BarCodeModifier1Picker.IsVisible = false;
-            ////    this.BarCodeModifier1Picker.IsEnabled = false;
-            ////}
-
-            ////this.BarCodeModifier1Picker.SelectedItem = this.SysEnv.CurrentBarCodeModifier1;
 
             //////////////////////////////////////////////////////////////////////////
             void ParseAndSeedBarCodeModifier()
             {
                 this.BarCodeModifier1Picker.IsVisible = false;
                 this.BarCodeModifier1Picker.IsEnabled = false;
-
-                // Parse and seed the modifiers control
                 this.BarCodeModifier1Picker.Items.Clear();
                 if (this.SysEnv.SysSettings.IsProductUnitBarCodeModifier1)
                 {
                     this.BarCodeModifier1Picker.Items.Add(string.Empty);
                     var modifiers = this.SysEnv.SysSettings.ProductUnitBarCodeModifier1Codes.Split(',');
-
                     foreach (var item in modifiers)
                     {
                         this.BarCodeModifier1Picker.Items.Add(item);
@@ -104,7 +84,7 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        ///     Gets or sets the activity sub type.
+        ///     Gets the activity sub type.
         /// </summary>
         private SysCommon.ActSubTypes ActSubType { get; } = SysCommon.ActSubTypes.BarCodeAssociation;
 
@@ -124,29 +104,19 @@ namespace dMobile.View.Activity
         private Activity ActBarCode { get; set; }
 
         /// <summary>
-        ///     Gets or sets the bar code scanner instance.
+        ///     Gets the bar code scanner instance.
         /// </summary>
-        private BarCodeScanner Scanner { get; } = ScannerEngine.GetInstance().Scanner;
+        private BarCodeScanner Scanner { get; }
 
         /// <summary>
-        ///     Gets or sets the system environment instance.
+        ///     Gets the system environment instance.
         /// </summary>
-        private SysEnvironment SysEnv { get; } = SysEnvironment.GetInstance();
+        private SysEnvironment SysEnv { get; }
 
         /// <summary>
-        ///     Gets or sets the items list collection.
+        ///     Gets the items list collection.
         /// </summary>
-        private ObservableCollection<string> ExtraInfoItems { get; } = new ObservableCollection<string>();
-
-        /// <summary>
-        ///     Gets or sets a value indicating whether the bar code handler has be registered.
-        /// </summary>
-        private bool IsBarCodeHandlerRegistered { get; set; }
-
-        /// <summary>
-        ///     Gets or sets a value indicating whether any changes have been made.
-        /// </summary>
-        private bool IsChangesMade { get; set; }
+        private ObservableCollection<string> ExtraInfoItems { get; }
 
         /// <summary>
         ///     Gets or sets the product unit reference number.
@@ -159,25 +129,13 @@ namespace dMobile.View.Activity
         private int ProductUnitBarCodeRefno { get; set; }
 
         /// <summary>
-        ///     Gets or sets a value indicating whether the bar code scan parse instance has data.
-        /// </summary>
-        private bool ScanHasData { get; set; }
-
-        /// <summary>
         ///     Unregister the bar code scan event handler and disable the scanner.
         /// </summary>
         /// <returns><see cref="Task" /> Task operation.</returns>
         public async Task ScannerDisable()
         {
-            if (this.Scanner != null)
-            {
-                if (this.IsBarCodeHandlerRegistered)
-                {
-                    this.Scanner.BarCodeScan -= this.BarCodeHandler;
-                    await this.Scanner.Stop();
-                    this.IsBarCodeHandlerRegistered = false;
-                }
-            }
+            this.Scanner.ClearBarCodeScanEventHandlers();
+            await this.Scanner.DisableScanning();
         }
 
         /// <summary>
@@ -186,14 +144,10 @@ namespace dMobile.View.Activity
         /// <returns><see cref="Task" /> Task operation.</returns>
         public async Task ScannerEnable()
         {
-            if (this.Scanner != null)
+            await this.Scanner.EnableScanning();
+            if (!this.Scanner.IsBarCodeScanEventHandlerAdded())
             {
-                if (!this.IsBarCodeHandlerRegistered)
-                {
-                    await this.Scanner.Start();
-                    this.Scanner.BarCodeScan += this.BarCodeHandler;
-                    this.IsBarCodeHandlerRegistered = true;
-                }
+                this.Scanner.BarCodeScan += this.BarCodeHandler;
             }
         }
 
@@ -201,176 +155,44 @@ namespace dMobile.View.Activity
         ///     Check if the activity header data is ready to be saved.
         /// </summary>
         /// <returns><see cref="bool" /> True if the data is ready to be saved else false.</returns>
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
         public async Task<bool> IsReadyToSave()
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
         {
-            var isReadyToSave = false;
-
-            try
-            {
-                isReadyToSave = true;
-            }
-            catch (MessageOnlyException msgEx)
-            {
-                var msg = SysCommon.GetMessageFromMessageException(msgEx);
-                isReadyToSave = false;
-                await Device.InvokeOnMainThreadAsync(async () =>
-                    await Application.Current.MainPage.DisplayAlert(
-                        this.GetControlDescription(),
-                        msg,
-                        Resource.OK));
-            }
-            catch (Exception ex)
-            {
-                isReadyToSave = false;
-
-                await Device.InvokeOnMainThreadAsync(async () =>
-                {
-                    var errRpt = new FormErrorReport(this.ActSubType, /*this,*/ ex);
-                    _ = await errRpt.ShowDialog();
-                });
-            }
-
-            return isReadyToSave;
+            return true;
         }
 
         /// <summary>
         ///     Check if this form is ready to close, that is can be closed.
         /// </summary>
-        /// <returns><see cref="Task{bool}" /> True if the form is ready to close else false.</returns>
+        /// <returns><see cref="bool" /> True if the form is ready to close else false.</returns>
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
         public async Task<bool> IsReadyToClose()
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
         {
-            var isReadyToClose = true;
-
-            try
-            {
-                // NOTE: This code is needed to clean up the scanner driver.
-                // Symbol had threading issues without this call when dMobile was terminating.
-                // All user controls that initialize a bar code need this code.
-                // The parent form (not a user control) will call scanner.terminate and dispose
-                // of the scanner instance upon exiting dMobile.
-                await this.ScannerDisable();
-            }
-            catch (MessageOnlyException msgEx)
-            {
-                var msg = SysCommon.GetMessageFromMessageException(msgEx);
-                isReadyToClose = false;
-                await Device.InvokeOnMainThreadAsync(async () =>
-                    await Application.Current.MainPage.DisplayAlert(
-                        this.GetControlDescription(),
-                        msg,
-                        Resource.OK));
-            }
-            catch (Exception ex)
-            {
-                isReadyToClose = false;
-
-                await Device.InvokeOnMainThreadAsync(async () =>
-                {
-                    var errRpt = new FormErrorReport(this.ActSubType, /*this,*/ ex);
-                    _ = await errRpt.ShowDialog();
-                });
-            }
-
-            return isReadyToClose;
+            return true;
         }
 
         /// <summary>
         ///     Check if a save can be performed and do so.
         /// </summary>
         /// <returns><see cref="bool" /> True if a save was performed successfully else false.</returns>
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
         public async Task<bool> SaveChanges()
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
         {
-            var saveComplete = false;
-
-            try
-            {
-                if (await this.IsReadyToSave())
-                {
-                    // ClearContents();
-                    saveComplete = true;
-                    this.IsChangesMade = false;
-                }
-                else
-                {
-                    // IsReadyToSave will raise errors for invalid data. This is a catch all
-                    // in the event that IsReadyToSave just returns false.
-                    throw new MessageOnlyException("Data failed validation. Check your data.");
-                }
-            }
-            catch (MessageOnlyException msgEx)
-            {
-                var msg = SysCommon.GetMessageFromMessageException(msgEx);
-                saveComplete = false;
-                await Device.InvokeOnMainThreadAsync(async () =>
-                    await Application.Current.MainPage.DisplayAlert(
-                        this.GetControlDescription(),
-                        msg,
-                        Resource.OK));
-            }
-            catch (Exception ex)
-            {
-                saveComplete = false;
-
-                await Device.InvokeOnMainThreadAsync(async () =>
-                {
-                    var errRpt = new FormErrorReport(this.ActSubType, /*this,*/ ex);
-                    _ = await errRpt.ShowDialog();
-                });
-            }
-
-            return saveComplete;
-        }
+            return true;
+       }
 
         /// <summary>
         ///     Check if there are any pending changes, if so cancel them.
         /// </summary>
         /// <returns><see cref="bool" />. True if the changes where canceled, else false.</returns>
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
         public async Task<bool> CancelChanges()
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
         {
-            var cancelChanges = true;
-
-            try
-            {
-                // IsReadyToClose checks if any changes where made.
-                if (await this.IsReadyToClose())
-                {
-                    // Expect the control to close.
-                }
-                else
-                {
-                    // If changes where made.
-                    // By reloading, restoring the last valid state we should be able to close the control
-                    // on the second CancelChanges attempt.
-                    // Methods that could be called to restore the control to a closable state.
-                    ////ClearProperties();
-                    ////DisplayData();
-                    ////this.LoadData();
-                    cancelChanges = false;
-                    this.IsChangesMade = false;
-                }
-            }
-            catch (MessageOnlyException msgEx)
-            {
-                var msg = SysCommon.GetMessageFromMessageException(msgEx);
-                cancelChanges = false;
-                await Device.InvokeOnMainThreadAsync(async () =>
-                    await Application.Current.MainPage.DisplayAlert(
-                        this.GetControlDescription(),
-                        msg,
-                        Resource.OK));
-            }
-            catch (Exception ex)
-            {
-                cancelChanges = false;
-
-                await Device.InvokeOnMainThreadAsync(async () =>
-                {
-                    var errRpt = new FormErrorReport(this.ActSubType, /*this,*/ ex);
-                    _ = await errRpt.ShowDialog();
-                });
-            }
-
-            return cancelChanges;
+            return true;
         }
 
         /// <summary>
@@ -378,7 +200,7 @@ namespace dMobile.View.Activity
         /// </summary>
         /// <returns><see cref="Task" /> Task operation containing an XDocument.</returns>
 #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
-        public async Task<XDocument> GetXML()
+        public async Task<XDocument> GetXml()
 #pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
         {
             var xmlDoc = XDocument.Parse(
@@ -387,20 +209,6 @@ namespace dMobile.View.Activity
                 + "</params>");
 
             return xmlDoc;
-        }
-
-        /// <summary>
-        ///     Registers the bar code scan event handler and enables the scanner.
-        /// </summary>
-        /// <returns><see cref="Task" /> Task operation.</returns>
-        public async Task ScannerStart()
-        {
-            if (this.Scanner != null)
-            {
-                await this.Scanner.Start();
-                this.Scanner.BarCodeScan += this.BarCodeHandler;
-                this.IsBarCodeHandlerRegistered = true;
-            }
         }
 
         /// <summary>
@@ -415,69 +223,22 @@ namespace dMobile.View.Activity
         /// <summary>
         ///     Customize behavior immediately prior to the 'Page' becoming visible.
         /// </summary>
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
         protected override async void OnAppearing()
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
         {
-            if (!this.IsIndicatorRunning)
-            {
-                try
-                {
-                    this.IsIndicatorRunning = true;
-                    base.OnAppearing();
-                    SubscribeKeyUpHandlers();
-                    this.lstScannedData.ItemsSource = this.ExtraInfoItems;
-                    var tableActItemBarCodeXRef =
-                        new TableActivityItemBarCodeAssociationXRef();
-                    var tableActItem = new TableActivityItem();
-                    var tableActivity = new TableActivity();
-
-                    if (!this.SysEnv.SysSettings.IsDisconnectedMode)
-                    {
-                        await tableActivity.PurgeData(SysCommon.ActSubTypes.BarCodeAssociation);
-                    }
-
-                    this.ActBarCode = ActivityFacade.GetActivity(SysCommon.ActSubTypes.BarCodeAssociation);
-                    await this.ActBarCode.Create(SysCommon.ActSubTypes.BarCodeAssociation);
-                    this.ActItemBarCode = ActItemFacade.GetActItem(
-                        this.ActBarCode,
-                        SysCommon.ActSubTypes.BarCodeAssociation);
-
-                    await this.ScannerStart();
-                }
-                catch (MessageOnlyException msgEx)
-                {
-                    var msg = SysCommon.GetMessageFromMessageException(msgEx);
-                    await Device.InvokeOnMainThreadAsync(async () =>
-                        await Application.Current.MainPage.DisplayAlert(
-                            this.GetControlDescription(),
-                            msg,
-                            Resource.OK));
-                }
-                catch (Exception ex)
-                {
-                    await Device.InvokeOnMainThreadAsync(async () =>
-                    {
-                        var errRpt = new FormErrorReport(this.ActSubType, ex);
-                        _ = await errRpt.ShowDialog();
-                    });
-                }
-                finally
-                {
-                    this.IsIndicatorRunning = false;
-                    ////await Task.Run(() =>
-                    ////{
-                    ////    // Explicit GC, Xamarin forms not disposing of objects properly
-                    ////    GC.Collect();
-                    ////    GC.WaitForPendingFinalizers();
-                    ////});
-                }
-            }
-
+            base.OnAppearing();
+            SubscribeKeyUpHandlers();
             return;
 
             //////////////////////////////////////////////////////////////////////////
             void SubscribeKeyUpHandlers()
             {
-                MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async keyPressed =>
+                MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), KeyUpCallback);
+                return;
+
+                //////////////////////////////////////////////////////////////////////////
+                async void KeyUpCallback(string keyPressed)
                 {
                     _ = Enum.TryParse(keyPressed, out Keycode keycode);
 
@@ -485,22 +246,21 @@ namespace dMobile.View.Activity
                     {
                         if (await this.SaveChanges())
                         {
+                            await this.ScannerDisable();
                             await this.Close();
                         }
                     }
-                });
+                }
             }
         }
 
         /// <summary>
         ///     On disappearing event handler.
         /// </summary>
-        protected override async void OnDisappearing()
+        protected override void OnDisappearing()
         {
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
-            await this.ScannerDisable();
             base.OnDisappearing();
-            this.IsIndicatorRunning = false;
             GC.Collect();
             GC.WaitForPendingFinalizers();
         }
@@ -511,30 +271,52 @@ namespace dMobile.View.Activity
         /// <returns>The <see cref="bool" /> True.</returns>
         protected override bool OnBackButtonPressed()
         {
-            Device.BeginInvokeOnMainThread(async () =>
+            Device.BeginInvokeOnMainThread(BackButtonCallback);
+            return true;
+
+            //////////////////////////////////////////////////////////////////////////
+            async void BackButtonCallback()
             {
                 _ = base.OnBackButtonPressed();
 
                 if (await this.SaveChanges())
                 {
+                    await this.ScannerDisable();
                     await this.Close();
                 }
                 else if (await this.CancelChanges())
                 {
+                    await this.ScannerDisable();
                     await this.Close();
                 }
-            });
+            }
+        }
 
-            return true;
+        /// <summary>
+        /// Load and bind the data to the form.
+        /// </summary>
+        /// <returns><see cref="Task"/> Task completed.</returns>
+        private async Task LoadAndBindData()
+        {
+            this.lstScannedData.ItemsSource = this.ExtraInfoItems;
+            var tableActivity = new TableActivity();
+            if (!this.SysEnv.SysSettings.IsDisconnectedMode)
+            {
+                await tableActivity.PurgeData(SysCommon.ActSubTypes.BarCodeAssociation);
+            }
+
+            this.ActBarCode = ActivityFacade.GetActivity(SysCommon.ActSubTypes.BarCodeAssociation);
+            await this.ActBarCode.Create(SysCommon.ActSubTypes.BarCodeAssociation);
+            this.ActItemBarCode = ActItemFacade.GetActItem(
+                this.ActBarCode,
+                SysCommon.ActSubTypes.BarCodeAssociation);
         }
 
         /// <summary>
         ///     Add the scan message to the items list.
         /// </summary>
-        /// <param name="sender"><see cref="object" /> Sender object.</param>
-        /// <param name="e"><see cref="EventArgs" /> Event arguments.</param>
         /// <param name="msg"><see cref="string" /> Message to add.</param>
-        private async Task AddScanMsg(object sender, EventArgs e, string msg)
+        private async Task AddScanMsg(string msg)
         {
             await Device.InvokeOnMainThreadAsync(() => { this.ExtraInfoItems.Add(msg); });
         }
@@ -547,8 +329,13 @@ namespace dMobile.View.Activity
         /// <returns>The <see cref="Task" />. Task operation.</returns>
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
-            if (this.IsIndicatorRunning || scanArgs == null)
+            if (scanArgs == null)
             {
+                const string msg = "Scanner event fired but no data was received.";
+                await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert(
+                        this.GetControlDescription(),
+                        msg,
+                        Resource.OK));
                 return;
             }
 
@@ -557,10 +344,10 @@ namespace dMobile.View.Activity
             var isLotTracked = false;
             var isBestBeforeDateTracked = false;
             var isVariantTracked = false;
-            var isLotUniqueComponent = false;
-            var isProductionDateUniqueComponent = false;
-            var isBestBeforeDateUniqueComponent = false;
-            var isVariantUniqueComponent = false;
+            ////var isLotUniqueComponent = false;
+            ////var isProductionDateUniqueComponent = false;
+            ////var isBestBeforeDateUniqueComponent = false;
+            ////var isVariantUniqueComponent = false;
             var prodSchemeRefno = 0;
             var prodCode = string.Empty;
             var prodInfo = new ProductInfo();
@@ -569,13 +356,7 @@ namespace dMobile.View.Activity
             try
             {
                 await this.ScannerDisable();
-
                 this.Parse = scanArgs.ParseInfo;
-                if (this.Parse != null)
-                {
-                    this.ScanHasData = true;
-                }
-
                 await Device.InvokeOnMainThreadAsync(() => this.ExtraInfoItems.Clear());
 
                 // Lookup product
@@ -585,7 +366,7 @@ namespace dMobile.View.Activity
                 if (!string.IsNullOrEmpty(scanArgs.ParseInfo.ProductIdentifier))
                 {
                     var prodIdentifier = scanArgs.ParseInfo.ProductIdentifier;
-                    var resultsProductUnitBarcode = await FindProductUnit(currLocMap, prodIdentifier);
+                    var resultsProductUnitBarcode = await FindProductUnit(prodIdentifier);
 
                     if (resultsProductUnitBarcode?.Count > 0)
                     {
@@ -594,12 +375,12 @@ namespace dMobile.View.Activity
                         prodSchemeRefno = resultsProductUnitBarcode[0].ProductSchemeRefno;
                         prodCode = resultsProductUnitBarcode[0].ProductCode;
                         prodInfo = await ProductInfoTasks.GetInfoFromRefno(resultsProductUnitBarcode[0].ProductRefno);
-                        await DisplayProductAssocInfo(sender, scanArgs, resultsProductUnitBarcode);
+                        await DisplayProductAssocInfo(resultsProductUnitBarcode);
                     }
 
                     if (this.ProductUnitRefno == 0)
                     {
-                        prodInfo = await BarCodeHandlerProductIdentifierRuleSumwaDuck(prodInfo);
+                        await BarCodeHandlerProductIdentifierRuleSumwaDuck();
                     }
 
                     if (this.ProductUnitRefno == 0)
@@ -617,7 +398,7 @@ namespace dMobile.View.Activity
 
                             if (this.ProductUnitRefno == 0)
                             {
-                                await this.AddScanMsg(sender, scanArgs, "Not associated to a product");
+                                await this.AddScanMsg("Not associated to a product");
 
                                 await Device.InvokeOnMainThreadAsync(() =>
                                 {
@@ -628,18 +409,19 @@ namespace dMobile.View.Activity
                             }
                             else
                             {
-                                var queryProductUnit = "SELECT tProductUnit.ProductUnitRefno,"
-                                                       + "tLocationMapWarehouseProductScheme.ProductSchemeRefno AS WarehouseProductSchemeRefno,"
-                                                       + "tProduct.ProductCode,"
-                                                       + "tProductUnit.ProductUnitBC,"
-                                                       + "tUnit.UnitCode "
-                                                       + "FROM tProductUnit "
-                                                       + "INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno "
-                                                       + "INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno "
-                                                       + "INNER JOIN tLocationMapWarehouseProductScheme ON" +
-                                                       " tLocationMapWarehouseProductScheme.ProductRefno = tProduct.ProductRefno "
-                                                       + "WHERE tProductUnit.ProductUnitRefno = ? "
-                                                       + "AND tLocationMapWarehouseProductScheme.WarehouseLocationMapRefno = ?";
+                                var queryProductUnit = @"
+                                    select tProductUnit.ProductUnitRefno
+                                            ,tLocationMapWarehouseProductScheme.ProductSchemeRefno AS WarehouseProductSchemeRefno
+                                            ,tProduct.ProductCode
+                                            ,tProductUnit.ProductUnitBC
+                                            ,tUnit.UnitCode
+                                        from tProductUnit 
+                                        inner join tProduct on tProduct.ProductRefno = tProductUnit.ProductRefno 
+                                        inner join tUnit on tUnit.UnitRefno = tProductUnit.UnitRefno 
+                                        inner join tLocationMapWarehouseProductScheme on
+                                            tLocationMapWarehouseProductScheme.ProductRefno = tProduct.ProductRefno";
+                                queryProductUnit += " where tProductUnit.ProductUnitRefno = ?";
+                                queryProductUnit += " and tLocationMapWarehouseProductScheme.WarehouseLocationMapRefno = ?";
 
                                 var resultsProductUnit =
                                     await DatabaseConnection.GetInstance().SQLConn
@@ -656,33 +438,30 @@ namespace dMobile.View.Activity
                                     prodCode = resultsProductUnit[0].ProductCode;
 
                                     // If product was found associated display it.  'ProductID+BC+UOM'
-                                    await this.AddScanMsg(sender, scanArgs, "Product Associated To Bar Code");
+                                    await this.AddScanMsg("Product Associated To Bar Code");
 
-                                    var prodbcuom = resultsProductUnit[0].ProductCode + " " +
+                                    var prodBcUnit = resultsProductUnit[0].ProductCode + " " +
                                                     resultsProductUnit[0].ProductUnitBC + " " +
                                                     resultsProductUnit[0].UnitCode;
-                                    await this.AddScanMsg(sender, scanArgs, prodbcuom);
+                                    await this.AddScanMsg(prodBcUnit);
 
                                     if (this.Parse.DeliScaleAmount != 0 &&
                                         (this.Parse.Symbology == BarCodeSymbologies.UCC_12_UPC_E ||
                                          this.Parse.Symbology == BarCodeSymbologies.EAN_UCC_13))
                                     {
-                                        await this.AddScanMsg(sender, scanArgs,
-                                            $"Product Deli Scale Amount {this.Parse.DeliScaleAmount}");
-                                        await this.AddScanMsg(sender, scanArgs,
-                                            $"Product Deli Scale Weight {deliScaleWeight} {deliScaleWeightUnit}");
+                                        await this.AddScanMsg($"Product Deli Scale Amount {this.Parse.DeliScaleAmount}");
+                                        await this.AddScanMsg($"Product Deli Scale Weight {deliScaleWeight} {deliScaleWeightUnit}");
 
-                                        if (this.SysEnv.BarCodeSettings
-                                            .IsRuleEnabled_Parse_UCC_12_UPC_E_as_Deli_PLU_4_Digit_Amount)
+                                        if (this.SysEnv.BarCodeSettings.IsRuleEnabled_Parse_UCC_12_UPC_E_as_Deli_PLU_4_Digit_Amount)
                                         {
-                                            await this.AddScanMsg(sender, scanArgs, "Barcode Rule: 4 digit amount");
+                                            await this.AddScanMsg("Barcode Rule: 4 digit amount");
                                         }
                                     }
 
                                     await Device.InvokeOnMainThreadAsync(() =>
                                     {
                                         this.lblProductData.TextColor = Color.Black;
-                                        this.lblProductData.Text = prodbcuom;
+                                        this.lblProductData.Text = prodBcUnit;
                                     });
                                 }
                             }
@@ -691,7 +470,7 @@ namespace dMobile.View.Activity
                         {
                             await Device.InvokeOnMainThreadAsync(async () =>
                             {
-                                await this.AddScanMsg(sender, scanArgs, "Product unidentified");
+                                await this.AddScanMsg("Product unidentified");
 
                                 this.lblProductData.TextColor = Color.Red;
 
@@ -703,17 +482,18 @@ namespace dMobile.View.Activity
                     // get product tracking scheme
                     if (prodSchemeRefno != 0)
                     {
-                        var queryProductScheme = "SELECT tProductScheme.ProductSchemeIsSerialTracked,"
-                                                 + "tProductScheme.ProductSchemeIsProductionDateTracked,"
-                                                 + "tProductScheme.ProductSchemeIsLotTracked,"
-                                                 + "tProductScheme.ProductSchemeIsBestBeforeDateTracked,"
-                                                 + "tProductScheme.ProductSchemeIsVariantTracked,"
-                                                 + "tProductScheme.ProductSchemeIsLotUniqueComponent,"
-                                                 + "tProductScheme.ProductSchemeIsProductionDateUniqueComponent,"
-                                                 + "tProductScheme.ProductSchemeIsBestBeforeDateUniqueComponent,"
-                                                 + "tProductScheme.ProductSchemeIsVariantUniqueComponent "
-                                                 + "FROM tProductScheme "
-                                                 + "WHERE tProductScheme.ProductSchemeRefno = ?";
+                        const string queryProductScheme = @"
+                            select tProductScheme.ProductSchemeIsSerialTracked,
+                                    tProductScheme.ProductSchemeIsProductionDateTracked,
+                                    tProductScheme.ProductSchemeIsLotTracked,
+                                    tProductScheme.ProductSchemeIsBestBeforeDateTracked,
+                                    tProductScheme.ProductSchemeIsVariantTracked,
+                                    tProductScheme.ProductSchemeIsLotUniqueComponent,
+                                    tProductScheme.ProductSchemeIsProductionDateUniqueComponent,
+                                    tProductScheme.ProductSchemeIsBestBeforeDateUniqueComponent,
+                                    tProductScheme.ProductSchemeIsVariantUniqueComponent
+                                from tProductScheme
+                                where tProductScheme.ProductSchemeRefno = ?";
 
                         var resultsProductScheme =
                             await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tProductSchemeModel>(
@@ -727,12 +507,12 @@ namespace dMobile.View.Activity
                             isLotTracked = resultsProductScheme[0].ProductSchemeIsLotTracked;
                             isBestBeforeDateTracked = resultsProductScheme[0].ProductSchemeIsBestBeforeDateTracked;
                             isVariantTracked = resultsProductScheme[0].ProductSchemeIsVariantTracked;
-                            isLotUniqueComponent = resultsProductScheme[0].ProductSchemeIsLotUniqueComponent;
-                            isProductionDateUniqueComponent =
-                                resultsProductScheme[0].ProductSchemeIsProductionDateUniqueComponent;
-                            isBestBeforeDateUniqueComponent =
-                                resultsProductScheme[0].ProductSchemeIsBestBeforeDateUniqueComponent;
-                            isVariantUniqueComponent = resultsProductScheme[0].ProductSchemeIsVariantUniqueComponent;
+                            ////isLotUniqueComponent = resultsProductScheme[0].ProductSchemeIsLotUniqueComponent;
+                            ////isProductionDateUniqueComponent =
+                            ////    resultsProductScheme[0].ProductSchemeIsProductionDateUniqueComponent;
+                            ////isBestBeforeDateUniqueComponent =
+                            ////    resultsProductScheme[0].ProductSchemeIsBestBeforeDateUniqueComponent;
+                            ////isVariantUniqueComponent = resultsProductScheme[0].ProductSchemeIsVariantUniqueComponent;
                         }
                         else
                         {
@@ -753,121 +533,95 @@ namespace dMobile.View.Activity
 
                 if (!string.IsNullOrEmpty(scanArgs.ParseInfo.SSCC18))
                 {
-                    await BarCodeHandlerSSCC18(sender, scanArgs);
+                    await BarCodeHandlerSscc18();
                 }
 
                 if (!string.IsNullOrEmpty(scanArgs.ParseInfo.LocationIdentifier))
                 {
-                    await BarCodeHandlerLocationIdentifier(sender, scanArgs);
+                    await BarCodeHandlerLocationIdentifier();
                 }
 
                 if (!string.IsNullOrEmpty(scanArgs.ParseInfo.GTIN))
                 {
-                    await this.AddScanMsg(sender, scanArgs, "GTIN: " + scanArgs.ParseInfo.GTIN);
+                    await this.AddScanMsg("GTIN: " + scanArgs.ParseInfo.GTIN);
                 }
 
                 if (!string.IsNullOrEmpty(scanArgs.ParseInfo.GTINLogisticUnit))
                 {
-                    await this.AddScanMsg(
-                        sender,
-                        scanArgs,
-                        "GTIN in a Logistic Unit: " + scanArgs.ParseInfo.GTINLogisticUnit);
+                    await this.AddScanMsg("GTIN in a Logistic Unit: " + scanArgs.ParseInfo.GTINLogisticUnit);
                 }
 
                 if (scanArgs.ParseInfo.PackagingType != 0)
                 {
-                    await this.AddScanMsg(sender, scanArgs, "Packaging Type: " + scanArgs.ParseInfo.PackagingType);
+                    await this.AddScanMsg("Packaging Type: " + scanArgs.ParseInfo.PackagingType);
                 }
 
                 if (scanArgs.ParseInfo.NumberSystemCharacter != 0)
                 {
-                    await this.AddScanMsg(
-                        sender,
-                        scanArgs,
-                        "Number System Character: " + scanArgs.ParseInfo.NumberSystemCharacter);
+                    await this.AddScanMsg("Number System Character: " + scanArgs.ParseInfo.NumberSystemCharacter);
                 }
 
                 if (!string.IsNullOrEmpty(scanArgs.ParseInfo.ProductIdentifier))
                 {
-                    await this.AddScanMsg(
-                        sender,
-                        scanArgs,
-                        "Product Identifier: " + scanArgs.ParseInfo.ProductIdentifier);
+                    await this.AddScanMsg("Product Identifier: " + scanArgs.ParseInfo.ProductIdentifier);
                 }
 
                 // TODO: Verify data is accurate/in correct position
                 // DEV-5602 Brand Field Not Displaying on dMobile Bar Code Association Window
                 if (!string.IsNullOrEmpty(prodInfo?.BrandDesc))
                 {
-                    await this.AddScanMsg(sender, scanArgs, "Brand Description: " + prodInfo.BrandDesc);
+                    await this.AddScanMsg("Brand Description: " + prodInfo.BrandDesc);
                 }
 
                 if (!string.IsNullOrEmpty(scanArgs.ParseInfo.ItemReference))
                 {
-                    await this.AddScanMsg(sender, scanArgs, "Item Reference: " + scanArgs.ParseInfo.ItemReference);
+                    await this.AddScanMsg("Item Reference: " + scanArgs.ParseInfo.ItemReference);
                 }
 
-                await BarCodeHandlerScheme(
-                    sender,
-                    scanArgs,
-                    isSerialTracked,
-                    isProductionDateTracked,
-                    isLotTracked,
-                    isBestBeforeDateTracked,
-                    isVariantTracked,
-                    prodInfo);
+                await BarCodeHandlerScheme();
 
                 // AI 91 Activity Item FK Refno
                 if (!string.IsNullOrEmpty(scanArgs.ParseInfo.ActItemFKRefno))
                 {
-                    await this.AddScanMsg(
-                        sender,
-                        scanArgs,
-                        "Activity Item FK Ref#: " + scanArgs.ParseInfo.ActItemFKRefno);
+                    await this.AddScanMsg("Activity Item FK Ref#: " + scanArgs.ParseInfo.ActItemFKRefno);
                 }
 
                 // AI 92 Activity FK Refno
                 if (!string.IsNullOrEmpty(scanArgs.ParseInfo.ActFKRefno))
                 {
-                    await this.AddScanMsg(sender, scanArgs, "Activity FK Ref#: " + scanArgs.ParseInfo.ActFKRefno);
+                    await this.AddScanMsg("Activity FK Ref#: " + scanArgs.ParseInfo.ActFKRefno);
                 }
 
                 // AI 93 Activity Detail FK Refno
                 if (!string.IsNullOrEmpty(scanArgs.ParseInfo.ActDetailFKRefno))
                 {
-                    await this.AddScanMsg(
-                        sender,
-                        scanArgs,
-                        "Activity Detail FK Ref#: " + scanArgs.ParseInfo.ActDetailFKRefno);
+                    await this.AddScanMsg("Activity Detail FK Ref#: " + scanArgs.ParseInfo.ActDetailFKRefno);
                 }
 
                 if (!string.IsNullOrEmpty(scanArgs.ParseInfo.Remainder))
                 {
-                    await this.AddScanMsg(sender, scanArgs, "Unidentifiable Data");
-                    await this.AddScanMsg(sender, scanArgs, scanArgs.ParseInfo.Remainder);
+                    await this.AddScanMsg("Unidentifiable Data");
+                    await this.AddScanMsg(scanArgs.ParseInfo.Remainder);
                 }
 
                 // Symbology ID
-                await this.AddScanMsg(sender, scanArgs, "Symbology: " + scanArgs.ParseInfo.Symbology);
+                await this.AddScanMsg("Symbology: " + scanArgs.ParseInfo.Symbology);
 
                 // Symbology Prefix
-                await this.AddScanMsg(sender, scanArgs, "Symbology Prefix: " + scanArgs.ParseInfo.SymbologyPrefix);
+                await this.AddScanMsg("Symbology Prefix: " + scanArgs.ParseInfo.SymbologyPrefix);
 
                 // Length
-                await this.AddScanMsg(
-                    sender,
-                    scanArgs,
-                    $"Length: {scanArgs.ParseInfo.Length} prefix excluded");
+                await this.AddScanMsg($"Length: {scanArgs.ParseInfo.Length} prefix excluded");
 
                 // Raw Bar Code Data
-                await this.AddScanMsg(sender, scanArgs, "Bar Code Raw");
+                await this.AddScanMsg("Bar Code Raw");
 
-                const int LineLength = 30;
-                var rawDataLine = SysCommon.WordWrap2List(scanArgs.ParseInfo.Raw, LineLength);
+                const int lineLength = 30;
+                var rawDataLine = SysCommon.WordWrap2List(scanArgs.ParseInfo.Raw, lineLength);
 
                 for (var i = 0; i < rawDataLine.Count; i++)
                 {
-                    await this.AddScanMsg(sender, scanArgs, rawDataLine[i]);
+                    await this.AddScanMsg(rawDataLine[i]);
                 }
 
                 // <issue="13609" author="RD" date="2016/02/22">
@@ -876,25 +630,20 @@ namespace dMobile.View.Activity
                 {
                     if (this.Parse.Details.ErrorCount == 1)
                     {
-                        await this.AddScanMsg(sender, scanArgs, "1 Error");
+                        await this.AddScanMsg("1 Error");
                     }
                     else
                     {
-                        await this.AddScanMsg(
-                            sender,
-                            scanArgs,
-                            $"{this.Parse.Details.ErrorCount} Errors");
+                        await this.AddScanMsg($"{this.Parse.Details.ErrorCount} Errors");
                     }
-
-                    var count = this.Parse.Details.ErrorCount;
 
                     foreach (var errorDetail in this.Parse.Details.ErrorDetails)
                     {
-                        var lines = SysCommon.WordWrap2List(errorDetail.Exception.Message, LineLength);
+                        var lines = SysCommon.WordWrap2List(errorDetail.Exception.Message, lineLength);
 
                         for (var i = 0; i < lines.Count; ++i)
                         {
-                            await this.AddScanMsg(sender, scanArgs, lines[i]);
+                            await this.AddScanMsg(lines[i]);
                         }
                     }
                 }
@@ -910,80 +659,53 @@ namespace dMobile.View.Activity
             finally
             {
                 await this.ScannerEnable();
+                await this.LoadAndBindData();
             }
 
             return;
 
             //////////////////////////////////////////////////////////////////////////
-            async Task BarCodeHandlerSSCC18(object sender, BarCodeScannerEventArgs scanArgs)
+            async Task BarCodeHandlerSscc18()
             {
-                await this.AddScanMsg(sender, scanArgs, "SSCC-18: " + scanArgs.ParseInfo.SSCC18);
+                await this.AddScanMsg("SSCC-18: " + scanArgs.ParseInfo.SSCC18);
 
-                if (!this.SysEnv.SysSettings.IsDisconnectedMode)
+                if (this.SysEnv.SysSettings.IsDisconnectedMode)
+                {
+                    await this.AddScanMsg("Disconnected mode, unable to lookup SSCC-18.");
+                }
+                else
                 {
                     try
                     {
+                        this.lblProductData.Text = "Unidentified";
                         var skid = await SysSkidInfo.GetSkidInfoFromBarCodeOrCode(
                             scanArgs.ParseInfo.SSCC18);
 
                         if (skid.CurrSkid.SkidFKRefno > 0)
                         {
                             //// AddScanMsg(sender, BarCodeScanArgs, "Skid identified")
-                            await this.AddScanMsg(
-                                sender,
-                                scanArgs,
-                                $"Code: {skid.CurrSkid.LogisticUnitSkidCode}");
-                            await this.AddScanMsg(
-                                sender,
-                                scanArgs,
-                                $"Refno: {skid.CurrSkid.SkidFKRefno}");
-                            await this.AddScanMsg(
-                                sender,
-                                scanArgs,
-                                $"Number: {skid.CurrSkid.SkidCode}");
+                            await this.AddScanMsg($"Code: {skid.CurrSkid.LogisticUnitSkidCode}");
+                            await this.AddScanMsg($"Refno: {skid.CurrSkid.SkidFKRefno}");
+                            await this.AddScanMsg($"Number: {skid.CurrSkid.SkidCode}");
 
                             var locReadable = LocationMapTasks.GetReadableLocation(
                                 skid.CurrSkid.LocMap);
 
                             var skidQty =
-                                $"Qty: {skid.CurrSkid.Quantity} {skid.CurrSkid.ProdInfo.UnitCode} @ {skid.CurrSkid.WeightQuantity} {skid.CurrSkid.ProdInfo.WeightUnitCode}";
+                                $"Qty: {skid.CurrSkid.Quantity} {skid.CurrSkid.ProdInfo.UnitCode} @" +
+                                $" {skid.CurrSkid.WeightQuantity} {skid.CurrSkid.ProdInfo.WeightUnitCode}";
 
-                            await this.AddScanMsg(sender, scanArgs, $"Location: {locReadable}");
-                            await this.AddScanMsg(sender, scanArgs,
-                                $"Product: {ProductInfoTasks.GetCurrReadableProdBCUnit(skid.CurrSkid.ProdInfo)}");
-                            await this.AddScanMsg(sender, scanArgs, skidQty);
-                            await this.AddScanMsg(
-                                sender,
-                                scanArgs,
-                                $"Put Away: {skid.CurrSkid.IsPutAway}");
-                            await this.AddScanMsg(
-                                sender,
-                                scanArgs,
-                                $"On Hold: {skid.CurrSkid.IsHold}");
-                            await this.AddScanMsg(
-                                sender,
-                                scanArgs,
-                                $"Cube: {skid.CurrSkid.Cube} {skid.CurrSkid.CubeUnit}");
-                            await this.AddScanMsg(
-                                sender,
-                                scanArgs,
-                                $"Height: {skid.CurrSkid.Height} {skid.CurrSkid.HeightUnit}");
-                            await this.AddScanMsg(
-                                sender,
-                                scanArgs,
-                                $"Ti/Hi: {skid.CurrSkid.Ti}/{skid.CurrSkid.Hi}");
-                            await this.AddScanMsg(
-                                sender,
-                                scanArgs,
-                                $"CHEP: {skid.CurrSkid.IsCHEP}");
-                            await this.AddScanMsg(
-                                sender,
-                                scanArgs,
-                                $"Completed: {skid.CurrSkid.IsCompleted}");
-                            await this.AddScanMsg(
-                                sender,
-                                scanArgs,
-                                $"Consumed: {skid.CurrSkid.IsConsumed}");
+                            await this.AddScanMsg($"Location: {locReadable}");
+                            await this.AddScanMsg($"Product: {ProductInfoTasks.GetCurrReadableProdBCUnit(skid.CurrSkid.ProdInfo)}");
+                            await this.AddScanMsg(skidQty);
+                            await this.AddScanMsg($"Put Away: {skid.CurrSkid.IsPutAway}");
+                            await this.AddScanMsg($"On Hold: {skid.CurrSkid.IsHold}");
+                            await this.AddScanMsg($"Cube: {skid.CurrSkid.Cube} {skid.CurrSkid.CubeUnit}");
+                            await this.AddScanMsg($"Height: {skid.CurrSkid.Height} {skid.CurrSkid.HeightUnit}");
+                            await this.AddScanMsg($"Ti/Hi: {skid.CurrSkid.Ti}/{skid.CurrSkid.Hi}");
+                            await this.AddScanMsg($"CHEP: {skid.CurrSkid.IsCHEP}");
+                            await this.AddScanMsg($"Completed: {skid.CurrSkid.IsCompleted}");
+                            await this.AddScanMsg($"Consumed: {skid.CurrSkid.IsConsumed}");
                         }
                         else
                         {
@@ -992,18 +714,15 @@ namespace dMobile.View.Activity
                     }
                     catch (Exception)
                     {
-                        await this.AddScanMsg(sender, scanArgs, "Skid unidentified.");
+                        await this.AddScanMsg("Skid unidentified.");
                     }
                 }
             }
 
             //////////////////////////////////////////////////////////////////////////
-            async Task BarCodeHandlerLocationIdentifier(object sender, BarCodeScannerEventArgs scanArgs)
+            async Task BarCodeHandlerLocationIdentifier()
             {
-                await this.AddScanMsg(
-                    sender,
-                    scanArgs,
-                    "Location identifier: " + scanArgs.ParseInfo.LocationIdentifier);
+                await this.AddScanMsg("Location identifier: " + scanArgs.ParseInfo.LocationIdentifier);
 
                 var locMapRefno = await LocationMapTasks.GetLocMapRefnoFromBarCodeGlobalLocIdentifier(
                     scanArgs.ParseInfo.LocationIdentifier);
@@ -1012,145 +731,92 @@ namespace dMobile.View.Activity
                 {
                     var locMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(locMapRefno);
 
-                    await this.AddScanMsg(sender, scanArgs, $"Warehouse code: {locMap.WhsCode}");
-                    await this.AddScanMsg(sender, scanArgs, $"Warehouse refno: {locMap.WhsFKRefno}");
-                    await this.AddScanMsg(sender, scanArgs, $"Warehouse name: {locMap.WhsName}");
-                    await this.AddScanMsg(sender, scanArgs, $"Section code: {locMap.SectCode}");
-                    await this.AddScanMsg(sender, scanArgs, $"Section refno: {locMap.SectFKRefno}");
-                    await this.AddScanMsg(sender, scanArgs, $"Section name: {locMap.SectName}");
-                    await this.AddScanMsg(sender, scanArgs, $"Slot code: {locMap.SlotCode}");
-                    await this.AddScanMsg(sender, scanArgs, $"Slot refno: {locMap.SlotFKRefno}");
-                    await this.AddScanMsg(sender, scanArgs, $"Slot name: {locMap.SlotName}");
+                    await this.AddScanMsg($"Warehouse code: {locMap.WhsCode}");
+                    await this.AddScanMsg($"Warehouse refno: {locMap.WhsFKRefno}");
+                    await this.AddScanMsg($"Warehouse name: {locMap.WhsName}");
+                    await this.AddScanMsg($"Section code: {locMap.SectCode}");
+                    await this.AddScanMsg($"Section refno: {locMap.SectFKRefno}");
+                    await this.AddScanMsg($"Section name: {locMap.SectName}");
+                    await this.AddScanMsg($"Slot code: {locMap.SlotCode}");
+                    await this.AddScanMsg($"Slot refno: {locMap.SlotFKRefno}");
+                    await this.AddScanMsg($"Slot name: {locMap.SlotName}");
                 }
                 else
                 {
-                    await this.AddScanMsg(sender, scanArgs, "Not associated to a location.");
+                    await this.AddScanMsg("Not associated to a location.");
                 }
             }
 
             //////////////////////////////////////////////////////////////////////////
-            async Task BarCodeHandlerScheme(
-                object sender,
-                BarCodeScannerEventArgs scanArgs,
-                bool isSerialTracked,
-                bool isProductionDateTracked,
-                bool isLotTracked,
-                bool isBestBeforeDateTracked,
-                bool isVariantTracked,
-                ProductInfo prodInfo)
+            async Task BarCodeHandlerScheme()
             {
-                await DisplayParsedSchemeData(
-                    sender,
-                    scanArgs,
-                    isSerialTracked,
-                    isProductionDateTracked,
-                    isLotTracked,
-                    isBestBeforeDateTracked,
-                    isVariantTracked);
-
-                await DisplayParsedWeights(sender, scanArgs);
+                await DisplayParsedSchemeData();
+                await DisplayParsedWeights();
 
                 if (scanArgs.ParseInfo.LogisticUnitCountOfTradeItems != 0)
                 {
-                    await this.AddScanMsg(
-                        sender,
-                        scanArgs,
-                        "Count of trade items: " + scanArgs.ParseInfo.LogisticUnitCountOfTradeItems);
+                    await this.AddScanMsg("Count of trade items: " + scanArgs.ParseInfo.LogisticUnitCountOfTradeItems);
                 }
 
                 if (scanArgs.ParseInfo.LogisticUnitVariableCount != 0)
                 {
-                    await this.AddScanMsg(
-                        sender,
-                        scanArgs,
-                        "Variable Count: " + scanArgs.ParseInfo.LogisticUnitVariableCount);
+                    await this.AddScanMsg("Variable Count: " + scanArgs.ParseInfo.LogisticUnitVariableCount);
                 }
 
                 if (scanArgs.ParseInfo.LengthOr1stDimensionMeters != 0)
                 {
-                    await this.AddScanMsg(
-                        sender,
-                        scanArgs,
-                        "Length Meters: " + scanArgs.ParseInfo.LengthOr1stDimensionMeters);
+                    await this.AddScanMsg("Length Meters: " + scanArgs.ParseInfo.LengthOr1stDimensionMeters);
                 }
 
                 return;
 
-                async Task DisplayParsedWeights(object sender, BarCodeScannerEventArgs scanArgs)
+                async Task DisplayParsedWeights()
                 {
                     if (scanArgs.ParseInfo.NetWeightMetricKGFoundAI)
                     {
-                        await this.AddScanMsg(
-                            sender,
-                            scanArgs,
-                            "Net weight metric KG: " + scanArgs.ParseInfo.NetWeightMetricKG);
+                        await this.AddScanMsg("Net weight metric KG: " + scanArgs.ParseInfo.NetWeightMetricKG);
                     }
 
                     if (scanArgs.ParseInfo.NetWeightNonMetricLBFoundAI)
                     {
-                        await this.AddScanMsg(
-                            sender,
-                            scanArgs,
-                            "Net weight non-metric LB: " + scanArgs.ParseInfo.NetWeightNonMetricLB);
+                        await this.AddScanMsg("Net weight non-metric LB: " + scanArgs.ParseInfo.NetWeightNonMetricLB);
                     }
 
                     if (scanArgs.ParseInfo.GrossWeightMetricKGFoundAI)
                     {
-                        await this.AddScanMsg(
-                            sender,
-                            scanArgs,
-                            "Gross weight metric KG: " + scanArgs.ParseInfo.GrossWeightMetricKG);
+                        await this.AddScanMsg("Gross weight metric KG: " + scanArgs.ParseInfo.GrossWeightMetricKG);
                     }
 
                     if (scanArgs.ParseInfo.GrossWeightNonMetricLBFoundAI)
                     {
-                        await this.AddScanMsg(
-                            sender,
-                            scanArgs,
-                            "Gross weight non-metric LB: " + scanArgs.ParseInfo.NetWeightNonMetricLB);
+                        await this.AddScanMsg("Gross weight non-metric LB: " + scanArgs.ParseInfo.NetWeightNonMetricLB);
                     }
                 }
 
                 //////////////////////////////////////////////////////////////////////////
-                async Task DisplayParsedSchemeData(
-                    object sender,
-                    BarCodeScannerEventArgs scanArgs,
-                    bool isSerialTracked,
-                    bool isProductionDateTracked,
-                    bool isLotTracked,
-                    bool isBestBeforeDateTracked,
-                    bool isVariantTracked)
+                async Task DisplayParsedSchemeData()
                 {
                     if (scanArgs.ParseInfo.ManufacturerSerialNumber != 0)
                     {
-                        await this.AddScanMsg(
-                            sender,
-                            scanArgs,
-                            "Manufacturer Serial Number: " + scanArgs.ParseInfo.ManufacturerSerialNumber);
+                        await this.AddScanMsg("Manufacturer Serial Number: " + scanArgs.ParseInfo.ManufacturerSerialNumber);
                     }
 
                     if (!string.IsNullOrEmpty(scanArgs.ParseInfo.SingleTradeItemSerialNumber))
                     {
                         if (isSerialTracked)
                         {
-                            await this.AddScanMsg(
-                                sender,
-                                scanArgs,
-                                "(Tracked) Serial #:" + scanArgs.ParseInfo.SingleTradeItemSerialNumber);
+                            await this.AddScanMsg("(Tracked) Serial #:" + scanArgs.ParseInfo.SingleTradeItemSerialNumber);
                         }
                         else
                         {
-                            await this.AddScanMsg(
-                                sender,
-                                scanArgs,
-                                "Serial #:" + scanArgs.ParseInfo.SingleTradeItemSerialNumber);
+                            await this.AddScanMsg("Serial #:" + scanArgs.ParseInfo.SingleTradeItemSerialNumber);
                         }
                     }
                     else
                     {
                         if (isSerialTracked)
                         {
-                            await this.AddScanMsg(sender, scanArgs, "(Tracked) Serial # Missing");
+                            await this.AddScanMsg("(Tracked) Serial # Missing");
                         }
                     }
 
@@ -1158,24 +824,18 @@ namespace dMobile.View.Activity
                     {
                         if (isLotTracked)
                         {
-                            await this.AddScanMsg(
-                                sender,
-                                scanArgs,
-                                "(Tracked) Batch / Lot Number: " + scanArgs.ParseInfo.LogisticUnitBatchLotNumber);
+                            await this.AddScanMsg("(Tracked) Batch / Lot Number: " + scanArgs.ParseInfo.LogisticUnitBatchLotNumber);
                         }
                         else
                         {
-                            await this.AddScanMsg(
-                                sender,
-                                scanArgs,
-                                "Batch / Lot Number: " + scanArgs.ParseInfo.LogisticUnitBatchLotNumber);
+                            await this.AddScanMsg("Batch / Lot Number: " + scanArgs.ParseInfo.LogisticUnitBatchLotNumber);
                         }
                     }
                     else
                     {
                         if (isLotTracked)
                         {
-                            await this.AddScanMsg(sender, scanArgs, "(Tracked) Batch / Lot Number Missing.");
+                            await this.AddScanMsg("(Tracked) Batch / Lot Number Missing.");
                         }
                     }
 
@@ -1185,25 +845,19 @@ namespace dMobile.View.Activity
                         {
                             var msg = "(Tracked) Production Date: " +
                                       scanArgs.ParseInfo.LogisticUnitProductionDate.ToShortDateString();
-                            await this.AddScanMsg(
-                                sender,
-                                scanArgs,
-                                msg);
+                            await this.AddScanMsg(msg);
                         }
                         else
                         {
-                            await this.AddScanMsg(
-                                sender,
-                                scanArgs,
-                                "Production Date: " +
-                                scanArgs.ParseInfo.LogisticUnitProductionDate.ToShortDateString());
+                            await this.AddScanMsg("Production Date: " +
+                                                  scanArgs.ParseInfo.LogisticUnitProductionDate.ToShortDateString());
                         }
                     }
                     else
                     {
                         if (isProductionDateTracked)
                         {
-                            await this.AddScanMsg(sender, scanArgs, "(Tracked) Production Date Missing");
+                            await this.AddScanMsg("(Tracked) Production Date Missing");
                         }
                     }
 
@@ -1213,45 +867,39 @@ namespace dMobile.View.Activity
                         {
                             var msg = "(Tracked) Best Before Date: " +
                                       scanArgs.ParseInfo.LogisticUnitBestBeforeSellByDate.ToShortDateString();
-                            await this.AddScanMsg(
-                                sender,
-                                scanArgs,
-                                msg);
+                            await this.AddScanMsg(msg);
                         }
                         else
                         {
                             var msg = "Best Before Date: " +
                                       scanArgs.ParseInfo.LogisticUnitBestBeforeSellByDate.ToShortDateString();
-                            await this.AddScanMsg(
-                                sender,
-                                scanArgs,
-                                msg);
+                            await this.AddScanMsg(msg);
                         }
                     }
                     else
                     {
                         if (isBestBeforeDateTracked)
                         {
-                            await this.AddScanMsg(sender, scanArgs, "(Tracked) Best Before Date Missing");
+                            await this.AddScanMsg("(Tracked) Best Before Date Missing");
                         }
                     }
 
                     if (!SysCommon.IsEmptyDateTime(scanArgs.ParseInfo.LogisticUnitExpiryUseByDate))
                     {
                         var msg = "Expiry Date: " + scanArgs.ParseInfo.LogisticUnitExpiryUseByDate.ToShortDateString();
-                        await this.AddScanMsg(sender, scanArgs, msg);
+                        await this.AddScanMsg(msg);
                     }
 
                     if (!SysCommon.IsEmptyDateTime(scanArgs.ParseInfo.LogisticUnitDueDate))
                     {
                         var msg = "Due Date: " + scanArgs.ParseInfo.LogisticUnitDueDate.ToShortDateString();
-                        await this.AddScanMsg(sender, scanArgs, msg);
+                        await this.AddScanMsg(msg);
                     }
 
                     if (!SysCommon.IsEmptyDateTime(scanArgs.ParseInfo.LogisticUnitPackagingDate))
                     {
                         var msg = "Packaging Date: " + scanArgs.ParseInfo.LogisticUnitPackagingDate.ToShortDateString();
-                        await this.AddScanMsg(sender, scanArgs, msg);
+                        await this.AddScanMsg(msg);
                     }
 
                     if (scanArgs.ParseInfo.LogisticUnitProductVariant != 0)
@@ -1259,26 +907,26 @@ namespace dMobile.View.Activity
                         if (isVariantTracked)
                         {
                             var msg = "(Tracked) Product Variant: " + scanArgs.ParseInfo.LogisticUnitProductVariant;
-                            await this.AddScanMsg(sender, scanArgs, msg);
+                            await this.AddScanMsg(msg);
                         }
                         else
                         {
                             var msg = "Product Variant: " + scanArgs.ParseInfo.LogisticUnitProductVariant;
-                            await this.AddScanMsg(sender, scanArgs, msg);
+                            await this.AddScanMsg(msg);
                         }
                     }
                     else
                     {
                         if (isVariantTracked)
                         {
-                            await this.AddScanMsg(sender, scanArgs, "(Tracked) Product variant missing.");
+                            await this.AddScanMsg("(Tracked) Product variant missing.");
                         }
                     }
                 }
             }
 
             //////////////////////////////////////////////////////////////////////////
-            async Task<ProductInfo> BarCodeHandlerProductIdentifierRuleSumwaDuck(ProductInfo prodInfo)
+            async Task BarCodeHandlerProductIdentifierRuleSumwaDuck()
             {
                 // Do not look up gtin in bar code database for this rule, product will be identified by a range
                 // of fixed weights.
@@ -1293,30 +941,29 @@ namespace dMobile.View.Activity
                         "CS");
                     this.ProductUnitRefno = prodInfo.UnitRefno;
                 }
-
-                return prodInfo;
             }
 
             //////////////////////////////////////////////////////////////////////////
-            async Task<List<ProductUnitBarcodeQueryResult>> FindProductUnit(SLocMap currLocMap, string prodIdentifier)
+            async Task<List<ProductUnitBarcodeQueryResult>> FindProductUnit(string prodIdentifier)
             {
-                var queryProductUnitBarcode = "select tProductUnit.ProductUnitRefno,"
-                                              + "tProductUnitBarCode.ProductUnitBarCodeRefno,"
-                                              + "tLocationMapWarehouseProductScheme.ProductSchemeRefno AS WarehouseProductSchemeRefno,"
-                                              + "tProduct.ProductSchemeRefno,"
-                                              + "tProduct.ProductCode,"
-                                              + "tProduct.ProductRefno,"
-                                              + "tProduct.ProductDescription,"
-                                              + "tProductUnit.ProductUnitBC,"
-                                              + "tUnit.UnitCode "
-                                              + "FROM tProductUnitBarCode "
-                                              + "INNER JOIN tProductUnit ON tProductUnit.ProductUnitRefno = tProductUnitBarCode.ProductUnitRefno "
-                                              + "INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno "
-                                              + "INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno "
-                                              + "INNER JOIN tLocationMapWarehouseProductScheme ON tLocationMapWarehouseProductScheme.ProductRefno = tProduct.ProductRefno "
-                                              + "WHERE tProductUnitBarCode.ProductUnitBarCodeCode = ? "
-                                              + "AND tLocationMapWarehouseProductScheme.WarehouseLocationMapRefno = ? "
-                                              + "AND tProductUnitBarCode.ProductUnitBarCodeModifier1 = ?";
+                var queryProductUnitBarcode = @"
+                    select tProductUnit.ProductUnitRefno,
+                            tProductUnitBarCode.ProductUnitBarCodeRefno,
+                            tLocationMapWarehouseProductScheme.ProductSchemeRefno AS WarehouseProductSchemeRefno,
+                            tProduct.ProductSchemeRefno,
+                            tProduct.ProductCode,
+                            tProduct.ProductRefno,
+                            tProduct.ProductDescription,
+                            tProductUnit.ProductUnitBC,
+                            tUnit.UnitCode
+                        from tProductUnitBarCode
+                        inner join tProductUnit on tProductUnit.ProductUnitRefno = tProductUnitBarCode.ProductUnitRefno
+                        inner join tProduct on tProduct.ProductRefno = tProductUnit.ProductRefno
+                        inner join tUnit on tUnit.UnitRefno = tProductUnit.UnitRefno
+                        inner join tLocationMapWarehouseProductScheme ON tLocationMapWarehouseProductScheme.ProductRefno = tProduct.ProductRefno
+                        where tProductUnitBarCode.ProductUnitBarCodeCode = ?
+                            and tLocationMapWarehouseProductScheme.WarehouseLocationMapRefno = ?
+                            and tProductUnitBarCode.ProductUnitBarCodeModifier1 = ?";
 
                 var resultsProductUnitBarcode =
                     await DatabaseConnection.GetInstance().SQLConn.QueryAsync<ProductUnitBarcodeQueryResult>(
@@ -1328,30 +975,24 @@ namespace dMobile.View.Activity
             }
 
             //////////////////////////////////////////////////////////////////////////
-            async Task DisplayProductAssocInfo(
-                object sender,
-                BarCodeScannerEventArgs scanArgs,
-                List<ProductUnitBarcodeQueryResult> resultsProductUnitBarcode)
+            async Task DisplayProductAssocInfo(IReadOnlyList<ProductUnitBarcodeQueryResult> resultsProductUnitBarcode)
             {
                 // If product was found associated display it.  'ProductID+BC+UOM'
-                await this.AddScanMsg(sender, scanArgs, "Product associated to bar code");
+                await this.AddScanMsg("Product associated to bar code");
 
-                var prodBCUnit = resultsProductUnitBarcode[0].ProductCode + " " +
+                var prodBcUnit = resultsProductUnitBarcode[0].ProductCode + " " +
                                  resultsProductUnitBarcode[0].ProductUnitBC + " " +
                                  resultsProductUnitBarcode[0].UnitCode;
 
-                await this.AddScanMsg(sender, scanArgs, prodBCUnit);
+                await this.AddScanMsg(prodBcUnit);
 
                 await Device.InvokeOnMainThreadAsync(() =>
                 {
                     this.lblProductData.TextColor = Color.Black;
-                    this.lblProductData.Text = prodBCUnit;
+                    this.lblProductData.Text = prodBcUnit;
                 });
 
-                await this.AddScanMsg(
-                    sender,
-                    scanArgs,
-                    resultsProductUnitBarcode[0].ProductDescription);
+                await this.AddScanMsg(resultsProductUnitBarcode[0].ProductDescription);
             }
         }
 
@@ -1364,16 +1005,18 @@ namespace dMobile.View.Activity
         {
             try
             {
-                this.IsChangesMade = true;
                 this.SysEnv.CurrentBarCodeModifier1 = this.BarCodeModifier1Picker.SelectedItem.ToString();
             }
             catch (Exception ex)
             {
-                Device.BeginInvokeOnMainThread(async () =>
+                Device.BeginInvokeOnMainThread(ModifierChangeError);
+
+                //////////////////////////////////////////////////////////////////////////
+                async void ModifierChangeError()
                 {
                     var errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
-                });
+                }
             }
         }
 
@@ -1393,7 +1036,8 @@ namespace dMobile.View.Activity
                     var isAllowedAssocProdBarCode = await CheckAllowedToAssignProduct();
                     if (isAllowedAssocProdBarCode)
                     {
-                        await AssignProduct(sender);
+                        await AssignProduct();
+                        await this.LoadAndBindData();
                     }
 
                     // Just return without a message because the user will
@@ -1419,7 +1063,7 @@ namespace dMobile.View.Activity
             }
             catch (Exception ex)
             {
-                Device.BeginInvokeOnMainThread(async () =>
+                await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     var errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
@@ -1430,7 +1074,6 @@ namespace dMobile.View.Activity
                 await Device.InvokeOnMainThreadAsync(() =>
                 {
                     this.Parse.ClearResetBarCodeProperties();
-                    this.ScanHasData = false;
                 });
 
                 await this.ScannerEnable();
@@ -1459,14 +1102,14 @@ namespace dMobile.View.Activity
             }
 
             //////////////////////////////////////////////////////////////////////////
-            async Task AssignProduct(object sender)
+            async Task AssignProduct()
             {
                 var form = new FormDialogContainer(EDialogTypes.SelectProductUnit, this.ActSubType);
 
                 if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
                 {
                     var xmlDoc = await form.GetXML();
-                    this.ProductUnitRefno = int.Parse(xmlDoc.Root.Element("ProductUnitRefno").Value);
+                    this.ProductUnitRefno = int.Parse(xmlDoc.Root!.Element("ProductUnitRefno") !.Value);
 
                     if (this.ProductUnitRefno != 0)
                     {
@@ -1502,13 +1145,14 @@ namespace dMobile.View.Activity
                 //////////////////////////////////////////////////////////////////////////
                 async Task<List<ProductUnit>> FindAssocProductInfo()
                 {
-                    var queryProductUnit = "SELECT tProduct.ProductCode,"
-                                           + "tProductUnit.ProductUnitBC,"
-                                           + "tUnit.UnitCode "
-                                           + "FROM tProductUnit "
-                                           + "INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno "
-                                           + "INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno "
-                                           + "WHERE tProductUnit.ProductUnitRefno = ?";
+                    var queryProductUnit = @"
+                        select tProduct.ProductCode,
+                                tProductUnit.ProductUnitBC,
+                                tUnit.UnitCode
+                            from tProductUnit
+                            inner join tProduct on tProduct.ProductRefno = tProductUnit.ProductRefno
+                            inner join tUnit on tUnit.UnitRefno = tProductUnit.UnitRefno
+                            where tProductUnit.ProductUnitRefno = ?";
 
                     var productUnit = await DatabaseConnection.GetInstance().SQLConn
                         .QueryAsync<ProductUnit>(queryProductUnit, this.ProductUnitRefno);

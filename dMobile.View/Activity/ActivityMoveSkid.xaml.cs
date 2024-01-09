@@ -16,6 +16,7 @@ namespace dMobile.View.Activity
     using Controller.Activity_Item;
     using CustomPages;
     using Forms;
+    using Helpers;
     using Resources.Enums;
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;
@@ -50,76 +51,62 @@ namespace dMobile.View.Activity
             this.ActItem.ActHdr = this.Activity;
             this.ActDetail = ActDetailFacade.GetActDetail(this.ActItem, SysCommon.ActSubTypes.SkidInfo);
             this.ActDetail.ActItem = this.ActItem;
+            this.ScannerEnable().FireAndForgetSafeAsync();
         }
 
         /// <summary>
-        ///     Gets or sets a value indicating whether the saved bar code scanner enabled status.
+        ///     Gets the activity sub type.
         /// </summary>
-        private bool IsSvdBarScannerEnabled { get; set; }
-
-        /// <summary>
-        ///     Gets or sets a value indicating whether bar code handler is registered / enabled.
-        /// </summary>
-        private bool IsBarCodeHandlerRegistered { get; set; }
-
-        /// <summary>
-        ///     Gets or sets the activity sub type.
-        /// </summary>
-        private SysCommon.ActSubTypes ActSubType { get; } = SysCommon.ActSubTypes.SkidInfo;
+        private SysCommon.ActSubTypes ActSubType { get; }
 
         /// <summary>
         ///     Gets or sets the skid information.
         /// </summary>
-        private SysSkidInfo SkidInfo { get; set; } = new SysSkidInfo();
+        private SysSkidInfo SkidInfo { get; set; }
 
         /// <summary>
-        ///     Gets or sets the bar code scanner instance.
+        ///     Gets the bar code scanner instance.
         /// </summary>
-        private BarCodeScanner Scanner { get; } = ScannerEngine.GetInstance().Scanner;
+        private BarCodeScanner Scanner { get; }
 
         /// <summary>
-        ///     Gets or sets the activity detail.
+        ///     Gets the activity detail.
         /// </summary>
         private ActDetail ActDetail { get; }
 
         /// <summary>
-        ///     Gets or sets the activity item.
+        ///     Gets the activity item.
         /// </summary>
         private ActItem ActItem { get; }
 
         /// <summary>
-        ///     Gets or sets the activity header.
+        ///     Gets the activity header.
         /// </summary>
         private Activity Activity { get; }
 
         /// <summary>
-        ///     Gets or sets the location map.
+        ///     Gets the location map.
         /// </summary>
-        private LocationMap LocMap { get; } = LocationMap.GetInstance();
+        private LocationMap LocMap { get; }
 
         /// <summary>
-        ///     Gets or sets the items list.
+        ///     Gets the items list.
         /// </summary>
         private ObservableCollection<string> ExtraInfoItems { get; } = new ObservableCollection<string>();
 
         /// <summary>
-        ///     Gets or sets a value indicating whether to performing loading data upon got focus.
+        ///     Gets or sets a value indicating whether data is loading.
         /// </summary>
-        private bool IsFirstAppearance { get; set; } = true;
+        private bool IsDataLoading { get; set; } = true;
 
         /// <summary>
-        ///     Unregister the bar code scan event handler and disable the scanner.
+        ///     Un-register the bar code scan event handler and disable the scanner.
         /// </summary>
         /// <returns><see cref="Task" /> Task operation.</returns>
         public async Task ScannerDisable()
         {
-            if (this.Scanner != null)
-            {
-                this.Scanner.BarCodeScan -= this.BarCodeHandler;
-                await this.Scanner.Stop();
-            }
-
-            this.IsBarCodeHandlerRegistered = false;
+            this.Scanner.ClearBarCodeScanEventHandlers();
+            await this.Scanner.DisableScanning();
         }
 
         /// <summary>
@@ -128,11 +115,10 @@ namespace dMobile.View.Activity
         /// <returns><see cref="Task" /> Task operation.</returns>
         public async Task ScannerEnable()
         {
-            if (!this.IsBarCodeHandlerRegistered && this.Scanner != null)
+            await this.Scanner.EnableScanning();
+            if (!this.Scanner.IsBarCodeScanEventHandlerAdded())
             {
-                await this.Scanner.Start();
                 this.Scanner.BarCodeScan += this.BarCodeHandler;
-                this.IsBarCodeHandlerRegistered = true;
             }
         }
 
@@ -147,9 +133,7 @@ namespace dMobile.View.Activity
             // NOTE: Do not need to set scanner off or on. Caller will handle.
             try
             {
-                this.IsSvdBarScannerEnabled = this.IsBarCodeHandlerRegistered;
-                await this.ScannerDisable();
-                isReadyToSave = isReadyToSave && await LocationMapTasks.IsCompleteLocMap(this.LocMap.CurrLocMapRefno);
+                isReadyToSave = await LocationMapTasks.IsCompleteLocMap(this.LocMap.CurrLocMapRefno);
                 isReadyToSave = isReadyToSave && this.SkidInfo.CurrSkid.SkidFKRefno != 0;
             }
             catch (MessageOnlyException msgEx)
@@ -170,13 +154,6 @@ namespace dMobile.View.Activity
                     _ = await errRpt.ShowDialog();
                 });
             }
-            finally
-            {
-                if (this.IsSvdBarScannerEnabled)
-                {
-                    await this.ScannerEnable();
-                }
-            }
 
             return isReadyToSave;
         }
@@ -187,40 +164,7 @@ namespace dMobile.View.Activity
         /// <returns><see cref="bool" /> True if the activity item is ready to close, else false.</returns>
         public async Task<bool> IsReadyToClose()
         {
-            var isReadyToClose = true;
-
-            try
-            {
-                this.IsSvdBarScannerEnabled = this.IsBarCodeHandlerRegistered;
-                await this.ScannerDisable();
-            }
-            catch (MessageOnlyException msgEx)
-            {
-                var msg = SysCommon.GetMessageFromMessageException(msgEx);
-                await Device.InvokeOnMainThreadAsync(async () =>
-                    await Application.Current.MainPage.DisplayAlert(
-                        this.ActDetail.GetControlDescription(),
-                        msg,
-                        Resource.OK));
-            }
-            catch (Exception ex)
-            {
-                isReadyToClose = false;
-                await Device.InvokeOnMainThreadAsync(async () =>
-                {
-                    var errRpt = new FormErrorReport(this.ActSubType, ex);
-                    _ = await errRpt.ShowDialog();
-                });
-            }
-            finally
-            {
-                if (this.IsSvdBarScannerEnabled)
-                {
-                    await this.ScannerEnable();
-                }
-            }
-
-            return isReadyToClose;
+            return true;
         }
 
         /// <summary>
@@ -233,28 +177,9 @@ namespace dMobile.View.Activity
 
             try
             {
-                this.IsSvdBarScannerEnabled = this.IsBarCodeHandlerRegistered;
-                await this.ScannerDisable();
-
-                // IsReadyToClose checks if any changes where made.
-                if (await this.IsReadyToClose())
+                if (!await this.IsReadyToClose())
                 {
-                    // Clear any properties.
-                    // this.ProdUnitRefno = 0;
-
-                    // Expect the control to close.
-                }
-                else
-                {
-                    // If changes where made.
-                    // By reloading, restoring the last valid state we should be able to close the control
-                    // on the second CancelChanges attempt.
-                    // Methods that could be called to restore the control to a closable state.
-                    // ClearProperties();
-                    // DisplayData();
-                    // this.LoadData();
                     cancelChanges = false;
-                    //// this.IsChangesMade = false;
                 }
             }
             catch (MessageOnlyException msgEx)
@@ -276,13 +201,6 @@ namespace dMobile.View.Activity
                     _ = await errRpt.ShowDialog();
                 });
             }
-            finally
-            {
-                if (this.IsSvdBarScannerEnabled)
-                {
-                    await this.ScannerEnable();
-                }
-            }
 
             return cancelChanges;
         }
@@ -291,7 +209,7 @@ namespace dMobile.View.Activity
         ///     Get the activity item return XDocument information.
         /// </summary>
         /// <returns><see cref="XDocument" /> Activity item return information.</returns>
-        public async Task<XDocument> GetXML()
+        public async Task<XDocument> GetXml()
         {
             XDocument xmlDoc;
             if (this.SkidInfo.CurrSkid.SkidFKRefno == 0)
@@ -355,9 +273,6 @@ namespace dMobile.View.Activity
 
             try
             {
-                this.IsSvdBarScannerEnabled = this.IsBarCodeHandlerRegistered;
-                await this.ScannerDisable();
-
                 if (await this.IsReadyToSave())
                 {
                     this.SkidInfo = await SysSkidInfo.Move(this.SkidInfo, this.LocMap.CurrLocMap);
@@ -391,13 +306,6 @@ namespace dMobile.View.Activity
                     _ = await errRpt.ShowDialog();
                 });
             }
-            finally
-            {
-                if (this.IsSvdBarScannerEnabled)
-                {
-                    await this.ScannerEnable();
-                }
-            }
 
             return saveComplete;
         }
@@ -412,7 +320,7 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        ///     Set to destination location click event hander.
+        ///     Set to destination location click event handler.
         /// </summary>
         /// <param name="sender"><see cref="object" /> Object that generated the event.</param>
         /// <param name="e"><see cref="EventArgs" /> Event arguments.</param>
@@ -420,9 +328,6 @@ namespace dMobile.View.Activity
         {
             try
             {
-                this.IsSvdBarScannerEnabled = this.IsBarCodeHandlerRegistered;
-                await this.ScannerDisable();
-
                 var form = new FormDialogContainer(
                     EDialogTypes.SelectLocationMap,
                     SysCommon.ActSubTypes.NotApplicable);
@@ -459,13 +364,6 @@ namespace dMobile.View.Activity
                     _ = await errorReport.ShowDialog();
                 });
             }
-            finally
-            {
-                if (this.IsSvdBarScannerEnabled)
-                {
-                    await this.ScannerEnable();
-                }
-            }
         }
 
         /// <summary>
@@ -473,93 +371,39 @@ namespace dMobile.View.Activity
         /// </summary>
         protected override async void OnAppearing()
         {
-            if (!this.IsIndicatorRunning)
-            {
-                try
-                {
-                    this.IsIndicatorRunning = true;
-                    base.OnAppearing();
-
-                    await this.ScannerDisable();
-                    SubscribeKeyUpHandlers();
-
-                    this.IsIndicatorRunning = true;
-                    this.lstSkidStats.ItemsSource = this.ExtraInfoItems;
-                    if (this.IsFirstAppearance)
-                    {
-                        this.IsFirstAppearance = false;
-                    }
-                }
-                catch (MessageOnlyException msgEx)
-                {
-                    var msg = SysCommon.GetMessageFromMessageException(msgEx);
-                    await Device.InvokeOnMainThreadAsync(async () =>
-                        await Application.Current.MainPage.DisplayAlert(
-                            this.GetControlDescription(),
-                            msg,
-                            Resource.OK));
-                }
-                catch (Exception ex)
-                {
-                    await Device.InvokeOnMainThreadAsync(async () =>
-                    {
-                        const string msg = "This activity unexpectedly failed to initialize correctly." +
-                                           " Please exit and try again.";
-                        var errorReport = new FormErrorReport(msg, ex);
-                        _ = await errorReport.ShowDialog();
-                    });
-                }
-                finally
-                {
-                    this.IsIndicatorRunning = false;
-                    await this.ScannerEnable();
-                    ////await Task.Run(() =>
-                    ////{
-                    ////    // Explicit GC, Xamarin forms not disposing of objects properly
-                    ////    GC.Collect();
-                    ////    GC.WaitForPendingFinalizers();
-                    ////});
-                }
-            }
-
+            base.OnAppearing();
+            SubscribeKeyUpHandlers();
+            this.lstSkidStats.ItemsSource = this.ExtraInfoItems;
+            this.txtSkidCode.Focus();
             return;
 
             //////////////////////////////////////////////////////////////////////////
             void SubscribeKeyUpHandlers()
             {
-                MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async keyPressed =>
-                {
-                    _ = Enum.TryParse(keyPressed, out Keycode keycode);
-
-                    switch (keycode)
-                    {
-                        case Keycode.F1:
-                            await AppearingF1Key();
-                            break;
-
-                        case Keycode.Enter:
-                            await this.SkidCodeEnter();
-                            break;
-                    }
-                });
+                MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), KeyUpHandler);
                 return;
 
                 //////////////////////////////////////////////////////////////////////////
-                async Task AppearingF1Key()
+                async void KeyUpHandler(string keyPressed)
                 {
+                    if (this.IsIndicatorRunning)
+                    {
+                        return;
+                    }
+
                     try
                     {
-                        this.IsSvdBarScannerEnabled = this.IsBarCodeHandlerRegistered;
                         await this.ScannerDisable();
+                        _ = Enum.TryParse(keyPressed, out Keycode keycode);
+                        switch (keycode)
+                        {
+                            case Keycode.F1:
+                                await AppearingF1Key();
+                                break;
 
-                        if (await this.SaveChanges())
-                        {
-                            await this.Close();
-                        }
-                        else
-                        {
-                            _ = await this.CancelChanges();
-                            await this.Close();
+                            case Keycode.Enter:
+                                await this.SkidCodeEnter();
+                                break;
                         }
                     }
                     catch (MessageOnlyException msgEx)
@@ -567,7 +411,7 @@ namespace dMobile.View.Activity
                         var msg = SysCommon.GetMessageFromMessageException(msgEx);
                         await Device.InvokeOnMainThreadAsync(async () =>
                             await Application.Current.MainPage.DisplayAlert(
-                                this.GetControlDescription(),
+                                this.ActItem.GetControlDescription(),
                                 msg,
                                 Resource.OK));
                     }
@@ -581,9 +425,44 @@ namespace dMobile.View.Activity
                     }
                     finally
                     {
-                        if (this.IsSvdBarScannerEnabled)
+                        await this.ScannerEnable();
+                    }
+
+                    return;
+
+                    //////////////////////////////////////////////////////////////////////////
+                    async Task AppearingF1Key()
+                    {
+                        try
                         {
-                            await this.ScannerEnable();
+                            if (await this.SaveChanges())
+                            {
+                                await this.ScannerDisable();
+                                await this.Close();
+                            }
+                            else
+                            {
+                                _ = await this.CancelChanges();
+                                await this.ScannerDisable();
+                                await this.Close();
+                            }
+                        }
+                        catch (MessageOnlyException msgEx)
+                        {
+                            var msg = SysCommon.GetMessageFromMessageException(msgEx);
+                            await Device.InvokeOnMainThreadAsync(async () =>
+                                await Application.Current.MainPage.DisplayAlert(
+                                    this.GetControlDescription(),
+                                    msg,
+                                    Resource.OK));
+                        }
+                        catch (Exception ex)
+                        {
+                            await Device.InvokeOnMainThreadAsync(async () =>
+                            {
+                                var errRpt = new FormErrorReport(this.ActSubType, ex);
+                                _ = await errRpt.ShowDialog();
+                            });
                         }
                     }
                 }
@@ -593,12 +472,10 @@ namespace dMobile.View.Activity
         /// <summary>
         ///     Clean up before the 'Page' becomes invisible.
         /// </summary>
-        protected override void OnDisappearing()
+        protected override async void OnDisappearing()
         {
-            MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
-            Device.BeginInvokeOnMainThread(async () => { await this.ScannerDisable(); });
             base.OnDisappearing();
-            this.IsIndicatorRunning = false;
+            MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
             GC.Collect();
             GC.WaitForPendingFinalizers();
         }
@@ -609,23 +486,25 @@ namespace dMobile.View.Activity
         /// <returns>The <see cref="bool" /> True.</returns>
         protected override bool OnBackButtonPressed()
         {
-            Device.BeginInvokeOnMainThread(async () =>
+            Device.BeginInvokeOnMainThread(BackButtonHandler);
+            return true;
+
+            //////////////////////////////////////////////////////////////////////////
+            async void BackButtonHandler()
             {
                 try
                 {
-                    // Disable the scanner even though the on disappearing event will turn it off also
-                    // upon closing. CancelChanges may show dialogs.
-                    this.IsSvdBarScannerEnabled = this.IsBarCodeHandlerRegistered;
-                    await this.ScannerDisable();
                     _ = base.OnBackButtonPressed();
 
                     if (await this.SaveChanges())
                     {
+                        await this.ScannerDisable();
                         _ = base.OnBackButtonPressed();
                         await this.Close();
                     }
                     else if (await this.CancelChanges())
                     {
+                        await this.ScannerDisable();
                         _ = base.OnBackButtonPressed();
                         await this.Close();
                     }
@@ -633,11 +512,10 @@ namespace dMobile.View.Activity
                 catch (MessageOnlyException msgEx)
                 {
                     var msg = SysCommon.GetMessageFromMessageException(msgEx);
-                    await Device.InvokeOnMainThreadAsync(async () =>
-                        await Application.Current.MainPage.DisplayAlert(
-                            this.ActDetail.GetControlDescription(),
-                            msg,
-                            Resource.OK));
+                    await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert(
+                        this.ActDetail.GetControlDescription(),
+                        msg,
+                        Resource.OK));
                 }
                 catch (Exception ex)
                 {
@@ -647,16 +525,7 @@ namespace dMobile.View.Activity
                         _ = await errRpt.ShowDialog();
                     });
                 }
-                finally
-                {
-                    if (this.IsSvdBarScannerEnabled)
-                    {
-                        await this.ScannerEnable();
-                    }
-                }
-            });
-
-            return true;
+            }
         }
 
         /// <summary>
@@ -666,19 +535,26 @@ namespace dMobile.View.Activity
         /// <param name="scanArgs"><see cref="BarCodeScannerEventArgs" /> Scan event arguments.</param>
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
-            if (this.IsIndicatorRunning)
+            if (scanArgs == null)
+            {
+                const string msg = "Scanner event fired but no data was received.";
+                await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert(
+                    this.ActItem.GetControlDescription(),
+                    msg,
+                    Resource.OK));
+                return;
+            }
+
+            if (this.IsDataLoading)
             {
                 return;
             }
 
-            scanArgs = scanArgs ?? throw new ArgumentNullException(nameof(scanArgs));
-
-            this.IsIndicatorRunning = true;
-            await this.ScannerDisable();
-            var parse = scanArgs.ParseInfo;
-
             try
             {
+                var parse = scanArgs.ParseInfo;
+                await this.ScannerDisable();
+
                 // GLOBAL LOCATION IDENTIFIER SCANNED
                 if (!string.IsNullOrEmpty(parse.LocationIdentifier))
                 {
@@ -704,25 +580,21 @@ namespace dMobile.View.Activity
                 }
                 else
                 {
-                    // PRODUCT IDENTIFIER
                     if (!string.IsNullOrEmpty(parse.ProductIdentifier))
                     {
                         throw new MessageOnlyException("Scanning a shipping container bar code is not supported here!");
                     }
 
-                    // ACTIVITY ITEM FK REFNO
                     if (!string.IsNullOrEmpty(parse.ActItemFKRefno))
                     {
                         throw new MessageOnlyException("Scanning a line item bar code is not supported here!");
                     }
 
-                    // ACTIVITY DETAIL FK REFNO
                     if (!string.IsNullOrEmpty(parse.ActDetailFKRefno))
                     {
                         throw new MessageOnlyException("Scanning an line item detail bar code is not supported here!");
                     }
 
-                    // SHIPPING CONAINTER SCANNED, SKID
                     if (!string.IsNullOrEmpty(parse.SSCC18))
                     {
                         this.SkidInfo = await SysSkidInfo.GetSkidInfoFromBarCodeOrCode(parse.SSCC18);
@@ -733,18 +605,7 @@ namespace dMobile.View.Activity
                                 this.SkidInfo.CurrSkid.LocMapRefno);
                         }
 
-                        await Device.InvokeOnMainThreadAsync(() =>
-                        {
-                            this.DisplaySkidInfo();
-                            ////if (this.LocMap.CurrLocMap.WhsLocMapRefno != 0)
-                            ////{
-                            ////    this.cmdToLocation.Text = LocationMapTasks.GetCurrentReadableLocation();
-                            ////}
-                            ////else
-                            ////{
-                            ////    this.cmdToLocation.Text = "Set Location";
-                            ////}
-                        });
+                        await Device.InvokeOnMainThreadAsync(this.DisplaySkidInfo);
                     }
                 }
             }
@@ -768,7 +629,6 @@ namespace dMobile.View.Activity
             finally
             {
                 await this.ScannerEnable();
-                this.IsIndicatorRunning = false;
             }
         }
 
@@ -831,18 +691,6 @@ namespace dMobile.View.Activity
                     ex.Message,
                     "OK"));
             }
-
-            await Device.InvokeOnMainThreadAsync(() =>
-            {
-                ////if (this.LocMap.CurrLocMap.WhsLocMapRefno != 0)
-                ////{
-                ////    this.cmdToLocation.Text = LocationMapTasks.GetCurrentReadableLocation();
-                ////}
-                ////else
-                ////{
-                ////    this.cmdToLocation.Text = "Set Location";
-                ////}
-            });
         }
 
         /// <summary>

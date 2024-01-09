@@ -225,8 +225,8 @@ namespace dMobile.View.Activity
             {
                 if (this.IsBarCodeHandlerRegistered)
                 {
-                    this.Scanner.BarCodeScan -= this.BarCodeHandler;
-                    await this.Scanner.Stop();
+                    this.Scanner.ClearBarCodeScanEventHandlers();
+                    await this.Scanner.DisableScanning();
                     this.IsBarCodeHandlerRegistered = false;
                 }
             }
@@ -242,8 +242,12 @@ namespace dMobile.View.Activity
             {
                 if (!this.IsBarCodeHandlerRegistered)
                 {
-                    await this.Scanner.Start();
-                    this.Scanner.BarCodeScan += this.BarCodeHandler;
+                    await this.Scanner.EnableScanning();
+                    if (!this.Scanner.IsBarCodeScanEventHandlerAdded())
+                    {
+                        this.Scanner.BarCodeScan += this.BarCodeHandler;
+                    }
+
                     this.IsBarCodeHandlerRegistered = true;
                 }
             }
@@ -562,7 +566,7 @@ namespace dMobile.View.Activity
         /// </summary>
         /// <returns>.</returns>
 #pragma warning disable CS1998
-        public async Task<XDocument> GetXML()
+        public async Task<XDocument> GetXml()
 #pragma warning restore CS1998
         {
             var xmlDoc =
@@ -702,8 +706,12 @@ namespace dMobile.View.Activity
             {
                 if (this.Scanner != null)
                 {
-                    await this.Scanner.Start();
-                    this.Scanner.BarCodeScan += this.BarCodeHandler;
+                    await this.Scanner.EnableScanning();
+                    if (!this.Scanner.IsBarCodeScanEventHandlerAdded())
+                    {
+                        this.Scanner.BarCodeScan += this.BarCodeHandler;
+                    }
+
                     this.IsBarCodeHandlerRegistered = true;
                 }
             }
@@ -1149,9 +1157,7 @@ namespace dMobile.View.Activity
                     this.ActSubType,
                     this.ActItem,
                     tempItemSchemeData,
-                    false,
-                    this.ActDetail,
-                    true);
+                    this.ActDetail);
                 return canInsert;
             }
 
@@ -1323,15 +1329,12 @@ namespace dMobile.View.Activity
                 this.ActDetail.ClearProperties();
 
                 var tempItemSchemeData = new ActItemSchemeData();
-                var isInsertReady = false;
-                isInsertReady = await SysShared.GatherProductData(
+                var isInsertReady = await SysShared.GatherProductData(
                     this.BarCodeParse,
                     this.ActSubType,
                     this.ActItem,
                     tempItemSchemeData,
-                    false,
-                    this.ActDetail,
-                    false);
+                    this.ActDetail);
                 await this.InsertActivityDetail(this.ActDetail, isInsertReady);
             }
 

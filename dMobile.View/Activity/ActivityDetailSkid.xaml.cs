@@ -154,8 +154,8 @@ namespace dMobile.View.Activity
             {
                 if (this.IsBarCodeHandlerRegistered)
                 {
-                    this.Scanner.BarCodeScan -= this.BarCodeHandler;
-                    await this.Scanner.Stop();
+                    this.Scanner.ClearBarCodeScanEventHandlers();
+                    await this.Scanner.DisableScanning();
                     this.IsBarCodeHandlerRegistered = false;
                 }
             }
@@ -171,8 +171,12 @@ namespace dMobile.View.Activity
             {
                 if (!this.IsBarCodeHandlerRegistered)
                 {
-                    await this.Scanner.Start();
-                    this.Scanner.BarCodeScan += this.BarCodeHandler;
+                    await this.Scanner.EnableScanning();
+                    if (!this.Scanner.IsBarCodeScanEventHandlerAdded())
+                    {
+                        this.Scanner.BarCodeScan += this.BarCodeHandler;
+                    }
+
                     this.IsBarCodeHandlerRegistered = true;
                 }
             }
@@ -379,7 +383,7 @@ namespace dMobile.View.Activity
         ///     Get the activity item return XDocument information.
         /// </summary>
         /// <returns><see cref="XDocument" /> Activity item return information.</returns>
-        public async Task<XDocument> GetXML()
+        public async Task<XDocument> GetXml()
         {
             var fillQty = this.GetActivityItemQuantity();
 
@@ -402,8 +406,12 @@ namespace dMobile.View.Activity
         {
             if (this.Scanner != null)
             {
-                await this.Scanner.Start();
-                this.Scanner.BarCodeScan += this.BarCodeHandler;
+                await this.Scanner.EnableScanning();
+                if (!this.Scanner.IsBarCodeScanEventHandlerAdded())
+                {
+                    this.Scanner.BarCodeScan += this.BarCodeHandler;
+                }
+
                 this.IsBarCodeHandlerRegistered = true;
             }
         }
@@ -902,16 +910,13 @@ namespace dMobile.View.Activity
                         throw new Exception("Scanned product does not match selected skid product.");
                     }
 
-                    var isInsertReady = false;
                     var itemSchemeData = AssignSchemeData(currSkid);
-                    isInsertReady = await SysShared.GatherProductData(
+                    var isInsertReady = await SysShared.GatherProductData(
                         this.Parse,
                         this.ActSubType,
                         this.ActDetail.ActItem,
                         itemSchemeData,
-                        isInsertReady,
-                        this.ActDetail,
-                        false);
+                        this.ActDetail);
 
                     // If add mode / else remove mode
                     if (this.ScannerModeAdd && isInsertReady)
@@ -1251,9 +1256,7 @@ namespace dMobile.View.Activity
                     this.ActSubType,
                     this.ActDetail.ActItem,
                     FillSchemeData(),
-                    false,
-                    this.ActDetail,
-                    true);
+                    this.ActDetail);
 
                 if (isInsertReady)
                 {

@@ -363,7 +363,7 @@ namespace dMobile.View.Activity
         /// The GetXML.
         /// </summary>
         /// <returns>.</returns>
-        public async Task<XDocument> GetXML()
+        public async Task<XDocument> GetXml()
         {
             var request = XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" + "<params>" + "<count_date>" + this.CountSettings.dtCountDate.ToShortDateString() + "</count_date>" + "<sortby>" + this.strSQLSortBy + "</sortby>" + "</params>");
 

@@ -2,17 +2,21 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
+using dMobile.BarCodeScanner.BarCodeScanners;
 using dMobile.View.Pages;
 
 namespace dMobile.Droid
 {
     using System;
+    using System.Runtime.CompilerServices;
     using Android.App;
     using Android.Content.PM;
     using Android.OS;
     using Android.Views;
     using dMobile.Resources.Enums;
     using dMobile.View;
+    using Java.Util;
+    using View.Helpers;
     using Xamarin.Forms;
 
     /// <summary>
@@ -58,6 +62,26 @@ namespace dMobile.Droid
             base.OnCreate(savedInstanceState);
             global::Xamarin.Forms.Forms.Init(this, savedInstanceState);
             this.LoadApplication(new App());
+        }
+
+        /// <summary>
+        /// When the ScanPage is about to go to the background, release the scanner.
+        /// </summary>
+        protected override void OnPause()
+        {
+            base.OnPause();
+            var scanner = ScannerEngine.GetInstance().Scanner;
+            scanner.CloseBarcodeReader().FireAndForgetSafeAsync();
+        }
+
+        /// <summary>
+        /// When the ScanPage is about to go to the foreground, claim the scanner.
+        /// </summary>
+        protected override void OnResume()
+        {
+            base.OnResume();
+            var scanner = ScannerEngine.GetInstance().Scanner;
+            scanner.OpenBarcodeReader().FireAndForgetSafeAsync();
         }
     }
 }

@@ -48,13 +48,13 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
     /// (Slash)       1010001   1101101011
     /// . (Point)     1010100   1101101101
     /// + (Plus)      0011111   101100110011
-    /// Start/Stop A  0011010   1011001001
-    /// Start/Stop B  0001011   1010010011
-    /// Start/Stop C  0101001   1001001011
-    /// Start/Stop D  0001110   1010011001.
+    /// EnableScanning/DisableScanning A  0011010   1011001001
+    /// EnableScanning/DisableScanning B  0001011   1010010011
+    /// EnableScanning/DisableScanning C  0101001   1001001011
+    /// EnableScanning/DisableScanning D  0001110   1010011001.
     /// </para><para>
-    /// We will now code the example bar code, A40156B. Of course, the "A" refers to the 'A' Start/Stop
-    /// character and the 'B' refers to the 'B' Start/Stop character.
+    /// We will now code the example bar code, A40156B. Of course, the "A" refers to the 'A' EnableScanning/DisableScanning
+    /// character and the 'B' refers to the 'B' EnableScanning/DisableScanning character.
     /// </para><para>
     ///  1. The 'A' START/STOP character: 1011001001.
     ///  2. An intercharacter space encoded as 0.

@@ -727,7 +727,7 @@ namespace dMobile.Controller.Activity
 
             gridMainActivity.Children.Add(gridHeader);
 
-            foreach (Picking picking in this.ListHdrs)
+            foreach (Picking picking in this.ListHeaders)
             {
                 observableCollection.Add(picking);
 
@@ -929,8 +929,8 @@ namespace dMobile.Controller.Activity
 
             this.GetFilter();
 
-            this.ListHdrs = this.listPicking.Cast<object>().ToList();
-            return this.ListHdrs;
+            this.ListHeaders = this.listPicking.Cast<object>().ToList();
+            return this.ListHeaders;
         }
 
         /// <summary>
@@ -942,9 +942,9 @@ namespace dMobile.Controller.Activity
         {
             var observableCollection = new ObservableCollection<object>();
 
-            this.ListHdrs = this.listPicking.Where(picking => picking.ActivityStringFKRefno.ToLower().Contains(searchText.ToLower().Trim())).Cast<object>().ToList();
+            this.ListHeaders = this.listPicking.Where(picking => picking.ActivityStringFKRefno.ToLower().Contains(searchText.ToLower().Trim())).Cast<object>().ToList();
 
-            foreach (Picking picking in this.ListHdrs)
+            foreach (Picking picking in this.ListHeaders)
             {
                 observableCollection.Add(picking);
             }
@@ -996,19 +996,16 @@ namespace dMobile.Controller.Activity
         }
 
         /// <summary>
-        /// The GetRefnoFromRowIdx.
+        /// The AssignRefnoFromActivity.
         /// </summary>
         /// <param name="selectedItem">The selectedItem<see cref="object"/>.</param>
-        /// <returns>.</returns>
-        public override int GetRefnoFromRowIdx(object selectedItem)
+        public override void AssignRefnoFromActivity(object selectedItem)
         {
             if (selectedItem is Picking picking)
             {
                 this.HdrFkRefno = Convert.ToInt32(picking.ActivityFKRefno);
                 this.HdrRefno = Convert.ToInt32(picking.ActivityRefno);
             }
-
-            return this.HdrRefno;
         }
 
         /// <summary>
@@ -1216,17 +1213,6 @@ namespace dMobile.Controller.Activity
             }
 
             return isReleased;
-        }
-
-        /// <summary>
-        /// Get the activity foreign key reference number.
-        /// </summary>
-        /// <param name="resourceType"><see cref="object"/> Resource model (tActivity??Model).</param>
-        /// <returns><see cref="int"/> Found activity foreign key refno, else 0 if not found.</returns>
-        public override int GetFkRefno(object resourceType)
-        {
-            object tmpFkRefno = ((Picking)resourceType).ActivityFKRefno;
-            return tmpFkRefno == null ? 0 : Convert.ToInt32(tmpFkRefno);
         }
 
         /// <summary>

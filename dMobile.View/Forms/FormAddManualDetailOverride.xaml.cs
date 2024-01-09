@@ -89,8 +89,8 @@ namespace dMobile.View.Forms
         {
             if (this.Scanner != null)
             {
-                this.Scanner.BarCodeScan -= this.BarCodeHandler;
-                await this.Scanner.Stop();
+                this.Scanner.ClearBarCodeScanEventHandlers();
+                await this.Scanner.DisableScanning();
             }
 
             this.IsBarCodeHandlerRegistered = false;
@@ -104,8 +104,12 @@ namespace dMobile.View.Forms
         {
             if (!this.IsBarCodeHandlerRegistered)
             {
-                await this.Scanner.Start();
-                this.Scanner.BarCodeScan += this.BarCodeHandler;
+                await this.Scanner.EnableScanning();
+                if (!this.Scanner.IsBarCodeScanEventHandlerAdded())
+                {
+                    this.Scanner.BarCodeScan += this.BarCodeHandler;
+                }
+
                 this.IsBarCodeHandlerRegistered = true;
             }
         }

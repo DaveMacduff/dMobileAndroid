@@ -5,6 +5,7 @@
 namespace dMobile.BarCodeScanner.BarCodeScanners
 {
     using System;
+    using System.Linq;
     using System.Threading.Tasks;
 
     /// <summary>
@@ -15,9 +16,8 @@ namespace dMobile.BarCodeScanner.BarCodeScanners
         /// <summary>
         /// Initializes a new instance of the <see cref="BarCodeScanner"/> class.
         /// </summary>
-        public BarCodeScanner()
+        protected BarCodeScanner()
         {
-            _ = this.Initialize();
         }
 
         /// <summary>
@@ -42,22 +42,28 @@ namespace dMobile.BarCodeScanner.BarCodeScanners
         public event BarCodeScanEventHandler BarCodeScan;
 
         /// <summary>
-        /// Initialize the scanner engine.
+        /// Open the scanner reader and load symbology settings.
         /// </summary>
-        /// <returns><see cref="bool"/> True if the scanner was initialized successfully, else false.</returns>
-        public abstract bool Initialize();
+        /// <returns><see cref="Task"/> Task completed.</returns>
+        public abstract Task OpenBarcodeReader();
+
+        /// <summary>
+        /// Close the scanner reader.
+        /// </summary>
+        /// <returns><see cref="Task"/> Task completed.</returns>
+        public abstract Task CloseBarcodeReader();
 
         /// <summary>
         /// Turn on bar code scanning.
         /// </summary>
         /// <returns><see cref="Task"/> Task operation.</returns>
-        public abstract Task Start();
+        public abstract Task EnableScanning();
 
         /// <summary>
         /// Turn off bar code scanning.
         /// </summary>
         /// <returns><see cref="Task"/> Task operation.</returns>
-        public abstract Task Stop();
+        public abstract Task DisableScanning();
 
         /// <summary>
         /// Unload the initialized bar code scanning engine.
@@ -67,10 +73,50 @@ namespace dMobile.BarCodeScanner.BarCodeScanners
         /// <summary>
         /// Raise the bar code scan event.
         /// </summary>
+        /// <param name="scanEventArgs"><see cref="BarCodeScannerEventArgs"/> Scanner event arguments.</param>
         /// <returns><see cref="Task"/> Task operation.</returns>
-        public virtual async Task OnBarCodeScan(BarCodeScannerEventArgs e)
+        public virtual async Task OnBarCodeScan(BarCodeScannerEventArgs scanEventArgs)
         {
-            await this.BarCodeScan?.Invoke(this, e);
+            if (this.BarCodeScan != null)
+            {
+                await this.BarCodeScan.Invoke(this, scanEventArgs);
+            }
+        }
+
+        /// <summary>
+        /// Clear all bar code scan event handlers.
+        /// </summary>
+        public virtual void ClearBarCodeScanEventHandlers()
+        {
+            if (this.BarCodeScan != null)
+            {
+                // Remove all event handlers. Hopefully this will prevent memory leaks, and possible multi cast delegate issues.
+                foreach (var d in this.BarCodeScan.GetInvocationList())
+                {
+                    this.BarCodeScan -= (BarCodeScanEventHandler)d;
+                }
+
+                this.BarCodeScan = null;
+            }
+        }
+
+        /// <summary>
+        /// Check if bar code scanning event have been added.
+        /// </summary>
+        /// <returns><see cref="bool"/> True if the event handler has been added, else false.</returns>
+        public virtual bool IsBarCodeScanEventHandlerAdded()
+        {
+            var isAdded = false;
+            if (this.BarCodeScan != null)
+            {
+                // Check if the event handler has been added to the delegate invocation list.
+                if (this.BarCodeScan.GetInvocationList().Any())
+                {
+                    isAdded = true;
+                }
+            }
+
+            return isAdded;
         }
 
         /// <summary>

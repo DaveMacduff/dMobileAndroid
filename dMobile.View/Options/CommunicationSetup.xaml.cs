@@ -393,7 +393,7 @@ namespace dMobile.View.Options
         /// <returns></returns>
         /// <remarks></remarks>
         /// <inheritdoc/>
-        public async Task<XDocument> GetXML()
+        public async Task<XDocument> GetXml()
         {
             var xmldocParams = XDocument.Parse(
                       "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"

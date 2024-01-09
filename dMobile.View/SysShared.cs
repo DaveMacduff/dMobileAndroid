@@ -5,6 +5,7 @@
 namespace dMobile.View
 {
     using System;
+    using System.IO;
     using System.Reflection;
     using System.Threading.Tasks;
     using System.Xml.Linq;
@@ -16,6 +17,7 @@ namespace dMobile.View
     using Controller.Activity_Item;
     using CustomPages;
     using Forms;
+    using Plugin.SimpleAudioPlayer;
     using Resources.Enums;
     using Resources.Models;
     using Xamarin.Forms;
@@ -27,6 +29,15 @@ namespace dMobile.View
     /// </summary>
     public class SysShared : DMobileContentPage
     {
+        public static async Task PlaySound(string filename)
+        {
+            var assembly = typeof(SysShared).GetTypeInfo().Assembly;
+            var audioStream = assembly.GetManifestResourceStream($"{assembly.GetName().Name}.{filename}");
+            var player = CrossSimpleAudioPlayer.Current;
+            ///player.Load(audioStream);
+            player.Play();
+        }
+
         /// <summary>
         ///     Parse Nossack skid bar codes.
         /// </summary>
@@ -138,7 +149,6 @@ namespace dMobile.View
                 if (!sysEnv.SysSettings.IsDisconnectedMode)
                 {
                     decimal deliScaleWeight = 0;
-                    var deliScaleWeightUnit = string.Empty;
                     var unitRefnoFromBarCode = await clsCommon.GetDeliProdInfoFromBarCode(
                         barCodeParse.ProductIdentifier,
                         sysEnv.CurrentBarCodeModifier1,
@@ -148,7 +158,7 @@ namespace dMobile.View
                     var prod = unitRefnoFromBarCode.ProdInfo;
                     prodUnitRefno = unitRefnoFromBarCode.ProdInfo.UnitRefno;
                     deliScaleWeight = unitRefnoFromBarCode.DeliScaleWeight;
-                    deliScaleWeightUnit = unitRefnoFromBarCode.DeliScaleWeightUnit;
+                    var deliScaleWeightUnit = unitRefnoFromBarCode.DeliScaleWeightUnit;
 
                     switch (deliScaleWeightUnit)
                     {
@@ -211,7 +221,12 @@ namespace dMobile.View
                                 await frmSelectProduct.DisplayControl.ShowDialog() == DialogResult.OK))
                         {
                             var xmlDoc = await frmSelectProduct.GetXML();
-                            prodUnitRefno = int.Parse(xmlDoc.Root.Element("ProductUnitRefno").Value);
+                            if (!(xmlDoc is { Root: { } }))
+                            {
+                                throw new MessageOnlyException("Product unit was not identified.");
+                            }
+
+                            prodUnitRefno = int.Parse(xmlDoc.Root.Element("ProductUnitRefno")?.Value!);
 
                             // If a product was selected, create the xml for the bar code
                             // the activity insert
@@ -257,42 +272,47 @@ namespace dMobile.View
         /// <param name="barParse"><see cref="BarCodeParse" /> Bar code parse scan information.</param>
         /// <param name="actSubType"><see cref="SysCommon.ActSubTypes" /> Activity sub type.</param>
         /// <param name="actItem"><see cref="ActItem" /> Activity item instance.</param>
-        /// <param name="itemSchemeData"><see cref="ActItemSchemeData" /> Scheme data.</param>
-        /// <param name="isInsertDetailReady"><see cref="bool" /> Insert detail ready.</param>
+        /// <param name="defaultItemSchemeData"><see cref="ActItemSchemeData" /> Scheme data.</param>
         /// <param name="actDetail"><see cref="ActDetail" /> Activity detail.</param>
-        /// <param name="isForceStopForEdit"><see cref="bool" /> Force to stop for detail edit.</param>
-        /// <returns>The <see cref="Task{bool}" /> True if ready to insert detail else false.</returns>
+        /// <returns>True if ready to insert detail else false.</returns>
         public static async Task<bool> GatherProductData(
             BarCodeParse barParse,
             SysCommon.ActSubTypes actSubType,
             ActItem actItem,
-            ActItemSchemeData itemSchemeData,
-            bool isInsertDetailReady,
-            ActDetail actDetail,
-            bool isForceStopForEdit)
+            ActItemSchemeData defaultItemSchemeData,
+            ActDetail actDetail)
         {
             var sysEnv = SysEnvironment.GetInstance();
-            isInsertDetailReady = false;
+            var isInsertDetailReady = false;
 
             // Can't remember why this block is needed.
             if (!string.IsNullOrEmpty(barParse.ActDetailFKRefno) && !sysEnv.SysSettings.IsDisconnectedMode)
             {
-                itemSchemeData = new ActItemSchemeData();
+                defaultItemSchemeData = new ActItemSchemeData();
                 var locMap = LocationMap.GetInstance();
                 var sLocMapAndRefno = await GetSLocMapFromLocMapFkRefno(
-                    itemSchemeData.LocMapWhsFkRefno,
-                    itemSchemeData.LocMapSectFkRefno,
-                    itemSchemeData.LocMapSlotFkRefno);
+                    defaultItemSchemeData.LocMapWhsFkRefno,
+                    defaultItemSchemeData.LocMapSectFkRefno,
+                    defaultItemSchemeData.LocMapSlotFkRefno);
                 locMap.CurrLocMap = sLocMapAndRefno.SLocMap;
             }
 
-            actDetail.SchemeData = await GatherSchemeData(actDetail, barParse, itemSchemeData);
+            var defaultSchemeDataAssigned = false;
+            actDetail.SchemeData = await GatherSchemeData(actDetail, barParse, defaultItemSchemeData);
+
             var actDetailAndStopForDetail = await GatherProductQuantityData(
                 actDetail,
                 barParse,
-                itemSchemeData);
+                defaultItemSchemeData);
 
-            actDetailAndStopForDetail.IsForceStopForEdit = IsStopForDetail();
+            if (defaultSchemeDataAssigned)
+            {
+                actDetailAndStopForDetail.IsForceStopForEdit = defaultSchemeDataAssigned;
+            }
+            else
+            {
+                actDetailAndStopForDetail.IsForceStopForEdit = IsStopForDetail();
+            }
 
             var isStopForLabelDetail = false;
             if (actDetail.ActSubType == SysCommon.ActSubTypes.Receiving && actDetail.ActItem.LocMap.IsWhsWMS)
@@ -321,7 +341,7 @@ namespace dMobile.View
                 {
                     XDocument xmlDoc = null;
                     ////xmlDoc = form.DisplayControlData;
-                    xmlDoc = await ((IAppArea)form.DisplayControl).GetXML();
+                    xmlDoc = await ((IAppArea)form.DisplayControl).GetXml();
                     UpdateActDetailFromXml(ref actDetail, xmlDoc);
 
                     // No need to call actItem.IsReadyToApply(xmlParam) the form will call it.
@@ -352,7 +372,7 @@ namespace dMobile.View
                 if (continueIsStopForLabelDetail)
                 {
                     XDocument xmlDoc = null;
-                    xmlDoc = await ((IAppArea)form.DisplayControl).GetXML();
+                    xmlDoc = await ((IAppArea)form.DisplayControl).GetXml();
                     UpdateActDetailFromXml(ref actDetail, xmlDoc);
                 }
 
@@ -392,7 +412,7 @@ namespace dMobile.View
             return isInsertDetailReady;
 
             //////////////////////////////////////////////////////////////////////////
-            static async Task<ProductSchemeData> GatherSchemeData(
+            async Task<ProductSchemeData> GatherSchemeData(
                 ActDetail actDetail,
                 BarCodeParse barParse,
                 ActItemSchemeData tempItemSchemeData)
@@ -435,7 +455,7 @@ namespace dMobile.View
                 }
 
                 //////////////////////////////////////////////////////////////////////////
-                static void AssignBestBefore(
+                void AssignBestBefore(
                     ActDetail actDetail,
                     BarCodeParse barCodeParse,
                     ProductSchemeData schemeData,
@@ -450,6 +470,7 @@ namespace dMobile.View
                                 SysCommon.IsEmptyDate(tempItemSchemeData.ProdSchemeData.LogisticUnitBestBeforeSellByDate)
                                     ? new DateTime(1900, 1, 1)
                                     : tempItemSchemeData.ProdSchemeData.LogisticUnitBestBeforeSellByDate;
+                            defaultSchemeDataAssigned = true;
                         }
                         else
                         {
@@ -463,7 +484,7 @@ namespace dMobile.View
                 }
 
                 //////////////////////////////////////////////////////////////////////////
-                static void AssignProductionDate(
+                void AssignProductionDate(
                     ActDetail actDetail,
                     BarCodeParse barCodeParse,
                     ProductSchemeData schemeData,
@@ -478,6 +499,7 @@ namespace dMobile.View
                                 SysCommon.IsEmptyDate(tempItemSchemeData.ProdSchemeData.LogisticUnitProductionDate)
                                     ? new DateTime(1900, 1, 1)
                                     : tempItemSchemeData.ProdSchemeData.LogisticUnitProductionDate;
+                            defaultSchemeDataAssigned = true;
                         }
                         else
                         {
@@ -491,7 +513,7 @@ namespace dMobile.View
                 }
 
                 //////////////////////////////////////////////////////////////////////////
-                static async Task AssignLotNumber(
+                async Task AssignLotNumber(
                     ActDetail actDetail,
                     BarCodeParse barCodeParse,
                     ProductSchemeData schemeData,
@@ -504,6 +526,7 @@ namespace dMobile.View
                         {
                             schemeData.LogisticUnitBatchLotNumber =
                                 tempItemSchemeData.ProdSchemeData.LogisticUnitBatchLotNumber;
+                            defaultSchemeDataAssigned = true;
                         }
                         else
                         {
@@ -592,7 +615,7 @@ namespace dMobile.View
                 }
 
                 //////////////////////////////////////////////////////////////////////////
-                static void AssignSerialNumber(
+                void AssignSerialNumber(
                     ActDetail actDetail,
                     BarCodeParse barCodeParse,
                     ProductSchemeData schemeData,
@@ -605,6 +628,7 @@ namespace dMobile.View
                         {
                             schemeData.SingleTradeItemSerialNumber =
                                 tempItemSchemeData.ProdSchemeData.SingleTradeItemSerialNumber;
+                            defaultSchemeDataAssigned = true;
                         }
                         else
                         {
@@ -618,7 +642,7 @@ namespace dMobile.View
                 }
 
                 //////////////////////////////////////////////////////////////////////////
-                static async Task AssignVariant(
+                async Task AssignVariant(
                     ActDetail actDetail,
                     BarCodeParse barCodeParse,
                     ProductSchemeData schemeData,
@@ -632,6 +656,7 @@ namespace dMobile.View
                             schemeData.VariantCode = tempItemSchemeData.ProdSchemeData.VariantCode;
                             schemeData.VariantDescription = tempItemSchemeData.ProdSchemeData.VariantDescription;
                             schemeData.VariantNumber = tempItemSchemeData.ProdSchemeData.VariantNumber;
+                            defaultSchemeDataAssigned = true;
                         }
                         else
                         {

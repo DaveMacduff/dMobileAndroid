@@ -245,7 +245,7 @@ namespace dMobile.View.Activity
             if (this.Scanner != null)
             {
                 this.Scanner.BarCodeScan -= new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
-                await this.Scanner.Stop();
+                await this.Scanner.DisableScanning();
             }
 
             this.IsBarCodeHandlerRegistered = false;
@@ -259,7 +259,7 @@ namespace dMobile.View.Activity
         {
             if (!this.IsBarCodeHandlerRegistered && this.Scanner != null)
             {
-                await this.Scanner.Start();
+                await this.Scanner.EnableScanning();
                 this.Scanner.BarCodeScan += new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
                 this.IsBarCodeHandlerRegistered = true;
             }
@@ -750,7 +750,7 @@ namespace dMobile.View.Activity
         /// The GetXML.
         /// </summary>
         /// <returns>.</returns>
-        public async Task<XDocument> GetXML()
+        public async Task<XDocument> GetXml()
         {
             var xmldocParams = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
@@ -1214,7 +1214,6 @@ namespace dMobile.View.Activity
                         ////     }
                         //// }
 
-                        var isInsertReady = false;
                         var actDetail = ActDetailFacade.GetActDetail(this.ActItem, this.ActSubType);
 
                         // Did not use this.ActItem.ActHdr.SkidInfo.CurrSkid.LogisticUnitSkidCode because of the len of the code
@@ -1236,14 +1235,12 @@ namespace dMobile.View.Activity
                         tempItemSchemeData.ProdSchemeData = schemeData;
                         actDetail.SchemeData = schemeData;
 
-                        isInsertReady = await SysShared.GatherProductData(
+                        var isInsertReady = await SysShared.GatherProductData(
                             barCodeParse,
                             this.ActSubType,
                             this.ActItem,
                             tempItemSchemeData,
-                            isInsertDetailReady: false,
-                            actDetail,
-                            false);
+                            actDetail);
                         await this.InsertActivityDetail(
                             foundSelectedActivityItem,
                             actDetail,
@@ -2115,7 +2112,7 @@ namespace dMobile.View.Activity
                     {
                         _ = await form.DisplayControl.ShowDialog();
                         var xmlDoc = await form.GetXML();
-                        this.ActHdr.SkidInfo = await SysSkidInfo.GetSkidInfoFromXML(xmlDoc);
+                        this.ActHdr.SkidInfo = await SysSkidInfo.GetSkidInfoFromXml(xmlDoc);
 
                         if (this.ActHdr.SkidInfo.CurrSkid.SkidFKRefno != 0)
                         {

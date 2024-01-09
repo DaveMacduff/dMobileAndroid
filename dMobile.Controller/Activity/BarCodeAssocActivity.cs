@@ -179,19 +179,16 @@ namespace dMobile.Controller.Activity
         }
 
         /// <summary>
-        /// The GetRefnoFromRowIdx.
+        /// The AssignRefnoFromActivity.
         /// </summary>
         /// <param name="selectedObject">The selectedObject<see cref="object"/>.</param>
-        /// <returns>.</returns>
-        public override int GetRefnoFromRowIdx(object selectedObject)
+        public override void AssignRefnoFromActivity(object selectedObject)
         {
-            if (selectedObject is BarcodeAssociation barcodeAssociation)
+            if (selectedObject is BarcodeAssociation hdr)
             {
-                this.HdrFkRefno = Convert.ToInt32(barcodeAssociation.ActivityRefno);
-                this.HdrRefno = Convert.ToInt32(barcodeAssociation.ActivityRefno);
+                this.HdrFkRefno = Convert.ToInt32(hdr.ActivityRefno);
+                this.HdrRefno = Convert.ToInt32(hdr.ActivityRefno);
             }
-
-            return this.HdrRefno;
         }
 
         /// <summary>
@@ -248,8 +245,8 @@ namespace dMobile.Controller.Activity
             }
 
             this.barcodeAssociations = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<BarcodeAssociation>(sql.ToString());
-            this.ListHdrs = this.barcodeAssociations.Cast<object>().ToList();
-            return this.ListHdrs;
+            this.ListHeaders = this.barcodeAssociations.Cast<object>().ToList();
+            return this.ListHeaders;
         }
 
         /// <summary>
@@ -261,9 +258,9 @@ namespace dMobile.Controller.Activity
         {
             var observableCollection = new ObservableCollection<object>();
 
-            this.ListHdrs = this.barcodeAssociations.Where(barcode => barcode.ProductUnitBarCodeCode.ToLower().Contains(searchText.ToLower().Trim())).Cast<object>().ToList();
+            this.ListHeaders = this.barcodeAssociations.Where(barcode => barcode.ProductUnitBarCodeCode.ToLower().Contains(searchText.ToLower().Trim())).Cast<object>().ToList();
 
-            foreach (BarcodeAssociation barcodeAssociation in this.ListHdrs)
+            foreach (BarcodeAssociation barcodeAssociation in this.ListHeaders)
             {
                 // BarcodeAssociation barcodeAssociation = new BarcodeAssociation
                 // {
@@ -336,7 +333,7 @@ namespace dMobile.Controller.Activity
 
             gridMainActivity.Children.Add(gridHeader);
 
-            foreach (BarcodeAssociation barcodeAssociation in this.ListHdrs)
+            foreach (BarcodeAssociation barcodeAssociation in this.ListHeaders)
             {
                 // BarcodeAssociation barcodeAssociation = new BarcodeAssociation
                 // {
@@ -419,16 +416,6 @@ namespace dMobile.Controller.Activity
         /// </summary>
         public override void GetFilter()
         {
-        }
-
-        /// <summary>
-        /// Get the activity foreign key reference number.
-        /// </summary>
-        /// <param name="resourceType"><see cref="object"/> Resource model (tActivity??Model).</param>
-        /// <returns><see cref="int"/> Found activity foreign key refno, else 0 if not found.</returns>
-        public override int GetFkRefno(object resourceType)
-        {
-            throw new NotImplementedException();
         }
 
         /// <summary>

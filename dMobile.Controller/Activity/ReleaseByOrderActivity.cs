@@ -207,7 +207,7 @@ namespace dMobile.Controller.Activity
         {
             var observableCollection = new ObservableCollection<object>();
 
-            foreach (Picking picking in this.ListHdrs)
+            foreach (Picking picking in this.ListHeaders)
             {
                 // Picking picking = new Picking
                 // {
@@ -448,8 +448,8 @@ namespace dMobile.Controller.Activity
             //    }
             // }
             this.listPicking = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<Picking>(sql.ToString());
-            this.ListHdrs = this.listPicking.Cast<object>().ToList();
-            return this.ListHdrs;
+            this.ListHeaders = this.listPicking.Cast<object>().ToList();
+            return this.ListHeaders;
         }
 
         /// <summary>
@@ -464,7 +464,7 @@ namespace dMobile.Controller.Activity
             // if (string.IsNullOrEmpty(ActFilter))
             // {
             // this.DataViewHdrs.RowFilter = "ActivityStringFKRefno LIKE \'%" + searchText.Trim() + "%\'";
-            this.ListHdrs = this.listPicking.Where(picking => picking.ActivityStringFKRefno.ToLower().Contains(searchText.ToLower().Trim())).Cast<object>().ToList();
+            this.ListHeaders = this.listPicking.Where(picking => picking.ActivityStringFKRefno.ToLower().Contains(searchText.ToLower().Trim())).Cast<object>().ToList();
 
             // }
             // else
@@ -472,7 +472,7 @@ namespace dMobile.Controller.Activity
             // TODO: Fix filtering
             // this.DataViewHdrs.RowFilter = ActFilter + " AND ActivityStringFKRefno LIKE \'%" + searchText.Trim() + "%\'";
             // }
-            foreach (Picking picking in this.ListHdrs)
+            foreach (Picking picking in this.ListHeaders)
             {
                 // Picking picking = new Picking
                 //    {
@@ -540,19 +540,16 @@ namespace dMobile.Controller.Activity
         }
 
         /// <summary>
-        /// The GetRefnoFromRowIdx.
+        /// The AssignRefnoFromActivity.
         /// </summary>
         /// <param name="selectedItem">The selectedItem<see cref="object"/>.</param>
-        /// <returns>.</returns>
-        public override int GetRefnoFromRowIdx(object selectedItem)
+        public override void AssignRefnoFromActivity(object selectedItem)
         {
             if (selectedItem is Picking picking)
             {
                 this.HdrFkRefno = Convert.ToInt32(picking.ActivityFKRefno);
                 this.HdrRefno = Convert.ToInt32(picking.ActivityRefno);
             }
-
-            return this.HdrRefno;
         }
 
         /// <summary>
@@ -756,16 +753,6 @@ namespace dMobile.Controller.Activity
                     }
                 }
             }
-        }
-
-        /// <summary>
-        /// Get the activity foreign key reference number.
-        /// </summary>
-        /// <param name="resourceType"><see cref="object"/> Resource model (tActivity??Model).</param>
-        /// <returns><see cref="int"/> Found activity foreign key refno, else 0 if not found.</returns>
-        public override int GetFkRefno(object resourceType)
-        {
-            throw new NotImplementedException();
         }
 
         /// <summary>

@@ -17,6 +17,7 @@ namespace dMobile.View.Views
     using Bedrock;
     using CustomPages.Modal;
     using Forms;
+    using Helpers;
     using Resources.Enums;
     using Resources.Types;
     using Xamarin.Forms;
@@ -61,7 +62,7 @@ namespace dMobile.View.Views
             this.LocMapInfo = this.LocMap.CurrLocMap.Clone();
             this.LocMap.ChosenLocMap = this.LocMap.CurrLocMap.Clone();
             this.LocMap.ChosenLocMapRefno = this.LocMap.CurrLocMapRefno;
-
+            this.ScannerEnable().FireAndForgetSafeAsync();
             this.ApplyEvents();
         }
 
@@ -246,8 +247,8 @@ namespace dMobile.View.Views
             {
                 if (this.IsBarCodeHandlerRegistered)
                 {
-                    this.Scanner.BarCodeScan -= this.BarCodeHandler;
-                    await this.Scanner.Stop();
+                    this.Scanner.ClearBarCodeScanEventHandlers();
+                    await this.Scanner.DisableScanning();
                     this.IsBarCodeHandlerRegistered = false;
                 }
             }
@@ -263,8 +264,12 @@ namespace dMobile.View.Views
             {
                 if (!this.IsBarCodeHandlerRegistered)
                 {
-                    await this.Scanner.Start();
-                    this.Scanner.BarCodeScan += this.BarCodeHandler;
+                    await this.Scanner.EnableScanning();
+                    if (!this.Scanner.IsBarCodeScanEventHandlerAdded())
+                    {
+                        this.Scanner.BarCodeScan += this.BarCodeHandler;
+                    }
+
                     this.IsBarCodeHandlerRegistered = true;
                 }
             }
@@ -441,7 +446,7 @@ namespace dMobile.View.Views
         ///     Assemble a XML string of activity data to return to the calling parent form.
         /// </summary>
         /// <returns><see cref="Task" /> Task operation containing an XDocument.</returns>
-        public async Task<XDocument> GetXML()
+        public async Task<XDocument> GetXml()
         {
             var request = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
@@ -451,20 +456,6 @@ namespace dMobile.View.Views
                 + "</params>");
 
             return request;
-        }
-
-        /// <summary>
-        ///     Registers the bar code scan event handler and enables the scanner.
-        /// </summary>
-        /// <returns><see cref="Task" /> Task operation.</returns>
-        public async Task ScannerStart()
-        {
-            if (this.Scanner != null)
-            {
-                await this.Scanner.Start();
-                this.Scanner.BarCodeScan += this.BarCodeHandler;
-                this.IsBarCodeHandlerRegistered = true;
-            }
         }
 
         /// <summary>

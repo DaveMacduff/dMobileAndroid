@@ -155,5 +155,10 @@ namespace dMobile.Bedrock
         /// Gets or sets a value indicating whether the scheme extra 5 is required.
         /// </summary>
         public bool Extra5IsRequired { get; set; } = false;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the scheme is base tracked quantity only.
+        /// </summary>
+        public bool IsBaseTracked { get; set; } = false;
     }
 }

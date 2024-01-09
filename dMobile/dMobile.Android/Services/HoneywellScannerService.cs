@@ -33,7 +33,7 @@ namespace dMobile.Droid.Services
         {
             try
             {
-                this.OnProfileInfoRecieved += this.HoneywellScannerService_OnProfileInfoRecieved;
+                this.OnProfileInfoRecieved += this.HoneywellScannerService_OnProfileInfoReceived;
                 var callback = new Callback();
                 callback.OnCreatedComplete += ScannerProfileRetrieved;
                 AidcManager.Create(Android.App.Application.Context, callback);
@@ -51,7 +51,7 @@ namespace dMobile.Droid.Services
             }
         }
 
-        private void HoneywellScannerService_OnProfileInfoRecieved(object sender, EventArgs e)
+        private void HoneywellScannerService_OnProfileInfoReceived(object sender, EventArgs e)
         {
             if (this.BarcodeReader != null)
             {

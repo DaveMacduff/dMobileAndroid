@@ -56,6 +56,11 @@ namespace dMobile.GroundWork
                 query = "DELETE FROM tActivityItem WHERE tActivityItem.ActivityRefno <= 0";
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query);
 
+                // Corruption recovery cleanup.
+                query = "DELETE FROM tActivityItemCount WHERE tActivityItemCount.ActivityItemRefno " +
+                        "NOT IN (SELECT tActivityItem.ActivityItemRefno FROM tActivityItem)";
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(this.CurrentSubType));
+
                 query = "DELETE FROM tActivityItemBarCodeAssociationXRef "
                         + "WHERE tActivityItemBarCodeAssociationXRef.ActivityItemRefno IN "
                         + "(SELECT tActivityItem.ActivityItemRefno FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = ?)";

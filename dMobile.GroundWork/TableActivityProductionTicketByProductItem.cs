@@ -53,6 +53,11 @@ namespace dMobile.GroundWork
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query);
 
                 // Corruption recovery cleanup.
+                query = "DELETE FROM tActivityItemProductionByProduct WHERE tActivityItemProductionByProduct.ActivityItemRefno " +
+                        "NOT IN (SELECT tActivityItem.ActivityItemRefno FROM tActivityItem)";
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(this.CurrentSubType));
+
+                // Corruption recovery cleanup.
                 query = "DELETE FROM tActivityItemProduction WHERE tActivityItemProduction.ActivityItemRefno <= 0";
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query);
 

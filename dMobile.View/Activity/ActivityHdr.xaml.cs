@@ -17,11 +17,13 @@ namespace dMobile.View.Activity
     using Bedrock;
     using Controller;
     using Controller.Activity;
-    using CustomPages;
+    using dMobile.View.Pages;
     using Forms;
+    using Helpers;
     using Resources.Enums;
     using Resources.Types;
     using Xamarin.Forms;
+    using Xamarin.Forms.Markup;
     using Xamarin.Forms.Xaml;
     using Resource = dMobile.Resources.Properties.Resources;
 
@@ -29,7 +31,7 @@ namespace dMobile.View.Activity
     ///     Defines the <see cref="ActivityHdr" /> Activity header.
     /// </summary>
     [XamlCompilation(XamlCompilationOptions.Compile)]
-    public partial class ActivityHdr : DMobileContentPage, IAppArea, IDataLayerEventListener
+    public partial class ActivityHdr : IAppArea, IDataLayerEventListener
     {
         /// <summary>
         ///     Define the filter text was enabled.
@@ -67,8 +69,9 @@ namespace dMobile.View.Activity
             this.ActHdr.SkidInfo ??= new SysSkidInfo();
             this.ActHdr.XmlDataCriteria = xmlDataCriteria;
             ((PickingActivity)this.ActHdr).PickingLocationMapFilter = pickingLocMapFilter;
-
-            _ = Task.Run(this.LoadAndBindData);
+            this.Timer = new SysTimer(this.TimerTickCallback, 1000);
+            this.ScannerEnable().FireAndForgetSafeAsync();
+            this.LoadAndBindData().FireAndForgetSafeAsync();
         }
 
         /// <summary>
@@ -86,6 +89,7 @@ namespace dMobile.View.Activity
             this.SysEnv = SysEnvironment.GetInstance();
             this.SysEnv.SysSettings.IsShowActivityFilterSelection = true;
             this.Scanner = ScannerEngine.GetInstance().Scanner;
+
             this.ActSubType = activitySubType;
             this.ActHdr = ActivityFacade.GetActivity(this.ActSubType);
             this.Title = this.ActHdr.GetControlDescription();
@@ -99,9 +103,15 @@ namespace dMobile.View.Activity
                 "<whs_id>0</whs_id>" +
                 "<sect_refno>0</sect_refno>" +
                 "</params>");
-
-            _ = Task.Run(this.LoadAndBindData);
+            this.Timer = new SysTimer(this.TimerTickCallback, 1000);
+            this.ScannerEnable().FireAndForgetSafeAsync();
+            this.LoadAndBindData().FireAndForgetSafeAsync();
         }
+
+        /// <summary>
+        /// Delay over handler delegate.
+        /// </summary>
+        public delegate void DelayOverHandler();
 
         /// <summary>
         ///     Gets or sets the selected activity foreign key reference number.
@@ -121,7 +131,7 @@ namespace dMobile.View.Activity
         /// <summary>
         ///     Gets the bar code scanner instance.
         /// </summary>
-        private BarCodeScanner Scanner { get; }
+        private BarCodeScanner Scanner { get; set; }
 
         /// <summary>
         ///     Gets the global system environment object.
@@ -152,6 +162,11 @@ namespace dMobile.View.Activity
         ///     Gets the OptionsMenuItems.
         /// </summary>
         private List<string> OptionsMenuItems { get; } = new List<string>();
+
+        /// <summary>
+        /// Gets or sets the system timer.
+        /// </summary>
+        private SysTimer Timer { get; set; }
 
         /// <summary>
         ///     Gets or sets the filter text.
@@ -197,21 +212,28 @@ namespace dMobile.View.Activity
         private bool IsSearchEntryFocused { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether the data is being loaded.
+        ///     Gets or sets a value indicating whether the data is being loaded.
         /// </summary>
         private bool IsDataLoading { get; set; }
 
         /// <summary>
-        ///     Registers the bar code scan event handler and enables the scanner.
+        ///     Gets or sets the search text box original text.
         /// </summary>
-        /// <returns><see cref="Task" /> Task operation.</returns>
-        public async Task ScannerEnable()
+        private string SearchTextOrig { get; set; } = string.Empty;
+
+        /// <summary>
+        ///     Timer tick call back.
+        /// </summary>
+        public void TimerTickCallback()
         {
-            if (this.Scanner != null)
+            this.Timer.Stop();
+            if (this.IsSearchEntryFocused && this.txtSearchHdr.Text != this.SearchTextOrig)
             {
-                await this.Scanner.Start();
-                this.Scanner.BarCodeScan += this.BarCodeHandler;
+                this.SearchTextOrig = this.txtSearchHdr.Text;
+                this.LoadAndBindData().FireAndForgetSafeAsync();
             }
+
+            // Did not start the timer again here because the timer is started in the OnTextChange event.
         }
 
         /// <summary>
@@ -220,11 +242,22 @@ namespace dMobile.View.Activity
         /// <returns><see cref="Task" /> Task operation.</returns>
         public async Task ScannerDisable()
         {
-            if (this.Scanner != null)
+            this.Scanner.ClearBarCodeScanEventHandlers();
+            await this.Scanner.DisableScanning();
+        }
+
+        /// <summary>
+        ///     Registers the bar code scan event handler and enables the scanner.
+        /// </summary>
+        /// <returns><see cref="Task" /> Task operation.</returns>
+        public async Task ScannerEnable()
+        {
+            if (!this.Scanner.IsBarCodeScanEventHandlerAdded())
             {
-                this.Scanner.BarCodeScan -= this.BarCodeHandler;
-                await this.Scanner.Stop();
+                this.Scanner.BarCodeScan += this.BarCodeHandler;
             }
+
+            await this.Scanner.EnableScanning();
         }
 
         /// <summary>
@@ -286,7 +319,7 @@ namespace dMobile.View.Activity
         /// <returns><see cref="bool" /> True if a save was performed successfully else false.</returns>
         public async Task<bool> SaveChanges()
         {
-            var saveComplete = false;
+            bool saveComplete;
 
             try
             {
@@ -379,7 +412,7 @@ namespace dMobile.View.Activity
         /// </summary>
         /// <returns><see cref="Task" /> Task operation containing an XDocument.</returns>
 #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
-        public async Task<XDocument> GetXML()
+        public async Task<XDocument> GetXml()
 #pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
         {
             var xmldocParams = XDocument.Parse(
@@ -444,6 +477,7 @@ namespace dMobile.View.Activity
             {
                 if (await this.CancelChanges())
                 {
+                    await this.ScannerDisable();
                     this.SysEnv.SysSettings.IsShowActivityFilterSelection = true;
                     _ = base.OnBackButtonPressed();
                     await this.Close();
@@ -476,9 +510,9 @@ namespace dMobile.View.Activity
         {
             base.OnAppearing();
             this.NumTaps = 0;
+            this.Timer.Start();
             this.SubscribeKeyUpHandlers();
             this.ListViewMainActivity.ItemTapped += this.ListViewMainActivity_ItemTapped;
-            await this.ScannerEnable();
             if (!this.IsSearchEntryFocused)
             {
                 this.ListViewMainActivity.Focus();
@@ -492,8 +526,8 @@ namespace dMobile.View.Activity
         protected override async void OnDisappearing()
         {
             this.ListViewMainActivity.ItemTapped -= this.ListViewMainActivity_ItemTapped;
+            this.Timer.Stop();
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
-            await this.ScannerDisable();
             base.OnDisappearing();
             GC.Collect();
             GC.WaitForPendingFinalizers();
@@ -689,6 +723,7 @@ namespace dMobile.View.Activity
                 if (await this.SaveChanges())
                 {
                     this.SysEnv.SysSettings.IsShowActivityFilterSelection = true;
+                    await this.ScannerDisable();
                     await this.Close();
                 }
             }
@@ -702,8 +737,7 @@ namespace dMobile.View.Activity
 
                     // Important! Need to ask for label quantity before the change status AND set
                     // this.ActHdr.Refno
-                    this.ActHdr.HdrRefno = this.ActHdr.GetRefnoFromRowIdx(this.ListViewMainActivity.SelectedItem);
-
+                    this.ActHdr.AssignRefnoFromActivity(this.ListViewMainActivity.SelectedItem);
                     var labelQuantity = new SLabelQuantity();
 
                     if (this.ActSubType == SysCommon.ActSubTypes.PickingSingle &&
@@ -729,7 +763,7 @@ namespace dMobile.View.Activity
                                 if (this.SysEnv.SysSettings.CanPrintShippingLabel &&
                                     !this.SysEnv.SysSettings.IsDisconnectedMode)
                                 {
-                                    labelQuantity = await PrintLabelsAfterRelease(labelQuantity);
+                                    await PrintLabelsAfterRelease(labelQuantity);
                                 }
 
                                 if (this.SysEnv.SysSettings.IsPickRefreshOrdAfterRel)
@@ -738,7 +772,7 @@ namespace dMobile.View.Activity
                                 }
                                 else
                                 {
-                                    _ = this.ActHdr.ListHdrs.Remove(this.ListViewMainActivity.SelectedItem);
+                                    _ = this.ActHdr.ListHeaders.Remove(this.ListViewMainActivity.SelectedItem);
                                     await this.DesignGrid();
                                 }
 
@@ -774,8 +808,7 @@ namespace dMobile.View.Activity
                 return;
 
                 //////////////////////////////////////////////////////////////////////////
-                async Task<SLabelQuantity> PrintLabelsAfterRelease(
-                    SLabelQuantity labelQuantity)
+                async Task PrintLabelsAfterRelease(SLabelQuantity labelQuantity)
                 {
                     if (this.ActSubType == SysCommon.ActSubTypes.PickingSingle || this.ActSubType == SysCommon.ActSubTypes.Picking)
                     {
@@ -824,8 +857,6 @@ namespace dMobile.View.Activity
                             }
                         }
                     }
-
-                    return labelQuantity;
                 }
 
                 //////////////////////////////////////////////////////////////////////////
@@ -863,8 +894,18 @@ namespace dMobile.View.Activity
                         {
                             var locMap = LocationMap.GetInstance();
                             var result = await form.GetXML();
+                            if (result.Root == null)
+                            {
+                                throw new Exception("Unable to get XML from form.");
+                            }
+
+                            if (result.Root.Element("LocationMapRefno") == null)
+                            {
+                                throw new Exception("Unable to get LocationMapRefno from form.");
+                            }
+
                             var sLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
-                                int.Parse(result.Root.Element("LocationMapRefno").Value));
+                                int.Parse(result.Root.Element("LocationMapRefno") !.Value));
                             locMap.CurrLocMap = sLocMap;
 
                             this.ActHdr.XmlDataCriteria = XDocument.Parse(
@@ -883,7 +924,7 @@ namespace dMobile.View.Activity
             //////////////////////////////////////////////////////////////////////////
             async Task KeyUpEnterHandler()
             {
-                this.ActHdr.HdrRefno = this.ActHdr.GetRefnoFromRowIdx(this.ListViewMainActivity.SelectedItem);
+                this.ActHdr.AssignRefnoFromActivity(this.ListViewMainActivity.SelectedItem);
                 if (this.SysEnv.SysSettings.IsPickSingleProd &&
                     this.ActSubType == SysCommon.ActSubTypes.PickingSingle)
                 {
@@ -896,9 +937,8 @@ namespace dMobile.View.Activity
                         this.ActHdr,
                         this.ActSubType);
                     this.IsChangesMade = false;
-                    _ = await Device.InvokeOnMainThreadAsync(async () =>
-                        await form.DisplayControl.ShowDialog());
-                    await this.LoadAndBindData();
+                    _ = await Device.InvokeOnMainThreadAsync(async () => await form.DisplayControl.ShowDialog());
+                    await this.FindSelectedItemAsync(this.ActHdr.HdrRefno);
                 }
             }
         }
@@ -940,13 +980,6 @@ namespace dMobile.View.Activity
                 return;
             }
 
-            if (this.IsDataLoading)
-            {
-                return;
-            }
-
-            var message = string.Empty;
-
             try
             {
                 // Turn off the scanner because we do not want more events to fire until we are finished with
@@ -956,7 +989,7 @@ namespace dMobile.View.Activity
                 if (!string.IsNullOrEmpty(this.BarParse.ActFKRefno))
                 {
                     // this.BarParse.ActFKRefno e.g. format is 'OE:12345678'.
-                    // Start at 3th position for the foreign key reference number.
+                    // EnableScanning at 3th position for the foreign key reference number.
                     await BarCodeHandlerFkRefno(this.BarParse.ActFKRefno);
                 }
                 else if (!string.IsNullOrEmpty(this.BarParse.ActItemFKRefno))
@@ -1013,14 +1046,13 @@ namespace dMobile.View.Activity
             async Task BarCodeHandlerFkRefno(string actHdrStringFkRefno)
             {
                 // Remember that the headers have been filtered by the login warehouse.
-                var selectedActivity = this.ActHdr.ListHdrs.FirstOrDefault(
+                var selectedActivity = this.ActHdr.ListHeaders.FirstOrDefault(
                     activity => Convert.ToString(activity.GetType().GetProperty(
                                     this.ActHdr.GetFkRefnoIdx())
-                                    ?.GetValue(activity)) ==
-                                actHdrStringFkRefno);
+                                    ?.GetValue(activity)) == actHdrStringFkRefno);
                 if (selectedActivity != null)
                 {
-                    this.ActHdr.HdrRefno = this.ActHdr.GetRefnoFromRowIdx(selectedActivity);
+                    this.ActHdr.AssignRefnoFromActivity(selectedActivity);
                     await Device.InvokeOnMainThreadAsync(async () =>
                     {
                         var form = new FormDialogContainer(
@@ -1030,7 +1062,7 @@ namespace dMobile.View.Activity
                         this.IsChangesMade = false;
                         _ = await form.DisplayControl.ShowDialog();
                     });
-                    await this.LoadAndBindData();
+                    await this.FindSelectedItemAsync(this.ActHdr.HdrRefno);
                 }
                 else
                 {
@@ -1062,7 +1094,7 @@ namespace dMobile.View.Activity
                     try
                     {
                         await this.ScannerDisable();
-                        this.ActHdr.HdrRefno = this.ActHdr.GetRefnoFromRowIdx(this.ListViewMainActivity.SelectedItem);
+                        this.ActHdr.AssignRefnoFromActivity(this.ListViewMainActivity.SelectedItem);
                         if (this.SysEnv.SysSettings.IsPickSingleProd &&
                             this.ActSubType == SysCommon.ActSubTypes.PickingSingle)
                         {
@@ -1077,7 +1109,7 @@ namespace dMobile.View.Activity
                             this.IsChangesMade = false;
                             _ = await Device.InvokeOnMainThreadAsync(async () =>
                                 await form.DisplayControl.ShowDialog());
-                            await this.LoadAndBindData();
+                            await this.FindSelectedItemAsync(this.ActHdr.HdrRefno);
                         }
                     }
                     catch (MessageOnlyException msgEx)
@@ -1141,7 +1173,7 @@ namespace dMobile.View.Activity
                     this.ActHdr.RegLayerListenerStatOut(this);
                     this.ActHdr.RegLayerListenerProgOut(this);
                     await this.ActHdr.Refresh(this.ActHdr.XmlDataCriteria);
-                    this.ActHdr.ListHdrs = await this.ActHdr.GetActivityList(false);
+                    this.ActHdr.ListHeaders = await this.ActHdr.GetActivityList(false);
                     await this.DesignGrid();
                 }
                 finally
@@ -1180,17 +1212,80 @@ namespace dMobile.View.Activity
         /// <returns><see cref="Task" /> Task operation.</returns>
         private async Task FindSelectedItemAsync()
         {
-            if (this.ActHdr.ListHdrs.Count > 0 && this.MainActivityItems.Count > 0)
+            if (this.ActHdr.ListHeaders.Count > 0 && this.MainActivityItems.Count > 0)
             {
                 // Iterate through the list of headers looking for a foreign key match.
                 // Faster than LINQ.
                 this.ActHdr.SelectedListItemIdx = 0;
                 object selectedItem = null;
-                foreach (var hdr in this.ActHdr.ListHdrs)
+                foreach (var hdr in this.ActHdr.ListHeaders)
                 {
-                    if (this.SelectedActivityFkRefno == this.ActHdr.GetFkRefno(hdr))
+                    this.ActHdr.AssignRefnoFromActivity(hdr);
+                    if (this.SelectedActivityFkRefno == this.ActHdr.HdrFkRefno)
                     {
                         selectedItem = hdr;
+                        break;
+                    }
+
+                    this.ActHdr.SelectedListItemIdx++;
+                }
+
+                // Select the first header if no match was found, else select the item.
+                if (selectedItem == null)
+                {
+                    // Goto the first one in the list.
+                    this.ActHdr.SelectedListItemIdx = 0;
+                    Device.BeginInvokeOnMainThread(() =>
+                    {
+                        this.ListViewMainActivity.SelectedItem = this.MainActivityItems[this.ActHdr.SelectedListItemIdx];
+                    });
+                    await this.ActHdr.SelectActivity(this.ListViewMainActivity.SelectedItem);
+                }
+                else
+                {
+                    await this.ActHdr.SelectActivity(selectedItem);
+                    Device.BeginInvokeOnMainThread(() => { this.ListViewMainActivity.SelectedItem = this.ActHdr.SelectedActivity; });
+                }
+
+                Device.BeginInvokeOnMainThread(() =>
+                {
+                    this.ListViewMainActivity.ScrollTo(
+                        this.ListViewMainActivity.SelectedItem,
+                        ScrollToPosition.MakeVisible,
+                        false);
+                });
+            }
+            else
+            {
+                // Clear the activity nothing can be selected.
+                this.ActHdr.SelectedListItemIdx = -1;
+                this.ActHdr.SelectedActivity = null;
+                this.ActHdr.HdrFkRefno = 0;
+                this.ActHdr.HdrRefno = 0;
+                Device.BeginInvokeOnMainThread(() => { this.ListViewMainActivity.SelectedItem = null; });
+            }
+        }
+
+        /// <summary>
+        ///     Find the selected item in the data list.
+        /// </summary>
+        /// <param name="activityRefno"> Activity reference number to find.</param>
+        /// <returns><see cref="Task" /> Task operation.</returns>
+        private async Task FindSelectedItemAsync(int activityRefno)
+        {
+            if (this.ActHdr.ListHeaders.Count > 0 && this.MainActivityItems.Count > 0)
+            {
+                // Iterate through the list of headers looking for a foreign key match.
+                // Faster than LINQ.
+                this.ActHdr.SelectedListItemIdx = 0;
+                object selectedItem = null;
+                foreach (var hdr in this.ActHdr.ListHeaders)
+                {
+                    this.ActHdr.AssignRefnoFromActivity(hdr);
+                    if (activityRefno == this.ActHdr.HdrRefno)
+                    {
+                        selectedItem = hdr;
+                        this.SelectedActivityFkRefno = this.ActHdr.HdrFkRefno;
                         break;
                     }
 
@@ -1337,7 +1432,7 @@ namespace dMobile.View.Activity
                 this.IsChangesMade = false;
                 _ = await Device.InvokeOnMainThreadAsync(async () =>
                     await form.DisplayControl.ShowDialog());
-                await this.LoadAndBindData();
+                await this.FindSelectedItemAsync(this.ActHdr.HdrRefno);
             }
         }
 
@@ -1681,6 +1776,7 @@ namespace dMobile.View.Activity
         private void TxtSearchHdr_Focused(object sender, FocusEventArgs e)
         {
             this.IsSearchEntryFocused = true;
+            this.Timer.Start();
         }
 
         /// <summary>
@@ -1691,6 +1787,7 @@ namespace dMobile.View.Activity
         private void TxtSearchHdr_Unfocused(object sender, FocusEventArgs e)
         {
             this.IsSearchEntryFocused = false;
+            this.Timer.Stop();
         }
 
         /// <summary>
@@ -1700,7 +1797,12 @@ namespace dMobile.View.Activity
         /// <param name="e"><see cref="TextChangedEventArgs" /> Text changed event arguments.</param>
         private async void TxtSearchHdr_TextChanged(object sender, TextChangedEventArgs e)
         {
-            await this.LoadAndBindData();
+            // Timer was started in the focused event handler.
+            // Timer was stopped in the unfocused event handler.
+            // Timer was stopped in the timer tick call back event.
+            // Call timer start when the text changes to invoke the call back method passed to the timer when appropriate.
+            // If the timer is already started then the call to start will be ignored, but the call back will be invoked.
+            this.Timer.Start();
         }
 
         /// <summary>
@@ -1726,8 +1828,7 @@ namespace dMobile.View.Activity
 
                 if (result == this.FilterText && this.FilterIsEnabled)
                 {
-                    EDialogTypes dlgType = 0;
-                    dlgType = this.ActSubType switch
+                    var dlgType = this.ActSubType switch
                     {
                         SysCommon.ActSubTypes.Picking => EDialogTypes.ActivityHdrPickingFilter,
                         SysCommon.ActSubTypes.PickingSingle => EDialogTypes.ActivityHdrPickingFilter,
@@ -1778,15 +1879,16 @@ namespace dMobile.View.Activity
                     {
                         if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
                         {
-                            var xmlDoc = await form.GetXML();
+                            await form.GetXML();
                             if (!string.IsNullOrEmpty(this.txtSearchHdr.Text))
                             {
                                 this.MainActivityItems = this.ActHdr.Search(this.txtSearchHdr.Text);
                             }
 
-                            await this.LoadAndBindData();
+                            this.LoadAndBindData().FireAndForgetSafeAsync();
                         }
                     });
+
                 }
             }
             catch (MessageOnlyException msgEx)

@@ -2,12 +2,16 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
+using dMobile.BarCodeScanner.BarCodeScanners;
 using dMobile.View.Views;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 
 namespace dMobile.View.Pages
 {
+    using System;
+    using Helpers;
+
     /// <summary>
     /// Defines the <see cref="MainPage" />.
     /// </summary>

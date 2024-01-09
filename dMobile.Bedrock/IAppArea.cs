@@ -32,14 +32,6 @@ namespace dMobile.Bedrock
         Task<bool> IsReadyToClose();
 
         /// <summary>
-        /// Get the control to gain focus when this control is closed. Returns nothing if not
-        /// applicable.
-        /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
-        // UserControl GetCallingControl();
-
-        /// <summary>
         /// Used to perform saving of data changes.
         /// </summary>
         /// <returns>.</returns>
@@ -62,6 +54,6 @@ namespace dMobile.Bedrock
         /// of the application.
         /// </summary>
         /// <returns>.</returns>
-        Task<XDocument> GetXML();
+        Task<XDocument> GetXml();
     }
 }

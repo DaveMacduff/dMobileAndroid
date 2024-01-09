@@ -215,9 +215,9 @@ namespace dMobile.Controller.Activity
         /// <returns>The <see cref="Task"/>.</returns>
         public override async Task Delete()
         {
-            if (this.ListHdrs != null && this.ListHdrs.Count > 1)
+            if (this.ListHeaders != null && this.ListHeaders.Count > 1)
             {
-                this.ListHdrs.RemoveRange(1, this.ListHdrs.Count - 1);
+                this.ListHeaders.RemoveRange(1, this.ListHeaders.Count - 1);
             }
         }
 
@@ -267,13 +267,12 @@ namespace dMobile.Controller.Activity
         }
 
         /// <summary>
-        /// The GetRefnoFromRowIdx.
+        /// The AssignRefnoFromActivity.
         /// </summary>
         /// <param name="selectedItem">The selectedItem<see cref="object"/>.</param>
-        /// <returns>.</returns>
-        public override int GetRefnoFromRowIdx(object selectedItem)
+        public override void AssignRefnoFromActivity(object selectedItem)
         {
-            return this.HdrRefno;
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -316,8 +315,8 @@ namespace dMobile.Controller.Activity
             // this.DataViewHdrs = table.DefaultView;
             // this.DataViewHdrs.Table.TableName = this.MainGridMappingName;
             this.listSkids = table.Rows.Cast<Skid>().ToList();
-            this.ListHdrs = this.listSkids.Cast<object>().ToList();
-            return this.ListHdrs;
+            this.ListHeaders = this.listSkids.Cast<object>().ToList();
+            return this.ListHeaders;
         }
 
         /// <summary>
@@ -340,7 +339,7 @@ namespace dMobile.Controller.Activity
         {
             var observableCollection = new ObservableCollection<object>();
 
-            foreach (Skid skid in this.ListHdrs)
+            foreach (Skid skid in this.ListHeaders)
             {
                 observableCollection.Add(skid);
             }
@@ -543,16 +542,6 @@ namespace dMobile.Controller.Activity
         /// </summary>
         /// <param name="data">.</param>
         public override void GetFilter(XDocument data)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// Get the activity foreign key reference number.
-        /// </summary>
-        /// <param name="resourceType"><see cref="object"/> Resource model (tActivity??Model).</param>
-        /// <returns><see cref="int"/> Found activity foreign key refno, else 0 if not found.</returns>
-        public override int GetFkRefno(object resourceType)
         {
             throw new NotImplementedException();
         }

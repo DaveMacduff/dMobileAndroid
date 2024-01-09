@@ -116,7 +116,7 @@ namespace dMobile.View.Menus
         /// Gets the return xml data.
         /// </summary>
         /// <returns><see cref="XDocument"/> Xml data.</returns>
-        public async Task<XDocument> GetXML()
+        public async Task<XDocument> GetXml()
         {
             var xmldocParams = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"

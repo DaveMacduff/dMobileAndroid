@@ -36,33 +36,48 @@ namespace dMobile.GroundWork
         /// <inheritdoc/>
         public override async Task PurgeData()
         {
-            try
+            var conn = DatabaseConnection.GetInstance().SQLConn;
+            var subType = Convert.ToInt32(this.CurrentSubType);
+            this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName}.", true);
+
+            await conn.RunInTransactionAsync(transaction =>
             {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging convert unit items.", true);
+                try
+                {
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging convert unit items.", true);
 
-                // Corruption recovery cleanup.
-                var query = "DELETE FROM tActivityItemConvertUnit WHERE tActivityItemConvertUnit.ActivityItemRefno <= 0";
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query);
+                    // Corruption recovery cleanup.
+                    var query = "DELETE FROM tActivityItemConvertUnit WHERE tActivityItemConvertUnit.ActivityItemRefno <= 0";
+                    transaction.Execute(query);
 
-                // Corruption recovery cleanup.
-                query = "DELETE FROM tActivityItem WHERE tActivityItem.ActivityRefno <= 0";
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query);
+                    query = "DELETE FROM tActivityItemConvertUnit WHERE tActivityItemConvertUnit.ActivityItemRefno " +
+                            "NOT IN (SELECT tActivityItem.ActivityItemRefno FROM tActivityItem)";
+                    transaction.Execute(query);
 
-                query = "DELETE FROM tActivityItemConvertUnit WHERE ActivityItemSubType = ?";
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.ConvertUnit));
+                    query = "DELETE FROM tActivityItem WHERE tActivityItem.ActivityRefno <= 0";
+                    transaction.Execute(query);
 
-                query = "DELETE FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = ?";
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.ConvertUnit));
+                    query = "DELETE FROM tActivityItem WHERE tActivityItem.ActivityRefno " +
+                            "NOT IN (SELECT tActivity.ActivityRefno FROM tActivity)";
+                    transaction.Execute(query);
 
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging convert unit items complete.", true);
-            }
-            catch (SQLiteException ex)
-            {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging convert unit items failed.", true);
+                    // Regular purge.
+                    query = "DELETE FROM tActivityItemConvertUnit WHERE ActivityItemSubType = ?";
+                    transaction.Execute(query, subType);
 
-                throw new Exception("Database exception occurred. Purging convert unit items failed.", ex);
-            }
+                    query = "DELETE FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = ?";
+                    transaction.Execute(query, subType);
+
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging convert unit items complete.", true);
+                }
+                catch (SQLiteException ex)
+                {
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging convert unit items failed.", true);
+
+                    throw new Exception("Database exception occurred. Purging convert unit items failed.", ex);
+                }
+            });
         }
 
         public override Task PurgeData(int sectLocMapRefno)

@@ -240,8 +240,8 @@ namespace dMobile.View.Activity
         {
             if (this.Scanner != null)
             {
-                this.Scanner.BarCodeScan -= this.BarCodeHandler;
-                await this.Scanner.Stop();
+                this.Scanner.ClearBarCodeScanEventHandlers();
+                await this.Scanner.DisableScanning();
             }
 
             this.IsBarCodeHandlerRegistered = false;
@@ -255,8 +255,12 @@ namespace dMobile.View.Activity
         {
             if (!this.IsBarCodeHandlerRegistered && this.Scanner != null)
             {
-                await this.Scanner.Start();
-                this.Scanner.BarCodeScan += this.BarCodeHandler;
+                await this.Scanner.EnableScanning();
+                if (!this.Scanner.IsBarCodeScanEventHandlerAdded())
+                {
+                    this.Scanner.BarCodeScan += this.BarCodeHandler;
+                }
+
                 this.IsBarCodeHandlerRegistered = true;
             }
         }
@@ -278,7 +282,7 @@ namespace dMobile.View.Activity
                     var xmlDoc = await form.GetXML();
                     await this.ClearContents();
 
-                    var tmpSkidInfo = await SysSkidInfo.GetSkidInfoFromXML(xmlDoc);
+                    var tmpSkidInfo = await SysSkidInfo.GetSkidInfoFromXml(xmlDoc);
 
                     if (tmpSkidInfo.CurrSkid.SkidFKRefno != 0)
                     {
@@ -1369,10 +1373,12 @@ namespace dMobile.View.Activity
         private async Task GatherProductData(BarCodeParse barParse)
         {
             var tempItemProdSchemeData = new ActItemSchemeData();
-            var isInsertReady = false;
-
-            isInsertReady = await SysShared.GatherProductData(barParse, this.ActSubType, this.ActItem,
-                tempItemProdSchemeData, isInsertReady, this.ActDetail, false);
+            var isInsertReady = await SysShared.GatherProductData(
+                barParse,
+                this.ActSubType,
+                this.ActItem,
+                tempItemProdSchemeData,
+                this.ActDetail);
 
             if (isInsertReady)
             {

@@ -62,6 +62,11 @@ namespace dMobile.GroundWork
                     transaction.Execute(query);
 
                     // Corruption recovery cleanup.
+                    query = "DELETE FROM tActivityDetailReceiving WHERE tActivityDetailReceiving.ActivityDetailRefno " +
+                            "NOT IN (SELECT tActivityDetail.ActivityDetailRefno FROM tActivityDetail)";
+                    transaction.Execute(query);
+
+                    // Corruption recovery cleanup.
                     query = "DELETE FROM tActivityDetail WHERE tActivityDetail.ActivityDetailSubType = ?" +
                             " AND tActivityDetail.ActivityDetailRefno <= 0";
                     transaction.Execute(query, subType);

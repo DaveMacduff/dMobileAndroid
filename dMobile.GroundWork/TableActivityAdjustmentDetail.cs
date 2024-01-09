@@ -56,44 +56,67 @@ namespace dMobile.GroundWork
                         overrideDisconnectedMode: true);
 
                     // Corruption recovery cleanup.
-                    var query = "DELETE FROM tActivityDetailProductSchemeVariantXRef" +
-                            " WHERE tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno <= 0" +
-                            " OR tActivityDetailProductSchemeVariantXRef.ProductSchemeVariantRefno <= 0";
+                    var query = @"
+                        DELETE FROM tActivityDetailProductSchemeVariantXRef
+                            WHERE tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno <= 0
+                                OR tActivityDetailProductSchemeVariantXRef.ProductSchemeVariantRefno <= 0";
                     transaction.Execute(query);
 
-                    // Corruption recovery cleanup.
+                    query = @"
+                        DELETE FROM tActivityDetailProductSchemeVariantXRef
+                            WHERE tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno
+                                NOT IN (SELECT tActivityDetail.ActivityDetailRefno FROM tActivityDetail)";
+                    transaction.Execute(query);
+
                     query = "DELETE FROM tActivityDetailExtra WHERE tActivityDetailExtra.ActivityDetailRefno <= 0";
                     transaction.Execute(query);
 
-                    // Corruption recovery cleanup.
-                    query = "DELETE FROM tActivityDetailAdjustment WHERE tActivityDetailAdjustment.ActivityDetailRefno <= 0" +
-                            " OR tActivityDetailAdjustment.ActivityDetailFKRefno <= 0";
+                    query = @"
+                        DELETE FROM tActivityDetailExtra
+                            WHERE tActivityDetailExtra.ActivityDetailRefno
+                                NOT IN (SELECT tActivityDetail.ActivityDetailRefno FROM tActivityDetail)";
                     transaction.Execute(query);
 
-                    // Corruption recovery cleanup.
-                    query = "DELETE FROM tActivityDetail WHERE tActivityDetail.ActivityDetailSubType = ?" +
-                            " AND tActivityDetail.ActivityDetailRefno <= 0";
+                    query = @"DELETE FROM tActivityDetailAdjustment
+                                WHERE tActivityDetailAdjustment.ActivityDetailRefno <= 0
+                                    OR tActivityDetailAdjustment.ActivityDetailFKRefno <= 0";
+                    transaction.Execute(query);
+
+                    query = @"DELETE FROM tActivityDetailAdjustment
+                                WHERE tActivityDetailAdjustment.ActivityDetailRefno
+                                    NOT IN (SELECT tActivityDetail.ActivityDetailRefno FROM tActivityDetail)";
+                    transaction.Execute(query);
+
+                    query = @"DELETE FROM tActivityDetail
+                                WHERE tActivityDetail.ActivityDetailSubType = ?
+                                    AND tActivityDetail.ActivityDetailRefno <= 0";
                     transaction.Execute(query, subType);
 
-                    query = "DELETE FROM tActivityDetailProductSchemeVariantXRef "
-                            + "WHERE tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno IN "
-                            + "(SELECT tActivityDetail.ActivityDetailRefno "
-                            + "FROM tActivityDetail "
-                            + "WHERE tActivityDetail.ActivityDetailSubType = ?)";
+                    query = @"DELETE FROM tActivityDetail
+                                WHERE tActivityDetail.ActivityItemRefno
+                                    NOT IN (SELECT tActivityItem.ActivityItemRefno FROM tActivityItem)";
                     transaction.Execute(query, subType);
 
-                    query = "DELETE FROM tActivityDetailAdjustment "
-                            + "WHERE tActivityDetailAdjustment.ActivityDetailRefno IN "
-                            + "(SELECT tActivityDetail.ActivityDetailRefno "
-                            + "FROM tActivityDetail "
-                            + "WHERE tActivityDetail.ActivityDetailSubType = ?)";
+                    // Regular purge.
+                    query = @"DELETE FROM tActivityDetailProductSchemeVariantXRef
+                                WHERE tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno IN
+                                    (SELECT tActivityDetail.ActivityDetailRefno
+                                        FROM tActivityDetail
+                                        WHERE tActivityDetail.ActivityDetailSubType = ?)";
                     transaction.Execute(query, subType);
 
-                    query = "DELETE FROM tActivityDetailExtra "
-                            + "WHERE tActivityDetailExtra.ActivityDetailRefno IN "
-                            + "(SELECT tActivityDetail.ActivityDetailRefno "
-                            + "FROM tActivityDetail "
-                            + "WHERE tActivityDetail.ActivityDetailSubType = ?)";
+                    query = @"DELETE FROM tActivityDetailAdjustment
+                                WHERE tActivityDetailAdjustment.ActivityDetailRefno IN
+                                    (SELECT tActivityDetail.ActivityDetailRefno
+                                        FROM tActivityDetail
+                                        WHERE tActivityDetail.ActivityDetailSubType = ?)";
+                    transaction.Execute(query, subType);
+
+                    query = @"DELETE FROM tActivityDetailExtra
+                                WHERE tActivityDetailExtra.ActivityDetailRefno IN
+                                    (SELECT tActivityDetail.ActivityDetailRefno
+                                        FROM tActivityDetail
+                                        WHERE tActivityDetail.ActivityDetailSubType = ?)";
                     transaction.Execute(query, subType);
 
                     query = "DELETE FROM tActivityDetail WHERE tActivityDetail.ActivityDetailSubType = ?";

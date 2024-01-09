@@ -28,7 +28,7 @@ namespace dMobile.GroundWork
         {
             this.FullClassName = "dMobile.GroundWork.TableActivityAdjustmentItem";
             this.CurrentSubType = SysCommon.ActSubTypes.Adjustment;
-            this.LowerCaseName = "adjusment";
+            this.LowerCaseName = "adjustment";
             this.ProperCaseName = "Adjustment";
         }
 
@@ -39,45 +39,63 @@ namespace dMobile.GroundWork
         {
             this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging existing adjustment items.", true);
 
-            try
+            var conn = DatabaseConnection.GetInstance().SQLConn;
+            await conn.RunInTransactionAsync(transaction =>
             {
-                // Corruption recovery cleanup.
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName}.", true);
-                var query = "DELETE FROM tActivityItemBarCodeAssociationXRef WHERE" +
-                            " tActivityItemBarCodeAssociationXRef.ActivityItemRefno <= 0";
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query);
+                try
+                {
+                    // Corruption recovery cleanup.
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName}.", true);
+                    var query = @"DELETE FROM tActivityItemBarCodeAssociationXRef
+                                    WHERE tActivityItemBarCodeAssociationXRef.ActivityItemRefno <= 0";
+                    transaction.Execute(query);
 
-                // Corruption recovery cleanup.
-                query = "DELETE FROM tActivityItemAdjustment WHERE tActivityItemAdjustment.ActivityItemRefno <= 0" +
-                        " OR tActivityItemAdjustment.ActivityItemFKRefno <= 0";
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query);
+                    query = @"DELETE FROM tActivityItemBarCodeAssociationXRef
+                                WHERE tActivityItemBarCodeAssociationXRef.ActivityItemRefno
+                                    NOT IN (SELECT tActivityItem.ActivityItemRefno FROM tActivityItem)";
+                    transaction.Execute(query);
 
-                // Corruption recovery cleanup.
-                query = "DELETE FROM tActivityItem WHERE tActivityItem.ActivityRefno <= 0";
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query);
+                    query = @"DELETE FROM tActivityItemAdjustment
+                                WHERE tActivityItemAdjustment.ActivityItemRefno <= 0
+                                    OR tActivityItemAdjustment.ActivityItemFKRefno <= 0";
+                    transaction.Execute(query);
 
-                query = "DELETE FROM tActivityItemBarCodeAssociationXRef "
-                            + "WHERE tActivityItemBarCodeAssociationXRef.ActivityItemRefno IN "
-                            + "(SELECT tActivityItem.ActivityItemRefno "
-                            + "FROM tActivityItem "
-                            + "WHERE tActivityItem.ActivityItemSubType = ?)";
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.Adjustment));
+                    query = @"DELETE FROM tActivityItemAdjustment
+                                WHERE tActivityItemAdjustment.ActivityItemRefno
+                                    NOT IN (SELECT tActivityItem.ActivityItemRefno FROM tActivityItem)";
+                    transaction.Execute(query);
 
-                query = "DELETE FROM tActivityItemAdjustment WHERE ActivityItemSubType = ?";
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.Adjustment));
+                    query = @"DELETE FROM tActivityItem WHERE tActivityItem.ActivityRefno
+                                NOT IN (SELECT tActivity.ActivityRefno FROM tActivity)";
+                    transaction.Execute(query);
 
-                query = "DELETE FROM tActivityItem WHERE ActivityItemSubType = ?";
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.Adjustment));
+                    query = "DELETE FROM tActivityItem WHERE tActivityItem.ActivityRefno <= 0";
+                    transaction.Execute(query);
 
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging existing adjustment items complete.", true);
-            }
-            catch (SQLiteException ex)
-            {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging adjustment items failed.", true);
+                    // Regular purge.
+                    query = @"DELETE FROM tActivityItemBarCodeAssociationXRef
+                                WHERE tActivityItemBarCodeAssociationXRef.ActivityItemRefno IN
+                                    (SELECT tActivityItem.ActivityItemRefno
+                                        FROM tActivityItem
+                                        WHERE tActivityItem.ActivityItemSubType = ?)";
+                    transaction.Execute(query, this.CurrentSubType);
 
-                throw new Exception("Database exception occurred. Purging adjustment items failed.", ex);
-            }
+                    query = "DELETE FROM tActivityItemAdjustment WHERE ActivityItemSubType = ?";
+                    transaction.Execute(query, this.CurrentSubType);
+
+                    query = "DELETE FROM tActivityItem WHERE ActivityItemSubType = ?";
+                    transaction.Execute(query, this.CurrentSubType);
+
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging existing adjustment items complete.", true);
+                }
+                catch (SQLiteException ex)
+                {
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging adjustment items failed.", true);
+
+                    throw new Exception("Database exception occurred. Purging adjustment items failed.", ex);
+                }
+            });
         }
 
         /// <summary>

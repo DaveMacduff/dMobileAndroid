@@ -23,13 +23,13 @@ namespace dMobile.Controller.Activity_Item
         /// <summary>
         /// Activity line item location map reference number.
         /// </summary>
-        private int locMapRefno = 0;
+        private int locMapRefno;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ActItem"/> class.
         /// </summary>
         /// <param name="activity">.</param>
-        public ActItem(Activity.Activity activity)
+        protected ActItem(Activity.Activity activity)
         {
             this.ActHdr = activity;
             this.ActSubType = this.ActHdr.ActSubType;
@@ -62,12 +62,7 @@ namespace dMobile.Controller.Activity_Item
         /// <summary>
         /// Gets or sets a value indicating whether to ask to create a new item..
         /// </summary>
-        public bool IsAskCreateNewItem { get; set; } = true;
-
-        /// <summary>
-        /// Gets or sets the data event arguments..
-        /// </summary>
-        public DataLayerEventArgs DataEventArgs { get; set; } = new DataLayerEventArgs();
+        public bool IsAskCreateNewItem { get; protected set; } = true;
 
         /// <summary>
         /// Gets or sets the full class name..
@@ -77,7 +72,7 @@ namespace dMobile.Controller.Activity_Item
         /// <summary>
         /// Gets or sets a value indicating whether allowed to add an item..
         /// </summary>
-        public bool IsAllowAddItem { get; set; } = false;
+        public bool IsAllowAddItem { get; protected set; }
 
         /// <summary>
         /// Gets or sets the current selected line item location map..
@@ -128,22 +123,22 @@ namespace dMobile.Controller.Activity_Item
         /// <summary>
         /// Gets or sets the activity item sub type..
         /// </summary>
-        public SysCommon.ActSubTypes ActSubType { get; set; } = SysCommon.ActSubTypes.NotApplicable;
+        public ActSubTypes ActSubType { get; set; }
 
         /// <summary>
         /// Gets or sets the activity item status, no change, inserted, updated etc.
         /// </summary>
-        public SysCommon.ActStatus ActStatus { get; set; } = ActStatus.NoChange;
+        public ActStatus ActStatus { get; set; } = ActStatus.NoChange;
 
         /// <summary>
         /// Gets or sets the activity item reference number..
         /// </summary>
-        public int ItemRefno { get; set; } = 0;
+        public int ItemRefno { get; set; }
 
         /// <summary>
         /// Gets or sets the activity item foreign key reference number..
         /// </summary>
-        public int ItemFkRefno { get; set; } = 0;
+        public int ItemFkRefno { get; set; }
 
         /// <summary>
         /// Gets or sets the activity header..
@@ -159,6 +154,11 @@ namespace dMobile.Controller.Activity_Item
         /// Gets or sets the activity item list item selected index.
         /// </summary>
         public int SelectedListIdx { get; set; } = -1;
+
+        /// <summary>
+        /// Gets or sets the data event arguments..
+        /// </summary>
+        private DataLayerEventArgs DataEventArgs { get; set; } = new DataLayerEventArgs();
 
         /// <summary>
         /// Gets or sets a value indicating whether allowed to add skid detail.
@@ -217,7 +217,7 @@ namespace dMobile.Controller.Activity_Item
         /// </summary>
         /// <param name="gridMainActivity"><see cref="Grid"/> Main activity grid.</param>
         /// <param name="listViewMainActivity"><see cref="ListView"/> Main activity list view.</param>
-        /// <returns>The <see cref="ObservableCollection{object}"/>.</returns>
+        /// <returns>The <see cref="ObservableCollection{T}"/>.</returns>
         public abstract ObservableCollection<object> DesignGrid(ref Grid gridMainActivity, ref ListView listViewMainActivity);
 
         /// <summary>
@@ -416,13 +416,12 @@ namespace dMobile.Controller.Activity_Item
             var isGetDefault = false;
             if (this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc)
             {
-                if ((this.ActSubType == SysCommon.ActSubTypes.PhysicalCounts &&
+                if ((this.ActSubType == ActSubTypes.PhysicalCounts &&
                     this.SysEnv.SysSettings.IsPhysicalDoNotDefaultProductLocation)
                     ||
-                    (this.ActSubType == SysCommon.ActSubTypes.CycleCounts &&
+                    (this.ActSubType == ActSubTypes.CycleCounts &&
                         this.SysEnv.SysSettings.IsCycleDoNotDefaultProductLocation))
                 {
-                    isGetDefault = false;
                 }
                 else
                 {
@@ -443,10 +442,10 @@ namespace dMobile.Controller.Activity_Item
                 // Note: A selected skid location is not considered as a default, rather the skid location will be
                 // assigned and updated in the calling method.
                 // Default location however will be based on the any activity item warehouse or header warehouse.
-                var locMapRefno = await this.GetDefaultLocMapRefno(itemLocMap.WhsLocMapRefno, this.ProdInfo.Refno);
-                if (await LocationMapTasks.IsCompleteLocMap(locMapRefno))
+                var defaultLocMapRefno = await this.GetDefaultLocMapRefno(itemLocMap.WhsLocMapRefno, this.ProdInfo.Refno);
+                if (await LocationMapTasks.IsCompleteLocMap(defaultLocMapRefno))
                 {
-                    selectedLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(locMapRefno);
+                    selectedLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(defaultLocMapRefno);
                 }
             }
             else
@@ -512,7 +511,7 @@ namespace dMobile.Controller.Activity_Item
             // Check for duplicate
             if (this.SysEnv.SysSettings.IsDisconnectedMode)
             {
-                var actDetailUniqSchemeId = data.Root.Element("ActivityDetailUniqueSchemeID")!.Value;
+                var actDetailUniqSchemeId = data.Root.Element("ActivityDetailUniqueSchemeID") !.Value;
                 if (string.Compare(actDetailUniqSchemeId, string.Empty, StringComparison.CurrentCulture) > 0)
                 {
                     var isDupSchemeId = await ProductInfoTasks.IsDuplicateUniqueSchemeID(
@@ -642,8 +641,7 @@ namespace dMobile.Controller.Activity_Item
         /// <param name="listener"><see cref="IDataAccessEventListener"/> Data access event listener.</param>
         public void RegLayerListenerStatOut(IDataLayerEventListener listener)
         {
-            this.OnDataLayerStatusOut += new DataLayerStatusOutEventHandler(
-                listener.OnLayerStatOut);
+            this.OnDataLayerStatusOut += listener.OnLayerStatOut;
         }
 
         /// <summary>
@@ -652,8 +650,7 @@ namespace dMobile.Controller.Activity_Item
         /// <param name="listener"><see cref="IDataAccessEventListener"/> Data access event listener.</param>
         public void UnregLayerListenerStatOut(IDataLayerEventListener listener)
         {
-            this.OnDataLayerStatusOut -= new DataLayerStatusOutEventHandler(
-                listener.OnLayerStatOut);
+            this.OnDataLayerStatusOut -= listener.OnLayerStatOut;
         }
 
         /// <summary>
@@ -662,8 +659,7 @@ namespace dMobile.Controller.Activity_Item
         /// <param name="listener"><see cref="IDataAccessEventListener"/> Data access event listener.</param>
         public void RegLayerListenerProgOut(IDataLayerEventListener listener)
         {
-            this.OnDataLayerProgressOut += new DataLayerProgressOutEventHandler(
-                listener.OnLayerProgressOut);
+            this.OnDataLayerProgressOut += listener.OnLayerProgressOut;
         }
 
         /// <summary>
@@ -672,27 +668,28 @@ namespace dMobile.Controller.Activity_Item
         /// <param name="listener"><see cref="IDataAccessEventListener"/> Data access event listener.</param>
         public void UnregLayerListenerProgOut(IDataLayerEventListener listener)
         {
-            this.OnDataLayerProgressOut -= new DataLayerProgressOutEventHandler(
-                listener.OnLayerProgressOut);
+            this.OnDataLayerProgressOut -= listener.OnLayerProgressOut;
         }
 
         /// <summary>
         /// Create activity.
         /// </summary>
-        /// <param name="actSubTypes"><see cref="SysCommon.ActSubTypes"/> Activity sub type.</param>
+        /// <param name="actSubTypes"><see cref="ActSubTypes"/> Activity sub type.</param>
         /// <returns><see cref="Task"/> Task operation.</returns>
-        protected async Task Create(SysCommon.ActSubTypes actSubTypes)
+        protected async Task Create(ActSubTypes actSubTypes)
         {
             try
             {
                 var conn = DatabaseConnection.GetInstance().SQLConn;
+                const string query = @"INSERT INTO tActivityItem (
+                    ActivityItemSubType
+                    ,ActivityItemStatus
+                    ,ActivityRefno
+                    ,ActivityItemIsAdded
+                    ) VALUES (?, ?, ?, ?)";
 
                 await conn.ExecuteAsync(
-                    "INSERT INTO tActivityItem" +
-                    " (ActivityItemSubType," +
-                    " ActivityItemStatus," +
-                    " ActivityRefno," +
-                    " ActivityItemIsAdded) VALUES (?, ?, ?, ?)",
+                    query,
                     Convert.ToInt32(actSubTypes),
                     Convert.ToInt32(SysCommon.ActStatus.Inserted),
                     Convert.ToInt32(this.ActHdr.HdrRefno),

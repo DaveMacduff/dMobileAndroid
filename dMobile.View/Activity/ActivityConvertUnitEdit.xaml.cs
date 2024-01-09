@@ -267,7 +267,7 @@ namespace dMobile.View.Activity
         /// <returns></returns>
         /// <remarks></remarks>
         /// <inheritdoc />
-        public async Task<XDocument> GetXML()
+        public async Task<XDocument> GetXml()
         {
             var unqScheme = ProductInfoTasks.GetUniqueSchemeIDFromSProdSchemeData(
                 this.ActDetail.ActItem.ProdInfo.Code,

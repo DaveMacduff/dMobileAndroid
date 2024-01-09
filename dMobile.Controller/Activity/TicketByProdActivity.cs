@@ -131,7 +131,7 @@ namespace dMobile.Controller.Activity
         {
             var observableCollection = new ObservableCollection<object>();
 
-            foreach (ProductionTicketByProduct productionTicketByProduct in this.ListHdrs)
+            foreach (ProductionTicketByProduct productionTicketByProduct in this.ListHeaders)
             {
                 // ProductionTicketByProduct productionTicket = new ProductionTicketByProduct
                 // {
@@ -329,8 +329,8 @@ namespace dMobile.Controller.Activity
 
             this.GetFilter();
 
-            this.ListHdrs = this.listProductionTicketByProducts.Cast<object>().ToList();
-            return this.ListHdrs;
+            this.ListHeaders = this.listProductionTicketByProducts.Cast<object>().ToList();
+            return this.ListHeaders;
         }
 
         /// <summary>
@@ -342,9 +342,9 @@ namespace dMobile.Controller.Activity
         {
             var observableCollection = new ObservableCollection<object>();
 
-            this.ListHdrs = this.listProductionTicketByProducts.Where(prodTicket => prodTicket.ActivityStringFKRefno.ToLower().Contains(searchText.ToLower().Trim())).Cast<object>().ToList();
+            this.ListHeaders = this.listProductionTicketByProducts.Where(prodTicket => prodTicket.ActivityStringFKRefno.ToLower().Contains(searchText.ToLower().Trim())).Cast<object>().ToList();
 
-            foreach (ProductionTicketByProduct productionTicketByProduct in this.ListHdrs)
+            foreach (ProductionTicketByProduct productionTicketByProduct in this.ListHeaders)
             {
                 // ProductionTicketByProduct productionTicket = new ProductionTicketByProduct
                 // {
@@ -408,19 +408,16 @@ namespace dMobile.Controller.Activity
         }
 
         /// <summary>
-        /// The GetRefnoFromRowIdx.
+        /// The AssignRefnoFromActivity.
         /// </summary>
         /// <param name="selectedItem">The selectedItem<see cref="object"/>.</param>
-        /// <returns>.</returns>
-        public override int GetRefnoFromRowIdx(object selectedItem)
+        public override void AssignRefnoFromActivity(object selectedItem)
         {
-            if (selectedItem is ProductionTicketByProduct productionTicketByProduct)
+            if (selectedItem is ProductionTicketByProduct hdr)
             {
-                this.HdrFkRefno = Convert.ToInt32(productionTicketByProduct.ActivityFKRefno);
-                this.HdrRefno = Convert.ToInt32(productionTicketByProduct.ActivityRefno);
+                this.HdrFkRefno = Convert.ToInt32(hdr.ActivityFKRefno);
+                this.HdrRefno = Convert.ToInt32(hdr.ActivityRefno);
             }
-
-            return this.HdrRefno;
         }
 
         /// <summary>
@@ -504,17 +501,6 @@ namespace dMobile.Controller.Activity
                     this.listProductionTicketByProducts = this.listProductionTicketByProducts.Where(prodTicket => prodTicket.ActivityProductionDateTime >= minDate && prodTicket.ActivityProductionDateTime <= maxDate).ToList();
                 }
             }
-        }
-
-        /// <summary>
-        /// Get the activity foreign key reference number.
-        /// </summary>
-        /// <param name="resourceType"><see cref="object"/> Resource model (tActivity??Model).</param>
-        /// <returns><see cref="int"/> Found activity foreign key refno, else 0 if not found.</returns>
-        public override int GetFkRefno(object resourceType)
-        {
-            object tmpFkRefno = ((ProductionTicketByProduct)resourceType).ActivityFKRefno;
-            return tmpFkRefno == null ? 0 : Convert.ToInt32(tmpFkRefno);
         }
 
         /// <summary>

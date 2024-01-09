@@ -5,10 +5,9 @@
 namespace dMobile.BarCodeScanner.BarCodeScanners
 {
     using System;
-    using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
-    using dMobile.Resources.Services;
+    using Resources.Services;
     using Honeywell.AIDC.CrossPlatform;
     using Xamarin.Forms;
 
@@ -20,7 +19,7 @@ namespace dMobile.BarCodeScanner.BarCodeScanners
         /// <summary>
         /// Gets or sets the Honeywell bar code reader instance.
         /// </summary>
-        private BarcodeReader HoneywellReader { get; set; } = new BarcodeReader();
+        private BarcodeReader HoneywellReader { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether the symbology settings are set.
@@ -39,94 +38,89 @@ namespace dMobile.BarCodeScanner.BarCodeScanners
         private EventHandler ProfileDataHandler { get; set; }
 
         /// <summary>
-        /// Initialize the scanner.
+        /// Open the scanner reader and load symbology settings.
         /// </summary>
-        /// <returns>The <see cref="bool"/> True if the scanner was initialized else false.</returns>
-        public override bool Initialize()
+        /// <returns><see cref="Task"/> Task completed.</returns>
+        public override async Task OpenBarcodeReader()
         {
-            return true;
+            if (this.HoneywellReader == null)
+            {
+                this.HoneywellReader = new BarcodeReader();
+            }
+
+            if (this.HoneywellReader.IsReaderOpened)
+            {
+                ////throw new Exception("Barcode reader cannot be opened while the reader is open.");
+            }
+
+            if (!this.HoneywellReader.IsReaderOpened)
+            {
+                var result = await this.HoneywellReader.OpenAsync();
+                if (result.Code == BarcodeReaderBase.Result.Codes.SUCCESS ||
+                    result.Code == BarcodeReaderBase.Result.Codes.READER_ALREADY_OPENED)
+                {
+                    this.SetSymbologySettings();
+                    this.HoneywellReader.BarcodeDataReady += this.HoneywellReader_BarcodeDataReady;
+
+                }
+                else
+                {
+                    var errMsg =
+                        $"HoneywellBarcodeScanner, OpenAsync failed, Code: {result.Code} Message: {result.Message}.";
+                    ////_ = Log.Error("HoneywellBarcodeScanner", errMsg);
+                    throw new Exception(errMsg);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Open the scanner reader and load symbology settings.
+        /// </summary>
+        /// <returns><see cref="Task"/> Task completed.</returns>
+        public override async Task CloseBarcodeReader()
+        {
+            if (this.HoneywellReader.IsReaderOpened)
+            {
+                ////throw new Exception("Barcode reader cannot be closed while the reader is open.");
+            }
+            else
+            {
+                await this.HoneywellReader.SoftwareTriggerAsync(false);
+                var resultFirst = await this.HoneywellReader.CloseAsync();
+                if (resultFirst.Code == BarcodeReaderBase.Result.Codes.SUCCESS)
+                {
+                    this.HoneywellReader.BarcodeDataReady -= this.HoneywellReader_BarcodeDataReady;
+                }
+                else
+                {
+                    var errMsg = $"HoneywellBarcodeScanner, CloseAsync failed, Code: {resultFirst.Code} Message: {resultFirst.Message}.";
+                    throw new Exception(errMsg);
+                }
+
+                this.HoneywellReader = null;
+            }
         }
 
         /// <summary>
         /// Open the scanner reader and load symbology settings.
         /// </summary>
         /// <returns><see cref="Task"/> Task operation.</returns>
-        public override async Task Start()
+        public override async Task EnableScanning()
         {
-            // KLUDGE: There is probably a better way to do this but we need to make sure the scan
-            // isn't still reading.
-            ////int retry = 0;
-            ////while (this.HoneywellReader.IsReaderOpened)
-            ////{
-            ////    ////Thread.Sleep(100);
-            ////    Thread.Sleep(1000);
-            ////    retry++;
-
-            ////    ////if (retry > 5)
-            ////    ////{
-            ////    ////    break;
-            ////    ////}
-
-            ////    if (retry > 10)
-            ////    {
-            ////        break;
-            ////    }
-            ////}
-
-            if (this.HoneywellReader.IsReaderOpened)
-            {
-                return;
-            }
-
-            if (this.HoneywellReader == null)
-            {
-                ////_ = Log.Error("HoneywellBarcodeScanner", "Unexpected this.HoneywellReader == null");
-                this.HoneywellReader = new BarcodeReader();
-            }
-
-            var result = await this.HoneywellReader.OpenAsync();
-            if (result.Code == BarcodeReaderBase.Result.Codes.SUCCESS ||
-                result.Code == BarcodeReaderBase.Result.Codes.READER_ALREADY_OPENED)
-            {
-                this.SetSymbologySettings();
-                this.HoneywellReader.BarcodeDataReady += this.HoneywellReader_BarcodeDataReady;
-            }
-            else
-            {
-                var errMsg = $"HoneywellBarcodeScanner, OpenAsync failed, Code: {result.Code} Message: {result.Message}.";
-                ////_ = Log.Error("HoneywellBarcodeScanner", errMsg);
-                throw new Exception(errMsg);
-            }
+            // Software trigger turns off and on the scanner light and enables scanning.
+            // We will rely on the hardware trigger to enable scanning.
+            await this.HoneywellReader.EnableAsync(true);
         }
 
         /// <summary>
         /// Close the scanner reader.
         /// </summary>
         /// <returns><see cref="Task"/> Task operation.</returns>
-        public override async Task Stop()
+        public override async Task DisableScanning()
         {
-            if (!this.HoneywellReader.IsReaderOpened)
-            {
-                return;
-            }
-
-            if (this.HoneywellReader == null)
-            {
-                ////_ = Log.Error("HoneywellBarcodeScanner", "Unexpected this.HoneywellReader == null");
-                this.HoneywellReader = new BarcodeReader();
-            }
-
-            var result = await this.HoneywellReader.CloseAsync();
-            if (result.Code == BarcodeReaderBase.Result.Codes.SUCCESS)
-            {
-                this.HoneywellReader.BarcodeDataReady -= this.HoneywellReader_BarcodeDataReady;
-            }
-            else
-            {
-                var errMsg = $"HoneywellBarcodeScanner, CloseAsync failed, Code: {result.Code} Message: {result.Message}.";
-                ////_ = Log.Error("HoneywellBarcodeScanner", errMsg);
-                throw new Exception(errMsg);
-            }
+            // Software trigger turns off and on the scanner light and enables scanning.
+            // We will rely on the hardware trigger to enable scanning.
+            await this.HoneywellReader.EnableAsync(false);
         }
 
         /// <summary>
@@ -184,10 +178,21 @@ namespace dMobile.BarCodeScanner.BarCodeScanners
                         {
                             this.HoneywellScannerService.ProfileDataReady -= this.ProfileDataHandler;
                             var profileSettings = this.HoneywellScannerService.BarcodeReaderSettings;
+                            if (profileSettings.ContainsKey(this.HoneywellReader.SettingKeys.TriggerScanMode))
+                            {
+                                profileSettings[this.HoneywellReader.SettingKeys.TriggerScanMode] =
+                                    this.HoneywellReader.SettingValues.TriggerScanMode_OneShot;
+                            }
+                            else
+                            {
+                                profileSettings.Add(
+                                    this.HoneywellReader.SettingKeys.TriggerScanMode, 
+                                    this.HoneywellReader.SettingValues.TriggerScanMode_OneShot);
+                            }
 
                             var result = await this.HoneywellReader.SetAsync(profileSettings);
 
-                            if (result.Code != BarcodeReader.Result.Codes.SUCCESS)
+                            if (result.Code != BarcodeReaderBase.Result.Codes.SUCCESS)
                             {
                                 var errMsg = $"Could not set symbology settings {result.Message}.";
                                 throw new Exception(errMsg);
@@ -200,7 +205,6 @@ namespace dMobile.BarCodeScanner.BarCodeScanners
                         catch (Exception ex)
                         {
                             var errMsg = $"SetSymbologySettings - Error setting symbology settings {ex.Message}";
-                            ////Log.Error("SetSymbologySettings", errMsg);
                             throw new Exception(errMsg);
                         }
                     };

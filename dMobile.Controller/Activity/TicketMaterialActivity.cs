@@ -131,7 +131,7 @@ namespace dMobile.Controller.Activity
         {
             var observableCollection = new ObservableCollection<object>();
 
-            foreach (ProductionTicketMaterial productionTicket in this.ListHdrs)
+            foreach (ProductionTicketMaterial productionTicket in this.ListHeaders)
             {
                 // ProductionTicketMaterial productionTicket = new ProductionTicketMaterial
                 // {
@@ -330,8 +330,8 @@ namespace dMobile.Controller.Activity
 
             this.GetFilter();
 
-            this.ListHdrs = this.listProductionTicketMaterial.Cast<object>().ToList();
-            return this.ListHdrs;
+            this.ListHeaders = this.listProductionTicketMaterial.Cast<object>().ToList();
+            return this.ListHeaders;
         }
 
         /// <summary>
@@ -346,7 +346,7 @@ namespace dMobile.Controller.Activity
             // if (string.IsNullOrEmpty(this.ActFilter))
             // {
             // this.DataViewHdrs.RowFilter = "ActivityStringFKRefno LIKE \'%" + searchText.Trim() + "%\'";
-            this.ListHdrs = this.listProductionTicketMaterial.Where(prodTicket => prodTicket.ActivityStringFKRefno.ToLower().Contains(searchText.ToLower().Trim())).Cast<object>().ToList();
+            this.ListHeaders = this.listProductionTicketMaterial.Where(prodTicket => prodTicket.ActivityStringFKRefno.ToLower().Contains(searchText.ToLower().Trim())).Cast<object>().ToList();
 
             // }
             // else
@@ -354,7 +354,7 @@ namespace dMobile.Controller.Activity
             // TODO: Fix filtering
             // this.DataViewHdrs.RowFilter = this.ActFilter + " AND ActivityStringFKRefno LIKE \'%" + searchText.Trim() + "%\'";
             // }
-            foreach (ProductionTicketMaterial productionTicket in this.ListHdrs)
+            foreach (ProductionTicketMaterial productionTicket in this.ListHeaders)
             {
                 // ProductionTicketMaterial productionTicket = new ProductionTicketMaterial
                 // {
@@ -418,19 +418,16 @@ namespace dMobile.Controller.Activity
         }
 
         /// <summary>
-        /// The GetRefnoFromRowIdx.
+        /// The AssignRefnoFromActivity.
         /// </summary>
         /// <param name="selectedItem">The selectedItem<see cref="object"/>.</param>
-        /// <returns>.</returns>
-        public override int GetRefnoFromRowIdx(object selectedItem)
+        public override void AssignRefnoFromActivity(object selectedItem)
         {
-            if (selectedItem is ProductionTicketMaterial productionTicketMaterial)
+            if (selectedItem is ProductionTicketMaterial hdr)
             {
-                this.HdrFkRefno = Convert.ToInt32(productionTicketMaterial.ActivityFKRefno);
-                this.HdrRefno = Convert.ToInt32(productionTicketMaterial.ActivityRefno);
+                this.HdrFkRefno = Convert.ToInt32(hdr.ActivityFKRefno);
+                this.HdrRefno = Convert.ToInt32(hdr.ActivityRefno);
             }
-
-            return this.HdrRefno;
         }
 
         /// <summary>
@@ -513,17 +510,6 @@ namespace dMobile.Controller.Activity
                     this.listProductionTicketMaterial = this.listProductionTicketMaterial.Where(prodTicket => prodTicket.ActivityProductionDateTime >= minDate && prodTicket.ActivityProductionDateTime <= maxDate).ToList();
                 }
             }
-        }
-
-        /// <summary>
-        /// Get the activity foreign key reference number.
-        /// </summary>
-        /// <param name="resourceType"><see cref="object"/> Resource model (tActivity??Model).</param>
-        /// <returns><see cref="int"/> Found activity foreign key refno, else 0 if not found.</returns>
-        public override int GetFkRefno(object resourceType)
-        {
-            object tmpFkRefno = ((ProductionTicketMaterial)resourceType).ActivityFKRefno;
-            return tmpFkRefno == null ? 0 : Convert.ToInt32(tmpFkRefno);
         }
 
         /// <summary>

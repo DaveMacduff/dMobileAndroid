@@ -52,6 +52,11 @@ namespace dMobile.GroundWork
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query);
 
                 // Corruption recovery cleanup.
+                query = "DELETE FROM tActivityItemTransfer WHERE tActivityItemTransfer.ActivityItemRefno " +
+                        "NOT IN (SELECT tActivityItem.ActivityItemRefno FROM tActivityItem)";
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(this.CurrentSubType));
+
+                // Corruption recovery cleanup.
                 query = "DELETE FROM tActivityItem WHERE tActivityItem.ActivityRefno <= 0";
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query);
 
@@ -60,13 +65,13 @@ namespace dMobile.GroundWork
                         + " (SELECT tActivityItem.ActivityItemRefno"
                         + " FROM tActivityItem"
                         + " WHERE tActivityItem.ActivityItemSubType = ?)";
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.TransferTo));
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(this.CurrentSubType));
 
                 query = "DELETE FROM tActivityItemTransfer WHERE ActivityItemSubType = ?";
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.TransferTo));
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(this.CurrentSubType));
 
                 query = "DELETE FROM tActivityItem WHERE ActivityItemSubType = ?";
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.TransferTo));
+                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(this.CurrentSubType));
 
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging transfer items complete.", true);
             }
@@ -142,7 +147,7 @@ namespace dMobile.GroundWork
                                 transaction.Execute(
                                     "INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus," +
                                     " ActivityRefno, ActivityItemIsAdded) VALUES (?, ?, ?, ?)",
-                                    Convert.ToInt32(SysCommon.ActSubTypes.TransferTo),
+                                    Convert.ToInt32(this.CurrentSubType),
                                     Convert.ToInt32(SysCommon.ActStatus.NoChange),
                                     Convert.ToInt32(actRefno),
                                     0);
@@ -190,7 +195,7 @@ namespace dMobile.GroundWork
                                 var parameters = new object[]
                                 {
                                     Convert.ToInt32(actItemRefno),
-                                    Convert.ToInt32(SysCommon.ActSubTypes.TransferTo),
+                                    Convert.ToInt32(this.CurrentSubType),
                                     Convert.ToInt32(transItemFKRefno),
                                     Convert.ToString(transItemFKRefno),
                                     Convert.ToInt32(prodUnitRefno),
