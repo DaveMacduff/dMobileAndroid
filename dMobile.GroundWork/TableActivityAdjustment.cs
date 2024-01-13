@@ -41,6 +41,7 @@ namespace dMobile.GroundWork
             this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName}.", true);
 
             var conn = DatabaseConnection.GetInstance().SQLConn;
+            var subType = Convert.ToInt32(this.CurrentSubType);
             await conn.RunInTransactionAsync(transaction =>
             {
                 try
@@ -63,13 +64,17 @@ namespace dMobile.GroundWork
 
                     // REGULAR PURGE
                     query = "DELETE FROM tActivityAdjustment WHERE tActivityAdjustment.ActivitySubType = ?";
-                    transaction.Execute(query, Convert.ToInt32(this.CurrentSubType));
+                    transaction.Execute(query, subType);
 
                     query = "DELETE FROM tActivity WHERE tActivity.ActivitySubType = ?";
-                    transaction.Execute(query, Convert.ToInt32(this.CurrentSubType));
+                    transaction.Execute(query, subType);
+
+                    transaction.Commit();
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} complete.", true);
                 }
                 catch (SQLiteException sqlEx)
                 {
+                    transaction.Rollback();
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"{sqlEx.Message}", true);
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} failed.", true);
@@ -77,12 +82,11 @@ namespace dMobile.GroundWork
                 }
                 catch
                 {
+                    transaction.Rollback();
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} failed.", true);
                     throw;
                 }
             });
-
-            this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} complete.", true);
         }
 
         /// <summary>

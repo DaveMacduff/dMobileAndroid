@@ -505,14 +505,14 @@ namespace dMobile.Controller.Activity_Item
                     locMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(
                         whsLocMapRefno,
                         prodRefno,
-                        SysCommon.ProdLocMapTypes.Receiving);
+                        SysCommon.ProdLocMapTypes.Picking);
                 }
                 else
                 {
                     locMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(
                         whsLocMapRefno,
                         prodRefno,
-                        SysCommon.ProdLocMapTypes.Picking);
+                        SysCommon.ProdLocMapTypes.Receiving);
                 }
             }
 

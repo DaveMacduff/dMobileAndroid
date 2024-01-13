@@ -144,7 +144,7 @@ namespace dMobile.View.Activity
         private Activity ActHdr { get; }
 
         /// <summary>
-        ///     Gets the activity header sub type.
+        ///     Gets the activity header subtype.
         /// </summary>
         private SysCommon.ActSubTypes ActSubType { get; }
 
@@ -1532,7 +1532,7 @@ namespace dMobile.View.Activity
                             break;
 
                         case SysCommon.ActSubTypes.TransferTo:
-                            DisplayDataTransferFrom();
+                            DisplayDataTransferTo();
 
                             break;
 
@@ -1762,7 +1762,16 @@ namespace dMobile.View.Activity
                     if (this.ActHdr.SelectedActivity is Transfer transfer)
                     {
                         this.ExtraInfoItems.Add(transfer.ActivityTransferDescription);
-                        this.ExtraInfoItems.Add("To Warehouse:  " + transfer.LocationMapWarehouseName);
+                        this.ExtraInfoItems.Add("To Warehouse:  " + transfer.LocationMapWarehouseDescription);
+                    }
+                }
+
+                //////////////////////////////////////////////////////////////////////////
+                void DisplayDataTransferTo()
+                {
+                    if (this.ActHdr.SelectedActivity is Transfer transfer)
+                    {
+                        this.ExtraInfoItems.Add(transfer.ActivityTransferDescription);
                     }
                 }
             }

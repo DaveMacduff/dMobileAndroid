@@ -23,6 +23,8 @@ namespace dMobile.GroundWork
         {
             this.FullClassName = "dMobile.GroundWork.TableActivityItemBarCodeAssociationXRef";
             this.CurrentSubType = SysCommon.ActSubTypes.BarCodeAssociation;
+            this.LowerCaseName = "item bar code association xrefs";
+            this.ProperCaseName = "Item Bar Code Association Xrefs";
         }
 
         public override Task<int> DataStatus()
@@ -35,21 +37,34 @@ namespace dMobile.GroundWork
         /// </summary>
         public override async Task PurgeData()
         {
-            try
+            this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging existing {this.LowerCaseName} items.", true);
+            var conn = DatabaseConnection.GetInstance().SQLConn;
+            await conn.RunInTransactionAsync(transaction =>
             {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging item bar code association xrefs.", true);
+                try
+                {
+                    // Regular purge.
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName}.", true);
+                    const string query = @"DELETE FROM tActivityItemBarCodeAssociationXRef";
+                    transaction.Execute(query);
 
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("DELETE FROM tActivityItemBarCodeAssociationXRef");
-
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging item bar code association xrefs complete.", true);
-            }
-            catch (SQLiteException ex)
-            {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging item bar code association xrefs failed.", true);
-
-                throw new Exception("Database exception occurred. Purging item bar code association xrefs failed.", ex);
-            }
+                    transaction.Commit();
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} complete.", true);
+                }
+                catch (SQLiteException ex)
+                {
+                    transaction.Rollback();
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} failed.", true);
+                    throw new Exception($"Database exception occurred. Purging {this.LowerCaseName} failed.", ex);
+                }
+                catch (Exception ex)
+                {
+                    transaction.Rollback();
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} failed.", true);
+                    throw new Exception($"Purging {this.LowerCaseName} failed.", ex);
+                }
+            });
         }
 
         public override Task PurgeData(int sectLocMapRefno)

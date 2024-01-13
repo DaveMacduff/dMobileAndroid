@@ -33,22 +33,45 @@ namespace dMobile.GroundWork
         /// <inheritdoc/>
         public override async Task PurgeData(SysCommon.ActSubTypes actSubType)
         {
-            try
+            this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging activity items.", true);
+            var conn = DatabaseConnection.GetInstance().SQLConn;
+            await conn.RunInTransactionAsync(transaction =>
             {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging activity items.", true);
+                try
+                {
+                    // Corruption recovery cleanup.
+                    var query = @"
+                        DELETE FROM tActivityItem
+                            WHERE tActivityItem.ActivityRefno
+                                NOT IN (SELECT tActivity.ActivityRefno FROM tActivity)";
+                    transaction.Execute(query);
 
-                var query = "DELETE FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = ?";
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(actSubType));
+                    query = @"
+                        DELETE FROM tActivityItem
+                            WHERE tActivityItem.ActivityItemRefno <= 0";
+                    transaction.Execute(query);
 
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging activity items complete.", true);
-            }
-            catch (SQLiteException ex)
-            {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging activity items failed.", true);
+                    // Regular purge.
+                    query = "DELETE FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = ?";
+                    transaction.Execute(query, actSubType);
 
-                throw new Exception("Database exception occurred. Purging activity items failed.", ex);
-            }
+                    transaction.Commit();
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging activity items complete.", true);
+                }
+                catch (SQLiteException ex)
+                {
+                    transaction.Rollback();
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging activity items failed.", true);
+                    throw new Exception("Database exception occurred. Purging activity items failed.", ex);
+                }
+                catch (Exception ex)
+                {
+                    transaction.Rollback();
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging activity items failed.", true);
+                    throw new Exception("Database exception occurred. Purging activity items failed.", ex);
+                }
+            });
         }
 
         public override Task PurgeData()

@@ -6,6 +6,7 @@ namespace dMobile.GroundWork
 {
     using System;
     using System.Threading.Tasks;
+    using System.Transactions;
     using System.Xml.Linq;
     using dMobile.Bedrock;
     using SQLite;
@@ -19,6 +20,8 @@ namespace dMobile.GroundWork
           : base()
         {
             this.FullClassName = "dMobile.GroundWork.TableActivityDetailProductSchemeVariantXRef";
+            this.LowerCaseName = "product scheme variant xref";
+            this.ProperCaseName = "Product scheme variant xref";
         }
 
         public override Task<int> DataStatus()
@@ -35,20 +38,24 @@ namespace dMobile.GroundWork
         {
             try
             {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging product scheme variant xref details.", true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} details.", true);
 
-                var query = "DELETE FROM tActivityDetailProductSchemeVariantXRef";
+                const string query = "DELETE FROM tActivityDetailProductSchemeVariantXRef";
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query);
 
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging product scheme variant xref details complete.", true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} details complete.", true);
             }
             catch (SQLiteException ex)
             {
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
 
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging product scheme variant xref details failed.", true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} details failed.", true);
 
-                throw new Exception("Database exception occurred. Purging product scheme variant xref details failed.", ex);
+                throw new Exception($"Database exception occurred. Purging {this.LowerCaseName} details failed.", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Exception occurred. Purging {this.LowerCaseName} details failed.", ex);
             }
         }
 

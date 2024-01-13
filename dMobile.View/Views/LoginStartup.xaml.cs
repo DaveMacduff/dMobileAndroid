@@ -579,6 +579,10 @@ namespace dMobile.View.Views
                     {
                         throw new MessageOnlyException(Resource.SelectedWarehouseRequired);
                     }
+
+                    var logWhsMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
+                            this.SysEnv.ContactLog.WarehouseLocationMapRefno);
+                    this.SysEnv.ContactLog.WarehouseLocationMapFKRefno = logWhsMap.WhsCode;
                 }
                 else
                 {

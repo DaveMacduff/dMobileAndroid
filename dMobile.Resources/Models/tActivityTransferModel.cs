@@ -29,9 +29,10 @@ namespace dMobile.Resources.Models
         public string ActivityStringFKRefno { get; set; }
 
         [NotNull]
-        [ForeignKey(typeof(tLocationMapWarehouseModel))]
-        [Indexed(Name = "FK_ActivityTransferOnTransferToWarehouseLocationMapRefno", Order = 1, Unique = false)]
-        public int TransferToWarehouseLocationMapRefno { get; set; }
+        public int TransferWarehouseLocationMapFKRefno { get; set; }
+
+        [NotNull]
+        public string TransferWarehouseLocationMapDescription { get; set; }
 
         [NotNull]
         public string ActivityTransferDescription { get; set; }

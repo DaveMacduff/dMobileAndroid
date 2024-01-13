@@ -72,6 +72,11 @@ namespace dMobile.Bedrock
         public int WarehouseLocationMapRefno { get; set; } = 0;
 
         /// <summary>
+        /// Gets or sets the warehouse location map warehouse foreign key reference number.
+        /// </summary>
+        public int WarehouseLocationMapFKRefno { get; set; } = 0;
+
+        /// <summary>
         /// Gets or sets a value indicating whether IsLoggedIn.
         /// </summary>
         public bool IsLoggedIn { get; set; } = false;

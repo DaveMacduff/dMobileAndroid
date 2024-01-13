@@ -37,8 +37,7 @@ namespace dMobile.GroundWork
         /// </summary>
         public override async Task PurgeData()
         {
-            this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging existing adjustment items.", true);
-
+            this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging existing {this.LowerCaseName} items.", true);
             var conn = DatabaseConnection.GetInstance().SQLConn;
             await conn.RunInTransactionAsync(transaction =>
             {
@@ -46,26 +45,32 @@ namespace dMobile.GroundWork
                 {
                     // Corruption recovery cleanup.
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName}.", true);
-                    var query = @"DELETE FROM tActivityItemBarCodeAssociationXRef
-                                    WHERE tActivityItemBarCodeAssociationXRef.ActivityItemRefno <= 0";
+                    var query = @"
+                        DELETE FROM tActivityItemBarCodeAssociationXRef
+                            WHERE tActivityItemBarCodeAssociationXRef.ActivityItemRefno <= 0";
                     transaction.Execute(query);
 
-                    query = @"DELETE FROM tActivityItemBarCodeAssociationXRef
-                                WHERE tActivityItemBarCodeAssociationXRef.ActivityItemRefno
-                                    NOT IN (SELECT tActivityItem.ActivityItemRefno FROM tActivityItem)";
+                    query = @"
+                        DELETE FROM tActivityItemBarCodeAssociationXRef
+                            WHERE tActivityItemBarCodeAssociationXRef.ActivityItemRefno
+                                NOT IN (SELECT tActivityItem.ActivityItemRefno FROM tActivityItem)";
                     transaction.Execute(query);
 
-                    query = @"DELETE FROM tActivityItemAdjustment
-                                WHERE tActivityItemAdjustment.ActivityItemRefno <= 0
-                                    OR tActivityItemAdjustment.ActivityItemFKRefno <= 0";
+                    query = @"
+                        DELETE FROM tActivityItemAdjustment
+                            WHERE tActivityItemAdjustment.ActivityItemRefno <= 0
+                                OR tActivityItemAdjustment.ActivityItemFKRefno <= 0";
                     transaction.Execute(query);
 
-                    query = @"DELETE FROM tActivityItemAdjustment
-                                WHERE tActivityItemAdjustment.ActivityItemRefno
-                                    NOT IN (SELECT tActivityItem.ActivityItemRefno FROM tActivityItem)";
+                    query = @"
+                        DELETE FROM tActivityItemAdjustment
+                            WHERE tActivityItemAdjustment.ActivityItemRefno
+                                NOT IN (SELECT tActivityItem.ActivityItemRefno FROM tActivityItem)";
                     transaction.Execute(query);
 
-                    query = @"DELETE FROM tActivityItem WHERE tActivityItem.ActivityRefno
+                    query = @"
+                        DELETE FROM tActivityItem
+                            WHERE tActivityItem.ActivityRefno
                                 NOT IN (SELECT tActivity.ActivityRefno FROM tActivity)";
                     transaction.Execute(query);
 
@@ -73,11 +78,12 @@ namespace dMobile.GroundWork
                     transaction.Execute(query);
 
                     // Regular purge.
-                    query = @"DELETE FROM tActivityItemBarCodeAssociationXRef
-                                WHERE tActivityItemBarCodeAssociationXRef.ActivityItemRefno IN
-                                    (SELECT tActivityItem.ActivityItemRefno
-                                        FROM tActivityItem
-                                        WHERE tActivityItem.ActivityItemSubType = ?)";
+                    query = @"
+                        DELETE FROM tActivityItemBarCodeAssociationXRef
+                            WHERE tActivityItemBarCodeAssociationXRef.ActivityItemRefno IN
+                                (SELECT tActivityItem.ActivityItemRefno
+                                    FROM tActivityItem
+                                    WHERE tActivityItem.ActivityItemSubType = ?)";
                     transaction.Execute(query, this.CurrentSubType);
 
                     query = "DELETE FROM tActivityItemAdjustment WHERE ActivityItemSubType = ?";
@@ -86,14 +92,21 @@ namespace dMobile.GroundWork
                     query = "DELETE FROM tActivityItem WHERE ActivityItemSubType = ?";
                     transaction.Execute(query, this.CurrentSubType);
 
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging existing adjustment items complete.", true);
+                    transaction.Commit();
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} items complete.", true);
                 }
                 catch (SQLiteException ex)
                 {
+                    transaction.Rollback();
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging adjustment items failed.", true);
-
-                    throw new Exception("Database exception occurred. Purging adjustment items failed.", ex);
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} items failed.", true);
+                    throw new Exception($"Database exception occurred. Purging {this.LowerCaseName} items failed.", ex);
+                }
+                catch
+                {
+                    transaction.Rollback();
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} items failed.", true);
+                    throw;
                 }
             });
         }

@@ -47,12 +47,16 @@ namespace dMobile.GroundWork
 
                     // Corruption recovery cleanup.
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName}.", true);
-                    var query = "DELETE FROM tActivityConvertUnit WHERE tActivityConvertUnit.ActivityRefno <= 0" +
-                                " OR tActivityConvertUnit.ActivityFKRefno <= 0";
+                    var query = @"
+                        DELETE FROM tActivityConvertUnit
+                            WHERE tActivityConvertUnit.ActivityRefno <= 0
+                                OR tActivityConvertUnit.ActivityFKRefno <= 0";
                     transaction.Execute(query);
 
-                    query = "DELETE FROM tActivityConvertUnit WHERE tActivityConvertUnit.ActivityRefno " +
-                            "NOT IN (SELECT tActivity.ActivityRefno FROM tActivity)";
+                    query = @"
+                        DELETE FROM tActivityConvertUnit
+                            WHERE tActivityConvertUnit.ActivityRefno
+                                NOT IN (SELECT tActivity.ActivityRefno FROM tActivity)";
                     transaction.Execute(query, subType);
 
                     query = "DELETE FROM tActivity WHERE tActivity.ActivityRefno <= 0";
@@ -65,14 +69,21 @@ namespace dMobile.GroundWork
                     query = "DELETE FROM tActivity WHERE tActivity.ActivitySubType = ?";
                     transaction.Execute(query, subType);
 
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging convert units complete.", true);
+                    transaction.Commit();
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} complete.", true);
                 }
                 catch (SQLiteException ex)
                 {
+                    transaction.Rollback();
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging convert units failed.", true);
-
-                    throw new Exception("Database exception occurred. Purging convert units failed.", ex);
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} failed.", true);
+                    throw new Exception($"Database exception occurred. Purging {this.LowerCaseName} failed.", ex);
+                }
+                catch
+                {
+                    transaction.Rollback();
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} failed.", true);
+                    throw;
                 }
             });
         }

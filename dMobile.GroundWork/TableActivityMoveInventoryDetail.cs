@@ -45,64 +45,84 @@ namespace dMobile.GroundWork
                 try
                 {
                     // Corruption recovery cleanup.
-                    var query = "DELETE FROM tActivityDetailProductSchemeVariantXRef" +
-                                " WHERE tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno <= 0" +
-                                " OR tActivityDetailProductSchemeVariantXRef.ProductSchemeVariantRefno <= 0";
+                    var query = @"
+                        DELETE FROM tActivityDetailProductSchemeVariantXRef
+                            WHERE tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno <= 0
+                                OR tActivityDetailProductSchemeVariantXRef.ProductSchemeVariantRefno <= 0";
                     transaction.Execute(query);
 
-                    // Corruption recovery cleanup.
-                    query = "DELETE FROM tActivityDetailMoveInventory WHERE tActivityDetailMoveInventory.ActivityDetailRefno <= 0" +
-                            " OR tActivityDetailMoveInventory.ActivityDetailFKRefno <= 0";
+                    query = @"
+                        DELETE FROM tActivityDetailProductSchemeVariantXRef
+                            WHERE tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno
+                                NOT IN (SELECT tActivityDetail.ActivityDetailRefno FROM tActivityDetail)";
                     transaction.Execute(query);
 
-                    // Corruption recovery cleanup.
-                    query = "DELETE FROM tActivityDetailMoveInventory WHERE tActivityDetailMoveInventory.ActivityDetailRefno " +
-                            "NOT IN (SELECT tActivityDetail.ActivityDetailRefno FROM tActivityDetail)";
+                    query = "DELETE FROM tActivityDetailExtra WHERE tActivityDetailExtra.ActivityDetailRefno <= 0";
                     transaction.Execute(query);
 
-                    // Corruption recovery cleanup.
-                    query = "DELETE FROM tActivityDetail WHERE tActivityDetail.ActivityDetailSubType = ?" +
-                            " AND tActivityDetail.ActivityDetailRefno <= 0";
+                    query = @"
+                        DELETE FROM tActivityDetailExtra
+                            WHERE tActivityDetailExtra.ActivityDetailRefno
+                                NOT IN (SELECT tActivityDetail.ActivityDetailRefno FROM tActivityDetail)";
+                    transaction.Execute(query);
+
+                    query = @"
+                        DELETE FROM tActivityDetailMoveInventory
+                            WHERE tActivityDetailMoveInventory.ActivityDetailRefno <= 0
+                                OR tActivityDetailMoveInventory.ActivityDetailFKRefno <= 0";
+                    transaction.Execute(query);
+
+                    query = @"
+                        DELETE FROM tActivityDetailMoveInventory
+                            WHERE tActivityDetailMoveInventory.ActivityDetailRefno
+                                NOT IN (SELECT tActivityDetail.ActivityDetailRefno FROM tActivityDetail)";
+                    transaction.Execute(query);
+
+                    query = @"
+                        DELETE FROM tActivityDetail
+                            WHERE tActivityDetail.ActivityDetailSubType = ?
+                                AND tActivityDetail.ActivityDetailRefno <= 0";
                     transaction.Execute(query, subType);
 
-                    query = "DELETE FROM tActivityDetailProductSchemeVariantXRef "
-                        + "WHERE tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno IN "
-                        + "(SELECT tActivityDetail.ActivityDetailRefno "
-                        + "FROM tActivityDetail "
-                        + "WHERE tActivityDetail.ActivityDetailSubType = ?)";
+                    query = @"
+                        DELETE FROM tActivityDetail
+                            WHERE tActivityDetail.ActivityItemRefno
+                                NOT IN (SELECT tActivityItem.ActivityItemRefno FROM tActivityItem)";
                     transaction.Execute(query, subType);
 
-                    query = "DELETE FROM tActivityDetailMoveInventory "
-                        + "WHERE tActivityDetailMoveInventory.ActivityDetailRefno IN "
-                        + "(SELECT tActivityDetail.ActivityDetailRefno "
-                        + "FROM tActivityDetail "
-                        + "WHERE tActivityDetail.ActivityDetailSubType = ?)";
+                    // Regular purge.
+                    query = @"
+                        DELETE FROM tActivityDetailProductSchemeVariantXRef
+                            WHERE tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno IN
+                            (SELECT tActivityDetail.ActivityDetailRefno
+                                FROM tActivityDetail
+                                    WHERE tActivityDetail.ActivityDetailSubType = ?)";
+                    transaction.Execute(query, subType);
+
+                    query = @"
+                        DELETE FROM tActivityDetailMoveInventory
+                            WHERE tActivityDetailMoveInventory.ActivityDetailRefno IN
+                                (SELECT tActivityDetail.ActivityDetailRefno
+                                    FROM tActivityDetail
+                                    WHERE tActivityDetail.ActivityDetailSubType = ?)";
                     transaction.Execute(query, subType);
 
                     query = "DELETE FROM tActivityDetail WHERE tActivityDetail.ActivityDetailSubType = ?";
                     transaction.Execute(query, subType);
 
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging move inventory details complete.", true);
                     transaction.Commit();
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging move inventory details complete.", true);
                 }
                 catch (SQLiteException sqlEx)
                 {
-                    if (transaction.IsInTransaction)
-                    {
-                        transaction.Rollback();
-                    }
-
+                    transaction.Rollback();
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging move inventory details failed.", true);
                     throw new Exception("Database exception occurred. Purging move inventory details failed.", sqlEx);
                 }
                 catch (Exception ex)
                 {
-                    if (transaction.IsInTransaction)
-                    {
-                        transaction.Rollback();
-                    }
-
+                    transaction.Rollback();
                     throw new Exception("Database exception occurred. Purging move inventory details failed.", ex);
                 }
             });

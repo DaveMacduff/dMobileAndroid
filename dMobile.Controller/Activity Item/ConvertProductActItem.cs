@@ -32,13 +32,13 @@ namespace dMobile.Controller.Activity_Item
 
         /// <summary>
         /// Gets or sets the FromProdRefno
-        /// Gets the FROM product reference number..
+        /// Gets the FROM product reference number.
         /// </summary>
         public int FromProdRefno { get; set; }
 
         /// <summary>
         /// Gets or sets the ToProdRefno
-        /// Gets the TO product reference number..
+        /// Gets the TO product reference number.
         /// </summary>
         public int ToProdRefno { get; set; }
 

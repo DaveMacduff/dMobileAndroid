@@ -745,7 +745,8 @@ namespace dMobile.Controller.Activity_Item
                     this.ActHdr.SkidInfo.CurrSkid = new SSkidInfo();
                 }
 
-                var itemLocMap = await this.GetSelectedItemLocation(item.LocationMapRefno);
+                ////var itemLocMap = await this.GetSelectedItemLocation(item.LocationMapRefno);
+                var itemLocMap = await this.GetSelectedItemLocation(this.ActHdr.LocationMapRefno);
                 if (itemLocMap == null)
                 {
                     // Current location used, we need one for popup forms.
@@ -1041,20 +1042,41 @@ namespace dMobile.Controller.Activity_Item
             var locMapRefno = 0;
             if (this.SelectedItem is TransferItem item)
             {
-                if (Math.Sign(item.ActivityItemTransferQuantity) == 0 ||
-                    Math.Sign(item.ActivityItemTransferQuantity) == 1)
+                if (this.ActHdr.ActSubType == SysCommon.ActSubTypes.TransferFrom)
                 {
-                    locMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(
-                        whsLocMapRefno,
-                        prodRefno,
-                        SysCommon.ProdLocMapTypes.Receiving);
+                    if (Math.Sign(item.ActivityItemTransferQuantity) == 0 ||
+                        Math.Sign(item.ActivityItemTransferQuantity) == 1)
+                    {
+                        locMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(
+                            whsLocMapRefno,
+                            prodRefno,
+                            SysCommon.ProdLocMapTypes.Picking);
+                    }
+                    else
+                    {
+                        locMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(
+                            whsLocMapRefno,
+                            prodRefno,
+                            SysCommon.ProdLocMapTypes.Receiving);
+                    }
                 }
-                else
+                else if (this.ActHdr.ActSubType == SysCommon.ActSubTypes.TransferTo)
                 {
-                    locMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(
-                        whsLocMapRefno,
-                        prodRefno,
-                        SysCommon.ProdLocMapTypes.Picking);
+                    if (Math.Sign(item.ActivityItemTransferQuantity) == 0 ||
+                        Math.Sign(item.ActivityItemTransferQuantity) == 1)
+                    {
+                        locMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(
+                            whsLocMapRefno,
+                            prodRefno,
+                            SysCommon.ProdLocMapTypes.Receiving);
+                    }
+                    else
+                    {
+                        locMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(
+                            whsLocMapRefno,
+                            prodRefno,
+                            SysCommon.ProdLocMapTypes.Picking);
+                    }
                 }
             }
 

@@ -104,8 +104,8 @@ namespace dMobile.GroundWork
 
                             var actRefno = 0;
                             var progValue = 0;
-                            var whsLocMapRefno = 0;
                             var locMapWhsFKRefno = 0;
+                            var locMapWhsDescription = string.Empty;
                             var transFKRefno = 0;
                             var transDesc = string.Empty;
                             var transDateTime = new DateTime(1900, 1, 1);
@@ -125,19 +125,11 @@ namespace dMobile.GroundWork
                                 errMsg += Environment.NewLine + "Trans date " + transDateTime.ToShortDateString();
                                 arrivalDateTime = Convert.ToDateTime(drow["ActivityTransferArrivalDateTime"]);
                                 errMsg += Environment.NewLine + "Trans arrival date " + arrivalDateTime.ToShortDateString();
-                                locMapWhsFKRefno = Convert.ToInt32(drow["TransferToLocationMapWarehouseFKRefno"]);
+                                locMapWhsFKRefno = Convert.ToInt32(drow["TransferLocationMapWarehouseFKRefno"]);
                                 errMsg += Environment.NewLine + "Whs fk refno " + locMapWhsFKRefno;
 
-                                var results = transaction.Query<tLocationMapWarehouseModel>("SELECT * FROM tLocationMapWarehouse WHERE LocationMapWarehouseFKRefno = ?", locMapWhsFKRefno);
-
-                                if (results?.Count > 0)
-                                {
-                                    whsLocMapRefno = results[0].LocationMapRefno;
-                                }
-                                else
-                                {
-                                    throw new Exception("Unable to locate the warehouse fk refno in tLocationMapWarehouse." + Environment.NewLine + errMsg);
-                                }
+                                locMapWhsDescription = drow["ActivityTransferDescription"].ToString();
+                                errMsg += Environment.NewLine + "Whs desc \'" + locMapWhsDescription + "\'";
 
                                 transaction.Execute("INSERT INTO tActivity (ActivityStatus, ActivitySubType) VALUES (?, ?)", 0, Convert.ToInt32(SysCommon.ActSubTypes.TransferTo));
 
@@ -148,11 +140,13 @@ namespace dMobile.GroundWork
                                             "ActivitySubType, " +
                                             "ActivityFKRefno, " +
                                             "ActivityStringFKRefno, " +
-                                            "TransferToWarehouseLocationMapRefno, " +
+                                            "TransferWarehouseLocationMapFKRefno, " +
+                                            "TransferWarehouseLocationMapDescription, " +
                                             "ActivityTransferDescription, " +
                                             "ActivityTransferDateTime, " +
                                             "ActivityTransferArrivalDateTime" +
                                             ") VALUES (" +
+                                            "?, " +
                                             "?, " +
                                             "?, " +
                                             "?, " +
@@ -168,7 +162,8 @@ namespace dMobile.GroundWork
                                     Convert.ToInt32(SysCommon.ActSubTypes.TransferTo),
                                     Convert.ToInt32(transFKRefno),
                                     Convert.ToString(transFKRefno),
-                                    Convert.ToInt32(whsLocMapRefno),
+                                    Convert.ToInt32(locMapWhsFKRefno),
+                                    Convert.ToString(locMapWhsDescription),
                                     transDesc,
                                     Convert.ToDateTime(transDateTime),
                                     Convert.ToDateTime(arrivalDateTime),
@@ -223,7 +218,7 @@ namespace dMobile.GroundWork
                 "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>"
                 + "<imclient>"
                 + "<command>"
-                + "<action>REQUEST TRANSFERS</action>"
+                + "<action>REQUEST TRANSFERS TO</action>"
                 + await SysCommon.GetRequestDefaults(false)
                 + "</command>" + "</imclient>");
 

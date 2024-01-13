@@ -231,7 +231,7 @@ namespace dMobile.Controller.Activity_Item
         public override async Task<int> GetDefaultLocMapRefno(int whsLocMapRefno, int prodRefno)
         {
             var locMapRefno = 0;
-            if (this.SelectedItem is ProductionTicketByProductItem item)
+            if (this.SelectedItem is ProductionTicketFinishedItem item)
             {
                 if (Math.Sign(item.ActivityItemProductionQuantity) == 0 ||
                     Math.Sign(item.ActivityItemProductionQuantity) == 1)

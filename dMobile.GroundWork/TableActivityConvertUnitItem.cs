@@ -47,35 +47,65 @@ namespace dMobile.GroundWork
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging convert unit items.", true);
 
                     // Corruption recovery cleanup.
-                    var query = "DELETE FROM tActivityItemConvertUnit WHERE tActivityItemConvertUnit.ActivityItemRefno <= 0";
+                    var query = @"
+                        DELETE FROM tActivityItemBarCodeAssociationXRef
+                            WHERE tActivityItemBarCodeAssociationXRef.ActivityItemRefno <= 0";
                     transaction.Execute(query);
 
-                    query = "DELETE FROM tActivityItemConvertUnit WHERE tActivityItemConvertUnit.ActivityItemRefno " +
-                            "NOT IN (SELECT tActivityItem.ActivityItemRefno FROM tActivityItem)";
+                    query = @"
+                        DELETE FROM tActivityItemBarCodeAssociationXRef
+                            WHERE tActivityItemBarCodeAssociationXRef.ActivityItemRefno
+                                NOT IN (SELECT tActivityItem.ActivityItemRefno FROM tActivityItem)";
+                    transaction.Execute(query);
+
+                    query = "DELETE FROM tActivityItemConvertUnit WHERE tActivityItemConvertUnit.ActivityItemRefno <= 0";
+                    transaction.Execute(query);
+
+                    query = @"
+                        DELETE FROM tActivityItemConvertUnit
+                            WHERE tActivityItemConvertUnit.ActivityItemRefno
+                                NOT IN (SELECT tActivityItem.ActivityItemRefno FROM tActivityItem)";
                     transaction.Execute(query);
 
                     query = "DELETE FROM tActivityItem WHERE tActivityItem.ActivityRefno <= 0";
                     transaction.Execute(query);
 
-                    query = "DELETE FROM tActivityItem WHERE tActivityItem.ActivityRefno " +
-                            "NOT IN (SELECT tActivity.ActivityRefno FROM tActivity)";
+                    query = @"
+                        DELETE FROM tActivityItem
+                            WHERE tActivityItem.ActivityRefno
+                                NOT IN (SELECT tActivity.ActivityRefno FROM tActivity)";
                     transaction.Execute(query);
 
                     // Regular purge.
+                    query = @"
+                        DELETE FROM tActivityItemBarCodeAssociationXRef
+                            WHERE tActivityItemBarCodeAssociationXRef.ActivityItemRefno IN
+                                (SELECT tActivityItem.ActivityItemRefno
+                                    FROM tActivityItem
+                                    WHERE tActivityItem.ActivityItemSubType = ?)";
+                    transaction.Execute(query,subType);
+
                     query = "DELETE FROM tActivityItemConvertUnit WHERE ActivityItemSubType = ?";
                     transaction.Execute(query, subType);
 
                     query = "DELETE FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = ?";
                     transaction.Execute(query, subType);
 
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging convert unit items complete.", true);
+                    transaction.Commit();
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} items complete.", true);
                 }
                 catch (SQLiteException ex)
                 {
+                    transaction.Rollback();
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging convert unit items failed.", true);
-
-                    throw new Exception("Database exception occurred. Purging convert unit items failed.", ex);
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} items failed.", true);
+                    throw new Exception($"Database exception occurred. Purging {this.LowerCaseName} items failed.", ex);
+                }
+                catch
+                {
+                    transaction.Rollback();
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} failed.", true);
+                    throw;
                 }
             });
         }

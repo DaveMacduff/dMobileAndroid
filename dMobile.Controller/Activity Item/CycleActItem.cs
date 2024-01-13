@@ -1258,21 +1258,10 @@ namespace dMobile.Controller.Activity_Item
             var locMapRefno = 0;
             if (this.SelectedItem is CountItem item)
             {
-                if (Math.Sign(item.ActivityItemCountQuantity) == 0 ||
-                    Math.Sign(item.ActivityItemCountQuantity) == 1)
-                {
-                    locMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(
-                        whsLocMapRefno,
-                        prodRefno,
-                        SysCommon.ProdLocMapTypes.Receiving);
-                }
-                else
-                {
-                    locMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(
-                        whsLocMapRefno,
-                        prodRefno,
-                        SysCommon.ProdLocMapTypes.Picking);
-                }
+                locMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(
+                    whsLocMapRefno,
+                    prodRefno,
+                    SysCommon.ProdLocMapTypes.Picking);
             }
 
             if (locMapRefno == 0)

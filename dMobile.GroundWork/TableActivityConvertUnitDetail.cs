@@ -44,86 +44,89 @@ namespace dMobile.GroundWork
                 try
                 {
                     // Corruption recovery cleanup.
-                    var query = "DELETE FROM tActivityDetailProductSchemeVariantXRef" +
-                                " WHERE tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno <= 0" +
-                                " OR tActivityDetailProductSchemeVariantXRef.ProductSchemeVariantRefno <= 0";
+                    var query = @"
+                        DELETE FROM tActivityDetailProductSchemeVariantXRef
+                            WHERE tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno <= 0
+                                OR tActivityDetailProductSchemeVariantXRef.ProductSchemeVariantRefno <= 0";
                     transaction.Execute(query);
 
-                    query = "DELETE FROM tActivityDetailProductSchemeVariantXRef" +
-                            " WHERE tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno " +
-                            "NOT IN (SELECT tActivityDetail.ActivityDetailRefno FROM tActivityDetail)";
+                    query = @"
+                        DELETE FROM tActivityDetailProductSchemeVariantXRef
+                            WHERE tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno
+                                NOT IN (SELECT tActivityDetail.ActivityDetailRefno FROM tActivityDetail)";
                     transaction.Execute(query);
 
-                    query = "DELETE FROM tActivityDetailConvertUnit WHERE tActivityDetailConvertUnit.ActivityDetailRefno <= 0" +
-                            " OR tActivityDetailConvertUnit.ActivityDetailFKRefno <= 0";
-                    transaction.Execute(query);
-
-                    query = "DELETE FROM tActivityDetailConvertUnit WHERE tActivityDetailConvertUnit.ActivityDetailRefno " +
-                            "NOT IN (SELECT tActivityDetail.ActivityDetailRefno FROM tActivityDetail)";
+                    query = @"
+                        DELETE FROM tActivityDetailConvertUnit
+                            WHERE tActivityDetailConvertUnit.ActivityDetailRefno <= 0
+                                OR tActivityDetailConvertUnit.ActivityDetailFKRefno <= 0";
                     transaction.Execute(query);
 
                     query = "DELETE FROM tActivityDetailExtra WHERE tActivityDetailExtra.ActivityDetailRefno <= 0";
                     transaction.Execute(query);
 
-                    query = "DELETE FROM tActivityDetailExtra WHERE tActivityDetailExtra.ActivityDetailRefno " +
-                            "NOT IN (SELECT tActivityDetail.ActivityDetailRefno FROM tActivityDetail)";
+                    query = @"
+                        DELETE FROM tActivityDetailExtra
+                            WHERE tActivityDetailExtra.ActivityDetailRefno
+                                NOT IN (SELECT tActivityDetail.ActivityDetailRefno FROM tActivityDetail)";
                     transaction.Execute(query);
 
-                    query = "DELETE FROM tActivityDetail WHERE tActivityDetail.ActivityDetailSubType = ?" +
-                            " AND tActivityDetail.ActivityDetailRefno <= 0";
+                    query = @"
+                        DELETE FROM tActivityDetailConvertUnit
+                            WHERE tActivityDetailConvertUnit.ActivityDetailRefno
+                                NOT IN (SELECT tActivityDetail.ActivityDetailRefno FROM tActivityDetail)";
+                    transaction.Execute(query);
+
+                    query = @"
+                        DELETE FROM tActivityDetail
+                            WHERE tActivityDetail.ActivityDetailSubType = ?
+                                AND tActivityDetail.ActivityDetailRefno <= 0";
                     transaction.Execute(query, subType);
 
-                    query = "DELETE FROM tActivityDetail WHERE tActivityDetail.ActivityItemRefno " +
-                            "NOT IN (SELECT tActivityItem.ActivityItemRefno FROM tActivityItem)";
+                    query = @"DELETE FROM tActivityDetail
+                                WHERE tActivityDetail.ActivityItemRefno
+                                    NOT IN (SELECT tActivityItem.ActivityItemRefno FROM tActivityItem)";
                     transaction.Execute(query, subType);
 
                     // Regular purge.
-                    query = "DELETE FROM tActivityDetailProductSchemeVariantXRef "
-                        + "WHERE tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno IN "
-                        + "(SELECT tActivityDetail.ActivityDetailRefno "
-                        + "FROM tActivityDetail "
-                        + "WHERE tActivityDetail.ActivityDetailSubType = ?)";
+                    query = @"
+                        DELETE FROM tActivityDetailProductSchemeVariantXRef
+                            WHERE tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno IN
+                                (SELECT tActivityDetail.ActivityDetailRefno
+                                    FROM tActivityDetail WHERE tActivityDetail.ActivityDetailSubType = ?)";
                     transaction.Execute(query, subType);
 
-                    query = "DELETE FROM tActivityDetailConvertUnit "
-                        + "WHERE tActivityDetailConvertUnit.ActivityDetailRefno IN "
-                        + "(SELECT tActivityDetail.ActivityDetailRefno "
-                        + "FROM tActivityDetail "
-                        + "WHERE tActivityDetail.ActivityDetailSubType = ?)";
+                    query = @"
+                        DELETE FROM tActivityDetailConvertUnit
+                            WHERE tActivityDetailConvertUnit.ActivityDetailRefno IN
+                                (SELECT tActivityDetail.ActivityDetailRefno
+                                    FROM tActivityDetail WHERE tActivityDetail.ActivityDetailSubType = ?)";
                     transaction.Execute(query, subType);
 
-                    query = "DELETE FROM tActivityDetailExtra "
-                        + "WHERE tActivityDetailExtra.ActivityDetailRefno IN "
-                        + "(SELECT tActivityDetail.ActivityDetailRefno "
-                        + "FROM tActivityDetail "
-                        + "WHERE tActivityDetail.ActivityDetailSubType = ?)";
+                    query = @"
+                        DELETE FROM tActivityDetailExtra
+                            WHERE tActivityDetailExtra.ActivityDetailRefno IN
+                                (SELECT tActivityDetail.ActivityDetailRefno
+                                    FROM tActivityDetail WHERE tActivityDetail.ActivityDetailSubType = ?)";
                     transaction.Execute(query, subType);
 
                     query = "DELETE FROM tActivityDetail WHERE tActivityDetail.ActivityDetailSubType = ?";
                     transaction.Execute(query, subType);
 
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging cycle count details complete.", true);
                     transaction.Commit();
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} details complete.", true);
                 }
                 catch (SQLiteException sqlEx)
                 {
-                    if (transaction.IsInTransaction)
-                    {
-                        transaction.Rollback();
-                    }
-
+                    transaction.Rollback();
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging cycle count details failed.", true);
-                    throw new Exception("Database exception occurred. Purging cycle count details failed.", sqlEx);
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} details failed.", true);
+                    throw new Exception($"Database exception occurred. Purging {this.LowerCaseName} details failed.", sqlEx);
                 }
                 catch (Exception ex)
                 {
-                    if (transaction.IsInTransaction)
-                    {
-                        transaction.Rollback();
-                    }
-
-                    throw new Exception("Database exception occurred. Purging cycle count details failed.", ex);
+                    transaction.Rollback();
+                    throw new Exception($"Database exception occurred. Purging {this.LowerCaseName} details failed.", ex);
                 }
             });
         }

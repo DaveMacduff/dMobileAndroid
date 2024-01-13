@@ -134,7 +134,7 @@ namespace dMobile.Controller.Activity
         /// <returns>.</returns>
         public override string GetControlDescription()
         {
-            return "Transfers";
+            return $"Transfers Whse {SysEnv.ContactLog.WarehouseLocationMapFKRefno}";
         }
 
         /// <summary>
@@ -255,51 +255,42 @@ namespace dMobile.Controller.Activity
                 sql.Append("SELECT tActivityTransfer.ActivityRefno,");
                 sql.Append("tActivityTransfer.ActivityFKRefno,");
                 sql.Append("tActivityTransfer.ActivityStringFKRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapRefno AS LocationMapRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapWarehouseFKRefno AS LocationMapWarehouseFKRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapWarehouseName AS LocationMapWarehouseName,");
-                sql.Append("tActivityTransfer.ActivityTransferArrivalDateTime AS ActivityTransferArrivalDateTime,");
-                sql.Append("tActivityTransfer.ActivityTransferDateTime AS ActivityTransferDateTime,");
-                sql.Append("tActivityTransfer.ActivityTransferDescription AS ActivityTransferDescription,");
+                sql.Append("tActivityTransfer.TransferWarehouseLocationMapFKRefno AS LocationMapWarehouseFKRefno,");
+                sql.Append("tActivityTransfer.TransferWarehouseLocationMapDescription AS LocationMapWarehouseDescription,");
+                sql.Append("tActivityTransfer.ActivityTransferArrivalDateTime,");
+                sql.Append("tActivityTransfer.ActivityTransferDateTime,");
+                sql.Append("tActivityTransfer.ActivityTransferDescription,");
                 sql.Append("tActivity.ActivityStatus AS ActivityStatus ");
                 sql.Append("FROM tActivityTransfer ");
                 sql.Append("INNER JOIN tActivity ON tActivity.ActivityRefno = tActivityTransfer.ActivityRefno ");
-                sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno ");
-                sql.Append("= tActivityTransfer.TransferToWarehouseLocationMapRefno ");
                 sql.AppendFormat("WHERE tActivity.ActivityStatus <> {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
                 sql.Append("UNION ");
                 sql.Append("SELECT tActivityTransfer.ActivityRefno,");
                 sql.Append("tActivityTransfer.ActivityFKRefno,");
                 sql.Append("tActivityTransfer.ActivityStringFKRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapWarehouseFKRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapWarehouseName,");
+                sql.Append("tActivityTransfer.TransferWarehouseLocationMapFKRefno AS LocationMapWarehouseFKRefno,");
+                sql.Append("tActivityTransfer.TransferWarehouseLocationMapDescription AS LocationMapWarehouseDescription,");
                 sql.Append("tActivityTransfer.ActivityTransferArrivalDateTime,");
                 sql.Append("tActivityTransfer.ActivityTransferDateTime,");
                 sql.Append("tActivityTransfer.ActivityTransferDescription,");
-                sql.Append("tActivity.ActivityStatus ");
+                sql.Append("tActivity.ActivityStatus AS ActivityStatus ");
                 sql.Append("FROM tActivityTransfer ");
                 sql.Append("INNER JOIN tActivity ON tActivity.ActivityRefno = tActivityTransfer.ActivityRefno ");
-                sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno ");
-                sql.Append("= tActivityTransfer.TransferToWarehouseLocationMapRefno ");
                 sql.Append("INNER JOIN tActivityItem ON tActivityItem.ActivityRefno = tActivity.ActivityRefno ");
                 sql.AppendFormat("WHERE tActivityItem.ActivityItemStatus <> {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
                 sql.Append("UNION ");
                 sql.Append("SELECT tActivityTransfer.ActivityRefno,");
                 sql.Append("tActivityTransfer.ActivityFKRefno,");
                 sql.Append("tActivityTransfer.ActivityStringFKRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapWarehouseFKRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapWarehouseName,");
+                sql.Append("tActivityTransfer.TransferWarehouseLocationMapFKRefno AS LocationMapWarehouseFKRefno,");
+                sql.Append("tActivityTransfer.TransferWarehouseLocationMapDescription AS LocationMapWarehouseDescription,");
                 sql.Append("tActivityTransfer.ActivityTransferArrivalDateTime,");
                 sql.Append("tActivityTransfer.ActivityTransferDateTime,");
                 sql.Append("tActivityTransfer.ActivityTransferDescription,");
-                sql.Append("tActivity.ActivityStatus ");
+                sql.Append("tActivity.ActivityStatus AS ActivityStatus ");
                 sql.Append("FROM tActivityTransfer ");
                 sql.Append("INNER JOIN tActivity ON tActivity.ActivityRefno = tActivityTransfer.ActivityRefno ");
                 sql.Append("INNER JOIN tActivityItem ON tActivityItem.ActivityRefno = tActivity.ActivityRefno ");
-                sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno ");
-                sql.Append("= tActivityTransfer.TransferToWarehouseLocationMapRefno ");
                 sql.Append("INNER JOIN tActivityDetail ON tActivityDetail.ActivityItemRefno ");
                 sql.Append("= tActivityItem.ActivityItemRefno ");
                 sql.AppendFormat("WHERE tActivityDetail.ActivityDetailStatus <> {0}", Convert.ToInt32(SysCommon.ActStatus.NoChange));
@@ -310,16 +301,13 @@ namespace dMobile.Controller.Activity
                 sql.Append("SELECT tActivityTransfer.ActivityRefno,");
                 sql.Append("tActivityTransfer.ActivityFKRefno,");
                 sql.Append("tActivityTransfer.ActivityStringFKRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapRefno AS LocationMapRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapWarehouseFKRefno AS LocationMapWarehouseFKRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapWarehouseName AS LocationMapWarehouseName,");
-                sql.Append("tActivityTransfer.ActivityTransferArrivalDateTime AS ActivityTransferArrivalDateTime,");
-                sql.Append("tActivityTransfer.ActivityTransferDateTime AS ActivityTransferDateTime,");
-                sql.Append("tActivityTransfer.ActivityTransferDescription AS ActivityTransferDescription,");
+                sql.Append("tActivityTransfer.TransferWarehouseLocationMapFKRefno AS LocationMapWarehouseFKRefno,");
+                sql.Append("tActivityTransfer.TransferWarehouseLocationMapDescription AS LocationMapWarehouseDescription,");
+                sql.Append("tActivityTransfer.ActivityTransferArrivalDateTime,");
+                sql.Append("tActivityTransfer.ActivityTransferDateTime,");
+                sql.Append("tActivityTransfer.ActivityTransferDescription,");
                 sql.Append("tActivity.ActivityStatus AS ActivityStatus ");
                 sql.Append("FROM tActivityTransfer ");
-                sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno ");
-                sql.Append("= tActivityTransfer.TransferToWarehouseLocationMapRefno ");
                 sql.Append("INNER JOIN tActivity ON tActivity.ActivityRefno = tActivityTransfer.ActivityRefno");
                 sql.AppendFormat(" AND tActivityTransfer.ActivitySubType = {0}", Convert.ToInt32(this.ActSubType));
             }
@@ -338,6 +326,12 @@ namespace dMobile.Controller.Activity
             //    }
             // }
             this.listTransfers = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<Transfer>(sql.ToString());
+
+            // The location map refno is not stored in the transfer header table. We need to set it here.
+            foreach (var transfer in this.listTransfers)
+            {
+                transfer.LocationMapRefno = LocationMap.GetInstance().LoginWhsLocMapRefno;
+            }
 
             foreach (var sort in new TransferSettings().LoadData().GetDataViewSortBy())
             {
@@ -442,6 +436,7 @@ namespace dMobile.Controller.Activity
             {
                 this.HdrFkRefno = Convert.ToInt32(transfer.ActivityFKRefno);
                 this.HdrRefno = Convert.ToInt32(transfer.ActivityRefno);
+                this.LocationMapRefno = Convert.ToInt32(transfer.LocationMapRefno);
             }
         }
 
