@@ -27,8 +27,8 @@ namespace dMobile.GroundWork
         {
             this.FullClassName = "dMobile.GroundWork.TableActivityReceiving";
             this.CurrentSubType = SysCommon.ActSubTypes.Receiving;
-            this.LowerCaseName = "receivings";
-            this.ProperCaseName = "Receivings";
+            this.LowerCaseName = "receiving";
+            this.ProperCaseName = "Receiving";
         }
 
         /// <summary>
@@ -36,40 +36,54 @@ namespace dMobile.GroundWork
         /// </summary>
         public override async Task PurgeData()
         {
-            try
+            this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName}.", true);
+            var conn = DatabaseConnection.GetInstance().SQLConn;
+            var subType = Convert.ToInt32(this.CurrentSubType);
+            await conn.RunInTransactionAsync(transaction =>
             {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging receiving.", true);
+                try
+                {
+                    // Corruption recovery cleanup.
+                    var query = @"
+                        DELETE FROM tActivityReceiving
+                            WHERE tActivityReceiving.ActivityRefno <= 0
+                                OR tActivityReceiving.ActivityFKRefno <= 0";
+                    transaction.Execute(query);
 
-                // Corruption recovery cleanup.
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName}.", true);
-                var query = "DELETE FROM tActivityReceiving WHERE tActivityReceiving.ActivityRefno <= 0" +
-                            " OR tActivityReceiving.ActivityFKRefno <= 0";
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query);
+                    query = @"
+                        DELETE FROM tActivityReceiving
+                            WHERE tActivityReceiving.ActivityRefno
+                                NOT IN (SELECT tActivity.ActivityRefno FROM tActivity)";
+                    transaction.Execute(query);
 
-                // Corruption recovery cleanup.
-                query = "DELETE FROM tActivity WHERE tActivity.ActivityRefno <= 0";
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query);
+                    query = "DELETE FROM tActivity WHERE tActivity.ActivityRefno <= 0";
+                    transaction.Execute(query);
 
-                // Corruption recovery cleanup.
-                query = "DELETE FROM tActivityReceiving WHERE tActivityReceiving.ActivityRefno " +
-                        "NOT IN (SELECT tActivity.ActivityRefno FROM tActivity)";
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(this.CurrentSubType));
+                    // REGULAR PURGE
+                    query = "DELETE FROM tActivityReceiving WHERE tActivityReceiving.ActivitySubType = ?";
+                    transaction.Execute(query, subType);
 
-                query = "DELETE FROM tActivityReceiving WHERE tActivityReceiving.ActivitySubType = ?";
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.Receiving));
+                    query = "DELETE FROM tActivity WHERE tActivity.ActivitySubType = ?";
+                    transaction.Execute(query, subType);
 
-                query = "DELETE FROM tActivity WHERE ActivitySubType = ?";
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(SysCommon.ActSubTypes.Receiving));
-
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging receiving completed.", true);
-            }
-            catch (SQLiteException ex)
-            {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging receiving failed.", true);
-
-                throw new Exception("Database exception occurred. Purging receiving failed.", ex);
-            }
+                    transaction.Commit();
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} complete.", true);
+                }
+                catch (SQLiteException sqlEx)
+                {
+                    transaction.Rollback();
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"{sqlEx.Message}", true);
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} failed.", true);
+                    throw;
+                }
+                catch
+                {
+                    transaction.Rollback();
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} failed.", true);
+                    throw;
+                }
+            });
         }
 
         /// <summary>

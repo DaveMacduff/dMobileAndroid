@@ -109,22 +109,14 @@ namespace dMobile.GroundWork
                 }
                 catch (SQLiteException sqlEx)
                 {
-                    if (transaction.IsInTransaction)
-                    {
-                        transaction.Rollback();
-                    }
-
+                    transaction.Rollback();
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging transfer details failed.", true);
                     throw new Exception("Database exception occurred. Purging transfer details failed.", sqlEx);
                 }
                 catch (Exception ex)
                 {
-                    if (transaction.IsInTransaction)
-                    {
-                        transaction.Rollback();
-                    }
-
+                    transaction.Rollback();
                     throw new Exception("Database exception occurred. Purging transfer details failed.", ex);
                 }
             });

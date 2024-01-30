@@ -851,21 +851,25 @@ namespace dMobile.View.Activity
         /// <returns>The <see cref="Task" />.</returns>
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
-            if (this.IsIndicatorRunning || scanArgs == null)
-            {
-                return;
-            }
-
-            var prodUnitRefno = 0;
             var currRowIdx = this.MainActivityItems.IndexOf(this.ListViewMainActivity.SelectedItem);
             var svdActDetailFKRefno = this.ActDetail.DetailFkRefno;
-
             try
             {
+                await this.ScannerDisable();
+                if (scanArgs == null)
+                {
+                    const string msg = "Scanner event fired but no data was received.";
+                    await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert(
+                        this.ActDetail.GetControlDescription(),
+                        msg,
+                        Resource.OK));
+                    throw new TaskCanceledException();
+                }
+
                 this.IsIndicatorRunning = true;
                 this.Parse = scanArgs.ParseInfo;
 
-                await this.ScannerDisable();
+                var prodUnitRefno = 0;
 
                 if (this.CallingActSubType != SysCommon.ActSubTypes.SkidInfo)
                 {

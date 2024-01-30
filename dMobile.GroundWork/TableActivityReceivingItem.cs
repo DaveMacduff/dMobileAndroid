@@ -1,4 +1,4 @@
-﻿// <copyright file="TableActivityRecevingItem.cs" company="InterSect Business Systems Inc">
+﻿// <copyright file="TableActivityReceivingItem.cs" company="InterSect Business Systems Inc">
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
@@ -16,14 +16,14 @@ namespace dMobile.GroundWork
     using SQLite;
 
     /// <summary>
-    /// Defines the <see cref="TableActivityRecevingItem" />.
+    /// Defines the <see cref="TableActivityReceivingItem" />.
     /// </summary>
-    public class TableActivityRecevingItem : TableBase
+    public class TableActivityReceivingItem : TableBase
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="TableActivityRecevingItem"/> class.
+        /// Initializes a new instance of the <see cref="TableActivityReceivingItem"/> class.
         /// </summary>
-        public TableActivityRecevingItem()
+        public TableActivityReceivingItem()
           : base()
         {
             this.FullClassName = "dMobile.GroundWork.TableActivityReceivingItem";
@@ -37,59 +37,96 @@ namespace dMobile.GroundWork
         /// </summary>
         public override async Task PurgeData()
         {
-            try
+            this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging existing {this.LowerCaseName} items.", true);
+            var conn = DatabaseConnection.GetInstance().SQLConn;
+            await conn.RunInTransactionAsync(transaction =>
             {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging receiving items.", true);
-                var subType = Convert.ToInt32(this.CurrentSubType);
+                try
+                {
+                    // Corruption recovery cleanup.
+                    var query = @"
+                        DELETE FROM tActivityItemBarCodeAssociationXRef
+                            WHERE tActivityItemBarCodeAssociationXRef.ActivityItemRefno <= 0";
+                    transaction.Execute(query);
 
-                // Corruption recovery cleanup.
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName}.", true);
-                var query = "DELETE FROM tActivityItemBarCodeAssociationXRef WHERE" +
-                            " tActivityItemBarCodeAssociationXRef.ActivityItemRefno <= 0";
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query);
+                    query = @"
+                        DELETE FROM tActivityItemBarCodeAssociationXRef
+                            WHERE tActivityItemBarCodeAssociationXRef.ActivityItemRefno
+                                NOT IN (SELECT tActivityItem.ActivityItemRefno FROM tActivityItem)";
+                    transaction.Execute(query);
 
-                // Corruption recovery cleanup.
-                query = "DELETE FROM tActivityItemReceiving WHERE tActivityItemReceiving.ActivityItemRefno " +
-                        "NOT IN (SELECT tActivityItem.ActivityItemRefno FROM tActivityItem)";
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, Convert.ToInt32(this.CurrentSubType));
+                    query = @"
+                        DELETE FROM tActivityItemReceivingComment
+                            WHERE tActivityItemReceivingComment.ActivityItemRefno <= 0";
+                    transaction.Execute(query);
 
-                // Corruption recovery cleanup.
-                query = "DELETE FROM tActivityItemReceiving WHERE tActivityItemReceiving.ActivityItemRefno <= 0" +
-                        " OR tActivityItemReceiving.ActivityItemFKRefno <= 0";
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query);
+                    query = @"
+                        DELETE FROM tActivityItemReceivingComment
+                            WHERE tActivityItemReceivingComment.ActivityItemRefno
+                                NOT IN (SELECT tActivityItem.ActivityItemRefno FROM tActivityItem)";
+                    transaction.Execute(query);
 
-                // Corruption recovery cleanup.
-                query = "DELETE FROM tActivityItem WHERE tActivityItem.ActivityRefno <= 0";
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query);
+                    query = @"
+                        DELETE FROM tActivityItemReceiving
+                            WHERE tActivityItemReceiving.ActivityItemRefno <= 0
+                                OR tActivityItemReceiving.ActivityItemFKRefno <= 0";
+                    transaction.Execute(query);
 
-                query = "DELETE FROM tActivityItemBarCodeAssociationXRef "
-                            + "WHERE tActivityItemBarCodeAssociationXRef.ActivityItemRefno IN "
-                            + "(SELECT tActivityItem.ActivityItemRefno "
-                            + "FROM tActivityItem "
-                            + "WHERE tActivityItem.ActivityItemSubType = ?)";
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
-                    query,
-                    subType);
+                    query = @"
+                        DELETE FROM tActivityItemReceiving
+                            WHERE tActivityItemReceiving.ActivityItemRefno
+                                NOT IN (SELECT tActivityItem.ActivityItemRefno FROM tActivityItem)";
+                    transaction.Execute(query);
 
-                query = "DELETE FROM tActivityItemReceiving WHERE tActivityItemReceiving.ActivityItemSubType = ?";
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
-                    query,
-                    subType);
+                    query = @"
+                        DELETE FROM tActivityItem
+                            WHERE tActivityItem.ActivityRefno
+                                NOT IN (SELECT tActivity.ActivityRefno FROM tActivity)";
+                    transaction.Execute(query);
 
-                query = "DELETE FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = ?";
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
-                    query,
-                    subType);
+                    query = "DELETE FROM tActivityItem WHERE tActivityItem.ActivityRefno <= 0";
+                    transaction.Execute(query);
 
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging receiving items complete.", true);
-            }
-            catch (SQLiteException ex)
-            {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging receiving items failed.", true);
+                    // Regular purge.
+                    query = @"
+                        DELETE FROM tActivityItemBarCodeAssociationXRef
+                            WHERE tActivityItemBarCodeAssociationXRef.ActivityItemRefno IN
+                                (SELECT tActivityItem.ActivityItemRefno
+                                    FROM tActivityItem
+                                    WHERE tActivityItem.ActivityItemSubType = ?)";
+                    transaction.Execute(query, this.CurrentSubType);
 
-                throw new Exception("Database exception occurred. Purging receiving items failed.", ex);
-            }
+                    query = @"
+                        DELETE FROM tActivityItemReceivingComment
+                            WHERE tActivityItemReceivingComment.ActivityItemRefno IN
+                                (SELECT tActivityItem.ActivityItemRefno
+                                    FROM tActivityItem
+                                    WHERE tActivityItem.ActivityItemSubType = ?)";
+                    transaction.Execute(query, this.CurrentSubType);
+
+                    query = "DELETE FROM tActivityItemReceiving WHERE ActivityItemSubType = ?";
+                    transaction.Execute(query, this.CurrentSubType);
+
+                    query = "DELETE FROM tActivityItem WHERE ActivityItemSubType = ?";
+                    transaction.Execute(query, this.CurrentSubType);
+
+                    transaction.Commit();
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} items complete.", true);
+                }
+                catch (SQLiteException ex)
+                {
+                    transaction.Rollback();
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} items failed.", true);
+                    throw new Exception($"Database exception occurred. Purging {this.LowerCaseName} items failed.", ex);
+                }
+                catch
+                {
+                    transaction.Rollback();
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} items failed.", true);
+                    throw;
+                }
+            });
         }
 
         /// <summary>

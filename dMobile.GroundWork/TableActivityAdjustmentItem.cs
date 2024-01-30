@@ -44,7 +44,6 @@ namespace dMobile.GroundWork
                 try
                 {
                     // Corruption recovery cleanup.
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName}.", true);
                     var query = @"
                         DELETE FROM tActivityItemBarCodeAssociationXRef
                             WHERE tActivityItemBarCodeAssociationXRef.ActivityItemRefno <= 0";

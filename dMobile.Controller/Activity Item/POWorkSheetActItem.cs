@@ -2,59 +2,61 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml;
-using System.Xml.Linq;
-using dMobile.Bedrock;
-using dMobile.GroundWork;
-using dMobile.Resources.Services;
-using dMobile.Resources.Types;
-using SQLite;
-using Xamarin.Forms;
-
 namespace dMobile.Controller.Activity_Item
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Collections.ObjectModel;
+    using System.Linq;
+    using System.Text;
+    using System.Threading.Tasks;
+    using System.Xml;
+    using System.Xml.Linq;
+    using Activity;
+    using Bedrock;
+    using GroundWork;
+    using Resources.Services;
+    using Resources.Types;
+    using SQLite;
+    using Xamarin.Forms;
+
     /// <summary>
-    /// Defines the <see cref="PoWorkSheetActItem" />.
+    ///     Defines the <see cref="PoWorkSheetActItem" />.
     /// </summary>
     public class PoWorkSheetActItem : ActItem
     {
         /// <summary>
-        /// Defines the columnWidth0.
+        ///     Defines the columnWidth0.
         /// </summary>
-        private double columnWidth0 = 0;
+        private double columnWidth0;
 
         /// <summary>
-        /// Defines the columnWidth1.
+        ///     Defines the columnWidth1.
         /// </summary>
-        private double columnWidth1 = 0;
+        private double columnWidth1;
 
         /// <summary>
-        /// Defines the columnWidth2.
+        ///     Defines the columnWidth2.
         /// </summary>
-        private double columnWidth2 = 0;
+        private double columnWidth2;
 
         /// <summary>
-        /// Defines the resourceDictionary.
+        ///     Defines the listPurchaseOrderWorkSheetItems.
         /// </summary>
-        private ResourceDictionary resourceDictionary = new ResourceDictionary();
+        private List<PurchaseOrderWorkSheetItem> listPurchaseOrderWorkSheetItems =
+            new List<PurchaseOrderWorkSheetItem>();
 
         /// <summary>
-        /// Defines the listPurchaseOrderWorkSheetItems.
+        ///     Defines the resourceDictionary.
         /// </summary>
-        private List<PurchaseOrderWorkSheetItem> listPurchaseOrderWorkSheetItems = new List<PurchaseOrderWorkSheetItem>();
+        private readonly ResourceDictionary resourceDictionary = new ResourceDictionary();
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="PoWorkSheetActItem"/> class.
+        ///     Initializes a new instance of the <see cref="PoWorkSheetActItem" /> class.
         /// </summary>
         /// <param name="activity">.</param>
-        public PoWorkSheetActItem(Activity.Activity activity)
-          : base(activity)
+        public PoWorkSheetActItem(Activity activity)
+            : base(activity)
         {
             this.FullClassName = typeof(PoWorkSheetActItem).FullName;
 
@@ -72,17 +74,24 @@ namespace dMobile.Controller.Activity_Item
                     {
                         new ColumnDefinition { Width = new GridLength(this.columnWidth0, GridUnitType.Absolute) },
                         new ColumnDefinition { Width = new GridLength(this.columnWidth1, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(this.columnWidth2, GridUnitType.Absolute) },
-                    },
+                        new ColumnDefinition { Width = new GridLength(this.columnWidth2, GridUnitType.Absolute) }
+                    }
                 };
 
-                var labelActivityPoProductId = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
-                var labelActivityPoOrdered = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
-                var labelActivityPoWeight = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
+                var labelActivityPoProductId = new Label
+                    { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
+                var labelActivityPoOrdered = new Label
+                    { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
+                var labelActivityPoWeight = new Label
+                    { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
 
                 labelActivityPoProductId.SetBinding(Label.TextProperty, new Binding("ProductCode"));
-                labelActivityPoOrdered.SetBinding(Label.TextProperty, new Binding("ActivityItemPurchaseOrderWorkSheetQuantityOrdered", BindingMode.Default, null, null, "{0:F3}"));
-                labelActivityPoWeight.SetBinding(Label.TextProperty, new Binding("ActivityItemPurchaseOrderWorkSheetWeightQuantityOrdered", BindingMode.Default, null, null, "{0:F3}"));
+                labelActivityPoOrdered.SetBinding(Label.TextProperty,
+                    new Binding("ActivityItemPurchaseOrderWorkSheetQuantityOrdered", BindingMode.Default, null, null,
+                        "{0:F3}"));
+                labelActivityPoWeight.SetBinding(Label.TextProperty,
+                    new Binding("ActivityItemPurchaseOrderWorkSheetWeightQuantityOrdered", BindingMode.Default, null,
+                        null, "{0:F3}"));
 
                 gridData.Children.Add(labelActivityPoProductId);
                 gridData.Children.Add(labelActivityPoOrdered);
@@ -111,30 +120,30 @@ namespace dMobile.Controller.Activity_Item
         }
 
         /// <summary>
-        /// Gets or sets the NewActItemFKRefno.
+        ///     Gets or sets the NewActItemFKRefno.
         /// </summary>
-        public int NewActItemFkRefno { get; set; } = 0;
+        public int NewActItemFkRefno { get; set; }
 
         /// <summary>
-        /// Set the activity item selected activity item.
+        ///     Set the activity item selected activity item.
         /// </summary>
-        /// <param name="actItemFoundRefno"><see cref="int"/> Activity item reference number to look up.</param>
+        /// <param name="actItemFoundRefno"><see cref="int" /> Activity item reference number to look up.</param>
         public override void SetSelectedActivityItemFromList(int actItemFoundRefno)
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether allowed to add skid detail.
+        ///     Gets or sets a value indicating whether allowed to add skid detail.
         /// </summary>
-        /// <returns><see cref="bool"/> True if allowed to add skid detail.</returns>
+        /// <returns><see cref="bool" /> True if allowed to add skid detail.</returns>
         public override bool IsAllowAddSkidDetail()
         {
             return false;
         }
 
         /// <summary>
-        /// The IsCatchAsk.
+        ///     The IsCatchAsk.
         /// </summary>
         /// <returns>.</returns>
         public override bool IsCatchAsk()
@@ -151,9 +160,9 @@ namespace dMobile.Controller.Activity_Item
         }
 
         /// <summary>
-        /// Check if the product is catch count.
+        ///     Check if the product is catch count.
         /// </summary>
-        /// <returns><see cref="bool"/> True if catch count, else false.</returns>
+        /// <returns><see cref="bool" /> True if catch count, else false.</returns>
         public override bool IsCatchAskZero()
         {
             var result = false;
@@ -166,10 +175,10 @@ namespace dMobile.Controller.Activity_Item
         }
 
         /// <summary>
-        /// Find the list item index of the item that matches the activity item foreign key reference number.
+        ///     Find the list item index of the item that matches the activity item foreign key reference number.
         /// </summary>
-        /// <param name="activityItemFkRefno"><see cref="int"/> Activity item foreign key reference number.</param>
-        /// <returns><see cref="int"/> Activity list item found index, else -1.</returns>
+        /// <param name="activityItemFkRefno"><see cref="int" /> Activity item foreign key reference number.</param>
+        /// <returns><see cref="int" /> Activity list item found index, else -1.</returns>
         public override int FindActivityItemIndex(int activityItemFkRefno)
         {
             var foundIdx = -1;
@@ -188,7 +197,7 @@ namespace dMobile.Controller.Activity_Item
         }
 
         /// <summary>
-        /// The GetUnableToParseItemFKRefnoMessage.
+        ///     The GetUnableToParseItemFKRefnoMessage.
         /// </summary>
         /// <param name="actItemStringFkRefno">.</param>
         /// <returns>.</returns>
@@ -198,7 +207,7 @@ namespace dMobile.Controller.Activity_Item
         }
 
         /// <summary>
-        /// The GetUnableToFindItemFKRefnoMessage.
+        ///     The GetUnableToFindItemFKRefnoMessage.
         /// </summary>
         /// <param name="actItemStringFkRefno">.</param>
         /// <returns>.</returns>
@@ -208,7 +217,7 @@ namespace dMobile.Controller.Activity_Item
         }
 
         /// <summary>
-        /// The GetDataViewSortFKRefnoIdx.
+        ///     The GetDataViewSortFKRefnoIdx.
         /// </summary>
         /// <returns>.</returns>
         public override string GetDataViewSortFkRefnoIdx()
@@ -217,73 +226,110 @@ namespace dMobile.Controller.Activity_Item
         }
 
         /// <summary>
-        /// Insert a new adjustment activity item.
+        ///     Insert a new adjustment activity item.
         /// </summary>
-        /// <param name="data"><see cref="XDocument"/> Adjustment activity information to insert.</param>
-
-        /// <returns><see cref="Task"/> Task operation.</returns>
+        /// <param name="data"><see cref="XDocument" /> Adjustment activity information to insert.</param>
+        /// <returns><see cref="Task" /> Task operation.</returns>
         public override async Task Insert(XDocument data)
         {
-            var prodUnitRefno = int.Parse(data.Root.Element("ProductUnitRefno").Value);
+            data = data ?? throw new ArgumentNullException(nameof(data));
+
+            var prodUnitRefno = int.Parse(data.Root!.Element("ProductUnitRefno") !.Value);
             if (prodUnitRefno <= 0)
             {
                 throw new Exception("prodUnitRefno expected to be greater than zero.");
             }
 
+            var altQty = Math.Round(decimal.Parse(data.Root.Element("alt_qty") !.Value), 3);
+            var baseQty = Math.Round(decimal.Parse(data.Root.Element("base_qty") !.Value), 3);
+            var wtQty = Math.Round(decimal.Parse(data.Root.Element("wt_qty") !.Value), 3);
+            var productCode = data.Root.Element("ProductCode") !.Value;
+            var unitCode = data.Root.Element("UnitCode") !.Value;
+
             this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
             this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
+            var productRefno = this.ProdInfo.Refno;
 
-            await InsertActivityItemInTables(prodUnitRefno);
-            AddActivityItemToList(prodUnitRefno);
+            await InsertActivityItemInTables();
+            var xmlSend = await this.CreateSubmitXml(data);
+            var responseData = SysCommon.SubmitComm(xmlSend);
+
+            var xmlDoc = new XmlDocument();
+            xmlDoc.LoadXml(responseData);
+
+            // check if result is an error message
+            if (responseData.Contains("<message>ERROR</message>"))
+            {
+                var errorDetail = xmlDoc.DocumentElement["detail"].InnerText;
+
+                if (errorDetail.Contains("MSGBOX-"))
+                {
+                    throw new MessageOnlyException(errorDetail);
+                }
+
+                throw new Exception(errorDetail);
+            }
+
+            this.NewActItemFkRefno = int.Parse(xmlDoc.DocumentElement["itm_refno"].InnerText);
+            this.ItemFkRefno = int.Parse(xmlDoc.DocumentElement["itm_refno"].InnerText);
+            this.ActHdr.HdrFkRefno = this.ItemFkRefno;
+
+            AddActivityItemToList();
             return;
 
             //////////////////////////////////////////////////////////////////////////
-            async Task InsertActivityItemInTables(int prodUnitRefno)
+            async Task InsertActivityItemInTables()
             {
                 await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
                 {
                     try
                     {
                         // NOTE: ActivityItemStatus is set to inserted for later submission use.
+                        var query = @"INSERT INTO tActivityItem
+                                (ActivityItemSubType
+                                ,ActivityItemStatus
+                                ,ActivityRefno
+                                ,ActivityItemIsAdded)
+                                VALUES
+                                (?, ?, ?, ?)";
                         _ = transaction.Execute(
-                            "INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus," +
-                                " ActivityRefno, ActivityItemIsAdded) VALUES (?, ?, ?, ?)",
+                            query,
                             Convert.ToInt32(SysCommon.ActSubTypes.PurchaseOrderWorkSheet),
                             Convert.ToInt32(SysCommon.ActStatus.Inserted),
                             Convert.ToInt32(this.ActHdr.HdrRefno),
                             1);
 
-                        this.ItemRefno = Convert.ToInt32(transaction.ExecuteScalar<int>(
-                            "SELECT last_insert_rowid() FROM tActivityItem"));
+                        query = "SELECT last_insert_rowid() FROM tActivityItem";
+                        this.ItemRefno = Convert.ToInt32(transaction.ExecuteScalar<int>(query));
 
                         // Get temporary item FK refno for newly inserted line item.
-                        this.ItemFkRefno = Convert.ToInt32(transaction.ExecuteScalar<int>(
-                            "SELECT MAX(tActivityItemPurchaseOrderWorkSheet.ActivityItemFKRefno)" +
-                            $" FROM tActivityItemPurchaseOrderWorkSheet WHERE tActivityItemPurchaseOrderWorkSheet.ActivityItemSubType" +
-                            $" = {(int)SysCommon.ActSubTypes.PurchaseOrderWorkSheet}"));
-                        this.ItemFkRefno = this.ItemFkRefno + 1;
+                        query = "SELECT MAX(tActivityItemPurchaseOrderWorkSheet.ActivityItemFKRefno)" +
+                                " FROM tActivityItemPurchaseOrderWorkSheet" +
+                                " WHERE tActivityItemPurchaseOrderWorkSheet.ActivityItemSubType" +
+                                $" = {(int)SysCommon.ActSubTypes.PurchaseOrderWorkSheet}";
+                        this.ItemFkRefno = Convert.ToInt32(transaction.ExecuteScalar<int>(query));
+                        this.ItemFkRefno++;
 
-                        var query = "INSERT INTO tActivityItemPurchaseOrderWorkSheet (" + 
-                                        "ActivityItemRefno, " +
-                                        "ActivityItemSubType, " +
-                                        "ActivityItemFKRefno, " +
-                                        "ActivityItemStringFKRefno, " +
-                                        "ProductUnitRefno, " +
-                                        "WarehouseLocationMapRefno, " +
-                                        "ActivityItemPurchaseOrderWorkSheetQuantityOrdered, " +
-                                        "ActivityItemPurchaseOrderWorkSheetBaseQuantityOrdered, " +
-                                        "ActivityItemPurchaseOrderWorkSheetWeightQuantityOrdered" +
-                                        ") VALUES (" +
-                                        "?, " +
-                                        "?, " +
-                                        "?, " +
-                                        "?, " +
-                                        "?, " +
-                                        "?, " +
-                                        "?, " +
-                                        "?, " +
-                                        "?" +
-                                        ")";
+                        query = "INSERT INTO tActivityItemPurchaseOrderWorkSheet (" +
+                                "ActivityItemRefno, " +
+                                "ActivityItemSubType, " +
+                                "ActivityItemFKRefno, " +
+                                "ActivityItemStringFKRefno, " +
+                                "ProductUnitRefno, " +
+                                "WarehouseLocationMapRefno, " +
+                                "ActivityItemPurchaseOrderWorkSheetQuantityOrdered, " +
+                                "ActivityItemPurchaseOrderWorkSheetBaseQuantityOrdered, " +
+                                "ActivityItemPurchaseOrderWorkSheetWeightQuantityOrdered" +
+                                ") VALUES (" +
+                                "?, " +
+                                "?, " +
+                                "?, " +
+                                "?, " +
+                                "?, " +
+                                "?, " +
+                                "?, " +
+                                "?, " +
+                                "?)";
 
                         var locMap = LocationMap.GetInstance().CurrLocMap;
                         var parameters = new object[]
@@ -294,9 +340,9 @@ namespace dMobile.Controller.Activity_Item
                             Convert.ToString(this.ItemFkRefno),
                             Convert.ToInt32(prodUnitRefno),
                             Convert.ToInt32(locMap.WhsLocMapRefno),
-                            decimal.Parse(data.Root.Element("alt_qty").Value),
-                            decimal.Parse(data.Root.Element("base_qty").Value),
-                            decimal.Parse(data.Root.Element("wt_qty").Value),
+                            altQty,
+                            baseQty,
+                            wtQty
                         };
 
                         transaction.Execute(query, parameters);
@@ -311,27 +357,27 @@ namespace dMobile.Controller.Activity_Item
             }
 
             //////////////////////////////////////////////////////////////////////////
-            void AddActivityItemToList(int prodUnitRefno)
+            void AddActivityItemToList()
             {
                 var locMap = LocationMap.GetInstance().CurrLocMap;
-                var item = new PurchaseOrderWorkSheetItem()
+                var item = new PurchaseOrderWorkSheetItem
                 {
                     ActivityItemRefno = this.ItemRefno,
                     ActivityItemFKRefno = this.ItemFkRefno,
                     ActivityItemStringFKRefno = this.ItemFkRefno.ToString(),
                     ProductUnitRefno = prodUnitRefno,
-                    ProductRefno = int.Parse(data.Root.Element("ProductRefno").Value),
-                    ProductCode = data.Root.Element("ProductCode").Value,
-                    ProductDescription = data.Root.Element("ProductDescription").Value,
-                    UnitCode = data.Root.Element("UnitCode").Value,
-                    ProductUnitSizeDescription = data.Root.Element("ProductUnitSizeDescription").Value,
+                    ProductRefno = productRefno,
+                    ProductCode = productCode,
+                    ProductDescription = ProdInfo.Desc,
+                    UnitCode = unitCode,
+                    ProductUnitSizeDescription = ProdInfo.UnitSizeDesc,
                     LocationMapRefno = locMap.WhsLocMapRefno,
                     LocationCode = locMap.WhsCode,
                     LocationName = locMap.WhsName,
                     ActivityItemStatus = (int)SysCommon.ActStatus.Inserted,
-                    ActivityItemPurchaseOrderWorkSheetQuantityOrdered = Math.Round(decimal.Parse(data.Root.Element("alt_qty").Value), 3),
-                    ActivityItemPurchaseOrderWorkSheetBaseQuantityOrdered = Math.Round(decimal.Parse(data.Root.Element("base_qty").Value), 3),
-                    ActivityItemPurchaseOrderWorkSheetWeightQuantityOrdered = Math.Round(decimal.Parse(data.Root.Element("wt_qty").Value), 3),
+                    ActivityItemPurchaseOrderWorkSheetQuantityOrdered = Math.Round(altQty, 3),
+                    ActivityItemPurchaseOrderWorkSheetBaseQuantityOrdered = Math.Round(baseQty, 3),
+                    ActivityItemPurchaseOrderWorkSheetWeightQuantityOrdered = Math.Round(wtQty, 3)
                 };
 
                 this.ListItems.Add(item);
@@ -339,10 +385,10 @@ namespace dMobile.Controller.Activity_Item
         }
 
         /// <summary>
-        /// The Update.
+        ///     The Update.
         /// </summary>
         /// <param name="data">.</param>
-        /// <returns>The <see cref="Task"/>.</returns>
+        /// <returns>The <see cref="Task" />.</returns>
         public override async Task Update(XDocument data)
         {
             var decQty = Math.Round(decimal.Parse(data.Root.Element("alt_qty").Value), 3);
@@ -362,8 +408,11 @@ namespace dMobile.Controller.Activity_Item
                                     "ActivityItemPurchaseOrderWorkSheetWeightQuantityOrdered = ? " +
                                     "WHERE ActivityItemRefno = ?";
                         transaction.Execute(query, decQty, decBaseQty, decWeightQty, this.ItemRefno);
-                        transaction.Execute("UPDATE tActivityItem SET ActivityItemStatus = ? WHERE ActivityItemRefno = ?", Convert.ToInt32(SysCommon.ActStatus.Updated), this.ItemRefno);
-                        transaction.Execute("UPDATE tActivity SET ActivityStatus = ? WHERE ActivityRefno = ?", Convert.ToInt32(SysCommon.ActStatus.Updated), this.ActHdr.HdrRefno);
+                        transaction.Execute(
+                            "UPDATE tActivityItem SET ActivityItemStatus = ? WHERE ActivityItemRefno = ?",
+                            Convert.ToInt32(SysCommon.ActStatus.Updated), this.ItemRefno);
+                        transaction.Execute("UPDATE tActivity SET ActivityStatus = ? WHERE ActivityRefno = ?",
+                            Convert.ToInt32(SysCommon.ActStatus.Updated), this.ActHdr.HdrRefno);
                         transaction.Commit();
                     }
                     catch (SQLiteException ex)
@@ -394,17 +443,13 @@ namespace dMobile.Controller.Activity_Item
                     {
                         throw new MessageOnlyException(errorDetail);
                     }
-                    else
-                    {
-                        throw new Exception(errorDetail);
-                    }
+
+                    throw new Exception(errorDetail);
                 }
-                else
-                {
-                    this.NewActItemFkRefno = int.Parse(xmlDoc.DocumentElement["itm_refno"].InnerText);
-                    this.ItemFkRefno = int.Parse(xmlDoc.DocumentElement["itm_refno"].InnerText);
-                    this.ActHdr.HdrFkRefno = this.ItemFkRefno;
-                }
+
+                this.NewActItemFkRefno = int.Parse(xmlDoc.DocumentElement["itm_refno"].InnerText);
+                this.ItemFkRefno = int.Parse(xmlDoc.DocumentElement["itm_refno"].InnerText);
+                this.ActHdr.HdrFkRefno = this.ItemFkRefno;
             }
 
             if (this.ListItems != null)
@@ -415,7 +460,8 @@ namespace dMobile.Controller.Activity_Item
                 // int rowIdx = 0;
                 // this.DataViewItems.Sort = "ActivityItemFKRefno";
                 // rowIdx = DataViewItems.Find(new object[] { this.FKRefno });
-                var purchaseOrderWorkSheetItem = this.ListItems.OfType<PurchaseOrderWorkSheetItem>().Where(worksheetItem => worksheetItem.ActivityItemFKRefno == this.ItemFkRefno).FirstOrDefault();
+                var purchaseOrderWorkSheetItem = this.ListItems.OfType<PurchaseOrderWorkSheetItem>()
+                    .Where(worksheetItem => worksheetItem.ActivityItemFKRefno == this.ItemFkRefno).FirstOrDefault();
                 var toBeUpdated = false;
 
                 if (purchaseOrderWorkSheetItem == null)
@@ -454,11 +500,11 @@ namespace dMobile.Controller.Activity_Item
         }
 
         /// <summary>
-        /// The Submit.
+        ///     The Submit.
         /// </summary>
         /// <param name="data">.</param>
-        /// <param name="selectedActivityItem">The selectedActivityItem<see cref="object"/>.</param>
-        /// <returns>The <see cref="Task"/>.</returns>
+        /// <param name="selectedActivityItem">The selectedActivityItem<see cref="object" />.</param>
+        /// <returns>The <see cref="Task" />.</returns>
         public override async Task Submit(XDocument data, object selectedActivityItem)
         {
             var xmlDoc = new XmlDocument();
@@ -479,10 +525,10 @@ namespace dMobile.Controller.Activity_Item
         }
 
         /// <summary>
-        /// The Refresh.
+        ///     The Refresh.
         /// </summary>
         /// <param name="data">.</param>
-        /// <returns>The <see cref="Task"/>.</returns>
+        /// <returns>The <see cref="Task" />.</returns>
         public override async Task Refresh(XDocument data)
         {
             if (this.SysEnv.SysSettings.IsDisconnectedMode)
@@ -498,19 +544,20 @@ namespace dMobile.Controller.Activity_Item
 
                 this.DataLayerProgressOutHandler(this, EventArgs.Empty, 5);
 
-                tableActPoWorkSheetItem.RegisterDataAccessListenerProgressOut((PoWorkSheetActItem)this);
+                tableActPoWorkSheetItem.RegisterDataAccessListenerProgressOut(this);
                 await tableActPoWorkSheetItem.RequestItemData(this.ActHdr.HdrRefno);
-                tableActPoWorkSheetItem.UnregisterDataAccessListenerProgressOut((PoWorkSheetActItem)this);
+                tableActPoWorkSheetItem.UnregisterDataAccessListenerProgressOut(this);
             }
         }
 
         /// <summary>
-        /// The DesignGrid.
+        ///     The DesignGrid.
         /// </summary>
-        /// <param name="gridMainActivity">The GridMainActivity<see cref="Grid"/>.</param>
-        /// <param name="listViewMainActivity">The ListViewMainActivity<see cref="ListView"/>.</param>
-        /// <returns>The <see cref="ObservableCollection{object}"/>.</returns>
-        public override ObservableCollection<object> DesignGrid(ref Grid gridMainActivity, ref ListView listViewMainActivity)
+        /// <param name="gridMainActivity">The GridMainActivity<see cref="Grid" />.</param>
+        /// <param name="listViewMainActivity">The ListViewMainActivity<see cref="ListView" />.</param>
+        /// <returns>The <see cref="ObservableCollection{object}" />.</returns>
+        public override ObservableCollection<object> DesignGrid(ref Grid gridMainActivity,
+            ref ListView listViewMainActivity)
         {
             var observableCollection = new ObservableCollection<object>();
 
@@ -519,9 +566,21 @@ namespace dMobile.Controller.Activity_Item
                 observableCollection.Add(purchaseOrderWorkSheetItem);
             }
 
-            var labelProductId = new Label { Text = "Product ID", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
-            var labelOrdered = new Label { Text = "Ordered", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
-            var labelWeight = new Label { Text = "Weight", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
+            var labelProductId = new Label
+            {
+                Text = "Product ID", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start,
+                FontAttributes = FontAttributes.Bold
+            };
+            var labelOrdered = new Label
+            {
+                Text = "Ordered", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start,
+                FontAttributes = FontAttributes.Bold
+            };
+            var labelWeight = new Label
+            {
+                Text = "Weight", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start,
+                FontAttributes = FontAttributes.Bold
+            };
 
             this.columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelProductId.Text);
             this.columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelOrdered.Text);
@@ -535,8 +594,8 @@ namespace dMobile.Controller.Activity_Item
                 {
                     new ColumnDefinition { Width = new GridLength(this.columnWidth0, GridUnitType.Absolute) },
                     new ColumnDefinition { Width = new GridLength(this.columnWidth1, GridUnitType.Absolute) },
-                    new ColumnDefinition { Width = new GridLength(this.columnWidth2, GridUnitType.Absolute) },
-                },
+                    new ColumnDefinition { Width = new GridLength(this.columnWidth2, GridUnitType.Absolute) }
+                }
             };
 
             gridHeader.SetDynamicResource(VisualElement.BackgroundColorProperty, "HeaderColor");
@@ -555,7 +614,8 @@ namespace dMobile.Controller.Activity_Item
 
             foreach (PurchaseOrderWorkSheetItem purchaseOrderWorkSheetItem in observableCollection)
             {
-                var detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(purchaseOrderWorkSheetItem.ProductCode);
+                var detailWidth0 = DependencyService.Get<IGridService>()
+                    .CalculateTextWidth(purchaseOrderWorkSheetItem.ProductCode);
                 var detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(
                     $"{purchaseOrderWorkSheetItem.ActivityItemPurchaseOrderWorkSheetQuantityOrdered:F3}");
                 var detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(
@@ -586,9 +646,9 @@ namespace dMobile.Controller.Activity_Item
         }
 
         /// <summary>
-        /// The GetActivityItemList.
+        ///     The GetActivityItemList.
         /// </summary>
-        /// <param name="isSubmitBatch">The isSubmitBatch<see cref="bool"/>.</param>
+        /// <param name="isSubmitBatch">The isSubmitBatch<see cref="bool" />.</param>
         /// <returns>.</returns>
         public override async Task<List<object>> GetActivityItemList(bool isSubmitBatch)
         {
@@ -605,9 +665,12 @@ namespace dMobile.Controller.Activity_Item
                 sql.Append("tProduct.ProductDescription AS ProductDescription,");
                 sql.Append("tUnit.UnitCode AS UnitCode,");
                 sql.Append("tProductUnit.ProductUnitSizeDescription AS ProductUnitSizeDescription,");
-                sql.Append("tActivityItemPurchaseOrderWorkSheet.ActivityItemPurchaseOrderWorkSheetQuantityOrdered AS ActivityItemPurchaseOrderWorkSheetQuantityOrdered,");
-                sql.Append("tActivityItemPurchaseOrderWorkSheet.ActivityItemPurchaseOrderWorkSheetBaseQuantityOrdered AS ActivityItemPurchaseOrderWorkSheetBaseQuantityOrdered,");
-                sql.Append("tActivityItemPurchaseOrderWorkSheet.ActivityItemPurchaseOrderWorkSheetWeightQuantityOrdered AS ActivityItemPurchaseOrderWorkSheetWeightQuantityOrdered,");
+                sql.Append(
+                    "tActivityItemPurchaseOrderWorkSheet.ActivityItemPurchaseOrderWorkSheetQuantityOrdered AS ActivityItemPurchaseOrderWorkSheetQuantityOrdered,");
+                sql.Append(
+                    "tActivityItemPurchaseOrderWorkSheet.ActivityItemPurchaseOrderWorkSheetBaseQuantityOrdered AS ActivityItemPurchaseOrderWorkSheetBaseQuantityOrdered,");
+                sql.Append(
+                    "tActivityItemPurchaseOrderWorkSheet.ActivityItemPurchaseOrderWorkSheetWeightQuantityOrdered AS ActivityItemPurchaseOrderWorkSheetWeightQuantityOrdered,");
                 sql.Append("tLocationMapWarehouse.LocationMapRefno AS LocationMapRefno,");
                 sql.Append("tLocationMapWarehouse.LocationMapWarehouseCode AS LocationCode,");
                 sql.Append("tLocationMapWarehouse.LocationMapWarehouseName AS LocationName,");
@@ -621,7 +684,8 @@ namespace dMobile.Controller.Activity_Item
                 sql.Append("INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno ");
                 sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno ");
                 sql.Append("= tActivityItemPurchaseOrderWorkSheet.WarehouseLocationMapRefno ");
-                sql.AppendFormat("WHERE tActivityItem.ActivityItemStatus <> {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
+                sql.AppendFormat("WHERE tActivityItem.ActivityItemStatus <> {0} ",
+                    Convert.ToInt32(SysCommon.ActStatus.NoChange));
                 sql.Append("ORDER BY tActivityItemPurchaseOrderWorkSheet.ActivityItemRefno");
             }
             else
@@ -635,9 +699,12 @@ namespace dMobile.Controller.Activity_Item
                 sql.Append("tProduct.ProductDescription AS ProductDescription,");
                 sql.Append("tUnit.UnitCode AS UnitCode,");
                 sql.Append("tProductUnit.ProductUnitSizeDescription AS ProductUnitSizeDescription,");
-                sql.Append("tActivityItemPurchaseOrderWorkSheet.ActivityItemPurchaseOrderWorkSheetQuantityOrdered AS ActivityItemPurchaseOrderWorkSheetQuantityOrdered,");
-                sql.Append("tActivityItemPurchaseOrderWorkSheet.ActivityItemPurchaseOrderWorkSheetBaseQuantityOrdered AS ActivityItemPurchaseOrderWorkSheetBaseQuantityOrdered,");
-                sql.Append("tActivityItemPurchaseOrderWorkSheet.ActivityItemPurchaseOrderWorkSheetWeightQuantityOrdered AS ActivityItemPurchaseOrderWorkSheetWeightQuantityOrdered,");
+                sql.Append(
+                    "tActivityItemPurchaseOrderWorkSheet.ActivityItemPurchaseOrderWorkSheetQuantityOrdered AS ActivityItemPurchaseOrderWorkSheetQuantityOrdered,");
+                sql.Append(
+                    "tActivityItemPurchaseOrderWorkSheet.ActivityItemPurchaseOrderWorkSheetBaseQuantityOrdered AS ActivityItemPurchaseOrderWorkSheetBaseQuantityOrdered,");
+                sql.Append(
+                    "tActivityItemPurchaseOrderWorkSheet.ActivityItemPurchaseOrderWorkSheetWeightQuantityOrdered AS ActivityItemPurchaseOrderWorkSheetWeightQuantityOrdered,");
                 sql.Append("tLocationMapWarehouse.LocationMapRefno AS LocationMapRefno,");
                 sql.Append("tLocationMapWarehouse.LocationMapWarehouseCode AS LocationCode,");
                 sql.Append("tLocationMapWarehouse.LocationMapWarehouseName AS LocationName,");
@@ -654,13 +721,15 @@ namespace dMobile.Controller.Activity_Item
                 sql.Append("ORDER BY tActivityItemPurchaseOrderWorkSheet.ActivityItemRefno");
             }
 
-            this.listPurchaseOrderWorkSheetItems = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<PurchaseOrderWorkSheetItem>(sql.ToString());
-            this.ListItems = this.listPurchaseOrderWorkSheetItems.OrderBy(poItem => poItem.ActivityItemFKRefno).Cast<object>().ToList();
+            this.listPurchaseOrderWorkSheetItems = await DatabaseConnection.GetInstance().SQLConn
+                .QueryAsync<PurchaseOrderWorkSheetItem>(sql.ToString());
+            this.ListItems = this.listPurchaseOrderWorkSheetItems.OrderBy(poItem => poItem.ActivityItemFKRefno)
+                .Cast<object>().ToList();
             return this.ListItems;
         }
 
         /// <summary>
-        /// The Search.
+        ///     The Search.
         /// </summary>
         /// <param name="searchText">.</param>
         /// <returns>.</returns>
@@ -670,7 +739,9 @@ namespace dMobile.Controller.Activity_Item
 
             // if (string.IsNullOrEmpty(this.ActItemFilter))
             // {
-            this.ListItems = this.listPurchaseOrderWorkSheetItems.Where(purchaseOrderWorkSheetItem => purchaseOrderWorkSheetItem.ProductCode.ToString().ToLower().Contains(searchText.ToLower().Trim())).Cast<object>().ToList();
+            this.ListItems = this.listPurchaseOrderWorkSheetItems.Where(purchaseOrderWorkSheetItem =>
+                    purchaseOrderWorkSheetItem.ProductCode.ToString().ToLower().Contains(searchText.ToLower().Trim()))
+                .Cast<object>().ToList();
 
             // }
             // else
@@ -687,10 +758,10 @@ namespace dMobile.Controller.Activity_Item
         }
 
         /// <summary>
-        /// Select an activity item.
+        ///     Select an activity item.
         /// </summary>
-        /// <param name="selectedActivityItem"><see cref="object"/> Selected activity object.</param>
-        /// <returns><see cref="Task{T}"/> Activity item foreign key reference number.</returns>
+        /// <param name="selectedActivityItem"><see cref="object" /> Selected activity object.</param>
+        /// <returns><see cref="Task{T}" /> Activity item foreign key reference number.</returns>
         public override async Task<int> AssignActivityItem(object selectedActivityItem)
         {
             if (selectedActivityItem is PurchaseOrderWorkSheetItem item)
@@ -701,7 +772,7 @@ namespace dMobile.Controller.Activity_Item
                 this.ActStatus = (SysCommon.ActStatus)item.ActivityItemStatus;
                 this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(item.ProductUnitRefno);
 
-                await AssignItemLocation(item);
+                await AssignItemLocation();
 
                 // LocationMap.GetInstance().CurrLocMap warehouse needs to be set before call to GetSchemeComponentsFromRefno.
                 this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
@@ -710,7 +781,7 @@ namespace dMobile.Controller.Activity_Item
             return this.ItemFkRefno;
 
             //////////////////////////////////////////////////////////////////////////
-            async Task AssignItemLocation(PurchaseOrderWorkSheetItem item)
+            async Task AssignItemLocation()
             {
                 // This code needs to be before the call to GetSelectedItemLocation, because the skid location may be
                 // used if the product unit and warehouse match.
@@ -727,7 +798,7 @@ namespace dMobile.Controller.Activity_Item
                     this.LocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(this.ActHdr.LocationMapRefno);
                     if (this.LocMap.WhsLocMapRefno == 0)
                     {
-                        var defLocMapRefno = LocationMapTasks.DefaultLocMapRefnoToWhsIfUnassigned(locationMapRefno: 0);
+                        var defLocMapRefno = LocationMapTasks.DefaultLocMapRefnoToWhsIfUnassigned(0);
                         this.LocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(defLocMapRefno);
                     }
                 }
@@ -757,14 +828,13 @@ namespace dMobile.Controller.Activity_Item
                     }
                 }
             }
-
         }
 
         /// <summary>
-        /// Get the activity item reference number from the product unit reference number and current location warehouse.
+        ///     Get the activity item reference number from the product unit reference number and current location warehouse.
         /// </summary>
-        /// <param name="prodUnitRefno"><see cref="int"/> Product unit reference number.</param>
-        /// <returns><see cref="int"/> Found activity item reference number else 0.</returns>
+        /// <param name="prodUnitRefno"><see cref="int" /> Product unit reference number.</param>
+        /// <returns><see cref="int" /> Found activity item reference number else 0.</returns>
         public override async Task<int> GetActivityItemRefno(int prodUnitRefno, SLocMap locMap)
         {
             var foundActItemRefno = 0;
@@ -783,14 +853,17 @@ namespace dMobile.Controller.Activity_Item
                 locMap.WhsLocMapRefno);
             sql.AppendFormat("AND tActivityItemPurchaseOrderWorkSheet.ProductUnitRefno = {0} ", prodUnitRefno);
 
-            var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<PurchaseOrderWorkSheetItem>(sql.ToString().ToString());
+            var results = await DatabaseConnection.GetInstance().SQLConn
+                .QueryAsync<PurchaseOrderWorkSheetItem>(sql.ToString());
 
             if (results != null && results.Count > 0)
             {
-                this.LocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(Convert.ToInt32(results[0].LocationMapRefno));
+                this.LocMap =
+                    await LocationMapTasks.GetSLocMapFromLocMapRefno(Convert.ToInt32(results[0].LocationMapRefno));
                 this.ItemRefno = Convert.ToInt32(results[0].ActivityItemRefno);
                 this.ItemFkRefno = Convert.ToInt32(results[0].ActivityItemFKRefno);
-                this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(Convert.ToInt32(results[0].ProductUnitRefno));
+                this.ProdInfo =
+                    await ProductInfoTasks.GetInfoFromUnitRefno(Convert.ToInt32(results[0].ProductUnitRefno));
                 this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
                 foundActItemRefno = this.ItemRefno;
             }
@@ -799,17 +872,17 @@ namespace dMobile.Controller.Activity_Item
         }
 
         /// <summary>
-        /// The CreateSubmitXML.
+        ///     The CreateSubmitXML.
         /// </summary>
         /// <param name="data">.</param>
         /// <returns>.</returns>
-        public async override Task<string> CreateSubmitXml(XDocument data)
+        public override async Task<string> CreateSubmitXml(XDocument data)
         {
             var xmlString = new StringBuilder();
             var settings = new XmlWriterSettings
             {
                 Async = true,
-                Indent = false,
+                Indent = false
             };
             var xml = XmlWriter.Create(xmlString, settings);
 
@@ -827,7 +900,7 @@ namespace dMobile.Controller.Activity_Item
                 + "</command>"
                 + await SysCommon.GetRequestDefaults(false)
                 + "<prod_id>" + prodCode + "</prod_id>"
-                + "<is_bc>" + prodUnitIsBc.ToString() + "</is_bc>"
+                + "<is_bc>" + prodUnitIsBc + "</is_bc>"
                 + "<symbology>" + symbologyPrefix + "</symbology>"
                 + "<gtin>" + barCodeCode + "</gtin>"
                 + "<whs_id>" + this.LocMap.WhsFKRefno + "</whs_id>"
@@ -849,13 +922,14 @@ namespace dMobile.Controller.Activity_Item
         }
 
         /// <summary>
-        /// The RefreshQuantity.
+        ///     The RefreshQuantity.
         /// </summary>
-        /// <param name="selectedActivityItem">The selectedActivityItem<see cref="object"/>.</param>
+        /// <param name="selectedActivityItem">The selectedActivityItem<see cref="object" />.</param>
         /// <param name="quantity">.</param>
         /// <param name="baseQuantity">.</param>
         /// <param name="weightQuantity">.</param>
-        public override void ReplaceQuantityInActivityItem(object selectedActivityItem, decimal quantity, decimal baseQuantity, decimal weightQuantity)
+        public override void ReplaceQuantityInActivityItem(object selectedActivityItem, decimal quantity,
+            decimal baseQuantity, decimal weightQuantity)
         {
             if (selectedActivityItem is PurchaseOrderWorkSheetItem purchaseOrderWorkSheetItem)
             {
@@ -866,13 +940,14 @@ namespace dMobile.Controller.Activity_Item
         }
 
         /// <summary>
-        /// The UpdateListItemQuantity.
+        ///     The UpdateListItemQuantity.
         /// </summary>
-        /// <param name="selectedActivityItem">The selectedActivityItem<see cref="object"/>.</param>
+        /// <param name="selectedActivityItem">The selectedActivityItem<see cref="object" />.</param>
         /// <param name="quantity">.</param>
         /// <param name="baseQuantity">.</param>
         /// <param name="weightQuantity">.</param>
-        public override void AddToQuantityInActivityItem(object selectedActivityItem, decimal quantity, decimal baseQuantity, decimal weightQuantity)
+        public override void AddToQuantityInActivityItem(object selectedActivityItem, decimal quantity,
+            decimal baseQuantity, decimal weightQuantity)
         {
             if (selectedActivityItem is PurchaseOrderWorkSheetItem purchaseOrderWorkSheetItem)
             {
@@ -883,10 +958,10 @@ namespace dMobile.Controller.Activity_Item
         }
 
         /// <summary>
-        /// Update the activity item table data with the selected activity item object data.
+        ///     Update the activity item table data with the selected activity item object data.
         /// </summary>
-        /// <param name="activityItem"><see cref="object"/> Activity item.</param>
-        /// <returns>The <see cref="Task"/> Task operation.</returns>
+        /// <param name="activityItem"><see cref="object" /> Activity item.</param>
+        /// <returns>The <see cref="Task" /> Task operation.</returns>
         public override async Task UpdateItemTableQuantity(object activityItem)
         {
             if (activityItem is PurchaseOrderWorkSheetItem purchaseOrderWorkSheetItem)
@@ -901,7 +976,7 @@ namespace dMobile.Controller.Activity_Item
                     purchaseOrderWorkSheetItem.ActivityItemPurchaseOrderWorkSheetQuantityOrdered,
                     purchaseOrderWorkSheetItem.ActivityItemPurchaseOrderWorkSheetBaseQuantityOrdered,
                     purchaseOrderWorkSheetItem.ActivityItemPurchaseOrderWorkSheetWeightQuantityOrdered,
-                    purchaseOrderWorkSheetItem.ActivityItemRefno,
+                    purchaseOrderWorkSheetItem.ActivityItemRefno
                 };
 
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, parameters);
@@ -909,78 +984,79 @@ namespace dMobile.Controller.Activity_Item
         }
 
         /// <summary>
-        /// Get the activity item foreign key reference number.
+        ///     Get the activity item foreign key reference number.
         /// </summary>
-        /// <param name="resourceType"><see cref="object"/> Resource model type.</param>
-        /// <returns><see cref="int"/> Found activity item foreign key refno, else 0 if not found.</returns>
+        /// <param name="resourceType"><see cref="object" /> Resource model type.</param>
+        /// <returns><see cref="int" /> Found activity item foreign key refno, else 0 if not found.</returns>
         public override int GetFkRefno(object resourceType)
         {
-            throw new NotImplementedException();
+            object tmpFkItRefno = ((PurchaseOrderWorkSheetItem)resourceType).ActivityItemFKRefno;
+            return Convert.ToInt32(tmpFkItRefno);
         }
 
         /// <summary>
-        /// Get the activity item control description.
+        ///     Get the activity item control description.
         /// </summary>
-        /// <returns><see cref="string"/> Get activity item control description.</returns>
+        /// <returns><see cref="string" /> Get activity item control description.</returns>
         public override string GetControlDescription()
         {
             return $"PO worksheet # {this.ActHdr.HdrFkRefno}";
         }
 
         /// <summary>
-        /// The Delete.
+        ///     The Delete.
         /// </summary>
-        /// <returns>The <see cref="int"/>.</returns>
+        /// <returns>The <see cref="int" />.</returns>
         public override async Task<int> Delete()
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        /// The GetProdSchemeDataFromDetailFKRefno.
+        ///     The GetProdSchemeDataFromDetailFKRefno.
         /// </summary>
-        /// <param name="actDetailFkRefno">The actDetailFKRefno<see cref="int"/>.</param>
-        /// <returns>The <see cref="Task{SActItemSchemeData}"/>.</returns>
+        /// <param name="actDetailFkRefno">The actDetailFKRefno<see cref="int" />.</param>
+        /// <returns>The <see cref="Task{SActItemSchemeData}" />.</returns>
         public override Task<ActItemSchemeData> GetProdSchemeDataFromDetailFkRefno(int actDetailFkRefno)
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        /// The GetComment.
+        ///     The GetComment.
         /// </summary>
-        /// <param name="selectedActivityItem">The selectedActivityItem<see cref="object"/>.</param>
-        /// <returns>The <see cref="string"/>.</returns>
+        /// <param name="selectedActivityItem">The selectedActivityItem<see cref="object" />.</param>
+        /// <returns>The <see cref="string" />.</returns>
         public override Task<string> GetComment(object selectedActivityItem)
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        /// The CreateDeleteXML.
+        ///     The CreateDeleteXML.
         /// </summary>
-        /// <param name="data">The data<see cref="XDocument"/>.</param>
-        /// <returns>The <see cref="string"/>.</returns>
+        /// <param name="data">The data<see cref="XDocument" />.</param>
+        /// <returns>The <see cref="string" />.</returns>
         public override Task<string> CreateDeleteXml(XDocument data)
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        /// The GetTotalQuantity.
+        ///     The GetTotalQuantity.
         /// </summary>
-        /// <returns>The <see cref="string"/>.</returns>
+        /// <returns>The <see cref="string" />.</returns>
         public override Task<string> GetTotalQuantity()
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        /// Get the default location for the activity base on the sign quantity of the transaction.
+        ///     Get the default location for the activity base on the sign quantity of the transaction.
         /// </summary>
-        /// <param name="whsLocMapRefno"><see cref="int"/> Warehouse location map reference number.</param>
-        /// <param name="prodRefno"><see cref="int"/> Product reference number.</param>
-        /// <returns><see cref="int"/> Location map reference number.</returns>
+        /// <param name="whsLocMapRefno"><see cref="int" /> Warehouse location map reference number.</param>
+        /// <param name="prodRefno"><see cref="int" /> Product reference number.</param>
+        /// <returns><see cref="int" /> Location map reference number.</returns>
         public override async Task<int> GetDefaultLocMapRefno(int whsLocMapRefno, int prodRefno)
         {
             var locMapRefno = 0;
@@ -1020,10 +1096,10 @@ namespace dMobile.Controller.Activity_Item
         }
 
         /// <summary>
-        /// The GetLabelQuantity.
+        ///     The GetLabelQuantity.
         /// </summary>
-        /// <param name="isRepackQuantityOnly">The isRepackQuantityOnly<see cref="bool"/>.</param>
-        /// <returns>The <see cref="Task{SLabelQuantity}"/>.</returns>
+        /// <param name="isRepackQuantityOnly">The isRepackQuantityOnly<see cref="bool" />.</param>
+        /// <returns>The <see cref="Task{SLabelQuantity}" />.</returns>
         public override Task<SLabelQuantity> GetLabelQuantity(bool isRepackQuantityOnly)
         {
             throw new NotImplementedException();

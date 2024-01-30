@@ -1532,14 +1532,19 @@ namespace dMobile.View.Views
         /// <param name="scanArgs"><see cref="BarCodeScannerEventArgs" /> Scan event arguments.</param>
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
-            if (this.IsIndicatorRunning || scanArgs == null)
-            {
-                return;
-            }
-
             try
             {
                 await this.ScannerDisable();
+                if (scanArgs == null)
+                {
+                    const string msg = "Scanner event fired but no data was received.";
+                    await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert(
+                        this.GetControlDescription(),
+                        msg,
+                        Resource.OK));
+                    throw new TaskCanceledException();
+                }
+
                 this.IsIndicatorRunning = true;
 
                 // No need to disable/enable scanner because only message box are called.
@@ -1594,6 +1599,9 @@ namespace dMobile.View.Views
                         "Scanned bar code type is not supported here!",
                         "OK"));
                 }
+            }
+            catch (TaskCanceledException)
+            {
             }
             catch (MessageOnlyException msgEx)
             {

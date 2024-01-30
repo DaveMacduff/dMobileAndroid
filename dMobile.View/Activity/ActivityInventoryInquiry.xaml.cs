@@ -11,6 +11,7 @@ namespace dMobile.View.Activity
     using System.Linq;
     using System.Threading.Tasks;
     using System.Xml.Linq;
+    using Android;
     using Android.Views;
     using dMobile.BarCodeScanner.BarCodeParsing;
     using dMobile.BarCodeScanner.BarCodeScanners;
@@ -490,83 +491,89 @@ namespace dMobile.View.Activity
         /// <param name="scanArgs"></param>
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
-            await Task.Run(async () =>
+            try
             {
+                await this.ScannerDisable();
+                if (scanArgs == null)
+                {
+                    const string msg = "Scanner event fired but no data was received.";
+                    await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert(
+                        this.ActItem.GetControlDescription(),
+                        msg,
+                        "OK"));
+                    throw new TaskCanceledException();
+                }
+
                 this.IsIndicatorRunning = true;
                 this.BarParse = scanArgs.ParseInfo;
 
-                await this.ScannerDisable();
-
-                try
+                if (!string.IsNullOrEmpty(this.BarParse.ActFKRefno))
                 {
-                    if (!string.IsNullOrEmpty(this.BarParse.ActFKRefno))
-                    {
-                        throw new Exception("Scanning an activity reference # is not supported here.");
-                    }
-                    else if (!string.IsNullOrEmpty(this.BarParse.ActItemFKRefno))
-                    {
-                        throw new Exception("Scanning an activity item reference # is not supported here.");
-                    }
-                    else if (!string.IsNullOrEmpty(this.BarParse.ProductIdentifier))
-                    {
-                        var prodUnitRefno = 0;
-                        prodUnitRefno = await SysShared.IdentifyProductScanned(this.ActSubType, this.BarParse);
+                    throw new Exception("Scanning an activity reference # is not supported here.");
+                }
+                else if (!string.IsNullOrEmpty(this.BarParse.ActItemFKRefno))
+                {
+                    throw new Exception("Scanning an activity item reference # is not supported here.");
+                }
+                else if (!string.IsNullOrEmpty(this.BarParse.ProductIdentifier))
+                {
+                    var prodUnitRefno = 0;
+                    prodUnitRefno = await SysShared.IdentifyProductScanned(this.ActSubType, this.BarParse);
 
-                        if (prodUnitRefno != 0)
-                        {
-                            var tempProdInfo = new ProductInfo();
-                            tempProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
-                            this.ActItem.ProdInfo = tempProdInfo;
+                    if (prodUnitRefno != 0)
+                    {
+                        var tempProdInfo = new ProductInfo();
+                        tempProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
+                        this.ActItem.ProdInfo = tempProdInfo;
 
-                            // <issue="13609" author="RD" date="2016/02/22"/>
-                            SysShared.AssertSuppressedErrorsAgainstScheme(this.ActItem.ProdInfo, this.BarParse);
-                            _ = await Device.InvokeOnMainThreadAsync(() => this.cmdSelectProduct.Text = this.ActItem.ProdInfo.Code);
-                        }
-                        else
-                        {
-                            _ = await Device.InvokeOnMainThreadAsync(() => this.cmdSelectProduct.Text = "Select Product");
-                        }
-                    }
-                    else if (!string.IsNullOrEmpty(this.BarParse.SSCC18))
-                    {
-                        throw new Exception("Scanning a shipping container bar code is not supported here.");
-                    }
-                    else if (!string.IsNullOrEmpty(this.BarParse.LocationIdentifier))
-                    {
-                        this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
-                            await LocationMapTasks.GetLocMapRefnoFromBarCodeGlobalLocIdentifier(this.BarParse.LocationIdentifier));
-                        if (this.LocMap.CurrLocMap.WhsLocMapRefno != 0)
-                        {
-                            _ = await Device.InvokeOnMainThreadAsync(() => this.cmdLocation.Text = LocationMapTasks.GetCurrentReadableLocation());
-                        }
-                        else
-                        {
-                            _ = await Device.InvokeOnMainThreadAsync(() => this.cmdLocation.Text = "Set Location");
-                        }
+                        // <issue="13609" author="RD" date="2016/02/22"/>
+                        SysShared.AssertSuppressedErrorsAgainstScheme(this.ActItem.ProdInfo, this.BarParse);
+                        _ = await Device.InvokeOnMainThreadAsync(() => this.cmdSelectProduct.Text = this.ActItem.ProdInfo.Code);
                     }
                     else
                     {
-                        throw new Exception("Scanned bar code type is not supported here.");
+                        _ = await Device.InvokeOnMainThreadAsync(() => this.cmdSelectProduct.Text = "Select Product");
                     }
                 }
-                catch (TaskCanceledException)
+                else if (!string.IsNullOrEmpty(this.BarParse.SSCC18))
                 {
-                    // Do nothing, task cancelled by user
+                    throw new Exception("Scanning a shipping container bar code is not supported here.");
                 }
-                catch (Exception ex)
+                else if (!string.IsNullOrEmpty(this.BarParse.LocationIdentifier))
                 {
-                    await Device.InvokeOnMainThreadAsync(async () =>
+                    this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
+                        await LocationMapTasks.GetLocMapRefnoFromBarCodeGlobalLocIdentifier(this.BarParse.LocationIdentifier));
+                    if (this.LocMap.CurrLocMap.WhsLocMapRefno != 0)
                     {
-                        var errRpt = new FormErrorReport(this.ActSubType, ex);
-                        _ = await errRpt.ShowDialog();
-                    });
+                        _ = await Device.InvokeOnMainThreadAsync(() => this.cmdLocation.Text = LocationMapTasks.GetCurrentReadableLocation());
+                    }
+                    else
+                    {
+                        _ = await Device.InvokeOnMainThreadAsync(() => this.cmdLocation.Text = "Set Location");
+                    }
                 }
-                finally
+                else
                 {
-                    await this.ScannerEnable();
-                    this.IsIndicatorRunning = false;
+                    throw new Exception("Scanned bar code type is not supported here.");
                 }
-            });
+            }
+            catch (TaskCanceledException)
+            {
+                // Do nothing, task cancelled by user
+            }
+            catch (Exception ex)
+            {
+                await Device.InvokeOnMainThreadAsync(async () =>
+                {
+                    var errRpt = new FormErrorReport(this.ActSubType, ex);
+                    _ = await errRpt.ShowDialog();
+                });
+            }
+            finally
+            {
+                await this.ScannerEnable();
+                this.IsIndicatorRunning = false;
+            }
         }
 
         /// <summary>

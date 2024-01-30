@@ -494,7 +494,7 @@ namespace dMobile.Controller.Activity
         public override async Task Purge()
         {
             var tableActReceiving = new TableActivityReceiving();
-            var tableActReceivingItem = new TableActivityRecevingItem();
+            var tableActReceivingItem = new TableActivityReceivingItem();
             var tableActReceivingDetail = new TableActivityReceivingDetail();
 
             await tableActReceivingDetail.PurgeData();

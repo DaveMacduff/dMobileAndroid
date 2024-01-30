@@ -860,25 +860,26 @@ namespace dMobile.View.Activity
         /// <returns>The <see cref="Task"/>.</returns>
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
-            if (this.IsIndicatorRunning || scanArgs == null)
-            {
-                return;
-            }
-
-            this.IsIndicatorRunning = true;
-
-            // TODO: Test BarCodeHandler
-            var msg = string.Empty;
             var currentSelectedActivityItem = this.ActItem.SelectedItem;
             var foundSelectedActivityItem = this.ActItem.SelectedItem;
-            var actItemFoundRefno = 0;
-            BarCodeParse barCodeParse = null;
-            var tempItemSchemeData = new ActItemSchemeData();
 
             try
             {
                 await this.ScannerDisable();
+                if (scanArgs == null)
+                {
+                    const string barMsg = "Scanner event fired but no data was received.";
+                    await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert(
+                        this.ActHdr.GetControlDescription(),
+                        barMsg,
+                        Resource.OK));
+                    throw new TaskCanceledException();
+                }
 
+                var msg = string.Empty;
+                var actItemFoundRefno = 0;
+                BarCodeParse barCodeParse = null;
+                var tempItemSchemeData = new ActItemSchemeData();
                 barCodeParse = scanArgs.ParseInfo;
 
                 // Global location identifier.
@@ -1341,7 +1342,7 @@ namespace dMobile.View.Activity
             }
             catch (MessageOnlyException msgEx)
             {
-                msg = SysCommon.GetMessageFromMessageException(msgEx);
+                var msg = SysCommon.GetMessageFromMessageException(msgEx);
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
                         this.GetControlDescription(),

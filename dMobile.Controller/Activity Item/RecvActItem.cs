@@ -432,7 +432,7 @@ namespace dMobile.Controller.Activity_Item
             {
                 this.DataLayerProgressOutHandler(this, EventArgs.Empty, 2);
 
-                var tableActRecvItem = new TableActivityRecevingItem();
+                var tableActRecvItem = new TableActivityReceivingItem();
                 var tableActRecvDetail = new TableActivityReceivingDetail();
                 await tableActRecvDetail.PurgeData();
                 await tableActRecvItem.PurgeData();

@@ -845,20 +845,21 @@ namespace dMobile.View.Activity
         /// <returns>The <see cref="Task" />.</returns>
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
-            if (this.IsIndicatorRunning)
-            {
-                return;
-            }
-
-            scanArgs = scanArgs ?? throw new ArgumentNullException(nameof(scanArgs));
-
-            this.IsIndicatorRunning = true;
-            var prodUnitRefno = 0;
-            var svdActDetailFKRefno = this.ActDetail.DetailFkRefno;
-            var parse = scanArgs.ParseInfo;
-
             try
             {
+                await this.ScannerDisable();
+                if (scanArgs == null)
+                {
+                    const string msg = "Scanner event fired but no data was received.";
+                    await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert(
+                        this.ActDetail.GetControlDescription(),
+                        msg,
+                        Resource.OK));
+                    throw new TaskCanceledException();
+                }
+
+                this.IsIndicatorRunning = true;
+                var parse = scanArgs.ParseInfo;
                 await this.ActDisappearing();
 
                 // GLOBAL LOCATION IDENTIFIER SCANNED
@@ -876,7 +877,7 @@ namespace dMobile.View.Activity
                         throw new MessageOnlyException("Location must be set first!");
                     }
 
-                    prodUnitRefno = await SysShared.IdentifyProductScanned(this.ActSubType, parse);
+                    var prodUnitRefno = await SysShared.IdentifyProductScanned(this.ActSubType, parse);
 
                     var prodInfo = await ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
 
@@ -975,7 +976,10 @@ namespace dMobile.View.Activity
             }
             catch (TaskCanceledException)
             {
-                await this.FindSelectedItemAsync();
+                if (scanArgs != null)
+                {
+                    await this.FindSelectedItemAsync();
+                }
             }
             catch (IsReadyToApplyException)
             {

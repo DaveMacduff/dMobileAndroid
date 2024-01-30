@@ -243,10 +243,13 @@ namespace dMobile.View.Activity
         /// <inheritdoc />
         public async Task<XDocument> GetXml()
         {
-            var request = XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" +
-                                          "<params>" + "<alt_qty>" + this.actDetailEdit.AltQuantity + "</alt_qty>" +
-                                          "<wt_qty>" + this.actDetailEdit.WeightQuantity + "</wt_qty>" + "<base_qty>" +
-                                          this.actDetailEdit.BaseQuantity + "</base_qty>" + "</params>");
+            var request = XDocument.Parse(
+                "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" +
+                "<params>" +
+                "<alt_qty>" + this.actDetailEdit.AltQuantity + "</alt_qty>" +
+                "<wt_qty>" + this.actDetailEdit.WeightQuantity + "</wt_qty>" +
+                "<base_qty>" + this.actDetailEdit.BaseQuantity + "</base_qty>" +
+                "</params>");
             return request;
         }
 

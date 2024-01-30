@@ -8,6 +8,7 @@ namespace dMobile.View.Activity
     using System.Collections.ObjectModel;
     using System.Threading.Tasks;
     using System.Xml.Linq;
+    using Android;
     using Android.Views;
     using dMobile.BarCodeScanner.BarCodeParsing;
     using dMobile.BarCodeScanner.BarCodeScanners;
@@ -574,17 +575,22 @@ namespace dMobile.View.Activity
         /// <returns>The <see cref="Task"/>.</returns>
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
-            if (this.IsIndicatorRunning || scanArgs == null)
-            {
-                return;
-            }
+           try
+           {
+                await this.ScannerDisable();
+                if (scanArgs == null)
+                {
+                    const string msg = "Scanner event fired but no data was received.";
+                    await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert(
+                        this.ActItem.GetControlDescription(),
+                        msg,
+                        "OK"));
+                    throw new TaskCanceledException();
+                }
 
-            this.IsIndicatorRunning = true;
-            this.BarParse = scanArgs.ParseInfo;
-            await this.ScannerDisable();
+                this.IsIndicatorRunning = true;
+                this.BarParse = scanArgs.ParseInfo;
 
-            try
-            {
                 if (!string.IsNullOrEmpty(this.BarParse.ActFKRefno))
                 {
                     throw new Exception("Scanning an activity reference # is not supported here.");

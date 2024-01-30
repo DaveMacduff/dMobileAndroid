@@ -90,10 +90,10 @@ namespace dMobile.BarCodeScanner.BarCodeScanners
         {
             if (this.BarCodeScan != null)
             {
-                // Remove all event handlers. Hopefully this will prevent memory leaks, and possible multi cast delegate issues.
-                foreach (var d in this.BarCodeScan.GetInvocationList())
+                // Remove all event handlers. Hopefully this will prevent memory leaks, and possible multicast delegate issues.
+                foreach (var handler in this.BarCodeScan.GetInvocationList())
                 {
-                    this.BarCodeScan -= (BarCodeScanEventHandler)d;
+                    this.BarCodeScan -= (BarCodeScanEventHandler)handler;
                 }
 
                 this.BarCodeScan = null;

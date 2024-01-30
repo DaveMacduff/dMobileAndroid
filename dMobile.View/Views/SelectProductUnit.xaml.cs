@@ -778,16 +778,20 @@ namespace dMobile.View.Views
         /// <remarks></remarks>
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
-            if (this.IsIndicatorRunning || scanArgs == null)
-            {
-                return;
-            }
-
             BarCodeParse parse = null;
 
             try
             {
                 await this.ScannerDisable();
+                if (scanArgs == null)
+                {
+                    const string msg = "Scanner event fired but no data was received.";
+                    await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert(
+                        this.GetControlDescription(),
+                        msg,
+                        Resource.OK));
+                    throw new TaskCanceledException();
+                }
 
                 parse = scanArgs.ParseInfo;
 
@@ -834,6 +838,18 @@ namespace dMobile.View.Views
                         _ = this.txtSearchProduct.Focus();
                     });
                 }
+            }
+            catch (TaskCanceledException)
+            {
+                // Ignore
+            }
+            catch (MessageOnlyException msgEx)
+            {
+                var msg = SysCommon.GetMessageFromMessageException(msgEx);
+                await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert(
+                    this.GetControlDescription(),
+                    msg,
+                    Resource.OK));
             }
             catch (Exception ex)
             {

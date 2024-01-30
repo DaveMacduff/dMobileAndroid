@@ -734,19 +734,19 @@ namespace dMobile.View.Activity
         /// </param>
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
-            if (scanArgs == null)
-            {
-                const string msg = "Scanner event fired but no data was received.";
-                await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert(
-                    this.ActItem.GetControlDescription(),
-                    msg,
-                    Resource.OK));
-                return;
-            }
-
             try
             {
                 await this.ScannerDisable();
+                if (scanArgs == null)
+                {
+                    const string msg = "Scanner event fired but no data was received.";
+                    await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert(
+                        this.ActItem.GetControlDescription(),
+                        msg,
+                        Resource.OK));
+                    throw new TaskCanceledException();
+                }
+
                 var codeParse = scanArgs.ParseInfo;
 
                 // global location identifier scanned

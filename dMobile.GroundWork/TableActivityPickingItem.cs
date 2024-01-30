@@ -5,28 +5,24 @@
 namespace dMobile.GroundWork
 {
     using System;
-    using System.Collections.Generic;
     using System.Data;
     using System.Text;
     using System.Threading.Tasks;
-    using System.Transactions;
     using System.Xml;
     using System.Xml.Linq;
-    using dMobile.Bedrock;
-    using dMobile.Resources.Models;
+    using Bedrock;
+    using Resources.Models;
     using SQLite;
-    using static SQLite.SQLite3;
 
     /// <summary>
-    /// Defines the <see cref="TableActivityPickingItem" />.
+    ///     Defines the <see cref="TableActivityPickingItem" />.
     /// </summary>
     public class TableActivityPickingItem : TableBase
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="TableActivityPickingItem"/> class.
+        ///     Initializes a new instance of the <see cref="TableActivityPickingItem" /> class.
         /// </summary>
         public TableActivityPickingItem()
-          : base()
         {
             this.FullClassName = "dMobile.GroundWork.TableActivityPickingItem";
             this.CurrentSubType = SysCommon.ActSubTypes.Picking;
@@ -35,7 +31,7 @@ namespace dMobile.GroundWork
         }
 
         /// <summary>
-        /// The Purge.
+        ///     The Purge.
         /// </summary>
         public override async Task PurgeData()
         {
@@ -55,6 +51,28 @@ namespace dMobile.GroundWork
                     query = @"
                         DELETE FROM tActivityItemBarCodeAssociationXRef
                             WHERE tActivityItemBarCodeAssociationXRef.ActivityItemRefno
+                                NOT IN (SELECT tActivityItem.ActivityItemRefno FROM tActivityItem)";
+                    transaction.Execute(query);
+
+                    query = @"
+                        DELETE FROM tActivityItemReasonCodeXRef
+                            WHERE tActivityItemReasonCodeXRef.ActivityItemRefno <= 0";
+                    transaction.Execute(query);
+
+                    query = @"
+                        DELETE FROM tActivityItemReasonCodeXRef
+                            WHERE tActivityItemReasonCodeXRef.ActivityItemRefno
+                                NOT IN (SELECT tActivityItem.ActivityItemRefno FROM tActivityItem)";
+                    transaction.Execute(query);
+
+                    query = @"
+                        DELETE FROM tActivityItemPickingComment
+                            WHERE tActivityItemPickingComment.ActivityItemRefno <= 0";
+                    transaction.Execute(query);
+
+                    query = @"
+                        DELETE FROM tActivityItemPickingComment
+                            WHERE tActivityItemPickingComment.ActivityItemRefno
                                 NOT IN (SELECT tActivityItem.ActivityItemRefno FROM tActivityItem)";
                     transaction.Execute(query);
 
@@ -81,8 +99,18 @@ namespace dMobile.GroundWork
 
                     // Regular purge.
                     query = "DELETE FROM tActivityItemBarCodeAssociationXRef "
-                                + "WHERE tActivityItemBarCodeAssociationXRef.ActivityItemRefno IN "
-                                + "(SELECT tActivityItem.ActivityItemRefno FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = ?)";
+                            + "WHERE tActivityItemBarCodeAssociationXRef.ActivityItemRefno IN "
+                            + "(SELECT tActivityItem.ActivityItemRefno FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = ?)";
+                    transaction.Execute(query, this.CurrentSubType);
+
+                    query = @"DELETE FROM tActivityItemReasonCodeXRef
+                                WHERE tActivityItemReasonCodeXRef.ActivityItemRefno IN
+                                (SELECT tActivityItem.ActivityItemRefno FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = ?)";
+                    transaction.Execute(query, this.CurrentSubType);
+
+                    query = @"DELETE FROM tActivityItemPickingComment
+                                WHERE tActivityItemPickingComment.ActivityItemRefno IN
+                                (SELECT tActivityItem.ActivityItemRefno FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = ?)";
                     transaction.Execute(query, this.CurrentSubType);
 
                     query = "DELETE FROM tActivityItemPicking WHERE tActivityItemPicking.ActivityItemSubType = ?";
@@ -92,36 +120,39 @@ namespace dMobile.GroundWork
                     transaction.Execute(query, this.CurrentSubType);
 
                     transaction.Commit();
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} completed.", true);
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} completed.",
+                        true);
                 }
                 catch (SQLiteException ex)
                 {
                     transaction.Rollback();
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} failed.", true);
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} failed.",
+                        true);
                     throw new Exception($"Database exception occurred. Purging {this.LowerCaseName} failed.", ex);
                 }
                 catch
                 {
                     transaction.Rollback();
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} failed.", true);
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} failed.",
+                        true);
                     throw;
                 }
             });
         }
 
         /// <summary>
-        /// Send a request for the sales order activity line items.
+        ///     Send a request for the sales order activity line items.
         /// </summary>
-        /// <param name="actItemRefno"><see cref="int"/> Line item activity item refno.</param>
-        /// <param name="xmlCriteria"><see cref="XDocument"/> Line item filter criteria.</param>
-        /// <returns><see cref="string"/> Request response data.</returns>
+        /// <param name="actItemRefno"><see cref="int" /> Line item activity item refno.</param>
+        /// <param name="xmlCriteria"><see cref="XDocument" /> Line item filter criteria.</param>
+        /// <returns><see cref="string" /> Request response data.</returns>
         protected override async Task<string> SendRequest(int actItemRefno, XDocument xmlCriteria)
         {
             string response;
             try
             {
-                int actPickFKRefno = 0;
+                var actPickFKRefno = 0;
                 var conn = DatabaseConnection.GetInstance().SQLConn;
                 var results = await conn.QueryAsync<tActivityPickingModel>(
                     "SELECT * FROM tActivityPicking WHERE ActivityRefno = ?",
@@ -151,10 +182,10 @@ namespace dMobile.GroundWork
         }
 
         /// <summary>
-        /// The Save.
+        ///     The Save.
         /// </summary>
         /// <param name="responseData"></param>
-        /// <param name="actRefno">The actItemRefno<see cref="int"/>.</param>
+        /// <param name="actRefno">The actItemRefno<see cref="int" />.</param>
         protected override async Task Save(string responseData, int actRefno)
         {
             await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
@@ -190,7 +221,9 @@ namespace dMobile.GroundWork
                                 actRefno,
                                 0);
 
-                            var actItemRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivityItem"));
+                            var actItemRefno =
+                                Convert.ToInt32(
+                                    transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivityItem"));
                             actItemPickFKRefno = Convert.ToInt32(drow["ActivityItemFKRefno"]);
                             var prodUnitRefno = this.GetProductUnitRefnoFromDataRow(drow, transaction, false);
                             var locMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, transaction);
@@ -236,24 +269,24 @@ namespace dMobile.GroundWork
                                                          ")";
                             var parametersInsertItemPicking = new object[]
                             {
-                                    actItemRefno,
-                                    Convert.ToInt32(SysCommon.ActSubTypes.Picking),
-                                    actItemPickFKRefno,
-                                    actItemPickFKRefno.ToString(),
-                                    prodUnitRefno,
-                                    locMapRefno,
-                                    Convert.ToDecimal(drow["ActivityItemPickingQuantityOrdered"]),
-                                    Convert.ToDecimal(drow["ActivityItemPickingBaseQuantityOrdered"]),
-                                    Convert.ToDecimal(drow["ActivityItemPickingWeightQuantityOrdered"]),
-                                    Convert.ToDecimal(drow["ActivityItemPickingQuantityPicked"]),
-                                    Convert.ToDecimal(drow["ActivityItemPickingBaseQuantityPicked"]),
-                                    Convert.ToDecimal(drow["ActivityItemPickingWeightQuantityPicked"]),
-                                    Convert.ToString(drow["ActivityItemPickingCustomerProductUnitCode"]),
-                                    Convert.ToString(drow["ActivityItemPickingDescription"]),
-                                    Convert.ToDecimal(drow["ActivityItemPickingQuantityAvailable"]),
-                                    Convert.ToDecimal(drow["ActivityItemPickingBaseQuantityAvailable"]),
-                                    Convert.ToDecimal(drow["ActivityItemPickingWeightQuantityAvailable"]),
-                                    false,
+                                actItemRefno,
+                                Convert.ToInt32(SysCommon.ActSubTypes.Picking),
+                                actItemPickFKRefno,
+                                actItemPickFKRefno.ToString(),
+                                prodUnitRefno,
+                                locMapRefno,
+                                Convert.ToDecimal(drow["ActivityItemPickingQuantityOrdered"]),
+                                Convert.ToDecimal(drow["ActivityItemPickingBaseQuantityOrdered"]),
+                                Convert.ToDecimal(drow["ActivityItemPickingWeightQuantityOrdered"]),
+                                Convert.ToDecimal(drow["ActivityItemPickingQuantityPicked"]),
+                                Convert.ToDecimal(drow["ActivityItemPickingBaseQuantityPicked"]),
+                                Convert.ToDecimal(drow["ActivityItemPickingWeightQuantityPicked"]),
+                                Convert.ToString(drow["ActivityItemPickingCustomerProductUnitCode"]),
+                                Convert.ToString(drow["ActivityItemPickingDescription"]),
+                                Convert.ToDecimal(drow["ActivityItemPickingQuantityAvailable"]),
+                                Convert.ToDecimal(drow["ActivityItemPickingBaseQuantityAvailable"]),
+                                Convert.ToDecimal(drow["ActivityItemPickingWeightQuantityAvailable"]),
+                                false
                             };
 
                             transaction.Execute(queryInsertItemPicking, parametersInsertItemPicking);
@@ -262,7 +295,9 @@ namespace dMobile.GroundWork
 
                             if (!string.IsNullOrEmpty(actItemPickComment))
                             {
-                                transaction.Execute("INSERT INTO tActivityItemPickingComment (ActivityItemRefno, ActivityItemPickingCommentComment) VALUES (?, ?)", actItemRefno, actItemPickComment);
+                                transaction.Execute(
+                                    "INSERT INTO tActivityItemPickingComment (ActivityItemRefno, ActivityItemPickingCommentComment) VALUES (?, ?)",
+                                    actItemRefno, actItemPickComment);
                             }
 
                             progValue++;
@@ -292,18 +327,18 @@ namespace dMobile.GroundWork
         }
 
         /// <summary>
-        /// The CreateRequest.
+        ///     The CreateRequest.
         /// </summary>
         /// <param name="activityItemFkRefno"></param>
         /// <param name="criteria"></param>
         /// <returns></returns>
-        protected async override Task<string> CreateRequest(int activityItemFkRefno, XDocument criteria)
+        protected override async Task<string> CreateRequest(int activityItemFkRefno, XDocument criteria)
         {
             var xmlString = new StringBuilder();
             var settings = new XmlWriterSettings
             {
                 Async = true,
-                Indent = false,
+                Indent = false
             };
             var xml = XmlWriter.Create(xmlString, settings);
 
@@ -361,13 +396,13 @@ namespace dMobile.GroundWork
             throw new NotImplementedException();
         }
 
-        protected async override Task<string> CreateRequest(int activityItemFkRefno)
+        protected override async Task<string> CreateRequest(int activityItemFkRefno)
         {
             var xmlString = new StringBuilder();
             var settings = new XmlWriterSettings
             {
                 Async = true,
-                Indent = false,
+                Indent = false
             };
             var xml = XmlWriter.Create(xmlString, settings);
 
@@ -398,10 +433,10 @@ namespace dMobile.GroundWork
         }
 
         /// <summary>
-        /// The Request Item Data.
+        ///     The Request Item Data.
         /// </summary>
         /// <param name="actHdrRefno"> Activity header refno.</param>
-        /// <returns><see cref="Task"/> Task completed.</returns>
+        /// <returns><see cref="Task" /> Task completed.</returns>
         public override async Task RequestItemData(int actHdrRefno)
         {
             if (actHdrRefno == 0)
@@ -411,7 +446,7 @@ namespace dMobile.GroundWork
                 var queryResult = await conn.QueryAsync<tActivityPickingModel>(query, (int)this.CurrentSubType);
                 if (queryResult != null && queryResult.Count > 0)
                 {
-                    foreach (tActivityPickingModel model in queryResult)
+                    foreach (var model in queryResult)
                     {
                         _ = base.RequestItemData(model.ActivityFKRefno);
                     }

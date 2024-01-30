@@ -677,156 +677,156 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
-            if (this.IsIndicatorRunning || scanArgs == null)
-            {
-                return;
-            }
-
-            await Task.Run(async () =>
+            try
             {
                 this.IsIndicatorRunning = true;
+                await this.ScannerDisable();
+                if (scanArgs == null)
+                {
+                    const string msg = "Scanner event fired but no data was received.";
+                    await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert(
+                        this.ActItem.GetControlDescription(),
+                        msg,
+                        Resource.OK));
+                    throw new TaskCanceledException();
+                }
+
                 BarCodeParse parse = null;
+                parse = scanArgs.ParseInfo;
                 var tempItemProdSchemeData = new ActItemSchemeData();
 
-                try
+                // GLOBAL LOCATION IDENTIFIER SCANNED
+                if (!string.IsNullOrEmpty(parse.LocationIdentifier))
                 {
-                    await this.ScannerDisable();
+                    this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
+                        await LocationMapTasks.GetLocMapRefnoFromBarCodeGlobalLocIdentifier(
+                            parse.LocationIdentifier));
 
-                    parse = scanArgs.ParseInfo;
-
-                    // GLOBAL LOCATION IDENTIFIER SCANNED
-                    if (!string.IsNullOrEmpty(parse.LocationIdentifier))
+                    if (this.LocMap.CurrLocMap.WhsLocMapRefno != 0)
                     {
-                        this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
-                            await LocationMapTasks.GetLocMapRefnoFromBarCodeGlobalLocIdentifier(
-                                parse.LocationIdentifier));
-
-                        if (this.LocMap.CurrLocMap.WhsLocMapRefno != 0)
-                        {
-                            _ = await Device.InvokeOnMainThreadAsync(() =>
-                                this.cmdLocation.Text = LocationMapTasks.GetCurrentReadableLocation());
-                        }
-                        else
-                        {
-                            _ = await Device.InvokeOnMainThreadAsync(() => this.cmdLocation.Text = "Set Location");
-                        }
+                        _ = await Device.InvokeOnMainThreadAsync(() =>
+                            this.cmdLocation.Text = LocationMapTasks.GetCurrentReadableLocation());
                     }
                     else
                     {
-                        // Activity item fk refno
-                        if (!string.IsNullOrEmpty(parse.ActItemFKRefno))
+                        _ = await Device.InvokeOnMainThreadAsync(() => this.cmdLocation.Text = "Set Location");
+                    }
+                }
+                else
+                {
+                    // Activity item fk refno
+                    if (!string.IsNullOrEmpty(parse.ActItemFKRefno))
+                    {
+                        throw new MessageOnlyException("Scanning a line item bar code is not supported here!");
+                    }
+
+                    // Activity detail fk refno
+                    if (!string.IsNullOrEmpty(parse.ActDetailFKRefno))
+                    {
+                        throw new MessageOnlyException(
+                            "Scanning an line item detail bar code is not supported here!");
+                    }
+
+                    // Shipping container scanned, skid
+                    if (!string.IsNullOrEmpty(parse.SSCC18))
+                    {
+                        throw new MessageOnlyException(
+                            "Scanning a shipping container bar code is not supported here!");
+                    }
+
+                    // Product identifier
+                    if (!string.IsNullOrEmpty(parse.ProductIdentifier))
+                    {
+                        if (!await LocationMapTasks.IsCompleteLocMap(this.LocMap.CurrLocMapRefno) &&
+                            !this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc)
                         {
-                            throw new MessageOnlyException("Scanning a line item bar code is not supported here!");
+                            throw new MessageOnlyException("Location Must Be Set First");
                         }
 
-                        // Activity detail fk refno
-                        if (!string.IsNullOrEmpty(parse.ActDetailFKRefno))
-                        {
-                            throw new MessageOnlyException(
-                                "Scanning an line item detail bar code is not supported here!");
-                        }
+                        await this.ClearContents();
 
-                        // Shipping container scanned, skid
-                        if (!string.IsNullOrEmpty(parse.SSCC18))
-                        {
-                            throw new MessageOnlyException(
-                                "Scanning a shipping container bar code is not supported here!");
-                        }
+                        var tempFromProdUnitRefno = this.FromProdUnitRefno;
 
-                        // Product identifier
-                        if (!string.IsNullOrEmpty(parse.ProductIdentifier))
+                        tempFromProdUnitRefno = await SysShared.IdentifyProductScanned(this.ActSubType, parse);
+
+                        this.FromProdUnitRefno = tempFromProdUnitRefno;
+                        this.ActItem.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(this.FromProdUnitRefno);
+                        this.ActItem.ProdInfo.Scheme =
+                            await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ActItem.ProdInfo.Refno);
+
+                        // Insert a new activity detail record
+                        this.ActDetail.ActItem = this.ActItem;
+
+                        this.ActDetail.Quantity = 0;
+                        this.ActDetail.BaseQuantity = 0;
+                        this.ActDetail.WeightQuantity = 0;
+                        this.ActDetail.SchemeId = string.Empty;
+                        this.ActDetail.UniqueSchemeId = string.Empty;
+                        this.ActDetail.ActExtra.Text1 = string.Empty;
+                        this.ActDetail.ActExtra.Text2 = string.Empty;
+                        this.ActDetail.ActExtra.Text3 = string.Empty;
+                        this.ActDetail.ActExtra.Text4 = string.Empty;
+                        this.ActDetail.ActExtra.DateTime1 = new DateTime(1980, 1, 1);
+
+                        var isInsertReady = await SysShared.GatherProductData(parse, this.ActSubType, this.ActItem,
+                            tempItemProdSchemeData, this.ActDetail);
+
+                        var xmlDoc = this.ActDetail.GetXml(this.ActDetail);
+
+                        await this.ActItem.Insert(xmlDoc);
+
+                        await this.DisplayData();
+
+                        if (this.FromProdUnitRefno > 0)
                         {
-                            if (!await LocationMapTasks.IsCompleteLocMap(this.LocMap.CurrLocMapRefno) &&
-                                !this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc)
+                            var query = "SELECT tProduct.ProductCode," +
+                                        " tProductUnit.ProductUnitBC," +
+                                        " tUnit.UnitCode" +
+                                        " FROM tProductUnit" +
+                                        " INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno" +
+                                        " INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno" +
+                                        " WHERE tProductUnit.ProductUnitRefno = ?";
+
+                            var results = await DatabaseConnection.GetInstance().SQLConn
+                                .QueryAsync<ProductUnit>(query, Convert.ToString(this.FromProdUnitRefno));
+
+                            if (results?.Count > 0)
                             {
-                                throw new MessageOnlyException("Location Must Be Set First");
-                            }
-
-                            await this.ClearContents();
-
-                            var tempFromProdUnitRefno = this.FromProdUnitRefno;
-
-                            tempFromProdUnitRefno = await SysShared.IdentifyProductScanned(this.ActSubType, parse);
-
-                            this.FromProdUnitRefno = tempFromProdUnitRefno;
-                            this.ActItem.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(this.FromProdUnitRefno);
-                            this.ActItem.ProdInfo.Scheme =
-                                await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ActItem.ProdInfo.Refno);
-
-                            // Insert a new activity detail record
-                            this.ActDetail.ActItem = this.ActItem;
-
-                            this.ActDetail.Quantity = 0;
-                            this.ActDetail.BaseQuantity = 0;
-                            this.ActDetail.WeightQuantity = 0;
-                            this.ActDetail.SchemeId = string.Empty;
-                            this.ActDetail.UniqueSchemeId = string.Empty;
-                            this.ActDetail.ActExtra.Text1 = string.Empty;
-                            this.ActDetail.ActExtra.Text2 = string.Empty;
-                            this.ActDetail.ActExtra.Text3 = string.Empty;
-                            this.ActDetail.ActExtra.Text4 = string.Empty;
-                            this.ActDetail.ActExtra.DateTime1 = new DateTime(1980, 1, 1);
-
-                            var isInsertReady = await SysShared.GatherProductData(parse, this.ActSubType, this.ActItem,
-                                tempItemProdSchemeData, this.ActDetail);
-
-                            var xmlDoc = this.ActDetail.GetXml(this.ActDetail);
-
-                            await this.ActItem.Insert(xmlDoc);
-
-                            await this.DisplayData();
-
-                            if (this.FromProdUnitRefno > 0)
-                            {
-                                var query = "SELECT tProduct.ProductCode," +
-                                            " tProductUnit.ProductUnitBC," +
-                                            " tUnit.UnitCode" +
-                                            " FROM tProductUnit" +
-                                            " INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno" +
-                                            " INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno" +
-                                            " WHERE tProductUnit.ProductUnitRefno = ?";
-
-                                var results = await DatabaseConnection.GetInstance().SQLConn
-                                    .QueryAsync<ProductUnit>(query, Convert.ToString(this.FromProdUnitRefno));
-
-                                if (results?.Count > 0)
-                                {
-                                    _ = await Device.InvokeOnMainThreadAsync(() =>
-                                        this.cmdSelectFromUnit.Text = results[0].ProductCode + " " +
-                                                                      results[0].ProductUnitBC + " " +
-                                                                      results[0].UnitCode);
-                                }
+                                _ = await Device.InvokeOnMainThreadAsync(() =>
+                                    this.cmdSelectFromUnit.Text = results[0].ProductCode + " " +
+                                                                  results[0].ProductUnitBC + " " +
+                                                                  results[0].UnitCode);
                             }
                         }
                     }
                 }
-                catch (TaskCanceledException ex)
+            }
+            catch (TaskCanceledException ex)
+            {
+                // Do nothing, task cancelled by user
+            }
+            catch (MessageOnlyException msgEx)
+            {
+                var msg = SysCommon.GetMessageFromMessageException(msgEx);
+                await Device.InvokeOnMainThreadAsync(async () =>
+                    await Application.Current.MainPage.DisplayAlert(
+                        this.GetControlDescription(),
+                        msg,
+                        Resource.OK));
+            }
+            catch (Exception ex)
+            {
+                await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    // Do nothing, task cancelled by user
-                }
-                catch (MessageOnlyException msgEx)
-                {
-                    var msg = SysCommon.GetMessageFromMessageException(msgEx);
-                    await Device.InvokeOnMainThreadAsync(async () =>
-                        await Application.Current.MainPage.DisplayAlert(
-                            this.GetControlDescription(),
-                            msg,
-                            Resource.OK));
-                }
-                catch (Exception ex)
-                {
-                    await Device.InvokeOnMainThreadAsync(async () =>
-                    {
-                        var errorReport = new FormErrorReport(this.ActSubType, ex);
-                        _ = await errorReport.ShowDialog();
-                    });
-                }
-                finally
-                {
-                    await this.ScannerEnable();
-                    this.IsIndicatorRunning = false;
-                }
-            });
+                    var errorReport = new FormErrorReport(this.ActSubType, ex);
+                    _ = await errorReport.ShowDialog();
+                });
+            }
+            finally
+            {
+                await this.ScannerEnable();
+                this.IsIndicatorRunning = false;
+            }
         }
 
         /// <summary>

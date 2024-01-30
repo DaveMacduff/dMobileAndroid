@@ -20,8 +20,8 @@ namespace dMobile.GroundWork
         {
             this.FullClassName = "dMobile.GroundWork.TableActivityReceivingItemComment";
             this.CurrentSubType = SysCommon.ActSubTypes.Receiving;
-            this.LowerCaseName = "receiving";
-            this.ProperCaseName = "Receiving";
+            this.LowerCaseName = "receiving comment";
+            this.ProperCaseName = "Receiving comment";
         }
 
         public override Task<int> DataStatus()
@@ -36,21 +36,50 @@ namespace dMobile.GroundWork
         /// <inheritdoc/>
         public override async Task PurgeData()
         {
-            try
+            this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging existing {this.LowerCaseName} items.", true);
+            var conn = DatabaseConnection.GetInstance().SQLConn;
+            await conn.RunInTransactionAsync(transaction =>
             {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging receiving item comments.", true);
+                try
+                {
+                    // Corruption recovery cleanup.
+                    var query = @"
+                        DELETE FROM tActivityItemReceivingComment
+                            WHERE tActivityItemReceivingComment.ActivityItemRefno <= 0";
+                    transaction.Execute(query);
 
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("DELETE FROM tActivityItemReceivingComment");
+                    query = @"
+                        DELETE FROM tActivityItemReceivingComment
+                            WHERE tActivityItemReceivingComment.ActivityItemRefno
+                                NOT IN (SELECT tActivityItem.ActivityItemRefno FROM tActivityItem)";
+                    transaction.Execute(query);
 
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging receiving item comments complete.", true);
-            }
-            catch (SQLiteException ex)
-            {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging receiving item comments failed.", true);
+                    // Regular purge.
+                    query = @"
+                        DELETE FROM tActivityItemReceivingComment
+                            WHERE tActivityItemReceivingComment.ActivityItemRefno IN
+                                (SELECT tActivityItem.ActivityItemRefno
+                                    FROM tActivityItem
+                                    WHERE tActivityItem.ActivityItemSubType = ?)";
+                    transaction.Execute(query, this.CurrentSubType);
 
-                throw new Exception("Database exception occurred. Purging receiving item comments failed.", ex);
-            }
+                    transaction.Commit();
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} items complete.", true);
+                }
+                catch (SQLiteException ex)
+                {
+                    transaction.Rollback();
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} items failed.", true);
+                    throw new Exception($"Database exception occurred. Purging {this.LowerCaseName} items failed.", ex);
+                }
+                catch
+                {
+                    transaction.Rollback();
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} items failed.", true);
+                    throw;
+                }
+            });
         }
 
         public override Task PurgeData(int sectLocMapRefno)

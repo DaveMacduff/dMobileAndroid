@@ -233,16 +233,8 @@ namespace dMobile.GroundWork
                     $"Seeding {this.LowerCaseName} items.",
                     true);
 
-                string responseData;
-                if (actHdrRefno == 0)
-                {
-                    throw new Exception("actHdrRefno == 0");
-                }
-                else
-                {
-                    responseData = await this.SendRequest(actHdrRefno);
-                    await this.Save(responseData, actHdrRefno);
-                }
+                var responseData = await this.SendRequest(actHdrRefno);
+                await this.Save(responseData, actHdrRefno);
 
                 this.DataAccessStatusOutHandler(
                     sender: this,

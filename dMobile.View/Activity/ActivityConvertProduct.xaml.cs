@@ -122,7 +122,7 @@ namespace dMobile.View.Activity
         private BarCodeScanner Scanner { get; } = ScannerEngine.GetInstance().Scanner;
 
         /// <summary>
-        ///     Gets the activity sub type.
+        ///     Gets the activity subtype.
         /// </summary>
         private SysCommon.ActSubTypes ActSubType { get; } = SysCommon.ActSubTypes.ConvertProduct;
 
@@ -582,18 +582,21 @@ namespace dMobile.View.Activity
         /// </param>
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
-            if (this.IsDataLoading)
-            {
-                return;
-            }
-
-            scanArgs = scanArgs ?? throw new ArgumentNullException(nameof(scanArgs));
-
             try
             {
+                await this.ScannerDisable();
+                if (scanArgs == null)
+                {
+                    const string msg = "Scanner event fired but no data was received.";
+                    await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert(
+                        this.ActItem.GetControlDescription(),
+                        msg,
+                        Resource.OK));
+                    throw new TaskCanceledException();
+                }
+
                 this.IsDataLoading = true;
                 var parse = scanArgs.ParseInfo;
-                await this.ScannerDisable();
                 if (!string.IsNullOrEmpty(parse.LocationIdentifier))
                 {
                     await BarCodeHandlerLocationIdentifier(parse);
@@ -625,6 +628,8 @@ namespace dMobile.View.Activity
             {
                 // Do nothing as task is being canceled from IdentifyProductScanned when user
                 // declines to assign bar code to product.
+
+                // Raised if not bar code was scanned.
             }
             catch (MessageOnlyException msgEx)
             {

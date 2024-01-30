@@ -1281,21 +1281,26 @@ namespace dMobile.View.Activity
         /// <returns>The <see cref="Task" />.</returns>
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
-            if (scanArgs == null)
-            {
-                return;
-            }
-
-            var parse = scanArgs.ParseInfo;
             try
             {
                 await this.ScannerDisable();
+                if (scanArgs == null)
+                {
+                    const string msg = "Scanner event fired but no data was received.";
+                    await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert(
+                        this.ActDetail.GetControlDescription(),
+                        msg,
+                        Resource.OK));
+                    throw new TaskCanceledException();
+                }
+
+                var parse = scanArgs.ParseInfo;
                 var svdActDetailFkRefno = this.ActDetail.DetailFkRefno;
 
                 // GLOBAL LOCATION IDENTIFIER SCANNED
                 if (!string.IsNullOrEmpty(parse.LocationIdentifier))
                 {
-                    await BarCodeHandlerLocationIdentifier();
+                    await BarCodeHandlerLocationIdentifier(parse);
                 }
                 else
                 {
@@ -1508,6 +1513,7 @@ namespace dMobile.View.Activity
             }
             catch (TaskCanceledException)
             {
+                // This exception is also caught if the scan event arguments are null.
             }
             catch (IsReadyToApplyException)
             {
@@ -1542,14 +1548,18 @@ namespace dMobile.View.Activity
             }
             finally
             {
+                if (scanArgs != null)
+                {
+                    this.ListViewDisplayExtraInfo.ItemsSource = this.ExtraInfoItems;
+                }
+
                 await this.ScannerEnable();
-                this.ListViewDisplayExtraInfo.ItemsSource = this.ExtraInfoItems;
             }
 
             return;
 
             //////////////////////////////////////////////////////////////////////////
-            async Task BarCodeHandlerLocationIdentifier()
+            async Task BarCodeHandlerLocationIdentifier(BarCodeParse parse)
             {
                 this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
                     await LocationMapTasks.GetLocMapRefnoFromBarCodeGlobalLocIdentifier(parse.LocationIdentifier));

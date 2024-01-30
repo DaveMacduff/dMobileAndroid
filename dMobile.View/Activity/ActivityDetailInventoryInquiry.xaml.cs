@@ -381,16 +381,21 @@ namespace dMobile.View.Activity
         /// <returns>The <see cref="Task" />.</returns>
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
-            if (this.IsIndicatorRunning || scanArgs == null)
-            {
-                return;
-            }
-
             try
             {
+                await this.ScannerDisable();
+                if (scanArgs == null)
+                {
+                    const string msg = "Scanner event fired but no data was received.";
+                    await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert(
+                        this.ActDetail.GetControlDescription(),
+                        msg,
+                        Resource.OK));
+                    throw new TaskCanceledException();
+                }
+
                 this.IsIndicatorRunning = true;
                 this.BarParse = scanArgs.ParseInfo;
-                await this.ScannerDisable();
 
                 // <issue="13609" author="RD" date="2016/02/22"/>
                 if (this.ActDetail != null && this.ActDetail.ActItem != null)
@@ -424,6 +429,10 @@ namespace dMobile.View.Activity
                 }
 
                 throw new Exception("Scanned bar code type is not supported here.");
+            }
+            catch (TaskCanceledException)
+            {
+                // Ignore
             }
             catch (Exception ex)
             {

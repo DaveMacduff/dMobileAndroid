@@ -7,6 +7,7 @@ namespace dMobile.View.Activity
     using System;
     using System.Collections.ObjectModel;
     using System.Linq;
+    using System.Runtime.InteropServices;
     using System.Threading.Tasks;
     using System.Xml.Linq;
     using Android.Views;
@@ -16,38 +17,27 @@ namespace dMobile.View.Activity
     using Controller.Activity;
     using Controller.Activity_Detail;
     using Controller.Activity_Item;
-    using CustomPages;
+    using Helpers;
     using Forms;
+    using GroundWork;
     using Resources.Enums;
-    using Resources.Models;
     using Resources.Types;
     using SQLite;
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;
     using Resource = Resources.Properties.Resources;
+    using System.Text;
 
+    /// <summary>
+    /// Activity purchase order work sheet.
+    /// </summary>
     [XamlCompilation(XamlCompilationOptions.Compile)]
-    public partial class ActivityPurchaseOrderWorkSheet : DMobileContentPage, IAppArea
+    public partial class ActivityPurchaseOrderWorkSheet : IAppArea
     {
-        private int prodUnitRefno;
-
         /// <summary>
         ///     Initializes a new instance of the <see cref="ActivityPurchaseOrderWorkSheet" /> class.
         /// </summary>
-        public ActivityPurchaseOrderWorkSheet()
-        {
-            this.InitializeComponent();
-            this.IsIndicatorRunning = false;
-        }
-
-        /// <summary>
-        /// </summary>
-        /// <param name="_ActivitySubTypes"></param>
-        /// <remarks></remarks>
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="ActivityPurchaseOrderWorkSheet" /> class.
-        /// </summary>
-        /// <param name="actSubType"></param>
+        /// <param name="actSubType"><see cref="ActSubType"/> Activity subtype.</param>
         public ActivityPurchaseOrderWorkSheet(SysCommon.ActSubTypes actSubType)
         {
             this.InitializeComponent();
@@ -64,65 +54,95 @@ namespace dMobile.View.Activity
             this.Activity = ActivityFacade.GetActivity(this.ActSubType);
             this.ActItem = ActItemFacade.GetActItem(this.Activity, this.ActSubType);
             this.ActDetail = ActDetailFacade.GetActDetail(this.ActItem, this.ActSubType);
-
             this.Title = this.GetControlDescription();
 
-            this.BarCodeModifier1Picker.Items.Clear();
+            ParseAndSeedBarCodeModifier();
+            this.ScannerEnable().FireAndForgetSafeAsync();
+            this.LoadAndBindData().FireAndForgetSafeAsync();
+            return;
 
-            if (this.SysEnv.SysSettings.IsProductUnitBarCodeModifier1)
+            //////////////////////////////////////////////////////////////////////////
+            void ParseAndSeedBarCodeModifier()
             {
+                this.BarCodeModifier1Picker.IsVisible = false;
+                this.BarCodeModifier1Picker.IsEnabled = false;
+                this.BarCodeModifier1Picker.Items.Clear();
+                if (!this.SysEnv.SysSettings.IsProductUnitBarCodeModifier1)
+                {
+                    return;
+                }
+
                 this.BarCodeModifier1Picker.Items.Add(string.Empty);
                 var modifiers = this.SysEnv.SysSettings.ProductUnitBarCodeModifier1Codes.Split(',');
-
                 foreach (var item in modifiers)
                 {
                     this.BarCodeModifier1Picker.Items.Add(item);
                 }
-            }
-            else
-            {
-                this.BarCodeModifier1Picker.IsVisible = false;
-                this.BarCodeModifier1Picker.IsEnabled = false;
-            }
 
-            this.BarCodeModifier1Picker.SelectedItem = this.SysEnv.CurrentBarCodeModifier1;
+                if (this.BarCodeModifier1Picker.Items.Count > 0)
+                {
+                    this.BarCodeModifier1Picker.IsVisible = true;
+                    this.BarCodeModifier1Picker.IsEnabled = true;
+                }
+
+                this.BarCodeModifier1Picker.SelectedItem = this.SysEnv.CurrentBarCodeModifier1;
+            }
         }
 
         /// <summary>
-        ///     Gets or sets a value indicating whether the bar code handler is registered.
+        ///    Gets or sets the bar code parse information.
         /// </summary>
-        private bool IsBarCodeHandlerRegistered { get; set; }
-
-        /// <summary>
-        ///     Gets or sets a value indicating whether the saved bar code scanner enabled status.
-        /// </summary>
-        private bool IsSvdBarScannerEnabled { get; set; } = false;
-
         private BarCodeParse BarParse { get; set; }
 
+        /// <summary>
+        ///    Gets the bar code scanner engine.
+        /// </summary>
         private BarCodeScanner Scanner { get; }
 
-        private string ItemSortByIdx { get; set; } = "ActivityItemFKRefno";
-
+        /// <summary>
+        ///     Gets the activity detail instance.
+        /// </summary>
         private ActDetail ActDetail { get; }
 
+        /// <summary>
+        ///     Gets the location map instance.
+        /// </summary>
         private LocationMap LocMap { get; }
 
+        /// <summary>
+        ///     Gets the system environment instance.
+        /// </summary>
         private SysEnvironment SysEnv { get; }
 
-        private bool IsBarCodeRegistered { get; set; } = false;
-
+        /// <summary>
+        ///     Gets the activity header instance.
+        /// </summary>
         private Activity Activity { get; }
 
+        /// <summary>
+        ///     Gets the activity item instance.
+        /// </summary>
         private ActItem ActItem { get; }
 
-        private SysCommon.ActSubTypes ActSubType { get; } = SysCommon.ActSubTypes.PurchaseOrderWorkSheet;
+        /// <summary>
+        ///     Gets or sets the selected activity item foreign key reference number.
+        /// </summary>
+        private int SelectedActivityItemFkRefno { get; set; }
 
-        private int TotalTicks { get; set; } = 0;
+        /// <summary>
+        ///     Gets the activity subtype.
+        /// </summary>
+        private SysCommon.ActSubTypes ActSubType { get; }
 
-        public ObservableCollection<string> ExtraInfoItems { get; set; }
+        /// <summary>
+        ///     Gets or sets the extra information items.
+        /// </summary>
+        private ObservableCollection<string> ExtraInfoItems { get; set; }
 
-        public ObservableCollection<object> MainActivityItems { get; set; }
+        /// <summary>
+        ///     Gets or sets the main activity items collection.
+        /// </summary>
+        private ObservableCollection<object> MainActivityItems { get; set; }
 
         /// <summary>
         ///     Unregister the bar code scan event handler and disable the scanner.
@@ -130,13 +150,8 @@ namespace dMobile.View.Activity
         /// <returns><see cref="Task" /> Task operation.</returns>
         public async Task ScannerDisable()
         {
-            if (this.Scanner != null)
-            {
-                this.Scanner.ClearBarCodeScanEventHandlers();
-                await this.Scanner.DisableScanning();
-            }
-
-            this.IsBarCodeHandlerRegistered = false;
+            this.Scanner.ClearBarCodeScanEventHandlers();
+            await this.Scanner.DisableScanning();
         }
 
         /// <summary>
@@ -145,40 +160,32 @@ namespace dMobile.View.Activity
         /// <returns><see cref="Task" /> Task operation.</returns>
         public async Task ScannerEnable()
         {
-            if (!this.IsBarCodeHandlerRegistered && this.Scanner != null)
+            if (!this.Scanner.IsBarCodeScanEventHandlerAdded())
             {
-                await this.Scanner.EnableScanning();
-                if (!this.Scanner.IsBarCodeScanEventHandlerAdded())
-                {
-                    this.Scanner.BarCodeScan += this.BarCodeHandler;
-                }
-
-                this.IsBarCodeHandlerRegistered = true;
+                this.Scanner.BarCodeScan += this.BarCodeHandler;
             }
+
+            await this.Scanner.EnableScanning();
         }
 
         /// <summary>
+        ///     Check if the activity item is ready to save.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
-        /// <inheritdoc />
+        /// <returns><see cref="bool" /> True if it is ready to save, else false.</returns>
         public async Task<bool> IsReadyToSave()
         {
-            var IsReadyToSave = true;
-
-            return IsReadyToSave;
+            return await Task.Run(() => true);
         }
 
         /// <summary>
+        ///     Check if the activity item is ready to close.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
-        /// <inheritdoc />
+        /// <returns><see cref="bool" /> True if it is ready to save, else false.</returns>
         public async Task<bool> IsReadyToClose()
         {
             // NOTE: This code is needed to clean up the scanner driver.
             // Symbol had threading issues without this call when dMobile was terminating.
-            // All user controls that initalize a bar code need this code.
+            // All user controls that initialize a bar code need this code.
             // The parent form (not a user control) will call scanner.terminate and dispose
             // of the scanner instance upon exiting dMobile.
             if (this.Scanner != null)
@@ -190,20 +197,18 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
+        ///     Save any activity item data changes.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
-        /// <inheritdoc />
+        /// <returns><see cref="bool" /> True if the save was successful, else false.</returns>
         public async Task<bool> SaveChanges()
         {
-            return true;
+            return await Task.Run(() => true);
         }
 
         /// <summary>
+        ///     Cancel any pending activity item changes.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
-        /// <inheritdoc />
+        /// <returns><see cref="bool" /> True if the pending changes where canceled, else false.</returns>
         public async Task<bool> CancelChanges()
         {
             var cancelChanges = true;
@@ -211,25 +216,9 @@ namespace dMobile.View.Activity
             try
             {
                 // IsReadyToClose checks if any changes where made.
-                if (await this.IsReadyToClose())
+                if (!await this.IsReadyToClose())
                 {
-                    // Clear any properties.
-                    // this.ProdUnitRefno = 0;
-
-                    // Expect the control to close.
-                }
-                else
-                {
-                    // If changes where made.
-                    // By reloading, restoring the last valid state we should be able to close the control
-                    // on the second CancelChanges attempt.
-                    // Methods that could be called to restore the control to a closable state.
-                    // ClearProperties();
-                    // DisplayData();
-                    // this.LoadData();
                     cancelChanges = false;
-
-                    // this.IsChangesMade = false;
                 }
             }
             catch (Exception ex)
@@ -247,11 +236,12 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
+        ///     Get the activity item return XDocument information.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
-        /// <inheritdoc />
+        /// <returns><see cref="XDocument" /> Activity item return information.</returns>
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
         public async Task<XDocument> GetXml()
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
         {
             var xmldocParams = XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" +
                                                "<params>" + "</params>");
@@ -259,88 +249,187 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        ///     The OnAppearing.
+        ///     Get control description.
         /// </summary>
-        protected override async void OnAppearing()
+        /// <returns><see cref="string"/> Control description.</returns>
+        public string GetControlDescription()
         {
+            return this.Activity.GetControlDescription();
+        }
+
+        /// <summary>
+        ///     Command add click event handler.
+        /// </summary>
+        /// <param name="sender"><see cref="object" /> Object that generated this event.</param>
+        /// <param name="e"><see cref="EventArgs" /> Event argument data.</param>
+        public async void cmdAdd_Click(object sender, EventArgs e)
+        {
+            var dialogResult = DialogResult.None;
+            var strProductUnitBarCodeCode = string.Empty;
+            var strBarCodeSymbologyPrefix = string.Empty;
+
             try
             {
-                this.IsIndicatorRunning = true;
-                base.OnAppearing();
+                await this.ScannerDisable();
 
-                this.ListViewDisplayExtraInfo.ItemsSource = this.ExtraInfoItems;
-
-                MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async keyPressed =>
+                var productUnitRefno = 0;
+                string productCode;
+                bool productUnitIsBc;
+                string unitCode;
+                var formSelectProdUnit = new FormDialogContainer(EDialogTypes.SelectProductUnit,
+                    SysCommon.ActSubTypes.PurchaseOrderWorkSheet);
+                _ = await Device.InvokeOnMainThreadAsync(async () =>
+                    dialogResult = await formSelectProdUnit.DisplayControl.ShowDialog());
+                if (dialogResult == DialogResult.OK)
                 {
-                    _ = Enum.TryParse(keyPressed, out Keycode keycode);
+                    var xmlDocProduct = await formSelectProdUnit.GetXML();
+                    productUnitRefno = int.Parse(xmlDocProduct.Root!.Element("ProductUnitRefno") !.Value);
+                    productCode = xmlDocProduct.Root!.Element("ProductCode") !.Value;
+                    productUnitIsBc = bool.Parse(xmlDocProduct.Root!.Element("ProductUnitIsBC") !.Value);
+                    unitCode = xmlDocProduct.Root!.Element("UnitCode") !.Value;
+                    this.ActItem.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(productUnitRefno);
+                    this.ActItem.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(
+                        this.ActItem.ProdInfo.Refno);
+                }
+                else
+                {
+                    throw new TaskCanceledException();
+                }
 
-                    if (!this.IsIndicatorRunning)
+                var iActivityItemFoundRefno = await this.ActItem.GetActivityItemRefno(
+                    productUnitRefno,
+                    LocationMap.GetInstance().CurrLocMap);
+                if (iActivityItemFoundRefno > 0)
+                {
+                    var formPurchaseOrderWorkSheetEdit = new FormDialogContainer(
+                        EDialogTypes.ActivityPurchaseOrderWorkSheetEdit,
+                        this.ActDetail,
+                        SysCommon.ActSubTypes.NotApplicable);
+
+                    dialogResult = await formPurchaseOrderWorkSheetEdit.DisplayControl.ShowDialog();
+
+                    if (dialogResult == DialogResult.OK)
                     {
-                        if (keycode == Keycode.DpadDown)
+                        var xmlDocEdit = await formPurchaseOrderWorkSheetEdit.GetXML();
+                        var altQty = Math.Round(decimal.Parse(xmlDocEdit.Root!.Element("alt_qty") !.Value), 3);
+                        var baseQty = Math.Round(decimal.Parse(xmlDocEdit.Root!.Element("base_qty") !.Value), 3);
+                        var wtQty = Math.Round(decimal.Parse(xmlDocEdit.Root!.Element("wt_qty") !.Value), 3);
+
+                        var request = XDocument.Parse(
+                            "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" +
+                            "<params>" +
+                            "<ProductUnitRefno>" + productUnitRefno + "</ProductUnitRefno>" +
+                            "<ProductCode>" + productCode + "</ProductCode>" +
+                            "<ProductUnitIsBC>" + productUnitIsBc + "</ProductUnitIsBC>" +
+                            "<UnitCode>" + unitCode + "</UnitCode>" +
+                            "<ProductUnitBarCodeCode>" + strProductUnitBarCodeCode + "</ProductUnitBarCodeCode>" +
+                            "<ProductUnitBarCodeSymbologyPrefix>" + strBarCodeSymbologyPrefix +
+                            "</ProductUnitBarCodeSymbologyPrefix>" +
+                            "<alt_qty>" + altQty + "</alt_qty>" +
+                            "<base_qty>" + baseQty + "</base_qty>" +
+                            "<wt_qty>" + wtQty + "</wt_qty>" +
+                            "<whs_id>" + this.LocMap.LoginWhsLocMapRefno + "</whs_id>" +
+                            "<refno>" + this.ActItem.ItemFkRefno + "</refno>" +
+                            "<itm_refno>" + this.ActItem.ItemFkRefno + "</itm_refno>" +
+                            "<alt_unit>" + this.ActItem.ProdInfo.UnitCode + "</alt_unit>" +
+                            "<base_unit>" + this.ActItem.ProdInfo.BaseUnitCode + "</base_unit>" +
+                            "<wt_unit>" + this.ActItem.ProdInfo.WeightUnitCode + "</wt_unit>" +
+                            "</params>");
+                        await this.ActItem.Update(request);
+                    }
+                }
+                else
+                {
+                    this.ActItem.ItemFkRefno = 0;
+
+                    // Reset values
+                    this.ActDetail.Quantity = 0;
+                    this.ActDetail.BaseQuantity = 0;
+                    this.ActDetail.WeightQuantity = 0;
+                    this.ActDetail.SchemeId = string.Empty;
+                    this.ActDetail.UniqueSchemeId = string.Empty;
+                    var formPurchaseOrderWorkSheetEdit = new FormDialogContainer(
+                        EDialogTypes.ActivityPurchaseOrderWorkSheetEdit,
+                        this.ActDetail,
+                        SysCommon.ActSubTypes.NotApplicable);
+                    dialogResult = await formPurchaseOrderWorkSheetEdit.DisplayControl.ShowDialog();
+                    if (dialogResult == DialogResult.OK)
+                    {
+                        var xmlDocEdit = await formPurchaseOrderWorkSheetEdit.GetXML();
+                        var altQty = Math.Round(decimal.Parse(xmlDocEdit.Root!.Element("alt_qty")!.Value), 3);
+                        var baseQty = Math.Round(decimal.Parse(xmlDocEdit.Root!.Element("base_qty")!.Value), 3);
+                        var wtQty = Math.Round(decimal.Parse(xmlDocEdit.Root!.Element("wt_qty")!.Value), 3);
+
+                        var request = XDocument.Parse(
+                            "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" +
+                            "<params>" +
+                            "<ProductUnitRefno>" + this.ActItem.ProdInfo.UnitRefno + "</ProductUnitRefno>" +
+                            "<ProductCode>" + this.ActItem.ProdInfo.Code + "</ProductCode>" +
+                            "<ProductUnitIsBC>" + this.ActItem.ProdInfo.UnitIsBC + "</ProductUnitIsBC>" +
+                            "<UnitCode>" + this.ActItem.ProdInfo.UnitCode + "</UnitCode>" +
+                            "<ProductUnitBarCodeCode>" + strProductUnitBarCodeCode + "</ProductUnitBarCodeCode>" +
+                            "<ProductUnitBarCodeSymbologyPrefix>" + strBarCodeSymbologyPrefix + "</ProductUnitBarCodeSymbologyPrefix>" +
+                            "<alt_qty>" + altQty + "</alt_qty>" +
+                            "<base_qty>" + baseQty + "</base_qty>" +
+                            "<wt_qty>" + wtQty + "</wt_qty>" +
+                            "<whs_id>" + this.LocMap.LoginWhsLocMapRefno + "</whs_id>" +
+                            "<refno>" + this.ActItem.ItemFkRefno + "</refno>" +
+                            "<itm_refno>" + this.ActItem.ItemFkRefno + "</itm_refno>" +
+                            "<alt_unit>" + this.ActItem.ProdInfo.UnitCode + "</alt_unit>" +
+                            "<base_unit>" + this.ActItem.ProdInfo.BaseUnitCode + "</base_unit>" +
+                            "<wt_unit>" + this.ActItem.ProdInfo.WeightUnitCode + "</wt_unit>" +
+                            "</params>");
+                        await this.ActItem.Insert(request);
+
+                        if (this.ActItem.ListItems.Count > 0)
                         {
-                            if (this.ListViewMainActivity.SelectedItem != null &&
-                                Convert.ToInt32(this.MainActivityItems.IndexOf(this.ListViewMainActivity.SelectedItem)) <
-                                this.MainActivityItems.Count - 1)
+                            var purchaseOrderWorkSheetItem = this.ActItem.ListItems.OfType<PurchaseOrderWorkSheetItem>()
+                                .FirstOrDefault(item => item.ActivityItemFKRefno == this.ActItem.ItemFkRefno);
+                            if (purchaseOrderWorkSheetItem == null)
                             {
-                                this.ListViewMainActivity.SelectedItem =
-                                    this.MainActivityItems[
-                                        this.MainActivityItems.IndexOf(this.ListViewMainActivity.SelectedItem) + 1];
-                                this.ListViewMainActivity.ScrollTo(this.ListViewMainActivity.SelectedItem,
-                                    ScrollToPosition.MakeVisible, true);
+                                throw new Exception("Unable to identify the work sheet items");
                             }
-                        }
-                        else if (keycode == Keycode.DpadUp)
-                        {
-                            if (this.ListViewMainActivity.SelectedItem != null &&
-                                Convert.ToInt32(this.MainActivityItems.IndexOf(this.ListViewMainActivity.SelectedItem)) > 0)
-                            {
-                                this.ListViewMainActivity.SelectedItem =
-                                    this.MainActivityItems[
-                                        this.MainActivityItems.IndexOf(this.ListViewMainActivity.SelectedItem) - 1];
-                                this.ListViewMainActivity.ScrollTo(this.ListViewMainActivity.SelectedItem,
-                                    ScrollToPosition.MakeVisible, true);
-                            }
+
+                            this.ListViewMainActivity.SelectedItem = purchaseOrderWorkSheetItem;
                         }
                     }
-                });
+                }
 
-                this.LocMap.CurrLocMap =
-                    await LocationMapTasks.GetSLocMapFromLocMapRefno(this.LocMap.LoginWhsLocMapRefno);
-
-                await this.ucActivityPurchaseOrderWorkSheet_GotFocus(this, EventArgs.Empty);
+                await this.LoadAndBindData();
             }
-            catch (CommunicationException commEx)
+            catch (TaskCanceledException)
             {
-                // Question should a communication error, be reported as an error or just a messagebox?
+            }
+            catch (MessageOnlyException msgEx)
+            {
+                var msg = SysCommon.GetMessageFromMessageException(msgEx);
                 await Device.InvokeOnMainThreadAsync(async () =>
-                {
-                    var msg = $"Unable to load PO worksheet.{Environment.NewLine}" +
-                              $"Because of a communication problem.{Environment.NewLine}" +
-                              $"Detail:{commEx.Message}{Environment.NewLine}" +
-                              "Please exit and try again.";
-
                     await Application.Current.MainPage.DisplayAlert(
                         this.ActItem.GetControlDescription(),
                         msg,
-                        Resource.OK);
-                });
+                        Resource.OK));
             }
             catch (Exception ex)
             {
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    var msg = $"Unable to load PO worksheet.{Environment.NewLine}" +
-                              $"General exception.{Environment.NewLine}" +
-                              $"Detail:{ex.Message}{Environment.NewLine}" +
-                              "Please exit and try again.";
-                    var errorReport = new FormErrorReport(msg, ex);
-                    _ = await errorReport.ShowDialog();
+                    var errRpt = new FormErrorReport(this.ActSubType, ex);
+                    _ = await errRpt.ShowDialog();
                 });
             }
             finally
             {
-                this.IsIndicatorRunning = false;
+                await this.ScannerEnable();
             }
+        }
+
+        /// <summary>
+        ///     The OnAppearing.
+        /// </summary>
+        protected override async void OnAppearing()
+        {
+            base.OnAppearing();
+            this.SubscribeKeyUpHandlers();
         }
 
         /// <summary>
@@ -349,9 +438,7 @@ namespace dMobile.View.Activity
         protected override async void OnDisappearing()
         {
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
-            await this.ucActivityHdr_LostFocus(this, EventArgs.Empty);
             base.OnDisappearing();
-            this.IsIndicatorRunning = false;
             GC.Collect();
             GC.WaitForPendingFinalizers();
         }
@@ -359,7 +446,12 @@ namespace dMobile.View.Activity
         /// <inheritdoc />
         protected override bool OnBackButtonPressed()
         {
-            Device.BeginInvokeOnMainThread(async () =>
+            Device.BeginInvokeOnMainThread(BackButtonCallback);
+
+            return true;
+
+            //////////////////////////////////////////////////////////////////////////
+            async void BackButtonCallback()
             {
                 _ = base.OnBackButtonPressed();
 
@@ -371,402 +463,111 @@ namespace dMobile.View.Activity
                 {
                     await this.Close();
                 }
-            });
-
-            return true;
+            }
         }
 
         /// <summary>
+        ///     Subscribe the key up handlers.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="oBarCodeScanArgs"></param>
-        /// <remarks></remarks>
-        private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
+        private void SubscribeKeyUpHandlers()
         {
-            if (this.IsIndicatorRunning || scanArgs == null)
-            {
-                return;
-            }
-
-            this.IsIndicatorRunning = true;
-
-            await Task.Run(async () =>
-            {
-                var message = string.Empty;
-
-                // int prodUnitRefno = 0;
-                var actItemFoundRefno = 0;
-                var currentRowIdx =
-                    Convert.ToInt32(this.MainActivityItems.IndexOf(this.ListViewMainActivity.SelectedItem));
-
-                this.BarParse = scanArgs.ParseInfo;
-
-                await this.ScannerDisable();
-
-                try
-                {
-                    if (!string.IsNullOrEmpty(this.BarParse.ActFKRefno))
-                    {
-                        // MessageBox.Show("Scanning an Activity Item Reference # Is Not Supported Here", GetControlDescription(), MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1);
-                        await Device.InvokeOnMainThreadAsync(async () =>
-                            await this.DisplayAlert(this.GetControlDescription(),
-                                "Scanning an Activity Item Reference # Is Not Supported Here", "OK"));
-                    }
-                    else if (!string.IsNullOrEmpty(this.BarParse.ActItemFKRefno))
-                    {
-                        // MessageBox.Show("Scanning an Activity Item Reference # Is Not Supported Here", GetControlDescription(), MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1);
-                        await Device.InvokeOnMainThreadAsync(async () =>
-                            await this.DisplayAlert(this.GetControlDescription(),
-                                "Scanning an Activity Item Reference # Is Not Supported Here", "OK"));
-                    }
-                    else if (!string.IsNullOrEmpty(this.BarParse.ActDetailFKRefno))
-                    {
-                        // MessageBox.Show("Scanning an Activity Detail Reference # Is Not Supported Here", GetControlDescription(), MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1);
-                        await Device.InvokeOnMainThreadAsync(async () =>
-                            await this.DisplayAlert(this.GetControlDescription(),
-                                "Scanning an Activity Detail Reference # Is Not Supported Here", "OK"));
-                    }
-                    else if (!string.IsNullOrEmpty(this.BarParse.SSCC18))
-                    {
-                        // MessageBox.Show("Scanning a shipping container bar code is not supported here!", GetControlDescription(), MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1);
-                        await Device.InvokeOnMainThreadAsync(async () =>
-                            await this.DisplayAlert(this.GetControlDescription(),
-                                "Scanning a shipping container bar code is not supported here!", "OK"));
-                    }
-                    else if (!string.IsNullOrEmpty(this.BarParse.LocationIdentifier))
-                    {
-                        // MessageBox.Show("Scanning a Location Identifier Bar Code Is Not Supported Here", GetControlDescription(), MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1);
-                        await Device.InvokeOnMainThreadAsync(async () =>
-                            await this.DisplayAlert(this.GetControlDescription(),
-                                "Scanning a Location Identifier Bar Code Is Not Supported Here", "OK"));
-                    }
-                    else if (!string.IsNullOrEmpty(this.BarParse.ProductIdentifier))
-                    {
-                        XDocument xmlDocProduct = null;
-
-                        if (await this.IdentifyProductScanned(this.BarParse, xmlDocProduct))
-                        {
-                            var prodInfo = new ProductInfo();
-                            prodInfo = await ProductInfoTasks.GetInfoFromUnitRefno(this.prodUnitRefno);
-                            actItemFoundRefno = await this.ActItem.GetActivityItemRefno(this.prodUnitRefno,
-                                LocationMap.GetInstance().CurrLocMap);
-
-                            // <issue="13609" author="RD" date="2016/02/22"/>
-                            SysShared.AssertSuppressedErrorsAgainstScheme(prodInfo, this.BarParse);
-                        }
-
-                        if (actItemFoundRefno == 0 && this.prodUnitRefno != 0)
-                        {
-                            this.ActItem.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(this.prodUnitRefno);
-                            this.ActItem.ProdInfo.Scheme =
-                                await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ActItem.ProdInfo.Refno);
-
-                            // <issue="13609" author="RD" date="2016/02/22"/>
-                            SysShared.AssertSuppressedErrorsAgainstScheme(this.ActItem.ProdInfo, this.BarParse);
-
-                            if (this.ActItem.IsAllowAddItem)
-                            {
-                                this.Activity.HdrFkRefno = 0;
-                                this.ActItem.ItemFkRefno = 0;
-
-                                var request = XDocument.Parse(
-                                    "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" + "<params>" +
-                                    "<ProductUnitRefno>" + this.ActItem.ProdInfo.UnitRefno + "</ProductUnitRefno>" +
-                                    "<ProductCode>" + this.ActItem.ProdInfo.Code + "</ProductCode>" +
-                                    "<ProductUnitIsBC>" + this.ActItem.ProdInfo.UnitIsBC + "</ProductUnitIsBC>" +
-                                    "<UnitCode>" + this.ActItem.ProdInfo.UnitCode + "</UnitCode>" +
-                                    "<ProductUnitBarCodeCode>" + this.BarParse.ProductIdentifier +
-                                    "</ProductUnitBarCodeCode>" + "<ProductUnitBarCodeSymbologyPrefix>" +
-                                    this.BarParse.SymbologyPrefix + "</ProductUnitBarCodeSymbologyPrefix>" +
-                                    "<alt_qty>" + 0 + "</alt_qty>" + "<base_qty>" + 0 + "</base_qty>" + "<wt_qty>" + 0 +
-                                    "</wt_qty>" + "<whs_id>" + this.LocMap.LoginWhsLocMapRefno + "</whs_id>" +
-                                    "<refno>" + this.Activity.HdrFkRefno + "</refno>" + "<itm_refno>" +
-                                    this.ActItem.ItemFkRefno + "</itm_refno>" + "<alt_unit>" +
-                                    this.ActItem.ProdInfo.UnitCode + "</alt_unit>" + "<base_unit>" +
-                                    this.ActItem.ProdInfo.BaseUnitCode + "</base_unit>" + "<wt_unit>" +
-                                    this.ActItem.ProdInfo.WeightUnitCode + "</wt_unit>" + "</params>");
-                                await this.ActItem.Insert(request);
-                                actItemFoundRefno = this.ActItem.ItemRefno;
-                            }
-                            else
-                            {
-                                message = string.Format(
-                                    "Item Not Found For " + Environment.NewLine + "Location {0} " +
-                                    Environment.NewLine + "Product {1} BC {2} Unit {3}",
-                                    LocationMapTasks.GetCurrentReadableLocation(), this.ActItem.ProdInfo.Code,
-                                    this.ActItem.ProdInfo.UnitBC, this.ActItem.ProdInfo.UnitCode);
-                                throw new Exception(message);
-                            }
-                        }
-
-                        if (actItemFoundRefno == 0)
-                        {
-                            throw new Exception("Item Not Found.");
-                        }
-
-                        // TODO: Fix sorting
-                        // string strOldSort = ActItem.DataViewItems.Sort;
-                        // ActItem.DataViewItems.Sort = "ActivityItemRefno";
-                        // foundRowIdx = ActItem.DataViewItems.Find(actItemFoundRefno);
-                        var purchaseOrderWorkSheetItem1 = this.ActItem.ListItems.OfType<PurchaseOrderWorkSheetItem>()
-                            .Where(item => item.ActivityItemRefno == actItemFoundRefno).FirstOrDefault();
-
-                        if (purchaseOrderWorkSheetItem1 == null)
-                        {
-                            throw new Exception("Unable To Indentify Item");
-                        }
-
-                        await this.ActItem.AssignActivityItem(purchaseOrderWorkSheetItem1);
-
-                        // TODO: Fix sorting
-                        // ActItem.DataViewItems.Sort = strOldSort;
-
-                        var dialogResult = DialogResult.None;
-                        XDocument xmlDocEdit = null;
-
-                        if (actItemFoundRefno > 0)
-                        {
-                            // Ask for new quantity
-                            var form = new FormDialogContainer(EDialogTypes.ActivityPurchaseOrderWorkSheetEdit,
-                                this.ActDetail, SysCommon.ActSubTypes.NotApplicable);
-
-                            dialogResult =
-                                await Device.InvokeOnMainThreadAsync(async () =>
-                                    await form.DisplayControl.ShowDialog());
-
-                            if (dialogResult == DialogResult.OK)
-                            {
-                                xmlDocEdit = await form.GetXML();
-
-                                // TODO: Fix sorting
-                                // string strOldSort = ActItem.DataViewItems.Sort;
-                                // ActItem.DataViewItems.Sort = "ActivityItemRefno";
-                                var purchaseOrderWorkSheetItem2 = this.ActItem.ListItems
-                                    .OfType<PurchaseOrderWorkSheetItem>()
-                                    .Where(item => item.ActivityItemRefno == actItemFoundRefno).FirstOrDefault();
-
-                                if (purchaseOrderWorkSheetItem2 == null)
-                                {
-                                    throw new Exception("Unable To Indentify Item");
-                                }
-
-                                var decQty =
-                                    Math.Round(
-                                        decimal.Parse(xmlDocEdit.Root.Element("alt_qty").Value) +
-                                        Convert.ToDecimal(purchaseOrderWorkSheetItem2
-                                            .ActivityItemPurchaseOrderWorkSheetQuantityOrdered), 3);
-                                var decBaseQty =
-                                    Math.Round(
-                                        decimal.Parse(xmlDocEdit.Root.Element("base_qty").Value) +
-                                        Convert.ToDecimal(purchaseOrderWorkSheetItem2
-                                            .ActivityItemPurchaseOrderWorkSheetBaseQuantityOrdered), 3);
-                                var decWeightQty =
-                                    Math.Round(
-                                        decimal.Parse(xmlDocEdit.Root.Element("wt_qty").Value) +
-                                        Convert.ToDecimal(purchaseOrderWorkSheetItem2
-                                            .ActivityItemPurchaseOrderWorkSheetWeightQuantityOrdered), 3);
-
-                                // TODO: Fix sorting
-                                // ActItem.DataViewItems.Sort = strOldSort;
-                                var request = XDocument.Parse(
-                                    "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" + "<params>" +
-                                    "<ProductUnitRefno>" + this.ActItem.ProdInfo.UnitRefno + "</ProductUnitRefno>" +
-                                    "<ProductCode>" + this.ActItem.ProdInfo.Code + "</ProductCode>" +
-                                    "<ProductUnitIsBC>" + this.ActItem.ProdInfo.UnitIsBC + "</ProductUnitIsBC>" +
-                                    "<UnitCode>" + this.ActItem.ProdInfo.UnitCode + "</UnitCode>" +
-                                    "<ProductUnitBarCodeCode>" + this.BarParse.ProductIdentifier +
-                                    "</ProductUnitBarCodeCode>" + "<ProductUnitBarCodeSymbologyPrefix>" +
-                                    this.BarParse.SymbologyPrefix + "</ProductUnitBarCodeSymbologyPrefix>" +
-                                    "<alt_qty>" + decQty + "</alt_qty>" + "<base_qty>" + decBaseQty + "</base_qty>" +
-                                    "<wt_qty>" + decWeightQty + "</wt_qty>" + "<whs_id>" +
-                                    this.LocMap.LoginWhsLocMapRefno + "</whs_id>" + "<refno>" +
-                                    this.ActItem.ItemFkRefno + "</refno>" + "<itm_refno>" + this.ActItem.ItemFkRefno +
-                                    "</itm_refno>" + "<alt_unit>" + this.ActItem.ProdInfo.UnitCode + "</alt_unit>" +
-                                    "<base_unit>" + this.ActItem.ProdInfo.BaseUnitCode + "</base_unit>" + "<wt_unit>" +
-                                    this.ActItem.ProdInfo.WeightUnitCode + "</wt_unit>" + "</params>");
-                                await this.ActItem.Update(request);
-                            }
-                        }
-                        else
-                        {
-                            this.ActItem.ItemFkRefno = 0;
-
-                            // Reset values
-                            this.ActDetail.Quantity = 0;
-                            this.ActDetail.BaseQuantity = 0;
-                            this.ActDetail.WeightQuantity = 0;
-                            this.ActDetail.SchemeId = string.Empty;
-                            this.ActDetail.UniqueSchemeId = string.Empty;
-
-                            var form = new FormDialogContainer(EDialogTypes.ActivityPurchaseOrderWorkSheetEdit,
-                                this.ActDetail, SysCommon.ActSubTypes.NotApplicable);
-
-                            dialogResult =
-                                await Device.InvokeOnMainThreadAsync(async () =>
-                                    await form.DisplayControl.ShowDialog());
-
-                            if (dialogResult == DialogResult.OK)
-                            {
-                                xmlDocEdit = await form.GetXML();
-                                var request = XDocument.Parse(
-                                    "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" + "<params>" +
-                                    "<ProductUnitRefno>" + this.ActItem.ProdInfo.UnitRefno + "</ProductUnitRefno>" +
-                                    "<ProductCode>" + this.ActItem.ProdInfo.Code + "</ProductCode>" +
-                                    "<ProductUnitIsBC>" + this.ActItem.ProdInfo.UnitIsBC + "</ProductUnitIsBC>" +
-                                    "<UnitCode>" + this.ActItem.ProdInfo.UnitCode + "</UnitCode>" +
-                                    "<ProductUnitBarCodeCode>" + this.BarParse.ProductIdentifier +
-                                    "</ProductUnitBarCodeCode>" + "<ProductUnitBarCodeSymbologyPrefix>" +
-                                    this.BarParse.SymbologyPrefix + "</ProductUnitBarCodeSymbologyPrefix>" +
-                                    "<alt_qty>" + xmlDocEdit.Root.Element("alt_qty").Value + "</alt_qty>" +
-                                    "<base_qty>" + xmlDocEdit.Root.Element("base_qty").Value + "</base_qty>" +
-                                    "<wt_qty>" + xmlDocEdit.Root.Element("wt_qty").Value + "</wt_qty>" + "<whs_id>" +
-                                    this.LocMap.LoginWhsLocMapRefno + "</whs_id>" + "<refno>" +
-                                    this.ActItem.ItemFkRefno + "</refno>" + "<itm_refno>" + this.ActItem.ItemFkRefno +
-                                    "</itm_refno>" + "<alt_unit>" + this.ActItem.ProdInfo.UnitCode + "</alt_unit>" +
-                                    "<base_unit>" + this.ActItem.ProdInfo.BaseUnitCode + "</base_unit>" + "<wt_unit>" +
-                                    this.ActItem.ProdInfo.WeightUnitCode + "</wt_unit>" + "</params>");
-                                await this.ActItem.Insert(request);
-                            }
-                        }
-
-                        // TODO: Fix sorting
-                        // ActItem.DataViewItems.Sort = "ActivityItemFKRefno";
-                        var purchaseOrderWorkSheetItem = this.ActItem.ListItems.OfType<PurchaseOrderWorkSheetItem>()
-                            .Where(item => item.ActivityItemFKRefno == this.ActItem.ItemFkRefno).FirstOrDefault();
-
-                        if (purchaseOrderWorkSheetItem == null)
-                        {
-                            throw new Exception("Unable To Indentify Item");
-                        }
-
-                        _ = await Device.InvokeOnMainThreadAsync(() =>
-                            this.ListViewMainActivity.SelectedItem = purchaseOrderWorkSheetItem);
-                    }
-                    else
-                    {
-                        await Device.InvokeOnMainThreadAsync(async () =>
-                            await this.DisplayAlert(this.GetControlDescription(),
-                                "Scanned Bar Code Type Is Not Supported Here", "OK"));
-                    }
-                }
-                catch (Exception ex)
-                {
-                    await Device.InvokeOnMainThreadAsync(async () =>
-                        await this.DisplayAlert("Activity Item", ex.Message, "OK"));
-                }
-                finally
-                {
-                    await this.ScannerEnable();
-                    this.IsIndicatorRunning = false;
-                }
-            });
+            MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), this.KeyUpHandlerCallback);
         }
 
         /// <summary>
+        ///     Key up handler call back.
         /// </summary>
-        /// <param name="oBarCodeParse"></param>
-        /// <param name="prodUnitRefno"></param>
-        /// <returns></returns>
-        /// <remarks></remarks>
-        private async Task<bool> IdentifyProductScanned(BarCodeParse oBarCodeParse, XDocument xmlDocProduct)
+        /// <param name="keyPressed"><see cref="string" /> Key pressed value.</param>
+        private void KeyUpHandlerCallback(string keyPressed)
         {
-            var IsProductIdentified = false;
-            var strMessage = string.Empty;
-            var iProductUnitBarCodeRefno = 0;
-            var oActivityBarCode = ActivityFacade.GetActivity(SysCommon.ActSubTypes.BarCodeAssociation);
-            var actItemBarCode = ActItemFacade.GetActItem(oActivityBarCode, SysCommon.ActSubTypes.BarCodeAssociation);
-            var actDetailBarCode =
-                ActDetailFacade.GetActDetail(actItemBarCode, SysCommon.ActSubTypes.BarCodeAssociation);
+            _ = Enum.TryParse(keyPressed, out Keycode keycode);
 
-            // by reference params initialize
-            this.prodUnitRefno = 0;
-
-            var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tProductUnitBarCodeModel>(
-                "SELECT * FROM tProductUnitBarCode WHERE ProductUnitBarCodeCode = ? AND ProductUnitBarCodeModifier1 = ?",
-                oBarCodeParse.ProductIdentifier, this.SysEnv.CurrentBarCodeModifier1);
-
-            if (results?.Count > 0)
+            if (!this.IsIndicatorRunning)
             {
-                iProductUnitBarCodeRefno = results[0].ProductUnitBarCodeRefno;
-                this.prodUnitRefno = results[0].ProductUnitRefno;
-            }
-
-            // IF THE SCANNED BARCODE WAS NOT FOUND IN THE DATABASE
-            if (iProductUnitBarCodeRefno == 0)
-            {
-                // IF YES TO JOIN BARCODE TO A PRODUCT
-                strMessage = "Scanned Product Bar Code Is Not Associated To a Product." + Environment.NewLine +
-                             "Do You Wish To Associate It Now? ";
-
-                // if (MessageBox.Show(strMessage, "Activity Item", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
-                if (await Device.InvokeOnMainThreadAsync(async () =>
-                        await this.DisplayAlert("Activity Item", strMessage, "Yes", "No")))
+                if (keycode == Keycode.DpadDown)
                 {
-                    // CALL AND SELECTED A PRODUCT TO JOIN THE BAR CODE TOO
-                    var form = new FormDialogContainer(EDialogTypes.SelectProductUnit,
-                        SysCommon.ActSubTypes.PurchaseOrderWorkSheet);
-
-                    if (await Device.InvokeOnMainThreadAsync(async () =>
-                            await form.DisplayControl.ShowDialog() == DialogResult.OK))
-                    {
-                        xmlDocProduct = await form.GetXML();
-                        this.prodUnitRefno = int.Parse(xmlDocProduct.Root.Element("ProductUnitRefno").Value);
-
-                        // IF A PRODUCT WAS SELECTED, CREATE THE XML FOR THE BAR CODE ACTIVITY INSERT
-                        if (this.prodUnitRefno != 0)
-                        {
-                            var xmlDoc = XDocument.Parse(
-                                "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" + "<params>" +
-                                "<ProductUnitRefno>" + this.prodUnitRefno + "</ProductUnitRefno>" +
-                                "<ProductUnitBarCodeRefno>" + iProductUnitBarCodeRefno + "</ProductUnitBarCodeRefno>" +
-                                "<ProductIdentifier>" + oBarCodeParse.ProductIdentifier + "</ProductIdentifier>" +
-                                "<RawData>" + oBarCodeParse.Raw + "</RawData>" + "<enumBarCodeSymbology>" +
-                                Convert.ToInt32(oBarCodeParse.Symbology) + "</enumBarCodeSymbology>" +
-                                "<BarCodeSymbologyPrefix>" + oBarCodeParse.SymbologyPrefix +
-                                "</BarCodeSymbologyPrefix>" + "<ProductUnitBarCodeModifier1>" +
-                                this.SysEnv.CurrentBarCodeModifier1 + "</ProductUnitBarCodeModifier1>" + "</params>");
-
-                            // INSERT A NEW 'BAR CODE ASSOCIATION' ACTIVITY
-                            await actItemBarCode.Insert(xmlDoc);
-
-                            IsProductIdentified = true;
-                        }
-                    }
+                    AppearingDpadDown();
+                }
+                else if (keycode == Keycode.DpadUp)
+                {
+                    AppearingDpadUp();
                 }
             }
-            else
+
+            //////////////////////////////////////////////////////////////////////////
+            void AppearingDpadDown()
             {
-                IsProductIdentified = true;
+                if (this.ListViewMainActivity.SelectedItem != null && Convert.ToInt32(this.MainActivityItems.IndexOf(
+                        this.ListViewMainActivity.SelectedItem)) < this.MainActivityItems.Count - 1)
+                {
+                    this.ListViewMainActivity.SelectedItem =
+                        this.MainActivityItems[
+                            this.MainActivityItems.IndexOf(this.ListViewMainActivity.SelectedItem) + 1];
+                    this.ListViewMainActivity.ScrollTo(
+                        this.ListViewMainActivity.SelectedItem,
+                        ScrollToPosition.MakeVisible,
+                        true);
+                }
             }
 
-            return IsProductIdentified;
+            //////////////////////////////////////////////////////////////////////////
+            void AppearingDpadUp()
+            {
+                if (this.ListViewMainActivity.SelectedItem != null &&
+                    Convert.ToInt32(this.MainActivityItems.IndexOf(
+                        this.ListViewMainActivity.SelectedItem)) > 0)
+                {
+                    this.ListViewMainActivity.SelectedItem =
+                        this.MainActivityItems[
+                            this.MainActivityItems.IndexOf(this.ListViewMainActivity.SelectedItem) - 1];
+                    this.ListViewMainActivity.ScrollTo(
+                        this.ListViewMainActivity.SelectedItem,
+                        ScrollToPosition.MakeVisible,
+                        true);
+                }
+            }
         }
 
         /// <summary>
+        ///     Load and Bind the data.
         /// </summary>
-        /// <remarks></remarks>
-        private async Task RefreshData()
+        /// <returns><see cref="Task"/> Task.</returns>
+        private async Task LoadAndBindData()
         {
             try
             {
                 this.IsIndicatorRunning = true;
+                this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(this.LocMap.LoginWhsLocMapRefno);
                 await this.Activity.Refresh(null);
                 await this.ActItem.Refresh(null);
+                this.ActItem.ListItems = await this.ActItem.GetActivityItemList(false);
 
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     this.ExtraInfoItems.Clear();
+                    this.ListViewDisplayExtraInfo.ItemsSource = this.ExtraInfoItems;
 
-                    this.ActItem.ListItems = await this.ActItem.GetActivityItemList(false);
-                    this.MainActivityItems =
-                        this.ActItem.DesignGrid(ref this.GridMainActivity, ref this.ListViewMainActivity);
+                    this.MainActivityItems = this.ActItem.DesignGrid(ref this.GridMainActivity, ref this.ListViewMainActivity);
                     this.ListViewMainActivity.ItemsSource = this.MainActivityItems;
 
-                    if (this.ActItem.ListItems.Count > 0 && this.MainActivityItems.Count > 0)
-                    {
-                        await this.ActItem.AssignActivityItem(this.MainActivityItems[0]);
-                        this.ListViewMainActivity.SelectedItem = this.MainActivityItems[0];
-                    }
+                    this.BarCodeModifier1Picker.SelectedItem = this.SysEnv.CurrentBarCodeModifier1;
+                    await this.FindSelectedItemAsync();
+                });
+            }
+            catch (CommunicationException commEx)
+            {
+                // Question should a communication error, be reported as an error or just a messagebox?
+                await Device.InvokeOnMainThreadAsync(async () =>
+                {
+                    var msg = $"Unable to load worksheet.{Environment.NewLine}" +
+                              $"Because of a communication problem.{Environment.NewLine}" +
+                              $"Detail:{commEx.Message}{Environment.NewLine}" +
+                              "Please exit and try again.";
+
+                    await Application.Current.MainPage.DisplayAlert(
+                        this.ActItem.GetControlDescription(),
+                        msg,
+                        Resource.OK);
                 });
             }
             catch (SQLiteException ex)
@@ -779,8 +580,11 @@ namespace dMobile.View.Activity
             }
             catch (Exception ex)
             {
-                // MessageBox.Show(ex.Message, "Refresh", MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1);
-                await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert("Refresh", ex.Message, "OK"));
+                await Device.InvokeOnMainThreadAsync(async () =>
+                {
+                    var errRpt = new FormErrorReport(this.ActSubType, ex);
+                    _ = await errRpt.ShowDialog();
+                });
             }
             finally
             {
@@ -789,203 +593,511 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
+        /// Find the selected item.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
-        public string GetControlDescription()
+        private async Task FindSelectedItemAsync()
         {
-            return this.Activity.GetControlDescription();
-        }
-
-        /// <summary>
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        /// <remarks></remarks>
-        /// <summary>
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        /// <returns>A <see cref="Task" /> representing the result of the asynchronous operation.</returns>
-        public async Task ucActivityPurchaseOrderWorkSheet_GotFocus(object sender, EventArgs e)
-        {
-            await this.ScannerEnable();
-            _ = await Device.InvokeOnMainThreadAsync(() =>
-                this.BarCodeModifier1Picker.SelectedItem = this.SysEnv.CurrentBarCodeModifier1);
-            this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(this.LocMap.LoginWhsLocMapRefno);
-            await this.RefreshData();
-        }
-
-        /// <summary>
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        /// <remarks></remarks>
-        /// <summary>
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        /// <returns>A <see cref="Task" /> representing the result of the asynchronous operation.</returns>
-        public async Task ucActivityHdr_LostFocus(object sender, EventArgs e)
-        {
-            // if (tmrActivityLoaded.Enabled == false)
-            // {
-            if (this.Scanner != null)
+            if (this.ActItem.ListItems.Count > 0 && this.MainActivityItems.Count > 0)
             {
-                await this.ScannerDisable();
-            }
-
-            // }
-        }
-
-        /// <summary>
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        /// <remarks></remarks>
-        public async void cmdAdd_Click(object sender, EventArgs e)
-        {
-            XDocument xmlDocProduct = null;
-            XDocument xmlDocEdit = null;
-            var iActivityItemFoundRefno = 0;
-            var dialogResult = DialogResult.None;
-            var strProductUnitBarCodeCode = string.Empty;
-            var strBarCodeSymbologyPrefix = string.Empty;
-
-            await this.ScannerDisable();
-
-            try
-            {
-                // activity item object needs to check if a new location and product can be added, if not add a detail
-                if (this.LocMap.CurrLocMap.WhsFKRefno == 0 && !this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc)
+                this.ActItem.SelectedListIdx = 0;
+                object selectedItem = null;
+                foreach (var item in this.ActItem.ListItems)
                 {
-                    // MessageBox.Show("You Have To Set Location!");
-                    await Device.InvokeOnMainThreadAsync(async () =>
-                        await this.DisplayAlert("Set Location", "Location Must Be Set!", "OK"));
+                    if (this.SelectedActivityItemFkRefno == this.ActItem.GetFkRefno(item))
+                    {
+                        selectedItem = item;
+                        break;
+                    }
+
+                    this.ActItem.SelectedListIdx++;
+                }
+
+                // Select the first header if no match was found, else select the item.
+                if (selectedItem == null)
+                {
+                    // Goto the first one in the list.
+                    this.ActItem.SelectedListIdx = 0;
+                    Device.BeginInvokeOnMainThread(() =>
+                    {
+                        this.ListViewMainActivity.SelectedItem = this.MainActivityItems[this.ActItem.SelectedListIdx];
+                    });
+                    await this.ActItem.AssignActivityItem(this.ListViewMainActivity.SelectedItem);
                 }
                 else
                 {
-                    var formSelectProd = new FormDialogContainer(EDialogTypes.SelectProductUnit,
-                        SysCommon.ActSubTypes.PurchaseOrderWorkSheet);
-
-                    _ = await Device.InvokeOnMainThreadAsync(async () =>
-                        dialogResult = await formSelectProd.DisplayControl.ShowDialog());
-
-                    if (dialogResult == DialogResult.OK)
+                    await this.ActItem.AssignActivityItem(selectedItem);
+                    Device.BeginInvokeOnMainThread(() =>
                     {
-                        xmlDocProduct = await formSelectProd.GetXML();
-                        this.ActItem.ProdInfo =
-                            await ProductInfoTasks.GetInfoFromUnitRefno(
-                                int.Parse(xmlDocProduct.Root.Element("ProductUnitRefno").Value));
+                        this.ListViewMainActivity.SelectedItem = this.ActItem.SelectedItem;
+                    });
+                }
+
+                Device.BeginInvokeOnMainThread(() =>
+                {
+                    this.ListViewMainActivity.ScrollTo(
+                        this.ListViewMainActivity.SelectedItem,
+                        ScrollToPosition.MakeVisible,
+                        false);
+                });
+
+                if (selectedItem == null)
+                {
+                    // Goto the first one in the list.
+                    this.ActItem.SelectedListIdx = 0;
+                    if (this.ActItem.SelectedListIdx <= this.MainActivityItems.Count - 1)
+                    {
+                        Device.BeginInvokeOnMainThread(() =>
+                        {
+                            this.ExtraInfoItems.Clear();
+                            this.ListViewMainActivity.SelectedItem =
+                                this.MainActivityItems[this.ActItem.SelectedListIdx];
+                        });
+                    }
+                }
+                else
+                {
+                    Device.BeginInvokeOnMainThread(() => { this.ListViewMainActivity.SelectedItem = selectedItem; });
+                }
+
+                Device.BeginInvokeOnMainThread(() =>
+                {
+                    this.ListViewMainActivity.ScrollTo(
+                        this.ListViewMainActivity.SelectedItem,
+                        ScrollToPosition.MakeVisible,
+                        false);
+                });
+            }
+            else
+            {
+                // Clear the activity nothing can be selected.
+                this.ActItem.SelectedListIdx = -1;
+                this.ActItem.SelectedItem = null;
+                this.ActItem.ItemFkRefno = 0;
+                this.ActItem.ItemRefno = 0;
+                this.SelectedActivityItemFkRefno = 0;
+                Device.BeginInvokeOnMainThread(() => { this.ListViewMainActivity.SelectedItem = null; });
+            }
+        }
+
+        /// <summary>
+        ///     Bar code scan event handler.
+        /// </summary>
+        /// <param name="sender"><see cref="object" /> Object that generated the event.</param>
+        /// <param name="scanArgs"><see cref="BarCodeScannerEventArgs" /> Sender bar code scanner event arguments.</param>
+        private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
+        {
+            try
+            {
+                await this.ScannerDisable();
+                if (scanArgs == null)
+                {
+                    const string msg = "Scanner event fired but no data was received.";
+                    await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert(
+                        this.ActItem.GetControlDescription(),
+                        msg,
+                        Resource.OK));
+                    throw new TaskCanceledException();
+                }
+
+                var actItemFoundRefno = 0;
+                this.BarParse = scanArgs.ParseInfo;
+                var isLocationBarCodeScanned = !string.IsNullOrEmpty(this.BarParse.LocationIdentifier);
+                var isProductScanned = !string.IsNullOrEmpty(this.BarParse.ProductIdentifier);
+                var isFkRefnoScanned = !string.IsNullOrEmpty(this.BarParse.ActFKRefno);
+                var isFkItemRefnoScanned = !string.IsNullOrEmpty(this.BarParse.ActItemFKRefno);
+                var isFkDetailRefnoScanned = !string.IsNullOrEmpty(this.BarParse.ActDetailFKRefno);
+                var isSkidScanned = !string.IsNullOrEmpty(this.BarParse.SSCC18);
+
+                if (isFkRefnoScanned)
+                {
+                    await Device.InvokeOnMainThreadAsync(async () =>
+                        await this.DisplayAlert(this.GetControlDescription(),
+                            "Scanning an Activity Item Reference # Is Not Supported Here", "OK"));
+                }
+                else if (isFkItemRefnoScanned)
+                {
+                    await Device.InvokeOnMainThreadAsync(async () =>
+                        await this.DisplayAlert(this.GetControlDescription(),
+                            "Scanning an Activity Item Reference # Is Not Supported Here", "OK"));
+                }
+                else if (isFkDetailRefnoScanned)
+                {
+                    await Device.InvokeOnMainThreadAsync(async () =>
+                        await this.DisplayAlert(this.GetControlDescription(),
+                            "Scanning an Activity Detail Reference # Is Not Supported Here", "OK"));
+                }
+                else if (isSkidScanned)
+                {
+                    await Device.InvokeOnMainThreadAsync(async () =>
+                        await this.DisplayAlert(this.GetControlDescription(),
+                            "Scanning a shipping container bar code is not supported here!", "OK"));
+                }
+                else if (isLocationBarCodeScanned)
+                {
+                    await Device.InvokeOnMainThreadAsync(async () =>
+                        await this.DisplayAlert(this.GetControlDescription(),
+                            "Scanning a location identifier bar code is not supported here", "OK"));
+                }
+                else if (isProductScanned)
+                {
+                    var prodUnitRefno = await SysShared.IdentifyProductScanned(this.ActSubType, this.BarParse);
+                    var scannedProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
+                    if (scannedProdInfo.Refno == 0)
+                    {
+                        throw new MessageOnlyException("Scanned product could not be identified.");
+                    }
+
+                    var prodInfo = await ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
+                    await this.SetDefaultLocationBeforeKnownActivityItem(scannedProdInfo);
+
+                    actItemFoundRefno = await this.ActItem.GetActivityItemRefno(
+                        prodUnitRefno,
+                        LocationMap.GetInstance().CurrLocMap);
+
+                    if (actItemFoundRefno == 0 && prodUnitRefno != 0)
+                    {
+                        this.ActItem.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
                         this.ActItem.ProdInfo.Scheme =
                             await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ActItem.ProdInfo.Refno);
-                        iActivityItemFoundRefno = await this.ActItem.GetActivityItemRefno(
-                            int.Parse(xmlDocProduct.Root.Element("ProductUnitRefno").Value),
-                            LocationMap.GetInstance().CurrLocMap);
 
-                        if (iActivityItemFoundRefno > 0)
+                        // <issue="13609" author="RD" date="2016/02/22"/>
+                        SysShared.AssertSuppressedErrorsAgainstScheme(this.ActItem.ProdInfo, this.BarParse);
+
+                        if (this.ActItem.IsAllowAddItem)
                         {
-                            // Ask for new quantity
-                            var formPurchaseOrderWorkSheetEdit = new FormDialogContainer(
-                                EDialogTypes.ActivityPurchaseOrderWorkSheetEdit, this.ActDetail,
-                                SysCommon.ActSubTypes.NotApplicable);
+                            this.Activity.HdrFkRefno = 0;
+                            this.ActItem.ItemFkRefno = 0;
 
-                            dialogResult = await formPurchaseOrderWorkSheetEdit.DisplayControl.ShowDialog();
-
-                            if (dialogResult == DialogResult.OK)
-                            {
-                                xmlDocEdit = await formPurchaseOrderWorkSheetEdit.GetXML();
-                                var request = XDocument.Parse(
-                                    "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" + "<params>" +
-                                    "<ProductUnitRefno>" + xmlDocProduct.Root.Element("ProductUnitRefno").Value +
-                                    "</ProductUnitRefno>" + "<ProductCode>" +
-                                    xmlDocProduct.Root.Element("ProductCode").Value + "</ProductCode>" +
-                                    "<ProductUnitIsBC>" + xmlDocProduct.Root.Element("ProductUnitIsBC").Value +
-                                    "</ProductUnitIsBC>" + "<UnitCode>" + xmlDocProduct.Root.Element("UnitCode").Value +
-                                    "</UnitCode>" + "<ProductUnitBarCodeCode>" + strProductUnitBarCodeCode +
-                                    "</ProductUnitBarCodeCode>" + "<ProductUnitBarCodeSymbologyPrefix>" +
-                                    strBarCodeSymbologyPrefix + "</ProductUnitBarCodeSymbologyPrefix>" + "<alt_qty>" +
-                                    xmlDocEdit.Root.Element("alt_qty").Value + "</alt_qty>" + "<base_qty>" +
-                                    xmlDocEdit.Root.Element("base_qty").Value + "</base_qty>" + "<wt_qty>" +
-                                    xmlDocEdit.Root.Element("wt_qty").Value + "</wt_qty>" + "<whs_id>" +
-                                    this.LocMap.LoginWhsLocMapRefno + "</whs_id>" + "<refno>" +
-                                    this.ActItem.ItemFkRefno + "</refno>" + "<itm_refno>" + this.ActItem.ItemFkRefno +
-                                    "</itm_refno>" + "<alt_unit>" + this.ActItem.ProdInfo.UnitCode + "</alt_unit>" +
-                                    "<base_unit>" + this.ActItem.ProdInfo.BaseUnitCode + "</base_unit>" + "<wt_unit>" +
-                                    this.ActItem.ProdInfo.WeightUnitCode + "</wt_unit>" + "</params>");
-                                await this.ActItem.Update(request);
-                            }
+                            var request = XDocument.Parse(
+                                "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" +
+                                "<params>" +
+                                "<ProductUnitRefno>" + this.ActItem.ProdInfo.UnitRefno + "</ProductUnitRefno>" +
+                                "<ProductCode>" + this.ActItem.ProdInfo.Code + "</ProductCode>" +
+                                "<ProductUnitIsBC>" + this.ActItem.ProdInfo.UnitIsBC + "</ProductUnitIsBC>" +
+                                "<UnitCode>" + this.ActItem.ProdInfo.UnitCode + "</UnitCode>" +
+                                "<ProductUnitBarCodeCode>" + this.BarParse.ProductIdentifier + "</ProductUnitBarCodeCode>" +
+                                "<ProductUnitBarCodeSymbologyPrefix>" + this.BarParse.SymbologyPrefix + "</ProductUnitBarCodeSymbologyPrefix>" +
+                                "<alt_qty>" + 0 + "</alt_qty>" +
+                                "<base_qty>" + 0 + "</base_qty>" +
+                                "<wt_qty>" + 0 + "</wt_qty>" +
+                                "<whs_id>" + this.LocMap.LoginWhsLocMapRefno + "</whs_id>" +
+                                "<refno>" + this.Activity.HdrFkRefno + "</refno>" +
+                                "<itm_refno>" + this.ActItem.ItemFkRefno + "</itm_refno>" +
+                                "<alt_unit>" + this.ActItem.ProdInfo.UnitCode + "</alt_unit>" +
+                                "<base_unit>" + this.ActItem.ProdInfo.BaseUnitCode + "</base_unit>" +
+                                "<wt_unit>" + this.ActItem.ProdInfo.WeightUnitCode + "</wt_unit>" +
+                                "</params>");
+                            await this.ActItem.Insert(request);
+                            actItemFoundRefno = this.ActItem.ItemRefno;
                         }
                         else
                         {
-                            this.ActItem.ItemFkRefno = 0;
-
-                            // Reset values
-                            this.ActDetail.Quantity = 0;
-                            this.ActDetail.BaseQuantity = 0;
-                            this.ActDetail.WeightQuantity = 0;
-                            this.ActDetail.SchemeId = string.Empty;
-                            this.ActDetail.UniqueSchemeId = string.Empty;
-
-                            var form = new FormDialogContainer(EDialogTypes.ActivityPurchaseOrderWorkSheetEdit,
-                                this.ActDetail, SysCommon.ActSubTypes.NotApplicable);
-
-                            dialogResult = await form.DisplayControl.ShowDialog();
-
-                            if (dialogResult == DialogResult.OK)
-                            {
-                                xmlDocEdit = await form.GetXML();
-                                var request = XDocument.Parse(
-                                    "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" + "<params>" +
-                                    "<ProductUnitRefno>" + this.ActItem.ProdInfo.UnitRefno + "</ProductUnitRefno>" +
-                                    "<ProductCode>" + this.ActItem.ProdInfo.Code + "</ProductCode>" +
-                                    "<ProductUnitIsBC>" + this.ActItem.ProdInfo.UnitIsBC + "</ProductUnitIsBC>" +
-                                    "<UnitCode>" + this.ActItem.ProdInfo.UnitCode + "</UnitCode>" +
-                                    "<ProductUnitBarCodeCode>" + strProductUnitBarCodeCode +
-                                    "</ProductUnitBarCodeCode>" + "<ProductUnitBarCodeSymbologyPrefix>" +
-                                    strBarCodeSymbologyPrefix + "</ProductUnitBarCodeSymbologyPrefix>" + "<alt_qty>" +
-                                    xmlDocEdit.Root.Element("alt_qty").Value + "</alt_qty>" + "<base_qty>" +
-                                    xmlDocEdit.Root.Element("base_qty").Value + "</base_qty>" + "<wt_qty>" +
-                                    xmlDocEdit.Root.Element("wt_qty").Value + "</wt_qty>" + "<whs_id>" +
-                                    this.LocMap.LoginWhsLocMapRefno + "</whs_id>" + "<refno>" +
-                                    this.ActItem.ItemFkRefno + "</refno>" + "<itm_refno>" + this.ActItem.ItemFkRefno +
-                                    "</itm_refno>" + "<alt_unit>" + this.ActItem.ProdInfo.UnitCode + "</alt_unit>" +
-                                    "<base_unit>" + this.ActItem.ProdInfo.BaseUnitCode + "</base_unit>" + "<wt_unit>" +
-                                    this.ActItem.ProdInfo.WeightUnitCode + "</wt_unit>" + "</params>");
-
-                                await this.ActItem.Insert(request);
-
-                                if (this.ActItem.ListItems.Count > 0)
-                                {
-                                    // TODO: Fix sorting
-                                    // string strOldSort = ActItem.DataViewItems.Sort;
-                                    // ActItem.DataViewItems.Sort = "ActivityItemFKRefno";
-                                    var purchaseOrderWorkSheetItem = this.ActItem.ListItems
-                                        .OfType<PurchaseOrderWorkSheetItem>().Where(item =>
-                                            item.ActivityItemFKRefno == this.ActItem.ItemFkRefno).FirstOrDefault();
-
-                                    if (purchaseOrderWorkSheetItem == null)
-                                    {
-                                        throw new Exception("Unable to Identify Activity Items");
-                                    }
-
-                                    this.ListViewMainActivity.SelectedItem = purchaseOrderWorkSheetItem;
-                                }
-                            }
+                            var message = string.Format(
+                                "Item Not Found For " + Environment.NewLine + "Location {0} " +
+                                Environment.NewLine + "Product {1} BC {2} Unit {3}",
+                                LocationMapTasks.GetCurrentReadableLocation(), this.ActItem.ProdInfo.Code,
+                                this.ActItem.ProdInfo.UnitBC, this.ActItem.ProdInfo.UnitCode);
+                            throw new Exception(message);
                         }
                     }
+
+                    if (actItemFoundRefno == 0)
+                    {
+                        throw new Exception("Item Not Found.");
+                    }
+
+                    this.SelectedActivityItemFkRefno = this.ActItem.ItemFkRefno;
+                    var foundSheetItem = this.ActItem.ListItems
+                        .OfType<PurchaseOrderWorkSheetItem>().FirstOrDefault(
+                            item => item.ActivityItemRefno == actItemFoundRefno);
+                    if (foundSheetItem == null)
+                    {
+                        throw new Exception("Unable To Identify Item");
+                    }
+
+                    await this.ActItem.AssignActivityItem(foundSheetItem);
+                    var dialogResult = DialogResult.None;
+                    XDocument xmlDocEdit = null;
+                    if (actItemFoundRefno > 0)
+                    {
+                        // Ask for new quantity
+                        var form = new FormDialogContainer(EDialogTypes.ActivityPurchaseOrderWorkSheetEdit,
+                            this.ActDetail, SysCommon.ActSubTypes.NotApplicable);
+
+                        dialogResult =
+                            await Device.InvokeOnMainThreadAsync(async () =>
+                                await form.DisplayControl.ShowDialog());
+
+                        if (dialogResult == DialogResult.OK)
+                        {
+                            xmlDocEdit = await form.GetXML();
+
+                            // TODO: Fix sorting
+                            // string strOldSort = ActItem.DataViewItems.Sort;
+                            // ActItem.DataViewItems.Sort = "ActivityItemRefno";
+                            var purchaseOrderWorkSheetItem2 = this.ActItem.ListItems
+                                .OfType<PurchaseOrderWorkSheetItem>().FirstOrDefault(
+                                    item => item.ActivityItemRefno == actItemFoundRefno);
+
+                            if (purchaseOrderWorkSheetItem2 == null)
+                            {
+                                throw new Exception("Unable to identify item.");
+                            }
+
+                            ////var decQty =
+                            ////    Math.Round(
+                            ////        decimal.Parse(xmlDocEdit.Root.Element("alt_qty").Value) +
+                            ////        Convert.ToDecimal(purchaseOrderWorkSheetItem2
+                            ////            .ActivityItemPurchaseOrderWorkSheetQuantityOrdered), 3);
+                            var decQty = Math.Round(decimal.Parse(xmlDocEdit.Root.Element("alt_qty").Value), 3);
+                            var decBaseQty = Math.Round(decimal.Parse(xmlDocEdit.Root.Element("base_qty").Value), 3);
+                            var decWeightQty = Math.Round(decimal.Parse(xmlDocEdit.Root.Element("wt_qty").Value), 3);
+
+                            var request = XDocument.Parse(
+                                "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" +
+                                "<params>" +
+                                "<ProductUnitRefno>" + this.ActItem.ProdInfo.UnitRefno + "</ProductUnitRefno>" +
+                                "<ProductCode>" + this.ActItem.ProdInfo.Code + "</ProductCode>" +
+                                "<ProductUnitIsBC>" + this.ActItem.ProdInfo.UnitIsBC + "</ProductUnitIsBC>" +
+                                "<UnitCode>" + this.ActItem.ProdInfo.UnitCode + "</UnitCode>" +
+                                "<ProductUnitBarCodeCode>" + this.BarParse.ProductIdentifier + "</ProductUnitBarCodeCode>" +
+                                "<ProductUnitBarCodeSymbologyPrefix>" + this.BarParse.SymbologyPrefix + "</ProductUnitBarCodeSymbologyPrefix>" +
+                                "<alt_qty>" + decQty + "</alt_qty>" +
+                                "<base_qty>" + decBaseQty + "</base_qty>" +
+                                "<wt_qty>" + decWeightQty + "</wt_qty>" +
+                                "<whs_id>" + this.LocMap.LoginWhsLocMapRefno + "</whs_id>" +
+                                "<refno>" + this.ActItem.ItemFkRefno + "</refno>" +
+                                "<itm_refno>" + this.ActItem.ItemFkRefno + "</itm_refno>" +
+                                "<alt_unit>" + this.ActItem.ProdInfo.UnitCode + "</alt_unit>" +
+                                "<base_unit>" + this.ActItem.ProdInfo.BaseUnitCode + "</base_unit>" +
+                                "<wt_unit>" + this.ActItem.ProdInfo.WeightUnitCode + "</wt_unit>" +
+                                "</params>");
+                            await this.ActItem.Update(request);
+                        }
+                    }
+                    else
+                    {
+                        this.ActItem.ItemFkRefno = 0;
+
+                        // Reset values
+                        this.ActDetail.Quantity = 0;
+                        this.ActDetail.BaseQuantity = 0;
+                        this.ActDetail.WeightQuantity = 0;
+                        this.ActDetail.SchemeId = string.Empty;
+                        this.ActDetail.UniqueSchemeId = string.Empty;
+
+                        var form = new FormDialogContainer(EDialogTypes.ActivityPurchaseOrderWorkSheetEdit,
+                            this.ActDetail, SysCommon.ActSubTypes.NotApplicable);
+
+                        dialogResult =
+                            await Device.InvokeOnMainThreadAsync(async () =>
+                                await form.DisplayControl.ShowDialog());
+
+                        if (dialogResult == DialogResult.OK)
+                        {
+                            xmlDocEdit = await form.GetXML();
+
+                            var request = XDocument.Parse(
+                                "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" +
+                                "<params>" +
+                                "<ProductUnitRefno>" + this.ActItem.ProdInfo.UnitRefno + "</ProductUnitRefno>" +
+                                "<ProductCode>" + this.ActItem.ProdInfo.Code + "</ProductCode>" +
+                                "<ProductUnitIsBC>" + this.ActItem.ProdInfo.UnitIsBC + "</ProductUnitIsBC>" +
+                                "<UnitCode>" + this.ActItem.ProdInfo.UnitCode + "</UnitCode>" +
+                                "<ProductUnitBarCodeCode>" + this.BarParse.ProductIdentifier + "</ProductUnitBarCodeCode>" +
+                                "<ProductUnitBarCodeSymbologyPrefix>" + this.BarParse.SymbologyPrefix + "</ProductUnitBarCodeSymbologyPrefix>" +
+                                "<alt_qty>" + xmlDocEdit.Root.Element("alt_qty").Value + "</alt_qty>" +
+                                "<base_qty>" + xmlDocEdit.Root.Element("base_qty").Value + "</base_qty>" +
+                                "<wt_qty>" + xmlDocEdit.Root.Element("wt_qty").Value + "</wt_qty>" +
+                                "<whs_id>" + this.LocMap.LoginWhsLocMapRefno + "</whs_id>" +
+                                "<refno>" + this.ActItem.ItemFkRefno + "</refno>" +
+                                "<itm_refno>" + this.ActItem.ItemFkRefno + "</itm_refno>" +
+                                "<alt_unit>" + this.ActItem.ProdInfo.UnitCode + "</alt_unit>" +
+                                "<base_unit>" + this.ActItem.ProdInfo.BaseUnitCode + "</base_unit>" +
+                                "<wt_unit>" + this.ActItem.ProdInfo.WeightUnitCode + "</wt_unit>" +
+                                "</params>");
+                            await this.ActItem.Insert(request);
+                        }
+                    }
+
+                    // TODO: Fix sorting
+                    // ActItem.DataViewItems.Sort = "ActivityItemFKRefno";
+                    var purchaseOrderWorkSheetItem = this.ActItem.ListItems
+                        .OfType<PurchaseOrderWorkSheetItem>().FirstOrDefault(
+                            item => item.ActivityItemFKRefno == this.ActItem.ItemFkRefno);
+
+                    if (purchaseOrderWorkSheetItem == null)
+                    {
+                        throw new Exception("Unable to identify the item.");
+                    }
+
+                    _ = await Device.InvokeOnMainThreadAsync(() =>
+                        this.ListViewMainActivity.SelectedItem = purchaseOrderWorkSheetItem);
                 }
+                else
+                {
+                    await Device.InvokeOnMainThreadAsync(async () =>
+                        await this.DisplayAlert(this.GetControlDescription(),
+                            "The scanned bar code type is not supported here.", "OK"));
+                }
+            }
+            catch (TaskCanceledException)
+            {
+                // Do nothing as task is being canceled from IdentifyProductScanned when user
+                // declines to assign bar code to product.
+
+                // This exception is also caught if the scan event arguments are null.
+            }
+            catch (GatherProductDataException ex)
+            {
+                if (!ex.SuppressError)
+                {
+                    await Device.InvokeOnMainThreadAsync(async () =>
+                    {
+                        var errRpt = new FormErrorReport(this.ActSubType, ex);
+                        _ = await errRpt.ShowDialog();
+                    });
+                }
+            }
+            catch (IsReadyToApplyException ex)
+            {
+                if (!ex.SuppressError)
+                {
+                    await Device.InvokeOnMainThreadAsync(async () =>
+                    {
+                        var errRpt = new FormErrorReport(this.ActSubType, ex);
+                        _ = await errRpt.ShowDialog();
+                    });
+                }
+            }
+            catch (MessageOnlyException msgEx)
+            {
+                var msg = SysCommon.GetMessageFromMessageException(msgEx);
+                await Device.InvokeOnMainThreadAsync(async () =>
+                    await Application.Current.MainPage.DisplayAlert(
+                        this.ActItem.GetControlDescription(),
+                        msg,
+                        Resource.OK));
             }
             catch (Exception ex)
             {
-                // MessageBox.Show(ex.Message, "Activity Work Sheet", MessageBoxButtons.OK, MessageBoxIcon.Hand, MessageBoxDefaultButton.Button1);
                 await Device.InvokeOnMainThreadAsync(async () =>
-                    await this.DisplayAlert("Activity Work Sheet", ex.Message, "OK"));
+                    await this.DisplayAlert("Activity Item", ex.Message, "OK"));
             }
+            finally
+            {
+                if (scanArgs != null)
+                {
+                    await this.LoadAndBindData();
+                }
 
-            await this.ScannerEnable();
+                await this.ScannerEnable();
+            }
         }
 
+        /// <summary>
+        ///     Set the activity item location for adding new or identify line items.
+        /// </summary>
+        /// <param name="prodInfo"><see cref="ProductInfo" /> Product information.</param>
+        /// <returns><see cref="Task" /> Task operation.</returns>
+        private async Task SetDefaultLocationBeforeKnownActivityItem(ProductInfo prodInfo)
+        {
+            // Need to get a warehouse to determine default location if turned on, we don't
+            // have the line item warehouse yet. We could assume the header warehouse or even
+            // the login warehouse.
+            // We can't determine the default location until after identifying the line item.
+            if (this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc)
+            {
+                // This will be the default location if the line item location is not complete.
+                var whsLocMapRefno =
+                    await LocationMapTasks.GetWhsLocMapRefnoFromLocMapRefno(this.LocMap.CurrLocMapRefno);
+                var defLocMapRefno = await this.ActItem.GetDefaultLocMapRefno(whsLocMapRefno, prodInfo.Refno);
+
+                if (this.IsAllowedDefaultLocationOverride())
+                {
+                    if (await LocationMapTasks.IsCompleteLocMap(this.LocMap.ChosenLocMap))
+                    {
+                        SetCurrentLocationWithChosen();
+                    }
+                    else
+                    {
+                        if (!await LocationMapTasks.IsCompleteLocMap(defLocMapRefno))
+                        {
+                            const string msg = "Default locations is enabled, and for this activity and product" +
+                                               " the location is not fully complete.";
+                            throw new MessageOnlyException(msg);
+                        }
+
+                        this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(defLocMapRefno);
+                        this.LocMap.ChosenLocMap = this.LocMap.CurrLocMap.Clone();
+                    }
+                }
+                else
+                {
+                    if (!await LocationMapTasks.IsCompleteLocMap(defLocMapRefno))
+                    {
+                        const string msg = "Default locations is enabled, and for this activity and product" +
+                                           " the location is not fully complete.";
+                        throw new MessageOnlyException(msg);
+                    }
+
+                    this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(defLocMapRefno);
+                    this.LocMap.ChosenLocMap = this.LocMap.CurrLocMap.Clone();
+                }
+            }
+            else
+            {
+                SetCurrentLocationWithChosen();
+            }
+
+            if (!await LocationMapTasks.IsCompleteLocMap(this.LocMap.CurrLocMapRefno))
+            {
+                throw new MessageOnlyException("Location must be set first!");
+            }
+
+            return;
+
+            //////////////////////////////////////////////////////////////////////////
+            // Set the current location with the chosen location.
+            void SetCurrentLocationWithChosen()
+            {
+                // This should not be needed, current location should have been already set using the location picker.
+                if (this.LocMap.CurrLocMapRefno != this.LocMap.ChosenLocMapRefno)
+                {
+                    // Set the current location to the chosen one, overriding and defaulting location behaviour.
+                    this.LocMap.CurrLocMap = this.LocMap.ChosenLocMap.Clone();
+                }
+            }
+        }
+
+        /// <summary>
+        ///     Check if default location is allowed to be overridden.
+        /// </summary>
+        /// <returns><see cref="bool" /> True if the location override is allowed else false.</returns>
+        private bool IsAllowedDefaultLocationOverride()
+        {
+            var isAllowedLocationOverride = false;
+            var useProductDefaultLocation = this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc;
+            if (useProductDefaultLocation)
+            {
+                var allowLocationOverridePhysical = this.ActSubType == SysCommon.ActSubTypes.PhysicalCounts
+                                                    && this.SysEnv.SysSettings.IsPhysicalDoNotDefaultProductLocation;
+                var allowLocationOverrideCycle = this.ActSubType == SysCommon.ActSubTypes.CycleCounts
+                                                 && this.SysEnv.SysSettings.IsCycleDoNotDefaultProductLocation;
+                if (allowLocationOverridePhysical || allowLocationOverrideCycle)
+                {
+                    isAllowedLocationOverride = true;
+                }
+            }
+
+            return isAllowedLocationOverride;
+        }
+
+        /// <summary>
+        ///    List view main activity item selected item changed event handler.
+        /// </summary>
+        /// <param name="sender"><see cref="object" /> Object that generated this event.</param>
+        /// <param name="e"><see cref="SelectedItemChangedEventArgs" /> Selected item changed event argument data.</param>
         private async void ListViewMainActivity_ItemSelected(object sender, SelectedItemChangedEventArgs e)
         {
             if (e.SelectedItem != null)

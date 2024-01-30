@@ -1213,18 +1213,23 @@ namespace dMobile.View.Activity
         /// <returns>The <see cref="Task"/>.</returns>
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
-            if (this.IsIndicatorRunning || scanArgs == null)
-            {
-                return;
-            }
-
             this.IsIndicatorRunning = true;
             var listItemRowIdx = 0;
 
             try
             {
-                this.BarCodeParse = scanArgs.ParseInfo;
                 await this.ActDisappearing();
+                if (scanArgs == null)
+                {
+                    const string msg = "Scanner event fired but no data was received.";
+                    await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert(
+                        this.ActDetail.GetControlDescription(),
+                        msg,
+                        Resource.OK));
+                    throw new TaskCanceledException();
+                }
+
+                this.BarCodeParse = scanArgs.ParseInfo;
                 if (!string.IsNullOrEmpty(this.BarCodeParse.LocationIdentifier))
                 {
                     await GlobalLocationNumberHandler();

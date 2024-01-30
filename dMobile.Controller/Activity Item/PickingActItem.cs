@@ -1540,7 +1540,7 @@ namespace dMobile.Controller.Activity_Item
         public override int GetFkRefno(object resourceType)
         {
             object tmpFkItRefno = ((PickingItem)resourceType).ActivityItemFKRefno;
-            return tmpFkItRefno == null ? 0 : Convert.ToInt32(tmpFkItRefno);
+            return Convert.ToInt32(tmpFkItRefno);
         }
 
         /// <summary>

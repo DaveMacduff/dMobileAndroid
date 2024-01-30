@@ -329,16 +329,6 @@ namespace dMobile.View.Activity
         /// <returns>The <see cref="Task" />. Task operation.</returns>
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
-            if (scanArgs == null)
-            {
-                const string msg = "Scanner event fired but no data was received.";
-                await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert(
-                        this.GetControlDescription(),
-                        msg,
-                        Resource.OK));
-                return;
-            }
-
             var isSerialTracked = false;
             var isProductionDateTracked = false;
             var isLotTracked = false;
@@ -356,6 +346,16 @@ namespace dMobile.View.Activity
             try
             {
                 await this.ScannerDisable();
+                if (scanArgs == null)
+                {
+                    const string msg = "Scanner event fired but no data was received.";
+                    await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert(
+                        this.GetControlDescription(),
+                        msg,
+                        Resource.OK));
+                    throw new TaskCanceledException();
+                }
+
                 this.Parse = scanArgs.ParseInfo;
                 await Device.InvokeOnMainThreadAsync(() => this.ExtraInfoItems.Clear());
 
@@ -421,7 +421,8 @@ namespace dMobile.View.Activity
                                         inner join tLocationMapWarehouseProductScheme on
                                             tLocationMapWarehouseProductScheme.ProductRefno = tProduct.ProductRefno";
                                 queryProductUnit += " where tProductUnit.ProductUnitRefno = ?";
-                                queryProductUnit += " and tLocationMapWarehouseProductScheme.WarehouseLocationMapRefno = ?";
+                                queryProductUnit +=
+                                    " and tLocationMapWarehouseProductScheme.WarehouseLocationMapRefno = ?";
 
                                 var resultsProductUnit =
                                     await DatabaseConnection.GetInstance().SQLConn
@@ -441,18 +442,21 @@ namespace dMobile.View.Activity
                                     await this.AddScanMsg("Product Associated To Bar Code");
 
                                     var prodBcUnit = resultsProductUnit[0].ProductCode + " " +
-                                                    resultsProductUnit[0].ProductUnitBC + " " +
-                                                    resultsProductUnit[0].UnitCode;
+                                                     resultsProductUnit[0].ProductUnitBC + " " +
+                                                     resultsProductUnit[0].UnitCode;
                                     await this.AddScanMsg(prodBcUnit);
 
                                     if (this.Parse.DeliScaleAmount != 0 &&
                                         (this.Parse.Symbology == BarCodeSymbologies.UCC_12_UPC_E ||
                                          this.Parse.Symbology == BarCodeSymbologies.EAN_UCC_13))
                                     {
-                                        await this.AddScanMsg($"Product Deli Scale Amount {this.Parse.DeliScaleAmount}");
-                                        await this.AddScanMsg($"Product Deli Scale Weight {deliScaleWeight} {deliScaleWeightUnit}");
+                                        await this.AddScanMsg(
+                                            $"Product Deli Scale Amount {this.Parse.DeliScaleAmount}");
+                                        await this.AddScanMsg(
+                                            $"Product Deli Scale Weight {deliScaleWeight} {deliScaleWeightUnit}");
 
-                                        if (this.SysEnv.BarCodeSettings.IsRuleEnabled_Parse_UCC_12_UPC_E_as_Deli_PLU_4_Digit_Amount)
+                                        if (this.SysEnv.BarCodeSettings
+                                            .IsRuleEnabled_Parse_UCC_12_UPC_E_as_Deli_PLU_4_Digit_Amount)
                                         {
                                             await this.AddScanMsg("Barcode Rule: 4 digit amount");
                                         }
@@ -647,6 +651,10 @@ namespace dMobile.View.Activity
                         }
                     }
                 }
+            }
+            catch (TaskCanceledException)
+            {
+                // Do nothing
             }
             catch (Exception ex)
             {

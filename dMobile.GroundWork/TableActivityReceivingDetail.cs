@@ -11,20 +11,19 @@ namespace dMobile.GroundWork
     using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
-    using dMobile.Bedrock;
-    using dMobile.Resources.Models;
+    using Bedrock;
+    using Resources.Models;
     using SQLite;
 
     /// <summary>
-    /// Defines the <see cref="TableActivityReceivingDetail" />.
+    ///     Defines the <see cref="TableActivityReceivingDetail" />.
     /// </summary>
     public class TableActivityReceivingDetail : TableBase
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="TableActivityReceivingDetail"/> class.
+        ///     Initializes a new instance of the <see cref="TableActivityReceivingDetail" /> class.
         /// </summary>
         public TableActivityReceivingDetail()
-          : base()
         {
             this.FullClassName = "dMobile.GroundWork.TableActivityReceivingDetail";
             this.CurrentSubType = SysCommon.ActSubTypes.Receiving;
@@ -33,99 +32,120 @@ namespace dMobile.GroundWork
         }
 
         /// <summary>
-        /// Purge the activity detail.
+        ///     Purge the activity detail.
         /// </summary>
-        /// <returns><see cref="Task"/> Task completed.</returns>
+        /// <returns><see cref="Task" /> Task completed.</returns>
         public override async Task PurgeData()
         {
             var conn = DatabaseConnection.GetInstance().SQLConn;
             var subType = Convert.ToInt32(this.CurrentSubType);
-            this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging details.", true);
+            this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} details.", true);
 
             await conn.RunInTransactionAsync(transaction =>
             {
                 try
                 {
                     // Corruption recovery cleanup.
-                    var query = "DELETE FROM tActivityDetailProductSchemeVariantXRef" +
-                                " WHERE tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno <= 0" +
-                                " OR tActivityDetailProductSchemeVariantXRef.ProductSchemeVariantRefno <= 0";
+                    var query = @"
+                        DELETE FROM tActivityDetailProductSchemeVariantXRef
+                            WHERE tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno <= 0
+                                OR tActivityDetailProductSchemeVariantXRef.ProductSchemeVariantRefno <= 0";
                     transaction.Execute(query);
 
-                    // Corruption recovery cleanup.
+                    query = @"
+                        DELETE FROM tActivityDetailProductSchemeVariantXRef
+                            WHERE tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno
+                                NOT IN (SELECT tActivityDetail.ActivityDetailRefno FROM tActivityDetail)";
+                    transaction.Execute(query);
+
                     query = "DELETE FROM tActivityDetailExtra WHERE tActivityDetailExtra.ActivityDetailRefno <= 0";
                     transaction.Execute(query);
 
-                    // Corruption recovery cleanup.
-                    query = "DELETE FROM tActivityDetailReceiving WHERE tActivityDetailReceiving.ActivityDetailRefno <= 0" +
-                            " OR tActivityDetailReceiving.ActivityDetailFKRefno <= 0";
+                    query = @"
+                        DELETE FROM tActivityDetailExtra
+                            WHERE tActivityDetailExtra.ActivityDetailRefno
+                                NOT IN (SELECT tActivityDetail.ActivityDetailRefno FROM tActivityDetail)";
                     transaction.Execute(query);
 
-                    // Corruption recovery cleanup.
-                    query = "DELETE FROM tActivityDetailReceiving WHERE tActivityDetailReceiving.ActivityDetailRefno " +
-                            "NOT IN (SELECT tActivityDetail.ActivityDetailRefno FROM tActivityDetail)";
+                    query = @"
+                        DELETE FROM tActivityDetailReceiving
+                            WHERE tActivityDetailReceiving.ActivityDetailRefno <= 0
+                                OR tActivityDetailReceiving.ActivityDetailFKRefno <= 0";
                     transaction.Execute(query);
 
-                    // Corruption recovery cleanup.
-                    query = "DELETE FROM tActivityDetail WHERE tActivityDetail.ActivityDetailSubType = ?" +
-                            " AND tActivityDetail.ActivityDetailRefno <= 0";
+                    query = @"
+                        DELETE FROM tActivityDetailReceiving
+                            WHERE tActivityDetailReceiving.ActivityDetailRefno
+                                NOT IN (SELECT tActivityDetail.ActivityDetailRefno FROM tActivityDetail)";
+                    transaction.Execute(query);
+
+                    query = @"
+                        DELETE FROM tActivityDetail
+                            WHERE tActivityDetail.ActivityDetailSubType = ?
+                                AND tActivityDetail.ActivityDetailRefno <= 0";
                     transaction.Execute(query, subType);
 
-                    query = "DELETE FROM tActivityDetailProductSchemeVariantXRef "
-                        + "WHERE tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno IN "
-                        + "(SELECT tActivityDetail.ActivityDetailRefno "
-                        + "FROM tActivityDetail "
-                        + "WHERE tActivityDetail.ActivityDetailSubType = ?)";
+                    query = @"
+                        DELETE FROM tActivityDetail
+                            WHERE tActivityDetail.ActivityItemRefno
+                                NOT IN (SELECT tActivityItem.ActivityItemRefno FROM tActivityItem)";
                     transaction.Execute(query, subType);
 
-                    query = "DELETE FROM tActivityDetailReceiving "
-                        + "WHERE tActivityDetailReceiving.ActivityDetailRefno IN "
-                        + "(SELECT tActivityDetail.ActivityDetailRefno "
-                        + "FROM tActivityDetail "
-                        + "WHERE tActivityDetail.ActivityDetailSubType = ?)";
+                    // Regular purge.
+                    query = @"
+                        DELETE FROM tActivityDetailProductSchemeVariantXRef
+                            WHERE tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno IN
+                                (SELECT tActivityDetail.ActivityDetailRefno
+                                    FROM tActivityDetail
+                                    WHERE tActivityDetail.ActivityDetailSubType = ?)";
                     transaction.Execute(query, subType);
 
-                    query = "DELETE FROM tActivityDetailExtra "
-                        + "WHERE tActivityDetailExtra.ActivityDetailRefno IN "
-                        + "(SELECT tActivityDetail.ActivityDetailRefno "
-                        + "FROM tActivityDetail "
-                        + "WHERE tActivityDetail.ActivityDetailSubType = ?)";
+                    query = @"
+                        DELETE FROM tActivityDetailReceiving
+                            WHERE tActivityDetailReceiving.ActivityDetailRefno IN
+                                (SELECT tActivityDetail.ActivityDetailRefno
+                                    FROM tActivityDetail
+                                    WHERE tActivityDetail.ActivityDetailSubType = ?)";
+                    transaction.Execute(query, subType);
+
+                    query = @"
+                        DELETE FROM tActivityDetailExtra
+                            WHERE tActivityDetailExtra.ActivityDetailRefno IN
+                                (SELECT tActivityDetail.ActivityDetailRefno
+                                    FROM tActivityDetail
+                                    WHERE tActivityDetail.ActivityDetailSubType = ?)";
                     transaction.Execute(query, subType);
 
                     query = "DELETE FROM tActivityDetail WHERE tActivityDetail.ActivityDetailSubType = ?";
                     transaction.Execute(query, subType);
 
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging receiving details complete.", true);
                     transaction.Commit();
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty,
+                        $"Purging {this.LowerCaseName} details complete.", true);
                 }
                 catch (SQLiteException sqlEx)
                 {
-                    if (transaction.IsInTransaction)
-                    {
-                        transaction.Rollback();
-                    }
-
+                    transaction.Rollback();
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging receiving details failed.", true);
-                    throw new Exception("Database exception occurred. Purging receiving details failed.", sqlEx);
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty,
+                        $"Purging {this.LowerCaseName} details failed.", true);
+                    throw new Exception($"Database exception occurred. Purging {this.LowerCaseName} details failed.",
+                        sqlEx);
                 }
                 catch (Exception ex)
                 {
-                    if (transaction.IsInTransaction)
-                    {
-                        transaction.Rollback();
-                    }
-
-                    throw new Exception("Database exception occurred. Purging receiving details failed.", ex);
+                    transaction.Rollback();
+                    throw new Exception($"Database exception occurred. Purging {this.LowerCaseName} details failed.",
+                        ex);
                 }
             });
         }
 
         /// <summary>
-        /// The Send.
+        ///     The Send.
         /// </summary>
         /// <param name="actItemRefno"> Activity item reference number.</param>
-        /// <returns><see cref="string"/> Send request data result.</returns>
+        /// <returns><see cref="string" /> Send request data result.</returns>
         protected override async Task<string> SendRequest(int actItemRefno)
         {
             var conn = DatabaseConnection.GetInstance().SQLConn;
@@ -143,11 +163,11 @@ namespace dMobile.GroundWork
         }
 
         /// <summary>
-        /// The Save.
+        ///     The Save.
         /// </summary>
-        /// <param name="responseData"><see cref="string"/> Response data received.</param>
-        /// <param name="actItemRefno"><see cref="int"/> Activity item reference number.</param>
-        /// <returns><see cref="Task"/> Task completed.</returns>
+        /// <param name="responseData"><see cref="string" /> Response data received.</param>
+        /// <param name="actItemRefno"><see cref="int" /> Activity item reference number.</param>
+        /// <returns><see cref="Task" /> Task completed.</returns>
         protected override async Task Save(string responseData, int actItemRefno)
         {
             var errMsg = string.Empty;
@@ -168,10 +188,10 @@ namespace dMobile.GroundWork
                         var results = transaction.Query<tActivityItemReceivingModel>(
                             "SELECT * FROM tActivityItemReceiving WHERE ActivityItemRefno = ?",
                             actItemRefno);
-                        if (results == null || results?.Count == 0)
+                        if (results == null || results.Count == 0)
                         {
                             errMsg = "No results in tActivityItemReceiving for ActivityItemRefno " + actItemRefno +
-                                " " + this.FullClassName;
+                                     " " + this.FullClassName;
                             throw new Exception(errMsg);
                         }
 
@@ -180,47 +200,47 @@ namespace dMobile.GroundWork
                         {
                             errMsg = "Arguments:";
                             var queryInsertDetail = "INSERT INTO tActivityDetail " +
-                                "(" +
-                                "ActivityDetailSubType, " +
-                                "ActivityDetailStatus, " +
-                                "ActivityItemRefno, " +
-                                "LocationMapRefno, " +
-                                "ProductUnitRefno, " +
-                                "ActivityDetailUniqueSchemeID, " +
-                                "ActivityDetailSchemeID, " +
-                                "ActivityDetailQuantity, " +
-                                "ActivityDetailBaseQuantity, " +
-                                "ActivityDetailWeightQuantity, " +
-                                "ActivityDetailSingleTradeItemSerialNumber, " +
-                                "ActivityDetailLogisticUnitBatchLotNumber, " +
-                                "ActivityDetailLogisticUnitBestBeforeSellByDate, " +
-                                "ActivityDetailLogisticUnitExpiryUseByDate, " +
-                                "ActivityDetailLogisticUnitProductionDate, " +
-                                "ActivityDetailLogisticUnitDueDate, " +
-                                "ActivityDetailLogisticUnitPackagingDate, " +
-                                "ActivityDetailLogisticUnitSkidNumber" +
-                                ") " +
-                                "VALUES" +
-                                "(" +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?" +
-                                ")";
+                                                    "(" +
+                                                    "ActivityDetailSubType, " +
+                                                    "ActivityDetailStatus, " +
+                                                    "ActivityItemRefno, " +
+                                                    "LocationMapRefno, " +
+                                                    "ProductUnitRefno, " +
+                                                    "ActivityDetailUniqueSchemeID, " +
+                                                    "ActivityDetailSchemeID, " +
+                                                    "ActivityDetailQuantity, " +
+                                                    "ActivityDetailBaseQuantity, " +
+                                                    "ActivityDetailWeightQuantity, " +
+                                                    "ActivityDetailSingleTradeItemSerialNumber, " +
+                                                    "ActivityDetailLogisticUnitBatchLotNumber, " +
+                                                    "ActivityDetailLogisticUnitBestBeforeSellByDate, " +
+                                                    "ActivityDetailLogisticUnitExpiryUseByDate, " +
+                                                    "ActivityDetailLogisticUnitProductionDate, " +
+                                                    "ActivityDetailLogisticUnitDueDate, " +
+                                                    "ActivityDetailLogisticUnitPackagingDate, " +
+                                                    "ActivityDetailLogisticUnitSkidNumber" +
+                                                    ") " +
+                                                    "VALUES" +
+                                                    "(" +
+                                                    "?, " +
+                                                    "?, " +
+                                                    "?, " +
+                                                    "?, " +
+                                                    "?, " +
+                                                    "?, " +
+                                                    "?, " +
+                                                    "?, " +
+                                                    "?, " +
+                                                    "?, " +
+                                                    "?, " +
+                                                    "?, " +
+                                                    "?, " +
+                                                    "?, " +
+                                                    "?, " +
+                                                    "?, " +
+                                                    "?, " +
+                                                    "?" +
+                                                    ")";
 
                             var parametersInsertDetail = new List<object>
                             {
@@ -228,7 +248,7 @@ namespace dMobile.GroundWork
                                 Convert.ToInt32(0),
                                 actItemRefno,
                                 this.GetDetailLocation(row, transaction, false),
-                                results[0].ProductUnitRefno,
+                                results[0].ProductUnitRefno
                             };
 
                             parametersInsertDetail.AddRange(this.SaveDetail(row, transaction, false));
@@ -276,7 +296,6 @@ namespace dMobile.GroundWork
                     }
 
                     transaction.Commit();
-
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving receiving details complete.", false);
                 }
                 catch (SQLiteException ex)
@@ -306,14 +325,14 @@ namespace dMobile.GroundWork
         }
 
         /// <summary>
-        /// Create request activity detail string.
+        ///     Create request activity detail string.
         /// </summary>
-        /// <param name="activityItemFkRefno"><see cref="int"/> Activity item adjustment foreign key reference number.</param>
-        /// <returns><see cref="string"/> Request xml string.</returns>
+        /// <param name="activityItemFkRefno"><see cref="int" /> Activity item adjustment foreign key reference number.</param>
+        /// <returns><see cref="string" /> Request xml string.</returns>
         protected override async Task<string> CreateRequest(int activityItemFkRefno)
         {
             var request = new StringBuilder();
-            using var writer = XmlWriter.Create(request, new XmlWriterSettings() { Async = true });
+            using var writer = XmlWriter.Create(request, new XmlWriterSettings { Async = true });
             try
             {
                 var xmlRequest = XDocument.Parse(
@@ -322,16 +341,12 @@ namespace dMobile.GroundWork
                     + "<command>"
                     + "<action>REQUEST PURCHASE ORDER DETAILS</action>"
                     + await SysCommon.GetRequestDefaults(false)
-                    + "<itm_refno>" + activityItemFkRefno.ToString() + "</itm_refno>"
+                    + "<itm_refno>" + activityItemFkRefno + "</itm_refno>"
                     + "</command>"
                     + "</imclient>");
 
                 xmlRequest.Save(writer);
                 await writer.FlushAsync();
-            }
-            catch
-            {
-                throw;
             }
             finally
             {
@@ -339,7 +354,7 @@ namespace dMobile.GroundWork
             }
 
             const string errMsg = "The created request activity detail xml string length has a zero length.";
-            request = (request.Length <= 0) ? throw new Exception(errMsg) : request;
+            request = request.Length <= 0 ? throw new Exception(errMsg) : request;
 
             return request.ToString();
         }

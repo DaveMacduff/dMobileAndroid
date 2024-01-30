@@ -535,25 +535,20 @@ namespace dMobile.View.Activity
         /// <param name="scanArgs"><see cref="BarCodeScannerEventArgs" /> Scan event arguments.</param>
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
-            if (scanArgs == null)
-            {
-                const string msg = "Scanner event fired but no data was received.";
-                await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert(
-                    this.ActItem.GetControlDescription(),
-                    msg,
-                    Resource.OK));
-                return;
-            }
-
-            if (this.IsDataLoading)
-            {
-                return;
-            }
-
             try
             {
-                var parse = scanArgs.ParseInfo;
                 await this.ScannerDisable();
+                if (scanArgs == null)
+                {
+                    const string msg = "Scanner event fired but no data was received.";
+                    await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert(
+                        this.ActItem.GetControlDescription(),
+                        msg,
+                        Resource.OK));
+                    throw new TaskCanceledException();
+                }
+
+                var parse = scanArgs.ParseInfo;
 
                 // GLOBAL LOCATION IDENTIFIER SCANNED
                 if (!string.IsNullOrEmpty(parse.LocationIdentifier))
@@ -608,6 +603,9 @@ namespace dMobile.View.Activity
                         await Device.InvokeOnMainThreadAsync(this.DisplaySkidInfo);
                     }
                 }
+            }
+            catch (TaskCanceledException)
+            {
             }
             catch (MessageOnlyException msgEx)
             {

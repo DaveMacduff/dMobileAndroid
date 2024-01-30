@@ -23,6 +23,7 @@ namespace dMobile.View.Activity
     using Controller.Activity_Item;
     using Forms;
     using Helpers;
+    using Java.Util.Concurrent;
     using Resources.Enums;
     using Resources.Types;
     using Xamarin.Forms;
@@ -1920,24 +1921,22 @@ namespace dMobile.View.Activity
         /// <param name="scanArgs"><see cref="BarCodeScannerEventArgs" /> Sender bar code scanner event arguments.</param>
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
-            if (scanArgs == null)
-            {
-                const string msg = "Scanner event fired but no data was received.";
-                await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert(
-                    this.ActItem.GetControlDescription(),
-                    msg,
-                    Resource.OK));
-                return;
-            }
-
-            object selectedItem = null;
-            var actItemFoundRefno = 0;
-            var tempItemProdSchemeData = new ActItemSchemeData();
             try
             {
-                ////this.IsIndicatorRunning = true;
-                ////this.IsDataLoading = true;
                 await this.ScannerDisable();
+                if (scanArgs == null)
+                {
+                    const string msg = "Scanner event fired but no data was received.";
+                    await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert(
+                        this.ActItem.GetControlDescription(),
+                        msg,
+                        Resource.OK));
+                    throw new TaskCanceledException();
+                }
+
+                object selectedItem = null;
+                var actItemFoundRefno = 0;
+                var tempItemProdSchemeData = new ActItemSchemeData();
                 var parse = scanArgs.ParseInfo;
                 var isLocationBarCodeScanned = !string.IsNullOrEmpty(parse.LocationIdentifier);
                 var isProductScanned = !string.IsNullOrEmpty(parse.ProductIdentifier);
@@ -2227,6 +2226,8 @@ namespace dMobile.View.Activity
             {
                 // Do nothing as task is being canceled from IdentifyProductScanned when user
                 // declines to assign bar code to product.
+
+                // This exception is also caught if the scan event arguments are null.
             }
             catch (MessageOnlyException msgEx)
             {
@@ -2326,8 +2327,12 @@ namespace dMobile.View.Activity
             }
             finally
             {
-                this.ListViewDisplayExtraInfo.ItemsSource = this.ExtraInfoItems;
-                await this.LoadAndBindData();
+                if (scanArgs != null)
+                {
+                    this.ListViewDisplayExtraInfo.ItemsSource = this.ExtraInfoItems;
+                    await this.LoadAndBindData();
+                }
+
                 await this.ScannerEnable();
             }
 

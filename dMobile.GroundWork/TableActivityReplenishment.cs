@@ -11,7 +11,7 @@ namespace dMobile.GroundWork
     using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
-    using dMobile.Bedrock;
+    using Bedrock;
     using SQLite;
 
     /// <summary>
@@ -23,7 +23,6 @@ namespace dMobile.GroundWork
         /// Initializes a new instance of the <see cref="TableActivityReplenishment"/> class.
         /// </summary>
         public TableActivityReplenishment()
-          : base()
         {
             this.FullClassName = "dMobile.GroundWork.TableActivityReplenishment";
             this.CurrentSubType = SysCommon.ActSubTypes.InventoryReplenishment;
@@ -51,16 +50,13 @@ namespace dMobile.GroundWork
                                 " OR tActivityDetailProductSchemeVariantXRef.ProductSchemeVariantRefno <= 0";
                     transaction.Execute(query);
 
-                    // Corruption recovery cleanup.
                     query = "DELETE FROM tActivityDetailExtra WHERE tActivityDetailExtra.ActivityDetailRefno <= 0";
                     transaction.Execute(query);
 
-                    // Corruption recovery cleanup.
                     query = "DELETE FROM tActivityDetailReplenishment WHERE tActivityDetailReplenishment.ActivityDetailRefno <= 0" +
                             " OR tActivityDetailReplenishment.ActivityDetailFKRefno <= 0";
                     transaction.Execute(query);
 
-                    // Corruption recovery cleanup.
                     query = "DELETE FROM tActivityDetail WHERE tActivityDetail.ActivityDetailSubType = ?" +
                             " AND tActivityDetail.ActivityDetailRefno <= 0";
                     transaction.Execute(query, subType);
@@ -89,18 +85,15 @@ namespace dMobile.GroundWork
                     query = "DELETE FROM tActivityDetail WHERE tActivityDetail.ActivityDetailSubType = ?";
                     transaction.Execute(query, subType);
 
-                    // Corruption recovery cleanup.
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName}.", true);
                     query = "DELETE FROM tActivityItemBarCodeAssociationXRef WHERE" +
                         " tActivityItemBarCodeAssociationXRef.ActivityItemRefno <= 0";
                     transaction.Execute(query);
 
-                    // Corruption recovery cleanup.
                     query = "DELETE FROM tActivityItemReplenishment WHERE tActivityItemReplenishment.ActivityItemRefno <= 0" +
                         " OR tActivityItemReplenishment.ActivityItemFKRefno <= 0";
                     transaction.Execute(query);
 
-                    // Corruption recovery cleanup.
                     query = "DELETE FROM tActivityItem WHERE tActivityItem.ActivityRefno <= 0";
                     transaction.Execute(query);
 
@@ -115,11 +108,9 @@ namespace dMobile.GroundWork
                     query = "DELETE FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = ?";
                     transaction.Execute(query, Convert.ToInt32(this.CurrentSubType));
 
-                    // Corruption recovery cleanup.
                     query = "DELETE FROM tActivityReplenishment WHERE tActivityReplenishment.ActivityRefno <= 0";
                     transaction.Execute(query);
 
-                    // Corruption recovery cleanup.
                     query = "DELETE FROM tActivity WHERE tActivity.ActivityRefno <= 0";
                     transaction.Execute(query);
 
@@ -129,10 +120,12 @@ namespace dMobile.GroundWork
                     query = "DELETE FROM tActivity WHERE ActivitySubType = ?";
                     transaction.Execute(query, Convert.ToInt32(this.CurrentSubType));
 
+                    transaction.Commit();
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} complete.", true);
                 }
                 catch (SQLiteException sqlEx)
                 {
+                    transaction.Rollback();
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"{sqlEx.Message}", true);
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} failed.", true);
@@ -140,6 +133,7 @@ namespace dMobile.GroundWork
                 }
                 catch
                 {
+                    transaction.Rollback();
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} failed.", true);
                     throw;
                 }
@@ -171,7 +165,7 @@ namespace dMobile.GroundWork
         /// <summary>
         /// Purge the activity header, item and detail data.
         /// </summary>
-        /// <param name="actSubType"><see cref="SysCommon.ActSubTypes"/> Activity sub type.</param>
+        /// <param name="actSubType"><see cref="SysCommon.ActSubTypes"/> Activity subtype.</param>
         /// <returns><see cref="Task"/> Task complete.</returns>
         /// <exception cref="NotImplementedException"><see cref="NotImplementedException"/> Not implemented exception.</exception>
         public override Task PurgeData(SysCommon.ActSubTypes actSubType)
@@ -183,7 +177,7 @@ namespace dMobile.GroundWork
         /// Data status, replenishment data.
         /// </summary>
         /// <remarks> We cannot return the number of records here for the header, items and details.</remarks>
-        /// <returns><see cref="int"/> Number of replenishment headers</returns>
+        /// <returns><see cref="int"/> Number of replenishment headers.</returns>
         /// <exception cref="NotImplementedException"><see cref="NotImplementedException"/> Not implemented exception.</exception>
         public override Task<int> DataStatus()
         {
@@ -209,8 +203,6 @@ namespace dMobile.GroundWork
         /// <returns><see cref="Task"/> Task operation.</returns>
         protected override async Task Save(string responseData)
         {
-            var errMsg = string.Empty;
-
             await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
             {
                 try
@@ -225,35 +217,26 @@ namespace dMobile.GroundWork
                     // Receiving schema but no responseData results in no table being created in the dataset.
                     if (ds.Tables.Count != 0)
                     {
-                        var progMax = Convert.ToInt32(ds.Tables["tActivityReplenishment"].Rows.Count);
+                        var progressMax = Convert.ToInt32(ds.Tables["tActivityReplenishment"].Rows.Count);
 
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Records {progMax}", false);
+                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Records {progressMax}", false);
 
-                        var actRefno = 0;
-                        var progValue = 0;
-                        var actItemRefno = 0;
-                        var actDetailRefno = 0;
+                        var progressValue = 0;
 
-                        this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
+                        this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progressMax);
                         foreach (DataRow drow in ds.Tables["tActivityReplenishment"].Rows)
                         {
-                            // Insert the activity item header.
-                            actRefno = InsertHeader(transaction, drow);
-
-                            // Insert the activity item.
-                            actItemRefno = InsertItem(transaction, drow, actRefno);
-
-                            // Insert the activity detail.
-                            actDetailRefno = InsertDetail(transaction, actItemRefno, drow);
-
-                            progValue++;
-                            if (progValue % 10 == 0)
+                            var actRefno = InsertHeader(drow);
+                            var actItemRefno = InsertItem(drow, actRefno);
+                            _ = InsertDetail(actItemRefno, drow);
+                            progressValue++;
+                            if (progressValue % 10 == 0)
                             {
-                                this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue, 0, progMax);
+                                this.DataAccessProgressOutHandler(this, EventArgs.Empty, progressValue, 0, progressMax);
                             }
                         }
 
-                        this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
+                        this.DataAccessProgressOutHandler(this, EventArgs.Empty, progressMax, 0, progressMax);
                     }
 
                     transaction.Commit();
@@ -271,7 +254,7 @@ namespace dMobile.GroundWork
                 return;
 
                 //////////////////////////////////////////////////////////////////////////
-                int InsertHeader(SQLiteConnection transaction, DataRow drow)
+                int InsertHeader(DataRow drow)
                 {
                     // Find the warehouse foreign reference number in the location map warehouse table.
                     var whsLocMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, transaction);
@@ -285,13 +268,13 @@ namespace dMobile.GroundWork
                         "SELECT last_insert_rowid() FROM tActivity"));
 
                     // Insert the activity replenishment header record.
-                    var sql = "INSERT INTO tActivityReplenishment (ActivityRefno, " +
-                              "ActivitySubType, " +
-                              "WarehouseLocationMapRefno) " +
-                              "VALUES " +
-                              "(?, " +
-                              "?, " +
-                              "?)";
+                    const string sql = "INSERT INTO tActivityReplenishment (ActivityRefno, " +
+                                       "ActivitySubType, " +
+                                       "WarehouseLocationMapRefno) " +
+                                       "VALUES " +
+                                       "(?, " +
+                                       "?, " +
+                                       "?)";
 
                     var parameters = new object[]
                     {
@@ -306,7 +289,7 @@ namespace dMobile.GroundWork
                 }
 
                 //////////////////////////////////////////////////////////////////////////
-                int InsertItem(SQLiteConnection transaction, DataRow drow, int actRefno)
+                int InsertItem(DataRow drow, int actRefno)
                 {
                     transaction.Execute(
                         "INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus, ActivityRefno," +
@@ -371,33 +354,31 @@ namespace dMobile.GroundWork
                 }
 
                 //////////////////////////////////////////////////////////////////////////
-                int InsertDetail(SQLiteConnection transaction, int actItemRefno, DataRow drow)
+                int InsertDetail(int actItemRefno, DataRow drow)
                 {
-                    var query = "INSERT INTO tActivityDetail(" +
-                        "ActivityDetailSubType" +
-                        ",ActivityDetailStatus" +
-                        ",ActivityItemRefno" +
-                        ",LocationMapRefno" +
-                        ",ProductUnitRefno" +
-                        ",ActivityDetailUniqueSchemeID" +
-                        ",ActivityDetailSchemeID" +
-                        ",ActivityDetailQuantity" +
-                        ",ActivityDetailBaseQuantity" +
-                        ",ActivityDetailWeightQuantity" +
-                        ",ActivityDetailSingleTradeItemSerialNumber" +
-                        ",ActivityDetailLogisticUnitBatchLotNumber" +
-                        ",ActivityDetailLogisticUnitBestBeforeSellByDate" +
-                        ",ActivityDetailLogisticUnitExpiryUseByDate" +
-                        ",ActivityDetailLogisticUnitProductionDate" +
-                        ",ActivityDetailLogisticUnitDueDate" +
-                        ",ActivityDetailLogisticUnitPackagingDate" +
-                        ",ActivityDetailLogisticUnitSkidNumber)" +
-                        " VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+                    const string query = "INSERT INTO tActivityDetail(" +
+                                         "ActivityDetailSubType" +
+                                         ",ActivityDetailStatus" +
+                                         ",ActivityItemRefno" +
+                                         ",LocationMapRefno" +
+                                         ",ProductUnitRefno" +
+                                         ",ActivityDetailUniqueSchemeID" +
+                                         ",ActivityDetailSchemeID" +
+                                         ",ActivityDetailQuantity" +
+                                         ",ActivityDetailBaseQuantity" +
+                                         ",ActivityDetailWeightQuantity" +
+                                         ",ActivityDetailSingleTradeItemSerialNumber" +
+                                         ",ActivityDetailLogisticUnitBatchLotNumber" +
+                                         ",ActivityDetailLogisticUnitBestBeforeSellByDate" +
+                                         ",ActivityDetailLogisticUnitExpiryUseByDate" +
+                                         ",ActivityDetailLogisticUnitProductionDate" +
+                                         ",ActivityDetailLogisticUnitDueDate" +
+                                         ",ActivityDetailLogisticUnitPackagingDate" +
+                                         ",ActivityDetailLogisticUnitSkidNumber)" +
+                                         " VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
                     var fkRefno = Convert.ToInt32(drow["Refno"]);
                     var prodUnitRefno = this.GetProductUnitRefnoFromDataRow(drow, transaction, false);
-                    var locMapRefno = this.GetDetailLocation(drow, transaction, false);
-
                     var parametersInsertDetail = new List<object>
                             {
                                 Convert.ToInt32(SysCommon.ActSubTypes.InventoryReplenishment),
@@ -421,7 +402,7 @@ namespace dMobile.GroundWork
                     var queryInsertDetail = "INSERT INTO tActivityDetailReplenishment (" +
                                             "ActivityDetailRefno, " +
                                             "ActivityDetailFKRefno, " +
-                                            "ActivityDetailreplenishmentIsConfirmed" +
+                                            "ActivityDetailReplenishmentIsConfirmed" +
                                             ") VALUES (" +
                                             "?, " +
                                             "?, " +

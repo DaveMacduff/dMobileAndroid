@@ -37,7 +37,6 @@ namespace dMobile.GroundWork
         public override async Task PurgeData()
         {
             this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging transfers from.", true);
-
             var conn = DatabaseConnection.GetInstance().SQLConn;
             await conn.RunInTransactionAsync(transaction =>
             {
@@ -66,10 +65,12 @@ namespace dMobile.GroundWork
                     query = "DELETE FROM tActivity WHERE tActivity.ActivitySubType = ?";
                     transaction.Execute(query, Convert.ToInt32(this.CurrentSubType));
 
+                    transaction.Commit();
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging transfers from complete.", true);
                 }
                 catch (SQLiteException sqlEx)
                 {
+                    transaction.Rollback();
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"{sqlEx.Message}", true);
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} failed.", true);
@@ -77,21 +78,11 @@ namespace dMobile.GroundWork
                 }
                 catch
                 {
+                    transaction.Rollback();
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} failed.", true);
                     throw;
                 }
             });
-
-            try
-            {
-            }
-            catch (SQLiteException ex)
-            {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging transfers from failed.", true);
-
-                throw new Exception("Database exception occurred. Purging transfers from failed.", ex);
-            }
         }
 
         /// <summary>

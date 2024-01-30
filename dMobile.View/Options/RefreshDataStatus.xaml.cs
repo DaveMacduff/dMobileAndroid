@@ -85,7 +85,7 @@ namespace dMobile.View.Options
             this.PickingDetail = new TableActivityPickingDetail();
             this.PickingRoute = new TableActivityPickingRoute();
             this.Receiving = new TableActivityReceiving();
-            this.ReceivingItem = new TableActivityRecevingItem();
+            this.ReceivingItem = new TableActivityReceivingItem();
             this.ReceivingItemComment = new TableActivityReceivingItemComment();
             this.ReceivingDetail = new TableActivityReceivingDetail();
             this.TransferFrom = new TableActivityTransferFrom();
@@ -258,7 +258,7 @@ namespace dMobile.View.Options
 
         private TableActivityReceiving Receiving { get; set; }
 
-        private TableActivityRecevingItem ReceivingItem { get; set; }
+        private TableActivityReceivingItem ReceivingItem { get; set; }
 
         private TableActivityReceivingItemComment ReceivingItemComment { get; set; }
 
