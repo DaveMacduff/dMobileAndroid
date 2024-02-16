@@ -198,11 +198,13 @@ namespace dMobile.Controller.Activity_Detail
             if (this.DetailRefno < 0)
             {
                 this.DetailRefno = await this.InsertDetailIntoTablesDetail();
-                const string query = "INSERT INTO tActivityDetailReturns (ActivityDetailRefno, ActivityDetailFKRefno) VALUES (?, ?)";
+                const string query = "INSERT INTO tActivityDetailReturns (ActivityDetailRefno, ActivityDetailFKRefno," +
+                                     "ActivityDetailReturnsIsConfirmed) VALUES (?, ?, ?)";
                 var rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
                     query,
                     Convert.ToInt32(this.DetailRefno),
-                    Convert.ToInt32(this.DetailFkRefno));
+                    Convert.ToInt32(this.DetailFkRefno),
+                    true);
                 if (rowsAffected <= 0)
                 {
                     throw new Exception("Unable to insert activity detail in disconnected mode.");
@@ -858,20 +860,54 @@ namespace dMobile.Controller.Activity_Detail
                 observableCollection.Add(returnDetail);
             }
 
-            var labelConfirmedHeader = new Label { Text = "C", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
-            var labelQuantityHeader = new Label { Text = "Qty", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
-            var labelWeightQuantityHeader = new Label { Text = "Weight", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
-            var labelUnitCodeHeader = new Label { Text = string.Empty, VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
-            var labelSchemeIdHeader = new Label { Text = "Scheme ID", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
+            var labelReturnDetailConfirmedHeader = new Label
+            {
+                Text = "C",
+                VerticalOptions = LayoutOptions.Center,
+                HorizontalOptions = LayoutOptions.Start,
+                FontAttributes = FontAttributes.Bold,
+            };
 
-            this.ColumnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelConfirmedHeader.Text);
-            this.ColumnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelQuantityHeader.Text);
-            this.ColumnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelWeightQuantityHeader.Text);
-            this.ColumnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelUnitCodeHeader.Text);
-            this.ColumnWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(labelSchemeIdHeader.Text);
+            var labelReturnQuantityHeader = new Label
+            {
+                Text = "Qty",
+                VerticalOptions = LayoutOptions.Center,
+                HorizontalOptions = LayoutOptions.Start,
+                FontAttributes = FontAttributes.Bold,
+            };
+
+            var labelReturnWeightQuantityHeader = new Label
+            {
+                Text = "Weight",
+                VerticalOptions = LayoutOptions.Center,
+                HorizontalOptions = LayoutOptions.Start,
+                FontAttributes = FontAttributes.Bold,
+            };
+
+            var labelReturnUnitCodeHeader = new Label
+            {
+                Text = string.Empty,
+                VerticalOptions = LayoutOptions.Center,
+                HorizontalOptions = LayoutOptions.Start,
+                FontAttributes = FontAttributes.Bold,
+            };
+
+            var labelReturnSchemeIdHeader = new Label
+            {
+                Text = "Scheme ID",
+                VerticalOptions = LayoutOptions.Center,
+                HorizontalOptions = LayoutOptions.Start,
+                FontAttributes = FontAttributes.Bold,
+            };
+
+            this.ColumnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelReturnDetailConfirmedHeader.Text);
+            this.ColumnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelReturnQuantityHeader.Text);
+            this.ColumnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelReturnWeightQuantityHeader.Text);
+            this.ColumnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelReturnUnitCodeHeader.Text);
+            this.ColumnWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(labelReturnSchemeIdHeader.Text);
 
             // Header grid
-            var gridHeaderReturnsActivityDetail = new Grid
+            var gridHeader = new Grid
             {
                 Padding = new Thickness(5),
                 ColumnDefinitions =
@@ -884,78 +920,80 @@ namespace dMobile.Controller.Activity_Detail
                 },
             };
 
-            gridHeaderReturnsActivityDetail.SetDynamicResource(VisualElement.BackgroundColorProperty, "HeaderColor");
+            gridHeader.SetDynamicResource(VisualElement.BackgroundColorProperty, "HeaderColor");
 
-            if (this.SysEnv.SysSettings.IsRetConfirmDet)
+            if (this.SysEnv.SysSettings.IsPickConfirmDet)
             {
-                gridHeaderReturnsActivityDetail.Children.Add(labelConfirmedHeader);
+                gridHeader.Children.Add(labelReturnDetailConfirmedHeader);
             }
 
-            gridHeaderReturnsActivityDetail.Children.Add(labelQuantityHeader);
-            gridHeaderReturnsActivityDetail.Children.Add(labelWeightQuantityHeader);
-            gridHeaderReturnsActivityDetail.Children.Add(labelUnitCodeHeader);
-            gridHeaderReturnsActivityDetail.Children.Add(labelSchemeIdHeader);
+            gridHeader.Children.Add(labelReturnQuantityHeader);
+            gridHeader.Children.Add(labelReturnWeightQuantityHeader);
+            gridHeader.Children.Add(labelReturnUnitCodeHeader);
+            gridHeader.Children.Add(labelReturnSchemeIdHeader);
 
-            if (this.SysEnv.SysSettings.IsRetConfirmDet)
+            if (this.SysEnv.SysSettings.IsPickConfirmDet)
             {
-                Grid.SetColumn(labelConfirmedHeader, 0);
+                Grid.SetColumn(labelReturnDetailConfirmedHeader, 0);
             }
 
-            Grid.SetColumn(labelQuantityHeader, 1);
-            Grid.SetColumn(labelWeightQuantityHeader, 2);
-            Grid.SetColumn(labelUnitCodeHeader, 3);
-            Grid.SetColumn(labelSchemeIdHeader, 4);
+            Grid.SetColumn(labelReturnQuantityHeader, 1);
+            Grid.SetColumn(labelReturnWeightQuantityHeader, 2);
+            Grid.SetColumn(labelReturnUnitCodeHeader, 3);
+            Grid.SetColumn(labelReturnSchemeIdHeader, 4);
 
-            Grid.SetRow(gridHeaderReturnsActivityDetail, 0);
+            Grid.SetRow(gridHeader, 0);
 
-            gridMain.Children.Add(gridHeaderReturnsActivityDetail);
+            gridMain.Children.Add(gridHeader);
 
             foreach (ReturnDetail returnDetail in observableCollection)
             {
-                var detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(returnDetail.ActivityDetailIsConfirmedString);
+                var detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(
+                    returnDetail.ActivityDetailIsConfirmedString);
                 var detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(
                     $"{returnDetail.ActivityDetailQuantity:F3}");
                 var detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(
                     $"{returnDetail.ActivityDetailWeightQuantity:F3}");
                 var detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(returnDetail.UnitCode);
-                var detailWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(returnDetail.ActivityDetailSchemeID);
+                var detailWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(
+                    returnDetail.ActivityDetailSchemeID);
 
-                if (this.SysEnv.SysSettings.IsRetConfirmDet)
+                if (this.SysEnv.SysSettings.IsPickConfirmDet)
                 {
                     if (detailWidth0 > this.ColumnWidth0)
                     {
                         this.ColumnWidth0 = detailWidth0;
-                        gridHeaderReturnsActivityDetail.ColumnDefinitions[0].Width = this.ColumnWidth0;
+                        gridHeader.ColumnDefinitions[0].Width = this.ColumnWidth0;
                     }
                 }
                 else
                 {
                     this.ColumnWidth0 = 0;
-                    gridHeaderReturnsActivityDetail.ColumnDefinitions[0].Width = this.ColumnWidth0;
+                    gridHeader.ColumnDefinitions[0].Width = this.ColumnWidth0;
                 }
 
                 if (detailWidth1 > this.ColumnWidth1)
                 {
                     this.ColumnWidth1 = detailWidth1;
-                    gridHeaderReturnsActivityDetail.ColumnDefinitions[1].Width = this.ColumnWidth1;
+                    gridHeader.ColumnDefinitions[1].Width = this.ColumnWidth1;
                 }
 
                 if (detailWidth2 > this.ColumnWidth2)
                 {
                     this.ColumnWidth2 = detailWidth2;
-                    gridHeaderReturnsActivityDetail.ColumnDefinitions[2].Width = this.ColumnWidth2;
+                    gridHeader.ColumnDefinitions[2].Width = this.ColumnWidth2;
                 }
 
                 if (detailWidth3 > this.ColumnWidth3)
                 {
                     this.ColumnWidth3 = detailWidth3;
-                    gridHeaderReturnsActivityDetail.ColumnDefinitions[3].Width = this.ColumnWidth3;
+                    gridHeader.ColumnDefinitions[3].Width = this.ColumnWidth3;
                 }
 
                 if (detailWidth4 > this.ColumnWidth4)
                 {
                     this.ColumnWidth4 = detailWidth4;
-                    gridHeaderReturnsActivityDetail.ColumnDefinitions[4].Width = this.ColumnWidth4;
+                    gridHeader.ColumnDefinitions[4].Width = this.ColumnWidth4;
                 }
             }
 
@@ -1293,7 +1331,8 @@ namespace dMobile.Controller.Activity_Detail
             ActivityDetail actDetail,
             ObservableCollection<object> mainActivityItems)
         {
-            var labelPickingDetailConfirmedHeader = new Label
+            mainActivityItems.Add(actDetail);
+            var labelReturnDetailConfirmedHeader = new Label
             {
                 Text = "C",
                 VerticalOptions = LayoutOptions.Center,
@@ -1301,7 +1340,7 @@ namespace dMobile.Controller.Activity_Detail
                 FontAttributes = FontAttributes.Bold,
             };
 
-            var labelPickingQuantityHeader = new Label
+            var labelReturnQuantityHeader = new Label
             {
                 Text = "Qty",
                 VerticalOptions = LayoutOptions.Center,
@@ -1309,7 +1348,7 @@ namespace dMobile.Controller.Activity_Detail
                 FontAttributes = FontAttributes.Bold,
             };
 
-            var labelPickingWeightQuantityHeader = new Label
+            var labelReturnWeightQuantityHeader = new Label
             {
                 Text = "Weight",
                 VerticalOptions = LayoutOptions.Center,
@@ -1317,7 +1356,7 @@ namespace dMobile.Controller.Activity_Detail
                 FontAttributes = FontAttributes.Bold,
             };
 
-            var labelPickingUnitCodeHeader = new Label
+            var labelReturnUnitCodeHeader = new Label
             {
                 Text = string.Empty,
                 VerticalOptions = LayoutOptions.Center,
@@ -1325,7 +1364,7 @@ namespace dMobile.Controller.Activity_Detail
                 FontAttributes = FontAttributes.Bold,
             };
 
-            var labelPickingSchemeIdHeader = new Label
+            var labelReturnSchemeIdHeader = new Label
             {
                 Text = "Scheme ID",
                 VerticalOptions = LayoutOptions.Center,
@@ -1333,11 +1372,11 @@ namespace dMobile.Controller.Activity_Detail
                 FontAttributes = FontAttributes.Bold,
             };
 
-            this.ColumnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelPickingDetailConfirmedHeader.Text);
-            this.ColumnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelPickingQuantityHeader.Text);
-            this.ColumnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelPickingWeightQuantityHeader.Text);
-            this.ColumnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelPickingUnitCodeHeader.Text);
-            this.ColumnWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(labelPickingSchemeIdHeader.Text);
+            this.ColumnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelReturnDetailConfirmedHeader.Text);
+            this.ColumnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelReturnQuantityHeader.Text);
+            this.ColumnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelReturnWeightQuantityHeader.Text);
+            this.ColumnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelReturnUnitCodeHeader.Text);
+            this.ColumnWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(labelReturnSchemeIdHeader.Text);
 
             // Header grid
             var gridHeader = new Grid
@@ -1357,77 +1396,73 @@ namespace dMobile.Controller.Activity_Detail
 
             if (this.SysEnv.SysSettings.IsPickConfirmDet)
             {
-                gridHeader.Children.Add(labelPickingDetailConfirmedHeader);
+                gridHeader.Children.Add(labelReturnDetailConfirmedHeader);
             }
 
-            gridHeader.Children.Add(labelPickingQuantityHeader);
-            gridHeader.Children.Add(labelPickingWeightQuantityHeader);
-            gridHeader.Children.Add(labelPickingUnitCodeHeader);
-            gridHeader.Children.Add(labelPickingSchemeIdHeader);
+            gridHeader.Children.Add(labelReturnQuantityHeader);
+            gridHeader.Children.Add(labelReturnWeightQuantityHeader);
+            gridHeader.Children.Add(labelReturnUnitCodeHeader);
+            gridHeader.Children.Add(labelReturnSchemeIdHeader);
 
             if (this.SysEnv.SysSettings.IsPickConfirmDet)
             {
-                Grid.SetColumn(labelPickingDetailConfirmedHeader, 0);
+                Grid.SetColumn(labelReturnDetailConfirmedHeader, 0);
             }
 
-            Grid.SetColumn(labelPickingQuantityHeader, 1);
-            Grid.SetColumn(labelPickingWeightQuantityHeader, 2);
-            Grid.SetColumn(labelPickingUnitCodeHeader, 3);
-            Grid.SetColumn(labelPickingSchemeIdHeader, 4);
+            Grid.SetColumn(labelReturnQuantityHeader, 1);
+            Grid.SetColumn(labelReturnWeightQuantityHeader, 2);
+            Grid.SetColumn(labelReturnUnitCodeHeader, 3);
+            Grid.SetColumn(labelReturnSchemeIdHeader, 4);
 
             Grid.SetRow(gridHeader, 0);
 
             gridMain.Children.Add(gridHeader);
 
-            mainActivityItems.Add(actDetail);
-
             var detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(
-                ((PickingDetail)actDetail).ActivityDetailIsConfirmedString);
+                ((ReturnDetail)actDetail).ActivityDetailIsConfirmedString);
             var detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(
                 $"{actDetail.ActivityDetailQuantity:F3}");
             var detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(
                 $"{actDetail.ActivityDetailWeightQuantity:F3}");
-            var detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(
-                actDetail.UnitCode);
+            var detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(actDetail.UnitCode);
             var detailWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(
                 actDetail.ActivityDetailSchemeID);
-
             if (this.SysEnv.SysSettings.IsPickConfirmDet)
             {
                 if (detailWidth0 > this.ColumnWidth0)
                 {
                     this.ColumnWidth0 = detailWidth0;
-                    gridMain.ColumnDefinitions[0].Width = this.ColumnWidth0;
+                    gridHeader.ColumnDefinitions[0].Width = this.ColumnWidth0;
                 }
             }
             else
             {
                 this.ColumnWidth0 = 0;
-                gridMain.ColumnDefinitions[0].Width = this.ColumnWidth0;
+                gridHeader.ColumnDefinitions[0].Width = this.ColumnWidth0;
             }
 
             if (detailWidth1 > this.ColumnWidth1)
             {
                 this.ColumnWidth1 = detailWidth1;
-                gridMain.ColumnDefinitions[1].Width = this.ColumnWidth1;
+                gridHeader.ColumnDefinitions[1].Width = this.ColumnWidth1;
             }
 
             if (detailWidth2 > this.ColumnWidth2)
             {
                 this.ColumnWidth2 = detailWidth2;
-                gridMain.ColumnDefinitions[2].Width = this.ColumnWidth2;
+                gridHeader.ColumnDefinitions[2].Width = this.ColumnWidth2;
             }
 
             if (detailWidth3 > this.ColumnWidth3)
             {
                 this.ColumnWidth3 = detailWidth3;
-                gridMain.ColumnDefinitions[3].Width = this.ColumnWidth3;
+                gridHeader.ColumnDefinitions[3].Width = this.ColumnWidth3;
             }
 
             if (detailWidth4 > this.ColumnWidth4)
             {
                 this.ColumnWidth4 = detailWidth4;
-                gridMain.ColumnDefinitions[4].Width = this.ColumnWidth4;
+                gridHeader.ColumnDefinitions[4].Width = this.ColumnWidth4;
             }
 
             return (DataTemplate)this.ResourceDictionary["dataTemplateReturnsDetail"];

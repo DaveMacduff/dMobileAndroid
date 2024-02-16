@@ -415,7 +415,7 @@ namespace dMobile.Controller.Activity_Detail
                 + "</command>"
                 + await SysCommon.GetRequestDefaults(false)
                 + "<prod_id>" + this.ActItem.ProdInfo.Code + "</prod_id>"
-                + "<bc>" + this.ActItem.ProdInfo.UnitBC + "</bc>"
+                + "<bc>" + this.ActItem.ProdInfo.UnitBc + "</bc>"
                 + "<alt_unit>" + this.ActItem.ProdInfo.UnitCode + "</alt_unit>"
                 + "<prod_id>" + this.ActItem.ProdInfo.Code + "</prod_id>"
                 + "<whs_id>" + this.LocMap.CurrLocMap.WhsFKRefno + "</whs_id>"

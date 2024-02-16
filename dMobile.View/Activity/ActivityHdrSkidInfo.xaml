@@ -31,11 +31,22 @@
                     </Grid.ColumnDefinitions>
 
                     <Label x:Name="cmdSkidNo" Grid.Row="0" Grid.Column="0" VerticalOptions="Center" FontAttributes="Bold"/>
-                    <Entry x:Name="txtSkidCode" Grid.Row="0" Grid.Column="1" Completed="TxtSkidCode_Completed" TextChanged="IdentifyChangesMade"/>
-                    <Button x:Name="cmdNewSkid" Grid.Row="0" Grid.Column="2" Clicked="CmdNewSkid_Click"/>
+                    <Entry x:Name="txtSkidCode"
+                           Grid.Row="0"
+                           Grid.Column="1"
+                           Focused="TxtSkidCode_OnFocused"
+                           Unfocused="TxtSkidCode_OnUnfocused"/>
+                    <Button x:Name="cmdSaveSkid" Grid.Row="0" Grid.Column="2" Clicked="CmdSaveSkid_Click"/>
 
-                    <Button x:Name="cmdSkidProduct" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Clicked="CmdSkidProduct_Click"/>
-                    <Picker x:Name="BarCodeModifier1Picker" Grid.Row="1" Grid.Column="2" SelectedIndexChanged="UpdnBarCodeModifier1_SelectedIndexChanged"/>
+                    <Button x:Name="cmdSkidProduct"
+                            Grid.Row="1"
+                            Grid.Column="0"
+                            Grid.ColumnSpan="2"
+                            Clicked="CmdSkidProduct_Click"/>
+                    <Picker x:Name="BarCodeModifier1Picker"
+                            Grid.Row="1"
+                            Grid.Column="2"
+                            SelectedIndexChanged="UpdnBarCodeModifier1_SelectedIndexChanged"/>
 
                     <Button x:Name="cmdLocation" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" Clicked="CmdLocation_Click"/>
                 </Grid>
@@ -58,21 +69,45 @@
                             </Grid.ColumnDefinitions>
 
                             <Label x:Name="lblTi" Grid.Row="0" Grid.Column="0" VerticalOptions="Center"/>
-                            <Entry x:Name="txtTi" Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" TextChanged="IdentifyChangesMade"/>
+                            <Entry x:Name="txtTi"
+                                   Grid.Row="0"
+                                   Grid.Column="1"
+                                   Grid.ColumnSpan="2"
+                                   Focused="TxtTi_OnFocused"
+                                   Unfocused="TxtTi_OnUnfocused"/>
 
                             <Label x:Name="lblHi" Grid.Row="1" Grid.Column="0" VerticalOptions="Center"/>
-                            <Entry x:Name="txtHi" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" TextChanged="IdentifyChangesMade"/>
+                            <Entry x:Name="txtHi"
+                                   Grid.Row="1"
+                                   Grid.Column="1"
+                                   Grid.ColumnSpan="2"
+                                   Focused="TxtHi_OnFocused"
+                                   Unfocused="TxtHi_OnUnfocused"/>
 
                             <Label x:Name="lblHeight" Grid.Row="2" Grid.Column="0" VerticalOptions="Center"/>
-                            <Entry x:Name="txtHeight" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" TextChanged="IdentifyChangesMade"/>
+                            <Entry x:Name="txtHeight"
+                                   Grid.Row="2"
+                                   Grid.Column="1"
+                                   Grid.ColumnSpan="2"
+                                   Focused="TxtHeight_OnFocused"
+                                   Unfocused="TxtHeight_OnUnfocused"/>
                             <Label x:Name="lblHeightUOM" Grid.Row="2" Grid.Column="3" VerticalOptions="Center"/>
 
                             <Label x:Name="lblCube" Grid.Row="3" Grid.Column="0" VerticalOptions="Center"/>
-                            <Entry x:Name="txtCube" Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2" TextChanged="IdentifyChangesMade"/>
+                            <Entry x:Name="txtCube"
+                                   Grid.Row="3"
+                                   Grid.Column="1"
+                                   Grid.ColumnSpan="2"
+                                   Focused="TxtCube_OnFocused"
+                                   Unfocused="TxtCube_OnUnfocused"/>
                             <Label x:Name="lblCubeUOM" Grid.Row="3" Grid.Column="3" VerticalOptions="Center"/>
 
                             <Label x:Name="lblIsPutAway" Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2" VerticalOptions="Center"/>
-                            <customcontrols:CustomSwitch x:Name="chkIsPutAway" Grid.Row="4" Grid.Column="2" Grid.ColumnSpan="2" Toggled="ChkIsPutAway_Toggled"/>
+                            <customcontrols:CustomSwitch x:Name="chkIsPutAway"
+                                                         Grid.Row="4"
+                                                         Grid.Column="2"
+                                                         Grid.ColumnSpan="2"
+                                                         Toggled="ChkIsPutAway_Toggled"/>
                         </Grid>
                     </ScrollView>
                 </Frame>
@@ -94,7 +129,11 @@
 
                 <Grid Grid.Row="3">
                     <Frame Grid.Row="0" OutlineColor="{DynamicResource BorderColor}">
-                        <ListView x:Name="ListViewDisplayExtraInfo" SelectionMode="None" HasUnevenRows="True" IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}" SeparatorVisibility="None">
+                        <ListView x:Name="ListViewDisplayExtraInfo"
+                                  SelectionMode="None"
+                                  HasUnevenRows="True"
+                                  IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}"
+                                  SeparatorVisibility="None">
                             <ListView.ItemTemplate>
                                 <DataTemplate>
                                     <ViewCell>

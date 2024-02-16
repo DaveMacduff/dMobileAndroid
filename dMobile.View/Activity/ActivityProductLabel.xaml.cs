@@ -953,7 +953,7 @@ namespace dMobile.View.Activity
             this.ExtraInfoItems.Clear();
 
             this.ExtraInfoItems.Add("PROD: " + this.ActDetail.ActItem.ProdInfo.Code +
-                                    this.ActDetail.ActItem.ProdInfo.UnitBC + "  " +
+                                    this.ActDetail.ActItem.ProdInfo.UnitBc + "  " +
                                     this.ActDetail.ActItem.ProdInfo.Desc);
             this.ExtraInfoItems.Add("SIZE: " + this.ActDetail.ActItem.ProdInfo.UnitSizeDesc);
         }
@@ -973,7 +973,7 @@ namespace dMobile.View.Activity
 
                 if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
                 {
-                    var xmlDoc = await form.GetXML();
+                    var xmlDoc = await form.GetXml();
                     var prodUnitRefno = int.Parse(xmlDoc.Root.Element("ProductUnitRefno").Value);
 
                     if (prodUnitRefno != 0)

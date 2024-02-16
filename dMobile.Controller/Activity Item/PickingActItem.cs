@@ -234,7 +234,7 @@ namespace dMobile.Controller.Activity_Item
 
             if (this.SysEnv.SysSettings.IsPickOverrideMsg1)
             {
-                msg = $"Product scanned, code \'{prodInfo.Code}\' bc \'{prodInfo.UnitBC}\' unit" +
+                msg = $"Product scanned, code \'{prodInfo.Code}\' bc \'{prodInfo.UnitBc}\' unit" +
                     $" \'{prodInfo.UnitCode}\', is not found on this order for warehouse {locMap.CurrLocMap.WhsFKRefno}.";
             }
 
@@ -670,7 +670,7 @@ namespace dMobile.Controller.Activity_Item
                     ProductCode = this.ProdInfo.Code,
                     ProductDescription = this.ProdInfo.Desc,
                     UnitCode = this.ProdInfo.UnitCode,
-                    ProductUnitBC = this.ProdInfo.UnitBC,
+                    ProductUnitBC = this.ProdInfo.UnitBc,
                     ProductUnitSizeDescription = this.ProdInfo.UnitSizeDesc,
                     LocationMapRefno = locMap.WhsLocMapRefno,
                     LocationCode = locMap.WhsCode,

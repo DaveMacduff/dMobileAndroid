@@ -648,7 +648,35 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// Returns a human readable (nice) formatted location string e.g. '001.FREEZER.123.45.6'.
+        /// Returns a human-readable (nice) formatted location string e.g. '001.FREEZER.123.45.6'.
+        /// </summary>
+        /// <returns><see cref="string"/> Location string.</returns>
+        public static string GetCurrentReadableLocation(SSkidInfo skidInfo)
+        {
+            var location = string.Empty;
+
+            if (skidInfo.LocMap.WhsLocMapRefno != 0)
+            {
+                // Warehouse Example 001M
+                location = location + skidInfo.LocMap.WhsCode.ToString().TrimEnd().PadLeft(
+                    skidInfo.LocMap.WhsCodeMask.Length, '0') + "M";
+            }
+
+            if (skidInfo.LocMap.SectLocMapRefno != 0 && skidInfo.LocMap.SectName != null)
+            {
+                location = location + "." + skidInfo.LocMap.SectName.TrimEnd();
+            }
+
+            if (skidInfo.LocMap.SlotLocMapRefno != 0 && skidInfo.LocMap.SlotName != null)
+            {
+                location = location + "." + skidInfo.LocMap.SlotName.TrimEnd();
+            }
+
+            return location;
+        }
+
+        /// <summary>
+        /// Returns a human-readable (nice) formatted location string e.g. '001.FREEZER.123.45.6'.
         /// </summary>
         /// <returns><see cref="string"/> Location string.</returns>
         public static string GetCurrentReadableLocation()

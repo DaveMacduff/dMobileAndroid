@@ -810,7 +810,7 @@ namespace dMobile.View.Utilities
 
             if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
             {
-                var xmlDoc = await form.GetXML();
+                var xmlDoc = await form.GetXml();
                 var prodRefno = Convert.ToInt32(xmlDoc.Root.Element("ProductRefno").Value);
 
                 if (prodRefno == 0)

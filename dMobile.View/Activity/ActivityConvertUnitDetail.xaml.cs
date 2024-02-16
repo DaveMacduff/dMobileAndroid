@@ -491,10 +491,6 @@ namespace dMobile.View.Activity
                         {
                             await OnAppearingF3Key();
                         }
-                        else if (keycode == Keycode.F4)
-                        {
-                            await OnAppearingF4Key();
-                        }
                         else if (keycode == Keycode.DpadDown)
                         {
                             OnAppearingDpadDownKey();
@@ -664,81 +660,6 @@ namespace dMobile.View.Activity
                     {
                         await this.ActAppearing();
                         _ = this.ListViewMainActivity.Focus();
-                    }
-                }
-
-                //////////////////////////////////////////////////////////////////////////
-                async Task OnAppearingF4Key()
-                {
-                    try
-                    {
-                        await this.ActDisappearing();
-                        var xmlString = new StringBuilder();
-                        var settings = new XmlWriterSettings
-                        {
-                            Async = true,
-                            Indent = false
-                        };
-                        var xml = XmlWriter.Create(xmlString, settings);
-
-                        await CheckIfActivityCanBeConfirmed();
-                        SubmitDetailConfirmation(xmlString);
-                        MarkDetailAsConfirmed();
-                    }
-                    catch (MessageOnlyException msgEx)
-                    {
-                        var msg = SysCommon.GetMessageFromMessageException(msgEx);
-                        await Device.InvokeOnMainThreadAsync(async () =>
-                            await Application.Current.MainPage.DisplayAlert(
-                                this.GetControlDescription(),
-                                msg,
-                                Resource.OK));
-                    }
-                    catch (Exception ex)
-                    {
-                        await Device.InvokeOnMainThreadAsync(async () =>
-                        {
-                            var errorReport = new FormErrorReport(this.ActSubType, ex);
-                            _ = await errorReport.ShowDialog();
-                        });
-                    }
-                    finally
-                    {
-                        await this.ActAppearing();
-                        _ = this.ListViewMainActivity.Focus();
-                    }
-
-                    return;
-
-                    //////////////////////////////////////////////////////////////////////////
-                    void MarkDetailAsConfirmed()
-                    {
-                        if (this.ListViewMainActivity.SelectedItem is PickingDetail pickDetail)
-                        {
-                            pickDetail = (PickingDetail)this.ActDetail.ListDetails[
-                                this.MainActivityItems.IndexOf(this.ListViewMainActivity.SelectedItem)];
-                            pickDetail.ActivityDetailIsConfirmed = true;
-                            pickDetail.ActivityDetailIsConfirmedString = "C";
-                        }
-                        else if (this.ListViewMainActivity.SelectedItem is TransferDetail transferDetail)
-                        {
-                            pickDetail = (PickingDetail)this.ActDetail.ListDetails[
-                                this.MainActivityItems.IndexOf(this.ListViewMainActivity.SelectedItem)];
-                            pickDetail.ActivityDetailIsConfirmed = true;
-                            pickDetail.ActivityDetailIsConfirmedString = "C";
-                        }
-                    }
-
-                    //////////////////////////////////////////////////////////////////////////
-                    static void SubmitDetailConfirmation(StringBuilder xmlString)
-                    {
-                        var responseData = SysCommon.SubmitComm(xmlString.ToString());
-                    }
-
-                    //////////////////////////////////////////////////////////////////////////
-                    async Task CheckIfActivityCanBeConfirmed()
-                    {
-                        throw new MessageOnlyException("Confirmations are not supported with this activity.");
                     }
                 }
 

@@ -335,7 +335,7 @@ namespace dMobile.View.Activity
             this.ExtraInfoItems.Clear();
 
             this.ExtraInfoItems.Add("PROD: " + this.ActDetail.ActItem.ProdInfo.Code +
-                                    this.ActDetail.ActItem.ProdInfo.UnitBC + "  " +
+                                    this.ActDetail.ActItem.ProdInfo.UnitBc + "  " +
                                     this.ActDetail.ActItem.ProdInfo.Desc);
             this.ExtraInfoItems.Add("SIZE: " + this.ActDetail.ActItem.ProdInfo.UnitSizeDesc);
         }

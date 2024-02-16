@@ -1327,10 +1327,6 @@ namespace dMobile.Bedrock
                 receivedData = Compress.UnZip(compressedData.ToArray());
                 SysCommon.CheckCommResponseForErrors(receivedData);
             }
-            catch
-            {
-                throw;
-            }
             finally
             {
                 if (sysSock != null && sysSock.Connected)

@@ -1031,7 +1031,7 @@ namespace dMobile.View.Activity
 
             this.ExtraInfoItems.Clear();
             this.ExtraInfoItems.Add("Product: " + this.ActDetail.ActItem.ProdInfo.Code +
-                                    this.ActDetail.ActItem.ProdInfo.UnitBC + "  " +
+                                    this.ActDetail.ActItem.ProdInfo.UnitBc + "  " +
                                     this.ActDetail.ActItem.ProdInfo.Desc);
             this.ExtraInfoItems.Add($"Production Date: {this.ActDetail.SchemeData.LogisticUnitProductionDate}");
             this.ExtraInfoItems.Add(

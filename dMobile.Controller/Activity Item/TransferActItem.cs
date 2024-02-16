@@ -231,37 +231,88 @@ namespace dMobile.Controller.Activity_Item
         }
 
         /// <summary>
-        /// The IsReadyToApply.
+        /// Check if the quantity is valid, and is ready to be used.
         /// </summary>
-        /// <param name="data">.</param>
-        /// <returns>.</returns>
+        /// <param name="data"><see cref="XDocument"/> Quantity captured to validate.</param>
+        /// <returns><see cref="Task"/> Task operation.</returns>
         public override async Task IsReadyToApply(XDocument data)
         {
+            data = data ?? throw new ArgumentNullException(nameof(data));
+            _ = data.Root ?? throw new ArgumentNullException(nameof(data.Root));
+            _ = data.Root.Element("itm_refno")?.Value ?? throw new Exception("xml 'itm_refno' element is does not exist.");
+            _ = data.Root.Element("alt_qty")?.Value ?? throw new Exception("xml 'alt_qty' element is does not exist.");
+
+            var itmRefno = int.Parse(data.Root.Element("itm_refno")?.Value!);
+            var altQty = decimal.Parse(data.Root.Element("alt_qty")?.Value!);
+
             await base.IsReadyToApply(data);
 
             // New items are identified with 0 < this.FKRefno, do not validate.
-            if (this.SysEnv.SysSettings.TransQtyOverWarn != SysCommon.ActTransfersQtyOverValLevels.NoValidationOrWarning && this.ItemFkRefno > 0)
+            var showWarning = this.SysEnv.SysSettings.TransQtyOverWarn !=
+                              SysCommon.ActTransfersQtyOverValLevels.NoValidationOrWarning;
+            if (showWarning && this.ItemFkRefno > 0)
             {
                 try
                 {
-                    this.TransferModuleQuantityOverCheck(int.Parse(data.Root.Element("itm_refno").Value), decimal.Parse(data.Root.Element("alt_qty").Value));
+                    TransferModuleQuantityOverCheck(altQty);
                 }
                 catch (Exception ex)
                 {
-                    switch (this.SysEnv.SysSettings.TransQtyOverWarn)
+                    await HandleQtyOverCheck(ex);
+                }
+            }
+
+            return;
+
+            //////////////////////////////////////////////////////////////////////////
+            void TransferModuleQuantityOverCheck(decimal actItemTransQuantity)
+            {
+                if (this.SelectedItem is TransferItem transferItem)
+                {
+                    var transferred = Math.Round(Convert.ToDecimal(transferItem.ActivityItemTransferQuantity), 3);
+                    var required = Math.Round(Convert.ToDecimal(transferItem.ActivityItemTransferRequiredQuantity), 3);
+                    if (transferred + actItemTransQuantity > required)
                     {
-                        case SysCommon.ActTransfersQtyOverValLevels.ValidateWarnAndContinue:
-
-                            if (await Device.InvokeOnMainThreadAsync(async () => !await Application.Current.MainPage.DisplayAlert("Quantity Over", ex.Message + Environment.NewLine + "Continue?", "Yes", "No")))
-                            {
-                                throw new IsReadyToApplyException(ex.Message, true, false);
-                            }
-
-                            break;
-
-                        case SysCommon.ActTransfersQtyOverValLevels.ValidateWarnAndStop:
-                            throw new IsReadyToApplyException(ex.Message, false, false);
+                        var msg = $"The resulting quantity transferred {transferred + actItemTransQuantity}" +
+                                  $" {this.ProdInfo.UnitCode} will be greater than the quantity required {required}" +
+                                  $" {this.ProdInfo.UnitCode}.";
+                        throw new Exception(msg);
                     }
+                }
+                else
+                {
+                    const string msg = "The selected item is not a transfer item type.";
+                    throw new Exception(msg);
+                }
+            }
+
+            //////////////////////////////////////////////////////////////////////////
+            async Task HandleQtyOverCheck(Exception ex)
+            {
+                switch (this.SysEnv.SysSettings.TransQtyOverWarn)
+                {
+                    case SysCommon.ActTransfersQtyOverValLevels.ValidateWarnAndContinue:
+
+                        if (await Device.InvokeOnMainThreadAsync(
+                                async () => !await Application.Current.MainPage.DisplayAlert(
+                                    "Quantity Over",
+                                    ex.Message + Environment.NewLine + "Continue?",
+                                    "Yes",
+                                    "No")))
+                        {
+                            throw new IsReadyToApplyException(ex.Message, true, false);
+                        }
+
+                        break;
+
+                    case SysCommon.ActTransfersQtyOverValLevels.ValidateWarnAndStop:
+                        throw new IsReadyToApplyException(ex.Message, false, false);
+
+                    case SysCommon.ActTransfersQtyOverValLevels.NoValidationOrWarning:
+                        break;
+
+                    default:
+                        throw new ArgumentOutOfRangeException();
                 }
             }
         }
@@ -918,27 +969,6 @@ namespace dMobile.Controller.Activity_Item
                 };
 
                 await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, parameters);
-            }
-        }
-
-        /// <summary>
-        /// The TransferModuleQuantityOverCheck.
-        /// </summary>
-        /// <param name="actItemTransFkRefno">.</param>
-        /// <param name="actItemTransQuantity">.</param>
-        private void TransferModuleQuantityOverCheck(int actItemTransFkRefno, decimal actItemTransQuantity)
-        {
-            if (this.SelectedItem is TransferItem transferItem)
-            {
-                var transferred = Convert.ToDecimal(transferItem.ActivityItemTransferQuantity);
-                var required = Convert.ToDecimal(transferItem.ActivityItemTransferRequiredQuantity);
-
-                if (transferred + actItemTransQuantity > required)
-                {
-                    throw new Exception(
-                        $"The resulting quantity transferred {transferred + actItemTransQuantity}" +
-                        $" {this.ProdInfo.UnitCode} will be greater than the quantity required {required} {this.ProdInfo.UnitCode}.");
-                }
             }
         }
 

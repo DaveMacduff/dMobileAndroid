@@ -153,7 +153,7 @@ namespace dMobile.Controller.Activity_Item
                     ProductUnitRefno = this.ProdInfo.UnitRefno,
                     ProductRefno = this.ProdInfo.Refno,
                     ProductCode = this.ProdInfo.Code,
-                    ProductUnitBC = this.ProdInfo.UnitBC,
+                    ProductUnitBC = this.ProdInfo.UnitBc,
                     UnitCode = this.ProdInfo.UnitCode,
                     ProductDescription = this.ProdInfo.Desc,
                     ProductUnitSizeDescription = this.ProdInfo.UnitSizeDesc,

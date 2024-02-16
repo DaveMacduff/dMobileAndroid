@@ -383,7 +383,7 @@ namespace dMobile.Controller.Activity
 
                 var prodBCUnit = await ProductInfoTasks.GetInfoFromUnitRefno(item.ProductUnitRefno);
                 item.ProductCode = prodBCUnit.Code;
-                item.ProductUnitBC = prodBCUnit.UnitBC;
+                item.ProductUnitBC = prodBCUnit.UnitBc;
                 item.ProductUnitCode = prodBCUnit.UnitCode;
             }
 

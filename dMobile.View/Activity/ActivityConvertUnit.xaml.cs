@@ -1182,7 +1182,7 @@ namespace dMobile.View.Activity
                 }
 
                 await this.ClearContents();
-                var xmlDocProduct = await frmSelectProduct.GetXML();
+                var xmlDocProduct = await frmSelectProduct.GetXml();
                 this.FromProdUnitRefno = int.Parse(xmlDocProduct.Root.Element("ProductUnitRefno").Value);
                 if (this.FromProdUnitRefno == 0)
                 {
@@ -1213,7 +1213,7 @@ namespace dMobile.View.Activity
                     throw new CancelOperationException();
                 }
 
-                var xmlDoc = await form.GetXML();
+                var xmlDoc = await form.GetXml();
                 await this.ActItem.Insert(xmlDoc);
                 var query = "SELECT tProduct.ProductCode,"
                             + "tProductUnit.ProductUnitBC,"
@@ -1307,10 +1307,10 @@ namespace dMobile.View.Activity
                 await Device.InvokeOnMainThreadAsync(() =>
                 {
                     this.cmdSelectToUnit.Text =
-                        $"{this.ActItem.ProdInfo.UnitBC} {this.ActItem.ProdInfo.UnitCode}\'S ({Math.Round(this.ActDetail.Quantity, 3)} per {Convert.ToString((this.ActItem.ListItems[0] as dynamic).UnitCode)})";
+                        $"{this.ActItem.ProdInfo.UnitBc} {this.ActItem.ProdInfo.UnitCode}\'S ({Math.Round(this.ActDetail.Quantity, 3)} per {Convert.ToString((this.ActItem.ListItems[0] as dynamic).UnitCode)})";
                 });
 
-                var xmlDoc = await form.GetXML();
+                var xmlDoc = await form.GetXml();
 
                 // Clear the detail list.
                 await this.ActDetail.Delete();
@@ -1482,7 +1482,7 @@ namespace dMobile.View.Activity
                     throw new CancelOperationException();
                 }
 
-                var xmlDocProduct = await frmSelectProduct.GetXML();
+                var xmlDocProduct = await frmSelectProduct.GetXml();
                 this.ToProdUnitRefno = int.Parse(xmlDocProduct.Root.Element("ProductUnitRefno").Value);
 
                 if (this.ToProdUnitRefno == 0)
@@ -1567,11 +1567,11 @@ namespace dMobile.View.Activity
                 + "</command>"
                 + await SysCommon.GetRequestDefaults(false)
                 + "<prod_id>" + fromProd.Code + "</prod_id>"
-                + "<from_bc>" + fromProd.UnitBC + "</from_bc>"
+                + "<from_bc>" + fromProd.UnitBc + "</from_bc>"
                 + "<from_alt_qty>" + quantity + "</from_alt_qty>"
                 + "<from_alt_unit>" + fromProd.UnitCode + "</from_alt_unit>"
                 + "<from_wt_qty>" + weightQuantity + "</from_wt_qty>"
-                + "<to_bc>" + toProd.UnitBC + "</to_bc>"
+                + "<to_bc>" + toProd.UnitBc + "</to_bc>"
                 + "<to_alt_unit>" + toProd.UnitCode + "</to_alt_unit>"
                 + "<to_base_unit>" + toProd.BaseUnitCode + "</to_base_unit>"
                 + "</imclient>");
@@ -1690,7 +1690,7 @@ namespace dMobile.View.Activity
                         if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
                         {
                             var detail = (ConvertUnitDetail)this.ActDetail.ListDetails[this.ActDetail.SelectedListIdx];
-                            var xmlArgs = await form.GetXML();
+                            var xmlArgs = await form.GetXml();
                             if (xmlArgs.Root != null)
                             {
                                 this.ActDetail.Quantity = Convert.ToDecimal(xmlArgs.Root.Element("alt_qty")?.Value);

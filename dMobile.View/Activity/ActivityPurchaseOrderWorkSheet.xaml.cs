@@ -282,7 +282,7 @@ namespace dMobile.View.Activity
                     dialogResult = await formSelectProdUnit.DisplayControl.ShowDialog());
                 if (dialogResult == DialogResult.OK)
                 {
-                    var xmlDocProduct = await formSelectProdUnit.GetXML();
+                    var xmlDocProduct = await formSelectProdUnit.GetXml();
                     productUnitRefno = int.Parse(xmlDocProduct.Root!.Element("ProductUnitRefno") !.Value);
                     productCode = xmlDocProduct.Root!.Element("ProductCode") !.Value;
                     productUnitIsBc = bool.Parse(xmlDocProduct.Root!.Element("ProductUnitIsBC") !.Value);
@@ -310,7 +310,7 @@ namespace dMobile.View.Activity
 
                     if (dialogResult == DialogResult.OK)
                     {
-                        var xmlDocEdit = await formPurchaseOrderWorkSheetEdit.GetXML();
+                        var xmlDocEdit = await formPurchaseOrderWorkSheetEdit.GetXml();
                         var altQty = Math.Round(decimal.Parse(xmlDocEdit.Root!.Element("alt_qty") !.Value), 3);
                         var baseQty = Math.Round(decimal.Parse(xmlDocEdit.Root!.Element("base_qty") !.Value), 3);
                         var wtQty = Math.Round(decimal.Parse(xmlDocEdit.Root!.Element("wt_qty") !.Value), 3);
@@ -355,7 +355,7 @@ namespace dMobile.View.Activity
                     dialogResult = await formPurchaseOrderWorkSheetEdit.DisplayControl.ShowDialog();
                     if (dialogResult == DialogResult.OK)
                     {
-                        var xmlDocEdit = await formPurchaseOrderWorkSheetEdit.GetXML();
+                        var xmlDocEdit = await formPurchaseOrderWorkSheetEdit.GetXml();
                         var altQty = Math.Round(decimal.Parse(xmlDocEdit.Root!.Element("alt_qty")!.Value), 3);
                         var baseQty = Math.Round(decimal.Parse(xmlDocEdit.Root!.Element("base_qty")!.Value), 3);
                         var wtQty = Math.Round(decimal.Parse(xmlDocEdit.Root!.Element("wt_qty")!.Value), 3);
@@ -796,7 +796,7 @@ namespace dMobile.View.Activity
                                 "Item Not Found For " + Environment.NewLine + "Location {0} " +
                                 Environment.NewLine + "Product {1} BC {2} Unit {3}",
                                 LocationMapTasks.GetCurrentReadableLocation(), this.ActItem.ProdInfo.Code,
-                                this.ActItem.ProdInfo.UnitBC, this.ActItem.ProdInfo.UnitCode);
+                                this.ActItem.ProdInfo.UnitBc, this.ActItem.ProdInfo.UnitCode);
                             throw new Exception(message);
                         }
                     }
@@ -830,7 +830,7 @@ namespace dMobile.View.Activity
 
                         if (dialogResult == DialogResult.OK)
                         {
-                            xmlDocEdit = await form.GetXML();
+                            xmlDocEdit = await form.GetXml();
 
                             // TODO: Fix sorting
                             // string strOldSort = ActItem.DataViewItems.Sort;
@@ -895,7 +895,7 @@ namespace dMobile.View.Activity
 
                         if (dialogResult == DialogResult.OK)
                         {
-                            xmlDocEdit = await form.GetXML();
+                            xmlDocEdit = await form.GetXml();
 
                             var request = XDocument.Parse(
                                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" +

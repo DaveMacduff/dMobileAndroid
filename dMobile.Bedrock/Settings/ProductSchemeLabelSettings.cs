@@ -8,7 +8,6 @@ namespace dMobile.Bedrock
     using SQLite;
     using System;
     using System.Collections;
-    using System.Collections.Generic;
     using System.Data;
     using System.IO;
     using System.Text;
@@ -25,25 +24,25 @@ namespace dMobile.Bedrock
     public class ProdSchemeLabelSettings : ISysSocketEventListener, IProdSchemeLabelSettingsPublisher
     {
         /// <summary>
-        /// Contains full product scheme label settings class name..
+        /// Contains full product scheme label settings class name.
         /// </summary>
         [NonSerialized]
         private string fullClassName = "dMobile.Bedrock.ProductSchemeLabelSettings";
 
         /// <summary>
-        /// Contains product scheme label settings path name..
+        /// Contains product scheme label settings path name.
         /// </summary>
         [NonSerialized]
         private string filePath = string.Empty;
 
         /// <summary>
-        /// Contains product scheme label settings drive letter, path and file name..
+        /// Contains product scheme label settings drive letter, path and file name.
         /// </summary>
         [NonSerialized]
         private string fileASCIIZ = string.Empty;
 
         /// <summary>
-        /// Contains product scheme label settings file name..
+        /// Contains product scheme label settings file name.
         /// </summary>
         [NonSerialized]
         private string fileName = "dMobileProductSchemeLabelSettings.xml";
@@ -61,7 +60,7 @@ namespace dMobile.Bedrock
         private readonly object readLockObject = new object();
 
         /// <summary>
-        /// arraylist of product scheme label definitions of type SchemeInfo..
+        /// arraylist of product scheme label definitions of type SchemeInfo.
         /// </summary>
         private ArrayList allProdSchemeLabel = new ArrayList();
 
@@ -104,7 +103,7 @@ namespace dMobile.Bedrock
 
         /// <summary>
         /// Gets or sets the AllProdSchemeLabel
-        /// Gets or sets an arraylist of printer definitions of type prodSchemeLabelInfo..
+        /// Gets or sets an arraylist of printer definitions of type prodSchemeLabelInfo.
         /// </summary>
         public ArrayList AllProdSchemeLabel
         {
@@ -122,7 +121,7 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// Gets or sets the class name to serialize..
+        /// Gets or sets the class name to serialize.
         /// </summary>
         public string FullClassName
         {
@@ -132,7 +131,7 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// Gets or sets the path name of the xml file..
+        /// Gets or sets the path name of the xml file.
         /// </summary>
         public string FilePath
         {
@@ -142,7 +141,7 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// Gets or sets the full path and file name of the xml file..
+        /// Gets or sets the full path and file name of the xml file.
         /// </summary>
         public string FileASCIIZ
         {
@@ -152,7 +151,7 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// Gets or sets the file name of the xml file..
+        /// Gets or sets the file name of the xml file.
         /// </summary>
         public string FileName
         {
@@ -214,11 +213,10 @@ namespace dMobile.Bedrock
                 }
 
                 // Create a FileStream to read with.
-                using (var reader = new FileStream(fullPathToMyFile, FileMode.Open, FileAccess.Read, FileShare.Read))
-                {
-                    // Deserialize the stream to the object, and close the TextReader
-                    settings = (ProdSchemeLabelSettings)serializer.Deserialize(reader);
-                }
+                using var reader = new FileStream(fullPathToMyFile, FileMode.Open, FileAccess.Read, FileShare.Read);
+
+                // Deserialize the stream to the object, and close the TextReader
+                settings = (ProdSchemeLabelSettings)serializer.Deserialize(reader);
 
                 return settings;
             }
@@ -513,11 +511,6 @@ namespace dMobile.Bedrock
         public struct ProdSchemeLabelInfo
         {
             /// <summary>
-            /// Defines the isVariantTracked.
-            /// </summary>
-            private bool isVariantTracked;
-
-            /// <summary>
             /// Gets or sets the SchemeRefno.
             /// </summary>
             public int SchemeRefno { get; set; }
@@ -525,12 +518,7 @@ namespace dMobile.Bedrock
             /// <summary>
             /// Gets or sets a value indicating whether IsVariantTracked.
             /// </summary>
-            public bool IsVariantTracked
-            {
-                get => this.isVariantTracked;
-
-                set => this.isVariantTracked = value;
-            }
+            public bool IsVariantTracked { get; set; }
 
             /// <summary>
             /// Gets or sets a value indicating whether IsBestBeforeDateTracked.

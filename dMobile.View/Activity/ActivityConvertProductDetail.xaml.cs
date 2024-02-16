@@ -503,7 +503,7 @@ namespace dMobile.View.Activity
                 SysCommon.ActSubTypes.ConvertProduct);
             if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
             {
-                var xmlDoc = await form.GetXML();
+                var xmlDoc = await form.GetXml();
                 await Task.Run(async () =>
                 {
                     await this.CreateAdjustment(xmlDoc);

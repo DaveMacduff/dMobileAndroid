@@ -15,7 +15,6 @@ namespace dMobile.View.Activity
     using Bedrock;
     using Controller.Activity_Detail;
     using Controller.Activity_Item;
-    using CustomPages.Modal;
     using Forms;
     using Resources.Enums;
     using Resources.Types;
@@ -27,11 +26,11 @@ namespace dMobile.View.Activity
     ///     Defines the <see cref="ActivityDetailSkid" />.
     /// </summary>
     [XamlCompilation(XamlCompilationOptions.Compile)]
-    public partial class ActivityDetailSkid : DMobileModal, IAppArea
+    public partial class ActivityDetailSkid : IAppArea
     {
         /// <summary>
         ///     Scanner is in Add Mode (true). Scanning a bar code will add it.
-        ///     Scanner is in Remove Mode (false). Scanning a bar code will remove it..
+        ///     Scanner is in Remove Mode (false). Scanning a bar code will remove it.
         /// </summary>
         private bool scannerModeAdd;
 
@@ -682,7 +681,7 @@ namespace dMobile.View.Activity
                             if (await Device.InvokeOnMainThreadAsync(async () =>
                                     await form.DisplayControl.ShowDialog() == DialogResult.OK))
                             {
-                                var xmlDoc = await form.GetXML();
+                                var xmlDoc = await form.GetXml();
 
                                 // Create an activity detail for it now
                                 var fillQty = new SFillQuantity

@@ -1116,7 +1116,7 @@ namespace dMobile.View.Activity
 
                 if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
                 {
-                    var xmlDoc = await form.GetXML();
+                    var xmlDoc = await form.GetXml();
                     this.ProductUnitRefno = int.Parse(xmlDoc.Root!.Element("ProductUnitRefno") !.Value);
 
                     if (this.ProductUnitRefno != 0)

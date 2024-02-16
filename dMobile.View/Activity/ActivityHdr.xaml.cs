@@ -17,13 +17,11 @@ namespace dMobile.View.Activity
     using Bedrock;
     using Controller;
     using Controller.Activity;
-    using dMobile.View.Pages;
     using Forms;
     using Helpers;
     using Resources.Enums;
     using Resources.Types;
     using Xamarin.Forms;
-    using Xamarin.Forms.Markup;
     using Xamarin.Forms.Xaml;
     using Resource = dMobile.Resources.Properties.Resources;
 
@@ -77,7 +75,7 @@ namespace dMobile.View.Activity
         /// <summary>
         ///     Initializes a new instance of the <see cref="ActivityHdr" /> class.
         /// </summary>
-        /// <param name="activitySubType"><see cref="SysCommon.ActSubTypes" /> Activity sub type.</param>
+        /// <param name="activitySubType"><see cref="SysCommon.ActSubTypes" /> Activity subtype.</param>
         public ActivityHdr(SysCommon.ActSubTypes activitySubType)
         {
             this.InitializeComponent();
@@ -108,6 +106,11 @@ namespace dMobile.View.Activity
             this.LoadAndBindData().FireAndForgetSafeAsync();
         }
 
+        public ActivityHdr(BarCodeScanner scanner)
+        {
+            this.Scanner = scanner;
+        }
+
         /// <summary>
         /// Delay over handler delegate.
         /// </summary>
@@ -129,7 +132,7 @@ namespace dMobile.View.Activity
         private BarCodeParse BarParse { get; set; }
 
         /// <summary>
-        ///     Gets the bar code scanner instance.
+        ///     Gets or sets the bar code scanner instance.
         /// </summary>
         private BarCodeScanner Scanner { get; set; }
 
@@ -790,7 +793,7 @@ namespace dMobile.View.Activity
                                     if (await Device.InvokeOnMainThreadAsync(async () =>
                                             await form.DisplayControl.ShowDialog() == DialogResult.OK))
                                     {
-                                        var doc = await form.GetXML();
+                                        var doc = await form.GetXml();
                                         await this.ActHdr.PrintLabel(doc);
                                     }
                                 }
@@ -823,7 +826,7 @@ namespace dMobile.View.Activity
                             if (await Device.InvokeOnMainThreadAsync(async () =>
                                     await form.DisplayControl.ShowDialog() == DialogResult.OK))
                             {
-                                var request = await form.GetXML();
+                                var request = await form.GetXml();
 
                                 // The itm_refno elements is used to mark the ar_oeitm.slbl_prtd as true.
                                 // If itm_refno is zero then no line is updated as printed.
@@ -845,7 +848,7 @@ namespace dMobile.View.Activity
                             if (await Device.InvokeOnMainThreadAsync(async () =>
                                     await form.DisplayControl.ShowDialog() == DialogResult.OK))
                             {
-                                var request = await form.GetXML();
+                                var request = await form.GetXml();
 
                                 // The itm_refno elements is used to mark the ar_oeitm.slbl_prtd as true.
                                 // If itm_refno is zero then no line is updated as printed.
@@ -893,7 +896,7 @@ namespace dMobile.View.Activity
                                 await form.DisplayControl.ShowDialog() == DialogResult.OK))
                         {
                             var locMap = LocationMap.GetInstance();
-                            var result = await form.GetXML();
+                            var result = await form.GetXml();
                             if (result.Root == null)
                             {
                                 throw new Exception("Unable to get XML from form.");
@@ -1892,7 +1895,7 @@ namespace dMobile.View.Activity
                     {
                         if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
                         {
-                            await form.GetXML();
+                            await form.GetXml();
                             if (!string.IsNullOrEmpty(this.txtSearchHdr.Text))
                             {
                                 this.MainActivityItems = this.ActHdr.Search(this.txtSearchHdr.Text);

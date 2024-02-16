@@ -1003,7 +1003,7 @@ namespace dMobile.View.Activity
                             {
                                 msg = $"Line item was not found for {Environment.NewLine}Location" +
                                        $" {LocationMapTasks.GetCurrentReadableLocation()} {Environment.NewLine}" +
-                                       $"Product {tempProdInfo.Code} BC {tempProdInfo.UnitBC} UOM {tempProdInfo.UnitCode}";
+                                       $"Product {tempProdInfo.Code} BC {tempProdInfo.UnitBc} UOM {tempProdInfo.UnitCode}";
                                 throw new MessageOnlyException(msg);
                             }
                         }
@@ -1144,7 +1144,7 @@ namespace dMobile.View.Activity
                                     + "Location {0} " + Environment.NewLine + "Product {1} BC {2} Unit {3}",
                                     LocationMapTasks.GetCurrentReadableLocation(),
                                     this.ActHdr.SkidInfo.CurrSkid.ProdInfo.Code,
-                                    this.ActHdr.SkidInfo.CurrSkid.ProdInfo.UnitBC,
+                                    this.ActHdr.SkidInfo.CurrSkid.ProdInfo.UnitBc,
                                     this.ActHdr.SkidInfo.CurrSkid.ProdInfo.UnitCode);
 
                                 throw new MessageOnlyException(msg);
@@ -2112,7 +2112,7 @@ namespace dMobile.View.Activity
                     var form = new FormDialogContainer(EDialogTypes.SkidInfo, this.ActItem, this.ActSubType);
                     {
                         _ = await form.DisplayControl.ShowDialog();
-                        var xmlDoc = await form.GetXML();
+                        var xmlDoc = await form.GetXml();
                         this.ActHdr.SkidInfo = await SysSkidInfo.GetSkidInfoFromXml(xmlDoc);
 
                         if (this.ActHdr.SkidInfo.CurrSkid.SkidFKRefno != 0)
@@ -2208,7 +2208,7 @@ namespace dMobile.View.Activity
 
                         if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
                         {
-                            xmlDoc = await form.GetXML();
+                            xmlDoc = await form.GetXml();
                             prodUnitRefno = Convert.ToInt32(xmlDoc.Root.Element("ProductUnitRefno").Value);
                         }
                     }
@@ -2226,7 +2226,7 @@ namespace dMobile.View.Activity
                             + "<ProductCode>" + info.Code + "</ProductCode>"
                             + "<ProductDescription>" + SysCommon.AddXMLReservedChars(info.Desc) + "</ProductDescription>"
                             + "<UnitCode>" + info.UnitCode + "</UnitCode>"
-                            + "<ProductUnitBC>" + info.UnitBC + "</ProductUnitBC>"
+                            + "<ProductUnitBC>" + info.UnitBc + "</ProductUnitBC>"
                             + "<ProductUnitSizeDescription>" + SysCommon.AddXMLReservedChars(info.UnitSizeDesc)
                             + "</ProductUnitSizeDescription>"
                             + "</params>");
@@ -2474,7 +2474,7 @@ namespace dMobile.View.Activity
                                         Environment.NewLine + "Product {1} BC {2} Unit {3}",
                                     LocationMapTasks.GetCurrentReadableLocation(),
                                     this.ActHdr.SkidInfo.CurrSkid.ProdInfo.Code,
-                                    this.ActHdr.SkidInfo.CurrSkid.ProdInfo.UnitBC,
+                                    this.ActHdr.SkidInfo.CurrSkid.ProdInfo.UnitBc,
                                     this.ActHdr.SkidInfo.CurrSkid.ProdInfo.UnitCode);
 
                                 throw new MessageOnlyException(message);
@@ -2579,7 +2579,7 @@ namespace dMobile.View.Activity
                         this.ActItem,
                         this.ActSubType);
                     _ = await form.DisplayControl.ShowDialog();
-                    var xmlDoc = await form.GetXML();
+                    var xmlDoc = await form.GetXml();
 
                     this.ActItem.ReplaceQuantityInActivityItem(
                         this.ActItem.SelectedItem,

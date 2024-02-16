@@ -811,7 +811,7 @@ namespace dMobile.View.Activity
 
             this.ExtraInfoItems = new ObservableCollection<string>
             {
-                "PROD: " + this.ActDetail.ActItem.ProdInfo.Code + this.ActDetail.ActItem.ProdInfo.UnitBC + "  " +
+                "PROD: " + this.ActDetail.ActItem.ProdInfo.Code + this.ActDetail.ActItem.ProdInfo.UnitBc + "  " +
                 this.ActDetail.ActItem.ProdInfo.Desc,
                 "SIZE: " + this.ActDetail.ActItem.ProdInfo.UnitSizeDesc
             };

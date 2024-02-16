@@ -31,7 +31,7 @@ namespace dMobile.View.Activity
         /// <summary>
         ///     Initializes a new instance of the <see cref="ActivityMoveSkid" /> class.
         /// </summary>
-        /// <param name="actSubType"><see cref="SysCommon.ActSubTypes" /> Activity sub types.</param>
+        /// <param name="actSubType"><see cref="SysCommon.ActSubTypes" /> Activity subtypes.</param>
         public ActivityMoveSkid(SysCommon.ActSubTypes actSubType)
         {
             this.InitializeComponent();
@@ -52,6 +52,7 @@ namespace dMobile.View.Activity
             this.ActDetail = ActDetailFacade.GetActDetail(this.ActItem, SysCommon.ActSubTypes.SkidInfo);
             this.ActDetail.ActItem = this.ActItem;
             this.ScannerEnable().FireAndForgetSafeAsync();
+            this.SkidCodeEnter().FireAndForgetSafeAsync();
         }
 
         /// <summary>
@@ -644,7 +645,7 @@ namespace dMobile.View.Activity
                 var location = LocationMapTasks.GetReadableLocation(this.SkidInfo.CurrSkid.LocMap, true);
                 this.ExtraInfoItems.Add($"Current: {location}");
                 this.lblProductBCUnit.Text = $"Product: {this.SkidInfo.CurrSkid.ProdInfo.Code}" +
-                                             $" {this.SkidInfo.CurrSkid.ProdInfo.UnitBC}" +
+                                             $" {this.SkidInfo.CurrSkid.ProdInfo.UnitBc}" +
                                              $" {this.SkidInfo.CurrSkid.ProdInfo.UnitCode}";
                 this.ExtraInfoItems.Add($"Bar Code: {this.SkidInfo.CurrSkid.LogisticUnitSkidCode}");
 

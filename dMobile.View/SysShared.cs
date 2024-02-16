@@ -5,7 +5,6 @@
 namespace dMobile.View
 {
     using System;
-    using System.IO;
     using System.Reflection;
     using System.Threading.Tasks;
     using System.Xml.Linq;
@@ -17,7 +16,6 @@ namespace dMobile.View
     using Controller.Activity_Item;
     using CustomPages;
     using Forms;
-    using Plugin.SimpleAudioPlayer;
     using Resources.Enums;
     using Resources.Models;
     using Xamarin.Forms;
@@ -29,13 +27,35 @@ namespace dMobile.View
     /// </summary>
     public class SysShared : DMobileContentPage
     {
-        public static async Task PlaySound(string filename)
+        /// <summary>
+        ///     Activity type. Sometimes we need to know what type of activity we are working with.
+        /// </summary>
+        public enum ActivityType
         {
-            var assembly = typeof(SysShared).GetTypeInfo().Assembly;
-            var audioStream = assembly.GetManifestResourceStream($"{assembly.GetName().Name}.{filename}");
-            var player = CrossSimpleAudioPlayer.Current;
-            ///player.Load(audioStream);
-            player.Play();
+            /// <summary>
+            ///     Activity type is a header.
+            /// </summary>
+            Header = 0,
+
+            /// <summary>
+            ///    Activity type is items.
+            /// </summary>
+            Items = 1,
+
+            /// <summary>
+            ///    Activity type is details.
+            /// </summary>
+            Details = 2,
+
+            /// <summary>
+            ///   Activity type is details edit.
+            /// </summary>
+            DetailsEdit = 3,
+
+            /// <summary>
+            ///   Activity type is header filter.
+            /// </summary>
+            HeaderFilter = 4,
         }
 
         /// <summary>
@@ -220,7 +240,7 @@ namespace dMobile.View
                         if (await Device.InvokeOnMainThreadAsync(async () =>
                                 await frmSelectProduct.DisplayControl.ShowDialog() == DialogResult.OK))
                         {
-                            var xmlDoc = await frmSelectProduct.GetXML();
+                            var xmlDoc = await frmSelectProduct.GetXml();
                             if (!(xmlDoc is { Root: { } }))
                             {
                                 throw new MessageOnlyException("Product unit was not identified.");
@@ -270,7 +290,7 @@ namespace dMobile.View
         ///     Gather activity detail data from the scanned bar code.
         /// </summary>
         /// <param name="barParse"><see cref="BarCodeParse" /> Bar code parse scan information.</param>
-        /// <param name="actSubType"><see cref="SysCommon.ActSubTypes" /> Activity sub type.</param>
+        /// <param name="actSubType"><see cref="SysCommon.ActSubTypes" /> Activity subtype.</param>
         /// <param name="actItem"><see cref="ActItem" /> Activity item instance.</param>
         /// <param name="defaultItemSchemeData"><see cref="ActItemSchemeData" /> Scheme data.</param>
         /// <param name="actDetail"><see cref="ActDetail" /> Activity detail.</param>
@@ -444,7 +464,7 @@ namespace dMobile.View
                     var sysEnv = SysEnvironment.GetInstance();
 
                     // Decided to implement the bar code here. Could have made it a new BarCodeParseCode_128_NebraskaBeef class.
-                    // The bar code was well formed except it being a non GS1 code 128.
+                    // The bar code was well-formed except it being a non GS1 code 128.
                     if (sysEnv.BarCodeSettings.IsRuleEnabled_NebraskaBeef_Parse_Lot_as_Serial_Code_128 &&
                         IsNebraskaBeefRuleMet(barCodeParse))
                     {
@@ -692,7 +712,6 @@ namespace dMobile.View
                 var prodInfo = actDetail.ActItem.ProdInfo;
                 var barCodeRuleForcedEdit = false;
 
-
                 if (actDetail.ActItem.IsCatchAskZero())
                 {
                     actDetail.Quantity = 0;
@@ -780,8 +799,7 @@ namespace dMobile.View
                         }
                         else
                         {
-                            actDetail.BaseQuantity = unitQuantity * await GetUnitRelationFactor(
-                                prodInfo);
+                            actDetail.BaseQuantity = unitQuantity * await GetUnitRelationFactor(prodInfo);
                         }
                     }
                 }

@@ -293,7 +293,7 @@ namespace dMobile.View.Options
                                         SysCommon.ActSubTypes.PurgeActivityData);
                                     _ = await Device.InvokeOnMainThreadAsync(async () =>
                                         await form.DisplayControl.ShowDialog());
-                                    var xmlDoc = await form.GetXML();
+                                    var xmlDoc = await form.GetXml();
                                 }
                                 else
                                 {

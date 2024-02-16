@@ -944,7 +944,7 @@ namespace dMobile.Controller.Activity_Detail
             detail.ProductRefno = this.ActItem.ProdInfo.Refno;
             detail.ProductUnitRefno = this.ActItem.ProdInfo.UnitRefno;
             detail.ProductCode = this.ActItem.ProdInfo.Code;
-            detail.ProductUnitBC = this.ActItem.ProdInfo.UnitBC;
+            detail.ProductUnitBC = this.ActItem.ProdInfo.UnitBc;
             detail.ProductUnitIsBC = this.ActItem.ProdInfo.UnitIsBC;
             detail.ProductDescription = this.ActItem.ProdInfo.Desc;
             detail.ProductUnitSizeDescription = this.ActItem.ProdInfo.UnitSizeDesc;

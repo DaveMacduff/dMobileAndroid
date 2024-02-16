@@ -779,7 +779,7 @@ namespace dMobile.Controller.Activity_Detail
             req.AppendFormat("<hdr_refno>{0}</hdr_refno>", this.ActItem.ActHdr.HdrFkRefno);
             req.AppendFormat("<itm_refno>{0}</itm_refno>", this.ActItem.ItemFkRefno);
             req.AppendFormat("<prod_id>{0}</prod_id>", fromProd.Code);
-            req.AppendFormat("<bc>{0}</bc>", fromProd.UnitBC);
+            req.AppendFormat("<bc>{0}</bc>", fromProd.UnitBc);
             req.AppendFormat("<alt_unit>{0}</alt_unit>", fromProd.UnitCode);
             req.AppendFormat("<wt_unit>{0}</wt_unit>", fromProd.WeightUnitCode);
             req.AppendFormat("<serial>{0}</serial>", serial);
@@ -801,7 +801,7 @@ namespace dMobile.Controller.Activity_Detail
             req.AppendFormat("<hdr_refno>{0}</hdr_refno>", this.ActItem.ActHdr.HdrFkRefno);
             req.AppendFormat("<itm_refno>{0}</itm_refno>", this.ActItem.ItemFkRefno);
             req.AppendFormat("<prod_id>{0}</prod_id>", toProd.Code);
-            req.AppendFormat("<bc>{0}</bc>", toProd.UnitBC);
+            req.AppendFormat("<bc>{0}</bc>", toProd.UnitBc);
             req.AppendFormat("<alt_unit>{0}</alt_unit>", toProd.UnitCode);
             req.AppendFormat("<wt_unit>{0}</wt_unit>", toProd.WeightUnitCode);
             req.AppendFormat("<serial>{0}</serial>", serial);

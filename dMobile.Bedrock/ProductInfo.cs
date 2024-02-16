@@ -5,12 +5,14 @@
 namespace dMobile.Bedrock
 {
     using System;
+    using System.IO;
+    using System.Xml.Serialization;
 
     /// <summary>
     /// <see cref="ProductInfo"/> Product information class.
     /// </summary>
     [Serializable]
-    public class ProductInfo
+    public class ProductInfo : IEquatable<ProductInfo>
     {
         /// <summary>
         /// Gets or sets a value indicating whether a product is allowed to be converted to another
@@ -76,7 +78,7 @@ namespace dMobile.Bedrock
         /// <summary>
         /// Gets or sets the product unit broken case string. "X".
         /// </summary>
-        public string UnitBC { get; set; } = string.Empty;
+        public string UnitBc { get; set; } = string.Empty;
 
         /// <summary>
         /// Gets or sets the product unit of measure code.
@@ -136,18 +138,96 @@ namespace dMobile.Bedrock
         /// <summary>
         /// Gets a value indicating whether the base unit is a weight unit of measure unit.
         /// </summary>
-        public bool IsBaseWeightUnit
-        {
-            get
-            {
-                var isWeightUnit = false;
-                if (this.BaseUnitCode == "LB" || this.BaseUnitCode == "KG")
-                {
-                    isWeightUnit = true;
-                }
+        public bool IsBaseWeightUnit => this.BaseUnitCode == "LB" || this.BaseUnitCode == "KG";
 
-                return isWeightUnit;
+        /// <summary>
+        /// Perform a product information deep copy.
+        /// </summary>
+        /// <param name="original"><see cref="ProductInfo"/> Original product information.</param>
+        /// <returns><see cref="ProductInfo"/> New copy of the original product information.</returns>
+        public static ProductInfo DeepCopy(ProductInfo original)
+        {
+            var serializer = new XmlSerializer(original.GetType());
+            var stream = new MemoryStream();
+            serializer.Serialize(stream, original);
+            stream.Position = 0;
+
+            return (ProductInfo)serializer.Deserialize(stream);
+        }
+
+        public bool Equals(ProductInfo other)
+        {
+            if (ReferenceEquals(null, other)) return false;
+            if (ReferenceEquals(this, other)) return true;
+            return this.IsAllowConvertProduct == other.IsAllowConvertProduct
+                   && this.IsCatchAskZero == other.IsCatchAskZero
+                   && this.BoxCount == other.BoxCount
+                   && this.UnitIsSellUnit == other.UnitIsSellUnit
+                   && this.UnitIsDefault == other.UnitIsDefault
+                   && this.UnitRefno == other.UnitRefno
+                   && this.FKRefno == other.FKRefno
+                   && this.Refno == other.Refno
+                   && this.Code == other.Code
+                   && this.Desc == other.Desc
+                   && this.BrandDesc == other.BrandDesc
+                   && this.UnitIsBC == other.UnitIsBC
+                   && this.UnitBc == other.UnitBc
+                   && this.UnitCode == other.UnitCode
+                   && this.UnitSizeDesc == other.UnitSizeDesc
+                   && this.BaseUnitCode == other.BaseUnitCode
+                   && this.WeightUnitCode == other.WeightUnitCode
+                   && Equals(this.Scheme, other.Scheme)
+                   && this.Unit2BaseUnitFactor == other.Unit2BaseUnitFactor
+                   && this.UnitGrossWeight == other.UnitGrossWeight
+                   && this.IsCatchCount == other.IsCatchCount
+                   && this.IsCatchWeight == other.IsCatchWeight
+                   && this.IsCatchAsk == other.IsCatchAsk
+                   && this.WeightTolerance == other.WeightTolerance;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is null)
+            {
+                return false;
             }
+
+            if (ReferenceEquals(this, obj))
+            {
+                return true;
+            }
+
+            return obj.GetType() == this.GetType() && this.Equals((ProductInfo)obj);
+        }
+
+        public override int GetHashCode()
+        {
+            var hashCode = new HashCode();
+            hashCode.Add(this.IsAllowConvertProduct);
+            hashCode.Add(this.IsCatchAskZero);
+            hashCode.Add(this.BoxCount);
+            hashCode.Add(this.UnitIsSellUnit);
+            hashCode.Add(this.UnitIsDefault);
+            hashCode.Add(this.UnitRefno);
+            hashCode.Add(this.FKRefno);
+            hashCode.Add(this.Refno);
+            hashCode.Add(this.Code);
+            hashCode.Add(this.Desc);
+            hashCode.Add(this.BrandDesc);
+            hashCode.Add(this.UnitIsBC);
+            hashCode.Add(this.UnitBc);
+            hashCode.Add(this.UnitCode);
+            hashCode.Add(this.UnitSizeDesc);
+            hashCode.Add(this.BaseUnitCode);
+            hashCode.Add(this.WeightUnitCode);
+            hashCode.Add(this.Scheme);
+            hashCode.Add(this.Unit2BaseUnitFactor);
+            hashCode.Add(this.UnitGrossWeight);
+            hashCode.Add(this.IsCatchCount);
+            hashCode.Add(this.IsCatchWeight);
+            hashCode.Add(this.IsCatchAsk);
+            hashCode.Add(this.WeightTolerance);
+            return hashCode.ToHashCode();
         }
     }
 }

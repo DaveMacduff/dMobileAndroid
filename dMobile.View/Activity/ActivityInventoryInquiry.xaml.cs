@@ -382,7 +382,7 @@ namespace dMobile.View.Activity
 
             if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
             {
-                var xmlArgs = await form.GetXML();
+                var xmlArgs = await form.GetXml();
                 prodInfo = await ProductInfoTasks.GetInfoFromRefno(Convert.ToInt32(xmlArgs.Root.Element("ProductRefno").Value));
                 this.cmdSelectProduct.Text = prodInfo.Code;
             }

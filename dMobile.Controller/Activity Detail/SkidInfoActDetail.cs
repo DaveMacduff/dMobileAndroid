@@ -681,7 +681,7 @@ namespace dMobile.Controller.Activity_Detail
                     LocationName = locName,
                     ProductRefno = this.ActItem.ProdInfo.Refno,
                     ProductCode = this.ActItem.ProdInfo.Code,
-                    ProductUnitBC = this.ActItem.ProdInfo.UnitBC,
+                    ProductUnitBC = this.ActItem.ProdInfo.UnitBc,
                     ProductUnitIsBC = this.ActItem.ProdInfo.UnitIsBC,
                     ProductDescription = this.ActItem.ProdInfo.Desc,
                     ProductUnitSizeDescription = this.ActItem.ProdInfo.UnitSizeDesc,

@@ -279,7 +279,7 @@ namespace dMobile.View.Activity
 
                 if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
                 {
-                    var xmlDoc = await form.GetXML();
+                    var xmlDoc = await form.GetXml();
                     await this.ClearContents();
 
                     var tmpSkidInfo = await SysSkidInfo.GetSkidInfoFromXml(xmlDoc);
@@ -398,7 +398,7 @@ namespace dMobile.View.Activity
                         if (await Device.InvokeOnMainThreadAsync(async () =>
                                 await form.DisplayControl.ShowDialog() == DialogResult.OK))
                         {
-                            var xmlDoc = await form.GetXML();
+                            var xmlDoc = await form.GetXml();
                             var prodUnitRefno = int.Parse(xmlDoc.Root.Element("ProductUnitRefno").Value);
 
                             if (prodUnitRefno != 0)
@@ -1067,7 +1067,7 @@ namespace dMobile.View.Activity
             if (await Device.InvokeOnMainThreadAsync(async () =>
                     await form.DisplayControl.ShowDialog() == DialogResult.OK))
             {
-                xmlDoc = await form.GetXML();
+                xmlDoc = await form.GetXml();
                 actDetail.Quantity = decimal.Parse(xmlDoc.Root.Element("alt_qty").Value);
                 actDetail.BaseQuantity = decimal.Parse(xmlDoc.Root.Element("base_qty").Value);
                 actDetail.WeightQuantity = decimal.Parse(xmlDoc.Root.Element("wt_qty").Value);

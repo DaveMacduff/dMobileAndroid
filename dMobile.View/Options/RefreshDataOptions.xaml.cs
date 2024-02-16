@@ -508,7 +508,7 @@ namespace dMobile.View.Options
 
                         if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
                         {
-                            var xmlDoc = await form.GetXML();
+                            var xmlDoc = await form.GetXml();
                             this.IsRefreshComplete = bool.Parse(xmlDoc.Root.Element("IsRefreshComplete").Value);
                             await this.RefreshComplete();
                         }

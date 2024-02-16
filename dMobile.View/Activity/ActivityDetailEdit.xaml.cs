@@ -354,7 +354,7 @@ namespace dMobile.View.Activity
                     this.ActDetailEdit.BaseQuantity = Math.Round(decimal.Parse(this.txtBaseQty.Text), 3);
                     this.ActDetailEdit.WeightQuantity = Math.Round(decimal.Parse(this.txtWtQty.Text), 3);
 
-                    // Check if Units of measure's are the same quantity should be the same.
+                    // Check if Units of measures are the same quantity should be the same.
                     var productInfo = this.ActDetail.ActItem.ProdInfo;
                     CheckEqualQuantity();
 
@@ -369,7 +369,7 @@ namespace dMobile.View.Activity
                             "Weight quantity is expected to have a value not equal to zero.");
                     }
 
-                    // Alt quantity equal to zero will be considered valid for these activity sub types.
+                    // Alt quantity equal to zero will be considered valid for these activity subtypes.
                     decimal expectedWeightQty = 0;
                     if (this.ActDetail.ActItem.ProdInfo.IsBaseWeightUnit)
                     {
@@ -442,8 +442,7 @@ namespace dMobile.View.Activity
                             {
                                 // Any base quantity value is acceptable.
                                 // Integer check override does not apply to weighted units.
-                                if (!productInfo.IsCatchWeight &&
-                                    expectedWeightQty != this.ActDetailEdit.WeightQuantity)
+                                if (!productInfo.IsCatchWeight && expectedWeightQty != this.ActDetailEdit.WeightQuantity)
                                 {
                                     throw new MessageOnlyException(
                                         $"Weight quantity {this.ActDetailEdit.WeightQuantity}" +
@@ -464,8 +463,9 @@ namespace dMobile.View.Activity
                             }
                             else if (productInfo.IsCatchWeight)
                             {
-                                throw new NotSupportedException($"Product '{productInfo.Code}' cannot be flagged as" +
-                                                                " catch weight and the base unit code not be a weighted unit.");
+                                throw new NotSupportedException(
+                                    $"Product '{productInfo.Code}' cannot be flagged as" +
+                                    " catch weight and the base unit code not be a weighted unit.");
                             }
                             else
                             {
@@ -1315,7 +1315,7 @@ namespace dMobile.View.Activity
                 this.ExtraInfoItems.Clear();
 
                 this.ExtraInfoItems.Add("PROD: " + this.ActDetail.ActItem.ProdInfo.Code +
-                                        this.ActDetail.ActItem.ProdInfo.UnitBC + "  " +
+                                        this.ActDetail.ActItem.ProdInfo.UnitBc + "  " +
                                         this.ActDetail.ActItem.ProdInfo.Desc);
                 this.ExtraInfoItems.Add("SIZE: " + this.ActDetail.ActItem.ProdInfo.UnitSizeDesc);
             }

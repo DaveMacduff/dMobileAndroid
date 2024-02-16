@@ -96,7 +96,7 @@ namespace dMobile.View.Menus
                     this.DisableControls();
                     this.IsControlLoaded = false;
 
-                    var skidInfo = new ActivityHdrSkidInfo();
+                    var skidInfo = new ActivityHdrSkidInfo(SysShared.ActivityType.Header);
                     _ = await skidInfo.ShowDialog();
                 }
                 else if (keycode == Keycode.Num5 && this.cmdInquiry.IsEnabled)
@@ -396,7 +396,7 @@ namespace dMobile.View.Menus
             this.DisableControls();
             this.IsControlLoaded = false;
 
-            var skidInfo = new ActivityHdrSkidInfo();
+            var skidInfo = new ActivityHdrSkidInfo(SysShared.ActivityType.Header);
             _ = await skidInfo.ShowDialog();
         }
 

@@ -280,7 +280,7 @@ namespace dMobile.View.Activity
 
                         if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
                         {
-                            var request = await form.GetXML();
+                            var request = await form.GetXml();
 
                             // The itm_refno elements is used to mark the ar_oeitm.slbl_prtd as true.
                             // If itm_refno is zero then no line is updated as printed.
@@ -428,7 +428,7 @@ namespace dMobile.View.Activity
 
             if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
             {
-                var xmlDoc = await form.GetXML();
+                var xmlDoc = await form.GetXml();
                 this.Activity.GetFilter(xmlDoc);
 
                 // TODO: Fix filtering

@@ -262,7 +262,7 @@ namespace dMobile.View.Menus
             if (await Device.InvokeOnMainThreadAsync(async () =>
                     await formPickSelect.DisplayControl.ShowDialog() == DialogResult.OK))
             {
-                var xmlResult = await formPickSelect.GetXML();
+                var xmlResult = await formPickSelect.GetXml();
                 var locMapRefno = xmlResult.Root?.Element("LocationMapRefno")?.Value;
                 if (locMapRefno != null)
                 {

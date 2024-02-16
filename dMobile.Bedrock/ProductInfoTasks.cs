@@ -27,7 +27,7 @@ namespace dMobile.Bedrock
         public static string GetCurrReadableProdBCUnit(ProductInfo prodInfo)
         {
             return prodInfo == null ? string.Empty : prodInfo.Code.TrimEnd() + (" " +
-                prodInfo.UnitBC).TrimEnd() + " " + prodInfo.UnitCode;
+                prodInfo.UnitBc).TrimEnd() + " " + prodInfo.UnitCode;
         }
 
         /// <summary>
@@ -50,7 +50,7 @@ namespace dMobile.Bedrock
                     new XElement("UnitCode", prodInfo.UnitCode),
                     new XElement("BaseUnitCode", prodInfo.UnitCode),
                     new XElement("WeightUnitCode", prodInfo.UnitCode),
-                    new XElement("ProductUnitBC", prodInfo.UnitBC),
+                    new XElement("ProductUnitBC", prodInfo.UnitBc),
                     new XElement("ProductUnitIsBC", prodInfo.UnitIsBC.ToString()),
                     new XElement("ProductUnitSizeDescription", prodInfo.UnitSizeDesc),
                     new XElement("ProductIsCatchAsk", prodInfo.IsCatchAsk.ToString()),
@@ -106,7 +106,7 @@ namespace dMobile.Bedrock
                     prodInfo.Code = Convert.ToString(results[0].ProductCode);
                     prodInfo.Desc = Convert.ToString(results[0].ProductDescription);
                     prodInfo.UnitIsBC = Convert.ToBoolean(!string.IsNullOrEmpty(productUnitBC));
-                    prodInfo.UnitBC = productUnitBC;
+                    prodInfo.UnitBc = productUnitBC;
                     prodInfo.UnitCode = unitCode;
                     prodInfo.IsCatchAsk = Convert.ToBoolean(results[0].ProductIsCatchAsk);
                     prodInfo.IsCatchAskZero = Convert.ToBoolean(results[0].ProductIsCatchAskZero);
@@ -164,7 +164,7 @@ namespace dMobile.Bedrock
                     prodInfo.WeightUnitCode = results[0].WeightUnitCode;
                     prodInfo.UnitSizeDesc = results[0].ProductUnitSizeDescription;
                     prodInfo.UnitIsBC = results[0].ProductUnitIsBC;
-                    prodInfo.UnitBC = results[0].ProductUnitBC;
+                    prodInfo.UnitBc = results[0].ProductUnitBC;
                     prodInfo.IsCatchAsk = results[0].ProductIsCatchAsk;
                     prodInfo.IsCatchAskZero = results[0].ProductIsCatchAskZero;
                     prodInfo.IsAllowConvertProduct = results[0].ProductAllowConvertProduct;
@@ -240,7 +240,7 @@ namespace dMobile.Bedrock
                     prodInfo.WeightUnitCode = results[0].WeightUnitCode;
                     prodInfo.UnitSizeDesc = results[0].ProductUnitSizeDescription;
                     prodInfo.UnitIsBC = results[0].ProductUnitIsBC;
-                    prodInfo.UnitBC = results[0].ProductUnitBC;
+                    prodInfo.UnitBc = results[0].ProductUnitBC;
                     prodInfo.IsCatchAsk = results[0].ProductIsCatchAsk;
                     prodInfo.IsCatchAskZero = results[0].ProductIsCatchAskZero;
                     prodInfo.IsAllowConvertProduct = results[0].ProductAllowConvertProduct;
@@ -315,7 +315,7 @@ namespace dMobile.Bedrock
                 prodInfo.WeightUnitCode = results[0].WeightUnitCode;
                 prodInfo.UnitSizeDesc = results[0].ProductUnitSizeDescription;
                 prodInfo.UnitIsBC = results[0].ProductUnitIsBC;
-                prodInfo.UnitBC = results[0].ProductUnitBC;
+                prodInfo.UnitBc = results[0].ProductUnitBC;
                 prodInfo.IsCatchAsk = results[0].ProductIsCatchAsk;
                 prodInfo.IsCatchAskZero = results[0].ProductIsCatchAskZero;
                 prodInfo.IsAllowConvertProduct = results[0].ProductAllowConvertProduct;

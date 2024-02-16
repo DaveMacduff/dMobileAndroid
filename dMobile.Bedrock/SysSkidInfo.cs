@@ -2,6 +2,7 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
+#nullable enable
 namespace dMobile.Bedrock
 {
     using System;
@@ -12,13 +13,13 @@ namespace dMobile.Bedrock
     using System.Xml;
     using System.Xml.Linq;
     using System.Xml.Serialization;
-    using static dMobile.Bedrock.LocationMapTasks;
+    using static LocationMapTasks;
 
     /// <summary>
     /// Defines the <see cref="SysSkidInfo" /> Skid information methods.
     /// </summary>
     [Serializable]
-    public class SysSkidInfo : ICloneable
+    public class SysSkidInfo : ICloneable, IEquatable<SysSkidInfo>
     {
         /// <summary>
         /// Gets or sets the CurrSkid.
@@ -58,7 +59,7 @@ namespace dMobile.Bedrock
                     new XElement("slot_refno", skid.CurrSkid.LocMap.SlotFKRefno),
                     new XElement("product_unit_refno", skid.CurrSkid.ProdInfo.UnitRefno),
                     new XElement("product_id", skid.CurrSkid.ProdInfo.Code),
-                    new XElement("product_unit_bc", skid.CurrSkid.ProdInfo.UnitBC),
+                    new XElement("product_unit_bc", skid.CurrSkid.ProdInfo.UnitBc),
                     new XElement("product_unit_code", skid.CurrSkid.ProdInfo.UnitCode),
                     new XElement("completed", skid.CurrSkid.IsCompleted),
                     new XElement("consumed", skid.CurrSkid.IsConsumed),
@@ -254,7 +255,7 @@ namespace dMobile.Bedrock
                     new XElement("sect_refno", skid.CurrSkid.LocMap.SectFKRefno),
                     new XElement("slot_refno", skid.CurrSkid.LocMap.SlotFKRefno),
                     new XElement("product_id", skid.CurrSkid.ProdInfo.Code),
-                    new XElement("product_unit_bc", skid.CurrSkid.ProdInfo.UnitBC),
+                    new XElement("product_unit_bc", skid.CurrSkid.ProdInfo.UnitBc),
                     new XElement("product_unit_code", skid.CurrSkid.ProdInfo.UnitCode),
                     new XElement("completed", skid.CurrSkid.IsCompleted),
                     new XElement("skid_fk_refno", skid.CurrSkid.SkidFKRefno),
@@ -469,7 +470,7 @@ namespace dMobile.Bedrock
                     new XElement("sect_refno", skidLocMap.SectFKRefno),
                     new XElement("slot_refno", skidLocMap.SlotFKRefno),
                     new XElement("product_id", prodInfo.Code),
-                    new XElement("product_unit_bc", prodInfo.UnitBC),
+                    new XElement("product_unit_bc", prodInfo.UnitBc),
                     new XElement("product_unit_code", prodInfo.UnitCode),
                     new XElement("completed", root.Element("completed").Value),
                     new XElement("putaway", root.Element("putaway").Value)));
@@ -492,10 +493,10 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// request to break the skid.
+        /// Request to break the skid.
         /// </summary>
-        /// <param name="skid"><see cref="SysSkidInfo"/> Skid information to break.</param>
-        public static void Break(SysSkidInfo skid)
+        /// <param name="skidInfo"><see cref="SSkidInfo"/> Skid to break.</param>
+        public static void Break(SSkidInfo skidInfo)
         {
             var sysEnv = SysEnvironment.GetInstance();
             var xmlString = new StringBuilder();
@@ -514,7 +515,7 @@ namespace dMobile.Bedrock
                     new XElement("login_id", sysEnv.ContactLog.LoginID.ToString()),
                     new XElement("revision_datetime", revDateTime),
                     new XElement("stamp", currDateTime),
-                    new XElement("skid_data", skid.CurrSkid.SkidCode),
+                    new XElement("skid_data", skidInfo),
                     new XElement("whs_id", locMap.CurrLocMap.WhsFKRefno)));
 
             request.Save(writer);
@@ -539,9 +540,9 @@ namespace dMobile.Bedrock
                 }
                 else
                 {
-                    var tempSkidInfo = skid.CurrSkid;
+                    var tempSkidInfo = skidInfo;
                     tempSkidInfo.IsConsumed = true;
-                    skid.CurrSkid = tempSkidInfo;
+                    skidInfo = tempSkidInfo;
                 }
             }
             else
@@ -557,35 +558,7 @@ namespace dMobile.Bedrock
         /// <returns><see cref="SysSkidInfo"/> Skid information found.</returns>
         public static async Task<SysSkidInfo> GetSkidInfoFromBarCodeOrCode(string skidData)
         {
-            var sysEnv = SysEnvironment.GetInstance();
-            var xmlString = new StringBuilder();
-            var settings = new XmlWriterSettings
-            {
-                Async = true,
-                Indent = false,
-            };
-            var xml = XmlWriter.Create(xmlString, settings);
-
-            var revDateTime = sysEnv.RefreshOpt.RefreshedDataLast.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
-            var currDateTime = DateTime.Now.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
-
-            var request = new XDocument(
-                new XDeclaration("1.0", "utf-16", "yes"),
-                string.Empty,
-                new XElement(
-                    "imclient",
-                    new XElement("command", new XElement("action", "REQUEST SKID INFO")),
-                    new XElement("device_id", sysEnv.DeviceID),
-                    new XElement("login_id", sysEnv.ContactLog.LoginID.ToString()),
-                    new XElement("revision_datetime", revDateTime),
-                    new XElement("stamp", currDateTime),
-                    new XElement("whs_id", LocationMap.GetInstance().CurrLocMap.WhsFKRefno),
-                    new XElement("skid_data", skidData)));
-
-            request.Save(xml);
-            await xml.FlushAsync();
-            xml.Close();
-
+            var request = await CreateSkidInfoRequest();
             var skid = new SysSkidInfo();
             var responseData = SysCommon.SubmitComm(request.ToString());
             if (responseData.Length > 0)
@@ -594,13 +567,14 @@ namespace dMobile.Bedrock
                 result.LoadXml(responseData);
                 if (responseData.Contains("<message>ERROR</message>"))
                 {
+                    var msg = result.DocumentElement?["detail"] !.InnerText;
                     if (responseData.Contains("MSGBOX-"))
                     {
-                        throw new MessageOnlyException(result.DocumentElement["detail"].InnerText);
+                        throw new MessageOnlyException(msg);
                     }
                     else
                     {
-                        throw new Exception(result.DocumentElement["detail"].InnerText);
+                        throw new Exception(msg);
                     }
                 }
 
@@ -613,77 +587,140 @@ namespace dMobile.Bedrock
 
             return skid;
 
+            //////////////////////////////////////////////////////////////////////////
             static async Task<SSkidInfo> FillSkidInfo(XmlDocument result)
             {
-                var skidInfo = new SSkidInfo
-                {
-                    SkidFKRefno = int.Parse(result.SelectSingleNode("/VFPData/cskidinfo/skidfkrefno").InnerText),
-                    SkidCode = result.SelectSingleNode("/VFPData/cskidinfo/skidcode").InnerText,
-                    LogisticUnitSkidCode = result.SelectSingleNode("/VFPData/cskidinfo/logisticunitskidcode").InnerText,
-                    Quantity = decimal.Parse(result.SelectSingleNode("/VFPData/cskidinfo/skidquantity").InnerText),
-                    BaseQuantity = decimal.Parse(result.SelectSingleNode("/VFPData/cskidinfo/skidbasequantity").InnerText),
-                    WeightQuantity = decimal.Parse(result.SelectSingleNode("/VFPData/cskidinfo/skidweightquantity").InnerText),
-                    IsCHEP = bool.Parse(result.SelectSingleNode("/VFPData/cskidinfo/skidischep").InnerText),
-                    IsHold = bool.Parse(result.SelectSingleNode("/VFPData/cskidinfo/skidisonhold").InnerText),
-                    Ti = int.Parse(result.SelectSingleNode("/VFPData/cskidinfo/skidti").InnerText),
-                    Hi = int.Parse(result.SelectSingleNode("/VFPData/cskidinfo/skidhi").InnerText),
-                    Height = decimal.Parse(result.SelectSingleNode("/VFPData/cskidinfo/skidheight").InnerText),
-                    HeightUnit = result.SelectSingleNode("/VFPData/cskidinfo/skidheightunit").InnerText,
-                    Cube = decimal.Parse(result.SelectSingleNode("/VFPData/cskidinfo/skidcube").InnerText),
-                    CubeUnit = result.SelectSingleNode("/VFPData/cskidinfo/skidcubeunit").InnerText,
-                    IsCompleted = bool.Parse(result.SelectSingleNode("/VFPData/cskidinfo/skidiscompleted").InnerText),
-                    IsConsumed = bool.Parse(result.SelectSingleNode("/VFPData/cskidinfo/skidisconsumed").InnerText),
-                    IsPutAway = bool.Parse(result.SelectSingleNode("/VFPData/cskidinfo/skidisputaway").InnerText),
-                };
+                result = result ?? throw new ArgumentNullException(nameof(result));
 
+                var skidInfo = new SSkidInfo();
+                var nodeName = @"/VFPData/cskidinfo/skidfkrefno";
+                skidInfo.SkidFKRefno = int.Parse(result.SelectSingleNode(nodeName) !.InnerText);
+
+                nodeName = @"/VFPData/cskidinfo/skidcode";
+                skidInfo.SkidCode = result.SelectSingleNode(nodeName) !.InnerText;
+
+                nodeName = "/VFPData/cskidinfo/logisticunitskidcode";
+                skidInfo.LogisticUnitSkidCode = result.SelectSingleNode(nodeName) !.InnerText;
+
+                nodeName = "/VFPData/cskidinfo/skidquantity";
+                skidInfo.Quantity = decimal.Parse(result.SelectSingleNode(nodeName) !.InnerText);
+
+                nodeName = "/VFPData/cskidinfo/skidbasequantity";
+                skidInfo.BaseQuantity = decimal.Parse(result.SelectSingleNode(nodeName) !.InnerText);
+
+                nodeName = "/VFPData/cskidinfo/skidweightquantity";
+                skidInfo.WeightQuantity = decimal.Parse(result.SelectSingleNode(nodeName) !.InnerText);
+
+                nodeName = "/VFPData/cskidinfo/skidischep";
+                skidInfo.IsCHEP = bool.Parse(result.SelectSingleNode(nodeName) !.InnerText);
+
+                nodeName = "/VFPData/cskidinfo/skidisonhold";
+                skidInfo.IsHold = bool.Parse(result.SelectSingleNode(nodeName) !.InnerText);
+
+                nodeName = "/VFPData/cskidinfo/skidti";
+                skidInfo.Ti = int.Parse(result.SelectSingleNode(nodeName) !.InnerText);
+
+                nodeName = "/VFPData/cskidinfo/skidhi";
+                skidInfo.Hi = int.Parse(result.SelectSingleNode(nodeName) !.InnerText);
+
+                nodeName = "/VFPData/cskidinfo/skidheight";
+                skidInfo.Height = decimal.Parse(result.SelectSingleNode(nodeName) !.InnerText);
+
+                nodeName = "/VFPData/cskidinfo/skidheightunit";
+                skidInfo.HeightUnit = result.SelectSingleNode(nodeName) !.InnerText;
+
+                nodeName = "/VFPData/cskidinfo/skidcube";
+                skidInfo.Cube = decimal.Parse(result.SelectSingleNode(nodeName) !.InnerText);
+
+                nodeName = "/VFPData/cskidinfo/skidcubeunit";
+                skidInfo.CubeUnit = result.SelectSingleNode(nodeName) !.InnerText;
+
+                nodeName = "/VFPData/cskidinfo/skidiscompleted";
+                skidInfo.IsCompleted = bool.Parse(result.SelectSingleNode(nodeName) !.InnerText);
+
+                nodeName = "/VFPData/cskidinfo/skidisconsumed";
+                skidInfo.IsConsumed = bool.Parse(result.SelectSingleNode(nodeName) !.InnerText);
+
+                nodeName = "/VFPData/cskidinfo/skidisputaway";
+                skidInfo.IsPutAway = bool.Parse(result.SelectSingleNode(nodeName) !.InnerText);
+
+                const string whsNodeName = "/VFPData/cskidinfo/locationmapwarehousefkrefno";
+                const string sectNodeName = "/VFPData/cskidinfo/locationmapsectionfkrefno";
+                const string slotNodeName = "/VFPData/cskidinfo/locationmapslotfkrefno";
                 var sLocMapAndRefno = await LocationMapTasks.GetSLocMapFromLocMapFkRefno(
-                    int.Parse(result.SelectSingleNode("/VFPData/cskidinfo/locationmapwarehousefkrefno").InnerText),
-                    int.Parse(result.SelectSingleNode("/VFPData/cskidinfo/locationmapsectionfkrefno").InnerText),
-                    int.Parse(result.SelectSingleNode("/VFPData/cskidinfo/locationmapslotfkrefno").InnerText));
-
+                    int.Parse(result.SelectSingleNode(whsNodeName) !.InnerText),
+                    int.Parse(result.SelectSingleNode(sectNodeName) !.InnerText),
+                    int.Parse(result.SelectSingleNode(slotNodeName) !.InnerText));
                 skidInfo.LocMap = sLocMapAndRefno.SLocMap;
 
-                skidInfo.ProdInfo = new ProductInfo();
+                const string prodNodeName = "/VFPData/cskidinfo/productcode";
+                const string unitBcNodeName = "/VFPData/cskidinfo/productunitbc";
+                const string unitCodeNodeName = "/VFPData/cskidinfo/unitcode";
                 skidInfo.ProdInfo = await ProductInfoTasks.GetInfoFromCodeBCUnit(
-                    result.SelectSingleNode("/VFPData/cskidinfo/productcode").InnerText,
-                    result.SelectSingleNode("/VFPData/cskidinfo/productunitbc").InnerText,
-                    result.SelectSingleNode("/VFPData/cskidinfo/unitcode").InnerText);
+                    result.SelectSingleNode(prodNodeName) !.InnerText,
+                    result.SelectSingleNode(unitBcNodeName) !.InnerText,
+                    result.SelectSingleNode(unitCodeNodeName) !.InnerText);
 
                 skidInfo.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(skidInfo.ProdInfo.Refno);
+                skidInfo.ProdInfo.Unit2BaseUnitFactor = await ProductInfoTasks.GetUnitRelationFactor(skidInfo.ProdInfo);
 
                 var schemeData = skidInfo.SchemeData;
-                schemeData.LogisticUnitBatchLotNumber
-                    = result.SelectSingleNode("/VFPData/cskidinfo/activitydetaillogisticunitbatchlotnumber").InnerText;
+                const string batchLotNodeName = "/VFPData/cskidinfo/activitydetaillogisticunitbatchlotnumber";
+                schemeData.LogisticUnitBatchLotNumber = result.SelectSingleNode(batchLotNodeName) !.InnerText;
 
-                var bb = result.SelectSingleNode(
-                    "//VFPData/cskidinfo/activitydetaillogisticunitbestbeforesellbydate").InnerText;
-                if (string.IsNullOrEmpty(bb))
-                {
-                    schemeData.LogisticUnitBestBeforeSellByDate = new DateTime(1900, 1, 1);
-                }
-                else
-                {
-                    schemeData.LogisticUnitBestBeforeSellByDate = DateTime.Parse(bb);
-                }
+                const string bbNodeName = "/VFPData/cskidinfo/activitydetaillogisticunitbestbeforesellbydate";
+                var bb = result.SelectSingleNode(bbNodeName) !.InnerText;
+                schemeData.LogisticUnitBestBeforeSellByDate = string.IsNullOrEmpty(bb) ? new DateTime(1900, 1, 1)
+                    : DateTime.Parse(bb);
 
-                var pd = result.SelectSingleNode("//VFPData/cskidinfo/activitydetaillogisticunitproductiondate").InnerText;
-                if (string.IsNullOrEmpty(pd))
-                {
-                    schemeData.LogisticUnitProductionDate = new DateTime(1900, 1, 1);
-                }
-                else
-                {
-                    schemeData.LogisticUnitProductionDate = DateTime.Parse(pd);
-                }
+                const string pdNodeName = "/VFPData/cskidinfo/activitydetaillogisticunitproductiondate";
+                var pd = result.SelectSingleNode(pdNodeName) !.InnerText;
+                schemeData.LogisticUnitProductionDate = string.IsNullOrEmpty(pd) ? new DateTime(1900, 1, 1)
+                    : DateTime.Parse(pd);
 
-                schemeData.VariantNumber = int.Parse(
-                    result.SelectSingleNode("//VFPData/cskidinfo/productschemevariantno").InnerText);
-                schemeData.VariantCode = result.SelectSingleNode("//VFPData/cskidinfo/productschemevariantcode").InnerText;
-                schemeData.VariantDescription
-                    = result.SelectSingleNode("//VFPData/cskidinfo/productschemevariantdescription").InnerText;
+                const string variantNodeName = "/VFPData/cskidinfo/productschemevariantno";
+                schemeData.VariantNumber = int.Parse(result.SelectSingleNode(variantNodeName) !.InnerText);
+                const string variantCodeNodeName = "/VFPData/cskidinfo/productschemevariantcode";
+                schemeData.VariantCode = result.SelectSingleNode(variantCodeNodeName) !.InnerText;
+                const string variantDescNodeName = "/VFPData/cskidinfo/productschemevariantdescription";
+                schemeData.VariantDescription = result.SelectSingleNode(variantDescNodeName).InnerText;
                 skidInfo.SchemeData = schemeData;
 
                 return skidInfo;
+            }
+
+            //////////////////////////////////////////////////////////////////////////
+            async Task<XDocument> CreateSkidInfoRequest()
+            {
+                var sysEnv = SysEnvironment.GetInstance();
+                var xmlString = new StringBuilder();
+                var settings = new XmlWriterSettings
+                {
+                    Async = true,
+                    Indent = false,
+                };
+                var xml = XmlWriter.Create(xmlString, settings);
+
+                var revDateTime = sysEnv.RefreshOpt.RefreshedDataLast.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
+                var currDateTime = DateTime.Now.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
+
+                var requestInfo = new XDocument(
+                    new XDeclaration("1.0", "utf-16", "yes"),
+                    string.Empty,
+                    new XElement(
+                        "imclient",
+                        new XElement("command", new XElement("action", "REQUEST SKID INFO")),
+                        new XElement("device_id", sysEnv.DeviceID),
+                        new XElement("login_id", sysEnv.ContactLog.LoginID.ToString()),
+                        new XElement("revision_datetime", revDateTime),
+                        new XElement("stamp", currDateTime),
+                        new XElement("whs_id", LocationMap.GetInstance().CurrLocMap.WhsFKRefno),
+                        new XElement("skid_data", skidData)));
+
+                requestInfo.Save(xml);
+                await xml.FlushAsync();
+                xml.Close();
+                return requestInfo;
             }
         }
 
@@ -705,7 +742,6 @@ namespace dMobile.Bedrock
         /// <summary>
         /// Perform a skid information shallow copy.
         /// </summary>
-        /// <param name="original"><see cref="SysSkidInfo"/> Original skid information.</param>
         /// <returns><see cref="SysSkidInfo"/> New copy of the original skid information.</returns>
         public object ShallowCopy()
         {
@@ -719,6 +755,16 @@ namespace dMobile.Bedrock
         object ICloneable.Clone()
         {
             return this.ShallowCopy();
+        }
+
+        /// <summary>
+        ///     Check if an instance is the same as this instance.
+        /// </summary>
+        /// <param name="other"><see cref="SysSkidInfo" /> Skid information to compare.</param>
+        /// <returns><see cref="bool" /> True if the instances are the same else false.</returns>
+        public bool Equals(SysSkidInfo? other)
+        {
+            return other != null && other.CurrSkid.Equals(this.CurrSkid);
         }
     }
 }

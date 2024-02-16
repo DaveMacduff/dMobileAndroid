@@ -401,7 +401,7 @@ namespace dMobile.Controller.Activity_Item
             {
                 // Current location should not be considered because the warehouse may not match the line item
                 // location warehouse.
-                // We can't use a activity header warehouse location because an activity header does not always have
+                // We can't use an activity header warehouse location because an activity header does not always have
                 // a location. Line items already where filtered by a header location possibly upon refreshing data.
                 itemLocMapRefno = LocationMap.GetInstance().LoginWhsLocMapRefno;
             }
@@ -441,7 +441,7 @@ namespace dMobile.Controller.Activity_Item
             {
                 // Note: A selected skid location is not considered as a default, rather the skid location will be
                 // assigned and updated in the calling method.
-                // Default location however will be based on the any activity item warehouse or header warehouse.
+                // Default location however will be based on any activity item warehouse or header warehouse.
                 var defaultLocMapRefno = await this.GetDefaultLocMapRefno(itemLocMap.WhsLocMapRefno, this.ProdInfo.Refno);
                 if (await LocationMapTasks.IsCompleteLocMap(defaultLocMapRefno))
                 {
@@ -450,9 +450,9 @@ namespace dMobile.Controller.Activity_Item
             }
             else
             {
-                // Verify product location is almost the same as defaulting, except the user can set the location but
-                // it must match the default warehouse product location.
-                // So we might as well default the location to the skid.
+                // Verify product location is almost the same as defaulting, except the user can set the location,
+                // but it must match the default warehouse product location.
+                // So we might as well get the default location from the skid.
                 if (this.SysEnv.SysSettings.IsVerifyProductLocation)
                 {
                     var skidInfo = this.ActHdr.SkidInfo.CurrSkid;
@@ -487,14 +487,10 @@ namespace dMobile.Controller.Activity_Item
         /// <returns><see cref="string"/> Item not found message.</returns>
         public virtual string GetItemNotFoundMessage(LocationMap locMap, ProductInfo prodInfo)
         {
-            var message = string.Format(
-                "Item not found for " + Environment.NewLine + "Location {0} " +
-                    Environment.NewLine + "Product {1} BC {2} Unit {3}",
-                LocationMapTasks.GetCurrentReadableLocation(),
-                prodInfo.Code,
-                prodInfo.UnitBC,
-                prodInfo.UnitCode);
-
+            var currLoc = LocationMap.GetInstance().CurrLocMap;
+            var whs = $"{currLoc.WhsFKRefno} - {currLoc.WhsName}";
+            var message = $"Item not found for {Environment.NewLine}Warehouse {whs}{Environment.NewLine}" +
+                      $"Product {prodInfo.Code} BC {prodInfo.UnitBc} Unit {prodInfo.UnitCode}";
             return message;
         }
 

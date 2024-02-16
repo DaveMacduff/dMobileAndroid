@@ -484,7 +484,7 @@ namespace dMobile.View.Options
 
             if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
             {
-                var xmlDoc = await form.GetXML();
+                var xmlDoc = await form.GetXml();
                 this.SubmitBatchSettings = this.SubmitBatchSettings.LoadData();
                 this.ExtraInfoItems.Clear();
             }

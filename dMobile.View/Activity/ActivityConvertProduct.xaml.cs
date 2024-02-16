@@ -950,7 +950,7 @@ namespace dMobile.View.Activity
 
                 if (await frmSelectProduct.DisplayControl.ShowDialog() == DialogResult.OK)
                 {
-                    var xmlDocProduct = await frmSelectProduct.GetXML();
+                    var xmlDocProduct = await frmSelectProduct.GetXml();
                     if (xmlDocProduct.Root == null)
                     {
                         throw new NullReferenceException("xmlDocProduct.Root == null");

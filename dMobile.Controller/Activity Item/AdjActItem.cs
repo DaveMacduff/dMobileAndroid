@@ -99,32 +99,32 @@ namespace dMobile.Controller.Activity_Item
         }
 
         /// <summary>
-        /// Gets or sets the grid column 0 width..
+        /// Gets or sets the grid column 0 width.
         /// </summary>
         public double ColumnWidth0 { get; set; } = 0;
 
         /// <summary>
-        /// Gets or sets the grid column 1 width..
+        /// Gets or sets the grid column 1 width.
         /// </summary>
         public double ColumnWidth1 { get; set; } = 0;
 
         /// <summary>
-        /// Gets or sets the grid column 2 width..
+        /// Gets or sets the grid column 2 width.
         /// </summary>
         public double ColumnWidth2 { get; set; } = 0;
 
         /// <summary>
-        /// Gets or sets the grid column 3 width..
+        /// Gets or sets the grid column 3 width.
         /// </summary>
         public double ColumnWidth3 { get; set; } = 0;
 
         /// <summary>
-        /// Gets or sets the grid column 4 width..
+        /// Gets or sets the grid column 4 width.
         /// </summary>
         public double ColumnWidth4 { get; set; } = 0;
 
         /// <summary>
-        /// Gets or sets the resource dictionary..
+        /// Gets or sets the resource dictionary.
         /// </summary>
         public ResourceDictionary ResourceDictionary { get; set; } = new ResourceDictionary();
 
@@ -360,7 +360,7 @@ namespace dMobile.Controller.Activity_Item
                     ProductCode = this.ProdInfo.Code,
                     ProductDescription = this.ProdInfo.Desc,
                     UnitCode = this.ProdInfo.UnitCode,
-                    ProductUnitBC = this.ProdInfo.UnitBC,
+                    ProductUnitBC = this.ProdInfo.UnitBc,
                     ProductUnitSizeDescription = this.ProdInfo.UnitSizeDesc,
                     LocationMapRefno = locMap.WhsLocMapRefno,
                     LocationCode = locMap.WhsCode,
@@ -700,7 +700,7 @@ namespace dMobile.Controller.Activity_Item
                 this.ActStatus = (SysCommon.ActStatus)item.ActivityItemStatus;
                 this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(item.ProductUnitRefno);
 
-                await AssignItemLocation(item);
+                await AssignItemLocation();
 
                 // LocationMap.GetInstance().CurrLocMap warehouse needs to be set before call to GetSchemeComponentsFromRefno.
                 this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
@@ -709,9 +709,9 @@ namespace dMobile.Controller.Activity_Item
             return this.ItemFkRefno;
 
             //////////////////////////////////////////////////////////////////////////
-            async Task AssignItemLocation(AdjustmentItem item)
+            async Task AssignItemLocation()
             {
-                // This code needs to be before the call to GetSelectedItemLocation, because the skid location may be
+                // This code needs to be before the call to GetSelectedItemLocation below, because the skid location may be
                 // used if the product unit and warehouse match.
                 if (this.SysEnv.SysSettings.DoesSelectingADifferentProductClearSkid &&
                     this.ActHdr.SkidInfo.CurrSkid.ProdInfo.Refno != this.ProdInfo.Refno)
