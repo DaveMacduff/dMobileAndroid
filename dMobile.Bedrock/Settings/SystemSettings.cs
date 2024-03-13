@@ -2577,11 +2577,6 @@ namespace dMobile.Bedrock
         public bool IsCountActivityItemRefreshData { get; set; } = true;
 
         /// <summary>
-        /// Gets or sets a value indicating whether the activity has new line items added.
-        /// </summary>
-        public bool IsNewActivityItemsAdded { get; set; } = false;
-
-        /// <summary>
         /// Gets or sets a value indicating whether the activity has new details added.
         /// </summary>
         public bool IsNewActivityDetailsAdded { get; set; } = false;

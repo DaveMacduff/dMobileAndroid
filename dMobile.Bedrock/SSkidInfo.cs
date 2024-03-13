@@ -140,10 +140,10 @@ namespace dMobile.Bedrock
         public SLocMap LocMap { get; set; } = new SLocMap();
 
         /// <summary>
-        /// 
+        /// Check if the skid information is equal to another skid information.
         /// </summary>
-        /// <param name="other"></param>
-        /// <returns></returns>
+        /// <param name="other">Skid information to compare.</param>
+        /// <returns>True if the instances are equal else false.</returns>
         public bool Equals(SSkidInfo other)
         {
             if (other is null)

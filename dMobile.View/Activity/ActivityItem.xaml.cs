@@ -109,15 +109,15 @@ namespace dMobile.View.Activity
             this.CmdLocationText = "Set Location";
             this.CmdFilterText = "Filter";
             this.CmdSelectSkidText = "Select Skid";
+            this.lblSkidNumber.Text = "No skid selected";
             this.CmdClearSelectedSkidText = "Clear Skid";
-            this.CmdAddProductText = "Add Prod";
+            this.CmdAddProductText = "Add Product";
             this.CmdAddSkidText = "Add Skid";
 
             this.LocMap = LocationMap.GetInstance();
             this.SysEnv = SysEnvironment.GetInstance();
             this.CmdSelectSkidIsEnabled = this.SysEnv.SysSettings.IsSkidTrackingModule;
             this.SysEnv.SysSettings.IsCountActivityItemRefreshData = true;
-            this.SysEnv.SysSettings.IsNewActivityItemsAdded = false;
             this.ActSubType = actSubTypes;
             this.IsDataLoading = false;
 
@@ -772,7 +772,6 @@ namespace dMobile.View.Activity
                 {
                     this.SysEnv.SysSettings.IsCountActivityItemRefreshData = true;
                     this.SysEnv.SysSettings.IsShowActivityFilterSelection = true;
-                    this.SysEnv.SysSettings.IsNewActivityItemsAdded = false;
                     await this.ScannerDisable();
                     _ = base.OnBackButtonPressed();
                     await this.Close();
@@ -906,44 +905,11 @@ namespace dMobile.View.Activity
             //////////////////////////////////////////////////////////////////////////
             async Task RefreshDataBySubType()
             {
-                // NOTE: So far all sub types will be refreshed.
-                switch (this.ActSubType)
-                {
-                    ////case SysCommon.ActSubTypes.PhysicalCounts:
-                    ////    // Do not refresh product list for counts. Except on first load. See WO# 12222.
-                    ////    // Reloading count items into the thousands is too slow.
-                    ////    // This could change depending on the Exception type such as
-                    ////    // MessageOnlyException vs Exception.
-                    ////    // Refreshing will have to be accomplished by exiting the items activity.
-                    ////    isDataRequest = this.SysEnv.SysSettings.IsCountActivityItemRefreshData;
-                    ////    isDataRequest = isDataRequest && !this.SysEnv.SysSettings.IsNewActivityItemsAdded;
-                    ////    await RefreshData(isDataRequest);
-                    ////    this.SysEnv.SysSettings.IsCountActivityItemRefreshData = false;
-                    ////    break;
-
-                    ////case SysCommon.ActSubTypes.CycleCounts:
-                    ////    // Do not refresh product list for counts. Except on first load. See WO# 12222.
-                    ////    // Reloading count items into the thousands is too slow.
-                    ////    // This could change depending on the Exception type such as
-                    ////    // MessageOnlyException vs Exception.
-                    ////    // Refreshing will have to be accomplished by exiting the items activity.
-                    ////    isDataRequest = this.SysEnv.SysSettings.IsCountActivityItemRefreshData;
-                    ////    isDataRequest = isDataRequest && !this.SysEnv.SysSettings.IsNewActivityItemsAdded;
-                    ////    await RefreshData(isDataRequest);
-                    ////    this.SysEnv.SysSettings.IsCountActivityItemRefreshData = false;
-                    ////    break;
-
-                    default:
-
-                        // Performing a refresh data will remove and partially added new items or quantity.
-                        await RefreshData(!this.SysEnv.SysSettings.IsNewActivityItemsAdded);
-                        break;
-                }
-
+                await RefreshData();
                 return;
 
                 //////////////////////////////////////////////////////////////////////////
-                async Task RefreshData(bool isDataRequestRefresh)
+                async Task RefreshData()
                 {
                     try
                     {
@@ -951,11 +917,7 @@ namespace dMobile.View.Activity
                         {
                             this.ActItem.RegLayerListenerProgOut(this);
                             this.ActItem.RegLayerListenerStatOut(this);
-                            if (isDataRequestRefresh)
-                            {
-                                await this.ActItem.Refresh(this.ActItem.ActHdr.XmlDataCriteria);
-                            }
-
+                            await this.ActItem.Refresh(this.ActItem.ActHdr.XmlDataCriteria);
                             await Device.InvokeOnMainThreadAsync(() => this.ActItem.ListItems.Clear());
                             this.ActItem.ListItems = await this.ActItem.GetActivityItemList(false);
                         });
@@ -1336,7 +1298,6 @@ namespace dMobile.View.Activity
                     // Android dMobile F1 & F3 Button Not Working Same As Windows dMobile.
                     this.SysEnv.SysSettings.IsCountActivityItemRefreshData = true;
                     this.SysEnv.SysSettings.IsShowActivityFilterSelection = true;
-                    this.SysEnv.SysSettings.IsNewActivityItemsAdded = false;
                     await this.ScannerDisable();
                     await this.Close();
                 }
@@ -1353,7 +1314,6 @@ namespace dMobile.View.Activity
                     // Android dMobile F1 & F3 Button Not Working Same As Windows dMobile.
                     this.SysEnv.SysSettings.IsCountActivityItemRefreshData = true;
                     this.SysEnv.SysSettings.IsShowActivityFilterSelection = true;
-                    this.SysEnv.SysSettings.IsNewActivityItemsAdded = false;
                     await this.ScannerDisable();
                     await this.Close();
                 }
@@ -1958,9 +1918,34 @@ namespace dMobile.View.Activity
                         var prodUnitRefno = await SysShared.IdentifyProductScanned(this.ActSubType, parse);
                         var scannedProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
 
+                        // If there is a skid selected, then the product scanned must match the skid product.
+                        if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno != 0)
+                        {
+                            if (this.ActItem.ActHdr.SkidInfo.CurrSkid.ProdInfo.UnitRefno > 0)
+                            {
+                                if (this.ActItem.ActHdr.SkidInfo.CurrSkid.ProdInfo.UnitRefno != prodUnitRefno)
+                                {
+                                    const string msg = "Selected skid product does not match the scanned product." +
+                                                       " Please scan the skid assigned product or clear the selected skid.";
+                                    throw new MessageOnlyException(msg);
+                                }
+                            }
+                            else
+                            {
+                                // If the skid product is not set, then set it.
+                                if (!await AskToAssignProductToSkid(scannedProdInfo))
+                                {
+                                    const string msg = "Assigning product to a skid cancelled. Scan aborted.";
+                                    throw new MessageOnlyException(msg);
+                                }
+
+                                this.ActItem.ActHdr.SkidInfo.CurrSkid.ProdInfo = scannedProdInfo;
+                                SysSkidInfo.SendUpdate(this.ActItem.ActHdr.SkidInfo);
+                            }
+                        }
+
                         await this.SetDefaultLocationBeforeKnownActivityItem(scannedProdInfo);
-                        actItemFoundRefno =
-                            await this.ActItem.GetActivityItemRefno(prodUnitRefno, this.LocMap.CurrLocMap);
+                        actItemFoundRefno = await this.ActItem.GetActivityItemRefno(prodUnitRefno, this.LocMap.CurrLocMap);
                         if (actItemFoundRefno > 0)
                         {
                             this.ActItem.SetSelectedActivityItemFromList(actItemFoundRefno);
@@ -1978,6 +1963,12 @@ namespace dMobile.View.Activity
                                     this.LocMap.ChosenLocMap = this.LocMap.CurrLocMap.Clone();
                                 }
                             }
+
+                            if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno != 0
+                                && await LocationMapTasks.IsCompleteLocMap(this.ActItem.ActHdr.SkidInfo.CurrSkid.LocMap))
+                            {
+                                this.ActItem.ActHdr.SkidInfo.CurrSkid.LocMap = this.LocMap.CurrLocMap.Clone();
+                            }
                         }
                         else
                         {
@@ -1994,12 +1985,16 @@ namespace dMobile.View.Activity
                                     await this.ActItem.AssignActivityItem(selectedItem);
                                     this.SelectedActivityItemFkRefno = this.ActItem.ItemFkRefno;
                                     actItemFoundRefno = this.ActItem.ItemRefno;
-                                    this.SysEnv.SysSettings.IsNewActivityItemsAdded = true;
-                                    await this.LoadAndBindData();
 
-                                    ////await this.CheckCurrentLocationMatchDefaultProductLocation(
-                                    ////    this.ActItem.ProdInfo,
-                                    ////    LocationMap.GetInstance().CurrLocMap);
+                                    if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno != 0
+                                        && await LocationMapTasks.IsCompleteLocMap(this.ActItem.ActHdr.SkidInfo.CurrSkid.LocMap))
+                                    {
+                                        this.ActItem.ActHdr.SkidInfo.CurrSkid.LocMap = this.LocMap.CurrLocMap.Clone();
+                                    }
+
+                                    this.MainActivityItems.Add(this.ActItem);
+                                    await this.DesignGrid();
+                                    await this.FindSelectedItemAsync(this.ActItem.ItemRefno);
                                 }
                                 else
                                 {
@@ -2088,23 +2083,33 @@ namespace dMobile.View.Activity
 
                         await this.ActItem.IsReadyToApply(xmlParam);
                         await actDetail.InsertSkid(this.ActItem.ActHdr.SkidInfo);
+                        this.ActItem = actDetail.ActItem;
+                        this.SelectedActivityItemFkRefno = this.ActItem.ItemFkRefno;
+                        this.ActItem.SelectedItem = this.ActItem;
+                        selectedItem = this.ActItem.SelectedItem;
+                        actItemFoundRefno = this.ActItem.ItemRefno;
 
-                        if (actDetail.Quantity == 0)
-                        {
-                            throw new MessageOnlyException("No quantity exists on skid" +
-                                                           $" '{this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidCode}' in warehouse" +
-                                                           $" {LocationMap.GetInstance().CurrLocMap.WhsCode}.");
-                        }
+                        ////if (actDetail.Quantity == 0)
+                        ////{
+                        ////    throw new MessageOnlyException("No quantity exists on skid" +
+                        ////                                   $" '{this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidCode}' in warehouse" +
+                        ////                                   $" {LocationMap.GetInstance().CurrLocMap.WhsCode}.");
+                        ////}
 
-                        // Upon a save of completed data update the data view to show new item and quantity change
-                        this.ActItem.AddToQuantityInActivityItem(
-                            selectedItem,
-                            actDetail.Quantity,
-                            actDetail.BaseQuantity,
-                            actDetail.WeightQuantity);
-                        await this.ActItem.UpdateItemTableQuantity(selectedItem);
-                        this.ActItem.SetSelectedActivityItemFromList(this.ActItem.ItemRefno);
-                        this.ActItem.SelectedItem = selectedItem;
+                        // Does the row exist? If not, then it has been removed due to not needing it
+                        // Skip update qty.
+                        ////if (selectedItem != null)
+                        ////{
+                        ////    // Upon a save of completed data update the data view to show new item and quantity change
+                        ////    this.ActItem.AddToQuantityInActivityItem(
+                        ////        selectedItem,
+                        ////        actDetail.Quantity,
+                        ////        actDetail.BaseQuantity,
+                        ////        actDetail.WeightQuantity);
+                        ////    await this.ActItem.UpdateItemTableQuantity(selectedItem);
+                        ////    this.ActItem.SetSelectedActivityItemFromList(this.ActItem.ItemRefno);
+                        ////    this.ActItem.SelectedItem = selectedItem;
+                        ////}
                     }
                     else
                     {
@@ -2188,29 +2193,6 @@ namespace dMobile.View.Activity
             }
             catch (GatherProductDataException ex)
             {
-                if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno != 0)
-                {
-                    await Device.InvokeOnMainThreadAsync(() =>
-                    {
-                        this.CmdAddSkidIsEnabled = true;
-                        this.CmdClearSelectedSkidIsEnabled = true;
-                        this.CmdAddProductIsEnabled = false;
-                        this.CmdLocationIsEnabled = false;
-                        this.CmdSelectSkidText = "Skid# " + this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidCode;
-                    });
-                }
-                else
-                {
-                    await Device.InvokeOnMainThreadAsync(() =>
-                    {
-                        this.CmdAddSkidIsEnabled = false;
-                        this.CmdClearSelectedSkidIsEnabled = false;
-                        this.CmdAddProductIsEnabled = this.ActItem.IsAllowAddItem;
-                        this.CmdLocationIsEnabled = true;
-                        this.CmdSelectSkidText = "Select Skid";
-                    });
-                }
-
                 if (!ex.SuppressError)
                 {
                     await Device.InvokeOnMainThreadAsync(async () =>
@@ -2222,29 +2204,6 @@ namespace dMobile.View.Activity
             }
             catch (IsReadyToApplyException ex)
             {
-                if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno != 0)
-                {
-                    await Device.InvokeOnMainThreadAsync(() =>
-                    {
-                        this.CmdAddSkidIsEnabled = true;
-                        this.CmdClearSelectedSkidIsEnabled = true;
-                        this.CmdAddProductIsEnabled = false;
-                        this.CmdLocationIsEnabled = false;
-                        this.CmdSelectSkidText = "Skid# " + this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidCode;
-                    });
-                }
-                else
-                {
-                    await Device.InvokeOnMainThreadAsync(() =>
-                    {
-                        this.CmdAddSkidIsEnabled = false;
-                        this.CmdClearSelectedSkidIsEnabled = false;
-                        this.CmdAddProductIsEnabled = this.ActItem.IsAllowAddItem;
-                        this.CmdLocationIsEnabled = false;
-                        this.CmdSelectSkidText = "Select Skid";
-                    });
-                }
-
                 if (!ex.SuppressError)
                 {
                     await Device.InvokeOnMainThreadAsync(async () =>
@@ -2256,29 +2215,6 @@ namespace dMobile.View.Activity
             }
             catch (Exception ex)
             {
-                if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno != 0)
-                {
-                    await Device.InvokeOnMainThreadAsync(() =>
-                    {
-                        this.CmdAddSkidIsEnabled = true;
-                        this.CmdClearSelectedSkidIsEnabled = true;
-                        this.CmdAddProductIsEnabled = false;
-                        this.CmdLocationIsEnabled = false;
-                        this.CmdSelectSkidText = "Skid# " + this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidCode;
-                    });
-                }
-                else
-                {
-                    await Device.InvokeOnMainThreadAsync(() =>
-                    {
-                        this.CmdAddSkidIsEnabled = false;
-                        this.CmdClearSelectedSkidIsEnabled = false;
-                        this.CmdAddProductIsEnabled = this.ActItem.IsAllowAddItem;
-                        this.CmdLocationIsEnabled = true;
-                        this.CmdSelectSkidText = "Select Skid";
-                    });
-                }
-
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     var errRpt = new FormErrorReport(this.ActSubType, ex);
@@ -2310,8 +2246,6 @@ namespace dMobile.View.Activity
                 this.LocMap.ChosenLocMap = this.LocMap.CurrLocMap.Clone();
 
                 await CheckIfScannedSectionMatchesFilteredOne(tmpLoc);
-
-                await Device.InvokeOnMainThreadAsync(async () => await this.DisplayDataItem());
                 return;
 
                 //////////////////////////////////////////////////////////////////////////
@@ -2355,23 +2289,20 @@ namespace dMobile.View.Activity
                 }
 
                 this.ActItem.ActHdr.SkidInfo = await SysSkidInfo.GetSkidInfoFromBarCodeOrCode(parse.SSCC18);
-                if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno == 0)
-                {
-                    await Device.InvokeOnMainThreadAsync(() =>
-                    {
-                        this.CmdSelectSkidText = "Select Skid";
-                        this.CmdClearSelectedSkidIsEnabled = false;
-                        this.CmdAddProductIsEnabled = true;
-                        this.CmdLocationIsEnabled = true;
-                        return Task.CompletedTask;
-                    });
 
-                    throw new MessageOnlyException("Skid does not exist.");
+                // The current location will supersede the skid location on counts.
+                if (!(this.ActItem.ActSubType == SysCommon.ActSubTypes.PhysicalCounts ||
+                      this.ActItem.ActSubType == SysCommon.ActSubTypes.CycleCounts))
+                {
+                    if (await LocationMapTasks.IsCompleteLocMap(this.ActItem.ActHdr.SkidInfo.CurrSkid.LocMap))
+                    {
+                        this.LocMap.CurrLocMap = this.ActItem.ActHdr.SkidInfo.CurrSkid.LocMap;
+                    }
                 }
 
-                if (await LocationMapTasks.IsCompleteLocMap(this.ActItem.ActHdr.SkidInfo.CurrSkid.LocMap))
+                if (!await LocationMapTasks.IsCompleteLocMap(this.LocMap.CurrLocMapRefno))
                 {
-                    this.LocMap.CurrLocMap = this.ActItem.ActHdr.SkidInfo.CurrSkid.LocMap;
+                    throw new MessageOnlyException("The current location must be complete.");
                 }
 
                 var prodUnitRefno = this.ActItem.ActHdr.SkidInfo.CurrSkid.ProdInfo.UnitRefno;
@@ -2383,48 +2314,41 @@ namespace dMobile.View.Activity
                 object selectedItem;
 
                 // Does the skid product and location exist as a line item.
-                var actItemFoundRefno = await this.ActItem.GetActivityItemRefno(
-                    prodUnitRefno,
-                    LocationMap.GetInstance().CurrLocMap);
+                var actItemFoundRefno = await this.ActItem.GetActivityItemRefno(prodUnitRefno, LocationMap.GetInstance().CurrLocMap);
                 if (actItemFoundRefno > 0)
                 {
-                    await Device.InvokeOnMainThreadAsync(() =>
-                    {
-                        this.CmdSelectSkidText = "Skid# " + this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidCode;
-                        this.CmdAddSkidIsEnabled = true;
-                        this.CmdClearSelectedSkidIsEnabled = true;
-                        this.CmdAddProductIsEnabled = false;
-                        this.CmdLocationIsEnabled = false;
-                        return Task.CompletedTask;
-                    });
-
                     this.ActItem.SetSelectedActivityItemFromList(actItemFoundRefno);
-                    this.SelectedActivityItemFkRefno = this.ActItem.ItemFkRefno;
                     selectedItem = this.ActItem.SelectedItem;
+                    this.SelectedActivityItemFkRefno = this.ActItem.ItemFkRefno;
                 }
                 else
                 {
                     if (this.ActItem.IsAllowAddItem)
                     {
-                        await Device.InvokeOnMainThreadAsync(() =>
+                        if (await this.AskToAddNewItem(this.ActItem.ActHdr.SkidInfo.CurrSkid.ProdInfo))
                         {
-                            this.CmdSelectSkidText = "Skid# " + this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidCode;
-                            this.CmdClearSelectedSkidIsEnabled = true;
-                            this.CmdAddProductIsEnabled = false;
-                            this.CmdLocationIsEnabled = false;
-                            return Task.CompletedTask;
-                        });
+                            var data = ProductInfoTasks.GetXML(this.ActItem.ActHdr.SkidInfo.CurrSkid.ProdInfo);
 
-                        var data = ProductInfoTasks.GetXML(this.ActItem.ActHdr.SkidInfo.CurrSkid.ProdInfo);
-
-                        // Additional found matching line items are not allowed to be created during
-                        // scanning and inserting. I am not expecting matches to be found because
-                        // that check has already been performed at this point.
-                        await this.ActItem.Insert(data);
-                        selectedItem = this.ActItem.SelectedItem;
-                        actItemFoundRefno = this.ActItem.ItemRefno;
-                        this.SelectedActivityItemFkRefno = this.ActItem.ItemFkRefno;
-                        await this.LoadAndBindData();
+                            // Additional found matching line items are not allowed to be created during
+                            // scanning and inserting. I am not expecting matches to be found because
+                            // that check has already been performed at this point.
+                            await this.ActItem.Insert(data);
+                            this.ActItem.SetSelectedActivityItemFromList(this.ActItem.ItemRefno);
+                            selectedItem = this.ActItem.SelectedItem;
+                            await this.ActItem.AssignActivityItem(selectedItem);
+                            this.SelectedActivityItemFkRefno = this.ActItem.ItemFkRefno;
+                            actItemFoundRefno = this.ActItem.ItemRefno;
+                            this.MainActivityItems.Add(this.ActItem);
+                            await this.DesignGrid();
+                            await this.FindSelectedItemAsync(this.ActItem.ItemRefno);
+                        }
+                        else
+                        {
+                            throw new GatherProductDataException(this.ActItem.GetItemNotFoundMessage(
+                                    this.LocMap,
+                                    this.ActItem.ActHdr.SkidInfo.CurrSkid.ProdInfo),
+                                    true);
+                        }
                     }
                     else
                     {
@@ -2434,16 +2358,6 @@ namespace dMobile.View.Activity
                             this.ActItem.ActHdr.SkidInfo.CurrSkid.ProdInfo);
 
                         this.ActItem.ActHdr.SkidInfo.CurrSkid = new SSkidInfo();
-                        await Device.InvokeOnMainThreadAsync(() =>
-                        {
-                            this.CmdSelectSkidText = "Select Skid";
-                            this.CmdAddSkidIsEnabled = false;
-                            this.CmdClearSelectedSkidIsEnabled = false;
-                            this.CmdAddProductIsEnabled = true;
-                            this.CmdLocationIsEnabled = true;
-                            return Task.CompletedTask;
-                        });
-
                         throw new MessageOnlyException(msg);
                     }
                 }
@@ -2463,18 +2377,47 @@ namespace dMobile.View.Activity
             // have the line item warehouse yet. We could assume the header warehouse or even
             // the login warehouse.
             // We can't determine the default location until after identifying the line item.
-            if (this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc)
+            var assignDefaultLocation = true;
+            if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno != 0)
             {
-                // This will be the default location if the line item location is not complete.
-                var whsLocMapRefno =
-                    await LocationMapTasks.GetWhsLocMapRefnoFromLocMapRefno(this.LocMap.CurrLocMapRefno);
-                var defLocMapRefno = await this.ActItem.GetDefaultLocMapRefno(whsLocMapRefno, prodInfo.Refno);
-
-                if (this.IsAllowedDefaultLocationOverride())
+                if (!(this.ActItem.ActSubType == SysCommon.ActSubTypes.PhysicalCounts ||
+                    this.ActItem.ActSubType == SysCommon.ActSubTypes.CycleCounts))
                 {
-                    if (await LocationMapTasks.IsCompleteLocMap(this.LocMap.ChosenLocMap))
+                    if (await LocationMapTasks.IsCompleteLocMap(this.ActItem.ActHdr.SkidInfo.CurrSkid.LocMap))
                     {
-                        SetCurrentLocationWithChosen();
+                        this.LocMap.CurrLocMap = this.ActItem.ActHdr.SkidInfo.CurrSkid.LocMap;
+                        assignDefaultLocation = false;
+                    }
+                }
+            }
+
+            if (assignDefaultLocation)
+            {
+                if (this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc)
+                {
+                    // This will be the default location if the line item location is not complete.
+                    var whsLocMapRefno =
+                        await LocationMapTasks.GetWhsLocMapRefnoFromLocMapRefno(this.LocMap.CurrLocMapRefno);
+                    var defLocMapRefno = await this.ActItem.GetDefaultLocMapRefno(whsLocMapRefno, prodInfo.Refno);
+
+                    if (this.IsAllowedDefaultLocationOverride())
+                    {
+                        if (await LocationMapTasks.IsCompleteLocMap(this.LocMap.ChosenLocMap))
+                        {
+                            SetCurrentLocationWithChosen();
+                        }
+                        else
+                        {
+                            if (!await LocationMapTasks.IsCompleteLocMap(defLocMapRefno))
+                            {
+                                const string msg = "Default locations is enabled, and for this activity and product" +
+                                                   " the location is not fully complete.";
+                                throw new MessageOnlyException(msg);
+                            }
+
+                            this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(defLocMapRefno);
+                            this.LocMap.ChosenLocMap = this.LocMap.CurrLocMap.Clone();
+                        }
                     }
                     else
                     {
@@ -2491,20 +2434,8 @@ namespace dMobile.View.Activity
                 }
                 else
                 {
-                    if (!await LocationMapTasks.IsCompleteLocMap(defLocMapRefno))
-                    {
-                        const string msg = "Default locations is enabled, and for this activity and product" +
-                                           " the location is not fully complete.";
-                        throw new MessageOnlyException(msg);
-                    }
-
-                    this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(defLocMapRefno);
-                    this.LocMap.ChosenLocMap = this.LocMap.CurrLocMap.Clone();
+                    SetCurrentLocationWithChosen();
                 }
-            }
-            else
-            {
-                SetCurrentLocationWithChosen();
             }
 
             if (!await LocationMapTasks.IsCompleteLocMap(this.LocMap.CurrLocMapRefno))
@@ -2732,6 +2663,32 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
+        ///    Ask to assign product to skid.
+        /// </summary>
+        /// <param name="prodInfo"><see cref="ProductInfo"/> Product information.</param>
+        /// <returns><see cref="bool"/> True to assign the product to the skid, else do not assign.</returns>
+        private async Task<bool> AskToAssignProductToSkid(ProductInfo prodInfo)
+        {
+            var isAssignProductToSkid = false;
+            await Device.InvokeOnMainThreadAsync(async () =>
+            {
+                var msg = "The current selected skid does not have a product assigned to it yet." +
+                          $"Do you wish to assign '{prodInfo.Code} {prodInfo.UnitBc.Trim()} {prodInfo.UnitCode}'" +
+                          $" to the skid?";
+                if (await this.DisplayAlert(
+                    this.ActItem.GetControlDescription(),
+                    msg,
+                    "Yes",
+                    "No"))
+                {
+                    isAssignProductToSkid = true;
+                }
+            });
+
+            return isAssignProductToSkid;
+        }
+
+        /// <summary>
         ///     Design the main activity grid / list.
         /// </summary>
         /// <returns>The <see cref="Task" />. Task operation.</returns>
@@ -2803,6 +2760,48 @@ namespace dMobile.View.Activity
         {
             await Device.InvokeOnMainThreadAsync(async () =>
             {
+                if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno != 0)
+                {
+                    await Device.InvokeOnMainThreadAsync(() =>
+                    {
+                        this.CmdAddSkidIsEnabled = true;
+                        this.CmdSelectSkidIsEnabled = false;
+                        this.CmdClearSelectedSkidIsEnabled = true;
+                        if (this.ActItem.ActHdr.SkidInfo.CurrSkid.Quantity == 0)
+                        {
+                            this.cmdAddProductIsEnabled = true;
+                        }
+                        else
+                        {
+                            this.cmdAddProductIsEnabled = false;
+                        }
+
+                        if (this.ActSubType == SysCommon.ActSubTypes.PhysicalCounts
+                            || this.ActSubType == SysCommon.ActSubTypes.CycleCounts)
+                        {
+                            this.CmdLocationIsEnabled = true;
+                        }
+                        else
+                        {
+                            this.CmdLocationIsEnabled = false;
+                        }
+
+                        this.CmdSelectSkidText = "Skid# " + this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidCode;
+                    });
+                }
+                else
+                {
+                    await Device.InvokeOnMainThreadAsync(() =>
+                    {
+                        this.CmdAddSkidIsEnabled = false;
+                        this.CmdAddProductIsEnabled = true;
+                        this.CmdSelectSkidIsEnabled = true;
+                        this.CmdClearSelectedSkidIsEnabled = false;
+                        this.CmdLocationIsEnabled = true;
+                        this.CmdSelectSkidText = "Select Skid";
+                    });
+                }
+
                 this.ExtraInfoItems.Clear();
 
                 switch (this.ActItem.ActSubType)
@@ -3354,7 +3353,6 @@ namespace dMobile.View.Activity
                     var currSkid = this.ActItem.ActHdr.SkidInfo.CurrSkid;
                     this.CmdAddSkidIsEnabled = true;
                     this.CmdClearSelectedSkidIsEnabled = true;
-                    this.CmdAddProductIsEnabled = false;
                     this.CmdSelectSkidText = "Skid# " + currSkid.SkidCode;
 
                     // If the skid is a new skid or empty, the location is enabled.
@@ -3372,7 +3370,6 @@ namespace dMobile.View.Activity
                     this.CmdClearSelectedSkidIsEnabled = false;
                     this.CmdSelectSkidText = "Select Skid";
                     this.CmdLocationIsEnabled = true;
-                    this.CmdAddProductIsEnabled = this.ActItem.IsAllowAddItem;
                 }
 
                 if (this.LocMap.CurrLocMap.WhsLocMapRefno > 0)
@@ -3638,7 +3635,6 @@ namespace dMobile.View.Activity
                 {
                     XDocument xmlDoc;
                     ProductInfo prodInfo = null;
-                    this.SysEnv.SysSettings.IsNewActivityItemsAdded = true;
 
                     // If no skid is selected, then a product unit must be chosen.
                     if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno == 0)
@@ -3669,25 +3665,36 @@ namespace dMobile.View.Activity
                     else
                     {
                         prodInfo = this.ActItem.ActHdr.SkidInfo.CurrSkid.ProdInfo;
-                        var unitSizeDesc = SysCommon.AddXMLReservedChars(prodInfo.UnitSizeDesc);
 
-                        xmlDoc = XDocument.Parse(
-                            "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
-                            + "<params>"
-                            + "<ProductUnitRefno>" + prodInfo.UnitRefno + "</ProductUnitRefno>"
-                            + "<ProductRefno>" + prodInfo.Refno + "</ProductRefno>"
-                            + "<ProductCode>" + prodInfo.Code + "</ProductCode>"
-                            + "<ProductDescription>" + SysCommon.AddXMLReservedChars(prodInfo.Desc) +
-                            "</ProductDescription>"
-                            + "<UnitCode>" + prodInfo.UnitCode + "</UnitCode>"
-                            + "<BaseUnitCode>" + prodInfo.BaseUnitCode + "</BaseUnitCode>"
-                            + "<ProductUnitBC>" + prodInfo.UnitBc + "</ProductUnitBC>"
-                            + "<ProductUnitSizeDescription>" + unitSizeDesc + "</ProductUnitSizeDescription>"
-                            + "</params>");
-
-                        if (prodInfo == null)
+                        if (prodInfo == null || prodInfo.UnitRefno == 0)
                         {
-                            throw new MessageOnlyException("No product unit was attached to the selected skid.");
+                            var form = new FormDialogContainer(
+                                EDialogTypes.SelectProductUnit,
+                                this.ActSubType);
+
+                            if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
+                            {
+                                xmlDoc = await form.GetXml();
+                                if (xmlDoc.Root != null)
+                                {
+                                    var prodUnitRefno = Convert.ToInt32(xmlDoc.Root.Element("ProductUnitRefno")?.Value);
+                                    if (prodUnitRefno == 0)
+                                    {
+                                        throw new MessageOnlyException("A product unit must be chosen.");
+                                    }
+
+                                    prodInfo = await ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
+                                    this.ActItem.ActHdr.SkidInfo.CurrSkid.ProdInfo = prodInfo;
+                                }
+                            }
+                            else
+                            {
+                                throw new CancelOperationException();
+                            }
+                        }
+                        else
+                        {
+
                         }
                     }
 
@@ -3721,18 +3728,30 @@ namespace dMobile.View.Activity
                         // this.ActItem.ItemFKRefno assigned in Insert();
                         // this.ActItem.ProdInfo assigned in Insert();
                         // this.ActItem.ProdInfo.Scheme assigned in Insert();
+                        var unitSizeDesc = SysCommon.AddXMLReservedChars(prodInfo.UnitSizeDesc);
+                        xmlDoc = XDocument.Parse(
+                            "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
+                            + "<params>"
+                            + "<ProductUnitRefno>" + prodInfo.UnitRefno + "</ProductUnitRefno>"
+                            + "<ProductRefno>" + prodInfo.Refno + "</ProductRefno>"
+                            + "<ProductCode>" + prodInfo.Code + "</ProductCode>"
+                            + "<ProductDescription>" + SysCommon.AddXMLReservedChars(prodInfo.Desc) +
+                            "</ProductDescription>"
+                            + "<UnitCode>" + prodInfo.UnitCode + "</UnitCode>"
+                            + "<BaseUnitCode>" + prodInfo.BaseUnitCode + "</BaseUnitCode>"
+                            + "<ProductUnitBC>" + prodInfo.UnitBc + "</ProductUnitBC>"
+                            + "<ProductUnitSizeDescription>" + unitSizeDesc + "</ProductUnitSizeDescription>"
+                            + "</params>");
                         await this.ActItem.Insert(xmlDoc);
                         this.ActItem.SetSelectedActivityItemFromList(this.ActItem.ItemRefno);
                         await this.ActItem.AssignActivityItem(this.ActItem.SelectedItem);
                         this.SelectedActivityItemFkRefno = this.ActItem.ItemFkRefno;
-                        this.SysEnv.SysSettings.IsNewActivityItemsAdded = true;
                     }
 
                     await this.LoadAndBindData();
                 }
                 catch (CancelOperationException)
                 {
-                    this.SysEnv.SysSettings.IsNewActivityItemsAdded = false;
                 }
                 catch (MessageOnlyException msgEx)
                 {
@@ -3745,7 +3764,6 @@ namespace dMobile.View.Activity
                 }
                 catch (GatherProductDataException ex)
                 {
-                    this.SysEnv.SysSettings.IsNewActivityItemsAdded = false;
                     if (!ex.SuppressError)
                     {
                         await Device.InvokeOnMainThreadAsync(async () =>
@@ -3759,7 +3777,6 @@ namespace dMobile.View.Activity
                 }
                 catch
                 {
-                    this.SysEnv.SysSettings.IsNewActivityItemsAdded = false;
                     throw;
                 }
                 finally

@@ -141,6 +141,11 @@ namespace dMobile.Bedrock
         public bool IsBaseWeightUnit => this.BaseUnitCode == "LB" || this.BaseUnitCode == "KG";
 
         /// <summary>
+        ///     Gets or sets the product accept days.
+        /// </summary>
+        public int ProductAcceptDays { get; set; } = 0;
+
+        /// <summary>
         /// Perform a product information deep copy.
         /// </summary>
         /// <param name="original"><see cref="ProductInfo"/> Original product information.</param>
@@ -160,6 +165,7 @@ namespace dMobile.Bedrock
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
             return this.IsAllowConvertProduct == other.IsAllowConvertProduct
+                   && this.ProductAcceptDays == other.ProductAcceptDays
                    && this.IsCatchAskZero == other.IsCatchAskZero
                    && this.BoxCount == other.BoxCount
                    && this.UnitIsSellUnit == other.UnitIsSellUnit
@@ -204,6 +210,7 @@ namespace dMobile.Bedrock
         {
             var hashCode = new HashCode();
             hashCode.Add(this.IsAllowConvertProduct);
+            hashCode.Add(this.ProductAcceptDays);
             hashCode.Add(this.IsCatchAskZero);
             hashCode.Add(this.BoxCount);
             hashCode.Add(this.UnitIsSellUnit);

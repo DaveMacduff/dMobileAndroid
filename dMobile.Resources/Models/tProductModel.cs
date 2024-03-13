@@ -49,5 +49,8 @@ namespace dMobile.Resources.Models
 
         [NotNull]
         public bool ProductAllowConvertProduct { get; set; }
+
+        [NotNull]
+        public int ProductAcceptDays { get; set; }
     }
 }

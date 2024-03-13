@@ -294,13 +294,15 @@ namespace dMobile.View
         /// <param name="actItem"><see cref="ActItem" /> Activity item instance.</param>
         /// <param name="defaultItemSchemeData"><see cref="ActItemSchemeData" /> Scheme data.</param>
         /// <param name="actDetail"><see cref="ActDetail" /> Activity detail.</param>
+        /// <param name="isForceStopForEditing"> Flag to force stopping at the edit screen.</param>
         /// <returns>True if ready to insert detail else false.</returns>
         public static async Task<bool> GatherProductData(
             BarCodeParse barParse,
             SysCommon.ActSubTypes actSubType,
             ActItem actItem,
             ActItemSchemeData defaultItemSchemeData,
-            ActDetail actDetail)
+            ActDetail actDetail,
+            bool isForceStopForEditing = false)
         {
             var sysEnv = SysEnvironment.GetInstance();
             var isInsertDetailReady = false;
@@ -332,6 +334,12 @@ namespace dMobile.View
             else
             {
                 actDetailAndStopForDetail.IsForceStopForEdit = IsStopForDetail();
+            }
+
+            // isForceStopForEditing may be set to true from the calling method.
+            if (isForceStopForEditing)
+            {
+                actDetailAndStopForDetail.IsForceStopForEdit = true;
             }
 
             var isStopForLabelDetail = false;

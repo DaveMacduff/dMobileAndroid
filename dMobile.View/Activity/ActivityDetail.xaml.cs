@@ -1586,46 +1586,12 @@ namespace dMobile.View.Activity
         /// <returns><see cref="Task" /> Task operation.</returns>
         private async Task RefreshBySubType()
         {
-            bool isDataRequest;
-
-            // NOTE: So far all subtypes will be refreshed.
-            switch (this.ActSubType)
-            {
-                case SysCommon.ActSubTypes.PhysicalCounts:
-                    // Do not refresh product list for counts. Except on first load. See WO# 12222.
-                    // Reloading count items into the thousands is too slow.
-                    // This could change depending on the Exception type such as
-                    // MessageOnlyException vs Exception.
-                    // Refreshing will have to be accomplished by exiting the items' activity.
-                    isDataRequest = this.SysEnv.SysSettings.IsCountActivityItemRefreshData;
-                    isDataRequest = isDataRequest && !this.SysEnv.SysSettings.IsNewActivityDetailsAdded;
-                    await RefreshData(isDataRequest);
-                    this.SysEnv.SysSettings.IsCountActivityItemRefreshData = false;
-                    break;
-
-                case SysCommon.ActSubTypes.CycleCounts:
-                    // Do not refresh product list for counts. Except on first load. See WO# 12222.
-                    // Reloading count items into the thousands is too slow.
-                    // This could change depending on the Exception type such as
-                    // MessageOnlyException vs Exception.
-                    // Refreshing will have to be accomplished by exiting the items' activity.
-                    isDataRequest = this.SysEnv.SysSettings.IsCountActivityItemRefreshData;
-                    isDataRequest = isDataRequest && !this.SysEnv.SysSettings.IsNewActivityDetailsAdded;
-                    await RefreshData(isDataRequest);
-                    this.SysEnv.SysSettings.IsCountActivityItemRefreshData = false;
-                    break;
-
-                default:
-
-                    // Performing a refresh data will remove and partially added new items or quantity.
-                    await RefreshData(!this.SysEnv.SysSettings.IsNewActivityDetailsAdded);
-                    break;
-            }
+            await RefreshData();
 
             return;
 
             //////////////////////////////////////////////////////////////////////////
-            async Task RefreshData(bool performRefresh)
+            async Task RefreshData()
             {
                 try
                 {
@@ -1636,11 +1602,7 @@ namespace dMobile.View.Activity
                     {
                         this.ActDetail.RegLayerListenerProgOut(this);
                         this.ActDetail.RegLayerListenerStatOut(this);
-                        if (performRefresh)
-                        {
-                            await this.ActDetail.Refresh();
-                        }
-
+                        await this.ActDetail.Refresh();
                         await Device.InvokeOnMainThreadAsync(() => this.ActDetail.ListDetails.Clear());
                         this.ActDetail.ListDetails = await this.ActDetail.GetActivityDetailList(false);
                     });
@@ -2410,7 +2372,6 @@ namespace dMobile.View.Activity
 
             try
             {
-                ////this.SysEnv.SysSettings.IsNewActivityItemsAdded = true;
                 this.IsIndicatorRunning = true;
                 if (await CheckAllowedToAddDetail())
                 {
@@ -2434,7 +2395,6 @@ namespace dMobile.View.Activity
             }
             catch (GatherProductDataException gatherEx)
             {
-                ////this.SysEnv.SysSettings.IsNewActivityItemsAdded = false;
                 if (!gatherEx.SuppressError)
                 {
                     await Device.InvokeOnMainThreadAsync(async () =>
@@ -2446,7 +2406,6 @@ namespace dMobile.View.Activity
             }
             catch (MessageOnlyException msgEx)
             {
-                ////this.SysEnv.SysSettings.IsNewActivityItemsAdded = false;
                 var msg = SysCommon.GetMessageFromMessageException(msgEx);
                 await Device.InvokeOnMainThreadAsync(async () =>
                     await Application.Current.MainPage.DisplayAlert(
@@ -2456,12 +2415,10 @@ namespace dMobile.View.Activity
             }
             catch (Exception ex)
             {
-                ////this.SysEnv.SysSettings.IsNewActivityItemsAdded = false;
                 await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert("Error", ex.Message, "OK"));
             }
             finally
             {
-                ////this.SysEnv.SysSettings.IsNewActivityItemsAdded = false;
                 await Task.Run(this.LoadAndBindData);
             }
 
@@ -2551,12 +2508,14 @@ namespace dMobile.View.Activity
                 ////}
                 var parse = BarCodeParseFacade.ParseData(string.Empty);
                 var tempItemProdSchemeData = InitDetailBeforeGather();
+
                 var isInsertReady = await SysShared.GatherProductData(
                     parse,
                     this.ActSubType,
                     this.ActDetail.ActItem,
                     tempItemProdSchemeData,
-                    gatherActDetail);
+                    gatherActDetail,
+                    isForceStopForEditing: true);
 
                 if (isInsertReady)
                 {

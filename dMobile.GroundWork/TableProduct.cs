@@ -233,6 +233,9 @@ namespace dMobile.GroundWork
                         // f11
                         var isAllowConvertProduct = false;
 
+                        // f12
+                        var acceptDays = 0;
+
                         // SqlCeUpdatableRecord rec = rs.CreateRecord();
                         this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, 100);
 
@@ -249,6 +252,7 @@ namespace dMobile.GroundWork
                             brandDescription = string.Empty;
                             isCatchAskZero = false;
                             isAllowConvertProduct = false;
+                            acceptDays = 0;
 
                             // fill one record
                             // we do this by looping until an end segment is found
@@ -297,6 +301,10 @@ namespace dMobile.GroundWork
                                         case "f11":
                                             isAllowConvertProduct = reader.ReadContentAsBoolean();
                                             break;
+
+                                        case "f12":
+                                            acceptDays = reader.ReadContentAsInt();
+                                            break;
                                     }
                                 }
                                 else if (reader.NodeType == XmlNodeType.EndElement && reader.Name == "seg")
@@ -332,6 +340,7 @@ namespace dMobile.GroundWork
                                                       " ProductIsCatchAsk = ?," +
                                                       " ProductIsCatchAskZero = ?," +
                                                       " ProductAllowConvertProduct = ?" +
+                                                      " ProductAcceptDays = ?" +
                                                       " WHERE ProductFKRefno = ?";
                                     var parametersUpdate = new object[]
                                     {
@@ -344,6 +353,7 @@ namespace dMobile.GroundWork
                                         isCatchAsk,
                                         isCatchAskZero,
                                         isAllowConvertProduct,
+                                        acceptDays,
                                         prodFKRefno,
                                     };
 
@@ -364,9 +374,11 @@ namespace dMobile.GroundWork
                                                   "ProductIsCatchAsk, " +
                                                   "ProductIsCatchAskZero, " +
                                                   "ProductBrandDescription, " +
-                                                  "ProductAllowConvertProduct) " +
+                                                  "ProductAllowConvertProduct, " +
+                                                  "ProductAcceptDays) " +
                                                   "VALUES " +
                                                   "(?, " +
+                                                  "?, " +
                                                   "?, " +
                                                   "?, " +
                                                   "?, " +
@@ -390,6 +402,7 @@ namespace dMobile.GroundWork
                                     isCatchAskZero,
                                     brandDescription,
                                     isAllowConvertProduct,
+                                    acceptDays,
                                 };
 
                                 transaction.Execute(queryInsert, parametersInsert);

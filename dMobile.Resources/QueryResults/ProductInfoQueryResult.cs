@@ -16,6 +16,7 @@ namespace dMobile.Resources.QueryResults
     // "tProduct.ProductIsCatchAsk, " +
     // "tProduct.ProductIsCatchAskZero, " +
     // "tProduct.ProductAllowConvertProduct, " +
+    // "tProduct.ProductAcceptDays, " +
     // "tProductUnit.ProductUnitRefno, " +
     // "tProductUnit.ProductUnitBC, " +
     // "tProductUnit.ProductUnitIsBC, " +
@@ -49,6 +50,7 @@ namespace dMobile.Resources.QueryResults
         public bool ProductIsCatchAsk { get; set; }
         public bool ProductIsCatchAskZero { get; set; }
         public bool ProductAllowConvertProduct { get; set; }
+        public int ProductAcceptDays { get; set; }
         public bool ProductIsCatchCount { get; set; }
         public bool ProductIsCatchWeight { get; set; }
         public decimal ProductUnitWeight { get; set; }

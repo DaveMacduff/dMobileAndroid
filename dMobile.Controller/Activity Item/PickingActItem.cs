@@ -1584,8 +1584,7 @@ namespace dMobile.Controller.Activity_Item
             var locMapRefno = 0;
             if (this.SelectedItem is PickingItem item)
             {
-                if (Math.Sign(item.ActivityItemPickingQuantityShipped) == 0 ||
-                    Math.Sign(item.ActivityItemPickingQuantityShipped) == -1)
+                if (Math.Sign(item.ActivityItemPickingQuantityShipped) == -1)
                 {
                     locMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(
                         whsLocMapRefno,
