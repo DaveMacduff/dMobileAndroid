@@ -210,7 +210,7 @@ namespace dMobile.BarCodeScanner
                 result.LoadXml(data);
                 if (result.SelectSingleNode("/VFPData/ProductFKRefno").HasChildNodes)
                 {
-                    unitRefnoFromBarCode.ProdInfo.FKRefno = Convert.ToInt32(
+                    unitRefnoFromBarCode.ProdInfo.FkRefno = Convert.ToInt32(
                         result.SelectSingleNode("/VFPData/ProductFKRefno").FirstChild.Value);
                 }
 
@@ -226,24 +226,24 @@ namespace dMobile.BarCodeScanner
                         result.SelectSingleNode("/VFPData/DeliScaleWeightUnit").FirstChild.Value);
                 }
 
-                if (unitRefnoFromBarCode.ProdInfo.FKRefno != 0)
+                if (unitRefnoFromBarCode.ProdInfo.FkRefno != 0)
                 {
-                    unitRefnoFromBarCode.ProdInfo.UnitIsBC = Convert.ToBoolean(
+                    unitRefnoFromBarCode.ProdInfo.UnitIsBc = Convert.ToBoolean(
                         result.SelectSingleNode("/VFPData/ProductUnitIsBC").FirstChild.Value);
                     unitRefnoFromBarCode.ProdInfo.UnitCode = result.SelectSingleNode(
                         "/VFPData/ProductUnitCode").FirstChild.Value;
 
                     var productList = await DatabaseConnection.GetInstance().
-                        SQLConn.QueryAsync<tProductModel>(
+                        SqlConn.QueryAsync<tProductModel>(
                         "SELECT * FROM tProduct WHERE ProductFKRefno = ?",
-                        Convert.ToInt32(unitRefnoFromBarCode.ProdInfo.FKRefno));
+                        Convert.ToInt32(unitRefnoFromBarCode.ProdInfo.FkRefno));
 
                     if (productList != null && productList.Count > 0)
                     {
                         unitRefnoFromBarCode.ProdInfo.Refno = productList[0].ProductRefno;
 
                         var unitList = await DatabaseConnection.GetInstance().
-                            SQLConn.QueryAsync<tUnitModel>(
+                            SqlConn.QueryAsync<tUnitModel>(
                             "SELECT * FROM tUnit WHERE UnitCode = ?",
                             Convert.ToString(unitRefnoFromBarCode.ProdInfo.UnitCode));
 
@@ -252,12 +252,12 @@ namespace dMobile.BarCodeScanner
                             var unitRefno = unitList[0].UnitRefno;
 
                             var productUnitList = await DatabaseConnection.
-                                GetInstance().SQLConn.QueryAsync<tProductUnitModel>(
+                                GetInstance().SqlConn.QueryAsync<tProductUnitModel>(
                                 "SELECT * FROM tProductUnit WHERE ProductRefno = ?" +
                                     " AND UnitRefno = ? AND ProductUnitIsBC = ?",
                                 unitRefnoFromBarCode.ProdInfo.Refno,
                                 unitRefno,
-                                unitRefnoFromBarCode.ProdInfo.UnitIsBC);
+                                unitRefnoFromBarCode.ProdInfo.UnitIsBc);
 
                             if (productUnitList != null && productUnitList.Count > 0)
                             {

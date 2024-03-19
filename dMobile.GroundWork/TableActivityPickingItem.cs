@@ -36,7 +36,7 @@ namespace dMobile.GroundWork
         public override async Task PurgeData()
         {
             this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName}.", true);
-            var conn = DatabaseConnection.GetInstance().SQLConn;
+            var conn = DatabaseConnection.GetInstance().SqlConn;
             var subType = Convert.ToInt32(this.CurrentSubType);
             await conn.RunInTransactionAsync(transaction =>
             {
@@ -153,7 +153,7 @@ namespace dMobile.GroundWork
             try
             {
                 var actPickFKRefno = 0;
-                var conn = DatabaseConnection.GetInstance().SQLConn;
+                var conn = DatabaseConnection.GetInstance().SqlConn;
                 var results = await conn.QueryAsync<tActivityPickingModel>(
                     "SELECT * FROM tActivityPicking WHERE ActivityRefno = ?",
                     actItemRefno);
@@ -188,7 +188,7 @@ namespace dMobile.GroundWork
         /// <param name="actRefno">The actItemRefno<see cref="int" />.</param>
         protected override async Task Save(string responseData, int actRefno)
         {
-            await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
+            await DatabaseConnection.GetInstance().SqlConn.RunInTransactionAsync(transaction =>
             {
                 try
                 {
@@ -442,7 +442,7 @@ namespace dMobile.GroundWork
             if (actHdrRefno == 0)
             {
                 var query = "SELECT * FROM tActivityPicking WHERE ActivitySubType = ?";
-                var conn = DatabaseConnection.GetInstance().SQLConn;
+                var conn = DatabaseConnection.GetInstance().SqlConn;
                 var queryResult = await conn.QueryAsync<tActivityPickingModel>(query, (int)this.CurrentSubType);
                 if (queryResult != null && queryResult.Count > 0)
                 {

@@ -1373,7 +1373,7 @@ namespace dMobile.View.Activity
                 };
                 var xml = XmlWriter.Create(xmlString, settings);
                 XDocument request = null;
-                var conn = DatabaseConnection.GetInstance().SQLConn;
+                var conn = DatabaseConnection.GetInstance().SqlConn;
 
                 request = XDocument.Parse(
                     "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"

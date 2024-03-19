@@ -319,7 +319,7 @@ namespace dMobile.Controller.Activity_Item
             //////////////////////////////////////////////////////////////////////////
             async Task InsertActivityItemInTables(int prodUnitRefno)
             {
-                await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
+                await DatabaseConnection.GetInstance().SqlConn.RunInTransactionAsync(transaction =>
                 {
                     try
                     {
@@ -797,7 +797,7 @@ namespace dMobile.Controller.Activity_Item
             //        this.DataViewItems.Sort = "ActivityItemRefno";
             //    }
             // }
-            this.ListProductionTicketFinishedItems = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<ProductionTicketFinishedItem>(sql.ToString());
+            this.ListProductionTicketFinishedItems = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<ProductionTicketFinishedItem>(sql.ToString());
             this.ListItems = this.ListProductionTicketFinishedItems.Cast<object>().ToList();
             return this.ListItems;
         }
@@ -953,7 +953,7 @@ namespace dMobile.Controller.Activity_Item
             sql.AppendFormat("AND tActivityItemProduction.ProductUnitRefno = {0} ", prodUnitRefno);
             sql.AppendFormat("AND tActivityItem.ActivityItemSubType = {0}", Convert.ToInt32(SysCommon.ActSubTypes.TicketFinished));
 
-            var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<ProductionTicketFinishedItem>(sql.ToString());
+            var results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<ProductionTicketFinishedItem>(sql.ToString());
 
             if (results != null && results.Count > 0)
             {
@@ -1066,7 +1066,7 @@ namespace dMobile.Controller.Activity_Item
                     productionTicketFinishedItem.ActivityItemProductionWeightQuantity,
                     productionTicketFinishedItem.ActivityItemRefno, };
 
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, parameters);
+                await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync(query, parameters);
             }
         }
 

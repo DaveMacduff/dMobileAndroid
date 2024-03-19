@@ -54,9 +54,9 @@ namespace dMobile.Bedrock
                     new XElement("logistic_unit_skid_code", skid.CurrSkid.LogisticUnitSkidCode),
                     new XElement("skid_code", skid.CurrSkid.SkidCode),
                     new XElement("location_map_refno", skid.CurrSkid.LocMapRefno),
-                    new XElement("whs_id", skid.CurrSkid.LocMap.WhsFKRefno),
-                    new XElement("sect_refno", skid.CurrSkid.LocMap.SectFKRefno),
-                    new XElement("slot_refno", skid.CurrSkid.LocMap.SlotFKRefno),
+                    new XElement("whs_id", skid.CurrSkid.LocMap.WhsFkRefno),
+                    new XElement("sect_refno", skid.CurrSkid.LocMap.SectFkRefno),
+                    new XElement("slot_refno", skid.CurrSkid.LocMap.SlotFkRefno),
                     new XElement("product_unit_refno", skid.CurrSkid.ProdInfo.UnitRefno),
                     new XElement("product_id", skid.CurrSkid.ProdInfo.Code),
                     new XElement("product_unit_bc", skid.CurrSkid.ProdInfo.UnitBc),
@@ -188,9 +188,9 @@ namespace dMobile.Bedrock
                         new XElement("revision_datetime", revision),
                         new XElement("stamp", current),
                         new XElement("skid_data", skid.CurrSkid.SkidCode),
-                        new XElement("whs_id", moveToLocMap.WhsFKRefno),
-                        new XElement("sect_refno", moveToLocMap.SectFKRefno),
-                        new XElement("slot_refno", moveToLocMap.SlotFKRefno)));
+                        new XElement("whs_id", moveToLocMap.WhsFkRefno),
+                        new XElement("sect_refno", moveToLocMap.SectFkRefno),
+                        new XElement("slot_refno", moveToLocMap.SlotFkRefno)));
 
                 request.Save(writer);
                 writer.Flush();
@@ -202,9 +202,9 @@ namespace dMobile.Bedrock
             {
                 var tempSkidInfo = skid.CurrSkid;
                 var sLocMapAndRefno = await GetSLocMapFromLocMapFkRefno(
-                    moveToLocMap.WhsFKRefno,
-                    moveToLocMap.SectFKRefno,
-                    moveToLocMap.SlotFKRefno);
+                    moveToLocMap.WhsFkRefno,
+                    moveToLocMap.SectFkRefno,
+                    moveToLocMap.SlotFkRefno);
                 tempSkidInfo.LocMap = sLocMapAndRefno.SLocMap;
                 skid.CurrSkid = tempSkidInfo;
             }
@@ -251,9 +251,9 @@ namespace dMobile.Bedrock
                     new XElement("height_unit", skid.CurrSkid.HeightUnit),
                     new XElement("logistic_unit_skid_code", skid.CurrSkid.LogisticUnitSkidCode),
                     new XElement("skid_code", skid.CurrSkid.SkidCode),
-                    new XElement("whs_id", skid.CurrSkid.LocMap.WhsFKRefno),
-                    new XElement("sect_refno", skid.CurrSkid.LocMap.SectFKRefno),
-                    new XElement("slot_refno", skid.CurrSkid.LocMap.SlotFKRefno),
+                    new XElement("whs_id", skid.CurrSkid.LocMap.WhsFkRefno),
+                    new XElement("sect_refno", skid.CurrSkid.LocMap.SectFkRefno),
+                    new XElement("slot_refno", skid.CurrSkid.LocMap.SlotFkRefno),
                     new XElement("product_id", skid.CurrSkid.ProdInfo.Code),
                     new XElement("product_unit_bc", skid.CurrSkid.ProdInfo.UnitBc),
                     new XElement("product_unit_code", skid.CurrSkid.ProdInfo.UnitCode),
@@ -293,7 +293,7 @@ namespace dMobile.Bedrock
                     new XElement("revision_datetime", revision),
                     new XElement("stamp", current),
                     new XElement("skid_data", skid.CurrSkid.SkidCode),
-                    new XElement("whs_id", locMap.CurrLocMap.WhsFKRefno)));
+                    new XElement("whs_id", locMap.CurrLocMap.WhsFkRefno)));
 
             request.Save(writer);
             writer.Flush();
@@ -331,7 +331,7 @@ namespace dMobile.Bedrock
                     new XElement("revision_datetime", revision),
                     new XElement("stamp", current),
                     new XElement("skid_data", skid.CurrSkid.SkidCode),
-                    new XElement("whs_id", locMap.CurrLocMap.WhsFKRefno)));
+                    new XElement("whs_id", locMap.CurrLocMap.WhsFkRefno)));
 
             request.Save(writer);
             writer.Flush();
@@ -403,7 +403,7 @@ namespace dMobile.Bedrock
                     new XElement("login_id", sysEnv.ContactLog.LoginID.ToString()),
                     new XElement("revision_datetime", revision),
                     new XElement("stamp", current),
-                    new XElement("whs_id", locMap.CurrLocMap.WhsFKRefno),
+                    new XElement("whs_id", locMap.CurrLocMap.WhsFkRefno),
                     new XElement("skid_fk_refno", skid.CurrSkid.SkidFKRefno),
                     new XElement("is_negate_qty", "false")));
 
@@ -466,9 +466,9 @@ namespace dMobile.Bedrock
                     new XElement("height_unit", root.Element("height_unit") !.Value),
                     new XElement("logistic_unit_skid_code", root.Element("logistic_unit_skid_code") !.Value),
                     new XElement("skid_code", root.Element("skid_code") !.Value),
-                    new XElement("whs_id", skidLocMap.WhsFKRefno),
-                    new XElement("sect_refno", skidLocMap.SectFKRefno),
-                    new XElement("slot_refno", skidLocMap.SlotFKRefno),
+                    new XElement("whs_id", skidLocMap.WhsFkRefno),
+                    new XElement("sect_refno", skidLocMap.SectFkRefno),
+                    new XElement("slot_refno", skidLocMap.SlotFkRefno),
                     new XElement("product_id", prodInfo.Code),
                     new XElement("product_unit_bc", prodInfo.UnitBc),
                     new XElement("product_unit_code", prodInfo.UnitCode),
@@ -516,7 +516,7 @@ namespace dMobile.Bedrock
                     new XElement("revision_datetime", revDateTime),
                     new XElement("stamp", currDateTime),
                     new XElement("skid_data", skidInfo),
-                    new XElement("whs_id", locMap.CurrLocMap.WhsFKRefno)));
+                    new XElement("whs_id", locMap.CurrLocMap.WhsFkRefno)));
 
             request.Save(writer);
             writer.Flush();
@@ -656,7 +656,7 @@ namespace dMobile.Bedrock
                 const string prodNodeName = "/VFPData/cskidinfo/productcode";
                 const string unitBcNodeName = "/VFPData/cskidinfo/productunitbc";
                 const string unitCodeNodeName = "/VFPData/cskidinfo/unitcode";
-                skidInfo.ProdInfo = await ProductInfoTasks.GetInfoFromCodeBCUnit(
+                skidInfo.ProdInfo = await ProductInfoTasks.GetInfoFromCodeBcUnit(
                     result.SelectSingleNode(prodNodeName) !.InnerText,
                     result.SelectSingleNode(unitBcNodeName) !.InnerText,
                     result.SelectSingleNode(unitCodeNodeName) !.InnerText);
@@ -714,7 +714,7 @@ namespace dMobile.Bedrock
                         new XElement("login_id", sysEnv.ContactLog.LoginID.ToString()),
                         new XElement("revision_datetime", revDateTime),
                         new XElement("stamp", currDateTime),
-                        new XElement("whs_id", LocationMap.GetInstance().CurrLocMap.WhsFKRefno),
+                        new XElement("whs_id", LocationMap.GetInstance().CurrLocMap.WhsFkRefno),
                         new XElement("skid_data", skidData)));
 
                 requestInfo.Save(xml);

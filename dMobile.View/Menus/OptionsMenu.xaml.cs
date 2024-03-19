@@ -350,7 +350,7 @@ namespace dMobile.View.Menus
 
                 var commSetup = new Bedrock.CommunicationSetup();
 
-                if (File.Exists(commSetup.FileASCIIZ))
+                if (File.Exists(commSetup.FileAsciiz))
                 {
                     this.cmdRefreshData.IsEnabled = true;
                 }

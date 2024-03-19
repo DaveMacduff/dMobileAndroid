@@ -568,7 +568,7 @@ namespace dMobile.Controller.Activity_Detail
             {
                 if (String.CompareOrdinal(this.UniqueSchemeId, string.Empty) > 0)
                 {
-                    var isDupSchemeId = await ProductInfoTasks.IsDuplicateUniqueSchemeID(this.UniqueSchemeId);
+                    var isDupSchemeId = await ProductInfoTasks.IsDuplicateUniqueSchemeId(this.UniqueSchemeId);
 
                     if (isDupSchemeId)
                     {
@@ -712,7 +712,7 @@ namespace dMobile.Controller.Activity_Detail
         {
             if (prodSchemeData.VariantNumber > 0)
             {
-                var conn = DatabaseConnection.GetInstance().SQLConn;
+                var conn = DatabaseConnection.GetInstance().SqlConn;
                 var results = await conn.QueryAsync<tProductSchemeVariantModel>(
                     "SELECT * FROM tProductSchemeVariant WHERE ProductSchemeVariantNo = ?",
                     Convert.ToInt32(prodSchemeData.VariantNumber));
@@ -811,11 +811,11 @@ namespace dMobile.Controller.Activity_Detail
             tmpSchemeData = await this.FillSchemeDataVarInfoFromSchemeDataVarNo(tmpSchemeData);
             this.SchemeData = tmpSchemeData;
 
-            this.SchemeId = ProductInfoTasks.GetActSchemeIDFromSProdSchemeData(
+            this.SchemeId = ProductInfoTasks.GetActSchemeIdFromSProdSchemeData(
                 this.ActItem.ProdInfo.Code,
                 this.ActItem.ProdInfo.Scheme,
                 this.SchemeData);
-            this.UniqueSchemeId = ProductInfoTasks.GetUniqueSchemeIDFromSProdSchemeData(
+            this.UniqueSchemeId = ProductInfoTasks.GetUniqueSchemeIdFromSProdSchemeData(
                 this.ActItem.ProdInfo.Code,
                 this.ActItem.ProdInfo.Scheme,
                 this.SchemeData);
@@ -907,10 +907,10 @@ namespace dMobile.Controller.Activity_Detail
 
             var itemFkRefno = this.ActItem.ActStatus == SysCommon.ActStatus.Inserted ? 0 : this.ActItem.ItemFkRefno;
             var def = "<prod_id>" + this.ActItem.ProdInfo.Code + "</prod_id>"
-                      + "<is_bc>" + this.ActItem.ProdInfo.UnitIsBC + "</is_bc>"
-                      + "<whs_id>" + this.LocMap.CurrLocMap.WhsFKRefno + "</whs_id>"
-                      + "<sect_refno>" + this.LocMap.CurrLocMap.SectFKRefno + "</sect_refno>"
-                      + "<slot_refno>" + this.LocMap.CurrLocMap.SlotFKRefno + "</slot_refno>"
+                      + "<is_bc>" + this.ActItem.ProdInfo.UnitIsBc + "</is_bc>"
+                      + "<whs_id>" + this.LocMap.CurrLocMap.WhsFkRefno + "</whs_id>"
+                      + "<sect_refno>" + this.LocMap.CurrLocMap.SectFkRefno + "</sect_refno>"
+                      + "<slot_refno>" + this.LocMap.CurrLocMap.SlotFkRefno + "</slot_refno>"
                       + "<refno>" + this.ActItem.ActHdr.HdrFkRefno + "</refno>"
                       + "<itm_refno>" + itemFkRefno + "</itm_refno>"
                       + "<ser_refno>" + this.DetailFkRefno + "</ser_refno>"
@@ -945,7 +945,7 @@ namespace dMobile.Controller.Activity_Detail
             detail.ProductUnitRefno = this.ActItem.ProdInfo.UnitRefno;
             detail.ProductCode = this.ActItem.ProdInfo.Code;
             detail.ProductUnitBC = this.ActItem.ProdInfo.UnitBc;
-            detail.ProductUnitIsBC = this.ActItem.ProdInfo.UnitIsBC;
+            detail.ProductUnitIsBC = this.ActItem.ProdInfo.UnitIsBc;
             detail.ProductDescription = this.ActItem.ProdInfo.Desc;
             detail.ProductUnitSizeDescription = this.ActItem.ProdInfo.UnitSizeDesc;
 
@@ -1029,13 +1029,13 @@ namespace dMobile.Controller.Activity_Detail
         /// <returns><see cref="int" /> Inserted activity detail reference number.</returns>
         protected async Task<int> InsertDetailIntoTablesDetail()
         {
-            var conn = DatabaseConnection.GetInstance().SQLConn;
+            var conn = DatabaseConnection.GetInstance().SqlConn;
             int actDetailRefno;
             try
             {
                 ////if (string.CompareOrdinal(this.UniqueSchemeId, string.Empty) > 0)
                 ////{
-                ////    var isDupSchemeId = await ProductInfoTasks.IsDuplicateUniqueSchemeID(this.UniqueSchemeId);
+                ////    var isDupSchemeId = await ProductInfoTasks.IsDuplicateUniqueSchemeId(this.UniqueSchemeId);
                 ////    if (isDupSchemeId)
                 ////    {
                 ////        throw new Exception("Duplicate scheme ID!" + Environment.NewLine + this.UniqueSchemeId);

@@ -283,7 +283,7 @@ namespace dMobile.Controller.Activity_Detail
                 this.DetailFkRefno = int.Parse(xmlDoc.DocumentElement["ser_refno"].InnerText);
                 moveDetail.ActivityDetailStatus = Convert.ToInt32(SysCommon.ActStatus.NoChange);
 
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
+                await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync(
                     "UPDATE tActivityDetail SET ActivityDetailStatus = ? WHERE ActivityDetailRefno = ?",
                     Convert.ToInt32(SysCommon.ActStatus.NoChange),
                     this.DetailRefno);
@@ -529,7 +529,7 @@ namespace dMobile.Controller.Activity_Detail
                 + "</command>"
                 + await SysCommon.GetRequestDefaults(false)
                 + "<prod_id>" + this.ActItem.ProdInfo.Code + "</prod_id>"
-                + "<is_bc>" + this.ActItem.ProdInfo.UnitIsBC + "</is_bc>"
+                + "<is_bc>" + this.ActItem.ProdInfo.UnitIsBc + "</is_bc>"
                 + "<whs_id>" + data.Root.Element("whs_id").Value + "</whs_id>"
                 + "<sect_refno>" + data.Root.Element("sect_refno").Value + "</sect_refno>"
                 + "<slot_refno>" + data.Root.Element("slot_refno").Value + "</slot_refno>"

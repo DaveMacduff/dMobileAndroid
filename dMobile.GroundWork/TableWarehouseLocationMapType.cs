@@ -80,7 +80,7 @@ namespace dMobile.GroundWork
             int rowsAffected;
             try
             {
-                rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tWarehouseLocationMapType"));
+                rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SqlConn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tWarehouseLocationMapType"));
 
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"{rowsAffected} warehouse locations.", true);
             }
@@ -104,7 +104,7 @@ namespace dMobile.GroundWork
             {
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging warehouse locations.", true);
 
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("DELETE FROM tWarehouseLocationMapType");
+                await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync("DELETE FROM tWarehouseLocationMapType");
             }
             catch (SQLiteException ex)
             {
@@ -130,7 +130,7 @@ namespace dMobile.GroundWork
             var whsLocMapRefno = 0;
             var errMsg = string.Empty;
 
-            await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
+            await DatabaseConnection.GetInstance().SqlConn.RunInTransactionAsync(transaction =>
             {
                 try
                 {

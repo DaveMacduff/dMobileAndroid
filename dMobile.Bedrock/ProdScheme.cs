@@ -5,6 +5,7 @@
 namespace dMobile.Bedrock
 {
     using System;
+    using System.Diagnostics.CodeAnalysis;
     using System.IO;
     using System.Xml.Serialization;
 
@@ -233,6 +234,7 @@ namespace dMobile.Bedrock
         }
 
         /// <inheritdoc/>
+        [SuppressMessage("ReSharper", "NonReadonlyMemberInGetHashCode", Justification = "Not sure how to fix the warnings.")]
         public override int GetHashCode()
         {
             var hashCode = new HashCode();

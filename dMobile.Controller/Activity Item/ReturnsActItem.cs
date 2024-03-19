@@ -231,7 +231,7 @@ namespace dMobile.Controller.Activity_Item
             var comment = string.Empty;
             if (selectedActivityItem is ReturnItem returnItem)
             {
-                var results = await DatabaseConnection.GetInstance().SQLConn.
+                var results = await DatabaseConnection.GetInstance().SqlConn.
                     QueryAsync<tActivityItemReturnsCommentModel>("SELECT * FROM tActivityItemReturnsComment WHERE ActivityItemRefno = ?",
                         returnItem.ActivityItemRefno);
 
@@ -591,7 +591,7 @@ namespace dMobile.Controller.Activity_Item
             //        this.DataViewItems.Sort = "ActivityItemRefno";
             //    }
             // }
-            this.listReturnItems = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<ReturnItem>(query, parameters.ToArray());
+            this.listReturnItems = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<ReturnItem>(query, parameters.ToArray());
             this.ListItems = this.listReturnItems.Cast<object>().ToList();
             return this.ListItems;
         }
@@ -719,7 +719,7 @@ namespace dMobile.Controller.Activity_Item
                         "AND tActivityItemReturns.WarehouseLocationMapRefno = ? " +
                         "AND tActivityItemReturns.ProductUnitRefno = ?";
 
-            var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<ReturnItem>(query, this.ActHdr.HdrRefno, whsLocMapRefno, prodUnitRefno);
+            var results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<ReturnItem>(query, this.ActHdr.HdrRefno, whsLocMapRefno, prodUnitRefno);
 
             if (results != null && results.Count > 0)
             {
@@ -773,9 +773,9 @@ namespace dMobile.Controller.Activity_Item
                 + "<is_bc>" + prodUnitIsBc.ToString() + "</is_bc>"
                 + "<symbology>" + barCodeSymbologyPrefix + "</symbology>"
                 + "<gtin>" + prodUnitBarCodeCode + "</gtin>"
-                + "<whs_id>" + this.LocMap.WhsFKRefno.ToString() + "</whs_id>"
-                + "<sect_refno>" + this.LocMap.SectFKRefno.ToString() + "</sect_refno>"
-                + "<slot_refno>" + this.LocMap.SlotFKRefno.ToString() + "</slot_refno>"
+                + "<whs_id>" + this.LocMap.WhsFkRefno.ToString() + "</whs_id>"
+                + "<sect_refno>" + this.LocMap.SectFkRefno.ToString() + "</sect_refno>"
+                + "<slot_refno>" + this.LocMap.SlotFkRefno.ToString() + "</slot_refno>"
                 + "<refno></refno>"
                 + "</imclient>");
 
@@ -842,7 +842,7 @@ namespace dMobile.Controller.Activity_Item
                     returnItem.ActivityItemRefno,
                 };
 
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, parameters);
+                await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync(query, parameters);
             }
         }
 
@@ -939,7 +939,7 @@ namespace dMobile.Controller.Activity_Item
                             + $"WHERE tActivityItem.ActivityRefno = {this.ActHdr.HdrRefno} "
                             + "GROUP BY tUnit.UnitCode";
 
-                var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<PickingItemSummary>(query);
+                var results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<PickingItemSummary>(query);
 
                 if (results != null)
                 {

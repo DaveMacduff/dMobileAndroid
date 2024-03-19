@@ -435,7 +435,7 @@ namespace dMobile.View.Views
         }
 
         /// <summary>
-        /// The GetXML.
+        /// The GetXml.
         /// </summary>
         /// <returns>.</returns>
         public async Task<XDocument> GetXml()

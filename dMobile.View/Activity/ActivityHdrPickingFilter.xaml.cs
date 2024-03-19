@@ -517,7 +517,7 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         private async Task<ObservableCollection<object>> GetPickingRouteObservableCollection()
         {
-            var results = await DatabaseConnection.GetInstance().SQLConn
+            var results = await DatabaseConnection.GetInstance().SqlConn
                 .QueryAsync<tRouteModel>("SELECT DISTINCT RouteCode, RouteRefno FROM tRoute ORDER BY RouteCode ASC");
 
             if (results?.Count > 0)

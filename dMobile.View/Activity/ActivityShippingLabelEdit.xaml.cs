@@ -323,8 +323,8 @@ namespace dMobile.View.Activity
             var request = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                 + "<params>"
-                + "<whs_id>" + this.LocMap.CurrLocMap.WhsFKRefno + "</whs_id>"
-                + "<sect_refno>" + this.LocMap.CurrLocMap.SectFKRefno + "</sect_refno>"
+                + "<whs_id>" + this.LocMap.CurrLocMap.WhsFkRefno + "</whs_id>"
+                + "<sect_refno>" + this.LocMap.CurrLocMap.SectFkRefno + "</sect_refno>"
                 + "<full_alt_qty>" + this.LabelQtyEdit.FullQuantity + "</full_alt_qty>"
                 + "<repack_alt_qty>" + this.LabelQtyEdit.RepackQuantity + "</repack_alt_qty>"
                 + "<fresh_alt_qty>" + this.LabelQtyEdit.FreshQuantity + "</fresh_alt_qty>"

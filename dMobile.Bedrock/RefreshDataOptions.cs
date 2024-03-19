@@ -20,107 +20,30 @@ namespace dMobile.Bedrock
         [NonSerialized]
         private string fileName = "dMobileRefreshDataOptions.xml";
 
-        // <issue="15668" author="RD" timestamp="2018-01-02" comment="refreshDataChangesOnly=false; and systemData=true is now default for when an autoupdate occurs and clears these properties." />
-        /// <summary>
-        /// Defines the refreshDataChangesOnly.
-        /// </summary>
-        private bool refreshDataChangesOnly = false;
-
         /// <summary>
         /// Defines the systemData.
         /// </summary>
         private bool systemData = true;
 
         /// <summary>
-        /// Defines the adjustments.
-        /// </summary>
-        private bool adjustments = false;
-
-        /// <summary>
-        /// Defines the purchaseOrders.
-        /// </summary>
-        private bool purchaseOrders = false;
-
-        /// <summary>
-        /// Defines the salesOrders.
-        /// </summary>
-        private bool salesOrders = false;
-
-        /// <summary>
-        /// Defines the productionTickets.
-        /// </summary>
-        private bool productionTickets = false;
-
-        /// <summary>
-        /// Defines the replenishment.
-        /// </summary>
-        private bool replenishment = false;
-
-        /// <summary>
-        /// Defines the counts.
-        /// </summary>
-        private bool counts = false;
-
-        /// <summary>
-        /// Defines the transfers.
-        /// </summary>
-        private bool transfers = false;
-
-        /// <summary>
-        /// Defines the purchaseOrderWorkSheet.
-        /// </summary>
-        private bool purchaseOrderWorkSheet = false;
-
-        // private DateTime refreshedDataLast = DateAndTime.DateSerial(1900, 1, 1);
-        /// <summary>
         /// Defines the refreshedDataLast.
         /// </summary>
         private DateTime refreshedDataLast = new DateTime(1900, 1, 1);
 
         /// <summary>
-        /// Defines the isRefreshedLastDataChangesOnly.
-        /// </summary>
-        private bool isRefreshedLastDataChangesOnly = false;
-
-        /// <summary>
-        /// Defines the isDataCreatedOnStartUp.
-        /// </summary>
-        private bool isDataCreatedOnStartUp = false;
-
-        /// <summary>
-        /// Defines the isRefreshDataFailed.
-        /// </summary>
-        private bool isRefreshDataFailed = false;
-
-        /// <summary>
         /// Gets or sets a value indicating whether IsRefreshDataFailed.
         /// </summary>
-        public bool IsRefreshDataFailed
-        {
-            get => this.isRefreshDataFailed;
-
-            set => this.isRefreshDataFailed = value;
-        }
+        public bool IsRefreshDataFailed { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsDataCreatedInStartUp.
         /// </summary>
-        public bool IsDataCreatedInStartUp
-        {
-            get => this.isDataCreatedOnStartUp;
-
-            set => this.isDataCreatedOnStartUp = value;
-        }
+        public bool IsDataCreatedInStartUp { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsRefreshedLastDataChangesOnly.
         /// </summary>
-        public bool IsRefreshedLastDataChangesOnly
-        {
-            get => this.isRefreshedLastDataChangesOnly;
-
-            set => this.isRefreshedLastDataChangesOnly = value;
-        }
+        public bool IsRefreshedLastDataChangesOnly { get; set; }
 
         /// <summary>
         /// Gets or sets the RefreshedDataLast.
@@ -135,32 +58,17 @@ namespace dMobile.Bedrock
         /// <summary>
         /// Gets or sets a value indicating whether PurchaseOrderWorkSheet.
         /// </summary>
-        public bool PurchaseOrderWorkSheet
-        {
-            get => this.purchaseOrderWorkSheet;
-
-            set => this.purchaseOrderWorkSheet = value;
-        }
+        public bool PurchaseOrderWorkSheet { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether Transfers.
         /// </summary>
-        public bool Transfers
-        {
-            get => this.transfers;
-
-            set => this.transfers = value;
-        }
+        public bool Transfers { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether RefreshDataChangesOnly.
         /// </summary>
-        public bool RefreshDataChangesOnly
-        {
-            get => this.refreshDataChangesOnly;
-
-            set => this.refreshDataChangesOnly = value;
-        }
+        public bool RefreshDataChangesOnly { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether SystemData.
@@ -175,62 +83,32 @@ namespace dMobile.Bedrock
         /// <summary>
         /// Gets or sets a value indicating whether Adjustments.
         /// </summary>
-        public bool Adjustments
-        {
-            get => this.adjustments;
-
-            set => this.adjustments = value;
-        }
+        public bool Adjustments { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether PurchaseOrders.
         /// </summary>
-        public bool PurchaseOrders
-        {
-            get => this.purchaseOrders;
-
-            set => this.purchaseOrders = value;
-        }
+        public bool PurchaseOrders { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether SalesOrders.
         /// </summary>
-        public bool SalesOrders
-        {
-            get => this.salesOrders;
-
-            set => this.salesOrders = value;
-        }
+        public bool SalesOrders { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether ProductionTickets.
         /// </summary>
-        public bool ProductionTickets
-        {
-            get => this.productionTickets;
-
-            set => this.productionTickets = value;
-        }
+        public bool ProductionTickets { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether Replenishment.
         /// </summary>
-        public bool Replenishment
-        {
-            get => this.replenishment;
-
-            set => this.replenishment = value;
-        }
+        public bool Replenishment { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether Counts.
         /// </summary>
-        public bool Counts
-        {
-            get => this.counts;
-
-            set => this.counts = value;
-        }
+        public bool Counts { get; set; }
 
         /// <summary>
         /// The LoadData.
@@ -251,12 +129,11 @@ namespace dMobile.Bedrock
             }
 
             // Create a FileStream to read with.
-            using (var reader = new FileStream(fullPathToMyFile, FileMode.Open))
-            {
-                // Deserialize the stream to the object, and close the TextReader
-                refreshDataOptions = (RefreshDataOptions)serializer.Deserialize(reader);
-                reader.Close();
-            }
+            using var reader = new FileStream(fullPathToMyFile, FileMode.Open);
+
+            // Deserialize the stream to the object, and close the TextReader
+            refreshDataOptions = (RefreshDataOptions)serializer.Deserialize(reader);
+            reader.Close();
 
             return refreshDataOptions;
         }
@@ -265,7 +142,7 @@ namespace dMobile.Bedrock
         /// The SaveData.
         /// </summary>
         /// <param name="options">.</param>
-        /// <returns>.</returns>
+        /// <returns>True if save successful else false.</returns>
         public bool SaveData(ref RefreshDataOptions options)
         {
             var serializer = new XmlSerializer(typeof(RefreshDataOptions));

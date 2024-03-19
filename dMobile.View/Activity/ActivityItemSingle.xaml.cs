@@ -747,7 +747,7 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// The GetXML.
+        /// The GetXml.
         /// </summary>
         /// <returns>.</returns>
         public async Task<XDocument> GetXml()
@@ -836,7 +836,7 @@ namespace dMobile.View.Activity
                         + await SysCommon.GetRequestDefaults(false)
                         + "<command>"
                         + "<action>SUBMIT PRINT ALL SKID LABELS</action>"
-                        + "<whs_id>" + this.LocMap.CurrLocMap.WhsFKRefno + "</whs_id>"
+                        + "<whs_id>" + this.LocMap.CurrLocMap.WhsFkRefno + "</whs_id>"
                         + "<fk_refno>" + this.ActHdr.HdrFkRefno + "</fk_refno>"
                         + "<fk_source>PO</fk_source>"
                         + "</command>"
@@ -939,8 +939,8 @@ namespace dMobile.View.Activity
                                 throw new MessageOnlyException(
                                     string.Format(
                                     "Scanned product code \'{0}\' does not match the currently selected one \'{1}\'",
-                                    arg0: ProductInfoTasks.GetCurrReadableProdBCUnit(tempProdInfo),
-                                    arg1: ProductInfoTasks.GetCurrReadableProdBCUnit(this.ActItem.ProdInfo)));
+                                    arg0: ProductInfoTasks.GetCurrReadableProdBcUnit(tempProdInfo),
+                                    arg1: ProductInfoTasks.GetCurrReadableProdBcUnit(this.ActItem.ProdInfo)));
                             }
                         }
 
@@ -966,7 +966,7 @@ namespace dMobile.View.Activity
                                 {
                                     msg =
                                         $"A line item does not exist for this warehouse {this.LocMap.CurrLocMap.WhsCode}" +
-                                        $" and product \'{ProductInfoTasks.GetCurrReadableProdBCUnit(tempProdInfo)}.\'" +
+                                        $" and product \'{ProductInfoTasks.GetCurrReadableProdBcUnit(tempProdInfo)}.\'" +
                                         $"{Environment.NewLine}Do you wish to create one?";
                                     if (await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(
                                             this.GetControlDescription(),
@@ -984,7 +984,7 @@ namespace dMobile.View.Activity
 
                                 if (isAddNewItem)
                                 {
-                                    await this.ActItem.Insert(ProductInfoTasks.GetXML(tempProdInfo));
+                                    await this.ActItem.Insert(ProductInfoTasks.GetXml(tempProdInfo));
 
                                     // This is a little dangerous we assume that the new row idx will be the last one.
                                     foundSelectedActivityItem = this.ActItem.ListItems.Last();
@@ -1131,7 +1131,7 @@ namespace dMobile.View.Activity
                             if (this.ActItem.IsAllowAddItem)
                             {
                                 await this.ActItem.Insert(
-                                    ProductInfoTasks.GetXML(this.ActHdr.SkidInfo.CurrSkid.ProdInfo));
+                                    ProductInfoTasks.GetXml(this.ActHdr.SkidInfo.CurrSkid.ProdInfo));
 
                                 // This is a little dangerous we assume that the new row idx will be the last one
                                 foundSelectedActivityItem = this.ActItem.ListItems.Last();
@@ -1254,12 +1254,12 @@ namespace dMobile.View.Activity
                         var actDetail = ActDetailFacade.GetActDetail(this.ActItem, this.ActSubType);
                         actDetail.ActItem = this.ActItem;
 
-                        var scheme = ProductInfoTasks.GetActSchemeIDFromSProdSchemeData(
+                        var scheme = ProductInfoTasks.GetActSchemeIdFromSProdSchemeData(
                             this.ActItem.ProdInfo.Code,
                             this.ActItem.ProdInfo.Scheme,
                             actDetail.SchemeData);
 
-                        var unqScheme = ProductInfoTasks.GetUniqueSchemeIDFromSProdSchemeData(
+                        var unqScheme = ProductInfoTasks.GetUniqueSchemeIdFromSProdSchemeData(
                             this.ActItem.ProdInfo.Code,
                             this.ActItem.ProdInfo.Scheme,
                             actDetail.SchemeData);
@@ -1557,7 +1557,7 @@ namespace dMobile.View.Activity
 
             _ = await Device.InvokeOnMainThreadAsync(() =>
                 this.lblProductBCUnit.Text =
-                    "Product: " + ProductInfoTasks.GetCurrReadableProdBCUnit(this.ActItem.ProdInfo));
+                    "Product: " + ProductInfoTasks.GetCurrReadableProdBcUnit(this.ActItem.ProdInfo));
 
             var selectedActivityItem = this.ActItem.SelectedItem as PickingItem;
 
@@ -1781,7 +1781,7 @@ namespace dMobile.View.Activity
                                     // The itm_refno elements is used to mark the ar_oeitm.slbl_prtd as true.
                                     // If itm_refno is zero then no line is updated as printed.
                                     ////adjLabel.Element("params").Element("whs_id").AddAfterSelf(
-                                    ////    new XElement("itm_refno", this.ActItem.FKRefno));
+                                    ////    new XElement("itm_refno", this.ActItem.FkRefno));
 
                                     // The itm_refno elements is used to mark the ar_oeitm.slbl_prtd as true.
                                     // If itm_refno is zero then no line is updated as printed.
@@ -1789,9 +1789,9 @@ namespace dMobile.View.Activity
                                         "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                                         + "<params>"
                                         + await SysCommon.GetRequestDefaults(false)
-                                        + "<whs_id>" + this.LocMap.CurrLocMap.WhsFKRefno + "</whs_id>"
+                                        + "<whs_id>" + this.LocMap.CurrLocMap.WhsFkRefno + "</whs_id>"
                                         + "<itm_refno>" + this.ActItem.ItemFkRefno + "</itm_refno>"
-                                        + "<sect_refno>" + this.LocMap.CurrLocMap.SectFKRefno + "</sect_refno>"
+                                        + "<sect_refno>" + this.LocMap.CurrLocMap.SectFkRefno + "</sect_refno>"
                                         + "<full_alt_qty>" + labelQuantity.FullQuantity + "</full_alt_qty>"
                                         + "<repack_alt_qty>0</repack_alt_qty>"
                                         + "<fresh_alt_qty>" + labelQuantity.FreshQuantity + "</fresh_alt_qty>"
@@ -1819,9 +1819,9 @@ namespace dMobile.View.Activity
                                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                                 + "<params>"
                                 + await SysCommon.GetRequestDefaults(false)
-                                + "<whs_id>" + this.LocMap.CurrLocMap.WhsFKRefno + "</whs_id>"
+                                + "<whs_id>" + this.LocMap.CurrLocMap.WhsFkRefno + "</whs_id>"
                                 + "<itm_refno>" + this.ActItem.ItemFkRefno + "</itm_refno>"
-                                + "<sect_refno>" + this.LocMap.CurrLocMap.SectFKRefno + "</sect_refno>"
+                                + "<sect_refno>" + this.LocMap.CurrLocMap.SectFkRefno + "</sect_refno>"
                                 + "<full_alt_qty>" + labelQuantity.FullQuantity + "</full_alt_qty>"
                                 + "<repack_alt_qty>0</repack_alt_qty>"
                                 + "<fresh_alt_qty>" + labelQuantity.FreshQuantity + "</fresh_alt_qty>"
@@ -2460,7 +2460,7 @@ namespace dMobile.View.Activity
                         {
                             if (this.ActItem.IsAllowAddItem)
                             {
-                                await this.ActItem.Insert(ProductInfoTasks.GetXML(this.ActHdr.SkidInfo.CurrSkid.ProdInfo));
+                                await this.ActItem.Insert(ProductInfoTasks.GetXml(this.ActHdr.SkidInfo.CurrSkid.ProdInfo));
 
                                 // This is a little dangerous we assume that the new row idx
                                 // will be the last one
@@ -2487,12 +2487,12 @@ namespace dMobile.View.Activity
                         var actDetail = ActDetailFacade.GetActDetail(this.ActItem, this.ActSubType);
                         actDetail.ActItem = this.ActItem;
 
-                        var scheme = ProductInfoTasks.GetActSchemeIDFromSProdSchemeData(
+                        var scheme = ProductInfoTasks.GetActSchemeIdFromSProdSchemeData(
                             this.ActItem.ProdInfo.Code,
                             this.ActItem.ProdInfo.Scheme,
                             actDetail.SchemeData);
 
-                        var unqScheme = ProductInfoTasks.GetUniqueSchemeIDFromSProdSchemeData(
+                        var unqScheme = ProductInfoTasks.GetUniqueSchemeIdFromSProdSchemeData(
                             this.ActItem.ProdInfo.Code,
                             this.ActItem.ProdInfo.Scheme,
                             actDetail.SchemeData);

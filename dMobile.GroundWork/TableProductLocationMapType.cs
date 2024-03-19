@@ -43,7 +43,7 @@ namespace dMobile.GroundWork
                 var responseData = string.Empty;
 
                 var resultsLocationMapWarehouse = await DatabaseConnection.GetInstance().
-                    SQLConn.QueryAsync<tLocationMapWarehouseModel>("SELECT * FROM tLocationMapWarehouse");
+                    SqlConn.QueryAsync<tLocationMapWarehouseModel>("SELECT * FROM tLocationMapWarehouse");
 
                 if (resultsLocationMapWarehouse?.Count > 0)
                 {
@@ -96,7 +96,7 @@ namespace dMobile.GroundWork
             int rowsAffected;
             try
             {
-                rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tProductLocationMapType"));
+                rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SqlConn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tProductLocationMapType"));
 
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"{rowsAffected} product locations.", true);
             }
@@ -122,7 +122,7 @@ namespace dMobile.GroundWork
             {
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging product locations.", true);
 
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("DELETE FROM tProductLocationMapType");
+                await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync("DELETE FROM tProductLocationMapType");
             }
             catch (SQLiteException ex)
             {
@@ -150,7 +150,7 @@ namespace dMobile.GroundWork
             var currProdLocMapRefno = 0;
             var errMsg = string.Empty;
 
-            await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
+            await DatabaseConnection.GetInstance().SqlConn.RunInTransactionAsync(transaction =>
             {
                 try
                 {
@@ -366,7 +366,7 @@ namespace dMobile.GroundWork
         {
             var errMsg = string.Empty;
 
-            await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
+            await DatabaseConnection.GetInstance().SqlConn.RunInTransactionAsync(transaction =>
             {
                 try
                 {

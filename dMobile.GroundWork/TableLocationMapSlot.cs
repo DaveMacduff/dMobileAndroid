@@ -43,7 +43,7 @@ namespace dMobile.GroundWork
 
                 if (whsLocMapRefno > 0)
                 {
-                    var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tLocationMapWarehouseModel>("SELECT * FROM tLocationMapWarehouse WHERE LocationMapRefno = ?", whsLocMapRefno);
+                    var results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<tLocationMapWarehouseModel>("SELECT * FROM tLocationMapWarehouse WHERE LocationMapRefno = ?", whsLocMapRefno);
 
                     if (results?.Count > 0)
                     {
@@ -87,11 +87,11 @@ namespace dMobile.GroundWork
 
                 if (sectRefno == 0)
                 {
-                    await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("DELETE FROM tLocationMapSlot");
+                    await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync("DELETE FROM tLocationMapSlot");
                 }
                 else
                 {
-                    await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("DELETE FROM tLocationMapSlot WHERE SectionLocationMapRefno = ?", sectRefno);
+                    await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync("DELETE FROM tLocationMapSlot WHERE SectionLocationMapRefno = ?", sectRefno);
                 }
 
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging slots complete.", true);
@@ -114,7 +114,7 @@ namespace dMobile.GroundWork
             int rowsAffected;
             try
             {
-                rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tLocationMapSlot"));
+                rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SqlConn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tLocationMapSlot"));
 
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"{rowsAffected} slots.", false);
             }
@@ -154,7 +154,7 @@ namespace dMobile.GroundWork
             var errMsg = string.Empty;
             var recordCount = 0;
 
-            await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
+            await DatabaseConnection.GetInstance().SqlConn.RunInTransactionAsync(transaction =>
             {
                 try
                 {

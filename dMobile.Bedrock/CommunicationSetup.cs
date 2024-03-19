@@ -30,10 +30,10 @@ namespace dMobile.Bedrock
         private string filePath = string.Empty;
 
         /// <summary>
-        /// Defines the fileASCIIZ.
+        /// Defines the file ASCIIZ.
         /// </summary>
         [NonSerialized]
-        private string fileASCIIZ = string.Empty;
+        private string fileAsciiz = string.Empty;
 
         /// <summary>
         /// Defines the fileName.
@@ -44,22 +44,22 @@ namespace dMobile.Bedrock
         /// <summary>
         /// Defines the hostIPAddressComponent1.
         /// </summary>
-        private int hostIPAddressComponent1 = 127;
+        private int hostIpAddressComponent1 = 127;
 
         /// <summary>
         /// Defines the hostIPAddressComponent2.
         /// </summary>
-        private int hostIPAddressComponent2 = 0;
+        private int hostIpAddressComponent2;
 
         /// <summary>
         /// Defines the hostIPAddressComponent3.
         /// </summary>
-        private int hostIPAddressComponent3 = 0;
+        private int hostIpAddressComponent3;
 
         /// <summary>
         /// Defines the hostIPAddressComponent4.
         /// </summary>
-        private int hostIPAddressComponent4 = 1;
+        private int hostIpAddressComponent4 = 1;
 
         /// <summary>
         /// Defines the baseSocketPort.
@@ -82,12 +82,12 @@ namespace dMobile.Bedrock
         private int connectionAttempts = 1;
 
         /// <summary>
-        /// Seconds to wait for a send request..
+        /// Seconds to wait for a send request.
         /// </summary>
         private int sendTimeOutSeconds = 60;
 
         /// <summary>
-        /// Number of times to attempt a send..
+        /// Number of times to attempt to send.
         /// </summary>
         private int sendAttempts = 4;
 
@@ -97,7 +97,7 @@ namespace dMobile.Bedrock
         private int receiveAttempts = 1;
 
         /// <summary>
-        /// Seconds to wait for a receive request..
+        /// Seconds to wait for a received response.
         /// </summary>
         private int receiveTimeOutSeconds = 99;
 
@@ -113,7 +113,7 @@ namespace dMobile.Bedrock
         {
             // this.strFilePath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetName().CodeBase) + "\\";
             this.FilePath = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
-            this.FileASCIIZ = Path.Combine(this.FilePath, this.FileName);
+            this.FileAsciiz = Path.Combine(this.FilePath, this.FileName);
         }
 
         /// <summary>
@@ -139,11 +139,11 @@ namespace dMobile.Bedrock
         /// <summary>
         /// Gets or sets the strFileASCIIZ.
         /// </summary>
-        public string FileASCIIZ
+        public string FileAsciiz
         {
-            get => this.fileASCIIZ;
+            get => this.fileAsciiz;
 
-            set => this.fileASCIIZ = value;
+            set => this.fileAsciiz = value;
         }
 
         /// <summary>
@@ -159,41 +159,41 @@ namespace dMobile.Bedrock
         /// <summary>
         /// Gets or sets the iHostIPAddressComponent1.
         /// </summary>
-        public int HostIPAddressComponent1
+        public int HostIpAddressComponent1
         {
-            get => this.hostIPAddressComponent1;
+            get => this.hostIpAddressComponent1;
 
-            set => this.hostIPAddressComponent1 = value;
+            set => this.hostIpAddressComponent1 = value;
         }
 
         /// <summary>
         /// Gets or sets the iHostIPAddressComponent2.
         /// </summary>
-        public int HostIPAddressComponent2
+        public int HostIpAddressComponent2
         {
-            get => this.hostIPAddressComponent2;
+            get => this.hostIpAddressComponent2;
 
-            set => this.hostIPAddressComponent2 = value;
+            set => this.hostIpAddressComponent2 = value;
         }
 
         /// <summary>
         /// Gets or sets the iHostIPAddressComponent3.
         /// </summary>
-        public int HostIPAddressComponent3
+        public int HostIpAddressComponent3
         {
-            get => this.hostIPAddressComponent3;
+            get => this.hostIpAddressComponent3;
 
-            set => this.hostIPAddressComponent3 = value;
+            set => this.hostIpAddressComponent3 = value;
         }
 
         /// <summary>
         /// Gets or sets the iHostIPAddressComponent4.
         /// </summary>
-        public int HostIPAddressComponent4
+        public int HostIpAddressComponent4
         {
-            get => this.hostIPAddressComponent4;
+            get => this.hostIpAddressComponent4;
 
-            set => this.hostIPAddressComponent4 = value;
+            set => this.hostIpAddressComponent4 = value;
         }
 
         /// <summary>
@@ -287,14 +287,14 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// The CreateXMLSubmitDeviceID.
+        /// Create an xml submit device id string.
         /// </summary>
         /// <returns>.</returns>
-        public static string CreateXMLSubmitDeviceID()
+        public static string CreateXmlSubmitDeviceId()
         {
             var xmlString = new StringBuilder();
             var xml = XmlWriter.Create(xmlString);
-            var deviceID = SysDeviceID.GetDeviceID();
+            var deviceId = SysDeviceID.GetDeviceID();
 
             var request = new XDocument(
                 new XDeclaration("1.0", "utf-8", "yes"),
@@ -304,7 +304,7 @@ namespace dMobile.Bedrock
                     new XElement(
                         "command",
                         new XElement("action", "SUBMIT DEVICE ID"),
-                        new XElement("device_id", deviceID))));
+                        new XElement("device_id", deviceId))));
 
             request.Save(xml);
             xml.Flush();
@@ -314,7 +314,7 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// The LoadData.
+        /// Load the communication setup data.
         /// </summary>
         /// <returns>.</returns>
         public CommunicationSetup LoadData()
@@ -345,7 +345,7 @@ namespace dMobile.Bedrock
         /// The SaveData.
         /// </summary>
         /// <param name="commSetup">.</param>
-        /// <returns>.</returns>
+        /// <returns>True if the save was successful, else false.</returns>
         public bool SaveData(ref CommunicationSetup commSetup)
         {
             var serializer = new XmlSerializer(typeof(CommunicationSetup));

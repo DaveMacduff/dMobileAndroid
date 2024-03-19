@@ -119,7 +119,7 @@ namespace dMobile.GroundWork
             int rowsAffected;
             try
             {
-                rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tRoute"));
+                rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SqlConn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tRoute"));
 
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"{rowsAffected} routes.", true);
             }
@@ -140,7 +140,7 @@ namespace dMobile.GroundWork
             {
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging routes.", true);
 
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("DELETE FROM tRoute");
+                await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync("DELETE FROM tRoute");
 
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging routes complete.", true);
             }
@@ -161,7 +161,7 @@ namespace dMobile.GroundWork
         {
             var errMsg = string.Empty;
 
-            await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
+            await DatabaseConnection.GetInstance().SqlConn.RunInTransactionAsync(transaction =>
             {
                 try
                 {

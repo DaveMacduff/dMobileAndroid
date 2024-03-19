@@ -6,14 +6,45 @@ namespace dMobile.Bedrock
 {
     using System;
     using System.Collections.Generic;
-    using System.Text;
-    using System.Threading.Tasks;
     using System.Threading;
+    using System.Threading.Tasks;
 
+    /// <summary>
+    ///     Helper class to run async methods synchronously.
+    /// </summary>
     public static class AsyncHelpers
     {
         /// <summary>
-        /// Synchronously execute's an async Task method which has a void return value.
+        /// Fire and forget error handler interface.
+        /// </summary>
+        public interface IFireAndForgetErrorHandler
+        {
+            /// <summary>
+            /// Handle error.
+            /// </summary>
+            /// <param name="ex"><see cref="Exception"/> Exception.</param>
+            void FireAndForgetHandleError(Exception ex);
+        }
+
+        /// <summary>
+        /// Force asynchronous task to run synchronously.
+        /// </summary>
+        /// <param name="task"><see cref="Task"/> Task to run synchronously.</param>
+        /// <param name="handler"><see cref="IFireAndForgetErrorHandler"/> Error handler for task.</param>
+        public static async void FireAndForgetSafeAsync(this Task task, IFireAndForgetErrorHandler handler = null)
+        {
+            try
+            {
+                await task;
+            }
+            catch (Exception ex)
+            {
+                handler?.FireAndForgetHandleError(ex);
+            }
+        }
+
+        /// <summary>
+        /// Synchronously executes an async Task method which has a void return value.
         /// </summary>
         /// <param name="task">The Task method to execute.</param>
         public static void RunSync(Func<Task> task)
@@ -21,8 +52,14 @@ namespace dMobile.Bedrock
             var oldContext = SynchronizationContext.Current;
             var syncContext = new ExclusiveSynchronizationContext();
             SynchronizationContext.SetSynchronizationContext(syncContext);
-            
-            syncContext.Post(async _ =>
+
+            syncContext.Post(SendOrPostCallback, null);
+            syncContext.BeginMessageLoop();
+            SynchronizationContext.SetSynchronizationContext(oldContext);
+            return;
+
+            //////////////////////////////////////////////////////////////////////////
+            async void SendOrPostCallback(object state)
             {
                 try
                 {
@@ -37,27 +74,29 @@ namespace dMobile.Bedrock
                 {
                     syncContext.EndMessageLoop();
                 }
-            }, null);
-            
-            syncContext.BeginMessageLoop();
-
-            SynchronizationContext.SetSynchronizationContext(oldContext);
+            }
         }
 
         /// <summary>
-        /// Synchronously execute's an async Task<T> method which has a T return type.
+        /// Synchronously executes an async Task method which has a T return type.
         /// </summary>
-        /// <typeparam name="T">Return Type</typeparam>
-        /// <param name="task">The Task<T> method to execute.</param>
-        /// <returns>The result of awaiting the given Task<T>.</returns>
+        /// <typeparam name="T">Return Type.</typeparam>
+        /// <param name="task">The Task method to execute.</param>
+        /// <returns>The result of awaiting the given Task.</returns>
         public static T RunSync<T>(Func<Task<T>> task)
         {
             var oldContext = SynchronizationContext.Current;
             var syncContext = new ExclusiveSynchronizationContext();
             SynchronizationContext.SetSynchronizationContext(syncContext);
+
             T result = default;
-            
-            syncContext.Post(async _ =>
+            syncContext.Post(SendOrPostCallback, null);
+            syncContext.BeginMessageLoop();
+            SynchronizationContext.SetSynchronizationContext(oldContext);
+            return result;
+
+            //////////////////////////////////////////////////////////////////////////
+            async void SendOrPostCallback(object status)
             {
                 try
                 {
@@ -72,22 +111,15 @@ namespace dMobile.Bedrock
                 {
                     syncContext.EndMessageLoop();
                 }
-            }, null);
-            
-            syncContext.BeginMessageLoop();
-            
-            SynchronizationContext.SetSynchronizationContext(oldContext);
-            
-            return result;
+            }
         }
 
         private class ExclusiveSynchronizationContext : SynchronizationContext
         {
             private readonly AutoResetEvent workItemsWaiting = new AutoResetEvent(false);
-            private readonly Queue<Tuple<SendOrPostCallback, object>> items =
-                new Queue<Tuple<SendOrPostCallback, object>>();
+            private readonly Queue<Tuple<SendOrPostCallback, object>> items = new Queue<Tuple<SendOrPostCallback, object>>();
             private bool done;
-            
+
             public Exception InnerException { get; set; }
 
             public override void Send(SendOrPostCallback d, object state)
@@ -101,7 +133,7 @@ namespace dMobile.Bedrock
                 {
                     items.Enqueue(Tuple.Create(d, state));
                 }
-                
+
                 workItemsWaiting.Set();
             }
 
@@ -122,11 +154,11 @@ namespace dMobile.Bedrock
                             task = items.Dequeue();
                         }
                     }
-                    
+
                     if (task != null)
                     {
                         task.Item1(task.Item2);
-                        if (InnerException != null) // the method threw an exeption
+                        if (InnerException != null) // the method threw an exception
                         {
                             throw new AggregateException("AsyncHelpers.Run method threw an exception.", InnerException);
                         }

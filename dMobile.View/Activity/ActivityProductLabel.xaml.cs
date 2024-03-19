@@ -381,7 +381,7 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        ///     The GetXML.
+        ///     The GetXml.
         /// </summary>
         /// <returns>.</returns>
         public async Task<XDocument> GetXml()
@@ -524,7 +524,7 @@ namespace dMobile.View.Activity
                 var prodInfo = this.ActDetail.ActItem.ProdInfo;
                 var scheme = prodInfo.Scheme;
 
-                this.cmdSelectProduct.Text = ProductInfoTasks.GetCurrReadableProdBCUnit(prodInfo);
+                this.cmdSelectProduct.Text = ProductInfoTasks.GetCurrReadableProdBcUnit(prodInfo);
 
                 this.lblWtUnit.Text = prodInfo.WeightUnitCode;
 
@@ -918,12 +918,12 @@ namespace dMobile.View.Activity
 
             if (isRetVal)
             {
-                this.ActDetail.SchemeId = ProductInfoTasks.GetActSchemeIDFromSProdSchemeData(
+                this.ActDetail.SchemeId = ProductInfoTasks.GetActSchemeIdFromSProdSchemeData(
                     this.ActDetail.ActItem.ProdInfo.Code,
                     this.ActDetail.ActItem.ProdInfo.Scheme,
                     this.ActDetail.SchemeData);
 
-                this.ActDetail.UniqueSchemeId = ProductInfoTasks.GetUniqueSchemeIDFromSProdSchemeData(
+                this.ActDetail.UniqueSchemeId = ProductInfoTasks.GetUniqueSchemeIdFromSProdSchemeData(
                     this.ActDetail.ActItem.ProdInfo.Code,
                     this.ActDetail.ActItem.ProdInfo.Scheme,
                     this.ActDetail.SchemeData);
@@ -981,7 +981,7 @@ namespace dMobile.View.Activity
                         var prodInfo = await ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
                         this.ActDetail.ActItem.ProdInfo = prodInfo;
 
-                        this.cmdSelectProduct.Text = ProductInfoTasks.GetCurrReadableProdBCUnit(prodInfo);
+                        this.cmdSelectProduct.Text = ProductInfoTasks.GetCurrReadableProdBcUnit(prodInfo);
                     }
                 }
             }

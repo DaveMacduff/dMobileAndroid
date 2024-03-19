@@ -41,7 +41,7 @@ namespace dMobile.GroundWork
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} details.", true);
 
                 const string query = "DELETE FROM tActivityDetailProductSchemeVariantXRef";
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query);
+                await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync(query);
 
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} details complete.", true);
             }

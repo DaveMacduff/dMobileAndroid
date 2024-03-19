@@ -749,9 +749,9 @@ namespace dMobile.View.Options
 
                 this.StatusOut(Resource.LocatingDatabase);
 
-                if (File.Exists(DatabaseConnection.GetInstance().DBASCIIZ))
+                if (File.Exists(DatabaseConnection.GetInstance().DatabaseFullPath))
                 {
-                    this.StatusOut(Resource.Found + DatabaseConnection.GetInstance().DBASCIIZ);
+                    this.StatusOut(Resource.Found + DatabaseConnection.GetInstance().DatabaseFullPath);
 
                     if (this.SysEnv.RefreshOpt.IsDataCreatedInStartUp)
                     {

@@ -312,12 +312,12 @@ namespace dMobile.View.Activity
         public async Task<XDocument> GetXml()
 #pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
         {
-            var unqScheme = ProductInfoTasks.GetUniqueSchemeIDFromSProdSchemeData(
+            var unqScheme = ProductInfoTasks.GetUniqueSchemeIdFromSProdSchemeData(
                 this.ActDetail.ActItem.ProdInfo.Code,
                 this.ActDetail.ActItem.ProdInfo.Scheme,
                 this.ActDetail.SchemeData);
 
-            var scheme = ProductInfoTasks.GetActSchemeIDFromSProdSchemeData(
+            var scheme = ProductInfoTasks.GetActSchemeIdFromSProdSchemeData(
                 this.ActDetail.ActItem.ProdInfo.Code,
                 this.ActDetail.ActItem.ProdInfo.Scheme,
                 this.ActDetail.SchemeData);

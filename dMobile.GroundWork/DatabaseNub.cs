@@ -51,7 +51,7 @@ namespace dMobile.GroundWork
         /// <remarks>Password is 'dMobile'.</remarks>
         public async Task CreateNewDatabase()
         {
-            var dbASCIIZ = Path.Combine(this.DBConn.DBPath, this.DBConn.DBName);
+            var dbASCIIZ = Path.Combine(this.DBConn.DatabasePath, this.DBConn.DatabaseName);
 
             await DatabaseConnection.Close();
             DatabaseConnection.Dispose();
@@ -221,7 +221,7 @@ namespace dMobile.GroundWork
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
 
-            await DatabaseConnection.GetInstance().SQLConn.CreateTableAsync<ActivityModel>();
+            await DatabaseConnection.GetInstance().SqlConn.CreateTableAsync<ActivityModel>();
         }
 
         /// <summary>
@@ -236,7 +236,7 @@ namespace dMobile.GroundWork
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
 
-            await DatabaseConnection.GetInstance().SQLConn.CreateTableAsync<tActivityDetailProductSchemeVariantXRefModel>();
+            await DatabaseConnection.GetInstance().SqlConn.CreateTableAsync<tActivityDetailProductSchemeVariantXRefModel>();
         }
 
         /// <summary>
@@ -251,7 +251,7 @@ namespace dMobile.GroundWork
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
 
-            await DatabaseConnection.GetInstance().SQLConn.CreateTableAsync<tActivityItemModel>();
+            await DatabaseConnection.GetInstance().SqlConn.CreateTableAsync<tActivityItemModel>();
         }
 
         /// <summary>
@@ -266,7 +266,7 @@ namespace dMobile.GroundWork
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
 
-            await DatabaseConnection.GetInstance().SQLConn.CreateTableAsync<tActivityDetailModel>();
+            await DatabaseConnection.GetInstance().SqlConn.CreateTableAsync<tActivityDetailModel>();
         }
 
         /// <summary>
@@ -281,7 +281,7 @@ namespace dMobile.GroundWork
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
 
-            await DatabaseConnection.GetInstance().SQLConn.CreateTableAsync<tActivityDetailExtraModel>();
+            await DatabaseConnection.GetInstance().SqlConn.CreateTableAsync<tActivityDetailExtraModel>();
         }
 
         /// <summary>
@@ -296,7 +296,7 @@ namespace dMobile.GroundWork
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
 
-            await DatabaseConnection.GetInstance().SQLConn.CreateTableAsync<ActivityCountModel>();
+            await DatabaseConnection.GetInstance().SqlConn.CreateTableAsync<ActivityCountModel>();
         }
 
         /// <summary>
@@ -311,7 +311,7 @@ namespace dMobile.GroundWork
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
 
-            await DatabaseConnection.GetInstance().SQLConn.CreateTableAsync<tActivityPickingModel>();
+            await DatabaseConnection.GetInstance().SqlConn.CreateTableAsync<tActivityPickingModel>();
         }
 
         /// <summary>
@@ -326,7 +326,7 @@ namespace dMobile.GroundWork
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
 
-            await DatabaseConnection.GetInstance().SQLConn.CreateTableAsync<tActivityReturnsModel>();
+            await DatabaseConnection.GetInstance().SqlConn.CreateTableAsync<tActivityReturnsModel>();
         }
 
         /// <summary>
@@ -341,7 +341,7 @@ namespace dMobile.GroundWork
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
 
-            await DatabaseConnection.GetInstance().SQLConn.CreateTableAsync<tActivityPickingRouteModel>();
+            await DatabaseConnection.GetInstance().SqlConn.CreateTableAsync<tActivityPickingRouteModel>();
         }
 
         /// <summary>
@@ -356,7 +356,7 @@ namespace dMobile.GroundWork
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
 
-            await DatabaseConnection.GetInstance().SQLConn.CreateTableAsync<tActivityReceivingModel>();
+            await DatabaseConnection.GetInstance().SqlConn.CreateTableAsync<tActivityReceivingModel>();
         }
 
         /// <summary>
@@ -371,7 +371,7 @@ namespace dMobile.GroundWork
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
 
-            await DatabaseConnection.GetInstance().SQLConn.CreateTableAsync<tActivityReplenishmentModel>();
+            await DatabaseConnection.GetInstance().SqlConn.CreateTableAsync<tActivityReplenishmentModel>();
         }
 
         /// <summary>
@@ -386,7 +386,7 @@ namespace dMobile.GroundWork
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
 
-            await DatabaseConnection.GetInstance().SQLConn.CreateTableAsync<tActivityTransferModel>();
+            await DatabaseConnection.GetInstance().SqlConn.CreateTableAsync<tActivityTransferModel>();
         }
 
         /// <summary>
@@ -401,7 +401,7 @@ namespace dMobile.GroundWork
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
 
-            await DatabaseConnection.GetInstance().SQLConn.CreateTableAsync<tActivityItemCountModel>();
+            await DatabaseConnection.GetInstance().SqlConn.CreateTableAsync<tActivityItemCountModel>();
         }
 
         /// <summary>
@@ -416,7 +416,7 @@ namespace dMobile.GroundWork
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
 
-            await DatabaseConnection.GetInstance().SQLConn.CreateTableAsync<tActivityItemPickingModel>();
+            await DatabaseConnection.GetInstance().SqlConn.CreateTableAsync<tActivityItemPickingModel>();
         }
 
         /// <summary>
@@ -431,7 +431,7 @@ namespace dMobile.GroundWork
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
 
-            await DatabaseConnection.GetInstance().SQLConn.CreateTableAsync<tActivityItemReturnsModel>();
+            await DatabaseConnection.GetInstance().SqlConn.CreateTableAsync<tActivityItemReturnsModel>();
         }
 
         /// <summary>
@@ -446,7 +446,7 @@ namespace dMobile.GroundWork
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
 
-            await DatabaseConnection.GetInstance().SQLConn.CreateTableAsync<tActivityItemPickingCommentModel>();
+            await DatabaseConnection.GetInstance().SqlConn.CreateTableAsync<tActivityItemPickingCommentModel>();
         }
 
         /// <summary>
@@ -461,7 +461,7 @@ namespace dMobile.GroundWork
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
 
-            await DatabaseConnection.GetInstance().SQLConn.CreateTableAsync<tActivityItemReturnsCommentModel>();
+            await DatabaseConnection.GetInstance().SqlConn.CreateTableAsync<tActivityItemReturnsCommentModel>();
         }
 
         /// <summary>
@@ -476,7 +476,7 @@ namespace dMobile.GroundWork
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
 
-            await DatabaseConnection.GetInstance().SQLConn.CreateTableAsync<tActivityItemReceivingModel>();
+            await DatabaseConnection.GetInstance().SqlConn.CreateTableAsync<tActivityItemReceivingModel>();
         }
 
         /// <summary>
@@ -491,7 +491,7 @@ namespace dMobile.GroundWork
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
 
-            await DatabaseConnection.GetInstance().SQLConn.CreateTableAsync<tActivityItemReplenishmentModel>();
+            await DatabaseConnection.GetInstance().SqlConn.CreateTableAsync<tActivityItemReplenishmentModel>();
         }
 
         /// <summary>
@@ -506,7 +506,7 @@ namespace dMobile.GroundWork
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
 
-            await DatabaseConnection.GetInstance().SQLConn.CreateTableAsync<tActivityItemPurchaseOrderWorkSheetModel>();
+            await DatabaseConnection.GetInstance().SqlConn.CreateTableAsync<tActivityItemPurchaseOrderWorkSheetModel>();
         }
 
         /// <summary>
@@ -521,7 +521,7 @@ namespace dMobile.GroundWork
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
 
-            await DatabaseConnection.GetInstance().SQLConn.CreateTableAsync<tActivityItemReceivingCommentModel>();
+            await DatabaseConnection.GetInstance().SqlConn.CreateTableAsync<tActivityItemReceivingCommentModel>();
         }
 
         /// <summary>
@@ -536,7 +536,7 @@ namespace dMobile.GroundWork
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
 
-            await DatabaseConnection.GetInstance().SQLConn.CreateTableAsync<tActivityItemTransferModel>();
+            await DatabaseConnection.GetInstance().SqlConn.CreateTableAsync<tActivityItemTransferModel>();
         }
 
         /// <summary>
@@ -551,7 +551,7 @@ namespace dMobile.GroundWork
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
 
-            await DatabaseConnection.GetInstance().SQLConn.CreateTableAsync<tActivityItemBarCodeAssociationXRefModel>();
+            await DatabaseConnection.GetInstance().SqlConn.CreateTableAsync<tActivityItemBarCodeAssociationXRefModel>();
         }
 
         /// <summary>
@@ -566,7 +566,7 @@ namespace dMobile.GroundWork
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
 
-            await DatabaseConnection.GetInstance().SQLConn.CreateTableAsync<ActivityDetailCountModel>();
+            await DatabaseConnection.GetInstance().SqlConn.CreateTableAsync<ActivityDetailCountModel>();
         }
 
         /// <summary>
@@ -581,7 +581,7 @@ namespace dMobile.GroundWork
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
 
-            await DatabaseConnection.GetInstance().SQLConn.CreateTableAsync<tActivityDetailPickingModel>();
+            await DatabaseConnection.GetInstance().SqlConn.CreateTableAsync<tActivityDetailPickingModel>();
         }
 
         /// <summary>
@@ -596,7 +596,7 @@ namespace dMobile.GroundWork
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
 
-            await DatabaseConnection.GetInstance().SQLConn.CreateTableAsync<tActivityDetailReturnsModel>();
+            await DatabaseConnection.GetInstance().SqlConn.CreateTableAsync<tActivityDetailReturnsModel>();
         }
 
         /// <summary>
@@ -611,7 +611,7 @@ namespace dMobile.GroundWork
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
 
-            await DatabaseConnection.GetInstance().SQLConn.CreateTableAsync<tActivityDetailReceivingModel>();
+            await DatabaseConnection.GetInstance().SqlConn.CreateTableAsync<tActivityDetailReceivingModel>();
         }
 
         /// <summary>
@@ -626,7 +626,7 @@ namespace dMobile.GroundWork
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
 
-            await DatabaseConnection.GetInstance().SQLConn.CreateTableAsync<tActivityDetailReplenishmentModel>();
+            await DatabaseConnection.GetInstance().SqlConn.CreateTableAsync<tActivityDetailReplenishmentModel>();
         }
 
         /// <summary>
@@ -641,7 +641,7 @@ namespace dMobile.GroundWork
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
 
-            await DatabaseConnection.GetInstance().SQLConn.CreateTableAsync<tActivityDetailTransferModel>();
+            await DatabaseConnection.GetInstance().SqlConn.CreateTableAsync<tActivityDetailTransferModel>();
         }
 
         /// <summary>
@@ -656,7 +656,7 @@ namespace dMobile.GroundWork
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
 
-            await DatabaseConnection.GetInstance().SQLConn.CreateTableAsync<tUnitModel>();
+            await DatabaseConnection.GetInstance().SqlConn.CreateTableAsync<tUnitModel>();
         }
 
         /// <summary>
@@ -671,7 +671,7 @@ namespace dMobile.GroundWork
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
 
-            await DatabaseConnection.GetInstance().SQLConn.CreateTableAsync<tRouteModel>();
+            await DatabaseConnection.GetInstance().SqlConn.CreateTableAsync<tRouteModel>();
         }
 
         /// <summary>
@@ -686,7 +686,7 @@ namespace dMobile.GroundWork
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
 
-            await DatabaseConnection.GetInstance().SQLConn.CreateTableAsync<tLocationMapModel>();
+            await DatabaseConnection.GetInstance().SqlConn.CreateTableAsync<tLocationMapModel>();
         }
 
         /// <summary>
@@ -700,7 +700,7 @@ namespace dMobile.GroundWork
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
 
-            await DatabaseConnection.GetInstance().SQLConn.CreateTableAsync<tLocationMapWarehouseProductSchemeModel>();
+            await DatabaseConnection.GetInstance().SqlConn.CreateTableAsync<tLocationMapWarehouseProductSchemeModel>();
         }
 
         /// <summary>
@@ -715,7 +715,7 @@ namespace dMobile.GroundWork
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
 
-            await DatabaseConnection.GetInstance().SQLConn.CreateTableAsync<tLocationMapWarehouseModel>();
+            await DatabaseConnection.GetInstance().SqlConn.CreateTableAsync<tLocationMapWarehouseModel>();
         }
 
         /// <summary>
@@ -730,7 +730,7 @@ namespace dMobile.GroundWork
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
 
-            await DatabaseConnection.GetInstance().SQLConn.CreateTableAsync<tLocationMapSectionModel>();
+            await DatabaseConnection.GetInstance().SqlConn.CreateTableAsync<tLocationMapSectionModel>();
         }
 
         /// <summary>
@@ -745,7 +745,7 @@ namespace dMobile.GroundWork
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
 
-            await DatabaseConnection.GetInstance().SQLConn.CreateTableAsync<tLocationMapSlotCoordinateModel>();
+            await DatabaseConnection.GetInstance().SqlConn.CreateTableAsync<tLocationMapSlotCoordinateModel>();
         }
 
         /// <summary>
@@ -760,7 +760,7 @@ namespace dMobile.GroundWork
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
 
-            await DatabaseConnection.GetInstance().SQLConn.CreateTableAsync<tLocationMapSlotModel>();
+            await DatabaseConnection.GetInstance().SqlConn.CreateTableAsync<tLocationMapSlotModel>();
         }
 
         /// <summary>
@@ -775,7 +775,7 @@ namespace dMobile.GroundWork
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
 
-            await DatabaseConnection.GetInstance().SQLConn.CreateTableAsync<tLocationMapTypeModel>();
+            await DatabaseConnection.GetInstance().SqlConn.CreateTableAsync<tLocationMapTypeModel>();
         }
 
         /// <summary>
@@ -790,7 +790,7 @@ namespace dMobile.GroundWork
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
 
-            await DatabaseConnection.GetInstance().SQLConn.CreateTableAsync<tProductSchemeVariantXRefModel>();
+            await DatabaseConnection.GetInstance().SqlConn.CreateTableAsync<tProductSchemeVariantXRefModel>();
         }
 
         /// <summary>
@@ -805,7 +805,7 @@ namespace dMobile.GroundWork
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
 
-            await DatabaseConnection.GetInstance().SQLConn.CreateTableAsync<tProductSchemeLotNumberXRefModel>();
+            await DatabaseConnection.GetInstance().SqlConn.CreateTableAsync<tProductSchemeLotNumberXRefModel>();
         }
 
         /// <summary>
@@ -820,7 +820,7 @@ namespace dMobile.GroundWork
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
 
-            await DatabaseConnection.GetInstance().SQLConn.CreateTableAsync<tProductSchemeModel>();
+            await DatabaseConnection.GetInstance().SqlConn.CreateTableAsync<tProductSchemeModel>();
         }
 
         /// <summary>
@@ -835,7 +835,7 @@ namespace dMobile.GroundWork
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
 
-            await DatabaseConnection.GetInstance().SQLConn.CreateTableAsync<tProductSchemeVariantModel>();
+            await DatabaseConnection.GetInstance().SqlConn.CreateTableAsync<tProductSchemeVariantModel>();
         }
 
         /// <summary>
@@ -850,7 +850,7 @@ namespace dMobile.GroundWork
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
 
-            await DatabaseConnection.GetInstance().SQLConn.CreateTableAsync<tProductSchemeLotNumberModel>();
+            await DatabaseConnection.GetInstance().SqlConn.CreateTableAsync<tProductSchemeLotNumberModel>();
         }
 
         /// <summary>
@@ -865,7 +865,7 @@ namespace dMobile.GroundWork
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
 
-            await DatabaseConnection.GetInstance().SQLConn.CreateTableAsync<tProductModel>();
+            await DatabaseConnection.GetInstance().SqlConn.CreateTableAsync<tProductModel>();
         }
 
         /// <summary>
@@ -880,7 +880,7 @@ namespace dMobile.GroundWork
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
 
-            await DatabaseConnection.GetInstance().SQLConn.CreateTableAsync<tProductUnitModel>();
+            await DatabaseConnection.GetInstance().SqlConn.CreateTableAsync<tProductUnitModel>();
         }
 
         /// <summary>
@@ -895,7 +895,7 @@ namespace dMobile.GroundWork
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
 
-            await DatabaseConnection.GetInstance().SQLConn.CreateTableAsync<tProductUnitBarCodeModel>();
+            await DatabaseConnection.GetInstance().SqlConn.CreateTableAsync<tProductUnitBarCodeModel>();
         }
 
         /// <summary>
@@ -910,7 +910,7 @@ namespace dMobile.GroundWork
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
 
-            await DatabaseConnection.GetInstance().SQLConn.CreateTableAsync<tProductUnitRelationModel>();
+            await DatabaseConnection.GetInstance().SqlConn.CreateTableAsync<tProductUnitRelationModel>();
         }
 
         /// <summary>
@@ -924,7 +924,7 @@ namespace dMobile.GroundWork
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
 
-            await DatabaseConnection.GetInstance().SQLConn.CreateTableAsync<tWarehouseLocationMapTypeModel>();
+            await DatabaseConnection.GetInstance().SqlConn.CreateTableAsync<tWarehouseLocationMapTypeModel>();
         }
 
         /// <summary>
@@ -939,7 +939,7 @@ namespace dMobile.GroundWork
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
 
-            await DatabaseConnection.GetInstance().SQLConn.CreateTableAsync<tProductLocationMapTypeModel>();
+            await DatabaseConnection.GetInstance().SqlConn.CreateTableAsync<tProductLocationMapTypeModel>();
         }
 
         /// <summary>
@@ -954,7 +954,7 @@ namespace dMobile.GroundWork
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
 
-            await DatabaseConnection.GetInstance().SQLConn.CreateTableAsync<ContactModel>();
+            await DatabaseConnection.GetInstance().SqlConn.CreateTableAsync<ContactModel>();
         }
 
         /// <summary>
@@ -969,7 +969,7 @@ namespace dMobile.GroundWork
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
 
-            await DatabaseConnection.GetInstance().SQLConn.CreateTableAsync<tContactUserModel>();
+            await DatabaseConnection.GetInstance().SqlConn.CreateTableAsync<tContactUserModel>();
         }
 
         /// <summary>
@@ -984,7 +984,7 @@ namespace dMobile.GroundWork
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
 
-            await DatabaseConnection.GetInstance().SQLConn.CreateTableAsync<ContactCustomerModel>();
+            await DatabaseConnection.GetInstance().SqlConn.CreateTableAsync<ContactCustomerModel>();
         }
 
         /// <summary>
@@ -999,7 +999,7 @@ namespace dMobile.GroundWork
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
 
-            await DatabaseConnection.GetInstance().SQLConn.CreateTableAsync<tContactCustomerShipToModel>();
+            await DatabaseConnection.GetInstance().SqlConn.CreateTableAsync<tContactCustomerShipToModel>();
         }
 
         /// <summary>
@@ -1014,7 +1014,7 @@ namespace dMobile.GroundWork
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
 
-            await DatabaseConnection.GetInstance().SQLConn.CreateTableAsync<tContactVendorModel>();
+            await DatabaseConnection.GetInstance().SqlConn.CreateTableAsync<tContactVendorModel>();
         }
 
         /// <summary>
@@ -1029,7 +1029,7 @@ namespace dMobile.GroundWork
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
 
-            await DatabaseConnection.GetInstance().SQLConn.CreateTableAsync<tContactVendorSupplierModel>();
+            await DatabaseConnection.GetInstance().SqlConn.CreateTableAsync<tContactVendorSupplierModel>();
         }
 
         /// <summary>
@@ -1044,7 +1044,7 @@ namespace dMobile.GroundWork
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
 
-            await DatabaseConnection.GetInstance().SQLConn.CreateTableAsync<tReasonCodeModel>();
+            await DatabaseConnection.GetInstance().SqlConn.CreateTableAsync<tReasonCodeModel>();
         }
 
         /// <summary>
@@ -1059,7 +1059,7 @@ namespace dMobile.GroundWork
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
 
-            await DatabaseConnection.GetInstance().SQLConn.CreateTableAsync<tActivityItemReasonCodeXRefModel>();
+            await DatabaseConnection.GetInstance().SqlConn.CreateTableAsync<tActivityItemReasonCodeXRefModel>();
         }
 
         /// <summary>
@@ -1074,7 +1074,7 @@ namespace dMobile.GroundWork
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
 
-            await DatabaseConnection.GetInstance().SQLConn.CreateTableAsync<tActivityItemConvertUnitModel>();
+            await DatabaseConnection.GetInstance().SqlConn.CreateTableAsync<tActivityItemConvertUnitModel>();
         }
 
         /// <summary>
@@ -1089,7 +1089,7 @@ namespace dMobile.GroundWork
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
 
-            await DatabaseConnection.GetInstance().SQLConn.CreateTableAsync<ActivityDetailConvertUnitModel>();
+            await DatabaseConnection.GetInstance().SqlConn.CreateTableAsync<ActivityDetailConvertUnitModel>();
         }
 
         /// <summary>
@@ -1104,7 +1104,7 @@ namespace dMobile.GroundWork
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
 
-            await DatabaseConnection.GetInstance().SQLConn.CreateTableAsync<tActivityItemMoveInventoryModel>();
+            await DatabaseConnection.GetInstance().SqlConn.CreateTableAsync<tActivityItemMoveInventoryModel>();
         }
 
         /// <summary>
@@ -1119,7 +1119,7 @@ namespace dMobile.GroundWork
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
 
-            await DatabaseConnection.GetInstance().SQLConn.CreateTableAsync<tActivityDetailMoveInventoryModel>();
+            await DatabaseConnection.GetInstance().SqlConn.CreateTableAsync<tActivityDetailMoveInventoryModel>();
         }
 
         /// <summary>
@@ -1134,7 +1134,7 @@ namespace dMobile.GroundWork
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
 
-            await DatabaseConnection.GetInstance().SQLConn.CreateTableAsync<ActivityAdjustmentModel>();
+            await DatabaseConnection.GetInstance().SqlConn.CreateTableAsync<ActivityAdjustmentModel>();
         }
 
         /// <summary>
@@ -1149,7 +1149,7 @@ namespace dMobile.GroundWork
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
 
-            await DatabaseConnection.GetInstance().SQLConn.CreateTableAsync<tActivityItemAdjustmentModel>();
+            await DatabaseConnection.GetInstance().SqlConn.CreateTableAsync<tActivityItemAdjustmentModel>();
         }
 
         /// <summary>
@@ -1164,7 +1164,7 @@ namespace dMobile.GroundWork
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
 
-            await DatabaseConnection.GetInstance().SQLConn.CreateTableAsync<ActivityDetailAdjustmentModel>();
+            await DatabaseConnection.GetInstance().SqlConn.CreateTableAsync<ActivityDetailAdjustmentModel>();
         }
 
         /// <summary>
@@ -1179,7 +1179,7 @@ namespace dMobile.GroundWork
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
 
-            await DatabaseConnection.GetInstance().SQLConn.CreateTableAsync<tActivityProductionModel>();
+            await DatabaseConnection.GetInstance().SqlConn.CreateTableAsync<tActivityProductionModel>();
         }
 
         /// <summary>
@@ -1194,7 +1194,7 @@ namespace dMobile.GroundWork
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
 
-            await DatabaseConnection.GetInstance().SQLConn.CreateTableAsync<tActivityProductionFinishedModel>();
+            await DatabaseConnection.GetInstance().SqlConn.CreateTableAsync<tActivityProductionFinishedModel>();
         }
 
         /// <summary>
@@ -1209,7 +1209,7 @@ namespace dMobile.GroundWork
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
 
-            await DatabaseConnection.GetInstance().SQLConn.CreateTableAsync<tActivityProductionMaterialModel>();
+            await DatabaseConnection.GetInstance().SqlConn.CreateTableAsync<tActivityProductionMaterialModel>();
         }
 
         /// <summary>
@@ -1224,7 +1224,7 @@ namespace dMobile.GroundWork
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
 
-            await DatabaseConnection.GetInstance().SQLConn.CreateTableAsync<tActivityProductionByProductModel>();
+            await DatabaseConnection.GetInstance().SqlConn.CreateTableAsync<tActivityProductionByProductModel>();
         }
 
         /// <summary>
@@ -1239,7 +1239,7 @@ namespace dMobile.GroundWork
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
 
-            await DatabaseConnection.GetInstance().SQLConn.CreateTableAsync<tActivityItemProductionModel>();
+            await DatabaseConnection.GetInstance().SqlConn.CreateTableAsync<tActivityItemProductionModel>();
         }
 
         /// <summary>
@@ -1254,7 +1254,7 @@ namespace dMobile.GroundWork
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
 
-            await DatabaseConnection.GetInstance().SQLConn.CreateTableAsync<tActivityItemProductionFinishedModel>();
+            await DatabaseConnection.GetInstance().SqlConn.CreateTableAsync<tActivityItemProductionFinishedModel>();
         }
 
         /// <summary>
@@ -1269,7 +1269,7 @@ namespace dMobile.GroundWork
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
 
-            await DatabaseConnection.GetInstance().SQLConn.CreateTableAsync<tActivityItemProductionMaterialModel>();
+            await DatabaseConnection.GetInstance().SqlConn.CreateTableAsync<tActivityItemProductionMaterialModel>();
         }
 
         /// <summary>
@@ -1284,7 +1284,7 @@ namespace dMobile.GroundWork
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
 
-            await DatabaseConnection.GetInstance().SQLConn.CreateTableAsync<tActivityItemProductionByProductModel>();
+            await DatabaseConnection.GetInstance().SqlConn.CreateTableAsync<tActivityItemProductionByProductModel>();
         }
 
         /// <summary>
@@ -1299,7 +1299,7 @@ namespace dMobile.GroundWork
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
 
-            await DatabaseConnection.GetInstance().SQLConn.CreateTableAsync<tActivityDetailProductionFinishedModel>();
+            await DatabaseConnection.GetInstance().SqlConn.CreateTableAsync<tActivityDetailProductionFinishedModel>();
         }
 
         /// <summary>
@@ -1314,7 +1314,7 @@ namespace dMobile.GroundWork
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
 
-            await DatabaseConnection.GetInstance().SQLConn.CreateTableAsync<tActivityDetailProductionMaterialModel>();
+            await DatabaseConnection.GetInstance().SqlConn.CreateTableAsync<tActivityDetailProductionMaterialModel>();
         }
 
         /// <summary>
@@ -1329,7 +1329,7 @@ namespace dMobile.GroundWork
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
 
-            await DatabaseConnection.GetInstance().SQLConn.CreateTableAsync<tActivityDetailProductionByProductModel>();
+            await DatabaseConnection.GetInstance().SqlConn.CreateTableAsync<tActivityDetailProductionByProductModel>();
         }
 
         /// <summary>
@@ -1344,7 +1344,7 @@ namespace dMobile.GroundWork
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
 
-            await DatabaseConnection.GetInstance().SQLConn.CreateTableAsync<tFamilyModel>();
+            await DatabaseConnection.GetInstance().SqlConn.CreateTableAsync<tFamilyModel>();
         }
     }
 }

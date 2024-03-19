@@ -365,7 +365,7 @@ namespace dMobile.View.Activity
                             "<params>" +
                             "<ProductUnitRefno>" + this.ActItem.ProdInfo.UnitRefno + "</ProductUnitRefno>" +
                             "<ProductCode>" + this.ActItem.ProdInfo.Code + "</ProductCode>" +
-                            "<ProductUnitIsBC>" + this.ActItem.ProdInfo.UnitIsBC + "</ProductUnitIsBC>" +
+                            "<ProductUnitIsBC>" + this.ActItem.ProdInfo.UnitIsBc + "</ProductUnitIsBC>" +
                             "<UnitCode>" + this.ActItem.ProdInfo.UnitCode + "</UnitCode>" +
                             "<ProductUnitBarCodeCode>" + strProductUnitBarCodeCode + "</ProductUnitBarCodeCode>" +
                             "<ProductUnitBarCodeSymbologyPrefix>" + strBarCodeSymbologyPrefix + "</ProductUnitBarCodeSymbologyPrefix>" +
@@ -773,7 +773,7 @@ namespace dMobile.View.Activity
                                 "<params>" +
                                 "<ProductUnitRefno>" + this.ActItem.ProdInfo.UnitRefno + "</ProductUnitRefno>" +
                                 "<ProductCode>" + this.ActItem.ProdInfo.Code + "</ProductCode>" +
-                                "<ProductUnitIsBC>" + this.ActItem.ProdInfo.UnitIsBC + "</ProductUnitIsBC>" +
+                                "<ProductUnitIsBC>" + this.ActItem.ProdInfo.UnitIsBc + "</ProductUnitIsBC>" +
                                 "<UnitCode>" + this.ActItem.ProdInfo.UnitCode + "</UnitCode>" +
                                 "<ProductUnitBarCodeCode>" + this.BarParse.ProductIdentifier + "</ProductUnitBarCodeCode>" +
                                 "<ProductUnitBarCodeSymbologyPrefix>" + this.BarParse.SymbologyPrefix + "</ProductUnitBarCodeSymbologyPrefix>" +
@@ -858,7 +858,7 @@ namespace dMobile.View.Activity
                                 "<params>" +
                                 "<ProductUnitRefno>" + this.ActItem.ProdInfo.UnitRefno + "</ProductUnitRefno>" +
                                 "<ProductCode>" + this.ActItem.ProdInfo.Code + "</ProductCode>" +
-                                "<ProductUnitIsBC>" + this.ActItem.ProdInfo.UnitIsBC + "</ProductUnitIsBC>" +
+                                "<ProductUnitIsBC>" + this.ActItem.ProdInfo.UnitIsBc + "</ProductUnitIsBC>" +
                                 "<UnitCode>" + this.ActItem.ProdInfo.UnitCode + "</UnitCode>" +
                                 "<ProductUnitBarCodeCode>" + this.BarParse.ProductIdentifier + "</ProductUnitBarCodeCode>" +
                                 "<ProductUnitBarCodeSymbologyPrefix>" + this.BarParse.SymbologyPrefix + "</ProductUnitBarCodeSymbologyPrefix>" +
@@ -902,7 +902,7 @@ namespace dMobile.View.Activity
                                 "<params>" +
                                 "<ProductUnitRefno>" + this.ActItem.ProdInfo.UnitRefno + "</ProductUnitRefno>" +
                                 "<ProductCode>" + this.ActItem.ProdInfo.Code + "</ProductCode>" +
-                                "<ProductUnitIsBC>" + this.ActItem.ProdInfo.UnitIsBC + "</ProductUnitIsBC>" +
+                                "<ProductUnitIsBC>" + this.ActItem.ProdInfo.UnitIsBc + "</ProductUnitIsBC>" +
                                 "<UnitCode>" + this.ActItem.ProdInfo.UnitCode + "</UnitCode>" +
                                 "<ProductUnitBarCodeCode>" + this.BarParse.ProductIdentifier + "</ProductUnitBarCodeCode>" +
                                 "<ProductUnitBarCodeSymbologyPrefix>" + this.BarParse.SymbologyPrefix + "</ProductUnitBarCodeSymbologyPrefix>" +

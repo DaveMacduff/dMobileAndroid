@@ -360,7 +360,7 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// The GetXML.
+        /// The GetXml.
         /// </summary>
         /// <returns>.</returns>
         public async Task<XDocument> GetXml()

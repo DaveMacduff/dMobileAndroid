@@ -6,13 +6,14 @@ namespace dMobile.Bedrock
 {
     using System;
     using System.Collections.Generic;
+    using System.Globalization;
     using System.Text;
     using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
-    using dMobile.Resources.Models;
-    using dMobile.Resources.QueryResults;
-    using dMobile.Resources.Types;
+    using Resources.Models;
+    using Resources.QueryResults;
+    using Resources.Types;
 
     /// <summary>
     /// <see cref="ProductInfoTasks"/> Collection of product methods.
@@ -24,7 +25,7 @@ namespace dMobile.Bedrock
         /// </summary>
         /// <param name="prodInfo"><see cref="ProductInfo"/> Product information.</param>
         /// <returns><see cref="string"/> Product, bc and unit information.</returns>
-        public static string GetCurrReadableProdBCUnit(ProductInfo prodInfo)
+        public static string GetCurrReadableProdBcUnit(ProductInfo prodInfo)
         {
             return prodInfo == null ? string.Empty : prodInfo.Code.TrimEnd() + (" " +
                 prodInfo.UnitBc).TrimEnd() + " " + prodInfo.UnitCode;
@@ -35,7 +36,7 @@ namespace dMobile.Bedrock
         /// </summary>
         /// <param name="prodInfo"><see cref="ProductInfo"/> Product information.</param>
         /// <returns><see cref="XDocument"/> XDocument containing product information.</returns>
-        public static XDocument GetXML(ProductInfo prodInfo)
+        public static XDocument GetXml(ProductInfo prodInfo)
         {
             var request = new XDocument(
                 new XDeclaration("1.0", "utf-16", "yes"),
@@ -44,14 +45,14 @@ namespace dMobile.Bedrock
                     "params",
                     new XElement("ProductUnitRefno", prodInfo.UnitRefno),
                     new XElement("ProductRefno", prodInfo.Refno),
-                    new XElement("ProductFKRefno", prodInfo.FKRefno),
+                    new XElement("ProductFKRefno", prodInfo.FkRefno),
                     new XElement("ProductCode", prodInfo.Code),
                     new XElement("ProductDescription", prodInfo.Desc),
                     new XElement("UnitCode", prodInfo.UnitCode),
                     new XElement("BaseUnitCode", prodInfo.UnitCode),
                     new XElement("WeightUnitCode", prodInfo.UnitCode),
                     new XElement("ProductUnitBC", prodInfo.UnitBc),
-                    new XElement("ProductUnitIsBC", prodInfo.UnitIsBC.ToString()),
+                    new XElement("ProductUnitIsBC", prodInfo.UnitIsBc.ToString()),
                     new XElement("ProductUnitSizeDescription", prodInfo.UnitSizeDesc),
                     new XElement("ProductIsCatchAsk", prodInfo.IsCatchAsk.ToString()),
                     new XElement("ProductIsCatchAskZero", prodInfo.IsCatchAskZero.ToString()),
@@ -61,9 +62,9 @@ namespace dMobile.Bedrock
                     new XElement("ProductBrandDescription", prodInfo.BrandDesc),
                     new XElement("ProductUnitIsSellUnit", prodInfo.UnitIsSellUnit.ToString()),
                     new XElement("ProductUnitIsDefault", prodInfo.UnitIsDefault.ToString()),
-                    new XElement("ProductUnitBoxCount", prodInfo.BoxCount.ToString()),
-                    new XElement("ProductUnitWeightTolerance", prodInfo.WeightTolerance.ToString()),
-                    new XElement("ProductUnitWeight", prodInfo.UnitGrossWeight.ToString())));
+                    new XElement("ProductUnitBoxCount", prodInfo.BoxCount.ToString(CultureInfo.CurrentCulture)),
+                    new XElement("ProductUnitWeightTolerance", prodInfo.WeightTolerance.ToString(CultureInfo.CurrentCulture)),
+                    new XElement("ProductUnitWeight", prodInfo.UnitGrossWeight.ToString(CultureInfo.CurrentCulture))));
 
             return request;
         }
@@ -72,41 +73,42 @@ namespace dMobile.Bedrock
         /// Get the product information from the product code, bc and unit.
         /// </summary>
         /// <param name="productCode"><see cref="string"/> Product code.</param>
-        /// <param name="productUnitBC"><see cref="string"/> Broken case character.</param>
+        /// <param name="productUnitBc"><see cref="string"/> Broken case character.</param>
         /// <param name="unitCode"><see cref="string"/> Product unit code.</param>
         /// <returns><see cref="ProductInfo"/> Product information.</returns>
-        public static async Task<ProductInfo> GetInfoFromCodeBCUnit(
+        public static async Task<ProductInfo> GetInfoFromCodeBcUnit(
             string productCode,
-            string productUnitBC,
+            string productUnitBc,
             string unitCode)
         {
             var prodInfo = new ProductInfo();
             if (unitCode == "SK")
             {
-                var query = "SELECT tProduct.ProductFKRefno, " +
-                            "tProduct.ProductRefno, " +
-                            "tProduct.ProductCode, " +
-                            "tProduct.ProductDescription, " +
-                            "tProduct.ProductIsCatchCount, " +
-                            "tProduct.ProductIsCatchWeight, " +
-                            "tProduct.ProductIsCatchAsk, " +
-                            "tProduct.ProductIsCatchAskZero, " +
-                            "tProduct.ProductBrandDescription, " +
-                            "tProduct.ProductAllowConvertProduct " +
-                            "FROM tProduct " +
-                            "WHERE tProduct.ProductCode = ?";
+                const string query = @"
+                    SELECT tProduct.ProductFKRefno, 
+                            tProduct.ProductRefno, 
+                            tProduct.ProductCode, 
+                            tProduct.ProductDescription, 
+                            tProduct.ProductIsCatchCount, 
+                            tProduct.ProductIsCatchWeight, 
+                            tProduct.ProductIsCatchAsk, 
+                            tProduct.ProductIsCatchAskZero, 
+                            tProduct.ProductBrandDescription, 
+                            tProduct.ProductAllowConvertProduct 
+                        FROM tProduct 
+                        WHERE tProduct.ProductCode = ?";
 
-                var results = await DatabaseConnection.GetInstance().SQLConn.
+                var results = await DatabaseConnection.GetInstance().SqlConn.
                     QueryAsync<tProductModel>(query, productCode);
 
                 if (results != null && results.Count > 0)
                 {
                     prodInfo.Refno = Convert.ToInt32(results[0].ProductRefno);
-                    prodInfo.FKRefno = Convert.ToInt32(results[0].ProductFKRefno);
+                    prodInfo.FkRefno = Convert.ToInt32(results[0].ProductFKRefno);
                     prodInfo.Code = Convert.ToString(results[0].ProductCode);
                     prodInfo.Desc = Convert.ToString(results[0].ProductDescription);
-                    prodInfo.UnitIsBC = Convert.ToBoolean(!string.IsNullOrEmpty(productUnitBC));
-                    prodInfo.UnitBc = productUnitBC;
+                    prodInfo.UnitIsBc = Convert.ToBoolean(!string.IsNullOrEmpty(productUnitBc));
+                    prodInfo.UnitBc = productUnitBc;
                     prodInfo.UnitCode = unitCode;
                     prodInfo.IsCatchAsk = Convert.ToBoolean(results[0].ProductIsCatchAsk);
                     prodInfo.IsCatchAskZero = Convert.ToBoolean(results[0].ProductIsCatchAskZero);
@@ -118,52 +120,53 @@ namespace dMobile.Bedrock
             }
             else
             {
-                var query = "SELECT tProduct.ProductFKRefno" +
-                            ",tUnit.UnitCode" +
-                            ",aUnitBase.UnitCode AS BaseUnitCode" +
-                            ",aUnitWeight.UnitCode AS WeightUnitCode" +
-                            ",tProduct.ProductRefno" +
-                            ",tProduct.ProductCode" +
-                            ",tProduct.ProductDescription" +
-                            ",tProduct.ProductIsCatchCount" +
-                            ",tProduct.ProductIsCatchWeight" +
-                            ",tProduct.ProductIsCatchAsk" +
-                            ",tProduct.ProductIsCatchAskZero" +
-                            ",tProduct.ProductAllowConvertProduct" +
-                            ",tProductUnit.ProductUnitRefno" +
-                            ",tProductUnit.ProductUnitBC" +
-                            ",tProductUnit.ProductUnitIsBC" +
-                            ",tProductUnit.ProductUnitWeight" +
-                            ",tProductUnit.ProductUnitSizeDescription" +
-                            ",tProduct.ProductBrandDescription" +
-                            ",tProductUnit.ProductUnitIsSellUnit" +
-                            ",tProductUnit.ProductUnitIsDefault" +
-                            ",tProductUnit.ProductUnitBoxCount" +
-                            ",tProductUnit.ProductUnitWeightTolerance" +
-                            " FROM tProductUnit" +
-                            " INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno" +
-                            " INNER JOIN tUnit AS aUnitWeight ON aUnitWeight.UnitRefno = tProductUnit.WtUnitRefno" +
-                            " INNER JOIN tUnit AS aUnitBase ON aUnitBase.UnitRefno = tProductUnit.BaseUnitRefno" +
-                            " INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno" +
-                            " WHERE tProduct.ProductCode = ?" +
-                            " AND tProductUnit.ProductUnitBC = ?" +
-                            " AND tUnit.UnitCode = ?";
+                const string query = @"
+                    SELECT tProduct.ProductFKRefno
+                            ,tUnit.UnitCode
+                            ,aUnitBase.UnitCode AS BaseUnitCode
+                            ,aUnitWeight.UnitCode AS WeightUnitCode
+                            ,tProduct.ProductRefno
+                            ,tProduct.ProductCode
+                            ,tProduct.ProductDescription
+                            ,tProduct.ProductIsCatchCount
+                            ,tProduct.ProductIsCatchWeight
+                            ,tProduct.ProductIsCatchAsk
+                            ,tProduct.ProductIsCatchAskZero
+                            ,tProduct.ProductAllowConvertProduct
+                            ,tProductUnit.ProductUnitRefno
+                            ,tProductUnit.ProductUnitBC
+                            ,tProductUnit.ProductUnitIsBC
+                            ,tProductUnit.ProductUnitWeight
+                            ,tProductUnit.ProductUnitSizeDescription
+                            ,tProduct.ProductBrandDescription
+                            ,tProductUnit.ProductUnitIsSellUnit
+                            ,tProductUnit.ProductUnitIsDefault
+                            ,tProductUnit.ProductUnitBoxCount
+                            ,tProductUnit.ProductUnitWeightTolerance
+                        FROM tProductUnit
+                        INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno
+                        INNER JOIN tUnit AS aUnitWeight ON aUnitWeight.UnitRefno = tProductUnit.WtUnitRefno
+                        INNER JOIN tUnit AS aUnitBase ON aUnitBase.UnitRefno = tProductUnit.BaseUnitRefno
+                        INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno
+                        WHERE tProduct.ProductCode = ?
+                            AND tProductUnit.ProductUnitBC = ?
+                            AND tUnit.UnitCode = ?";
 
                 var results = await DatabaseConnection.GetInstance().
-                    SQLConn.QueryAsync<ProductInfoQueryResult>(query, productCode, productUnitBC, unitCode);
+                    SqlConn.QueryAsync<ProductInfoQueryResult>(query, productCode, productUnitBc, unitCode);
 
                 if (results != null && results.Count > 0)
                 {
                     prodInfo.UnitRefno = results[0].ProductUnitRefno;
                     prodInfo.Refno = results[0].ProductRefno;
-                    prodInfo.FKRefno = results[0].ProductFKRefno;
+                    prodInfo.FkRefno = results[0].ProductFKRefno;
                     prodInfo.Code = results[0].ProductCode;
                     prodInfo.Desc = results[0].ProductDescription;
                     prodInfo.UnitCode = results[0].UnitCode;
                     prodInfo.BaseUnitCode = results[0].BaseUnitCode;
                     prodInfo.WeightUnitCode = results[0].WeightUnitCode;
                     prodInfo.UnitSizeDesc = results[0].ProductUnitSizeDescription;
-                    prodInfo.UnitIsBC = results[0].ProductUnitIsBC;
+                    prodInfo.UnitIsBc = results[0].ProductUnitIsBC;
                     prodInfo.UnitBc = results[0].ProductUnitBC;
                     prodInfo.IsCatchAsk = results[0].ProductIsCatchAsk;
                     prodInfo.IsCatchAskZero = results[0].ProductIsCatchAskZero;
@@ -196,50 +199,51 @@ namespace dMobile.Bedrock
 
             if (productUnitRefno > 0)
             {
-                var query = "SELECT tProduct.ProductFKRefno" +
-                            ",tUnit.UnitCode" +
-                            ",aUnitBase.UnitCode AS BaseUnitCode" +
-                            ",aUnitWeight.UnitCode AS WeightUnitCode" +
-                            ",tProduct.ProductRefno" +
-                            ",tProduct.ProductCode" +
-                            ",tProduct.ProductDescription" +
-                            ",tProduct.ProductIsCatchCount" +
-                            ",tProduct.ProductIsCatchWeight" +
-                            ",tProduct.ProductIsCatchAsk" +
-                            ",tProduct.ProductIsCatchAskZero" +
-                            ",tProduct.ProductAllowConvertProduct" +
-                            ",tProductUnit.ProductUnitRefno" +
-                            ",tProductUnit.ProductUnitBC" +
-                            ",tProductUnit.ProductUnitIsBC" +
-                            ",tProductUnit.ProductUnitWeight" +
-                            ",tProductUnit.ProductUnitSizeDescription" +
-                            ",tProduct.ProductBrandDescription" +
-                            ",tProductUnit.ProductUnitIsSellUnit" +
-                            ",tProductUnit.ProductUnitIsDefault" +
-                            ",tProductUnit.ProductUnitBoxCount" +
-                            ",tProductUnit.ProductUnitWeightTolerance" +
-                            " FROM tProductUnit" +
-                            " INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno" +
-                            " INNER JOIN tUnit AS aUnitWeight ON aUnitWeight.UnitRefno = tProductUnit.WtUnitRefno" +
-                            " INNER JOIN tUnit AS aUnitBase ON aUnitBase.UnitRefno = tProductUnit.BaseUnitRefno" +
-                            " INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno" +
-                            " WHERE tProductUnit.ProductUnitRefno = ?";
+                const string query = @"
+                    SELECT tProduct.ProductFKRefno
+                            ,tUnit.UnitCode
+                            ,aUnitBase.UnitCode AS BaseUnitCode
+                            ,aUnitWeight.UnitCode AS WeightUnitCode
+                            ,tProduct.ProductRefno
+                            ,tProduct.ProductCode
+                            ,tProduct.ProductDescription
+                            ,tProduct.ProductIsCatchCount
+                            ,tProduct.ProductIsCatchWeight
+                            ,tProduct.ProductIsCatchAsk
+                            ,tProduct.ProductIsCatchAskZero
+                            ,tProduct.ProductAllowConvertProduct
+                            ,tProductUnit.ProductUnitRefno
+                            ,tProductUnit.ProductUnitBC
+                            ,tProductUnit.ProductUnitIsBC
+                            ,tProductUnit.ProductUnitWeight
+                            ,tProductUnit.ProductUnitSizeDescription
+                            ,tProduct.ProductBrandDescription
+                            ,tProductUnit.ProductUnitIsSellUnit
+                            ,tProductUnit.ProductUnitIsDefault
+                            ,tProductUnit.ProductUnitBoxCount
+                            ,tProductUnit.ProductUnitWeightTolerance
+                        FROM tProductUnit
+                        INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno
+                        INNER JOIN tUnit AS aUnitWeight ON aUnitWeight.UnitRefno = tProductUnit.WtUnitRefno
+                        INNER JOIN tUnit AS aUnitBase ON aUnitBase.UnitRefno = tProductUnit.BaseUnitRefno
+                        INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno
+                        WHERE tProductUnit.ProductUnitRefno = ?";
 
-                var results = await DatabaseConnection.GetInstance().SQLConn.
+                var results = await DatabaseConnection.GetInstance().SqlConn.
                     QueryAsync<ProductInfoQueryResult>(query, Convert.ToInt32(productUnitRefno));
 
                 if (results != null && results.Count > 0)
                 {
                     prodInfo.UnitRefno = results[0].ProductUnitRefno;
                     prodInfo.Refno = results[0].ProductRefno;
-                    prodInfo.FKRefno = results[0].ProductFKRefno;
+                    prodInfo.FkRefno = results[0].ProductFKRefno;
                     prodInfo.Code = results[0].ProductCode;
                     prodInfo.Desc = results[0].ProductDescription;
                     prodInfo.UnitCode = results[0].UnitCode;
                     prodInfo.BaseUnitCode = results[0].BaseUnitCode;
                     prodInfo.WeightUnitCode = results[0].WeightUnitCode;
                     prodInfo.UnitSizeDesc = results[0].ProductUnitSizeDescription;
-                    prodInfo.UnitIsBC = results[0].ProductUnitIsBC;
+                    prodInfo.UnitIsBc = results[0].ProductUnitIsBC;
                     prodInfo.UnitBc = results[0].ProductUnitBC;
                     prodInfo.IsCatchAsk = results[0].ProductIsCatchAsk;
                     prodInfo.IsCatchAskZero = results[0].ProductIsCatchAskZero;
@@ -270,51 +274,52 @@ namespace dMobile.Bedrock
         {
             var prodInfo = new ProductInfo();
 
-            var query = "SELECT tProduct.ProductFKRefno" +
-                        ",tUnit.UnitCode" +
-                        ",aUnitBase.UnitCode AS BaseUnitCode" +
-                        ",aUnitWeight.UnitCode AS WeightUnitCode" +
-                        ",tProduct.ProductRefno" +
-                        ",tProduct.ProductCode" +
-                        ",tProduct.ProductDescription" +
-                        ",tProduct.ProductIsCatchCount" +
-                        ",tProduct.ProductIsCatchWeight" +
-                        ",tProduct.ProductIsCatchAsk" +
-                        ",tProduct.ProductIsCatchAskZero" +
-                        ",tProduct.ProductAllowConvertProduct" +
-                        ",tProductUnit.ProductUnitRefno" +
-                        ",tProductUnit.ProductUnitBC" +
-                        ",tProductUnit.ProductUnitIsBC" +
-                        ",tProductUnit.ProductUnitWeight" +
-                        ",tProductUnit.ProductUnitSizeDescription" +
-                        ",tProduct.ProductBrandDescription" +
-                        ",tProductUnit.ProductUnitIsSellUnit" +
-                        ",tProductUnit.ProductUnitIsDefault" +
-                        ",tProductUnit.ProductUnitBoxCount" +
-                        ",tProductUnit.ProductUnitWeightTolerance" +
-                        " FROM tProductUnit" +
-                        " INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno" +
-                        " INNER JOIN tUnit AS aUnitWeight ON aUnitWeight.UnitRefno = tProductUnit.WtUnitRefno" +
-                        " INNER JOIN tUnit AS aUnitBase ON aUnitBase.UnitRefno = tProductUnit.BaseUnitRefno" +
-                        " INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno" +
-                        " WHERE tProduct.ProductRefno = ?" +
-                        " AND tProductUnit.ProductUnitIsDefault = 1"; // true
+            const string query = @"
+                SELECT tProduct.ProductFKRefno
+                        ,tUnit.UnitCode
+                        ,aUnitBase.UnitCode AS BaseUnitCode
+                        ,aUnitWeight.UnitCode AS WeightUnitCode
+                        ,tProduct.ProductRefno
+                        ,tProduct.ProductCode
+                        ,tProduct.ProductDescription
+                        ,tProduct.ProductIsCatchCount
+                        ,tProduct.ProductIsCatchWeight
+                        ,tProduct.ProductIsCatchAsk
+                        ,tProduct.ProductIsCatchAskZero
+                        ,tProduct.ProductAllowConvertProduct
+                        ,tProductUnit.ProductUnitRefno
+                        ,tProductUnit.ProductUnitBC
+                        ,tProductUnit.ProductUnitIsBC
+                        ,tProductUnit.ProductUnitWeight
+                        ,tProductUnit.ProductUnitSizeDescription
+                        ,tProduct.ProductBrandDescription
+                        ,tProductUnit.ProductUnitIsSellUnit
+                        ,tProductUnit.ProductUnitIsDefault
+                        ,tProductUnit.ProductUnitBoxCount
+                        ,tProductUnit.ProductUnitWeightTolerance
+                    FROM tProductUnit
+                    INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno
+                    INNER JOIN tUnit AS aUnitWeight ON aUnitWeight.UnitRefno = tProductUnit.WtUnitRefno
+                    INNER JOIN tUnit AS aUnitBase ON aUnitBase.UnitRefno = tProductUnit.BaseUnitRefno
+                    INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno
+                    WHERE tProduct.ProductRefno = ?
+                        AND tProductUnit.ProductUnitIsDefault = 1"; // true
 
-            var results = await DatabaseConnection.GetInstance().SQLConn.
+            var results = await DatabaseConnection.GetInstance().SqlConn.
                 QueryAsync<ProductInfoQueryResult>(query, Convert.ToInt32(productRefno));
 
             if (results != null && results.Count > 0)
             {
                 prodInfo.UnitRefno = results[0].ProductUnitRefno;
                 prodInfo.Refno = results[0].ProductRefno;
-                prodInfo.FKRefno = results[0].ProductFKRefno;
+                prodInfo.FkRefno = results[0].ProductFKRefno;
                 prodInfo.Code = results[0].ProductCode;
                 prodInfo.Desc = results[0].ProductDescription;
                 prodInfo.UnitCode = results[0].UnitCode;
                 prodInfo.BaseUnitCode = results[0].BaseUnitCode;
                 prodInfo.WeightUnitCode = results[0].WeightUnitCode;
                 prodInfo.UnitSizeDesc = results[0].ProductUnitSizeDescription;
-                prodInfo.UnitIsBC = results[0].ProductUnitIsBC;
+                prodInfo.UnitIsBc = results[0].ProductUnitIsBC;
                 prodInfo.UnitBc = results[0].ProductUnitBC;
                 prodInfo.IsCatchAsk = results[0].ProductIsCatchAsk;
                 prodInfo.IsCatchAskZero = results[0].ProductIsCatchAskZero;
@@ -345,41 +350,42 @@ namespace dMobile.Bedrock
             var scheme = new ProdScheme();
             var labelScheme = new ProdSchemeLabelSettings().LoadData();
 
-            var query = "SELECT tProductScheme.ProductSchemeRefno AS ProductSchemeRefno" +
-                        ",tProductScheme.ProductSchemeIsSerialTracked AS ProductSchemeIsSerialTracked" +
-                        ",tProductScheme.ProductSchemeIsProductionDateTracked AS ProductSchemeIsProductionDateTracked" +
-                        ",tProductScheme.ProductSchemeIsLotTracked AS ProductSchemeIsLotTracked" +
-                        ",tProductScheme.ProductSchemeIsBestBeforeDateTracked AS ProductSchemeIsBestBeforeDateTracked" +
-                        ",tProductScheme.ProductSchemeIsVariantTracked AS ProductSchemeIsVariantTracked" +
-                        ",tProductScheme.ProductSchemeIsLotUniqueComponent AS ProductSchemeIsLotUniqueComponent" +
-                        ",tProductScheme.ProductSchemeIsProductionDateUniqueComponent AS ProductSchemeIsProductionDateUniqueComponent" +
-                        ",tProductScheme.ProductSchemeIsBestBeforeDateUniqueComponent AS ProductSchemeIsBestBeforeDateUniqueComponent" +
-                        ",tProductScheme.ProductSchemeIsVariantUniqueComponent AS ProductSchemeIsVariantUniqueComponent" +
-                        ",tProductScheme.ProductSchemeExtra1Type AS ProductSchemeExtra1Type" +
-                        ",tProductScheme.ProductSchemeExtra2Type AS ProductSchemeExtra2Type" +
-                        ",tProductScheme.ProductSchemeExtra3Type AS ProductSchemeExtra3Type" +
-                        ",tProductScheme.ProductSchemeExtra4Type AS ProductSchemeExtra4Type" +
-                        ",tProductScheme.ProductSchemeExtra5Type AS ProductSchemeExtra5Type" +
-                        ",tProductScheme.ProductSchemeExtra1Caption AS ProductSchemeExtra1Caption" +
-                        ",tProductScheme.ProductSchemeExtra2Caption AS ProductSchemeExtra2Caption" +
-                        ",tProductScheme.ProductSchemeExtra3Caption AS ProductSchemeExtra3Caption" +
-                        ",tProductScheme.ProductSchemeExtra4Caption AS ProductSchemeExtra4Caption" +
-                        ",tProductScheme.ProductSchemeExtra5Caption AS ProductSchemeExtra5Caption" +
-                        ",tProductScheme.ProductSchemeExtra1IsRequired AS ProductSchemeExtra1IsRequired" +
-                        ",tProductScheme.ProductSchemeExtra2IsRequired AS ProductSchemeExtra2IsRequired" +
-                        ",tProductScheme.ProductSchemeExtra3IsRequired AS ProductSchemeExtra3IsRequired" +
-                        ",tProductScheme.ProductSchemeExtra4IsRequired AS ProductSchemeExtra4IsRequired" +
-                        ",tProductScheme.ProductSchemeExtra5IsRequired AS ProductSchemeExtra5IsRequired" +
-                        ",tProductScheme.ProductSchemeIsLotTrackedDefault AS ProductSchemeIsLotTrackedDefault" +
-                        ",tProductScheme.ProductSchemeIsProductionDateTrackedDefault AS ProductSchemeIsProductionDateTrackedDefault" +
-                        ",tProductScheme.ProductSchemeIsBestBeforeDateTrackedDefault AS ProductSchemeIsBestBeforeDateTrackedDefault" +
-                        " FROM tProduct" +
-                        " INNER JOIN tLocationMapWarehouseProductScheme ON tLocationMapWarehouseProductScheme.ProductRefno = tProduct.ProductRefno" +
-                        " AND tLocationMapWarehouseProductScheme.WarehouseLocationMapRefno = ?" +
-                        " INNER JOIN tProductScheme ON tProductScheme.ProductSchemeRefno = tLocationMapWarehouseProductScheme.ProductSchemeRefno" +
-                        " WHERE tProduct.ProductRefno = ?";
+            const string query = @"
+                SELECT tProductScheme.ProductSchemeRefno AS ProductSchemeRefno
+                        ,tProductScheme.ProductSchemeIsSerialTracked AS ProductSchemeIsSerialTracked
+                        ,tProductScheme.ProductSchemeIsProductionDateTracked AS ProductSchemeIsProductionDateTracked
+                        ,tProductScheme.ProductSchemeIsLotTracked AS ProductSchemeIsLotTracked
+                        ,tProductScheme.ProductSchemeIsBestBeforeDateTracked AS ProductSchemeIsBestBeforeDateTracked
+                        ,tProductScheme.ProductSchemeIsVariantTracked AS ProductSchemeIsVariantTracked
+                        ,tProductScheme.ProductSchemeIsLotUniqueComponent AS ProductSchemeIsLotUniqueComponent
+                        ,tProductScheme.ProductSchemeIsProductionDateUniqueComponent AS ProductSchemeIsProductionDateUniqueComponent
+                        ,tProductScheme.ProductSchemeIsBestBeforeDateUniqueComponent AS ProductSchemeIsBestBeforeDateUniqueComponent
+                        ,tProductScheme.ProductSchemeIsVariantUniqueComponent AS ProductSchemeIsVariantUniqueComponent
+                        ,tProductScheme.ProductSchemeExtra1Type AS ProductSchemeExtra1Type
+                        ,tProductScheme.ProductSchemeExtra2Type AS ProductSchemeExtra2Type
+                        ,tProductScheme.ProductSchemeExtra3Type AS ProductSchemeExtra3Type
+                        ,tProductScheme.ProductSchemeExtra4Type AS ProductSchemeExtra4Type
+                        ,tProductScheme.ProductSchemeExtra5Type AS ProductSchemeExtra5Type
+                        ,tProductScheme.ProductSchemeExtra1Caption AS ProductSchemeExtra1Caption
+                        ,tProductScheme.ProductSchemeExtra2Caption AS ProductSchemeExtra2Caption
+                        ,tProductScheme.ProductSchemeExtra3Caption AS ProductSchemeExtra3Caption
+                        ,tProductScheme.ProductSchemeExtra4Caption AS ProductSchemeExtra4Caption
+                        ,tProductScheme.ProductSchemeExtra5Caption AS ProductSchemeExtra5Caption
+                        ,tProductScheme.ProductSchemeExtra1IsRequired AS ProductSchemeExtra1IsRequired
+                        ,tProductScheme.ProductSchemeExtra2IsRequired AS ProductSchemeExtra2IsRequired
+                        ,tProductScheme.ProductSchemeExtra3IsRequired AS ProductSchemeExtra3IsRequired
+                        ,tProductScheme.ProductSchemeExtra4IsRequired AS ProductSchemeExtra4IsRequired
+                        ,tProductScheme.ProductSchemeExtra5IsRequired AS ProductSchemeExtra5IsRequired
+                        ,tProductScheme.ProductSchemeIsLotTrackedDefault AS ProductSchemeIsLotTrackedDefault
+                        ,tProductScheme.ProductSchemeIsProductionDateTrackedDefault AS ProductSchemeIsProductionDateTrackedDefault
+                        ,tProductScheme.ProductSchemeIsBestBeforeDateTrackedDefault AS ProductSchemeIsBestBeforeDateTrackedDefault
+                    FROM tProduct
+                    INNER JOIN tLocationMapWarehouseProductScheme ON tLocationMapWarehouseProductScheme.ProductRefno = tProduct.ProductRefno
+                        AND tLocationMapWarehouseProductScheme.WarehouseLocationMapRefno = ?
+                    INNER JOIN tProductScheme ON tProductScheme.ProductSchemeRefno = tLocationMapWarehouseProductScheme.ProductSchemeRefno
+                    WHERE tProduct.ProductRefno = ?";
 
-            var prodSchemes = await DatabaseConnection.GetInstance().SQLConn.
+            var prodSchemes = await DatabaseConnection.GetInstance().SqlConn.
                 QueryAsync<tProductSchemeModel>(
                 query,
                 Convert.ToInt32(
@@ -390,7 +396,7 @@ namespace dMobile.Bedrock
             {
                 scheme.SchemeRefno = Convert.ToInt32(prodSchemes[0].ProductSchemeRefno);
 
-                if (LocationMap.GetInstance().CurrLocMap.IsWhsWMS)
+                if (LocationMap.GetInstance().CurrLocMap.IsWhsWms)
                 {
                     scheme.IsSerialTracked = prodSchemes[0].ProductSchemeIsSerialTracked;
                     scheme.IsProductionDateTracked = prodSchemes[0].ProductSchemeIsProductionDateTracked;
@@ -439,17 +445,18 @@ namespace dMobile.Bedrock
             if (productInfo.UnitRefno != 0)
             {
                 // NOTE: I don't think this code is supporting broken case properly.
-                var query = "SELECT tProductUnitRelation.ProductUnitRelationFactor AS ProductUnitRelationFactor" +
-                            " FROM tProductUnitRelation" +
-                            " INNER JOIN tProductUnit ON tProductUnit.ProductUnitRefno = tProductUnitRelation.ProductUnit1Refno" +
-                            " INNER JOIN tProductUnit AS tProductBaseUnit ON tProductBaseUnit.ProductUnitRefno = tProductUnitRelation.ProductUnit2Refno" +
-                            " INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno" +
-                            " INNER JOIN tUnit AS tBaseUnit ON tBaseUnit.UnitRefno = tProductBaseUnit.BaseUnitRefno" +
-                            " WHERE tProductUnit.ProductRefno = ?" +
-                            " AND tUnit.UnitCode = ?" +
-                            " AND tBaseUnit.UnitCode = ?";
+                const string query = @"
+                    SELECT tProductUnitRelation.ProductUnitRelationFactor AS ProductUnitRelationFactor
+                        FROM tProductUnitRelation
+                        INNER JOIN tProductUnit ON tProductUnit.ProductUnitRefno = tProductUnitRelation.ProductUnit1Refno
+                        INNER JOIN tProductUnit AS tProductBaseUnit ON tProductBaseUnit.ProductUnitRefno = tProductUnitRelation.ProductUnit2Refno
+                        INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno
+                        INNER JOIN tUnit AS tBaseUnit ON tBaseUnit.UnitRefno = tProductBaseUnit.BaseUnitRefno
+                        WHERE tProductUnit.ProductRefno = ?
+                        AND tUnit.UnitCode = ?
+                        AND tBaseUnit.UnitCode = ?";
 
-                prodUnitFactor = Convert.ToDecimal(await DatabaseConnection.GetInstance().SQLConn.
+                prodUnitFactor = Convert.ToDecimal(await DatabaseConnection.GetInstance().SqlConn.
                     ExecuteScalarAsync<decimal>(
                     query,
                     Convert.ToInt32(productInfo.Refno),
@@ -458,12 +465,8 @@ namespace dMobile.Bedrock
 
                 if (prodUnitFactor == 0)
                 {
-                    throw new Exception(
-                        string.Format(
-                            "Unable to find product '{0}' unit relation factor between {1} and {2}",
-                            productInfo.Code,
-                            productInfo.UnitCode,
-                            productInfo.BaseUnitCode));
+                    throw new Exception($"Unable to find product '{productInfo.Code}' unit relation factor between" +
+                                        $" {productInfo.UnitCode} and {productInfo.BaseUnitCode}");
                 }
             }
 
@@ -484,10 +487,10 @@ namespace dMobile.Bedrock
             {
                 var xmlString = new StringBuilder();
                 var xml = XmlWriter.Create(xmlString);
-                var deviceID = sysEnv.DeviceID;
+                var deviceId = sysEnv.DeviceID;
                 var revision = sysEnv.RefreshOpt.RefreshedDataLast.ToString(
                     "yyyy\'-\'MM\'-\'dd\'T\'HH\':\'mm\':\'ss");
-                var loginID = sysEnv.ContactLog.LoginID.ToString();
+                var loginId = sysEnv.ContactLog.LoginID.ToString();
                 var current = DateTime.Now.ToString("yyyy\'-\'MM\'-\'dd\'T\'HH\':\'mm\':\'ss");
                 var request = XDocument.Parse(
                     "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" +
@@ -495,8 +498,8 @@ namespace dMobile.Bedrock
                     "<command>" +
                     "<action>REQUEST PRODUCT SCHEME SERIAL NUMBER</action>" +
                     "</command>" +
-                    "<device_id>" + deviceID + "</device_id>" +
-                    "<login_id>" + loginID + "</login_id>" +
+                    "<device_id>" + deviceId + "</device_id>" +
+                    "<login_id>" + loginId + "</login_id>" +
                     "<revision_datetime>" + revision + "</revision_datetime>" +
                     "<stamp>" + current + "</stamp>" +
                     "</imclient>");
@@ -509,7 +512,7 @@ namespace dMobile.Bedrock
                 xmlResult.LoadXml(responseData);
 
                 singleTradeItemSerialNumber = xmlResult.SelectSingleNode(
-                    "/VFPData/SingleTradeUnitSerialNumber").FirstChild.Value.PadRight(20);
+                    "/VFPData/SingleTradeUnitSerialNumber") !.FirstChild.Value.PadRight(20);
             }
 
             return singleTradeItemSerialNumber;
@@ -521,26 +524,27 @@ namespace dMobile.Bedrock
         /// <returns><see cref="List{ProductUnit}"/> List of product units.</returns>
         public static async Task<List<ProductUnit>> GetProductUnitList()
         {
-            var sql = @"SELECT tProductUnit.ProductUnitRefno AS ProductUnitRefno
-                ,tProduct.ProductCode AS ProductCode
-                ,tProduct.ProductDescription AS ProductDescription
-                ,tUnit.UnitCode AS UnitCode
-                ,aUnitBase.UnitCode AS BaseUnitCode
-                ,aUnitWeight.UnitCode AS WeightUnitCode
-                ,tProductUnit.ProductUnitBC AS ProductUnitBC
-                ,tProductUnit.ProductUnitIsBC AS ProductUnitIsBC
-                ,tProductUnit.ProductUnitSizeDescription AS ProductUnitSizeDescription
-                ,tProduct.ProductRefno AS ProductRefno
-                ,tProductUnit.ProductUnitIsSellUnit AS ProductUnitIsSellUnit
-                ,tProductUnit.ProductUnitIsDefault AS ProductUnitIsDefault 
-                FROM tProductUnit
-                INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno
-                INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno
-                INNER JOIN tUnit AS aUnitWeight ON aUnitWeight.UnitRefno = tProductUnit.WtUnitRefno
-                INNER JOIN tUnit AS aUnitBase ON aUnitBase.UnitRefno = tProductUnit.BaseUnitRefno
-                ORDER BY tProduct.ProductCode, tProductUnit.ProductUnitBC, tUnit.UnitCode";
+            const string query = @"
+                SELECT tProductUnit.ProductUnitRefno AS ProductUnitRefno
+                        ,tProduct.ProductCode AS ProductCode
+                        ,tProduct.ProductDescription AS ProductDescription
+                        ,tUnit.UnitCode AS UnitCode
+                        ,aUnitBase.UnitCode AS BaseUnitCode
+                        ,aUnitWeight.UnitCode AS WeightUnitCode
+                        ,tProductUnit.ProductUnitBC AS ProductUnitBC
+                        ,tProductUnit.ProductUnitIsBC AS ProductUnitIsBC
+                        ,tProductUnit.ProductUnitSizeDescription AS ProductUnitSizeDescription
+                        ,tProduct.ProductRefno AS ProductRefno
+                        ,tProductUnit.ProductUnitIsSellUnit AS ProductUnitIsSellUnit
+                        ,tProductUnit.ProductUnitIsDefault AS ProductUnitIsDefault 
+                    FROM tProductUnit
+                    INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno
+                    INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno
+                    INNER JOIN tUnit AS aUnitWeight ON aUnitWeight.UnitRefno = tProductUnit.WtUnitRefno
+                    INNER JOIN tUnit AS aUnitBase ON aUnitBase.UnitRefno = tProductUnit.BaseUnitRefno
+                    ORDER BY tProduct.ProductCode, tProductUnit.ProductUnitBC, tUnit.UnitCode";
 
-            return await DatabaseConnection.GetInstance().SQLConn.QueryAsync<ProductUnit>(sql);
+            return await DatabaseConnection.GetInstance().SqlConn.QueryAsync<ProductUnit>(query);
         }
 
         /// <summary>
@@ -549,13 +553,14 @@ namespace dMobile.Bedrock
         /// <returns><see cref="List{Product}"/> List of products.</returns>
         public static async Task<List<Product>> GetProductList()
         {
-            var sql = @"SELECT ProductRefno
-                ,ProductCode
-                ,ProductDescription 
-                FROM tProduct 
-                ORDER BY ProductCode";
+            const string query = @"
+                SELECT ProductRefno
+                        ,ProductCode
+                        ,ProductDescription 
+                    FROM tProduct 
+                    ORDER BY ProductCode";
 
-            return await DatabaseConnection.GetInstance().SQLConn.QueryAsync<Product>(sql);
+            return await DatabaseConnection.GetInstance().SqlConn.QueryAsync<Product>(query);
         }
 
         /// <summary>
@@ -564,15 +569,16 @@ namespace dMobile.Bedrock
         /// <returns><see cref="List{Product}"/> List of products.</returns>
         public static async Task<List<Product>> GetProductListAllowConvertProduct()
         {
-            var sql = @"SELECT ProductRefno
-                ,ProductCode
-                ,ProductDescription
-                ,ProductAllowConvertProduct
-                FROM tProduct
-                WHERE ProductAllowConvertProduct = 1
-                ORDER BY ProductCode";
+            const string query = @"
+                SELECT ProductRefno
+                        ,ProductCode
+                        ,ProductDescription
+                        ,ProductAllowConvertProduct
+                    FROM tProduct
+                    WHERE ProductAllowConvertProduct = 1
+                    ORDER BY ProductCode";
 
-            return await DatabaseConnection.GetInstance().SQLConn.QueryAsync<Product>(sql);
+            return await DatabaseConnection.GetInstance().SqlConn.QueryAsync<Product>(query);
         }
 
         /// <summary>
@@ -582,64 +588,58 @@ namespace dMobile.Bedrock
         /// <param name="prodSchemeComponents"><see cref="ProdScheme"/> Scheme components.</param>
         /// <param name="prodSchemeData"><see cref="ProductSchemeData"/> Scheme data.</param>
         /// <returns><see cref="string"/> Unique scheme id.</returns>
-        public static string GetUniqueSchemeIDFromSProdSchemeData(
+        public static string GetUniqueSchemeIdFromSProdSchemeData(
             string prodCode,
             ProdScheme prodSchemeComponents,
             ProductSchemeData prodSchemeData)
         {
             _ = prodCode ?? throw new ArgumentNullException(nameof(prodCode));
-            var schemeID = string.Empty;
+            var schemeId = string.Empty;
 
             if (prodSchemeComponents.IsSerialTracked)
             {
-                schemeID = schemeID + prodCode.TrimEnd() + ".";
+                schemeId = $"{schemeId}{prodCode.TrimEnd()}.";
 
                 if (!string.IsNullOrEmpty(prodSchemeData.SingleTradeItemSerialNumber))
                 {
-                    schemeID = schemeID + "SN:" + prodSchemeData.SingleTradeItemSerialNumber.
-                        TrimEnd() + ".";
+                    schemeId = $"{schemeId}SN:{prodSchemeData.SingleTradeItemSerialNumber.TrimEnd()}.";
                 }
 
                 if (prodSchemeComponents.IsLotUniqueComponent)
                 {
-                    schemeID = schemeID + "LT:" + prodSchemeData.LogisticUnitBatchLotNumber.
-                        TrimEnd() + ".";
+                    schemeId = $"{schemeId}LT:{prodSchemeData.LogisticUnitBatchLotNumber.TrimEnd()}.";
                 }
 
                 if (prodSchemeComponents.IsProductionDateUniqueComponent)
                 {
-                    schemeID = schemeID + "PD:" + prodSchemeData.LogisticUnitProductionDate.
-                        ToString("yyyyMMdd").TrimEnd() + ".";
+                    schemeId = $"{schemeId}PD:{prodSchemeData.LogisticUnitProductionDate.ToString("yyyyMMdd").TrimEnd()}.";
                 }
 
                 if (prodSchemeComponents.IsBestBeforeDateUniqueComponent)
                 {
-                    schemeID = schemeID + "BB:" + prodSchemeData.LogisticUnitBestBeforeSellByDate.
-                        ToString("yyyyMMdd").TrimEnd()
-                        + ".";
+                    schemeId =
+                        $"{schemeId}BB:{prodSchemeData.LogisticUnitBestBeforeSellByDate.ToString("yyyyMMdd").TrimEnd()}.";
                 }
 
                 if (prodSchemeComponents.IsVariantUniqueComponent)
                 {
-                    schemeID = schemeID + "PV:" + prodSchemeData.VariantCode.TrimEnd() + ".";
+                    schemeId = $"{schemeId}PV:{prodSchemeData.VariantCode.TrimEnd()}.";
                 }
 
                 if (SysEnvironment.GetInstance().SysSettings.IsSkidTrackingModule
                     && !string.IsNullOrWhiteSpace(prodSchemeData.LogisticUnitSkidNumber))
                 {
-                    schemeID = schemeID + "SK:" + prodSchemeData.LogisticUnitSkidNumber.TrimEnd() + ".";
+                    schemeId = $"{schemeId}SK:{prodSchemeData.LogisticUnitSkidNumber.TrimEnd()}.";
                 }
 
                 var locMap = LocationMap.GetInstance();
-
-                if (locMap.CurrLocMap.WhsFKRefno != 0)
+                if (locMap.CurrLocMap.WhsFkRefno != 0)
                 {
-                    schemeID = schemeID + "BL:" + LocationMapTasks.GetCurrentLocationForUniquenessChecking().
-                        TrimEnd() + ".";
+                    schemeId = $"{schemeId}BL:{LocationMapTasks.GetCurrentLocationForUniquenessChecking().TrimEnd()}.";
                 }
             }
 
-            return schemeID;
+            return schemeId;
         }
 
         /// <summary>
@@ -649,73 +649,72 @@ namespace dMobile.Bedrock
         /// <param name="prodSchemeComponents"><see cref="ProdScheme"/> Scheme components.</param>
         /// <param name="prodSchemeData"><see cref="ProductSchemeData"/> Scheme data.</param>
         /// <returns><see cref="string"/> Scheme id.</returns>
-        public static string GetActSchemeIDFromSProdSchemeData(
+        public static string GetActSchemeIdFromSProdSchemeData(
             string prodCode,
             ProdScheme prodSchemeComponents,
             ProductSchemeData prodSchemeData)
         {
             _ = prodCode ?? throw new ArgumentNullException(nameof(prodCode));
-            var schemeID = string.Empty;
+            var schemeId = string.Empty;
 
             if (!string.IsNullOrEmpty(prodSchemeData.SingleTradeItemSerialNumber))
             {
-                schemeID = schemeID + "SN:" + prodSchemeData.SingleTradeItemSerialNumber.TrimEnd() + ".";
+                schemeId = $"{schemeId}SN:{prodSchemeData.SingleTradeItemSerialNumber.TrimEnd()}.";
             }
 
             if (prodSchemeComponents.IsLotTracked)
             {
-                schemeID = schemeID + "LT:" + prodSchemeData.LogisticUnitBatchLotNumber + ".";
+                schemeId = $"{schemeId}LT:{prodSchemeData.LogisticUnitBatchLotNumber}.";
             }
 
             if (prodSchemeComponents.IsProductionDateTracked)
             {
-                schemeID = schemeID + "PD:" + prodSchemeData.LogisticUnitProductionDate.
-                    ToString("yyyy/MM/dd") + ".";
+                schemeId = $"{schemeId}PD:{prodSchemeData.LogisticUnitProductionDate:yyyy/MM/dd}.";
             }
 
             if (prodSchemeComponents.IsBestBeforeDateTracked)
             {
-                schemeID = schemeID + "BB:" + prodSchemeData.LogisticUnitBestBeforeSellByDate.
-                    ToString("yyyy/MM/dd") + ".";
+                schemeId = $"{schemeId}BB:{prodSchemeData.LogisticUnitBestBeforeSellByDate:yyyy/MM/dd}.";
             }
 
             if (prodSchemeComponents.IsVariantTracked)
             {
-                schemeID = schemeID + "PV:" + prodSchemeData.VariantCode + ".";
+                schemeId = $"{schemeId}PV:{prodSchemeData.VariantCode}.";
             }
 
             if (SysEnvironment.GetInstance().SysSettings.IsSkidTrackingModule
                 && !string.IsNullOrWhiteSpace(prodSchemeData.LogisticUnitSkidNumber))
             {
-                schemeID = schemeID + "SK:" + prodSchemeData.LogisticUnitSkidNumber.TrimEnd() + ".";
+                schemeId = $"{schemeId}SK:{prodSchemeData.LogisticUnitSkidNumber.TrimEnd()}.";
             }
 
             var locationMap = LocationMap.GetInstance();
 
-            if (locationMap.CurrLocMap.WhsFKRefno != 0)
+            if (locationMap.CurrLocMap.WhsFkRefno != 0)
             {
                 ////schemeID = schemeID + "BL:" + LocationMapTasks.GetCurrentReadableLocation() + ".";
-                schemeID = schemeID + "BL:" + LocationMapTasks.GetCurrentLocation() + ".";
+                schemeId = $"{schemeId}BL:{LocationMapTasks.GetCurrentLocation()}.";
             }
 
-            return schemeID;
+            return schemeId;
         }
 
         /// <summary>
         /// Check if the unique scheme id is a duplicate.
         /// </summary>
-        /// <param name="unqSchemeID"><see cref="string"/> Unique scheme id.</param>
+        /// <param name="uniqueSchemeId"><see cref="string"/> Unique scheme id.</param>
         /// <returns><see cref="bool"/> True if the unique scheme id is a duplicate, else false.</returns>
-        public static async Task<bool> IsDuplicateUniqueSchemeID(string unqSchemeID)
+        public static async Task<bool> IsDuplicateUniqueSchemeId(string uniqueSchemeId)
         {
             var isDuplicate = false;
 
-            var sql = @"SELECT ActivityDetailUniqueSchemeID
-                FROM tActivityDetail
-                WHERE ActivityDetailUniqueSchemeID = ?";
+            const string query = @"
+                SELECT ActivityDetailUniqueSchemeID
+                    FROM tActivityDetail
+                    WHERE ActivityDetailUniqueSchemeID = ?";
 
-            var results = await DatabaseConnection.GetInstance().SQLConn.
-                QueryAsync<tActivityDetailModel>(sql, unqSchemeID);
+            var conn = DatabaseConnection.GetInstance().SqlConn;
+            var results = await conn.QueryAsync<tActivityDetailModel>(query, uniqueSchemeId);
             if (results != null && results.Count > 0)
             {
                 isDuplicate = true;

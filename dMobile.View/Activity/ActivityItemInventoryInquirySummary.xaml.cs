@@ -158,7 +158,7 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// The GetXML.
+        /// The GetXml.
         /// </summary>
         /// <returns>.</returns>
         public async Task<XDocument> GetXml()
@@ -446,7 +446,7 @@ namespace dMobile.View.Activity
                             var currentIndex = this.MainActivityItems.IndexOf(this.ListViewMainActivity.SelectedItem);
                             if (currentIndex >= 0)
                             {
-                                this.ActItem.ProdInfo = await ProductInfoTasks.GetInfoFromCodeBCUnit(
+                                this.ActItem.ProdInfo = await ProductInfoTasks.GetInfoFromCodeBcUnit(
                                     Convert.ToString((this.ActItem.ListItems[currentIndex] as Resources.Types.ActivityItem).ProductCode),
                                     Convert.ToString((this.ActItem.ListItems[currentIndex] as Resources.Types.ActivityItem).ProductUnitBC),
                                     Convert.ToString((this.ActItem.ListItems[currentIndex] as Resources.Types.ActivityItem).UnitCode));
@@ -544,7 +544,7 @@ namespace dMobile.View.Activity
             }
 
             this.ExtraInfoItems.Add($"Product ID {prodInfo.Code}");
-            this.ExtraInfoItems.Add($"Whs {this.ActItem.LocMap.WhsFKRefno} {this.ActItem.LocMap.WhsName}");
+            this.ExtraInfoItems.Add($"Whs {this.ActItem.LocMap.WhsFkRefno} {this.ActItem.LocMap.WhsName}");
         }
 
         /// <summary>

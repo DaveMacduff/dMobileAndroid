@@ -39,7 +39,7 @@ namespace dMobile.GroundWork
             ////var conn = DatabaseConnection.GetInstance().SQLConn;
             this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName}.", true);
             var subType = Convert.ToInt32(this.CurrentSubType);
-            var conn = DatabaseConnection.GetInstance().SQLConn;
+            var conn = DatabaseConnection.GetInstance().SqlConn;
             await conn.RunInTransactionAsync(transaction =>
             {
                 try
@@ -93,7 +93,7 @@ namespace dMobile.GroundWork
         /// <param name="responseData"></param>
         protected override async Task Save(string responseData)
         {
-            await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
+            await DatabaseConnection.GetInstance().SqlConn.RunInTransactionAsync(transaction =>
             {
                 try
                 {

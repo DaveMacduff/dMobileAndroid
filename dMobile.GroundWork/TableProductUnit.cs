@@ -40,7 +40,7 @@ namespace dMobile.GroundWork
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding product uom.", true);
 
                 var responseData = string.Empty;
-                var resultsFamily = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tFamilyModel>("SELECT * FROM tFamily");
+                var resultsFamily = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<tFamilyModel>("SELECT * FROM tFamily");
 
                 if (resultsFamily?.Count > 0)
                 {
@@ -78,7 +78,7 @@ namespace dMobile.GroundWork
             {
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging product uom.", true);
 
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("DELETE FROM tProductUnit");
+                await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync("DELETE FROM tProductUnit");
 
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging product uom complete.", true);
             }
@@ -175,7 +175,7 @@ namespace dMobile.GroundWork
             int rowsAffected;
             try
             {
-                rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tProductUnit"));
+                rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SqlConn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tProductUnit"));
 
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"{rowsAffected} product units.", true);
             }
@@ -215,7 +215,7 @@ namespace dMobile.GroundWork
             var recordCount = 0;
             var unitLookup = new Dictionary<string, int>();
 
-            await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
+            await DatabaseConnection.GetInstance().SqlConn.RunInTransactionAsync(transaction =>
             {
                 try
                 {

@@ -292,7 +292,7 @@ namespace dMobile.Controller.Activity
                 sql.Append(" ORDER BY tActivityItemPurchaseOrderWorkSheet.ActivityItemRefno");
             }
 
-            this.listPurchaseOrderWorkSheetItems = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<PurchaseOrderWorkSheetItem>(sql.ToString());
+            this.listPurchaseOrderWorkSheetItems = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<PurchaseOrderWorkSheetItem>(sql.ToString());
             this.ListHeaders = this.listPurchaseOrderWorkSheetItems.Cast<object>().ToList();
             return this.ListHeaders;
         }

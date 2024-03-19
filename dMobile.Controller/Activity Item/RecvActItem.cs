@@ -290,7 +290,7 @@ namespace dMobile.Controller.Activity_Item
                     + "</command>"
                     + await SysCommon.GetRequestDefaults(false)
                     + "<skid_data>" + data.Root.Element("skid_data").Value + "</skid_data>"
-                    + "<whs_id>" + this.LocMap.WhsFKRefno + "</whs_id>"
+                    + "<whs_id>" + this.LocMap.WhsFkRefno + "</whs_id>"
                     + "<refno>" + this.ActHdr.HdrFkRefno + "</refno>"
                     + "<itm_refno>" + this.ItemFkRefno + "</itm_refno>"
                     + "<is_negate_qty>false</is_negate_qty>"
@@ -319,7 +319,7 @@ namespace dMobile.Controller.Activity_Item
 
             if (selectedActivityItem is ReceiveItem receiveItem)
             {
-                var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityItemReceivingCommentModel>(
+                var results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<tActivityItemReceivingCommentModel>(
                     "SELECT * FROM tActivityItemReceivingComment WHERE ActivityItemRefno = ?",
                     receiveItem.ActivityItemRefno);
 
@@ -775,7 +775,7 @@ namespace dMobile.Controller.Activity_Item
                 sql.Append("ORDER BY recvItem.ActivityItemRefno");
             }
 
-            this.ListReceiveItems = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<ReceiveItem>(sql.ToString());
+            this.ListReceiveItems = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<ReceiveItem>(sql.ToString());
             this.ListItems = this.ListReceiveItems.Cast<object>().ToList();
             return this.ListItems;
         }
@@ -896,7 +896,7 @@ namespace dMobile.Controller.Activity_Item
             sql.AppendFormat("AND tActivityItemReceiving.WarehouseLocationMapRefno = {0} ", locMap.WhsLocMapRefno);
             sql.AppendFormat("AND tActivityItemReceiving.ProductUnitRefno = {0}", prodUnitRefno);
 
-            var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<ReceiveItem>(sql.ToString());
+            var results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<ReceiveItem>(sql.ToString());
 
             if (results != null && results.Count > 0)
             {
@@ -1031,7 +1031,7 @@ namespace dMobile.Controller.Activity_Item
                     receiveItem.ActivityItemRefno,
                 };
 
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, parameters);
+                await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync(query, parameters);
             }
         }
 
@@ -1050,7 +1050,7 @@ namespace dMobile.Controller.Activity_Item
                         + "tActivityItem.ActivityItemRefno "
                         + $"WHERE tActivityItem.ActivityRefno = {this.ActHdr.HdrRefno}";
 
-            var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<TotalQuantity>(query);
+            var results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<TotalQuantity>(query);
 
             if (results != null && results.Count > 0)
             {
@@ -1075,7 +1075,7 @@ namespace dMobile.Controller.Activity_Item
         {
             await base.IsReadyToApply(data);
 
-            // New items are identified with 0 < this.FKRefno, do not validate.
+            // New items are identified with 0 < this.FkRefno, do not validate.
             if (this.SysEnv.SysSettings.RecvQtyOverWarn != SysCommon.ActReceivingQtyOverValLevels.NoValidationOrWarning
                 && this.ItemFkRefno > 0)
             {

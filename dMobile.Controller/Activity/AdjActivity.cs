@@ -322,7 +322,7 @@ namespace dMobile.Controller.Activity
                 _ = sql.Append(" INNER JOIN tActivity ON tActivity.ActivityRefno = tActivityAdjustment.ActivityRefno");
             }
 
-            this.ListAdjustments = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<Adjustment>(sql.ToString());
+            this.ListAdjustments = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<Adjustment>(sql.ToString());
 
             foreach (var sort in adjSettings.GetDataViewSortBy())
             {
@@ -550,8 +550,8 @@ namespace dMobile.Controller.Activity
                     + "</command>"
                     + await SysCommon.GetRequestDefaults(false)
                     + "<refno>" + this.HdrFkRefno + "</refno>"
-                    + "<whs_id>" + locMap.WhsFKRefno + "</whs_id>"
-                    + "<sect_refno>" + locMap.SectFKRefno + "</sect_refno>"
+                    + "<whs_id>" + locMap.WhsFkRefno + "</whs_id>"
+                    + "<sect_refno>" + locMap.SectFkRefno + "</sect_refno>"
                     + "<label_qty>" + labelQuantity + "</label_qty>"
                     + "<mobile_printer_name>"
                     + (prnSettings.IsEnabledProductLabelPrinter ? prnSettings.ProductLabelPrinterName : string.Empty)

@@ -267,14 +267,14 @@ namespace dMobile.Controller.Activity
             try
             {
                 var sql = "insert into tActivity (ActivityStatus, ActivitySubType) values (?, ?)";
-                _ = await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
+                _ = await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync(
                     sql,
                     Convert.ToInt32(SysCommon.ActStatus.Inserted),
                     Convert.ToInt32(actSubType));
 
                 var queryId = "select last_insert_rowid() from tActivity";
                 this.HdrRefno = Convert.ToInt32(
-                    await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>(queryId));
+                    await DatabaseConnection.GetInstance().SqlConn.ExecuteScalarAsync<int>(queryId));
             }
             catch (SQLiteException ex)
             {

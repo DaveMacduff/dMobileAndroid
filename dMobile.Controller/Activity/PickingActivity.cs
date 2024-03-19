@@ -180,8 +180,8 @@ namespace dMobile.Controller.Activity
                     + await SysCommon.GetRequestDefaults(false)
                     + "<refno>" + this.HdrFkRefno + "</refno>"
                     + "<itm_refno>" + data.Root.Element("itm_refno").Value + "</itm_refno>"
-                    + "<whs_id>" + locMap.WhsFKRefno + "</whs_id>"
-                    + "<sect_refno>" + locMap.SectFKRefno + "</sect_refno>"
+                    + "<whs_id>" + locMap.WhsFkRefno + "</whs_id>"
+                    + "<sect_refno>" + locMap.SectFkRefno + "</sect_refno>"
                     + "<full_alt_qty>" + data.Root.Element("full_alt_qty").Value + "</full_alt_qty>"
                     + "<repack_alt_qty>" + data.Root.Element("repack_alt_qty").Value + "</repack_alt_qty>"
                     + "<fresh_alt_qty>" + data.Root.Element("fresh_alt_qty").Value + "</fresh_alt_qty>"
@@ -243,7 +243,7 @@ namespace dMobile.Controller.Activity
                     + "</command>"
                     + await SysCommon.GetRequestDefaults(false)
                     + "<refno>" + this.HdrFkRefno + "</refno>"
-                    + "<sect_refno>" + locMap.SectFKRefno + "</sect_refno>"
+                    + "<sect_refno>" + locMap.SectFkRefno + "</sect_refno>"
                     + "</imclient>");
 
                 request.Save(xml);
@@ -320,8 +320,8 @@ namespace dMobile.Controller.Activity
                 + "<action>REQUEST SALES ORDER IS BEING PICKED</action>"
                 + await SysCommon.GetRequestDefaults(false)
                 + "<refno>" + this.HdrFkRefno.ToString() + "</refno>"
-                + "<whs_id>" + locMap.WhsFKRefno + "</whs_id>"
-                + "<sect_refno>" + locMap.SectFKRefno + "</sect_refno>"
+                + "<whs_id>" + locMap.WhsFkRefno + "</whs_id>"
+                + "<sect_refno>" + locMap.SectFkRefno + "</sect_refno>"
                 + "</command>"
                 + "</imclient>");
 
@@ -379,8 +379,8 @@ namespace dMobile.Controller.Activity
                     + "<action>SUBMIT SALES ORDER CLEAR BEING PICKED</action>"
                     + await SysCommon.GetRequestDefaults(false)
                     + "<refno>" + this.HdrFkRefno.ToString() + "</refno>"
-                    + "<whs_id>" + locMap.WhsFKRefno + "</whs_id>"
-                    + "<sect_refno>" + locMap.SectFKRefno + "</sect_refno>"
+                    + "<whs_id>" + locMap.WhsFkRefno + "</whs_id>"
+                    + "<sect_refno>" + locMap.SectFkRefno + "</sect_refno>"
                     + "<device_only>" + clearDeviceOnly + "</device_only>"
                     + "</command>"
                     + "</imclient>");
@@ -481,7 +481,7 @@ namespace dMobile.Controller.Activity
                             + "AND tActivityItemPicking.ActivityItemPickingQuantityShipped "
                             + "< tActivityItemPicking.ActivityItemPickingQuantityOrdered";
 
-                var rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<object>(query));
+                var rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SqlConn.ExecuteScalarAsync<object>(query));
 
                 // Do not warn if product is out of stock WO# 12054
                 if (rowsAffected > 0)
@@ -509,8 +509,8 @@ namespace dMobile.Controller.Activity
                     + "</command>"
                     + await SysCommon.GetRequestDefaults(false)
                     + "<refno>" + this.HdrFkRefno + "</refno>"
-                    + "<whs_id>" + locMap.CurrLocMap.WhsFKRefno + "</whs_id>"
-                    + "<sect_refno>" + locMap.CurrLocMap.SectFKRefno + "</sect_refno>"
+                    + "<whs_id>" + locMap.CurrLocMap.WhsFkRefno + "</whs_id>"
+                    + "<sect_refno>" + locMap.CurrLocMap.SectFkRefno + "</sect_refno>"
                     + "</imclient>");
 
                 request.Save(xml);
@@ -913,7 +913,7 @@ namespace dMobile.Controller.Activity
             //        this.DataViewHdrs.RowFilter = this.GetFilter();
             //    }
             // }
-            this.listPicking = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<Picking>(sql.ToString());
+            this.listPicking = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<Picking>(sql.ToString());
 
             foreach (var sort in pickingSettings.GetDataViewSortBy())
             {
@@ -1191,8 +1191,8 @@ namespace dMobile.Controller.Activity
                     + "</command>"
                     + await SysCommon.GetRequestDefaults(false)
                     + "<refno>" + this.HdrFkRefno.ToString() + "</refno>"
-                    + "<whs_id>" + locMap.WhsFKRefno + "</whs_id>"
-                    + "<sect_refno>" + locMap.SectFKRefno + "</sect_refno>"
+                    + "<whs_id>" + locMap.WhsFkRefno + "</whs_id>"
+                    + "<sect_refno>" + locMap.SectFkRefno + "</sect_refno>"
                     + "</imclient>");
 
                 request.Save(xml);

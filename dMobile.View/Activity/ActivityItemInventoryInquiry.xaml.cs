@@ -83,7 +83,7 @@ namespace dMobile.View.Activity
                                         index = this.MainActivityItems.IndexOf(this.ListViewMainActivity.SelectedItem);
 
                                         // TODO: test
-                                        this.ActItem.ProdInfo = ProductInfoTasks.GetInfoFromCodeBCUnit(
+                                        this.ActItem.ProdInfo = ProductInfoTasks.GetInfoFromCodeBcUnit(
                                             Convert.ToString((this.ActItem.ListItems[index] as dynamic).productcode),
                                             Convert.ToString((this.ActItem.ListItems[index] as dynamic).productunitbc),
                                             Convert.ToString((this.ActItem.ListItems[index] as dynamic).unitcode));

@@ -418,9 +418,9 @@ namespace dMobile.Controller.Activity_Detail
                 + "<bc>" + this.ActItem.ProdInfo.UnitBc + "</bc>"
                 + "<alt_unit>" + this.ActItem.ProdInfo.UnitCode + "</alt_unit>"
                 + "<prod_id>" + this.ActItem.ProdInfo.Code + "</prod_id>"
-                + "<whs_id>" + this.LocMap.CurrLocMap.WhsFKRefno + "</whs_id>"
-                + "<sect_refno>" + this.LocMap.CurrLocMap.SectFKRefno + "</sect_refno>"
-                + "<slot_refno>" + this.LocMap.CurrLocMap.SlotFKRefno + "</slot_refno>"
+                + "<whs_id>" + this.LocMap.CurrLocMap.WhsFkRefno + "</whs_id>"
+                + "<sect_refno>" + this.LocMap.CurrLocMap.SectFkRefno + "</sect_refno>"
+                + "<slot_refno>" + this.LocMap.CurrLocMap.SlotFkRefno + "</slot_refno>"
                 + "</imclient>");
 
             request.Save(xml);

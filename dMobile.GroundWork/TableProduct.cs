@@ -38,7 +38,7 @@ namespace dMobile.GroundWork
             {
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding products.", true);
 
-                var resultsFamily = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tFamilyModel>("SELECT * FROM tFamily");
+                var resultsFamily = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<tFamilyModel>("SELECT * FROM tFamily");
 
                 if (resultsFamily?.Count > 0)
                 {
@@ -76,7 +76,7 @@ namespace dMobile.GroundWork
             {
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging products.", true);
 
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("DELETE FROM tProduct");
+                await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync("DELETE FROM tProduct");
 
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging products complete.", true);
             }
@@ -99,7 +99,7 @@ namespace dMobile.GroundWork
             int prodRefno;
             try
             {
-                var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tProductModel>("SELECT * FROM tProduct WHERE ProductFKRefno = ?", Convert.ToInt32(prodFKRefno));
+                var results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<tProductModel>("SELECT * FROM tProduct WHERE ProductFKRefno = ?", Convert.ToInt32(prodFKRefno));
 
                 if (results?.Count > 0)
                 {
@@ -128,7 +128,7 @@ namespace dMobile.GroundWork
             int rowsAffected;
             try
             {
-                rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tProduct"));
+                rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SqlConn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tProduct"));
 
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"{rowsAffected} products.", true);
             }
@@ -158,7 +158,7 @@ namespace dMobile.GroundWork
             var errMsg = string.Empty;
             var refreshDataChangesOnly = this.SysEnv.RefreshOpt.RefreshDataChangesOnly;
 
-            await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
+            await DatabaseConnection.GetInstance().SqlConn.RunInTransactionAsync(transaction =>
             {
                 try
                 {

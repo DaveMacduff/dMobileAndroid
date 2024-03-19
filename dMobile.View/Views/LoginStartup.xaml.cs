@@ -126,7 +126,7 @@ namespace dMobile.View.Views
                 }
 
                 // Check if user exists.
-                var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tContactUserModel>(
+                var results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<tContactUserModel>(
                     "SELECT * FROM tContactUser WHERE ContactUserCode = ?",
                     Convert.ToInt32(this.txtLoginID.Text));
 
@@ -188,9 +188,9 @@ namespace dMobile.View.Views
             {
                 // attempt to record login
                 if (!this.SysEnv.SysSettings.IsDisconnectedMode
-                    && this.SysEnv.CommSetup.HostIPAddressComponent1
-                    + this.SysEnv.CommSetup.HostIPAddressComponent2
-                    + this.SysEnv.CommSetup.HostIPAddressComponent3 != 0)
+                    && this.SysEnv.CommSetup.HostIpAddressComponent1
+                    + this.SysEnv.CommSetup.HostIpAddressComponent2
+                    + this.SysEnv.CommSetup.HostIpAddressComponent3 != 0)
                 {
                     if (this.SysEnv.ContactLog.IsLoggedIn)
                     {
@@ -255,9 +255,9 @@ namespace dMobile.View.Views
                     this.LogInPressed = true;
 
                     if (!this.SysEnv.SysSettings.IsDisconnectedMode
-                        && this.SysEnv.CommSetup.HostIPAddressComponent1
-                        + this.SysEnv.CommSetup.HostIPAddressComponent2
-                        + this.SysEnv.CommSetup.HostIPAddressComponent3 != 0)
+                        && this.SysEnv.CommSetup.HostIpAddressComponent1
+                        + this.SysEnv.CommSetup.HostIpAddressComponent2
+                        + this.SysEnv.CommSetup.HostIpAddressComponent3 != 0)
                     {
                         try
                         {
@@ -452,7 +452,7 @@ namespace dMobile.View.Views
             this.txtLoginID.Text = this.SysEnv.ContactLog.LoginID.ToString();
             this.txtLoginPassword.Text = this.SysEnv.ContactLog.LoginPassword;
 
-            var resultsWarehouse = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<Warehouse>(
+            var resultsWarehouse = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<Warehouse>(
                 "SELECT LocationMapRefno, LocationMapWarehouseCode, LocationMapWarehouseName FROM tLocationMapWarehouse");
 
             if (resultsWarehouse?.Count > 0)
@@ -530,7 +530,7 @@ namespace dMobile.View.Views
 
             try
             {
-                var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tContactUserModel>(
+                var results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<tContactUserModel>(
                     "SELECT * FROM tContactUser WHERE ContactUserCode = ?",
                     Convert.ToInt32(this.txtLoginID.Text));
 

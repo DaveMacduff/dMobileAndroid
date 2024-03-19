@@ -4,16 +4,26 @@
 
 namespace dMobile.Bedrock
 {
-    using SQLite;
     using System;
     using System.IO;
     using System.Threading.Tasks;
+    using SQLite;
 
     /// <summary>
     /// Defines the <see cref="DatabaseConnection" />.
     /// </summary>
     public class DatabaseConnection
     {
+        /// <summary>
+        /// Defines the databaseName.
+        /// </summary>
+        private const string DatabaseNameValue = "dMobile.Sqlite";
+
+        /// <summary>
+        /// Defines the databasePassword.
+        /// </summary>
+        private const string DatabasePasswordValue = "dMobile";
+
         /// <summary>
         /// Defines the dataConnUniq.
         /// </summary>
@@ -22,27 +32,17 @@ namespace dMobile.Bedrock
         /// <summary>
         /// Defines the sqlConn.
         /// </summary>
-        private static SQLiteAsyncConnection sqlConn = null;
+        private static SQLiteAsyncConnection sqlConn;
 
         /// <summary>
-        /// Defines the dbPath.
+        /// Defines the database path.
         /// </summary>
-        private static string dbPath = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
+        private static string databasePath = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
 
         /// <summary>
-        /// Defines the dbName.
+        /// Defines the database full path.
         /// </summary>
-        private static string dbName = "dMobile.Sqlite";
-
-        /// <summary>
-        /// Defines the dbASCIIZ.
-        /// </summary>
-        private static string dbASCIIZ = string.Empty;
-
-        /// <summary>
-        /// Defines the dbPassword.
-        /// </summary>
-        private static string dbPassword = "dMobile";
+        private static string databaseFullPath = string.Empty;
 
         /// <summary>
         /// Defines the connString.
@@ -77,39 +77,39 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// Gets or sets the DBASCIIZ.
+        /// Gets or sets the database full path.
         /// </summary>
-        public string DBASCIIZ
+        public string DatabaseFullPath
         {
-            get => dbASCIIZ;
+            get => databaseFullPath;
 
-            set => dbASCIIZ = value;
+            set => databaseFullPath = value;
         }
 
         /// <summary>
-        /// Gets or sets the DBPath.
+        /// Gets or sets the DatabasePath.
         /// </summary>
-        public string DBPath
+        public string DatabasePath
         {
-            get => dbPath;
+            get => databasePath;
 
-            set => dbPath = value;
+            set => databasePath = value;
         }
 
         /// <summary>
-        /// Gets the DBPassword.
+        /// Gets the DatabasePassword.
         /// </summary>
-        public string DBPassword => dbPassword;
+        public string DatabasePassword => DatabasePasswordValue;
 
         /// <summary>
-        /// Gets the DBName.
+        /// Gets the DatabaseName.
         /// </summary>
-        public string DBName => dbName;
+        public string DatabaseName => DatabaseNameValue;
 
         /// <summary>
-        /// Gets the SQLConn.
+        /// Gets the SqlConn.
         /// </summary>
-        public SQLiteAsyncConnection SQLConn => sqlConn;
+        public SQLiteAsyncConnection SqlConn => sqlConn;
 
         /// <summary>
         /// The GetInstance.
@@ -120,12 +120,12 @@ namespace dMobile.Bedrock
             if (dataConnUniq == null)
             {
                 dataConnUniq = new DatabaseConnection();
-                dbASCIIZ = Path.Combine(dbPath, dbName);
+                databaseFullPath = Path.Combine(databasePath, DatabaseNameValue);
 
-                // connString = new SQLiteConnectionString(dbASCIIZ);
+                // connString = new SQLiteConnectionString(databaseFullPath);
                 // foreign keys=true HAS to be specified or SQLite will not enforce foreign key constraints
-                // connString = "Data Source = '" + dbASCIIZ + "'; foreign keys=true;";
-                // connString = "Data Source = '" + dbPath + dbName + "'; Password = " + dbPassword;
+                // connString = "Data Source = '" + databaseFullPath + "'; foreign keys=true;";
+                // connString = "Data Source = '" + databasePath + databaseName + "'; Password = " + databasePassword;
             }
 
             Open();
@@ -138,10 +138,10 @@ namespace dMobile.Bedrock
         /// </summary>
         public static void Open()
         {
-            if (File.Exists(dbASCIIZ) & sqlConn == null)
+            if (File.Exists(databaseFullPath) & sqlConn == null)
             {
                 sqlConn = new SQLiteAsyncConnection(
-                    dbASCIIZ,
+                    databaseFullPath,
                     SQLiteOpenFlags.Create | SQLiteOpenFlags.FullMutex | SQLiteOpenFlags.ReadWrite);
             }
         }
@@ -153,13 +153,8 @@ namespace dMobile.Bedrock
         {
             if (sqlConn != null)
             {
-                // if (sqlConn.State == ConnectionState.Closed)
-                // {
-                // sqlConn.Dispose();
                 sqlConn = null;
                 dataConnUniq = null;
-
-                // }
             }
         }
 
@@ -171,11 +166,7 @@ namespace dMobile.Bedrock
         {
             if (sqlConn != null)
             {
-                // if (sqlConn.State == ConnectionState.Open)
-                // {
                 await sqlConn.CloseAsync();
-
-                // }
             }
         }
     }

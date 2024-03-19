@@ -914,8 +914,8 @@ namespace dMobile.View.Activity
                             this.ActHdr.XmlDataCriteria = XDocument.Parse(
                                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                                 + "<params>"
-                                + "<whs_id>" + sLocMap.WhsFKRefno + "</whs_id>"
-                                + "<sect_refno>" + sLocMap.SectFKRefno + "</sect_refno>"
+                                + "<whs_id>" + sLocMap.WhsFkRefno + "</whs_id>"
+                                + "<sect_refno>" + sLocMap.SectFkRefno + "</sect_refno>"
                                 + "</params>");
                         }
 

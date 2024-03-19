@@ -135,7 +135,7 @@ namespace dMobile.View
                 barCodeParse.ProductIdentifier == "90695955110022")
             {
                 BarCodeRuleParseSumwaFarmFedWholeDuckUseWeightRangeToIdProduct(barCodeParse);
-                var prodInfo = await GetInfoFromCodeBCUnit(
+                var prodInfo = await GetInfoFromCodeBcUnit(
                     barCodeParse.ProductIdentifier,
                     string.Empty,
                     "CS");
@@ -148,7 +148,7 @@ namespace dMobile.View
                                      " from tProductUnitBarCode where ProductUnitBarCodeCode = ?" +
                                      " and ProductUnitBarCodeModifier1 = ?";
                 var results =
-                    await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tProductUnitBarCodeModel>(
+                    await DatabaseConnection.GetInstance().SqlConn.QueryAsync<tProductUnitBarCodeModel>(
                         query, barCodeParse.ProductIdentifier, sysEnv.CurrentBarCodeModifier1);
 
                 if (results?.Count > 0)
@@ -343,7 +343,7 @@ namespace dMobile.View
             }
 
             var isStopForLabelDetail = false;
-            if (actDetail.ActSubType == SysCommon.ActSubTypes.Receiving && actDetail.ActItem.LocMap.IsWhsWMS)
+            if (actDetail.ActSubType == SysCommon.ActSubTypes.Receiving && actDetail.ActItem.LocMap.IsWhsWms)
             {
                 if (!actDetail.IsLabelSchemeComplete())
                 {
@@ -412,11 +412,11 @@ namespace dMobile.View
             }
             else
             {
-                actDetail.SchemeId = GetActSchemeIDFromSProdSchemeData(
+                actDetail.SchemeId = GetActSchemeIdFromSProdSchemeData(
                     actItem.ProdInfo.Code,
                     actItem.ProdInfo.Scheme,
                     actDetail.SchemeData);
-                actDetail.UniqueSchemeId = GetUniqueSchemeIDFromSProdSchemeData(
+                actDetail.UniqueSchemeId = GetUniqueSchemeIdFromSProdSchemeData(
                     actItem.ProdInfo.Code,
                     actItem.ProdInfo.Scheme,
                     actDetail.SchemeData);
@@ -620,7 +620,7 @@ namespace dMobile.View
                                         where tProductSchemeLotNumberXRef.ProductSchemeRefno =
                                     order by ProductSchemeLotNumberCode DESC";
                             var results =
-                                await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tProductSchemeLotNumberModel>(
+                                await DatabaseConnection.GetInstance().SqlConn.QueryAsync<tProductSchemeLotNumberModel>(
                                     query,
                                     schemeReferenceNumber);
 
@@ -933,12 +933,12 @@ namespace dMobile.View
                     actDetail.ActExtra.DateTime1 = DateTime.Parse(xmlDoc.Root.Element("extra5").Value);
                 }
 
-                actDetail.SchemeId = GetActSchemeIDFromSProdSchemeData(
+                actDetail.SchemeId = GetActSchemeIdFromSProdSchemeData(
                     actDetail.ActItem.ProdInfo.Code,
                     actDetail.ActItem.ProdInfo.Scheme,
                     actDetail.SchemeData);
 
-                actDetail.UniqueSchemeId = GetUniqueSchemeIDFromSProdSchemeData(
+                actDetail.UniqueSchemeId = GetUniqueSchemeIdFromSProdSchemeData(
                     actDetail.ActItem.ProdInfo.Code,
                     actDetail.ActItem.ProdInfo.Scheme,
                     actDetail.SchemeData);

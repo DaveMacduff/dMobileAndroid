@@ -5,6 +5,7 @@
 namespace dMobile.Bedrock
 {
     using System;
+    using System.Diagnostics.CodeAnalysis;
     using System.IO;
     using System.Xml.Serialization;
 
@@ -48,7 +49,7 @@ namespace dMobile.Bedrock
         /// <summary>
         /// Gets or sets the product foreign key reference number. (iv_mast.refno).
         /// </summary>
-        public int FKRefno { get; set; } = 0;
+        public int FkRefno { get; set; } = 0;
 
         /// <summary>
         /// Gets or sets the product reference number.
@@ -73,7 +74,7 @@ namespace dMobile.Bedrock
         /// <summary>
         /// Gets or sets a value indicating whether the unit is broken case.
         /// </summary>
-        public bool UnitIsBC { get; set; } = false;
+        public bool UnitIsBc { get; set; } = false;
 
         /// <summary>
         /// Gets or sets the product unit broken case string. "X".
@@ -160,37 +161,51 @@ namespace dMobile.Bedrock
             return (ProductInfo)serializer.Deserialize(stream);
         }
 
+        /// <inheritdoc/>
         public bool Equals(ProductInfo other)
         {
-            if (ReferenceEquals(null, other)) return false;
-            if (ReferenceEquals(this, other)) return true;
-            return this.IsAllowConvertProduct == other.IsAllowConvertProduct
-                   && this.ProductAcceptDays == other.ProductAcceptDays
-                   && this.IsCatchAskZero == other.IsCatchAskZero
-                   && this.BoxCount == other.BoxCount
-                   && this.UnitIsSellUnit == other.UnitIsSellUnit
-                   && this.UnitIsDefault == other.UnitIsDefault
-                   && this.UnitRefno == other.UnitRefno
-                   && this.FKRefno == other.FKRefno
-                   && this.Refno == other.Refno
-                   && this.Code == other.Code
-                   && this.Desc == other.Desc
-                   && this.BrandDesc == other.BrandDesc
-                   && this.UnitIsBC == other.UnitIsBC
-                   && this.UnitBc == other.UnitBc
-                   && this.UnitCode == other.UnitCode
-                   && this.UnitSizeDesc == other.UnitSizeDesc
-                   && this.BaseUnitCode == other.BaseUnitCode
-                   && this.WeightUnitCode == other.WeightUnitCode
-                   && Equals(this.Scheme, other.Scheme)
-                   && this.Unit2BaseUnitFactor == other.Unit2BaseUnitFactor
-                   && this.UnitGrossWeight == other.UnitGrossWeight
-                   && this.IsCatchCount == other.IsCatchCount
-                   && this.IsCatchWeight == other.IsCatchWeight
-                   && this.IsCatchAsk == other.IsCatchAsk
-                   && this.WeightTolerance == other.WeightTolerance;
+            if (other is null)
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(this, other))
+            {
+                return true;
+            }
+
+            return this.IsAllowConvertProduct == other.IsAllowConvertProduct &&
+                   this.IsCatchAskZero == other.IsCatchAskZero &&
+                   this.BoxCount == other.BoxCount &&
+                   this.UnitIsSellUnit == other.UnitIsSellUnit &&
+                   this.UnitIsDefault == other.UnitIsDefault &&
+                   this.UnitRefno == other.UnitRefno &&
+                   this.FkRefno == other.FkRefno &&
+                   this.Refno == other.Refno &&
+                   this.Code == other.Code &&
+                   this.Desc == other.Desc &&
+                   this.BrandDesc == other.BrandDesc &&
+                   this.UnitIsBc == other.UnitIsBc &&
+                   this.UnitBc == other.UnitBc &&
+                   this.UnitCode == other.UnitCode &&
+                   this.UnitSizeDesc == other.UnitSizeDesc &&
+                   this.BaseUnitCode == other.BaseUnitCode &&
+                   this.WeightUnitCode == other.WeightUnitCode &&
+                   Equals(this.Scheme, other.Scheme) &&
+                   this.Unit2BaseUnitFactor == other.Unit2BaseUnitFactor &&
+                   this.UnitGrossWeight == other.UnitGrossWeight &&
+                   this.IsCatchCount == other.IsCatchCount &&
+                   this.IsCatchWeight == other.IsCatchWeight &&
+                   this.IsCatchAsk == other.IsCatchAsk &&
+                   this.WeightTolerance == other.WeightTolerance &&
+                   this.ProductAcceptDays == other.ProductAcceptDays;
         }
 
+        /// <summary>
+        ///    Determines whether the specified object is equal to the current object.
+        /// </summary>
+        /// <param name="obj">Object to compare against.</param>
+        /// <returns> True if the objects are equal, else false.</returns>
         public override bool Equals(object obj)
         {
             if (obj is null)
@@ -206,22 +221,26 @@ namespace dMobile.Bedrock
             return obj.GetType() == this.GetType() && this.Equals((ProductInfo)obj);
         }
 
+        /// <summary>
+        ///     Get the hash code.
+        /// </summary>
+        /// <returns>Calculated hash code.</returns>
+        [SuppressMessage("ReSharper", "NonReadonlyMemberInGetHashCode", Justification = "Not sure how to fix the warnings.")]
         public override int GetHashCode()
         {
             var hashCode = new HashCode();
             hashCode.Add(this.IsAllowConvertProduct);
-            hashCode.Add(this.ProductAcceptDays);
             hashCode.Add(this.IsCatchAskZero);
             hashCode.Add(this.BoxCount);
             hashCode.Add(this.UnitIsSellUnit);
             hashCode.Add(this.UnitIsDefault);
             hashCode.Add(this.UnitRefno);
-            hashCode.Add(this.FKRefno);
+            hashCode.Add(this.FkRefno);
             hashCode.Add(this.Refno);
             hashCode.Add(this.Code);
             hashCode.Add(this.Desc);
             hashCode.Add(this.BrandDesc);
-            hashCode.Add(this.UnitIsBC);
+            hashCode.Add(this.UnitIsBc);
             hashCode.Add(this.UnitBc);
             hashCode.Add(this.UnitCode);
             hashCode.Add(this.UnitSizeDesc);
@@ -234,6 +253,7 @@ namespace dMobile.Bedrock
             hashCode.Add(this.IsCatchWeight);
             hashCode.Add(this.IsCatchAsk);
             hashCode.Add(this.WeightTolerance);
+            hashCode.Add(this.ProductAcceptDays);
             return hashCode.ToHashCode();
         }
     }

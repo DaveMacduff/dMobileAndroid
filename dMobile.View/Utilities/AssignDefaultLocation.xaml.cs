@@ -391,7 +391,7 @@ namespace dMobile.View.Utilities
         }
 
         /// <summary>
-        ///     The GetXML.
+        ///     The GetXml.
         /// </summary>
         /// <returns>.</returns>
         public async Task<XDocument> GetXml()
@@ -460,16 +460,16 @@ namespace dMobile.View.Utilities
                         + await SysCommon.GetRequestDefaults(false)
                         + "</command>"
                         + "<receiving>"
-                        + "<prod_refno>" + this.ActItem.ProdInfo.FKRefno + "</prod_refno>"
+                        + "<prod_refno>" + this.ActItem.ProdInfo.FkRefno + "</prod_refno>"
                         + "<is_update>" + this.chkDefaultReceiving.IsToggled + "</is_update>"
-                        + "<whs_id>" + this.LocMapDefRecv.WhsFKRefno + "</whs_id>"
+                        + "<whs_id>" + this.LocMapDefRecv.WhsFkRefno + "</whs_id>"
                         + "<section>" + this.LocMapDefRecv.SectName + "</section>"
                         + "<slot>" + this.LocMapDefRecv.SlotName + "</slot>"
                         + "</receiving>"
                         + "<picking>"
-                        + "<prod_refno>" + this.ActItem.ProdInfo.FKRefno + "</prod_refno>"
+                        + "<prod_refno>" + this.ActItem.ProdInfo.FkRefno + "</prod_refno>"
                         + "<is_update>" + this.chkDefaultPicking.IsToggled + "</is_update>"
-                        + "<whs_id>" + this.LocMapDefPicking.WhsFKRefno + "</whs_id>"
+                        + "<whs_id>" + this.LocMapDefPicking.WhsFkRefno + "</whs_id>"
                         + "<section>" + this.LocMapDefPicking.SectName + "</section>"
                         + "<slot>" + this.LocMapDefPicking.SlotName + "</slot>"
                         + "</picking>"

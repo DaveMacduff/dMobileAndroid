@@ -293,7 +293,7 @@ namespace dMobile.View.Activity
 
                         this.ExtraInfoItems.Clear();
                         this.ExtraInfoItems.Add("Skid Product: " +
-                                                ProductInfoTasks.GetCurrReadableProdBCUnit(this.Activity.SkidInfo
+                                                ProductInfoTasks.GetCurrReadableProdBcUnit(this.Activity.SkidInfo
                                                     .CurrSkid.ProdInfo));
                         this.ExtraInfoItems.Add("Skid Location: " +
                                                 LocationMapTasks.GetReadableLocation(this.Activity.SkidInfo.CurrSkid
@@ -470,13 +470,13 @@ namespace dMobile.View.Activity
                                     this.LocMap.CurrLocMapRefno;
 
                                 (this.ActDetail.ListDetails[i] as dynamic).ActivityDetailSchemeID =
-                                    ProductInfoTasks.GetActSchemeIDFromSProdSchemeData(
+                                    ProductInfoTasks.GetActSchemeIdFromSProdSchemeData(
                                         this.ActDetailOnSkid.ActItem.ProdInfo.Code,
                                         this.ActDetailOnSkid.ActItem.ProdInfo.Scheme,
                                         this.ActDetailOnSkid.SchemeData);
 
                                 (this.ActDetail.ListDetails[i] as dynamic).ActivityDetailUniqueSchemeID =
-                                    ProductInfoTasks.GetUniqueSchemeIDFromSProdSchemeData(
+                                    ProductInfoTasks.GetUniqueSchemeIdFromSProdSchemeData(
                                         this.ActDetailOnSkid.ActItem.ProdInfo.Code,
                                         this.ActDetailOnSkid.ActItem.ProdInfo.Scheme,
                                         this.ActDetailOnSkid.SchemeData);
@@ -862,12 +862,12 @@ namespace dMobile.View.Activity
         //        + "</command>"
         //        + await SysCommon.GetRequestDefaults(false)
         //        + ("<prod_id>" + prodInfo.Code + "</prod_id>")
-        //        + ("<is_bc>" + prodInfo.UnitIsBC + "</is_bc>")
+        //        + ("<is_bc>" + prodInfo.UnitIsBc + "</is_bc>")
         //        + ("<whs_id>" + this.LocMap.CurrLocMap.WhsFKRefno + "</whs_id>")
         //        + ("<sect_refno>" + this.LocMap.CurrLocMap.SectFKRefno + "</sect_refno>")
         //        + ("<slot_refno>" + this.LocMap.CurrLocMap.SlotFKRefno + "</slot_refno>")
-        //        + ("<refno>" + this.ActItem.ActHdr.FKRefno + "</refno>")
-        //        + ("<itm_refno>" + this.ActItem.FKRefno + "</itm_refno>")
+        //        + ("<refno>" + this.ActItem.ActHdr.FkRefno + "</refno>")
+        //        + ("<itm_refno>" + this.ActItem.FkRefno + "</itm_refno>")
         //        + ("<pono>" + this.ActItem.ActHdr.PONO + "</pono>")
         //        + ("<alt_qty>" + detail[idx]["ActivityDetailQuantity"] + "</alt_qty>")
         //        + ("<alt_unit>" + detail[idx]["UnitCode"] + "</alt_unit>")
@@ -928,9 +928,9 @@ namespace dMobile.View.Activity
                 }
 
                 _ = request.Append("<from>");
-                _ = request.AppendFormat("<whs_id>{0}</whs_id>", currSkid.LocMap.WhsFKRefno);
-                _ = request.AppendFormat("<sect_refno>{0}</sect_refno>", currSkid.LocMap.SectFKRefno);
-                _ = request.AppendFormat("<slot_refno>{0}</slot_refno>", currSkid.LocMap.SlotFKRefno);
+                _ = request.AppendFormat("<whs_id>{0}</whs_id>", currSkid.LocMap.WhsFkRefno);
+                _ = request.AppendFormat("<sect_refno>{0}</sect_refno>", currSkid.LocMap.SectFkRefno);
+                _ = request.AppendFormat("<slot_refno>{0}</slot_refno>", currSkid.LocMap.SlotFkRefno);
                 _ = request.AppendFormat("<refno></refno>", this.ActItem.ActHdr.HdrFkRefno);
                 _ = request.AppendFormat("<itm_refno>{0}</itm_refno>", this.ActItem.ItemFkRefno);
                 _ = request.AppendFormat("<prod_id>{0}</prod_id>",
@@ -987,9 +987,9 @@ namespace dMobile.View.Activity
                 }
 
                 _ = request.Append("<to>");
-                _ = request.AppendFormat("<whs_id>{0}</whs_id>", this.LocMap.CurrLocMap.WhsFKRefno);
-                _ = request.AppendFormat("<sect_refno>{0}</sect_refno>", this.LocMap.CurrLocMap.SectFKRefno);
-                _ = request.AppendFormat("<slot_refno>{0}</slot_refno>", this.LocMap.CurrLocMap.SlotFKRefno);
+                _ = request.AppendFormat("<whs_id>{0}</whs_id>", this.LocMap.CurrLocMap.WhsFkRefno);
+                _ = request.AppendFormat("<sect_refno>{0}</sect_refno>", this.LocMap.CurrLocMap.SectFkRefno);
+                _ = request.AppendFormat("<slot_refno>{0}</slot_refno>", this.LocMap.CurrLocMap.SlotFkRefno);
                 _ = request.AppendFormat("<refno></refno>", this.ActItem.ActHdr.HdrFkRefno);
                 _ = request.AppendFormat("<itm_refno>{0}</itm_refno>", this.ActItem.ItemFkRefno);
                 _ = request.AppendFormat("<prod_id>{0}</prod_id>",
@@ -1088,9 +1088,9 @@ namespace dMobile.View.Activity
             }
 
             actDetail.SchemeData = schemeData;
-            actDetail.SchemeId = ProductInfoTasks.GetActSchemeIDFromSProdSchemeData(this.ActItem.ProdInfo.Code,
+            actDetail.SchemeId = ProductInfoTasks.GetActSchemeIdFromSProdSchemeData(this.ActItem.ProdInfo.Code,
                 this.ActItem.ProdInfo.Scheme, actDetail.SchemeData);
-            actDetail.UniqueSchemeId = ProductInfoTasks.GetUniqueSchemeIDFromSProdSchemeData(this.ActItem.ProdInfo.Code,
+            actDetail.UniqueSchemeId = ProductInfoTasks.GetUniqueSchemeIdFromSProdSchemeData(this.ActItem.ProdInfo.Code,
                 this.ActItem.ProdInfo.Scheme, actDetail.SchemeData);
 
             if (isInsertDetailReady)
@@ -1230,7 +1230,7 @@ namespace dMobile.View.Activity
                             await Device.InvokeOnMainThreadAsync(() => this.ExtraInfoItems.Clear());
 
                             this.ExtraInfoItems.Add("Skid Product: " +
-                                                    ProductInfoTasks.GetCurrReadableProdBCUnit(this.Activity
+                                                    ProductInfoTasks.GetCurrReadableProdBcUnit(this.Activity
                                                         .SkidInfo.CurrSkid.ProdInfo));
                             this.ExtraInfoItems.Add("Skid Location: " +
                                                     LocationMapTasks.GetReadableLocation(this.Activity.SkidInfo

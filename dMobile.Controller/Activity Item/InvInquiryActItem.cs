@@ -435,9 +435,9 @@ namespace dMobile.Controller.Activity_Item
                 + "</command>"
                 + await SysCommon.GetRequestDefaults(false)
                 + "<prod_id>" + this.ProdInfo.Code + "</prod_id>"
-                + "<whs_id>" + this.LocMap.WhsFKRefno + "</whs_id>"
-                + "<sect_refno>" + this.LocMap.SectFKRefno + "</sect_refno>"
-                + "<slot_refno>" + this.LocMap.SlotFKRefno + "</slot_refno>"
+                + "<whs_id>" + this.LocMap.WhsFkRefno + "</whs_id>"
+                + "<sect_refno>" + this.LocMap.SectFkRefno + "</sect_refno>"
+                + "<slot_refno>" + this.LocMap.SlotFkRefno + "</slot_refno>"
                 + "</imclient>");
 
             request.Save(xml);

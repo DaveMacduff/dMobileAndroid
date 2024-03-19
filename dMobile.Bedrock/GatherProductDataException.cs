@@ -15,14 +15,13 @@ namespace dMobile.Bedrock
         /// Initializes a new instance of the <see cref="GatherProductDataException"/> class.
         /// </summary>
         public GatherProductDataException()
-            : base()
         {
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="GatherProductDataException"/> class.
         /// </summary>
-        /// <param name="message">.</param>
+        /// <param name="message">Exception message.</param>
         public GatherProductDataException(string message)
             : base(message)
         {
@@ -31,8 +30,8 @@ namespace dMobile.Bedrock
         /// <summary>
         /// Initializes a new instance of the <see cref="GatherProductDataException"/> class.
         /// </summary>
-        /// <param name="message">.</param>
-        /// <param name="inner">.</param>
+        /// <param name="message">Exception message.</param>
+        /// <param name="inner">Inner exception.</param>
         public GatherProductDataException(string message, Exception inner)
             : base(message, inner)
         {
@@ -41,8 +40,8 @@ namespace dMobile.Bedrock
         /// <summary>
         /// Initializes a new instance of the <see cref="GatherProductDataException"/> class.
         /// </summary>
-        /// <param name="message">.</param>
-        /// <param name="suppressError">.</param>
+        /// <param name="message">Exception message.</param>
+        /// <param name="suppressError">Set the suppression error flag.</param>
         public GatherProductDataException(string message, bool suppressError)
             : base(message)
         {
@@ -52,9 +51,9 @@ namespace dMobile.Bedrock
         /// <summary>
         /// Initializes a new instance of the <see cref="GatherProductDataException"/> class.
         /// </summary>
-        /// <param name="message">.</param>
-        /// <param name="inner">.</param>
-        /// <param name="suppressError">.</param>
+        /// <param name="message">Exception message.</param>
+        /// <param name="inner">Inner exception.</param>
+        /// <param name="suppressError">Set the suppression error flag.</param>
         public GatherProductDataException(string message, Exception inner, bool suppressError)
             : base(message, inner)
         {
@@ -64,6 +63,6 @@ namespace dMobile.Bedrock
         /// <summary>
         /// Gets or sets a value indicating whether SuppressError.
         /// </summary>
-        public bool SuppressError { get; set; } = false;
+        public bool SuppressError { get; set; }
     }
 }

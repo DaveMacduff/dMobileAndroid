@@ -400,7 +400,7 @@ namespace dMobile.Bedrock
                         schemeCode = Convert.ToString(drow["ProductSchemeCode"]);
                         errMsg = "Scheme code \'" + errMsg + "\'";
 
-                        var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tProductSchemeModel>("SELECT * FROM tProductScheme WHERE ProductSchemeCode = ?", schemeCode);
+                        var results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<tProductSchemeModel>("SELECT * FROM tProductScheme WHERE ProductSchemeCode = ?", schemeCode);
 
                         // if (!drScheme.Seek(DbSeekOptions.FirstEqual, new object[] { schemeCode }))
                         // {

@@ -308,7 +308,7 @@ namespace dMobile.GroundWork
                 if (actHdrRefno == 0)
                 {
                     var query = "SELECT * FROM tActivity WHERE ActivitySubType = ?";
-                    var conn = DatabaseConnection.GetInstance().SQLConn;
+                    var conn = DatabaseConnection.GetInstance().SqlConn;
                     var queryResult = await conn.QueryAsync<ActivityModel>(query, (int)this.CurrentSubType);
                     if (queryResult != null && queryResult.Count > 0)
                     {
@@ -460,7 +460,7 @@ namespace dMobile.GroundWork
             {
                 // Get all activity detail for all activity items, used in disconnected mode.
                 var query = "SELECT ActivityItemRefno FROM tActivityItem WHERE ActivityItemSubType = ?";
-                var queryResult = await DatabaseConnection.GetInstance().SQLConn
+                var queryResult = await DatabaseConnection.GetInstance().SqlConn
                     .QueryAsync<tActivityItemModel>(
                         query,
                         Convert.ToInt32(this.CurrentSubType));
@@ -565,7 +565,7 @@ namespace dMobile.GroundWork
                 var query = "SELECT COUNT(tActivity.ActivityRefno)"
                             + " FROM tActivity"
                             + " WHERE tActivity.ActivitySubType = ?";
-                var conn = DatabaseConnection.GetInstance().SQLConn;
+                var conn = DatabaseConnection.GetInstance().SqlConn;
                 rowsAffected = await conn.ExecuteScalarAsync<int>(query, (int)this.CurrentSubType);
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"{rowsAffected} {this.LowerCaseName}(s)", true);
             }
@@ -597,7 +597,7 @@ namespace dMobile.GroundWork
             {
                 var query = "SELECT COUNT(tActivityItem.ActivityItemRefno) FROM tActivityItem WHERE" +
                     " tActivityItem.ActivityItemSubType = ?";
-                rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>(
+                rowsAffected = await DatabaseConnection.GetInstance().SqlConn.ExecuteScalarAsync<int>(
                     query,
                     (int)this.CurrentSubType);
                 this.DataAccessStatusOutHandler(
@@ -639,7 +639,7 @@ namespace dMobile.GroundWork
             {
                 var query = "SELECT COUNT(tActivityDetail.ActivityDetailRefno) FROM tActivityDetail WHERE" +
                     " tActivityDetail.ActivityDetailSubType = ?";
-                rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>(
+                rowsAffected = await DatabaseConnection.GetInstance().SqlConn.ExecuteScalarAsync<int>(
                     query,
                     Convert.ToInt32(this.CurrentSubType));
                 this.DataAccessStatusOutHandler(

@@ -1187,7 +1187,7 @@ namespace dMobile.Bedrock
 
             var def = "<device_id>" + sysEnv.DeviceID + "</device_id>"
                       + "<login_id>" + sysEnv.ContactLog.LoginID + "</login_id>"
-                      + "<login_whs_id>" + loginLocMap.WhsFKRefno + "</login_whs_id>"
+                      + "<login_whs_id>" + loginLocMap.WhsFkRefno + "</login_whs_id>"
                       + "<revision_datetime>" + revision + "</revision_datetime>"
                       + "<stamp>" + current + "</stamp>";
 
@@ -1218,7 +1218,7 @@ namespace dMobile.Bedrock
             sql.Append("INNER JOIN tActivityDetail ON tActivityDetail.ActivityItemRefno = tActivityItem.ActivityItemRefno ");
             sql.AppendFormat("WHERE tActivityDetail.ActivityDetailStatus <> {0}", Convert.ToInt32(ActStatus.NoChange));
 
-            var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<ActivityModel>(Convert.ToString(sql));
+            var results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<ActivityModel>(Convert.ToString(sql));
 
             if (results?.Count > 0)
             {

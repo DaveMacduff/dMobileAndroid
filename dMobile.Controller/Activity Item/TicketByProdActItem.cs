@@ -319,7 +319,7 @@ namespace dMobile.Controller.Activity_Item
             //////////////////////////////////////////////////////////////////////////
             async Task InsertActivityItemInTables(int prodUnitRefno)
             {
-                await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
+                await DatabaseConnection.GetInstance().SqlConn.RunInTransactionAsync(transaction =>
                 {
                     try
                     {
@@ -718,7 +718,7 @@ namespace dMobile.Controller.Activity_Item
             //        TODO: Fix sorting
             //    }
             // }
-            this.ListProductionTicketByProductItems = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<ProductionTicketByProductItem>(sql.ToString());
+            this.ListProductionTicketByProductItems = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<ProductionTicketByProductItem>(sql.ToString());
             this.ListItems = this.ListProductionTicketByProductItems.Cast<object>().ToList();
             return this.ListItems;
         }
@@ -842,7 +842,7 @@ namespace dMobile.Controller.Activity_Item
             sql.AppendFormat("AND tActivityItemProduction.ProductUnitRefno = {0} ", prodUnitRefno);
             sql.AppendFormat("AND tActivityItem.ActivityItemSubType = {0}", (int)SysCommon.ActSubTypes.TicketAddProduct);
 
-            var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<ProductionTicketByProductItem>(sql.ToString());
+            var results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<ProductionTicketByProductItem>(sql.ToString());
 
             if (results != null && results.Count > 0)
             {
@@ -955,7 +955,7 @@ namespace dMobile.Controller.Activity_Item
                     productionTicketByProductItem.ActivityItemRefno,
                 };
 
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, parameters);
+                await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync(query, parameters);
             }
         }
 

@@ -314,7 +314,7 @@ namespace dMobile.Controller.Activity_Detail
                     tempSchemeData.LogisticUnitSkidNumber = this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno.ToString();
                     tempSchemeData.VariantNumber = Convert.ToInt32(drow["ProductSchemeVariantNo"]);
 
-                    var results = await DatabaseConnection.GetInstance().SQLConn.
+                    var results = await DatabaseConnection.GetInstance().SqlConn.
                         QueryAsync<tProductSchemeVariantModel>(
                         "SELECT * FROM tProductSchemeVariant WHERE ProductSchemeVariantNo = ?",
                         tempSchemeData.VariantNumber);
@@ -682,7 +682,7 @@ namespace dMobile.Controller.Activity_Detail
                     ProductRefno = this.ActItem.ProdInfo.Refno,
                     ProductCode = this.ActItem.ProdInfo.Code,
                     ProductUnitBC = this.ActItem.ProdInfo.UnitBc,
-                    ProductUnitIsBC = this.ActItem.ProdInfo.UnitIsBC,
+                    ProductUnitIsBC = this.ActItem.ProdInfo.UnitIsBc,
                     ProductDescription = this.ActItem.ProdInfo.Desc,
                     ProductUnitSizeDescription = this.ActItem.ProdInfo.UnitSizeDesc,
                     UnitCode = this.ActItem.ProdInfo.UnitCode,

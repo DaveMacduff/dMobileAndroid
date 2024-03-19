@@ -271,7 +271,7 @@ namespace dMobile.Controller.Activity_Item
             //////////////////////////////////////////////////////////////////////////
             async Task InsertActivityItemInTables(int prodUnitRefno)
             {
-                await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
+                await DatabaseConnection.GetInstance().SqlConn.RunInTransactionAsync(transaction =>
                 {
                     try
                     {
@@ -659,7 +659,7 @@ namespace dMobile.Controller.Activity_Item
                 sql.Append("ORDER BY tActivityItemAdjustment.ActivityItemRefno");
             }
 
-            this.ListAdjustmentItems = await DatabaseConnection.GetInstance().SQLConn.
+            this.ListAdjustmentItems = await DatabaseConnection.GetInstance().SqlConn.
                 QueryAsync<AdjustmentItem>(sql.ToString());
             this.ListItems = this.ListAdjustmentItems.Cast<object>().ToList();
 
@@ -782,7 +782,7 @@ namespace dMobile.Controller.Activity_Item
             sql.AppendFormat(" AND tActivityItemAdjustment.WarehouseLocationMapRefno = {0}", locMap.WhsLocMapRefno);
             sql.AppendFormat(" AND tActivityItemAdjustment.ProductUnitRefno = {0}", prodUnitRefno);
 
-            var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<AdjustmentItem>(
+            var results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<AdjustmentItem>(
                 sql.ToString());
 
             if (results != null && results.Count > 0)
@@ -920,7 +920,7 @@ namespace dMobile.Controller.Activity_Item
                     adjustmentItem.ActivityItemRefno,
                 };
 
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, parameters);
+                await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync(query, parameters);
             }
         }
 

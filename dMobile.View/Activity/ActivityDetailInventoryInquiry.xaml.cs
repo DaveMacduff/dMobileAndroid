@@ -115,7 +115,7 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        ///     The GetXML.
+        ///     The GetXml.
         /// </summary>
         /// <returns>.</returns>
         public async Task<XDocument> GetXml()
@@ -143,13 +143,12 @@ namespace dMobile.View.Activity
         /// <returns>.</returns>
         public async Task<bool> IsReadyToClose()
         {
-            var isReadyToClose = true;
-
+            const bool isReadyToClose = true;
             if (isReadyToClose)
             {
                 // NOTE: This code is needed to clean up the scanner driver.
                 // Symbol had threading issues without this call when dMobile was terminating.
-                // All user controls that initalize a bar code need this code.
+                // All user controls that initialize a bar code need this code.
                 // The parent form (not a user control) will call scanner.terminate and dispose
                 // of the scanner instance upon exiting dMobile.
                 if (this.Scanner != null)

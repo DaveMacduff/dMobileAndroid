@@ -388,7 +388,7 @@ namespace dMobile.Controller.Activity_Item
                 }
             }
 
-            // New items are identified with 0 < this.FKRefno, do not validate.
+            // New items are identified with 0 < this.FkRefno, do not validate.
             if (this.SysEnv.SysSettings.PickQtyOverWarn != SysCommon.ActPickingQtyOverValLevels.NoValidationOrWarning && this.ItemFkRefno > 0)
             {
                 try
@@ -532,7 +532,7 @@ namespace dMobile.Controller.Activity_Item
 
             if (selectedActivityItem is PickingItem pickingItem)
             {
-                var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tActivityItemPickingCommentModel>("SELECT * FROM tActivityItemPickingComment WHERE ActivityItemRefno = ?", pickingItem.ActivityItemRefno);
+                var results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<tActivityItemPickingCommentModel>("SELECT * FROM tActivityItemPickingComment WHERE ActivityItemRefno = ?", pickingItem.ActivityItemRefno);
 
                 if (results != null && results.Count > 0)
                 {
@@ -982,7 +982,7 @@ namespace dMobile.Controller.Activity_Item
             //        TODO: Fix sorting
             //    }
             // }
-            this.listPickingItems = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<PickingItem>(sql.ToString());
+            this.listPickingItems = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<PickingItem>(sql.ToString());
             this.ListItems = this.listPickingItems.Cast<object>().ToList();
             return this.ListItems;
         }
@@ -1157,9 +1157,9 @@ namespace dMobile.Controller.Activity_Item
                 + "<is_bc>" + prodUnitIsBc + "</is_bc>"
                 + "<symbology>" + symbologyPrefix + "</symbology>"
                 + "<gtin>" + barCodeCode + "</gtin>"
-                + "<whs_id>" + this.LocMap.WhsFKRefno + "</whs_id>"
-                + "<sect_refno>" + this.LocMap.SectFKRefno + "</sect_refno>"
-                + "<slot_refno>" + this.LocMap.SlotFKRefno + "</slot_refno>"
+                + "<whs_id>" + this.LocMap.WhsFkRefno + "</whs_id>"
+                + "<sect_refno>" + this.LocMap.SectFkRefno + "</sect_refno>"
+                + "<slot_refno>" + this.LocMap.SlotFkRefno + "</slot_refno>"
                 + "<refno></refno>" + "</imclient>");
 
             request.Save(xml);
@@ -1223,7 +1223,7 @@ namespace dMobile.Controller.Activity_Item
                     pickingItem.ActivityItemRefno,
                 };
 
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, parameters);
+                await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync(query, parameters);
             }
         }
 

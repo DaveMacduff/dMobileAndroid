@@ -773,9 +773,9 @@ namespace dMobile.Controller.Activity_Detail
             req.Append("<command><action>SUBMIT CONVERT PRODUCT</action></command>");
             req.Append(await SysCommon.GetRequestDefaults(false));
             req.Append("<from>");
-            req.AppendFormat("<whs_id>{0}</whs_id>", this.LocMap.CurrLocMap.WhsFKRefno);
-            req.AppendFormat("<sect_refno>{0}</sect_refno>", this.LocMap.CurrLocMap.SectFKRefno);
-            req.AppendFormat("<slot_refno>{0}</slot_refno>", this.LocMap.CurrLocMap.SlotFKRefno);
+            req.AppendFormat("<whs_id>{0}</whs_id>", this.LocMap.CurrLocMap.WhsFkRefno);
+            req.AppendFormat("<sect_refno>{0}</sect_refno>", this.LocMap.CurrLocMap.SectFkRefno);
+            req.AppendFormat("<slot_refno>{0}</slot_refno>", this.LocMap.CurrLocMap.SlotFkRefno);
             req.AppendFormat("<hdr_refno>{0}</hdr_refno>", this.ActItem.ActHdr.HdrFkRefno);
             req.AppendFormat("<itm_refno>{0}</itm_refno>", this.ActItem.ItemFkRefno);
             req.AppendFormat("<prod_id>{0}</prod_id>", fromProd.Code);
@@ -795,9 +795,9 @@ namespace dMobile.Controller.Activity_Detail
             req.Append("</from>");
 
             req.Append("<to>");
-            req.AppendFormat("<whs_id>{0}</whs_id>", this.LocMap.CurrLocMap.WhsFKRefno);
-            req.AppendFormat("<sect_refno>{0}</sect_refno>", this.LocMap.CurrLocMap.SectFKRefno);
-            req.AppendFormat("<slot_refno>{0}</slot_refno>", this.LocMap.CurrLocMap.SlotFKRefno);
+            req.AppendFormat("<whs_id>{0}</whs_id>", this.LocMap.CurrLocMap.WhsFkRefno);
+            req.AppendFormat("<sect_refno>{0}</sect_refno>", this.LocMap.CurrLocMap.SectFkRefno);
+            req.AppendFormat("<slot_refno>{0}</slot_refno>", this.LocMap.CurrLocMap.SlotFkRefno);
             req.AppendFormat("<hdr_refno>{0}</hdr_refno>", this.ActItem.ActHdr.HdrFkRefno);
             req.AppendFormat("<itm_refno>{0}</itm_refno>", this.ActItem.ItemFkRefno);
             req.AppendFormat("<prod_id>{0}</prod_id>", toProd.Code);

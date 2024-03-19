@@ -166,11 +166,11 @@ namespace dMobile.Controller.Activity_Item
                     ActivityDetailLogisticUnitBatchLotNumber = schemeData.ProdSchemeData.LogisticUnitBatchLotNumber,
                     ProductSchemeVariantCode = schemeData.ProdSchemeData.VariantCode,
                     ProductSchemeVariantNumber = schemeData.ProdSchemeData.VariantNumber,
-                    ActivityDetailSchemeID = ProductInfoTasks.GetActSchemeIDFromSProdSchemeData(
+                    ActivityDetailSchemeID = ProductInfoTasks.GetActSchemeIdFromSProdSchemeData(
                         this.ProdInfo.Code,
                         this.ProdInfo.Scheme,
                         schemeData.ProdSchemeData),
-                    ActivityDetailUniqueSchemeID = ProductInfoTasks.GetUniqueSchemeIDFromSProdSchemeData(
+                    ActivityDetailUniqueSchemeID = ProductInfoTasks.GetUniqueSchemeIdFromSProdSchemeData(
                         this.ProdInfo.Code,
                         this.ProdInfo.Scheme,
                         schemeData.ProdSchemeData),

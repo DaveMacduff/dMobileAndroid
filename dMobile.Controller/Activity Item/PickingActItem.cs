@@ -235,7 +235,7 @@ namespace dMobile.Controller.Activity_Item
             if (this.SysEnv.SysSettings.IsPickOverrideMsg1)
             {
                 msg = $"Product scanned, code \'{prodInfo.Code}\' bc \'{prodInfo.UnitBc}\' unit" +
-                    $" \'{prodInfo.UnitCode}\', is not found on this order for warehouse {locMap.CurrLocMap.WhsFKRefno}.";
+                    $" \'{prodInfo.UnitCode}\', is not found on this order for warehouse {locMap.CurrLocMap.WhsFkRefno}.";
             }
 
             return msg;
@@ -335,7 +335,7 @@ namespace dMobile.Controller.Activity_Item
                 }
             }
 
-            // New items are identified with 0 < this.FKRefno, do not validate.
+            // New items are identified with 0 < this.FkRefno, do not validate.
             if (this.SysEnv.SysSettings.PickQtyOverWarn != SysCommon.ActPickingQtyOverValLevels.NoValidationOrWarning
                 && this.ItemFkRefno > 0)
             {
@@ -494,7 +494,7 @@ namespace dMobile.Controller.Activity_Item
             if (selectedActivityItem is PickingItem pickingItem)
             {
                 var results = await DatabaseConnection.GetInstance().
-                SQLConn.QueryAsync<tActivityItemPickingCommentModel>(
+                SqlConn.QueryAsync<tActivityItemPickingCommentModel>(
                     "SELECT * FROM tActivityItemPickingComment WHERE ActivityItemRefno = ?",
                     Convert.ToInt32(pickingItem.ActivityItemRefno));
                 if (results != null && results.Count > 0)
@@ -559,7 +559,7 @@ namespace dMobile.Controller.Activity_Item
             //////////////////////////////////////////////////////////////////////////
             async Task InsertActivityItemInTables(int prodUnitRefno)
             {
-                await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
+                await DatabaseConnection.GetInstance().SqlConn.RunInTransactionAsync(transaction =>
                 {
                     try
                     {
@@ -1032,7 +1032,7 @@ namespace dMobile.Controller.Activity_Item
             //        this.DataViewItems.Sort = "ActivityItemRefno";
             //    }
             // }
-            this.ListPickingItems = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<PickingItem>(sql.ToString());
+            this.ListPickingItems = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<PickingItem>(sql.ToString());
             this.ListPickingItems = this.ListPickingItems.OrderBy(x => x.ActivityItemRefno).ToList();
             this.ListItems = this.ListPickingItems.Cast<object>().ToList();
             return this.ListItems;
@@ -1154,7 +1154,7 @@ namespace dMobile.Controller.Activity_Item
             sql.AppendFormat("AND tActivityItemPicking.WarehouseLocationMapRefno = {0} ", locMap.WhsLocMapRefno);
             sql.AppendFormat("AND tActivityItemPicking.ProductUnitRefno = {0}", prodUnitRefno);
 
-            var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<PickingItem>(sql.ToString());
+            var results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<PickingItem>(sql.ToString());
             if (results != null && results.Count > 0)
             {
                 this.ItemFkRefno = Convert.ToInt32(results[0].ActivityItemFKRefno);
@@ -1198,7 +1198,7 @@ namespace dMobile.Controller.Activity_Item
                     sql.AppendFormat("WHERE tActivityItem.ActivityRefno = {0} ", this.ActHdr.HdrRefno);
                     sql.AppendFormat("AND tActivityItemPicking.ProductUnitRefno = {0}", prodUnitRefno);
 
-                    results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<PickingItem>(sql.ToString());
+                    results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<PickingItem>(sql.ToString());
 
                     if (results != null && results.Count > 0)
                     {
@@ -1299,7 +1299,7 @@ namespace dMobile.Controller.Activity_Item
                     + "</command>"
                     + await SysCommon.GetRequestDefaults(false)
                     + "<skid_data>" + data.Root.Element("skid_data").Value + "</skid_data>"
-                    + "<whs_id>" + this.LocMap.WhsFKRefno + "</whs_id>"
+                    + "<whs_id>" + this.LocMap.WhsFkRefno + "</whs_id>"
                     + "<refno>" + this.ActHdr.HdrFkRefno + "</refno>"
                     + "<itm_refno>" + this.ItemFkRefno + "</itm_refno>"
                     + "<is_negate_qty>false</is_negate_qty>"
@@ -1345,7 +1345,7 @@ namespace dMobile.Controller.Activity_Item
                 + "<is_bc>" + prodUnitIsBc + "</is_bc>"
                 + "<symbology>" + symbologyPrefix + "</symbology>"
                 + "<gtin>" + barCodeCode + "</gtin>"
-                + "<whs_id>" + this.LocMap.WhsFKRefno + "</whs_id>"
+                + "<whs_id>" + this.LocMap.WhsFkRefno + "</whs_id>"
                 + "<sect_refno></sect_refno>"
                 + "<slot_refno></slot_refno>"
                 + "<refno></refno>"
@@ -1426,7 +1426,7 @@ namespace dMobile.Controller.Activity_Item
                     pickingItem.ActivityItemRefno,
                 };
 
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, parameters);
+                await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync(query, parameters);
             }
         }
 
@@ -1489,7 +1489,7 @@ namespace dMobile.Controller.Activity_Item
                             + $"WHERE tActivityItem.ActivityRefno = {this.ActHdr.HdrRefno} "
                             + "GROUP BY tUnit.UnitCode";
 
-                var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<PickingItemSummary>(query);
+                var results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<PickingItemSummary>(query);
 
                 if (results != null)
                 {

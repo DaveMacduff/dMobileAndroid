@@ -641,7 +641,7 @@ namespace dMobile.View.Options
                     var isUnSubmittedTrx = false;
                     var rowsAffected = 0;
 
-                    rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn
+                    rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SqlConn
                         .ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tActivity WHERE ActivityStatus <> ?",
                             Convert.ToInt32(SysCommon.ActStatus.NoChange)));
 
@@ -652,7 +652,7 @@ namespace dMobile.View.Options
 
                     if (!isUnSubmittedTrx)
                     {
-                        rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn
+                        rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SqlConn
                             .ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tActivityItem WHERE ActivityItemStatus <> ?",
                                 Convert.ToInt32(SysCommon.ActStatus.NoChange)));
 
@@ -664,7 +664,7 @@ namespace dMobile.View.Options
 
                     if (!isUnSubmittedTrx)
                     {
-                        rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn
+                        rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SqlConn
                             .ExecuteScalarAsync<int>(
                                 "SELECT COUNT(*) FROM tActivityDetail WHERE ActivityDetailStatus <> ?",
                                 Convert.ToInt32(SysCommon.ActStatus.NoChange)));

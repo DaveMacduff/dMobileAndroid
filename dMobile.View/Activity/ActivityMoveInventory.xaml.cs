@@ -438,11 +438,11 @@ namespace dMobile.View.Activity
                     this.ActItem.ItemRefno = 0;
                     var xmlParam = XDocument.Parse(
                         "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" +
-                        "<param>" + "<whs_id>" + this.SelFromLocMap.WhsFKRefno.ToString() +
-                        "</whs_id>" + "<sect_refno>" + this.SelFromLocMap.SectFKRefno.ToString() +
-                        "</sect_refno>" + "<slot_refno>" + this.SelFromLocMap.SlotFKRefno.ToString() +
-                        "</slot_refno>" + "<to_sect_refno>" + this.SelToLocMap.SectFKRefno.ToString() +
-                        "</to_sect_refno>" + "<to_slot_refno>" + this.SelToLocMap.SlotFKRefno.ToString() +
+                        "<param>" + "<whs_id>" + this.SelFromLocMap.WhsFkRefno.ToString() +
+                        "</whs_id>" + "<sect_refno>" + this.SelFromLocMap.SectFkRefno.ToString() +
+                        "</sect_refno>" + "<slot_refno>" + this.SelFromLocMap.SlotFkRefno.ToString() +
+                        "</slot_refno>" + "<to_sect_refno>" + this.SelToLocMap.SectFkRefno.ToString() +
+                        "</to_sect_refno>" + "<to_slot_refno>" + this.SelToLocMap.SlotFkRefno.ToString() +
                         "</to_slot_refno>" + "</param>");
 
                     await this.ActDetail.Submit(null, xmlParam);
@@ -490,11 +490,11 @@ namespace dMobile.View.Activity
                             await this.ActDetail.AssignActivityDetail(detail);
                             var xmlParam = XDocument.Parse(
                                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" +
-                                "<param>" + "<whs_id>" + this.SelFromLocMap.WhsFKRefno.ToString() +
-                                "</whs_id>" + "<sect_refno>" + this.SelFromLocMap.SectFKRefno.ToString() +
-                                "</sect_refno>" + "<slot_refno>" + this.SelFromLocMap.SlotFKRefno.ToString() +
-                                "</slot_refno>" + "<to_sect_refno>" + this.SelToLocMap.SectFKRefno.ToString() +
-                                "</to_sect_refno>" + "<to_slot_refno>" + this.SelToLocMap.SlotFKRefno.ToString() +
+                                "<param>" + "<whs_id>" + this.SelFromLocMap.WhsFkRefno.ToString() +
+                                "</whs_id>" + "<sect_refno>" + this.SelFromLocMap.SectFkRefno.ToString() +
+                                "</sect_refno>" + "<slot_refno>" + this.SelFromLocMap.SlotFkRefno.ToString() +
+                                "</slot_refno>" + "<to_sect_refno>" + this.SelToLocMap.SectFkRefno.ToString() +
+                                "</to_sect_refno>" + "<to_slot_refno>" + this.SelToLocMap.SlotFkRefno.ToString() +
                                 "</to_slot_refno>" + "</param>");
 
                             await this.ActDetail.Submit(this.ActDetail.ListDetails[idx], xmlParam);
@@ -562,7 +562,7 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// The GetXML.
+        /// The GetXml.
         /// </summary>
         /// <returns>.</returns>
 #pragma warning disable CS1998

@@ -291,7 +291,7 @@ namespace dMobile.Controller.Activity_Detail
                     skidPutAwayDetail.ActivityDetailStatus = Convert.ToInt32(SysCommon.ActStatus.NoChange);
                 }
 
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("UPDATE tActivityDetail SET ActivityDetailStatus = ? WHERE ActivityDetailRefno = ?", Convert.ToInt32(SysCommon.ActStatus.NoChange), this.DetailRefno);
+                await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync("UPDATE tActivityDetail SET ActivityDetailStatus = ? WHERE ActivityDetailRefno = ?", Convert.ToInt32(SysCommon.ActStatus.NoChange), this.DetailRefno);
             }
 
             this.ListDetails.Remove(selectedActivityDetail);

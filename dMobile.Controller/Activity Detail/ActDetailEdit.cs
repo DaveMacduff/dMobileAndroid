@@ -65,7 +65,7 @@ namespace dMobile.Controller.Activity_Detail
             query.AppendFormat(" AND tLocationMapWarehouseProductScheme.WarehouseLocationMapRefno = {0}", currLocMap.WhsLocMapRefno);
             query.Append(" ORDER BY tProductSchemeVariant.ProductSchemeVariantCode");
 
-            return await DatabaseConnection.GetInstance().SQLConn.QueryAsync<ProductVariant>(query.ToString());
+            return await DatabaseConnection.GetInstance().SqlConn.QueryAsync<ProductVariant>(query.ToString());
         }
 
         /// <summary>
@@ -90,7 +90,7 @@ namespace dMobile.Controller.Activity_Detail
             query.Append("FROM tProductSchemeLotNumber ");
             query.Append("ORDER BY ActivityDetailLogisticUnitBatchLotNumber");
 
-            return await DatabaseConnection.GetInstance().SQLConn.QueryAsync<LotNumber>(query.ToString());
+            return await DatabaseConnection.GetInstance().SqlConn.QueryAsync<LotNumber>(query.ToString());
         }
 
         /// <summary>
@@ -108,7 +108,7 @@ namespace dMobile.Controller.Activity_Detail
             query.AppendFormat("WHERE tProduct.ProductRefno = {0} ", prodRefno);
             query.Append("ORDER BY tActivityDetail.ActivityDetailSingleTradeItemSerialNumber");
 
-            return await DatabaseConnection.GetInstance().SQLConn.QueryAsync<SerialNumber>(query.ToString());
+            return await DatabaseConnection.GetInstance().SqlConn.QueryAsync<SerialNumber>(query.ToString());
         }
 
         /// <summary>

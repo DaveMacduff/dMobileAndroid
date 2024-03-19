@@ -270,13 +270,13 @@ namespace dMobile.View.Menus
                     var locMap = LocationMap.GetInstance();
                     locMap.CurrLocMap = tmpLocMap;
                     this.PickingLocMapFilter = tmpLocMap;
-                    sectFkRefno = tmpLocMap.SectFKRefno;
+                    sectFkRefno = tmpLocMap.SectFkRefno;
 
                     this.XmlDataFilter = XDocument.Parse(
                         "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                         + "<params>"
-                        + "<whs_id>" + tmpLocMap.WhsFKRefno + "</whs_id>"
-                        + "<sect_refno>" + tmpLocMap.SectFKRefno + "</sect_refno>"
+                        + "<whs_id>" + tmpLocMap.WhsFkRefno + "</whs_id>"
+                        + "<sect_refno>" + tmpLocMap.SectFkRefno + "</sect_refno>"
                         + "</params>");
                 }
             }

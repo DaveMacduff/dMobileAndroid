@@ -13,6 +13,7 @@ namespace dMobile.Droid
     using Android.Content.PM;
     using Android.OS;
     using Android.Views;
+    using Bedrock;
     using dMobile.Resources.Enums;
     using dMobile.View;
     using Java.Util;

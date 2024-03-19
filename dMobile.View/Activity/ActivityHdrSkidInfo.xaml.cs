@@ -748,7 +748,7 @@ namespace dMobile.View.Activity
                         this.cmdSkidProduct.IsEnabled = true;
                         if (this.ProdInfo.Refno > 0)
                         {
-                            this.cmdSkidProduct.Text = ProductInfoTasks.GetCurrReadableProdBCUnit(this.ProdInfo);
+                            this.cmdSkidProduct.Text = ProductInfoTasks.GetCurrReadableProdBcUnit(this.ProdInfo);
                         }
                         else
                         {
@@ -804,7 +804,7 @@ namespace dMobile.View.Activity
 
                         if (this.ProdInfo.Refno > 0)
                         {
-                            this.cmdSkidProduct.Text = ProductInfoTasks.GetCurrReadableProdBCUnit(this.ProdInfo);
+                            this.cmdSkidProduct.Text = ProductInfoTasks.GetCurrReadableProdBcUnit(this.ProdInfo);
                         }
                         else
                         {
@@ -856,7 +856,7 @@ namespace dMobile.View.Activity
                         this.cmdSaveSkid.IsEnabled = true;
                         if (this.ProdInfo.Refno > 0)
                         {
-                            this.cmdSkidProduct.Text = ProductInfoTasks.GetCurrReadableProdBCUnit(this.ProdInfo);
+                            this.cmdSkidProduct.Text = ProductInfoTasks.GetCurrReadableProdBcUnit(this.ProdInfo);
                             this.cmdSkidProduct.IsEnabled = false;
                         }
                         else
@@ -1579,7 +1579,7 @@ namespace dMobile.View.Activity
                 {
                     if (this.ProdInfo.UnitRefno != 0)
                     {
-                        this.cmdSkidProduct.Text = ProductInfoTasks.GetCurrReadableProdBCUnit(this.ProdInfo);
+                        this.cmdSkidProduct.Text = ProductInfoTasks.GetCurrReadableProdBcUnit(this.ProdInfo);
                     }
                 }
             }

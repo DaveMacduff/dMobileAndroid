@@ -207,10 +207,10 @@ namespace dMobile.Bedrock
                     sysSock.SendTimeOutMilliseconds = this.CommSetup.SendTimeOutSeconds * 1000;
                     sysSock.ReceiveTimeOutMilliseconds = this.CommSetup.ReceiveTimeOutSeconds * 1000;
                     sysSock.RecvBuffSize = this.CommSetup.ReceiveBufferSize;
-                    sysSock.ServerIP = this.CommSetup.HostIPAddressComponent1.ToString() +
-                        "." + this.CommSetup.HostIPAddressComponent2.ToString() + "." +
-                        this.CommSetup.HostIPAddressComponent3.ToString() + "." +
-                        this.CommSetup.HostIPAddressComponent4.ToString();
+                    sysSock.ServerIP = this.CommSetup.HostIpAddressComponent1.ToString() +
+                        "." + this.CommSetup.HostIpAddressComponent2.ToString() + "." +
+                        this.CommSetup.HostIpAddressComponent3.ToString() + "." +
+                        this.CommSetup.HostIpAddressComponent4.ToString();
                 }
 
                 return sysSock;
@@ -331,10 +331,10 @@ namespace dMobile.Bedrock
             sysEnv.SysSock.SendTimeOutMilliseconds = commSetup.SendTimeOutSeconds * 1000;
             sysEnv.SysSock.ReceiveTimeOutMilliseconds = commSetup.ReceiveTimeOutSeconds * 1000;
             sysEnv.SysSock.RecvBuffSize = commSetup.ReceiveBufferSize;
-            sysEnv.SysSock.ServerIP = commSetup.HostIPAddressComponent1.ToString() +
-                "." + commSetup.HostIPAddressComponent2.ToString() + "." +
-                commSetup.HostIPAddressComponent3.ToString() + "." +
-                commSetup.HostIPAddressComponent4.ToString();
+            sysEnv.SysSock.ServerIP = commSetup.HostIpAddressComponent1.ToString() +
+                "." + commSetup.HostIpAddressComponent2.ToString() + "." +
+                commSetup.HostIpAddressComponent3.ToString() + "." +
+                commSetup.HostIpAddressComponent4.ToString();
         }
     }
 }

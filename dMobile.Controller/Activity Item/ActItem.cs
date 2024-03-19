@@ -488,7 +488,7 @@ namespace dMobile.Controller.Activity_Item
         public virtual string GetItemNotFoundMessage(LocationMap locMap, ProductInfo prodInfo)
         {
             var currLoc = LocationMap.GetInstance().CurrLocMap;
-            var whs = $"{currLoc.WhsFKRefno} - {currLoc.WhsName}";
+            var whs = $"{currLoc.WhsFkRefno} - {currLoc.WhsName}";
             var message = $"Item not found for {Environment.NewLine}Warehouse {whs}{Environment.NewLine}" +
                       $"Product {prodInfo.Code} BC {prodInfo.UnitBc} Unit {prodInfo.UnitCode}";
             return message;
@@ -510,7 +510,7 @@ namespace dMobile.Controller.Activity_Item
                 var actDetailUniqSchemeId = data.Root.Element("ActivityDetailUniqueSchemeID") !.Value;
                 if (string.Compare(actDetailUniqSchemeId, string.Empty, StringComparison.CurrentCulture) > 0)
                 {
-                    var isDupSchemeId = await ProductInfoTasks.IsDuplicateUniqueSchemeID(
+                    var isDupSchemeId = await ProductInfoTasks.IsDuplicateUniqueSchemeId(
                         actDetailUniqSchemeId);
                     if (isDupSchemeId)
                     {
@@ -676,7 +676,7 @@ namespace dMobile.Controller.Activity_Item
         {
             try
             {
-                var conn = DatabaseConnection.GetInstance().SQLConn;
+                var conn = DatabaseConnection.GetInstance().SqlConn;
                 const string query = @"INSERT INTO tActivityItem (
                     ActivityItemSubType
                     ,ActivityItemStatus

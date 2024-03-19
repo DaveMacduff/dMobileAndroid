@@ -282,7 +282,7 @@ namespace dMobile.Controller.Activity_Item
             //////////////////////////////////////////////////////////////////////////
             async Task InsertActivityItemInTables(int prodUnitRefno)
             {
-                await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
+                await DatabaseConnection.GetInstance().SqlConn.RunInTransactionAsync(transaction =>
                 {
                     try
                     {
@@ -869,7 +869,7 @@ namespace dMobile.Controller.Activity_Item
                 sql.Append("ORDER BY tActivityItemCount.ActivityItemRefno");
             }
 
-            this.ListCountItems = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<CountItem>(sql.ToString());
+            this.ListCountItems = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<CountItem>(sql.ToString());
             this.ListItems = this.ListCountItems.Cast<object>().ToList();
             return this.ListItems;
         }
@@ -1019,7 +1019,7 @@ namespace dMobile.Controller.Activity_Item
             sql.AppendFormat("AND tActivityItemCount.LocationMapRefno = {0} ", locMap.WhsLocMapRefno);
             sql.AppendFormat("AND tActivityItemCount.ProductUnitRefno = {0}", prodUnitRefno);
 
-            var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<CountItem>(sql.ToString());
+            var results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<CountItem>(sql.ToString());
 
             if (results != null && results.Count > 0)
             {
@@ -1154,7 +1154,7 @@ namespace dMobile.Controller.Activity_Item
                     countItem.ActivityItemRefno,
                 };
 
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, parameters);
+                await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync(query, parameters);
             }
         }
 

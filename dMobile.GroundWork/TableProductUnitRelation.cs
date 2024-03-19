@@ -39,7 +39,7 @@ namespace dMobile.GroundWork
             {
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding product uom relations.", true);
 
-                var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tFamilyModel>("SELECT * FROM tFamily");
+                var results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<tFamilyModel>("SELECT * FROM tFamily");
 
                 if (results?.Count > 0)
                 {
@@ -86,7 +86,7 @@ namespace dMobile.GroundWork
             {
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging product uom relations.", true);
 
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("DELETE FROM tProductUnitRelation");
+                await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync("DELETE FROM tProductUnitRelation");
 
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging product uom relations complete.", true);
             }
@@ -108,7 +108,7 @@ namespace dMobile.GroundWork
             int rowsAffected;
             try
             {
-                rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tProductUnitRelation"));
+                rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SqlConn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tProductUnitRelation"));
 
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"{rowsAffected} product unit relations.", false);
             }
@@ -147,7 +147,7 @@ namespace dMobile.GroundWork
             var errMsg = string.Empty;
             var recordCount = 0;
 
-            await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
+            await DatabaseConnection.GetInstance().SqlConn.RunInTransactionAsync(transaction =>
             {
                 try
                 {

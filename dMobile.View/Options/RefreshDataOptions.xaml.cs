@@ -282,7 +282,7 @@ namespace dMobile.View.Options
                     this.IsDisplayShutDownMsg = false;
 
                     // Attempt to record logout
-                    if (!this.SysEnv.SysSettings.IsDisconnectedMode && (this.SysEnv.CommSetup.HostIPAddressComponent1 + this.SysEnv.CommSetup.HostIPAddressComponent2 + this.SysEnv.CommSetup.HostIPAddressComponent3) != 0)
+                    if (!this.SysEnv.SysSettings.IsDisconnectedMode && (this.SysEnv.CommSetup.HostIpAddressComponent1 + this.SysEnv.CommSetup.HostIpAddressComponent2 + this.SysEnv.CommSetup.HostIpAddressComponent3) != 0)
                     {
                         if (this.SysEnv.ContactLog.IsLoggedIn)
                         {

@@ -75,10 +75,10 @@ namespace dMobile.Bedrock
             Socket.SendTimeOutMilliseconds = CommSetup.SendTimeOutSeconds * 1000;
             Socket.ReceiveTimeOutMilliseconds = CommSetup.ReceiveTimeOutSeconds * 1000;
             Socket.RecvBuffSize = CommSetup.ReceiveBufferSize;
-            Socket.ServerIP = CommSetup.HostIPAddressComponent1.ToString() + "."
-                + CommSetup.HostIPAddressComponent2.ToString() + "."
-                + CommSetup.HostIPAddressComponent3.ToString() + "."
-                + CommSetup.HostIPAddressComponent4.ToString();
+            Socket.ServerIP = CommSetup.HostIpAddressComponent1.ToString() + "."
+                + CommSetup.HostIpAddressComponent2.ToString() + "."
+                + CommSetup.HostIpAddressComponent3.ToString() + "."
+                + CommSetup.HostIpAddressComponent4.ToString();
         }
 
         /// <summary>

@@ -1471,7 +1471,7 @@ namespace dMobile.View.Activity
                 }
 
                 // Insert a new activity detail record
-                this.ActDetail.UniqueSchemeId = ProductInfoTasks.GetUniqueSchemeIDFromSProdSchemeData(
+                this.ActDetail.UniqueSchemeId = ProductInfoTasks.GetUniqueSchemeIdFromSProdSchemeData(
                     this.ActDetail.ActItem.ProdInfo.Code,
                     this.ActDetail.ActItem.ProdInfo.Scheme,
                     this.ActDetail.SchemeData);
@@ -2022,7 +2022,7 @@ namespace dMobile.View.Activity
                 else
                 {
                     this.ExtraInfoItems.Add(
-                        $"PRODUCT: {ProductInfoTasks.GetCurrReadableProdBCUnit(this.ActDetail.ActItem.ProdInfo)}");
+                        $"PRODUCT: {ProductInfoTasks.GetCurrReadableProdBcUnit(this.ActDetail.ActItem.ProdInfo)}");
                 }
 
                 this.ExtraInfoItems.Add($"LOCATION: {LocationMapTasks.GetCurrentReadableLocation()}");
@@ -2713,7 +2713,7 @@ namespace dMobile.View.Activity
                                     "Yes",
                                     "No")))
                         {
-                            this.ActDetail.UniqueSchemeId = ProductInfoTasks.GetUniqueSchemeIDFromSProdSchemeData(
+                            this.ActDetail.UniqueSchemeId = ProductInfoTasks.GetUniqueSchemeIdFromSProdSchemeData(
                                 this.ActDetail.ActItem.ProdInfo.Code,
                                 this.ActDetail.ActItem.ProdInfo.Scheme,
                                 this.ActDetail.SchemeData);

@@ -5,6 +5,7 @@
 namespace dMobile.Bedrock
 {
     using System;
+    using System.Diagnostics.CodeAnalysis;
 
     /// <summary>
     ///     Warehouse location map.
@@ -14,7 +15,7 @@ namespace dMobile.Bedrock
         /// <summary>
         ///    Define the location map reference number.
         /// </summary>
-        private int locMapRefno = 0;
+        private int locMapRefno;
 
         /// <summary>
         ///     Define the slot coordinate 1 name.
@@ -88,14 +89,7 @@ namespace dMobile.Bedrock
             set
             {
                 this.slotCoord1Name = value;
-                if (string.IsNullOrEmpty(this.slotCoord1Name))
-                {
-                    this.IsSlotCoord1Tracked = false;
-                }
-                else
-                {
-                    this.IsSlotCoord1Tracked = true;
-                }
+                this.IsSlotCoord1Tracked = !string.IsNullOrEmpty(this.slotCoord1Name);
             }
         }
 
@@ -109,14 +103,7 @@ namespace dMobile.Bedrock
             set
             {
                 this.slotCoord2Name = value;
-                if (string.IsNullOrEmpty(this.slotCoord2Name))
-                {
-                    this.IsSlotCoord2Tracked = false;
-                }
-                else
-                {
-                    this.IsSlotCoord2Tracked = true;
-                }
+                this.IsSlotCoord2Tracked = !string.IsNullOrEmpty(this.slotCoord2Name);
             }
         }
 
@@ -130,14 +117,7 @@ namespace dMobile.Bedrock
             set
             {
                 this.slotCoord3Name = value;
-                if (string.IsNullOrEmpty(this.slotCoord3Name))
-                {
-                    this.IsSlotCoord3Tracked = false;
-                }
-                else
-                {
-                    this.IsSlotCoord3Tracked = true;
-                }
+                this.IsSlotCoord3Tracked = !string.IsNullOrEmpty(this.slotCoord3Name);
             }
         }
 
@@ -149,7 +129,7 @@ namespace dMobile.Bedrock
         /// <summary>
         ///     Gets or sets the slot location map foreign key reference number.
         /// </summary>
-        public int SlotFKRefno { get; set; }
+        public int SlotFkRefno { get; set; }
 
         /// <summary>
         ///     Gets or sets the slot name.
@@ -191,7 +171,7 @@ namespace dMobile.Bedrock
         /// <summary>
         ///     Gets or sets the section foreign key reference number.
         /// </summary>
-        public int SectFKRefno { get; set; }
+        public int SectFkRefno { get; set; }
 
         /// <summary>
         ///     Gets or sets the section name.
@@ -218,7 +198,7 @@ namespace dMobile.Bedrock
         /// <summary>
         ///     Gets or sets the warehouse location map foreign key reference number.
         /// </summary>
-        public int WhsFKRefno { get; set; }
+        public int WhsFkRefno { get; set; }
 
         /// <summary>
         ///     Gets or sets the warehouse code.
@@ -233,7 +213,7 @@ namespace dMobile.Bedrock
         /// <summary>
         ///     Gets or sets a value indicating whether the warehouse is a WMS one.
         /// </summary>
-        public bool IsWhsWMS { get; set; }
+        public bool IsWhsWms { get; set; }
 
         /// <summary>
         /// Gets the current location map reference number.
@@ -285,7 +265,7 @@ namespace dMobile.Bedrock
                 && this.IsSlotTracked == other.IsSlotTracked
                 && this.SlotCode == other.SlotCode
                 && this.SlotLocMapRefno == other.SlotLocMapRefno
-                && this.SlotFKRefno == other.SlotFKRefno
+                && this.SlotFkRefno == other.SlotFkRefno
                 && this.SlotName == other.SlotName
                 && this.SlotCoord1LocMapRefno == other.SlotCoord1LocMapRefno
                 && this.SlotCoord2LocMapRefno == other.SlotCoord2LocMapRefno
@@ -293,15 +273,15 @@ namespace dMobile.Bedrock
                 && this.SectMask == other.SectMask
                 && this.IsSectionTracked == other.IsSectionTracked
                 && this.SectLocMapRefno == other.SectLocMapRefno
-                && this.SectFKRefno == other.SectFKRefno
+                && this.SectFkRefno == other.SectFkRefno
                 && this.SectName == other.SectName
                 && this.SectCode == other.SectCode
                 && this.WhsCodeMask == other.WhsCodeMask
                 && this.WhsLocMapRefno == other.WhsLocMapRefno
-                && this.WhsFKRefno == other.WhsFKRefno
+                && this.WhsFkRefno == other.WhsFkRefno
                 && this.WhsCode == other.WhsCode
                 && this.WhsName == other.WhsName
-                && this.IsWhsWMS == other.IsWhsWMS;
+                && this.IsWhsWms == other.IsWhsWms;
         }
 
         /// <summary>
@@ -312,7 +292,7 @@ namespace dMobile.Bedrock
         {
             var copy = new SLocMap
             {
-                IsWhsWMS = this.IsWhsWMS,
+                IsWhsWms = this.IsWhsWms,
                 IsSectionTracked = this.IsSectionTracked,
                 IsSlotTracked = this.IsSlotTracked,
                 IsSlotCoord1Tracked = this.IsSlotCoord1Tracked,
@@ -321,12 +301,12 @@ namespace dMobile.Bedrock
 
                 WhsCode = this.WhsCode,
                 WhsCodeMask = this.WhsCodeMask,
-                WhsFKRefno = this.WhsFKRefno,
+                WhsFkRefno = this.WhsFkRefno,
                 WhsLocMapRefno = this.WhsLocMapRefno,
                 WhsName = this.WhsName,
 
                 SectCode = this.SectCode,
-                SectFKRefno = this.SectFKRefno,
+                SectFkRefno = this.SectFkRefno,
                 SectLocMapRefno = this.SectLocMapRefno,
                 SectMask = this.SectMask,
                 SectName = this.SectName,
@@ -341,7 +321,7 @@ namespace dMobile.Bedrock
                 SlotCoord3LocMapRefno = this.SlotCoord3LocMapRefno,
                 SlotCoord3Mask = this.SlotCoord3Mask,
                 SlotCoord3Name = this.SlotCoord3Name,
-                SlotFKRefno = this.SlotFKRefno,
+                SlotFkRefno = this.SlotFkRefno,
                 SlotLocMapRefno = this.SlotLocMapRefno,
                 SlotMask = this.SlotMask,
                 SlotName = this.SlotName
@@ -367,12 +347,13 @@ namespace dMobile.Bedrock
         }
 
         /// <inheritdoc/>
+        [SuppressMessage("ReSharper", "NonReadonlyMemberInGetHashCode", Justification = "Not sure how to fix the warnings.")]
         public override int GetHashCode()
         {
             var hashCode = new HashCode();
-            hashCode.Add(this.slotCoord1Name);
-            hashCode.Add(this.slotCoord2Name);
-            hashCode.Add(this.slotCoord3Name);
+            hashCode.Add(this.SlotCoord1Name);
+            hashCode.Add(this.SlotCoord2Name);
+            hashCode.Add(this.SlotCoord3Name);
             hashCode.Add(this.SlotCoord1Mask);
             hashCode.Add(this.SlotCoord2Mask);
             hashCode.Add(this.SlotCoord3Mask);
@@ -383,7 +364,7 @@ namespace dMobile.Bedrock
             hashCode.Add(this.IsSlotTracked);
             hashCode.Add(this.SlotCode);
             hashCode.Add(this.SlotLocMapRefno);
-            hashCode.Add(this.SlotFKRefno);
+            hashCode.Add(this.SlotFkRefno);
             hashCode.Add(this.SlotName);
             hashCode.Add(this.SlotCoord1LocMapRefno);
             hashCode.Add(this.SlotCoord2LocMapRefno);
@@ -391,15 +372,15 @@ namespace dMobile.Bedrock
             hashCode.Add(this.SectMask);
             hashCode.Add(this.IsSectionTracked);
             hashCode.Add(this.SectLocMapRefno);
-            hashCode.Add(this.SectFKRefno);
+            hashCode.Add(this.SectFkRefno);
             hashCode.Add(this.SectName);
             hashCode.Add(this.SectCode);
             hashCode.Add(this.WhsCodeMask);
             hashCode.Add(this.WhsLocMapRefno);
-            hashCode.Add(this.WhsFKRefno);
+            hashCode.Add(this.WhsFkRefno);
             hashCode.Add(this.WhsCode);
             hashCode.Add(this.WhsName);
-            hashCode.Add(this.IsWhsWMS);
+            hashCode.Add(this.IsWhsWms);
             return hashCode.ToHashCode();
         }
     }

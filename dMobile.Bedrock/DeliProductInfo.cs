@@ -15,12 +15,12 @@ namespace dMobile.Bedrock
         public decimal DeliScaleWeight { get; set; } = 0;
 
         /// <summary>
-        /// Gets or sets the deli scale weight unit..
+        /// Gets or sets the deli scale weight unit.
         /// </summary>
         public string DeliScaleWeightUnit { get; set; } = string.Empty;
 
         /// <summary>
-        /// Gets or sets the product information..
+        /// Gets or sets the product information.
         /// </summary>
         public ProductInfo ProdInfo { get; set; } = new ProductInfo();
     }

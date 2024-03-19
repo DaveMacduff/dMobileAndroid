@@ -36,7 +36,7 @@ namespace dMobile.GroundWork
         /// <inheritdoc/>
         public override async Task PurgeData()
         {
-            var conn = DatabaseConnection.GetInstance().SQLConn;
+            var conn = DatabaseConnection.GetInstance().SqlConn;
             var subType = Convert.ToInt32(this.CurrentSubType);
             this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName}.", true);
 
@@ -130,7 +130,7 @@ namespace dMobile.GroundWork
         /// <inheritdoc/>
         protected override async Task<string> SendRequest(int actItemRefno)
         {
-            var results = await DatabaseConnection.GetInstance().SQLConn.
+            var results = await DatabaseConnection.GetInstance().SqlConn.
                 QueryAsync<tActivityItemTransferModel>("SELECT * FROM tActivityItemTransfer WHERE ActivityItemRefno = ?",
                     Convert.ToInt32(actItemRefno));
 
@@ -158,7 +158,7 @@ namespace dMobile.GroundWork
         {
             var errMsg = string.Empty;
 
-            await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
+            await DatabaseConnection.GetInstance().SqlConn.RunInTransactionAsync(transaction =>
             {
                 try
                 {

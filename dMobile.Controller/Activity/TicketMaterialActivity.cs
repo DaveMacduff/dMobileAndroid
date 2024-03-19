@@ -314,7 +314,7 @@ namespace dMobile.Controller.Activity
             //        this.DataViewHdrs.Sort = ticketSettings.GetDataViewSortBy();
             //    }
             // }
-            this.listProductionTicketMaterial = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<ProductionTicketMaterial>(sql.ToString());
+            this.listProductionTicketMaterial = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<ProductionTicketMaterial>(sql.ToString());
 
             foreach (var sort in ticketSettings.GetDataViewSortBy())
             {

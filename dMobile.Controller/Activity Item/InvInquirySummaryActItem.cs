@@ -138,7 +138,7 @@ namespace dMobile.Controller.Activity_Item
                 labelQuantity.SetBinding(Label.TextProperty, new Binding("ActivityItemQuantity", BindingMode.Default, null, null, "{0:F3}"));
                 labelUnitCode.SetBinding(Label.TextProperty, new Binding("UnitCode"));
                 labelProdDate.SetBinding(Label.TextProperty, new Binding("ActivityDetailLogisticUnitProductionDate"));
-                labelBbDate.SetBinding(Label.TextProperty, new Binding("ActivityDetailLogisticUnitBestbeforesellbydate"));
+                labelBbDate.SetBinding(Label.TextProperty, new Binding("ActivityDetailLogisticUnitBestBeforeSellByDate"));
                 labelSection.SetBinding(Label.TextProperty, new Binding("LocationMapSectionFKRefno"));
                 labelSlot.SetBinding(Label.TextProperty, new Binding("LocationMapSlotFKRefno"));
                 labelSkid.SetBinding(Label.TextProperty, new Binding("SkidCode"));
@@ -630,7 +630,7 @@ namespace dMobile.Controller.Activity_Item
                                 UnitCode = Convert.ToString(row["UnitCode"] != DBNull.Value ? row["UnitCode"] : null),
                                 WeightUnitCode = Convert.ToString(row["WeightUnitCode"] != DBNull.Value ? row["WeightUnitCode"] : null),
                                 ActivityDetailLogisticUnitProductionDate = Convert.ToString(row["ActivityDetailLogisticUnitProductionDate"] != DBNull.Value ? row["ActivityDetailLogisticUnitProductionDate"] : null),
-                                ActivityDetailLogisticUnitBestBeforeSellByDate = Convert.ToString(row["ActivityDetailLogisticUnitBestbeforesellbydate"] != DBNull.Value ? row["ActivityDetailLogisticUnitBestbeforesellbydate"] : null),
+                                ActivityDetailLogisticUnitBestBeforeSellByDate = Convert.ToString(row["ActivityDetailLogisticUnitBestBeforeSellByDate"] != DBNull.Value ? row["ActivityDetailLogisticUnitBestBeforeSellByDate"] : null),
                                 LocationMapWarehouseFKRefno = Convert.ToString(row["LocationMapWarehouseFKRefno"] != DBNull.Value ? row["LocationMapWarehouseFKRefno"] : null),
                                 LocationMapSectionFKRefno = Convert.ToString(row["LocationMapSectionFKRefno"] != DBNull.Value ? row["LocationMapSectionFKRefno"] : null),
                                 LocationMapSlotFKRefno = Convert.ToString(row["LocationMapSlotFKRefno"] != DBNull.Value ? row["LocationMapSlotFKRefno"] : null),
@@ -747,8 +747,8 @@ namespace dMobile.Controller.Activity_Item
             }
             else
             {
-                sectionRefno = this.LocMap.SectFKRefno.ToString();
-                slotRefno = this.LocMap.SlotFKRefno.ToString();
+                sectionRefno = this.LocMap.SectFkRefno.ToString();
+                slotRefno = this.LocMap.SlotFkRefno.ToString();
             }
 
             var sectionXml = "<sect_refno>" + sectionRefno + "</sect_refno>";
@@ -764,7 +764,7 @@ namespace dMobile.Controller.Activity_Item
                 + "</command>"
                 + await SysCommon.GetRequestDefaults(false)
                 + "<prod_id>" + this.ProdInfo.Code + "</prod_id>"
-                + "<whs_id>" + this.LocMap.WhsFKRefno + "</whs_id>"
+                + "<whs_id>" + this.LocMap.WhsFkRefno + "</whs_id>"
                 + sectionXml
                 + slotXml
                 + "</imclient>");

@@ -38,7 +38,7 @@ namespace dMobile.GroundWork
             {
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging warehouses.", true);
 
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("DELETE FROM tLocationMapWarehouse WHERE LocationMapSubType = ?", Convert.ToInt32(SysCommon.LocMapSubTypes.Warehouse));
+                await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync("DELETE FROM tLocationMapWarehouse WHERE LocationMapSubType = ?", Convert.ToInt32(SysCommon.LocMapSubTypes.Warehouse));
 
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging warehouses complete.", true);
             }
@@ -61,7 +61,7 @@ namespace dMobile.GroundWork
             int whsLocMapRefno;
             try
             {
-                var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tLocationMapWarehouseModel>("SELECT * FROM tLocationMapWarehouse WHERE LocationMapWarehouseFKRefno = ?", Convert.ToInt32(locMapWhsFKRefno));
+                var results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<tLocationMapWarehouseModel>("SELECT * FROM tLocationMapWarehouse WHERE LocationMapWarehouseFKRefno = ?", Convert.ToInt32(locMapWhsFKRefno));
 
                 if (results?.Count > 0)
                 {
@@ -91,7 +91,7 @@ namespace dMobile.GroundWork
             int locMapWhsFKRefno;
             try
             {
-                var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tLocationMapWarehouseModel>("SELECT * FROM tLocationMapWarehouse WHERE LocationMapRefno = ?", locMapWhsRefno);
+                var results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<tLocationMapWarehouseModel>("SELECT * FROM tLocationMapWarehouse WHERE LocationMapRefno = ?", locMapWhsRefno);
 
                 if (results?.Count > 0)
                 {
@@ -100,7 +100,7 @@ namespace dMobile.GroundWork
                 else
                 {
                     throw new Exception(
-                        $"Unable to locate warehouse FKRefno using the warehouse refno {locMapWhsRefno} in tLocationMapWarehouse.");
+                        $"Unable to locate warehouse FkRefno using the warehouse refno {locMapWhsRefno} in tLocationMapWarehouse.");
                 }
             }
             catch (SQLiteException ex)
@@ -120,7 +120,7 @@ namespace dMobile.GroundWork
             int rowsAffected;
             try
             {
-                rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tLocationMapWarehouse"));
+                rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SqlConn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tLocationMapWarehouse"));
 
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"{rowsAffected} warehouses.", true);
             }
@@ -149,7 +149,7 @@ namespace dMobile.GroundWork
         {
             var errMsg = string.Empty;
 
-            await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
+            await DatabaseConnection.GetInstance().SqlConn.RunInTransactionAsync(transaction =>
             {
                 try
                 {

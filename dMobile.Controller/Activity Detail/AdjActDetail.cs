@@ -233,7 +233,7 @@ namespace dMobile.Controller.Activity_Detail
             await this.FillActDetailObjFromXml(data);
 
             // Get temporary item FK refno for newly inserted line item, used in disconnected mode.
-            this.DetailFkRefno = await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>(
+            this.DetailFkRefno = await DatabaseConnection.GetInstance().SqlConn.ExecuteScalarAsync<int>(
                 "SELECT MAX(tActivityDetailAdjustment.ActivityDetailFKRefno) FROM tActivityDetailAdjustment");
             this.DetailFkRefno++;
 
@@ -250,7 +250,7 @@ namespace dMobile.Controller.Activity_Detail
             {
                 this.DetailRefno = await this.InsertDetailIntoTablesDetail();
                 const string query = "INSERT INTO tActivityDetailAdjustment (ActivityDetailRefno, ActivityDetailFKRefno) VALUES (?, ?)";
-                var rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
+                var rowsAffected = await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync(
                     query,
                     this.DetailRefno,
                     this.DetailFkRefno);
@@ -280,7 +280,7 @@ namespace dMobile.Controller.Activity_Detail
             }
 
             // Delete from database
-            var conn = DatabaseConnection.GetInstance().SQLConn;
+            var conn = DatabaseConnection.GetInstance().SqlConn;
             await conn.RunInTransactionAsync(DeleteFromTables);
 
             //////// delete row from DataView
@@ -346,7 +346,7 @@ namespace dMobile.Controller.Activity_Detail
                         item.ActivityItemFKRefno = this.ActItem.ItemFkRefno;
                         item.ActivityItemStringFKRefno = this.ActItem.ItemFkRefno.ToString();
 
-                        rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
+                        rowsAffected = await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync(
                             "UPDATE tActivityItemAdjustment SET ActivityItemFKRefno = ?" +
                             ",ActivityItemStringFKRefno = ?" +
                             " WHERE ActivityItemRefno = ?",
@@ -363,7 +363,7 @@ namespace dMobile.Controller.Activity_Detail
 
                     this.ActItem.ActStatus = SysCommon.ActStatus.NoChange;
 
-                    rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
+                    rowsAffected = await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync(
                         "UPDATE tActivityItem SET ActivityItemStatus = ?" +
                         " WHERE ActivityItemRefno = ?",
                         Convert.ToInt32(SysCommon.ActStatus.NoChange),
@@ -404,7 +404,7 @@ namespace dMobile.Controller.Activity_Detail
                         selectedUpdated.ActivityDetailStatus = Convert.ToInt32(SysCommon.ActStatus.Updated);
                     }
 
-                    rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
+                    rowsAffected = await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync(
                         "UPDATE tActivityDetail SET ActivityDetailStatus = ? WHERE ActivityDetailRefno = ?",
                         Convert.ToInt32(SysCommon.ActStatus.Updated),
                         this.DetailRefno);
@@ -422,7 +422,7 @@ namespace dMobile.Controller.Activity_Detail
                         selectedDeleted.ActivityDetailStatus = Convert.ToInt32(SysCommon.ActStatus.Deleted);
                     }
 
-                    rowsAffected = await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
+                    rowsAffected = await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync(
                         "UPDATE tActivityDetail SET ActivityDetailStatus = ? WHERE ActivityDetailRefno = ?",
                         Convert.ToInt32(SysCommon.ActStatus.Deleted),
                         this.DetailRefno);
@@ -834,7 +834,7 @@ namespace dMobile.Controller.Activity_Detail
             //        this.DataViewDetails.Table.TableName = this.MainGridMappingName;
             //    }
             // }
-            this.listAdjustmentDetails = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<AdjustmentDetail>(sql.ToString());
+            this.listAdjustmentDetails = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<AdjustmentDetail>(sql.ToString());
             this.ListDetails = this.listAdjustmentDetails.Cast<object>().ToList();
             return this.ListDetails;
         }
@@ -1103,7 +1103,7 @@ namespace dMobile.Controller.Activity_Detail
 
             var adjSettings = new AdjustmentSettings().LoadData();
 
-            var adjType = (SysCommon.AdjTypes)Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>(
+            var adjType = (SysCommon.AdjTypes)Convert.ToInt32(await DatabaseConnection.GetInstance().SqlConn.ExecuteScalarAsync<int>(
                 "SELECT ActivityAdjustmentType FROM tActivityAdjustment WHERE ActivityRefno = ?",
                 this.ActItem.ActHdr.HdrRefno));
 
@@ -1138,7 +1138,7 @@ namespace dMobile.Controller.Activity_Detail
                     + await SysCommon.GetRequestDefaults(false)
                     + "<adjustment_type>" + (int)adjType + "</adjustment_type>"
                     + "<skid_data>" + data.Root.Element("skid_data").Value + "</skid_data>"
-                    + "<whs_id>" + this.LocMap.CurrLocMap.WhsFKRefno + "</whs_id>"
+                    + "<whs_id>" + this.LocMap.CurrLocMap.WhsFkRefno + "</whs_id>"
                     + "<refno>" + this.ActItem.ActHdr.HdrFkRefno.ToString() + "</refno>"
                     + "<itm_refno>" + itemFkRefno.ToString() + "</itm_refno>"
                     + "<is_negate_qty>" + adjSettings.NegateScanQuantity + "</is_negate_qty>"
@@ -1172,7 +1172,7 @@ namespace dMobile.Controller.Activity_Detail
             };
             var xml = XmlWriter.Create(xmlString, settings);
 
-            var adjType = (SysCommon.AdjTypes)Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>(
+            var adjType = (SysCommon.AdjTypes)Convert.ToInt32(await DatabaseConnection.GetInstance().SqlConn.ExecuteScalarAsync<int>(
                 "SELECT ActivityAdjustmentType FROM tActivityAdjustment WHERE ActivityRefno = ?",
                 this.ActItem.ActHdr.HdrRefno));
             XDocument request;
@@ -1224,9 +1224,9 @@ namespace dMobile.Controller.Activity_Detail
                     + await SysCommon.GetRequestDefaults(false)
                     + "<adjustment_type>" + (int)adjType + "</adjustment_type>"
                     + "<skid_data>" + data.Root.Element("skid_data").Value + "</skid_data>"
-                    + "<whs_id>" + this.LocMap.CurrLocMap.WhsFKRefno + "</whs_id>"
-                    + "<sect_refno>" + this.LocMap.CurrLocMap.SectFKRefno + "</sect_refno>"
-                    + "<slot_refno>" + this.LocMap.CurrLocMap.SlotFKRefno + "</slot_refno>"
+                    + "<whs_id>" + this.LocMap.CurrLocMap.WhsFkRefno + "</whs_id>"
+                    + "<sect_refno>" + this.LocMap.CurrLocMap.SectFkRefno + "</sect_refno>"
+                    + "<slot_refno>" + this.LocMap.CurrLocMap.SlotFkRefno + "</slot_refno>"
                     + "<refno>" + this.ActItem.ActHdr.HdrFkRefno + "</refno>"
                     + "<itm_refno>" + this.ActItem.ItemFkRefno + "</itm_refno>"
                     + "<is_negate_qty>false</is_negate_qty>"

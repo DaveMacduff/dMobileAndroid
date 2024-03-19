@@ -247,7 +247,7 @@ namespace dMobile.Controller.Activity_Item
 
             await base.IsReadyToApply(data);
 
-            // New items are identified with 0 < this.FKRefno, do not validate.
+            // New items are identified with 0 < this.FkRefno, do not validate.
             var showWarning = this.SysEnv.SysSettings.TransQtyOverWarn !=
                               SysCommon.ActTransfersQtyOverValLevels.NoValidationOrWarning;
             if (showWarning && this.ItemFkRefno > 0)
@@ -370,7 +370,7 @@ namespace dMobile.Controller.Activity_Item
             //////////////////////////////////////////////////////////////////////////
             async Task InsertActivityItemInTables(int prodUnitRefno)
             {
-                await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
+                await DatabaseConnection.GetInstance().SqlConn.RunInTransactionAsync(transaction =>
                 {
                     try
                     {
@@ -738,7 +738,7 @@ namespace dMobile.Controller.Activity_Item
                 sql.Append("ORDER BY tActivityItemTransfer.ActivityItemRefno");
             }
 
-            this.listTransferItems = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<TransferItem>(sql.ToString());
+            this.listTransferItems = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<TransferItem>(sql.ToString());
             this.ListItems = this.listTransferItems.Cast<object>().ToList();
             return this.ListItems;
         }
@@ -858,7 +858,7 @@ namespace dMobile.Controller.Activity_Item
                                  + "AND tActivityItemTransfer.TransferFromWarehouseLocationMapRefno = ? "
                                  + "AND tActivityItemTransfer.ProductUnitRefno = ?";
 
-            var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<TransferItem>(
+            var results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<TransferItem>(
                 query, this.ActHdr.HdrRefno, locMap.WhsLocMapRefno, prodUnitRefno);
 
             if (results?.Count > 0)
@@ -968,7 +968,7 @@ namespace dMobile.Controller.Activity_Item
                     transferItem.ActivityItemRefno,
                 };
 
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, parameters);
+                await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync(query, parameters);
             }
         }
 

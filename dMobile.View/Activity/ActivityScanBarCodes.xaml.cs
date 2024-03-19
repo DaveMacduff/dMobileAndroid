@@ -425,7 +425,7 @@ namespace dMobile.View.Activity
                                     " and tLocationMapWarehouseProductScheme.WarehouseLocationMapRefno = ?";
 
                                 var resultsProductUnit =
-                                    await DatabaseConnection.GetInstance().SQLConn
+                                    await DatabaseConnection.GetInstance().SqlConn
                                         .QueryAsync<ProductUnitBarcodeQueryResult>(
                                             queryProductUnit,
                                             this.ProductUnitRefno,
@@ -500,7 +500,7 @@ namespace dMobile.View.Activity
                                 where tProductScheme.ProductSchemeRefno = ?";
 
                         var resultsProductScheme =
-                            await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tProductSchemeModel>(
+                            await DatabaseConnection.GetInstance().SqlConn.QueryAsync<tProductSchemeModel>(
                                 queryProductScheme,
                                 prodSchemeRefno);
 
@@ -704,7 +704,7 @@ namespace dMobile.View.Activity
                                 $" {skid.CurrSkid.WeightQuantity} {skid.CurrSkid.ProdInfo.WeightUnitCode}";
 
                             await this.AddScanMsg($"Location: {locReadable}");
-                            await this.AddScanMsg($"Product: {ProductInfoTasks.GetCurrReadableProdBCUnit(skid.CurrSkid.ProdInfo)}");
+                            await this.AddScanMsg($"Product: {ProductInfoTasks.GetCurrReadableProdBcUnit(skid.CurrSkid.ProdInfo)}");
                             await this.AddScanMsg(skidQty);
                             await this.AddScanMsg($"Put Away: {skid.CurrSkid.IsPutAway}");
                             await this.AddScanMsg($"On Hold: {skid.CurrSkid.IsHold}");
@@ -740,13 +740,13 @@ namespace dMobile.View.Activity
                     var locMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(locMapRefno);
 
                     await this.AddScanMsg($"Warehouse code: {locMap.WhsCode}");
-                    await this.AddScanMsg($"Warehouse refno: {locMap.WhsFKRefno}");
+                    await this.AddScanMsg($"Warehouse refno: {locMap.WhsFkRefno}");
                     await this.AddScanMsg($"Warehouse name: {locMap.WhsName}");
                     await this.AddScanMsg($"Section code: {locMap.SectCode}");
-                    await this.AddScanMsg($"Section refno: {locMap.SectFKRefno}");
+                    await this.AddScanMsg($"Section refno: {locMap.SectFkRefno}");
                     await this.AddScanMsg($"Section name: {locMap.SectName}");
                     await this.AddScanMsg($"Slot code: {locMap.SlotCode}");
-                    await this.AddScanMsg($"Slot refno: {locMap.SlotFKRefno}");
+                    await this.AddScanMsg($"Slot refno: {locMap.SlotFkRefno}");
                     await this.AddScanMsg($"Slot name: {locMap.SlotName}");
                 }
                 else
@@ -943,7 +943,7 @@ namespace dMobile.View.Activity
                 {
                     SysShared.BarCodeRuleParseSumwaFarmFedWholeDuckUseWeightRangeToIdProduct(this.Parse);
 
-                    prodInfo = await ProductInfoTasks.GetInfoFromCodeBCUnit(
+                    prodInfo = await ProductInfoTasks.GetInfoFromCodeBcUnit(
                         this.Parse.ProductIdentifier,
                         string.Empty,
                         "CS");
@@ -974,7 +974,7 @@ namespace dMobile.View.Activity
                             and tProductUnitBarCode.ProductUnitBarCodeModifier1 = ?";
 
                 var resultsProductUnitBarcode =
-                    await DatabaseConnection.GetInstance().SQLConn.QueryAsync<ProductUnitBarcodeQueryResult>(
+                    await DatabaseConnection.GetInstance().SqlConn.QueryAsync<ProductUnitBarcodeQueryResult>(
                         queryProductUnitBarcode,
                         prodIdentifier,
                         currLocMap.WhsLocMapRefno,
@@ -1162,7 +1162,7 @@ namespace dMobile.View.Activity
                             inner join tUnit on tUnit.UnitRefno = tProductUnit.UnitRefno
                             where tProductUnit.ProductUnitRefno = ?";
 
-                    var productUnit = await DatabaseConnection.GetInstance().SQLConn
+                    var productUnit = await DatabaseConnection.GetInstance().SqlConn
                         .QueryAsync<ProductUnit>(queryProductUnit, this.ProductUnitRefno);
                     return productUnit;
                 }

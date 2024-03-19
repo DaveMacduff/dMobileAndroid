@@ -40,7 +40,7 @@ namespace dMobile.GroundWork
             {
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging sales return item comments.", true);
 
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("DELETE FROM tActivityReturnsItemComment");
+                await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync("DELETE FROM tActivityReturnsItemComment");
 
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging sales return item comments complete.", true);
             }

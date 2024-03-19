@@ -133,7 +133,7 @@ namespace dMobile.Controller.Activity
 
             if (this.SysEnv.SysSettings.IsRelByOrder && !this.SysEnv.SysSettings.IsDisconnectedMode)
             {
-                // if (MessageBox.Show(string.Format("Release Order# {0} To Invoice Status?", this.FKRefno), "Release Order", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
+                // if (MessageBox.Show(string.Format("Release Order# {0} To Invoice Status?", this.FkRefno), "Release Order", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
                 if (await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert("Release Order",
                         $"Release Order# {this.HdrFkRefno} To Invoice Status?", "Yes", "No")))
                 {
@@ -447,7 +447,7 @@ namespace dMobile.Controller.Activity
             //        this.DataViewHdrs.RowFilter = this.GetFilter();
             //    }
             // }
-            this.listPicking = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<Picking>(sql.ToString());
+            this.listPicking = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<Picking>(sql.ToString());
             this.ListHeaders = this.listPicking.Cast<object>().ToList();
             return this.ListHeaders;
         }

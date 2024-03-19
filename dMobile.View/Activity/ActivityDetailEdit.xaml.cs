@@ -327,7 +327,7 @@ namespace dMobile.View.Activity
                 ValidateSchemeExtra();
 
                 var prodInfo = this.ActDetail.ActItem.ProdInfo;
-                var uniqueSchemeId = ProductInfoTasks.GetUniqueSchemeIDFromSProdSchemeData(
+                var uniqueSchemeId = ProductInfoTasks.GetUniqueSchemeIdFromSProdSchemeData(
                     prodInfo.Code,
                     prodInfo.Scheme,
                     this.ActDetailEdit.SchemeData);
@@ -994,12 +994,12 @@ namespace dMobile.View.Activity
             {
                 if (await this.IsReadyToSave())
                 {
-                    var uniqueSchemeId = ProductInfoTasks.GetUniqueSchemeIDFromSProdSchemeData(
+                    var uniqueSchemeId = ProductInfoTasks.GetUniqueSchemeIdFromSProdSchemeData(
                         this.ActDetail.ActItem.ProdInfo.Code,
                         this.ActDetail.ActItem.ProdInfo.Scheme,
                         this.ActDetailEdit.SchemeData);
 
-                    var schemeId = ProductInfoTasks.GetActSchemeIDFromSProdSchemeData(
+                    var schemeId = ProductInfoTasks.GetActSchemeIdFromSProdSchemeData(
                         this.ActDetail.ActItem.ProdInfo.Code,
                         this.ActDetail.ActItem.ProdInfo.Scheme,
                         this.ActDetailEdit.SchemeData);
@@ -1574,6 +1574,9 @@ namespace dMobile.View.Activity
         /// <returns><see cref="Task" /> Task operation.</returns>
         private async Task PrintProductLabels()
         {
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+
             if (this.ActDetail.ActSubType == SysCommon.ActSubTypes.Receiving ||
                 this.ActDetail.ActSubType == SysCommon.ActSubTypes.TransferFrom ||
                 this.ActDetail.ActSubType == SysCommon.ActSubTypes.TransferTo)

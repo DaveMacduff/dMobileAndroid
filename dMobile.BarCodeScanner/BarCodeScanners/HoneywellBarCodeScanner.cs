@@ -109,6 +109,7 @@ namespace dMobile.BarCodeScanner.BarCodeScanners
         {
             // Software trigger turns off and on the scanner light and enables scanning.
             // We will rely on the hardware trigger to enable scanning.
+            ////await this.HoneywellReader.SoftwareTriggerAsync(true);
             await this.HoneywellReader.EnableAsync(true);
         }
 
@@ -120,6 +121,7 @@ namespace dMobile.BarCodeScanner.BarCodeScanners
         {
             // Software trigger turns off and on the scanner light and enables scanning.
             // We will rely on the hardware trigger to enable scanning.
+            ////await this.HoneywellReader.SoftwareTriggerAsync(false);
             await this.HoneywellReader.EnableAsync(false);
         }
 

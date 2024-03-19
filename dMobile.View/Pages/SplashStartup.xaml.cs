@@ -263,11 +263,11 @@ namespace dMobile.View.Pages
 
             this.StartUpStatusOut(sender, e, "Locating database.");
 
-            if (File.Exists(DatabaseConnection.GetInstance().DBASCIIZ) &&
-                new FileInfo(DatabaseConnection.GetInstance().DBASCIIZ).Length > 0)
+            if (File.Exists(DatabaseConnection.GetInstance().DatabaseFullPath) &&
+                new FileInfo(DatabaseConnection.GetInstance().DatabaseFullPath).Length > 0)
             {
                 this.StartUpStatusOut(sender, e, "Database found.");
-                this.StartUpStatusOut(sender, e, DatabaseConnection.GetInstance().DBASCIIZ);
+                this.StartUpStatusOut(sender, e, DatabaseConnection.GetInstance().DatabaseFullPath);
             }
             else
             {
@@ -358,8 +358,8 @@ namespace dMobile.View.Pages
         {
             var testSuccessful = false;
 
-            if (!this.SysEnv.SysSettings.IsDisconnectedMode && this.SysEnv.CommSetup.HostIPAddressComponent1 +
-                this.SysEnv.CommSetup.HostIPAddressComponent2 + this.SysEnv.CommSetup.HostIPAddressComponent3 != 0)
+            if (!this.SysEnv.SysSettings.IsDisconnectedMode && this.SysEnv.CommSetup.HostIpAddressComponent1 +
+                this.SysEnv.CommSetup.HostIpAddressComponent2 + this.SysEnv.CommSetup.HostIpAddressComponent3 != 0)
             {
                 this.StartUpStatusOut(sender, e, "Attempting communication test.");
 
@@ -385,10 +385,10 @@ namespace dMobile.View.Pages
                 sysSock.RecvBuffSize = this.SysEnv.CommSetup.ReceiveBufferSize;
                 this.StartUpStatusOut(sender, e, $"Receive buffer size: {sysSock.RecvBuffSize} ");
 
-                sysSock.ServerIP = this.SysEnv.CommSetup.HostIPAddressComponent1 + "."
-                    + this.SysEnv.CommSetup.HostIPAddressComponent2 + "."
-                    + this.SysEnv.CommSetup.HostIPAddressComponent3 + "."
-                    + this.SysEnv.CommSetup.HostIPAddressComponent4;
+                sysSock.ServerIP = this.SysEnv.CommSetup.HostIpAddressComponent1 + "."
+                    + this.SysEnv.CommSetup.HostIpAddressComponent2 + "."
+                    + this.SysEnv.CommSetup.HostIpAddressComponent3 + "."
+                    + this.SysEnv.CommSetup.HostIpAddressComponent4;
 
                 this.StartUpStatusOut(sender, e, $"Server host IP: {sysSock.ServerIP}");
                 this.StartUpStatusOut(sender, e, "Creating connection request.");
@@ -404,7 +404,7 @@ namespace dMobile.View.Pages
                     {
                         this.StartUpStatusOut(sender, e, "Sending device identifier.");
 
-                        var sendReq = CommunicationSetup.CreateXMLSubmitDeviceID();
+                        var sendReq = CommunicationSetup.CreateXmlSubmitDeviceId();
                         var bytesSent = sysSock.SendRequest(socket, sendReq);
                         this.StartUpStatusOut(sender, e, $"Bytes sent: {bytesSent}");
 

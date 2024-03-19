@@ -269,12 +269,12 @@ namespace dMobile.View.Activity
         /// <inheritdoc />
         public async Task<XDocument> GetXml()
         {
-            var unqScheme = ProductInfoTasks.GetUniqueSchemeIDFromSProdSchemeData(
+            var unqScheme = ProductInfoTasks.GetUniqueSchemeIdFromSProdSchemeData(
                 this.ActDetail.ActItem.ProdInfo.Code,
                 this.ActDetail.ActItem.ProdInfo.Scheme,
                 this.ActDetail.SchemeData);
 
-            var scheme = ProductInfoTasks.GetActSchemeIDFromSProdSchemeData(
+            var scheme = ProductInfoTasks.GetActSchemeIdFromSProdSchemeData(
                 this.ActDetail.ActItem.ProdInfo.Code,
                 this.ActDetail.ActItem.ProdInfo.Scheme,
                 this.ActDetail.SchemeData);
@@ -307,7 +307,7 @@ namespace dMobile.View.Activity
         {
             if (!this.IsIndicatorRunning)
             {
-                this.IsIndicatorRunning =true;
+                this.IsIndicatorRunning = true;
                 base.OnAppearing();
                 MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(),
                     async keyPressed => { _ = Enum.TryParse(keyPressed, out Keycode keycode); });

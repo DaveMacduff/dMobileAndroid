@@ -139,12 +139,12 @@ namespace dMobile.View.Activity
                 await ValidateQuantity();
 
                 var prodInfo = this.ActDetail.ActItem.ProdInfo;
-                this.ActDetail.UniqueSchemeId = ProductInfoTasks.GetUniqueSchemeIDFromSProdSchemeData(
+                this.ActDetail.UniqueSchemeId = ProductInfoTasks.GetUniqueSchemeIdFromSProdSchemeData(
                     prodInfo.Code,
                     prodInfo.Scheme,
                     this.ActDetail.SchemeData);
 
-                this.ActDetail.SchemeId = ProductInfoTasks.GetActSchemeIDFromSProdSchemeData(
+                this.ActDetail.SchemeId = ProductInfoTasks.GetActSchemeIdFromSProdSchemeData(
                     prodInfo.Code,
                     prodInfo.Scheme,
                     this.ActDetail.SchemeData);
@@ -692,12 +692,12 @@ namespace dMobile.View.Activity
         /// <inheritdoc />
         public async Task<XDocument> GetXml()
         {
-            var unqScheme = ProductInfoTasks.GetUniqueSchemeIDFromSProdSchemeData(
+            var unqScheme = ProductInfoTasks.GetUniqueSchemeIdFromSProdSchemeData(
                 this.ActDetail.ActItem.ProdInfo.Code,
                 this.ActDetail.ActItem.ProdInfo.Scheme,
                 this.ActDetail.SchemeData);
 
-            var scheme = ProductInfoTasks.GetActSchemeIDFromSProdSchemeData(
+            var scheme = ProductInfoTasks.GetActSchemeIdFromSProdSchemeData(
                 this.ActDetail.ActItem.ProdInfo.Code,
                 this.ActDetail.ActItem.ProdInfo.Scheme,
                 this.ActDetail.SchemeData);

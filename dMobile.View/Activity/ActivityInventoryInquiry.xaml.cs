@@ -991,7 +991,7 @@ namespace dMobile.View.Activity
 
             if (!string.IsNullOrEmpty(queryPickingOnly))
             {
-                var resultsPickingProductLocationMapType = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<ProductLocationMapType>(queryPickingOnly);
+                var resultsPickingProductLocationMapType = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<ProductLocationMapType>(queryPickingOnly);
 
                 if (resultsPickingProductLocationMapType?.Count > 0)
                 {
@@ -1013,7 +1013,7 @@ namespace dMobile.View.Activity
 
             if (!string.IsNullOrEmpty(queryReceivingOnly))
             {
-                var resultsReceivingProductLocationMapType = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<ProductLocationMapType>(queryReceivingOnly);
+                var resultsReceivingProductLocationMapType = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<ProductLocationMapType>(queryReceivingOnly);
 
                 if (resultsReceivingProductLocationMapType?.Count > 0)
                 {

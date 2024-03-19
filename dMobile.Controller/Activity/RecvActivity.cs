@@ -363,7 +363,7 @@ namespace dMobile.Controller.Activity
             //        this.DataViewHdrs.RowFilter = this.GetFilter();
             //    }
             // }
-            this.listReceives = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<Receive>(sql.ToString());
+            this.listReceives = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<Receive>(sql.ToString());
 
             foreach (var sort in receiveSettings.GetDataViewSortBy())
             {

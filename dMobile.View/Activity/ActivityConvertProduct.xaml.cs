@@ -778,9 +778,9 @@ namespace dMobile.View.Activity
             _ = req.Append("<imclient>");
             _ = req.Append("<command><action>SUBMIT PRINT PRODUCT LABEL</action></command>");
             _ = req.Append(await SysCommon.GetRequestDefaults(false));
-            _ = req.AppendFormat("<whs_id>{0}</whs_id>", this.LocMap.CurrLocMap.WhsFKRefno);
-            _ = req.AppendFormat("<sect_refno>{0}</sect_refno>", this.LocMap.CurrLocMap.SectFKRefno);
-            _ = req.AppendFormat("<slot_refno>{0}</slot_refno>", this.LocMap.CurrLocMap.SlotFKRefno);
+            _ = req.AppendFormat("<whs_id>{0}</whs_id>", this.LocMap.CurrLocMap.WhsFkRefno);
+            _ = req.AppendFormat("<sect_refno>{0}</sect_refno>", this.LocMap.CurrLocMap.SectFkRefno);
+            _ = req.AppendFormat("<slot_refno>{0}</slot_refno>", this.LocMap.CurrLocMap.SlotFkRefno);
             _ = req.AppendFormat("<refno>{0}</refno>", this.ActItem.ActHdr.HdrFkRefno);
             _ = req.AppendFormat("<itm_refno>{0}</itm_refno>", this.ActItem.ItemFkRefno);
             _ = req.AppendFormat("<prod_id>{0}</prod_id>", prodId);
@@ -1080,7 +1080,7 @@ namespace dMobile.View.Activity
                                      + "WHERE tProductUnit.ProductUnitRefno = ?";
 
                 var results = await DatabaseConnection.GetInstance()
-                    .SQLConn.QueryAsync<ProductUnit>(query, this.FromProdInfo.UnitRefno);
+                    .SqlConn.QueryAsync<ProductUnit>(query, this.FromProdInfo.UnitRefno);
 
                 if (results?.Count > 0)
                 {
@@ -1170,7 +1170,7 @@ namespace dMobile.View.Activity
                                      + "INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno "
                                      + "WHERE tProductUnit.ProductUnitRefno = ?";
 
-                var results = await DatabaseConnection.GetInstance().SQLConn
+                var results = await DatabaseConnection.GetInstance().SqlConn
                     .QueryAsync<ProductUnit>(query, this.ToProdInfo.UnitRefno);
 
                 if (results?.Count > 0)

@@ -280,7 +280,7 @@ namespace dMobile.Controller.Activity_Item
             //////////////////////////////////////////////////////////////////////////
             async Task InsertActivityItemInTables()
             {
-                await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
+                await DatabaseConnection.GetInstance().SqlConn.RunInTransactionAsync(transaction =>
                 {
                     try
                     {
@@ -397,7 +397,7 @@ namespace dMobile.Controller.Activity_Item
 
             if (this.SysEnv.SysSettings.IsDisconnectedMode)
             {
-                await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
+                await DatabaseConnection.GetInstance().SqlConn.RunInTransactionAsync(transaction =>
                 {
                     try
                     {
@@ -459,7 +459,7 @@ namespace dMobile.Controller.Activity_Item
                 // string oldSort = this.DataViewItems.Sort;
                 // int rowIdx = 0;
                 // this.DataViewItems.Sort = "ActivityItemFKRefno";
-                // rowIdx = DataViewItems.Find(new object[] { this.FKRefno });
+                // rowIdx = DataViewItems.Find(new object[] { this.FkRefno });
                 var purchaseOrderWorkSheetItem = this.ListItems.OfType<PurchaseOrderWorkSheetItem>()
                     .Where(worksheetItem => worksheetItem.ActivityItemFKRefno == this.ItemFkRefno).FirstOrDefault();
                 var toBeUpdated = false;
@@ -518,7 +518,7 @@ namespace dMobile.Controller.Activity_Item
                 purchaseOrderWorkSheetItem.ActivityItemStatus = Convert.ToInt32(SysCommon.ActStatus.NoChange);
             }
 
-            await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
+            await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync(
                 "UPDATE tActivityItem SET tActivityItem.ActivityItemStatus = ? WHERE ActivityItemRefno = ?",
                 (int)SysCommon.ActStatus.NoChange,
                 this.ItemRefno);
@@ -721,7 +721,7 @@ namespace dMobile.Controller.Activity_Item
                 sql.Append("ORDER BY tActivityItemPurchaseOrderWorkSheet.ActivityItemRefno");
             }
 
-            this.listPurchaseOrderWorkSheetItems = await DatabaseConnection.GetInstance().SQLConn
+            this.listPurchaseOrderWorkSheetItems = await DatabaseConnection.GetInstance().SqlConn
                 .QueryAsync<PurchaseOrderWorkSheetItem>(sql.ToString());
             this.ListItems = this.listPurchaseOrderWorkSheetItems.OrderBy(poItem => poItem.ActivityItemFKRefno)
                 .Cast<object>().ToList();
@@ -853,7 +853,7 @@ namespace dMobile.Controller.Activity_Item
                 locMap.WhsLocMapRefno);
             sql.AppendFormat("AND tActivityItemPurchaseOrderWorkSheet.ProductUnitRefno = {0} ", prodUnitRefno);
 
-            var results = await DatabaseConnection.GetInstance().SQLConn
+            var results = await DatabaseConnection.GetInstance().SqlConn
                 .QueryAsync<PurchaseOrderWorkSheetItem>(sql.ToString());
 
             if (results != null && results.Count > 0)
@@ -903,7 +903,7 @@ namespace dMobile.Controller.Activity_Item
                 + "<is_bc>" + prodUnitIsBc + "</is_bc>"
                 + "<symbology>" + symbologyPrefix + "</symbology>"
                 + "<gtin>" + barCodeCode + "</gtin>"
-                + "<whs_id>" + this.LocMap.WhsFKRefno + "</whs_id>"
+                + "<whs_id>" + this.LocMap.WhsFkRefno + "</whs_id>"
                 + "<refno>" + this.ItemFkRefno + "</refno>"
                 + "<itm_refno>" + this.ItemFkRefno + "</itm_refno>"
                 + "<alt_qty>" + data.Root.Element("alt_qty").Value + "</alt_qty>"
@@ -979,7 +979,7 @@ namespace dMobile.Controller.Activity_Item
                     purchaseOrderWorkSheetItem.ActivityItemRefno
                 };
 
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(query, parameters);
+                await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync(query, parameters);
             }
         }
 

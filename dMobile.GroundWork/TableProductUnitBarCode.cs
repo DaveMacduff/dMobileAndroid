@@ -39,7 +39,7 @@ namespace dMobile.GroundWork
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding product uom bar codes.", true);
 
                 var responseData = string.Empty;
-                var results = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<tFamilyModel>("SELECT * FROM tFamily");
+                var results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<tFamilyModel>("SELECT * FROM tFamily");
 
                 if (results?.Count > 0)
                 {
@@ -78,8 +78,8 @@ namespace dMobile.GroundWork
             {
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging product uom bar codes.", true);
 
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("DELETE FROM tActivityItemBarCodeAssociationXRef");
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync("DELETE FROM tProductUnitBarCode");
+                await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync("DELETE FROM tActivityItemBarCodeAssociationXRef");
+                await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync("DELETE FROM tProductUnitBarCode");
 
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging product uom bar codes complete.", true);
             }
@@ -101,7 +101,7 @@ namespace dMobile.GroundWork
             int rowsAffected;
             try
             {
-                rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SQLConn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tProductUnitBarCode"));
+                rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SqlConn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tProductUnitBarCode"));
 
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"{rowsAffected} product uom bar codes.", true);
             }
@@ -141,7 +141,7 @@ namespace dMobile.GroundWork
             var refreshDataChangesOnly = this.SysEnv.RefreshOpt.RefreshDataChangesOnly;
             var unitLookup = new Dictionary<string, int>();
 
-            await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
+            await DatabaseConnection.GetInstance().SqlConn.RunInTransactionAsync(transaction =>
             {
                 try
                 {

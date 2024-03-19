@@ -1373,10 +1373,10 @@ namespace dMobile.View.Activity
                         {
                             // Make sure that the warehouse, product, bc, and unit match.
                             var skidInfo = this.ActItem.ActHdr.SkidInfo.CurrSkid;
-                            if (this.ActItem.ProdInfo.FKRefno != skidInfo.ProdInfo.FKRefno ||
-                                this.ActItem.ProdInfo.UnitIsBC != skidInfo.ProdInfo.UnitIsBC ||
+                            if (this.ActItem.ProdInfo.FkRefno != skidInfo.ProdInfo.FkRefno ||
+                                this.ActItem.ProdInfo.UnitIsBc != skidInfo.ProdInfo.UnitIsBc ||
                                 this.ActItem.ProdInfo.UnitRefno != skidInfo.ProdInfo.UnitRefno ||
-                                this.ActItem.LocMap.WhsFKRefno != skidInfo.LocMap.WhsFKRefno)
+                                this.ActItem.LocMap.WhsFkRefno != skidInfo.LocMap.WhsFkRefno)
                             {
                                 msg = "The selected skid warehouse and product must be the same as the line item" +
                                       " warehouse and product before the skid can be deleted.";
@@ -1571,7 +1571,7 @@ namespace dMobile.View.Activity
                 + await SysCommon.GetRequestDefaults(false)
                 + "<command>"
                 + "<action>REQUEST CHECK IF SKIDS 2 PRINT</action>"
-                + "<whs_id>" + this.LocMap.CurrLocMap.WhsFKRefno + "</whs_id>"
+                + "<whs_id>" + this.LocMap.CurrLocMap.WhsFkRefno + "</whs_id>"
                 + "<fk_refno>" + this.ActItem.ActHdr.HdrFkRefno + "</fk_refno>"
                 + "<fk_source>PO</fk_source>"
                 + "</command>"
@@ -1979,7 +1979,7 @@ namespace dMobile.View.Activity
                                     // Additional found matching line items are not allowed to be created during
                                     // scanning and inserting. I am not expecting matches to be found because
                                     // that check has already been performed at this point.
-                                    await this.ActItem.Insert(ProductInfoTasks.GetXML(scannedProdInfo));
+                                    await this.ActItem.Insert(ProductInfoTasks.GetXml(scannedProdInfo));
                                     this.ActItem.SetSelectedActivityItemFromList(this.ActItem.ItemRefno);
                                     selectedItem = this.ActItem.SelectedItem;
                                     await this.ActItem.AssignActivityItem(selectedItem);
@@ -2060,11 +2060,11 @@ namespace dMobile.View.Activity
                         var actDetail = ActDetailFacade.GetActDetail(this.ActItem, this.ActSubType);
                         actDetail.ActItem = this.ActItem;
 
-                        actDetail.SchemeId = ProductInfoTasks.GetActSchemeIDFromSProdSchemeData(
+                        actDetail.SchemeId = ProductInfoTasks.GetActSchemeIdFromSProdSchemeData(
                             this.ActItem.ProdInfo.Code,
                             this.ActItem.ProdInfo.Scheme,
                             actDetail.SchemeData);
-                        actDetail.UniqueSchemeId = ProductInfoTasks.GetUniqueSchemeIDFromSProdSchemeData(
+                        actDetail.UniqueSchemeId = ProductInfoTasks.GetUniqueSchemeIdFromSProdSchemeData(
                             this.ActItem.ProdInfo.Code,
                             this.ActItem.ProdInfo.Scheme,
                             actDetail.SchemeData);
@@ -2327,7 +2327,7 @@ namespace dMobile.View.Activity
                     {
                         if (await this.AskToAddNewItem(this.ActItem.ActHdr.SkidInfo.CurrSkid.ProdInfo))
                         {
-                            var data = ProductInfoTasks.GetXML(this.ActItem.ActHdr.SkidInfo.CurrSkid.ProdInfo);
+                            var data = ProductInfoTasks.GetXml(this.ActItem.ActHdr.SkidInfo.CurrSkid.ProdInfo);
 
                             // Additional found matching line items are not allowed to be created during
                             // scanning and inserting. I am not expecting matches to be found because
@@ -2590,7 +2590,7 @@ namespace dMobile.View.Activity
                 + await SysCommon.GetRequestDefaults(false)
                 + "<command>"
                 + "<action>SUBMIT PRINT ALL SKID LABELS</action>"
-                + "<whs_id>" + this.LocMap.CurrLocMap.WhsFKRefno + "</whs_id>"
+                + "<whs_id>" + this.LocMap.CurrLocMap.WhsFkRefno + "</whs_id>"
                 + "<fk_refno>" + this.ActItem.ActHdr.HdrFkRefno + "</fk_refno>"
                 + "<fk_source>PO</fk_source>"
                 + "</command>"
@@ -2646,7 +2646,7 @@ namespace dMobile.View.Activity
                                 " and product \'{1}.\'" + Environment.NewLine +
                                 "Do you wish to create one?",
                                 this.LocMap.CurrLocMap.WhsCode,
-                                ProductInfoTasks.GetCurrReadableProdBCUnit(scannedProdInfo)),
+                                ProductInfoTasks.GetCurrReadableProdBcUnit(scannedProdInfo)),
                             "Yes",
                             "No"))
                     {
@@ -3276,7 +3276,7 @@ namespace dMobile.View.Activity
             {
                 this.ExtraInfoItems.Add(this.ActItem.ProdInfo.Refno <= 0
                     ? "PRODUCT: All"
-                    : $"PRODUCT: {ProductInfoTasks.GetCurrReadableProdBCUnit(this.ActItem.ProdInfo)}");
+                    : $"PRODUCT: {ProductInfoTasks.GetCurrReadableProdBcUnit(this.ActItem.ProdInfo)}");
 
                 this.ExtraInfoItems.Add($"LOCATION: {LocationMapTasks.GetCurrentReadableLocation()}");
             }
@@ -3839,7 +3839,7 @@ namespace dMobile.View.Activity
                                         this.ActItem.ActHdr.SkidInfo.CurrSkid.ProdInfo));
                             }
 
-                            var xmlDoc = ProductInfoTasks.GetXML(currSkid.ProdInfo);
+                            var xmlDoc = ProductInfoTasks.GetXml(currSkid.ProdInfo);
 
                             // Insert into activity item table, and add new activity item to the list.
                             // Inserted item uses the current location.
@@ -3880,11 +3880,11 @@ namespace dMobile.View.Activity
                         var schemeData = actDetail.SchemeData;
                         schemeData.LogisticUnitSkidNumber = this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidCode;
                         actDetail.SchemeData = schemeData;
-                        actDetail.UniqueSchemeId = ProductInfoTasks.GetUniqueSchemeIDFromSProdSchemeData(
+                        actDetail.UniqueSchemeId = ProductInfoTasks.GetUniqueSchemeIdFromSProdSchemeData(
                             this.ActItem.ProdInfo.Code,
                             this.ActItem.ProdInfo.Scheme,
                             actDetail.SchemeData);
-                        actDetail.SchemeId = ProductInfoTasks.GetActSchemeIDFromSProdSchemeData(
+                        actDetail.SchemeId = ProductInfoTasks.GetActSchemeIdFromSProdSchemeData(
                             this.ActItem.ProdInfo.Code,
                             this.ActItem.ProdInfo.Scheme,
                             actDetail.SchemeData);

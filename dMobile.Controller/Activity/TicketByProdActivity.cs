@@ -313,7 +313,7 @@ namespace dMobile.Controller.Activity
             //        this.DataViewHdrs.Sort = ticketSettings.GetDataViewSortBy();
             //    }
             // }
-            this.listProductionTicketByProducts = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<ProductionTicketByProduct>(sql.ToString());
+            this.listProductionTicketByProducts = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<ProductionTicketByProduct>(sql.ToString());
 
             foreach (var sort in ticketSettings.GetDataViewSortBy())
             {

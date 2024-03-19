@@ -36,7 +36,7 @@ namespace dMobile.GroundWork
         /// </summary>
         public override async Task PurgeData()
         {
-            var conn = DatabaseConnection.GetInstance().SQLConn;
+            var conn = DatabaseConnection.GetInstance().SqlConn;
             this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} items.", true);
             await conn.RunInTransactionAsync(transaction =>
             {
@@ -122,7 +122,7 @@ namespace dMobile.GroundWork
         /// <param name="actRefno">The actItemRefno<see cref="int"/>.</param>
         protected override async Task Save(string responseData, int actRefno)
         {
-            await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
+            await DatabaseConnection.GetInstance().SqlConn.RunInTransactionAsync(transaction =>
             {
                 try
                 {
@@ -248,7 +248,7 @@ namespace dMobile.GroundWork
                 + await SysCommon.GetRequestDefaults(false)
                 + "<refno>" + activityItemFkRefno + "</refno>"
                 + "</command>"
-                + "<whs_id>" + LocationMap.GetInstance().CurrLocMap.WhsFKRefno + "</whs_id>"
+                + "<whs_id>" + LocationMap.GetInstance().CurrLocMap.WhsFkRefno + "</whs_id>"
                 + "</imclient>");
 
             request.Save(xml);

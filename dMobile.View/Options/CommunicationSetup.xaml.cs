@@ -231,10 +231,10 @@ namespace dMobile.View.Options
             {
                 if (await this.IsReadyToSave())
                 {
-                    this.SysEnv.CommSetup.HostIPAddressComponent1 = int.Parse(this.updnIP1.Text);
-                    this.SysEnv.CommSetup.HostIPAddressComponent2 = int.Parse(this.updnIP2.Text);
-                    this.SysEnv.CommSetup.HostIPAddressComponent3 = int.Parse(this.updnIP3.Text);
-                    this.SysEnv.CommSetup.HostIPAddressComponent4 = int.Parse(this.updnIP4.Text);
+                    this.SysEnv.CommSetup.HostIpAddressComponent1 = int.Parse(this.updnIP1.Text);
+                    this.SysEnv.CommSetup.HostIpAddressComponent2 = int.Parse(this.updnIP2.Text);
+                    this.SysEnv.CommSetup.HostIpAddressComponent3 = int.Parse(this.updnIP3.Text);
+                    this.SysEnv.CommSetup.HostIpAddressComponent4 = int.Parse(this.updnIP4.Text);
                     this.SysEnv.CommSetup.BaseSocketPort = int.Parse(this.updnBasePort.Text);
                     this.SysEnv.CommSetup.DefaultSocketPort = int.Parse(this.updnDefaultPort.Text);
                     this.SysEnv.CommSetup.MaxSocketPorts = int.Parse(this.updnMaxPorts.Text);
@@ -641,10 +641,10 @@ namespace dMobile.View.Options
         {
             this.SysEnv.CommSetup = this.SysEnv.CommSetup.LoadData();
 
-            this.updnIP1.Text = this.SysEnv.CommSetup.HostIPAddressComponent1.ToString();
-            this.updnIP2.Text = this.SysEnv.CommSetup.HostIPAddressComponent2.ToString();
-            this.updnIP3.Text = this.SysEnv.CommSetup.HostIPAddressComponent3.ToString();
-            this.updnIP4.Text = this.SysEnv.CommSetup.HostIPAddressComponent4.ToString();
+            this.updnIP1.Text = this.SysEnv.CommSetup.HostIpAddressComponent1.ToString();
+            this.updnIP2.Text = this.SysEnv.CommSetup.HostIpAddressComponent2.ToString();
+            this.updnIP3.Text = this.SysEnv.CommSetup.HostIpAddressComponent3.ToString();
+            this.updnIP4.Text = this.SysEnv.CommSetup.HostIpAddressComponent4.ToString();
             this.updnBasePort.Text = this.SysEnv.CommSetup.BaseSocketPort.ToString();
             this.updnDefaultPort.Text = this.SysEnv.CommSetup.DefaultSocketPort.ToString();
             this.updnMaxPorts.Text = this.SysEnv.CommSetup.MaxSocketPorts.ToString();
@@ -708,15 +708,15 @@ namespace dMobile.View.Options
 
                 this.AddCommMsg(this, EventArgs.Empty, $"Receive buffer size: {this.SysEnv.SysSock.RecvBuffSize} ");
 
-                this.SysEnv.SysSock.ServerIP = this.SysEnv.CommSetup.HostIPAddressComponent1
-                    + "." + this.SysEnv.CommSetup.HostIPAddressComponent2 + "."
-                    + this.SysEnv.CommSetup.HostIPAddressComponent3 + "."
-                    + this.SysEnv.CommSetup.HostIPAddressComponent4;
+                this.SysEnv.SysSock.ServerIP = this.SysEnv.CommSetup.HostIpAddressComponent1
+                    + "." + this.SysEnv.CommSetup.HostIpAddressComponent2 + "."
+                    + this.SysEnv.CommSetup.HostIpAddressComponent3 + "."
+                    + this.SysEnv.CommSetup.HostIpAddressComponent4;
 
                 this.AddCommMsg(this, EventArgs.Empty, $"Server host ip: {this.SysEnv.SysSock.ServerIP}");
                 this.AddCommMsg(this, EventArgs.Empty, "Creating connection request.");
 
-                sendReq = Bedrock.CommunicationSetup.CreateXMLSubmitDeviceID();
+                sendReq = Bedrock.CommunicationSetup.CreateXmlSubmitDeviceId();
 
                 try
                 {

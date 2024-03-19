@@ -36,10 +36,10 @@ namespace dMobile.Bedrock
             this.LoginSocket.SendTimeOutMilliseconds = this.CommSetup.SendTimeOutSeconds * 1000;
             this.LoginSocket.ReceiveTimeOutMilliseconds = this.CommSetup.ReceiveTimeOutSeconds * 1000;
             this.LoginSocket.RecvBuffSize = this.CommSetup.ReceiveBufferSize;
-            this.LoginSocket.ServerIP = this.CommSetup.HostIPAddressComponent1.ToString() + "." +
-                    this.CommSetup.HostIPAddressComponent2.ToString() + "." +
-                    this.CommSetup.HostIPAddressComponent3.ToString() + "." +
-                    this.CommSetup.HostIPAddressComponent4.ToString();
+            this.LoginSocket.ServerIP = this.CommSetup.HostIpAddressComponent1.ToString() + "." +
+                    this.CommSetup.HostIpAddressComponent2.ToString() + "." +
+                    this.CommSetup.HostIpAddressComponent3.ToString() + "." +
+                    this.CommSetup.HostIpAddressComponent4.ToString();
         }
 
         /// <summary>

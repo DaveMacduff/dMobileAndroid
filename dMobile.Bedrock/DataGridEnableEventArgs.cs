@@ -12,16 +12,11 @@ namespace dMobile.Bedrock
     public class DataGridEnableEventArgs : EventArgs
     {
         /// <summary>
-        /// Defines the row.
-        /// </summary>
-        private int row = 0;
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="DataGridEnableEventArgs"/> class.
         /// </summary>
-        /// <param name="row">.</param>
-        /// <param name="col">.</param>
-        /// <param name="isMeetsCriteria">.</param>
+        /// <param name="row">Grid row.</param>
+        /// <param name="col">Grid column.</param>
+        /// <param name="isMeetsCriteria"> Is meets criteria.</param>
         public DataGridEnableEventArgs(int row, int col, bool isMeetsCriteria)
         {
             this.Row = row;
@@ -32,21 +27,16 @@ namespace dMobile.Bedrock
         /// <summary>
         /// Gets or sets the Column.
         /// </summary>
-        public int Column { get; set; } = 0;
+        public int Column { get; set; }
 
         /// <summary>
         /// Gets or sets the Row.
         /// </summary>
-        public int Row
-        {
-            get => this.row;
-
-            set => this.row = value;
-        }
+        public int Row { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether MeetsCriteria.
         /// </summary>
-        public bool MeetsCriteria { get; set; } = false;
+        public bool MeetsCriteria { get; set; }
     }
 }

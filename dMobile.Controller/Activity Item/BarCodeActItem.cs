@@ -122,7 +122,7 @@ namespace dMobile.Controller.Activity_Item
                                    + "WHERE tProductUnit.ProductUnitRefno = ?";
 
             var prodUnitRefno = int.Parse(data.Root.Element("ProductUnitRefno").Value);
-            var productUnitResults = await DatabaseConnection.GetInstance().SQLConn.
+            var productUnitResults = await DatabaseConnection.GetInstance().SqlConn.
                 QueryAsync<ProductUnit>(queryProductUnit, Convert.ToInt32(prodUnitRefno));
 
             if (productUnitResults != null && productUnitResults.Count > 0)
@@ -143,7 +143,7 @@ namespace dMobile.Controller.Activity_Item
 
             var queryProdUnitBarcode = "SELECT ProductUnitRefno, ProductUnitBarCodeRefno FROM tProductUnitBarCode" +
                                        " WHERE ProductUnitBarCodeCode = ? AND ProductUnitBarCodeModifier1 = ?";
-            var prodUnitBarcodeResults = await DatabaseConnection.GetInstance().SQLConn.
+            var prodUnitBarcodeResults = await DatabaseConnection.GetInstance().SqlConn.
                 QueryAsync<tProductUnitBarCodeModel>(queryProdUnitBarcode, prodIdentifier, data.Root.Element("ProductUnitBarCodeModifier1").Value);
 
             if (prodUnitBarcodeResults != null && prodUnitBarcodeResults.Count > 0)
@@ -171,7 +171,7 @@ namespace dMobile.Controller.Activity_Item
                 await this.ActHdr.Create(SysCommon.ActSubTypes.BarCodeAssociation);
                 await this.Create(SysCommon.ActSubTypes.BarCodeAssociation);
 
-                await DatabaseConnection.GetInstance().SQLConn.RunInTransactionAsync(transaction =>
+                await DatabaseConnection.GetInstance().SqlConn.RunInTransactionAsync(transaction =>
                 {
                     try
                     {
@@ -330,7 +330,7 @@ namespace dMobile.Controller.Activity_Item
             //        TODO: Fix sorting
             //    }
             // }
-            this.listBarcodeAssociationItems = await DatabaseConnection.GetInstance().SQLConn.QueryAsync<BarcodeAssociationItem>(sql.ToString());
+            this.listBarcodeAssociationItems = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<BarcodeAssociationItem>(sql.ToString());
             this.ListItems = this.listBarcodeAssociationItems.Cast<object>().ToList();
             return this.ListItems;
         }
@@ -399,7 +399,7 @@ namespace dMobile.Controller.Activity_Item
             if (receivedData.Length > 0)
             {
                 xmlDoc.LoadXml(receivedData);
-                await DatabaseConnection.GetInstance().SQLConn.ExecuteAsync(
+                await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync(
                     "UPDATE tActivityItem SET ActivityItemStatus = ? WHERE ActivityItemRefno = ?",
                     Convert.ToInt32(SysCommon.ActStatus.NoChange),
                     this.ItemRefno);
