@@ -824,7 +824,7 @@ namespace dMobile.Controller.Activity_Item
                             LocationMap.GetInstance().ChosenLocMap = itemLocMap.Clone();
 
                             // Assign the skid the location, because defaulting is enabled.
-                            if (this.ActHdr.SkidInfo.CurrSkid.SkidFKRefno > 0)
+                            if (this.ActHdr.SkidInfo.CurrSkid.SkidFkRefno > 0)
                             {
                                 this.ActHdr.SkidInfo.CurrSkid.LocMap = itemLocMap.Clone();
                             }

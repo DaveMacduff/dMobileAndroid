@@ -4,15 +4,11 @@
 
 namespace dMobile.Bedrock
 {
-    using System;
-
     /// <summary>
     /// System Environment Class.
     /// </summary>
     public class SysEnvironment
     {
-        // VARIABLES
-
         /// <summary>
         /// Contains system environment settings unique instance. For singleton.
         /// </summary>
@@ -26,13 +22,13 @@ namespace dMobile.Bedrock
         /// <summary>
         /// Contains device id.
         /// </summary>
-        private static string deviceID = SysDeviceID.GetDeviceID();
+        private static string deviceId = SysDeviceId.GetDeviceId();
 
         /// <summary>
         /// Contains system settings instance.
         /// </summary>
         /// <remarks>IMPORTANT to set to null, LoadData is called in get() in SystemSettings.</remarks>
-        private static SystemSettings sysSettings = null;
+        private static SystemSettings sysSettings;
 
         /// <summary>
         /// Contains refresh data settings instance.
@@ -62,19 +58,12 @@ namespace dMobile.Bedrock
         /// <summary>
         /// Test if last communication test was successful.
         /// </summary>
-        private static bool isCommunicationTestSuccessful = false;
-
-        /// <summary>
-        /// Are we a Windows Mobile 6 device.
-        /// </summary>
-        private static bool isWindowsMobile6Device = false;
+        private static bool isCommunicationTestSuccessful;
 
         /// <summary>
         /// Allow login double click logo to override device mode licenses.
         /// </summary>
-        private static bool isEnableAllModuleBypassLicense = false;
-
-        // CONSTRUCTOR
+        private static bool isEnableAllModuleBypassLicense;
 
         /// <summary>
         /// Prevents a default instance of the <see cref="SysEnvironment"/>
@@ -100,16 +89,16 @@ namespace dMobile.Bedrock
         /// <summary>
         /// Gets or sets the current device id.
         /// </summary>
-        public string DeviceID
+        public string DeviceId
         {
-            get => deviceID;
+            get => deviceId;
 
-            set => deviceID = value;
+            set => deviceId = value;
         }
 
         /// <summary>
         /// Gets or sets a value indicating whether to bypass the device module license,
-        /// double clicking the login logo.
+        /// double-clicking the login logo.
         /// </summary>
         public bool IsEnableAllModuleBypassLicense
         {
@@ -207,10 +196,10 @@ namespace dMobile.Bedrock
                     sysSock.SendTimeOutMilliseconds = this.CommSetup.SendTimeOutSeconds * 1000;
                     sysSock.ReceiveTimeOutMilliseconds = this.CommSetup.ReceiveTimeOutSeconds * 1000;
                     sysSock.RecvBuffSize = this.CommSetup.ReceiveBufferSize;
-                    sysSock.ServerIP = this.CommSetup.HostIpAddressComponent1.ToString() +
-                        "." + this.CommSetup.HostIpAddressComponent2.ToString() + "." +
-                        this.CommSetup.HostIpAddressComponent3.ToString() + "." +
-                        this.CommSetup.HostIpAddressComponent4.ToString();
+                    sysSock.ServerIP = this.CommSetup.HostIpAddressComponent1 +
+                        "." + this.CommSetup.HostIpAddressComponent2 + "." +
+                        this.CommSetup.HostIpAddressComponent3 + "." +
+                        this.CommSetup.HostIpAddressComponent4;
                 }
 
                 return sysSock;
@@ -250,35 +239,6 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether the OS is a windows mobile 6 variant.
-        /// </summary>
-        public bool IsWindowsMobile6Device
-        {
-            get
-            {
-                // Windows Mobile 6 = Version 5.2
-                // Windows Mobile 5 = Version 5.1
-                // Windows Mobile 2003 SE = Version 4.21
-
-                // If the OS is Windows Mobile Professional 6.0
-                var platform = SysPlatformDetector.GetPlatform();
-                if (platform == Platform.PocketPC & Environment.OSVersion.Version.Major == 5 &
-                    Environment.OSVersion.Version.Minor == 2)
-                {
-                    isWindowsMobile6Device = true;
-                }
-                else
-                {
-                    isWindowsMobile6Device = false;
-                }
-
-                return isWindowsMobile6Device;
-            }
-
-            set => isWindowsMobile6Device = value;
-        }
-
-        /// <summary>
         /// Gets or sets the inserted detail reference number.
         /// </summary>
         public int InsertedDetailRefno { get; set; }
@@ -297,44 +257,7 @@ namespace dMobile.Bedrock
         /// <returns>A new or current singleton instance.</returns>
         public static SysEnvironment GetInstance()
         {
-            if (sysEnv == null)
-            {
-                sysEnv = new SysEnvironment();
-            }
-
-            return sysEnv;
-        }
-
-        /// <summary>
-        /// Reload or reload properties with any new values.
-        /// </summary>
-        public static void RefreshEnv()
-        {
-            sysEnv.CurrentBarCodeModifier1 = string.Empty;
-            sysEnv.DeviceID = SysDeviceID.GetDeviceID();
-
-            var sysSettings = sysEnv.SysSettings;
-            SystemSettingsTasks.LoadData(ref sysSettings);
-            sysEnv.SysSettings = sysSettings;
-
-            sysEnv.RefreshOpt = refreshOpt.LoadData();
-            sysEnv.BarCodeSettings = barCodeSettingsInstance.LoadData();
-            sysEnv.CommSetup = commSetup.LoadData();
-            sysEnv.ContactLog = contactLog.LoadData();
-
-            sysEnv.SysSock.BasePort = commSetup.BaseSocketPort;
-            sysEnv.SysSock.DefSocketPort = commSetup.DefaultSocketPort;
-            sysEnv.SysSock.MaxPorts = commSetup.MaxSocketPorts;
-            sysEnv.SysSock.ConnTotalRetries = commSetup.ConnectionAttempts;
-            sysEnv.SysSock.SendTotalRetries = commSetup.SendAttempts;
-            sysEnv.SysSock.RecvTotalRetries = commSetup.ReceiveAttempts;
-            sysEnv.SysSock.SendTimeOutMilliseconds = commSetup.SendTimeOutSeconds * 1000;
-            sysEnv.SysSock.ReceiveTimeOutMilliseconds = commSetup.ReceiveTimeOutSeconds * 1000;
-            sysEnv.SysSock.RecvBuffSize = commSetup.ReceiveBufferSize;
-            sysEnv.SysSock.ServerIP = commSetup.HostIpAddressComponent1.ToString() +
-                "." + commSetup.HostIpAddressComponent2.ToString() + "." +
-                commSetup.HostIpAddressComponent3.ToString() + "." +
-                commSetup.HostIpAddressComponent4.ToString();
+            return sysEnv ??= new SysEnvironment();
         }
     }
 }

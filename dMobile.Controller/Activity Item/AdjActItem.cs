@@ -745,7 +745,7 @@ namespace dMobile.Controller.Activity_Item
                             LocationMap.GetInstance().ChosenLocMap = itemLocMap.Clone();
 
                             // Assign the skid the location, because defaulting is enabled.
-                            if (this.ActHdr.SkidInfo.CurrSkid.SkidFKRefno > 0)
+                            if (this.ActHdr.SkidInfo.CurrSkid.SkidFkRefno > 0)
                             {
                                 this.ActHdr.SkidInfo.CurrSkid.LocMap = itemLocMap.Clone();
                             }
@@ -768,23 +768,19 @@ namespace dMobile.Controller.Activity_Item
         {
             var foundActItemRefno = 0;
 
-            var sql = new StringBuilder();
-            sql.Append("SELECT tActivityItem.ActivityItemRefno,");
-            sql.Append("tActivityItemAdjustment.ActivityItemFKRefno,");
-            sql.Append("tActivityItemAdjustment.ProductUnitRefno,");
-            sql.Append("tLocationMapWarehouse.LocationMapRefno ");
-            sql.Append("FROM tActivityItemAdjustment ");
-            sql.Append("INNER JOIN tActivityItem ON tActivityItem.ActivityItemRefno ");
-            sql.Append("= tActivityItemAdjustment.ActivityItemRefno ");
-            sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno ");
-            sql.Append("= tActivityItemAdjustment.WarehouseLocationMapRefno ");
-            sql.AppendFormat("WHERE tActivityItem.ActivityRefno = {0}", this.ActHdr.HdrRefno);
-            sql.AppendFormat(" AND tActivityItemAdjustment.WarehouseLocationMapRefno = {0}", locMap.WhsLocMapRefno);
-            sql.AppendFormat(" AND tActivityItemAdjustment.ProductUnitRefno = {0}", prodUnitRefno);
+            var query = $@"
+                SELECT tActivityItem.ActivityItemRefno,
+                        tActivityItemAdjustment.ActivityItemFKRefno,
+                        tActivityItemAdjustment.ProductUnitRefno,
+                        tLocationMapWarehouse.LocationMapRefno 
+                    FROM tActivityItemAdjustment 
+                    INNER JOIN tActivityItem ON tActivityItem.ActivityItemRefno = tActivityItemAdjustment.ActivityItemRefno 
+                    INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno = tActivityItemAdjustment.WarehouseLocationMapRefno 
+                    WHERE tActivityItem.ActivityRefno = {this.ActHdr.HdrRefno}
+                        AND tActivityItemAdjustment.WarehouseLocationMapRefno = {locMap.WhsLocMapRefno}
+                        AND tActivityItemAdjustment.ProductUnitRefno = {prodUnitRefno}";
 
-            var results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<AdjustmentItem>(
-                sql.ToString());
-
+            var results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<AdjustmentItem>(query);
             if (results != null && results.Count > 0)
             {
                 this.ItemRefno = Convert.ToInt32(results[0].ActivityItemRefno);

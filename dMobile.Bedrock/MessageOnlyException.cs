@@ -15,7 +15,6 @@ namespace dMobile.Bedrock
         /// Initializes a new instance of the <see cref="MessageOnlyException"/> class.
         /// </summary>
         public MessageOnlyException()
-            : base()
         {
         }
 

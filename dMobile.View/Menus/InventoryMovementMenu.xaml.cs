@@ -236,10 +236,10 @@ namespace dMobile.View.Menus
                 this.cmdReplenishment.IsEnabled = false;
 
                 if ((this.SysEnv.IsCommunicationTestSuccessful || this.SysEnv.SysSettings.IsDisconnectedMode)
-                    && this.SysEnv.ContactLog.LoginID != SysCommon.SetupLoginID
+                    && this.SysEnv.ContactLog.LoginID != SysCommon.SetupLoginId
                     && !this.SysEnv.RefreshOpt.IsRefreshDataFailed)
                 {
-                    if (this.SysEnv.ContactLog.LoginID == SysCommon.SystemLoginID)
+                    if (this.SysEnv.ContactLog.LoginID == SysCommon.SystemLoginId)
                     {
                         this.cmdTransferFrom.IsEnabled = true;
                         this.cmdTransferTo.IsEnabled = true;

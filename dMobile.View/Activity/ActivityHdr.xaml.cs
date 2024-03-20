@@ -44,7 +44,7 @@ namespace dMobile.View.Activity
         /// <summary>
         /// Initializes a new instance of the <see cref="ActivityHdr"/> class.
         /// </summary>
-        /// <param name="activitySubType"><see cref="SysCommon.ActSubTypes" /> Activity sub type.</param>
+        /// <param name="activitySubType"><see cref="SysCommon.ActSubTypes" /> Activity subtype.</param>
         /// <param name="xmlDataCriteria"><see cref="XDocument"/> Activity data filter criteria.</param>
         /// <param name="pickingLocMapFilter"><see cref="SLocMap"/> Picking filter location map.</param>
         public ActivityHdr(SysCommon.ActSubTypes activitySubType, XDocument xmlDataCriteria, SLocMap pickingLocMapFilter)
@@ -973,79 +973,82 @@ namespace dMobile.View.Activity
         /// <returns>The <see cref="Task" />. Task operation.</returns>
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
-            try
+            await Task.Run(async () =>
             {
-                // Turn off the scanner because we do not want more events to fire until we are finished with
-                // the execution path.
-                await this.ScannerDisable();
-                if (scanArgs == null)
+                try
                 {
-                    const string msg = "Scanner event fired but no data was received.";
-                    await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert(
-                        this.ActHdr.GetControlDescription(),
-                        msg,
-                        Resource.OK));
-                    throw new TaskCanceledException();
-                }
+                    // Turn off the scanner because we do not want more events to fire until we are finished with
+                    // the execution path.
+                    await this.ScannerDisable();
+                    if (scanArgs == null)
+                    {
+                        const string msg = "Scanner event fired but no data was received.";
+                        await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert(
+                            this.ActHdr.GetControlDescription(),
+                            msg,
+                            Resource.OK));
+                        throw new TaskCanceledException();
+                    }
 
-                this.BarParse = scanArgs.ParseInfo;
-                if (!string.IsNullOrEmpty(this.BarParse.ActFKRefno))
-                {
-                    // this.BarParse.ActFKRefno e.g. format is 'OE:12345678'.
-                    // EnableScanning at 3th position for the foreign key reference number.
-                    await BarCodeHandlerFkRefno(this.BarParse.ActFKRefno);
+                    this.BarParse = scanArgs.ParseInfo;
+                    if (!string.IsNullOrEmpty(this.BarParse.ActFKRefno))
+                    {
+                        // this.BarParse.ActFKRefno e.g. format is 'OE:12345678'.
+                        // EnableScanning at 3th position for the foreign key reference number.
+                        await BarCodeHandlerFkRefno(this.BarParse.ActFKRefno);
+                    }
+                    else if (!string.IsNullOrEmpty(this.BarParse.ActItemFKRefno))
+                    {
+                        throw new MessageOnlyException(
+                            "Scanning an activity item reference # is not supported here!");
+                    }
+                    else if (!string.IsNullOrEmpty(this.BarParse.ProductIdentifier))
+                    {
+                        throw new MessageOnlyException(
+                            "Scanning a product bar code is not supported here!");
+                    }
+                    else if (!string.IsNullOrEmpty(this.BarParse.SSCC18))
+                    {
+                        throw new MessageOnlyException(
+                            "Scanning a shipping container bar code is not supported here!");
+                    }
+                    else if (!string.IsNullOrEmpty(this.BarParse.LocationIdentifier))
+                    {
+                        throw new MessageOnlyException(
+                            "Scanning a location identifier bar code is not supported here!");
+                    }
+                    else
+                    {
+                        throw new MessageOnlyException(
+                            "Scanned bar code type is not supported here!");
+                    }
                 }
-                else if (!string.IsNullOrEmpty(this.BarParse.ActItemFKRefno))
+                catch (TaskCanceledException)
                 {
-                    throw new MessageOnlyException(
-                        "Scanning an activity item reference # is not supported here!");
+                    // Ignore.
                 }
-                else if (!string.IsNullOrEmpty(this.BarParse.ProductIdentifier))
+                catch (MessageOnlyException msgEx)
                 {
-                    throw new MessageOnlyException(
-                        "Scanning a product bar code is not supported here!");
+                    var msg = SysCommon.GetMessageFromMessageException(msgEx);
+                    await Device.InvokeOnMainThreadAsync(async () =>
+                        await Application.Current.MainPage.DisplayAlert(
+                            this.ActHdr.GetControlDescription(),
+                            msg,
+                            Resource.OK));
                 }
-                else if (!string.IsNullOrEmpty(this.BarParse.SSCC18))
+                catch (Exception ex)
                 {
-                    throw new MessageOnlyException(
-                        "Scanning a shipping container bar code is not supported here!");
+                    await Device.InvokeOnMainThreadAsync(async () =>
+                    {
+                        var errRpt = new FormErrorReport(this.ActSubType, ex);
+                        _ = await errRpt.ShowDialog();
+                    });
                 }
-                else if (!string.IsNullOrEmpty(this.BarParse.LocationIdentifier))
+                finally
                 {
-                    throw new MessageOnlyException(
-                        "Scanning a location identifier bar code is not supported here!");
+                    await this.ScannerEnable();
                 }
-                else
-                {
-                    throw new MessageOnlyException(
-                        "Scanned bar code type is not supported here!");
-                }
-            }
-            catch (TaskCanceledException)
-            {
-                // Ignore.
-            }
-            catch (MessageOnlyException msgEx)
-            {
-                var msg = SysCommon.GetMessageFromMessageException(msgEx);
-                await Device.InvokeOnMainThreadAsync(async () =>
-                    await Application.Current.MainPage.DisplayAlert(
-                        this.ActHdr.GetControlDescription(),
-                        msg,
-                        Resource.OK));
-            }
-            catch (Exception ex)
-            {
-                await Device.InvokeOnMainThreadAsync(async () =>
-                {
-                    var errRpt = new FormErrorReport(this.ActSubType, ex);
-                    _ = await errRpt.ShowDialog();
-                });
-            }
-            finally
-            {
-                await this.ScannerEnable();
-            }
+            });
 
             return;
 
@@ -1174,7 +1177,7 @@ namespace dMobile.View.Activity
             //////////////////////////////////////////////////////////////////////////
             async Task RefreshData()
             {
-                // NOTE: So far all sub types will be refreshed.
+                // NOTE: So far all subtypes will be refreshed.
                 try
                 {
                     this.ActHdr.RegLayerListenerStatOut(this);

@@ -258,11 +258,11 @@ namespace dMobile.View.Menus
 
                 this.cmdPurchaseOrders.IsEnabled = false;
                 if ((this.SysEnv.IsCommunicationTestSuccessful || this.SysEnv.SysSettings.IsDisconnectedMode)
-                    && this.SysEnv.ContactLog.LoginID != SysCommon.SetupLoginID
+                    && this.SysEnv.ContactLog.LoginID != SysCommon.SetupLoginId
                     && !this.SysEnv.RefreshOpt.IsRefreshDataFailed)
                 {
                     if (this.SysEnv.SysSettings.IsReceivingModule || this.SysEnv.SysSettings.IsPutAwayModule
-                        || this.SysEnv.ContactLog.LoginID == SysCommon.SystemLoginID)
+                        || this.SysEnv.ContactLog.LoginID == SysCommon.SystemLoginId)
                     {
                         this.cmdPurchaseOrders.IsEnabled = true;
                     }
@@ -270,11 +270,11 @@ namespace dMobile.View.Menus
 
                 this.cmdSalesOrders.IsEnabled = false;
                 if ((this.SysEnv.IsCommunicationTestSuccessful || this.SysEnv.SysSettings.IsDisconnectedMode)
-                    && this.SysEnv.ContactLog.LoginID != SysCommon.SetupLoginID
+                    && this.SysEnv.ContactLog.LoginID != SysCommon.SetupLoginId
                     && !this.SysEnv.RefreshOpt.IsRefreshDataFailed)
                 {
                     if (this.SysEnv.SysSettings.IsPickMod || this.SysEnv.SysSettings.IsRetMod
-                        || this.SysEnv.ContactLog.LoginID == SysCommon.SystemLoginID)
+                        || this.SysEnv.ContactLog.LoginID == SysCommon.SystemLoginId)
                     {
                         this.cmdSalesOrders.IsEnabled = true;
                     }
@@ -282,7 +282,7 @@ namespace dMobile.View.Menus
 
                 this.cmdInventory.IsEnabled = false;
                 if ((this.SysEnv.IsCommunicationTestSuccessful || this.SysEnv.SysSettings.IsDisconnectedMode)
-                    && this.SysEnv.ContactLog.LoginID != SysCommon.SetupLoginID
+                    && this.SysEnv.ContactLog.LoginID != SysCommon.SetupLoginId
                     && !this.SysEnv.RefreshOpt.IsRefreshDataFailed)
                 {
                     if (this.SysEnv.SysSettings.IsTransMod || this.SysEnv.SysSettings.IsConvertUnitsModule
@@ -291,7 +291,7 @@ namespace dMobile.View.Menus
                         || this.SysEnv.SysSettings.IsAddToSkidModule || this.SysEnv.SysSettings.IsBreakSkidModule
                         || this.SysEnv.SysSettings.IsCreateSkidModule || this.SysEnv.SysSettings.IsRemoveFromSkidModule
                         || this.SysEnv.SysSettings.IsInventoryAdjustmentModule
-                        || this.SysEnv.ContactLog.LoginID == SysCommon.SystemLoginID)
+                        || this.SysEnv.ContactLog.LoginID == SysCommon.SystemLoginId)
                     {
                         this.cmdInventory.IsEnabled = true;
                     }
@@ -299,12 +299,12 @@ namespace dMobile.View.Menus
 
                 this.cmdProduction.IsEnabled = false;
                 if ((this.SysEnv.IsCommunicationTestSuccessful || this.SysEnv.SysSettings.IsDisconnectedMode)
-                    && this.SysEnv.ContactLog.LoginID != SysCommon.SetupLoginID
+                    && this.SysEnv.ContactLog.LoginID != SysCommon.SetupLoginId
                     && !this.SysEnv.RefreshOpt.IsRefreshDataFailed)
                 {
                     if (this.SysEnv.SysSettings.IsTicketMaterialModule || this.SysEnv.SysSettings.IsTicketByProductModule
                         || this.SysEnv.SysSettings.IsTicketFinishedGoodModule
-                        || this.SysEnv.ContactLog.LoginID == SysCommon.SystemLoginID)
+                        || this.SysEnv.ContactLog.LoginID == SysCommon.SystemLoginId)
                     {
                         this.cmdProduction.IsEnabled = true;
                     }

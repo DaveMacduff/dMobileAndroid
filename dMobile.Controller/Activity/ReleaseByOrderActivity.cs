@@ -528,7 +528,7 @@ namespace dMobile.Controller.Activity
                         LocationMap.GetInstance().ChosenLocMap = LocationMap.GetInstance().CurrLocMap.Clone();
                     }
 
-                    if (this.SkidInfo.CurrSkid != null && this.SkidInfo.CurrSkid.SkidFKRefno > 0 &&
+                    if (this.SkidInfo.CurrSkid != null && this.SkidInfo.CurrSkid.SkidFkRefno > 0 &&
                         this.SkidInfo.CurrSkid.LocMapRefno != header.LocationMapRefno &&
                         await LocationMapTasks.IsCompleteLocMap(header.LocationMapRefno))
                     {

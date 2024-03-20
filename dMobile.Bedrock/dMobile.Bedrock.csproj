@@ -19,11 +19,6 @@
     <AdditionalFiles Include="stylecop.json" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Update="GeneratedTranslator1.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>GeneratedTranslator.tt</DependentUpon>
-    </Compile>
     <Compile Update="TranslatorVocabulary1.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -32,10 +27,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="buzzh.wav" />
-    <Content Include="GeneratedTranslator.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>GeneratedTranslator1.cs</LastGenOutput>
-    </Content>
     <Content Include="Images\dMobile.png" />
     <Content Include="Language\dMobileTranslation.ENU.txt" />
     <Content Include="Language\dMobileTranslation.FRC.txt" />
@@ -45,15 +36,6 @@
     <Content Include="PreBuild\ConvertFormToMultilanguage.exe" />
     <Content Include="PreBuild\README.txt" />
     <Content Include="PreBuild\Translator.exe" />
-    <Content Include="Translations\dMobileTranslation.ENU.txt" />
-    <Content Include="Translations\dMobileTranslation.FRC.txt" />
-    <Content Include="Translations\dMobileTranslation.txt" />
-    <Content Include="Translations\language.txt" />
-    <Content Include="Translations\Translator.exe" />
-    <Content Include="TranslatorVocabulary.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>TranslatorVocabulary1.cs</LastGenOutput>
-    </Content>
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />

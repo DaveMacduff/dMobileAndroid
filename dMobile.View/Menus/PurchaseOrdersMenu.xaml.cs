@@ -232,9 +232,9 @@ namespace dMobile.View.Menus
 
                 this.cmdReceiving.IsEnabled = false;
 
-                if ((this.SysEnv.IsCommunicationTestSuccessful || this.SysEnv.SysSettings.IsDisconnectedMode) && this.SysEnv.ContactLog.LoginID != SysCommon.SetupLoginID && !this.SysEnv.RefreshOpt.IsRefreshDataFailed)
+                if ((this.SysEnv.IsCommunicationTestSuccessful || this.SysEnv.SysSettings.IsDisconnectedMode) && this.SysEnv.ContactLog.LoginID != SysCommon.SetupLoginId && !this.SysEnv.RefreshOpt.IsRefreshDataFailed)
                 {
-                    if (this.SysEnv.SysSettings.IsReceivingModule || this.SysEnv.ContactLog.LoginID == SysCommon.SystemLoginID)
+                    if (this.SysEnv.SysSettings.IsReceivingModule || this.SysEnv.ContactLog.LoginID == SysCommon.SystemLoginId)
                     {
                         this.cmdReceiving.IsEnabled = true;
                     }
@@ -242,9 +242,9 @@ namespace dMobile.View.Menus
 
                 this.cmdPutAway.IsEnabled = false;
 
-                if ((this.SysEnv.IsCommunicationTestSuccessful || this.SysEnv.SysSettings.IsDisconnectedMode) && this.SysEnv.ContactLog.LoginID != SysCommon.SetupLoginID && !this.SysEnv.RefreshOpt.IsRefreshDataFailed)
+                if ((this.SysEnv.IsCommunicationTestSuccessful || this.SysEnv.SysSettings.IsDisconnectedMode) && this.SysEnv.ContactLog.LoginID != SysCommon.SetupLoginId && !this.SysEnv.RefreshOpt.IsRefreshDataFailed)
                 {
-                    if (this.SysEnv.SysSettings.IsPutAwayModule || this.SysEnv.ContactLog.LoginID == SysCommon.SystemLoginID)
+                    if (this.SysEnv.SysSettings.IsPutAwayModule || this.SysEnv.ContactLog.LoginID == SysCommon.SystemLoginId)
                     {
                         if (this.SysEnv.SysSettings.IsSkidTrackingModule)
                         {
@@ -255,9 +255,9 @@ namespace dMobile.View.Menus
 
                 this.cmdWorkSheet.IsEnabled = false;
 
-                if ((this.SysEnv.IsCommunicationTestSuccessful || this.SysEnv.SysSettings.IsDisconnectedMode) && this.SysEnv.ContactLog.LoginID != SysCommon.SetupLoginID && !this.SysEnv.RefreshOpt.IsRefreshDataFailed)
+                if ((this.SysEnv.IsCommunicationTestSuccessful || this.SysEnv.SysSettings.IsDisconnectedMode) && this.SysEnv.ContactLog.LoginID != SysCommon.SetupLoginId && !this.SysEnv.RefreshOpt.IsRefreshDataFailed)
                 {
-                    if (this.SysEnv.SysSettings.IsPOWorkSheetModule || this.SysEnv.ContactLog.LoginID == SysCommon.SystemLoginID)
+                    if (this.SysEnv.SysSettings.IsPOWorkSheetModule || this.SysEnv.ContactLog.LoginID == SysCommon.SystemLoginId)
                     {
                         this.cmdWorkSheet.IsEnabled = true;
                     }

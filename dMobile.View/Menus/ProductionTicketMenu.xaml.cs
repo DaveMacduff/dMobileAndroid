@@ -208,10 +208,10 @@ namespace dMobile.View.Menus
 
                 this.cmdFinishedGoods.IsEnabled = false;
                 if ((this.SysEnv.IsCommunicationTestSuccessful || this.SysEnv.SysSettings.IsDisconnectedMode)
-                    && this.SysEnv.ContactLog.LoginID != SysCommon.SetupLoginID
+                    && this.SysEnv.ContactLog.LoginID != SysCommon.SetupLoginId
                     && !this.SysEnv.RefreshOpt.IsRefreshDataFailed)
                 {
-                    if (this.SysEnv.SysSettings.IsTicketFinishedGoodModule || this.SysEnv.ContactLog.LoginID == SysCommon.SystemLoginID)
+                    if (this.SysEnv.SysSettings.IsTicketFinishedGoodModule || this.SysEnv.ContactLog.LoginID == SysCommon.SystemLoginId)
                     {
                         this.cmdFinishedGoods.IsEnabled = true;
                     }
@@ -219,10 +219,10 @@ namespace dMobile.View.Menus
 
                 this.cmdIngredientMaterial.IsEnabled = false;
                 if ((this.SysEnv.IsCommunicationTestSuccessful || this.SysEnv.SysSettings.IsDisconnectedMode)
-                    && this.SysEnv.ContactLog.LoginID != SysCommon.SetupLoginID
+                    && this.SysEnv.ContactLog.LoginID != SysCommon.SetupLoginId
                     && !this.SysEnv.RefreshOpt.IsRefreshDataFailed)
                 {
-                    if (this.SysEnv.SysSettings.IsTicketMaterialModule || this.SysEnv.ContactLog.LoginID == SysCommon.SystemLoginID)
+                    if (this.SysEnv.SysSettings.IsTicketMaterialModule || this.SysEnv.ContactLog.LoginID == SysCommon.SystemLoginId)
                     {
                         this.cmdIngredientMaterial.IsEnabled = true;
                     }
@@ -230,10 +230,10 @@ namespace dMobile.View.Menus
 
                 this.cmdByProduct.IsEnabled = false;
                 if ((this.SysEnv.IsCommunicationTestSuccessful || this.SysEnv.SysSettings.IsDisconnectedMode)
-                    && this.SysEnv.ContactLog.LoginID != SysCommon.SetupLoginID
+                    && this.SysEnv.ContactLog.LoginID != SysCommon.SetupLoginId
                     && !this.SysEnv.RefreshOpt.IsRefreshDataFailed)
                 {
-                    if (this.SysEnv.SysSettings.IsTicketByProductModule || this.SysEnv.ContactLog.LoginID == SysCommon.SystemLoginID)
+                    if (this.SysEnv.SysSettings.IsTicketByProductModule || this.SysEnv.ContactLog.LoginID == SysCommon.SystemLoginId)
                     {
                         this.cmdByProduct.IsEnabled = true;
                     }

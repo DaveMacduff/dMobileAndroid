@@ -445,7 +445,7 @@ namespace dMobile.View.Views
                 "<params>" +
                 "<ProductRefno>" + this.ProdRefno + "</ProductRefno>" +
                 "<ProductCode>" + this.ProdCode + "</ProductCode>" +
-                "<ProductDescription>" + SysCommon.AddXMLReservedChars(this.ProdDesc) + "</ProductDescription>" +
+                "<ProductDescription>" + SysCommon.AddXmlReservedChars(this.ProdDesc) + "</ProductDescription>" +
                 "</params>");
 
             return request;

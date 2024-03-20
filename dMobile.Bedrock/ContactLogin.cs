@@ -610,7 +610,7 @@ namespace dMobile.Bedrock
         {
             var xmlString = new StringBuilder();
             var xml = XmlWriter.Create(xmlString);
-            var deviceID = SysDeviceID.GetDeviceID();
+            var deviceID = SysDeviceId.GetDeviceId();
             var refreshOpt = new RefreshDataOptions().LoadData();
             var revision = DateTime.Now.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
             var login = new ContactLogin().LoadData();
@@ -643,7 +643,7 @@ namespace dMobile.Bedrock
         {
             var xmlString = new StringBuilder();
             var xml = XmlWriter.Create(xmlString);
-            var deviceID = SysDeviceID.GetDeviceID();
+            var deviceID = SysDeviceId.GetDeviceId();
             var refreshOpt = new RefreshDataOptions().LoadData();
             var revision = DateTime.Now.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
             var login = new ContactLogin().LoadData();

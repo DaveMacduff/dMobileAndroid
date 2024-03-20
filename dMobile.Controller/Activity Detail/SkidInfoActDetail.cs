@@ -311,7 +311,7 @@ namespace dMobile.Controller.Activity_Detail
                         drow["ActivityDetailLogisticUnitBatchLotNumber"]);
                     tempSchemeData.SingleTradeItemSerialNumber = Convert.ToString(
                         drow["ActivityDetailSingleTradeItemSerialNumber"]);
-                    tempSchemeData.LogisticUnitSkidNumber = this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno.ToString();
+                    tempSchemeData.LogisticUnitSkidNumber = this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFkRefno.ToString();
                     tempSchemeData.VariantNumber = Convert.ToInt32(drow["ProductSchemeVariantNo"]);
 
                     var results = await DatabaseConnection.GetInstance().SqlConn.
@@ -598,7 +598,7 @@ namespace dMobile.Controller.Activity_Detail
                 + "</command>"
                 + await SysCommon.GetRequestDefaults(false)
                 + this.GetRequestDetailDefaults()
-                + "<skid_fk_refno>" + this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno + "</skid_fk_refno>"
+                + "<skid_fk_refno>" + this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFkRefno + "</skid_fk_refno>"
                 + "</imclient>");
 
             request.Save(xml);
@@ -637,7 +637,7 @@ namespace dMobile.Controller.Activity_Detail
                 + "</command>"
                 + def
                 + reqDetail
-                + "<skid_fk_refno>" + this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno + "</skid_fk_refno>"
+                + "<skid_fk_refno>" + this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFkRefno + "</skid_fk_refno>"
                 + "</imclient>");
 
             request.Save(xml);

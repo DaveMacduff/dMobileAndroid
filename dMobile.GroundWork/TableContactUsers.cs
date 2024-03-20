@@ -142,14 +142,14 @@ namespace dMobile.GroundWork
             {
                 try
                 {
-                    var resultsContactUser = transaction.Query<tContactUserModel>("SELECT ContactUserCode FROM tContactUser WHERE ContactUserCode = ? OR ContactUserCode = ?", SysCommon.SystemLoginID, SysCommon.SetupLoginID);
+                    var resultsContactUser = transaction.Query<tContactUserModel>("SELECT ContactUserCode FROM tContactUser WHERE ContactUserCode = ? OR ContactUserCode = ?", SysCommon.SystemLoginId, SysCommon.SetupLoginId);
 
                     if (resultsContactUser == null || resultsContactUser?.Count == 0)
                     {
                         transaction.Execute("INSERT INTO tContact (ContactSubType) VALUES (?)", Convert.ToInt32(SysCommon.ContactSubTypes.User));
 
                         var contactRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tContact"));
-                        var contactCode = SysCommon.SystemLoginID;
+                        var contactCode = SysCommon.SystemLoginId;
                         var contactName = "InterSect";
                         errMsg = "Code " + contactCode;
                         errMsg += Environment.NewLine + "Name \'" + contactName + "\'";
@@ -193,7 +193,7 @@ namespace dMobile.GroundWork
                         transaction.Execute("INSERT INTO tContact (ContactSubType) VALUES (?)", Convert.ToInt32(SysCommon.ContactSubTypes.User));
 
                         contactRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tContact"));
-                        contactCode = SysCommon.SetupLoginID;
+                        contactCode = SysCommon.SetupLoginId;
 
                         errMsg = "Code " + contactCode;
                         contactName = "Setup User";

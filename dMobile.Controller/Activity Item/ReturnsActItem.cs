@@ -684,7 +684,7 @@ namespace dMobile.Controller.Activity_Item
                             LocationMap.GetInstance().ChosenLocMap = itemLocMap.Clone();
 
                             // Assign the skid the location, because defaulting is enabled.
-                            if (this.ActHdr.SkidInfo.CurrSkid.SkidFKRefno > 0)
+                            if (this.ActHdr.SkidInfo.CurrSkid.SkidFkRefno > 0)
                             {
                                 this.ActHdr.SkidInfo.CurrSkid.LocMap = itemLocMap.Clone();
                             }
@@ -749,7 +749,7 @@ namespace dMobile.Controller.Activity_Item
             };
             var xml = XmlWriter.Create(xmlString, settings);
 
-            var deviceId = this.SysEnv.DeviceID;
+            var deviceId = this.SysEnv.DeviceId;
             var revision = this.SysEnv.RefreshOpt.RefreshedDataLast.ToString("yyyy\'-\'MM\'-\'dd\'T\'HH\':\'mm\':\'ss");
             var loginId = this.SysEnv.ContactLog.LoginID.ToString();
             var prodCode = data.Root.Element("ProductCode").Value.PadRight(10);

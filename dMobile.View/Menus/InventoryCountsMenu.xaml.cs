@@ -256,10 +256,10 @@ namespace dMobile.View.Menus
 
                 this.cmdPhysicalCount.IsEnabled = false;
                 if ((this.SysEnv.IsCommunicationTestSuccessful || this.SysEnv.SysSettings.IsDisconnectedMode)
-                    && this.SysEnv.ContactLog.LoginID != SysCommon.SetupLoginID
+                    && this.SysEnv.ContactLog.LoginID != SysCommon.SetupLoginId
                     && !this.SysEnv.RefreshOpt.IsRefreshDataFailed)
                 {
-                    if (this.SysEnv.SysSettings.IsPhysicalModule || this.SysEnv.ContactLog.LoginID == SysCommon.SystemLoginID)
+                    if (this.SysEnv.SysSettings.IsPhysicalModule || this.SysEnv.ContactLog.LoginID == SysCommon.SystemLoginId)
                     {
                         this.cmdPhysicalCount.IsEnabled = true;
                     }
@@ -267,10 +267,10 @@ namespace dMobile.View.Menus
 
                 this.cmdCycleCount.IsEnabled = false;
                 if ((this.SysEnv.IsCommunicationTestSuccessful || this.SysEnv.SysSettings.IsDisconnectedMode)
-                    && this.SysEnv.ContactLog.LoginID != SysCommon.SetupLoginID
+                    && this.SysEnv.ContactLog.LoginID != SysCommon.SetupLoginId
                     && !this.SysEnv.RefreshOpt.IsRefreshDataFailed)
                 {
-                    if (this.SysEnv.SysSettings.IsCycleModule || this.SysEnv.ContactLog.LoginID == SysCommon.SystemLoginID)
+                    if (this.SysEnv.SysSettings.IsCycleModule || this.SysEnv.ContactLog.LoginID == SysCommon.SystemLoginId)
                     {
                         this.cmdCycleCount.IsEnabled = true;
                     }

@@ -984,7 +984,7 @@ namespace dMobile.Controller.Activity
                     }
 
                     // Override and set any selected skid location to the current location.
-                    if (this.SkidInfo.CurrSkid != null && this.SkidInfo.CurrSkid.SkidFKRefno > 0 &&
+                    if (this.SkidInfo.CurrSkid != null && this.SkidInfo.CurrSkid.SkidFkRefno > 0 &&
                         this.SkidInfo.CurrSkid.LocMapRefno != header.LocationMapRefno &&
                         await LocationMapTasks.IsCompleteLocMap(header.LocationMapRefno))
                     {

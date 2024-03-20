@@ -1011,7 +1011,7 @@ namespace dMobile.Controller.Activity_Detail
                         + "</command>"
                         + await SysCommon.GetRequestDefaults(false)
                         + this.GetRequestDetailDefaults()
-                        + "<skid_fk_refno>" + this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno + "</skid_fk_refno>"
+                        + "<skid_fk_refno>" + this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFkRefno + "</skid_fk_refno>"
                         + "</imclient>");
                 }
             }
@@ -1080,7 +1080,7 @@ namespace dMobile.Controller.Activity_Detail
                     + "</command>"
                     + await SysCommon.GetRequestDefaults(false)
                     + this.GetRequestDetailDefaults()
-                    + "<skid_fk_refno>" + this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno + "</skid_fk_refno>"
+                    + "<skid_fk_refno>" + this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFkRefno + "</skid_fk_refno>"
                     + "</imclient>");
             }
             else

@@ -976,7 +976,7 @@ namespace dMobile.View.Activity
                         this.ActDetail.ListDetails[currIdx]));
                     var skidInfo = await SysSkidInfo.GetSkidInfoFromBarCodeOrCode(skidCode);
 
-                    if (skidInfo.CurrSkid.SkidFKRefno == 0)
+                    if (skidInfo.CurrSkid.SkidFkRefno == 0)
                     {
                         throw new Exception($"Unable to determine the skid '{skidCode}'" +
                                             " information to delete.");
@@ -1285,76 +1285,96 @@ namespace dMobile.View.Activity
         /// <returns>The <see cref="Task" />.</returns>
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
-            try
+            await Task.Run(async () =>
             {
-                await this.ScannerDisable();
-                if (scanArgs == null)
+                try
                 {
-                    const string msg = "Scanner event fired but no data was received.";
-                    await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert(
-                        this.ActDetail.GetControlDescription(),
-                        msg,
-                        Resource.OK));
-                    throw new TaskCanceledException();
-                }
+                    await this.ScannerDisable();
+                    if (scanArgs == null)
+                    {
+                        const string msg = "Scanner event fired but no data was received.";
+                        await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert(
+                            this.ActDetail.GetControlDescription(),
+                            msg,
+                            Resource.OK));
+                        throw new TaskCanceledException();
+                    }
 
-                var parse = scanArgs.ParseInfo;
-                var isLocationBarCodeScanned = !string.IsNullOrEmpty(parse.LocationIdentifier);
-                var isProductScanned = !string.IsNullOrEmpty(parse.ProductIdentifier);
-                var isFkRefnoScanned = !string.IsNullOrEmpty(parse.ActFKRefno);
-                var isFkItemRefnoScanned = !string.IsNullOrEmpty(parse.ActItemFKRefno);
-                var isFkDetailRefnoScanned = !string.IsNullOrEmpty(parse.ActDetailFKRefno);
-                var isSkidScanned = !string.IsNullOrEmpty(parse.SSCC18);
+                    var parse = scanArgs.ParseInfo;
+                    var isLocationBarCodeScanned = !string.IsNullOrEmpty(parse.LocationIdentifier);
+                    var isProductScanned = !string.IsNullOrEmpty(parse.ProductIdentifier);
+                    var isFkRefnoScanned = !string.IsNullOrEmpty(parse.ActFKRefno);
+                    var isFkItemRefnoScanned = !string.IsNullOrEmpty(parse.ActItemFKRefno);
+                    var isFkDetailRefnoScanned = !string.IsNullOrEmpty(parse.ActDetailFKRefno);
+                    var isSkidScanned = !string.IsNullOrEmpty(parse.SSCC18);
 
-                // GLOBAL LOCATION IDENTIFIER SCANNED
-                if (isLocationBarCodeScanned)
-                {
-                    await BarCodeHandlerLocationIdentifier(parse);
+                    // GLOBAL LOCATION IDENTIFIER SCANNED
+                    if (isLocationBarCodeScanned)
+                    {
+                        await BarCodeHandlerLocationIdentifier(parse);
+                    }
+                    else if (isFkRefnoScanned)
+                    {
+                        await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(
+                            this.ActDetail.GetControlDescription(),
+                            "Scanning a header reference # is not supported here.",
+                            "OK"));
+                    }
+                    else if (isFkItemRefnoScanned)
+                    {
+                        await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(
+                            this.ActDetail.GetControlDescription(),
+                            "Scanning an item reference # is not supported here.",
+                            "OK"));
+                    }
+                    else if (isFkDetailRefnoScanned)
+                    {
+                        await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(
+                            this.ActDetail.GetControlDescription(),
+                            "Scanning a detail reference # is not supported here.",
+                            "OK"));
+                    }
+                    else if (isProductScanned)
+                    {
+                        await HandleProductScanned(parse);
+                    }
+                    else if (isSkidScanned)
+                    {
+                        await HandleSkidScanned();
+                    }
+                    else
+                    {
+                        throw new MessageOnlyException("Scanned data is not recognized.");
+                    }
                 }
-                else if (isFkRefnoScanned)
+                catch (TaskCanceledException)
                 {
-                    await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(
-                        this.ActDetail.GetControlDescription(),
-                        "Scanning a header reference # is not supported here.",
-                        "OK"));
+                    // This exception is also caught if the scan event arguments are null.
                 }
-                else if (isFkItemRefnoScanned)
+                catch (IsReadyToApplyException)
                 {
-                    await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(
-                        this.ActDetail.GetControlDescription(),
-                        "Scanning an item reference # is not supported here.",
-                        "OK"));
                 }
-                else if (isFkDetailRefnoScanned)
+                catch (GatherProductDataException ex)
                 {
-                    await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(
-                        this.ActDetail.GetControlDescription(),
-                        "Scanning a detail reference # is not supported here.",
-                        "OK"));
+                    if (!ex.SuppressError)
+                    {
+                        await Device.InvokeOnMainThreadAsync(async () =>
+                        {
+                            var errRpt = new FormErrorReport(this.ActSubType, ex);
+                            _ = await errRpt.ShowDialog();
+                        });
+                    }
                 }
-                else if (isProductScanned)
+                catch (MessageOnlyException msgEx)
                 {
-                    await HandleProductScanned(parse);
+                    var msg = SysCommon.GetMessageFromMessageException(msgEx);
+                    await Device.InvokeOnMainThreadAsync(async () =>
+                        await Application.Current.MainPage.DisplayAlert(
+                            GetControlDescription(),
+                            msg,
+                            Resource.OK));
                 }
-                else if (isSkidScanned)
-                {
-                    await HandleSkidScanned();
-                }
-                else
-                {
-                    throw new MessageOnlyException("Scanned data is not recognized.");
-                }
-            }
-            catch (TaskCanceledException)
-            {
-                // This exception is also caught if the scan event arguments are null.
-            }
-            catch (IsReadyToApplyException)
-            {
-            }
-            catch (GatherProductDataException ex)
-            {
-                if (!ex.SuppressError)
+                catch (Exception ex)
                 {
                     await Device.InvokeOnMainThreadAsync(async () =>
                     {
@@ -1362,33 +1382,16 @@ namespace dMobile.View.Activity
                         _ = await errRpt.ShowDialog();
                     });
                 }
-            }
-            catch (MessageOnlyException msgEx)
-            {
-                var msg = SysCommon.GetMessageFromMessageException(msgEx);
-                await Device.InvokeOnMainThreadAsync(async () =>
-                    await Application.Current.MainPage.DisplayAlert(
-                        GetControlDescription(),
-                        msg,
-                        Resource.OK));
-            }
-            catch (Exception ex)
-            {
-                await Device.InvokeOnMainThreadAsync(async () =>
+                finally
                 {
-                    var errRpt = new FormErrorReport(this.ActSubType, ex);
-                    _ = await errRpt.ShowDialog();
-                });
-            }
-            finally
-            {
-                if (scanArgs != null)
-                {
-                    this.ListViewDisplayExtraInfo.ItemsSource = this.ExtraInfoItems;
-                }
+                    if (scanArgs != null)
+                    {
+                        this.ListViewDisplayExtraInfo.ItemsSource = this.ExtraInfoItems;
+                    }
 
-                await this.ScannerEnable();
-            }
+                    await this.ScannerEnable();
+                }
+            });
 
             return;
 
@@ -1396,7 +1399,7 @@ namespace dMobile.View.Activity
             async Task BarCodeHandlerLocationIdentifier(BarCodeParse parse)
             {
                 var currSkid = this.ActDetail.ActItem.ActHdr.SkidInfo.CurrSkid;
-                if (currSkid.SkidFKRefno != 0)
+                if (currSkid.SkidFkRefno != 0)
                 {
                     var skidLocComplete = await LocationMapTasks.IsCompleteLocMap(currSkid.LocMap);
                     if (skidLocComplete)
@@ -1446,7 +1449,7 @@ namespace dMobile.View.Activity
                 }
 
                 var skidInfo = await SysSkidInfo.GetSkidInfoFromBarCodeOrCode(scanArgs.ParseInfo.SSCC18);
-                if (skidInfo.CurrSkid.SkidFKRefno == 0)
+                if (skidInfo.CurrSkid.SkidFkRefno == 0)
                 {
                     _ = await Device.InvokeOnMainThreadAsync(() => this.CmdSelectSkidText = "Select Skid");
                     throw new MessageOnlyException("Skid does not exist.");
@@ -1532,7 +1535,7 @@ namespace dMobile.View.Activity
 
                 // If there is a selected skid check if the scanned product matches.
                 var currSkid = this.ActDetail.ActItem.ActHdr.SkidInfo.CurrSkid;
-                if (currSkid.SkidFKRefno > 0 && currSkid.ProdInfo.Refno > 0)
+                if (currSkid.SkidFkRefno > 0 && currSkid.ProdInfo.Refno > 0)
                 {
                     if (currSkid.ProdInfo.UnitRefno != prodUnitRefno)
                     {
@@ -1548,7 +1551,7 @@ namespace dMobile.View.Activity
                 // with the default skid schema.
                 var tempItemProdSchemeData = new ActItemSchemeData();
                 var schemeData = this.ActDetail.SchemeData;
-                if (currSkid.SkidFKRefno != 0)
+                if (currSkid.SkidFkRefno != 0)
                 {
                     schemeData.LogisticUnitSkidNumber = currSkid.SkidCode;
                     schemeData.LogisticUnitBatchLotNumber = currSkid.SchemeData.LogisticUnitBatchLotNumber;
@@ -1782,7 +1785,7 @@ namespace dMobile.View.Activity
                 var currSkid = this.ActDetail.ActItem.ActHdr.SkidInfo.CurrSkid;
                 this.CmdSelectSkidIsEnabled = this.SysEnv.SysSettings.IsSkidTrackingModule;
 
-                if (currSkid.SkidFKRefno > 0)
+                if (currSkid.SkidFkRefno > 0)
                 {
                     this.CmdAddSkidIsEnabled = true;
                     this.CmdSelectSkidText = "Skid# " + currSkid.SkidCode;
@@ -1793,7 +1796,7 @@ namespace dMobile.View.Activity
                     this.CmdSelectSkidText = "Select Skid";
                 }
 
-                if (currSkid.SkidFKRefno > 0)
+                if (currSkid.SkidFkRefno > 0)
                 {
                     this.CmdLocationIsEnabled = false;
                 }
@@ -2443,7 +2446,7 @@ namespace dMobile.View.Activity
                 var tempItemProdSchemeData = new ActItemSchemeData();
                 var schemeData = this.ActDetail.SchemeData;
                 var skidInfo = this.ActDetail.ActItem.ActHdr.SkidInfo.CurrSkid;
-                if (skidInfo.SkidFKRefno == 0)
+                if (skidInfo.SkidFkRefno == 0)
                 {
                     // Set to empty values, otherwise the detail edit screen may not be shown.
                     schemeData.LogisticUnitSkidNumber = string.Empty;
@@ -2646,7 +2649,7 @@ namespace dMobile.View.Activity
                         var xmlDoc = await form.GetXml();
                         this.ActDetail.ActItem.ActHdr.SkidInfo = await SysSkidInfo.GetSkidInfoFromXml(xmlDoc);
 
-                        if (this.ActDetail.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno != 0)
+                        if (this.ActDetail.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFkRefno != 0)
                         {
                             var currSkid = this.ActDetail.ActItem.ActHdr.SkidInfo.CurrSkid;
                             var prodInfo = this.ActDetail.ActItem.ProdInfo;

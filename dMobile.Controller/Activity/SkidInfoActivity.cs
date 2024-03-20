@@ -236,7 +236,7 @@ namespace dMobile.Controller.Activity
 
                 var info = new SSkidInfo();
                 info.SkidCode = Convert.ToString(skid.SkidCode);
-                info.SkidFKRefno = Convert.ToInt32(skid.SkidFKRefno);
+                info.SkidFkRefno = Convert.ToInt32(skid.SkidFKRefno);
                 info.LocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(skid.LocationMapRefno);
                 info.ProdInfo = await ProductInfoTasks.GetInfoFromRefno(Convert.ToInt32(skid.ProductRefno));
                 info.Quantity = Convert.ToDecimal(skid.Quantity);
@@ -248,7 +248,7 @@ namespace dMobile.Controller.Activity
                 info.HeightUnit = Convert.ToString(skid.SkidHeightUnit);
                 info.Hi = Convert.ToInt32(skid.SkidHi);
                 info.Ti = Convert.ToInt32(skid.SkidTi);
-                info.IsCHEP = Convert.ToBoolean(skid.SkidIsCHEP);
+                info.IsChep = Convert.ToBoolean(skid.SkidIsCHEP);
                 info.IsHold = Convert.ToBoolean(skid.SkidIsOnHold);
                 info.IsPutAway = false;
                 info.IsCompleted = !SysCommon.IsEmptyDateTime(Convert.ToDateTime(skid.SkidCompleted));

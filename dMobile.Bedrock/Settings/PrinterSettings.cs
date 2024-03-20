@@ -475,7 +475,7 @@ namespace dMobile.Bedrock
                     new XElement(
                         "command",
                         new XElement("action", "REQUEST PRINTER SETTINGS"),
-                        new XElement("device_id", sysEnv.DeviceID),
+                        new XElement("device_id", sysEnv.DeviceId),
                         new XElement("login_id", sysEnv.ContactLog.LoginID.ToString()),
                         new XElement("revision_datetime", revision))));
 

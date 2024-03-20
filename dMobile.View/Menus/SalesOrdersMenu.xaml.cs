@@ -366,10 +366,10 @@ namespace dMobile.View.Menus
                 this.CmdPicking.IsEnabled = false;
 
                 if ((this.SysEnv.IsCommunicationTestSuccessful || this.SysEnv.SysSettings.IsDisconnectedMode)
-                    && this.SysEnv.ContactLog.LoginID != SysCommon.SetupLoginID
+                    && this.SysEnv.ContactLog.LoginID != SysCommon.SetupLoginId
                     && !this.SysEnv.RefreshOpt.IsRefreshDataFailed)
                 {
-                    if (this.SysEnv.SysSettings.IsPickMod || this.SysEnv.ContactLog.LoginID == SysCommon.SystemLoginID)
+                    if (this.SysEnv.SysSettings.IsPickMod || this.SysEnv.ContactLog.LoginID == SysCommon.SystemLoginId)
                     {
                         this.CmdPicking.IsEnabled = true;
                     }
@@ -378,10 +378,10 @@ namespace dMobile.View.Menus
                 this.CmdReturns.IsEnabled = false;
 
                 if ((this.SysEnv.IsCommunicationTestSuccessful || this.SysEnv.SysSettings.IsDisconnectedMode)
-                    && this.SysEnv.ContactLog.LoginID != SysCommon.SetupLoginID
+                    && this.SysEnv.ContactLog.LoginID != SysCommon.SetupLoginId
                     && !this.SysEnv.RefreshOpt.IsRefreshDataFailed)
                 {
-                    if (this.SysEnv.SysSettings.IsRetMod || this.SysEnv.ContactLog.LoginID == SysCommon.SystemLoginID)
+                    if (this.SysEnv.SysSettings.IsRetMod || this.SysEnv.ContactLog.LoginID == SysCommon.SystemLoginId)
                     {
                         this.CmdReturns.IsEnabled = true;
                     }
@@ -390,11 +390,11 @@ namespace dMobile.View.Menus
                 this.CmdReleaseByOrder.IsEnabled = false;
 
                 if ((this.SysEnv.IsCommunicationTestSuccessful || this.SysEnv.SysSettings.IsDisconnectedMode)
-                    && this.SysEnv.ContactLog.LoginID != SysCommon.SetupLoginID
+                    && this.SysEnv.ContactLog.LoginID != SysCommon.SetupLoginId
                     && !this.SysEnv.RefreshOpt.IsRefreshDataFailed)
                 {
                     if (this.SysEnv.SysSettings.IsRelByOrder ||
-                        this.SysEnv.ContactLog.LoginID == SysCommon.SystemLoginID)
+                        this.SysEnv.ContactLog.LoginID == SysCommon.SystemLoginId)
                     {
                         this.CmdReleaseByOrder.IsEnabled = true;
                     }
@@ -403,11 +403,11 @@ namespace dMobile.View.Menus
                 this.CmdReleaseBySection.IsEnabled = false;
 
                 if ((this.SysEnv.IsCommunicationTestSuccessful || this.SysEnv.SysSettings.IsDisconnectedMode)
-                    && this.SysEnv.ContactLog.LoginID != SysCommon.SetupLoginID
+                    && this.SysEnv.ContactLog.LoginID != SysCommon.SetupLoginId
                     && !this.SysEnv.RefreshOpt.IsRefreshDataFailed)
                 {
                     if (this.SysEnv.SysSettings.IsRelBySect ||
-                        this.SysEnv.ContactLog.LoginID == SysCommon.SystemLoginID)
+                        this.SysEnv.ContactLog.LoginID == SysCommon.SystemLoginId)
                     {
                         this.CmdReleaseBySection.IsEnabled = false; // Disabled intentionally
                     }

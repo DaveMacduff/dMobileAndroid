@@ -12,11 +12,6 @@ namespace dMobile.Bedrock
     public class SysSettingsEventArgs : EventArgs
     {
         /// <summary>
-        /// Defines the currentValue.
-        /// </summary>
-        private int currentValue = 0;
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="SysSettingsEventArgs"/> class.
         /// </summary>
         public SysSettingsEventArgs()
@@ -35,7 +30,7 @@ namespace dMobile.Bedrock
         /// <summary>
         /// Gets or sets the StatusOutMsg.
         /// </summary>
-        public string StatusOutMsg { get; set; } = string.Empty;
+        public string StatusOutMsg { get; set; }
 
         /// <summary>
         /// Gets or sets the MinValue.
@@ -50,11 +45,6 @@ namespace dMobile.Bedrock
         /// <summary>
         /// Gets or sets the CurrentValue.
         /// </summary>
-        public int CurrentValue
-        {
-            get => this.currentValue;
-
-            set => this.currentValue = value;
-        }
+        public int CurrentValue { get; set; } = 0;
     }
 }

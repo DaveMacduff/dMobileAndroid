@@ -5,6 +5,7 @@
 namespace dMobile.Bedrock
 {
     using System;
+    using System.Diagnostics.CodeAnalysis;
 
     /// <summary>
     /// <see cref="SSkidInfo" /> Skid information.
@@ -34,7 +35,7 @@ namespace dMobile.Bedrock
         /// <summary>
         /// Gets or sets the skid foreign key reference number.
         /// </summary>
-        public int SkidFKRefno { get; set; } = 0;
+        public int SkidFkRefno { get; set; } = 0;
 
         /// <summary>
         /// Gets or sets the skid cube unit.
@@ -74,7 +75,7 @@ namespace dMobile.Bedrock
         /// <summary>
         /// Gets or sets a value indicating whether the skid has a CHEP pallet.
         /// </summary>
-        public bool IsCHEP { get; set; } = false;
+        public bool IsChep { get; set; } = false;
 
         /// <summary>
         /// Gets or sets the user entered or form generated skid code.
@@ -161,7 +162,7 @@ namespace dMobile.Bedrock
             isEquals &= this.IsPutAway == other.IsPutAway;
             isEquals &= this.IsConsumed == other.IsConsumed;
             isEquals &= this.IsCompleted == other.IsCompleted;
-            isEquals &= this.SkidFKRefno == other.SkidFKRefno;
+            isEquals &= this.SkidFkRefno == other.SkidFkRefno;
             isEquals &= this.CubeUnit == other.CubeUnit;
             isEquals &= this.Cube == other.Cube;
             isEquals &= this.HeightUnit == other.HeightUnit;
@@ -169,7 +170,7 @@ namespace dMobile.Bedrock
             isEquals &= this.Hi == other.Hi;
             isEquals &= this.Ti == other.Ti;
             isEquals &= this.IsHold == other.IsHold;
-            isEquals &= this.IsCHEP == other.IsCHEP;
+            isEquals &= this.IsChep == other.IsChep;
             isEquals &= this.SkidCode == other.SkidCode;
             isEquals &= this.LogisticUnitSkidCode == other.LogisticUnitSkidCode;
             isEquals &= this.Quantity == other.Quantity;
@@ -183,7 +184,7 @@ namespace dMobile.Bedrock
         /// <summary>
         ///    Compare two objects for equality.
         /// </summary>
-        /// <param name="obj"></param>
+        /// <param name="obj">Object to compare.</param>
         /// <returns>True or false for equality.</returns>
         public override bool Equals(object obj)
         {
@@ -204,6 +205,7 @@ namespace dMobile.Bedrock
         ///     Calculate the hash code.
         /// </summary>
         /// <returns>Calculated hash value.</returns>
+        [SuppressMessage("ReSharper", "NonReadonlyMemberInGetHashCode", Justification = "Not sure how to fix the warnings.")]
         public override int GetHashCode()
         {
             var hashCode = new HashCode();
@@ -211,7 +213,7 @@ namespace dMobile.Bedrock
             hashCode.Add(this.IsPutAway);
             hashCode.Add(this.IsConsumed);
             hashCode.Add(this.IsCompleted);
-            hashCode.Add(this.SkidFKRefno);
+            hashCode.Add(this.SkidFkRefno);
             hashCode.Add(this.CubeUnit);
             hashCode.Add(this.Cube);
             hashCode.Add(this.HeightUnit);
@@ -219,7 +221,7 @@ namespace dMobile.Bedrock
             hashCode.Add(this.Hi);
             hashCode.Add(this.Ti);
             hashCode.Add(this.IsHold);
-            hashCode.Add(this.IsCHEP);
+            hashCode.Add(this.IsChep);
             hashCode.Add(this.SkidCode);
             hashCode.Add(this.LogisticUnitSkidCode);
             hashCode.Add(this.Quantity);

@@ -111,7 +111,7 @@ namespace dMobile.Bedrock
         {
             var xmlString = new StringBuilder();
             var xml = XmlWriter.Create(xmlString);
-            var deviceID = SysDeviceID.GetDeviceID();
+            var deviceID = SysDeviceId.GetDeviceId();
             var revision = new DateTime(1900, 1, 1).ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
             var login = new ContactLogin().LoadData();
             var loginID = login.LoginID.ToString();
@@ -144,7 +144,7 @@ namespace dMobile.Bedrock
         {
             var xmlString = new StringBuilder();
             var xml = XmlWriter.Create(xmlString);
-            var deviceID = SysDeviceID.GetDeviceID();
+            var deviceID = SysDeviceId.GetDeviceId();
             var revision = new DateTime(1900, 1, 1).ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
             var login = new ContactLogin().LoadData();
             var loginID = login.LoginID.ToString();

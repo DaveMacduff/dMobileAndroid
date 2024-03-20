@@ -152,8 +152,11 @@ namespace dMobile.Bedrock
                             AND tProductUnit.ProductUnitBC = ?
                             AND tUnit.UnitCode = ?";
 
-                var results = await DatabaseConnection.GetInstance().
-                    SqlConn.QueryAsync<ProductInfoQueryResult>(query, productCode, productUnitBc, unitCode);
+                var results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<ProductInfoQueryResult>(
+                    query,
+                    productCode,
+                    productUnitBc,
+                    unitCode);
 
                 if (results != null && results.Count > 0)
                 {
@@ -229,8 +232,9 @@ namespace dMobile.Bedrock
                         INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno
                         WHERE tProductUnit.ProductUnitRefno = ?";
 
-                var results = await DatabaseConnection.GetInstance().SqlConn.
-                    QueryAsync<ProductInfoQueryResult>(query, Convert.ToInt32(productUnitRefno));
+                var results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<ProductInfoQueryResult>(
+                    query,
+                    Convert.ToInt32(productUnitRefno));
 
                 if (results != null && results.Count > 0)
                 {
@@ -305,8 +309,9 @@ namespace dMobile.Bedrock
                     WHERE tProduct.ProductRefno = ?
                         AND tProductUnit.ProductUnitIsDefault = 1"; // true
 
-            var results = await DatabaseConnection.GetInstance().SqlConn.
-                QueryAsync<ProductInfoQueryResult>(query, Convert.ToInt32(productRefno));
+            var results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<ProductInfoQueryResult>(
+                query,
+                Convert.ToInt32(productRefno));
 
             if (results != null && results.Count > 0)
             {
@@ -385,8 +390,7 @@ namespace dMobile.Bedrock
                     INNER JOIN tProductScheme ON tProductScheme.ProductSchemeRefno = tLocationMapWarehouseProductScheme.ProductSchemeRefno
                     WHERE tProduct.ProductRefno = ?";
 
-            var prodSchemes = await DatabaseConnection.GetInstance().SqlConn.
-                QueryAsync<tProductSchemeModel>(
+            var prodSchemes = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<tProductSchemeModel>(
                 query,
                 Convert.ToInt32(
                 LocationMap.GetInstance().CurrLocMap.WhsLocMapRefno),
@@ -487,7 +491,7 @@ namespace dMobile.Bedrock
             {
                 var xmlString = new StringBuilder();
                 var xml = XmlWriter.Create(xmlString);
-                var deviceId = sysEnv.DeviceID;
+                var deviceId = sysEnv.DeviceId;
                 var revision = sysEnv.RefreshOpt.RefreshedDataLast.ToString(
                     "yyyy\'-\'MM\'-\'dd\'T\'HH\':\'mm\':\'ss");
                 var loginId = sysEnv.ContactLog.LoginID.ToString();
@@ -632,8 +636,7 @@ namespace dMobile.Bedrock
                     schemeId = $"{schemeId}SK:{prodSchemeData.LogisticUnitSkidNumber.TrimEnd()}.";
                 }
 
-                var locMap = LocationMap.GetInstance();
-                if (locMap.CurrLocMap.WhsFkRefno != 0)
+                if (LocationMap.GetInstance().CurrLocMap.WhsFkRefno != 0)
                 {
                     schemeId = $"{schemeId}BL:{LocationMapTasks.GetCurrentLocationForUniquenessChecking().TrimEnd()}.";
                 }

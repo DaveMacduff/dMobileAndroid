@@ -6,17 +6,14 @@ namespace dMobile.Bedrock
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics;
+    using System.Diagnostics.CodeAnalysis;
     using System.Globalization;
     using System.IO;
     using System.Reflection;
-    using System.Runtime.InteropServices;
     using System.Text;
     using System.Threading.Tasks;
     using System.Xml;
-    using System.Xml.Schema;
-    using System.Xml.Serialization;
-    using dMobile.Resources.Models;
+    using Resources.Models;
 
     /// <summary>
     /// Defines the <see cref="SysCommon" />.
@@ -24,32 +21,32 @@ namespace dMobile.Bedrock
     public class SysCommon
     {
         /// <summary>
-        /// Defines the SystemLoginID.
+        ///     Defines the SystemLoginId.
         /// </summary>
-        public const int SystemLoginID = 30;
+        public const int SystemLoginId = 30;
 
         /// <summary>
-        /// Defines the SystemLoginPassword.
+        ///     Defines the SystemLoginPassword.
         /// </summary>
         public const string SystemLoginPassword = "4274";
 
         /// <summary>
-        /// Defines the SetupLoginID.
+        ///     Defines the SetupLoginId.
         /// </summary>
-        public const int SetupLoginID = 99;
+        public const int SetupLoginId = 99;
 
         /// <summary>
-        /// Defines the SetupLoginPassword.
+        ///     Defines the SetupLoginPassword.
         /// </summary>
         public const string SetupLoginPassword = "99";
 
         /// <summary>
-        /// Defines the EmptyDateTime.
+        ///     Defines the EmptyDateTime.
         /// </summary>
         public static readonly DateTime EmptyDateTime = new DateTime(1900, 1, 1);
 
         /// <summary>
-        /// Defines the ShowErrorMessageType.
+        ///     Defines the show error message type.
         /// </summary>
         public enum ShowErrorMessageType
         {
@@ -65,10 +62,9 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// 
+        ///     Activity picking quantity over validation levels.
         /// </summary>
-        /// <remarks></remarks>
-        public enum ActPickingQtyOverValLevels : int
+        public enum ActPickingQtyOverValLevels
         {
             /// <summary>
             /// Defines the NoValidationOrWarning.
@@ -87,10 +83,9 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        ///
+        ///     Activity picking quantity under validation levels.
         /// </summary>
-        /// <remarks></remarks>
-        public enum ActPickingQtyUnderValLevels : int
+        public enum ActPickingQtyUnderValLevels
         {
             /// <summary>
             /// Defines the NoValidationOrWarning.
@@ -109,10 +104,9 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        ///
+        ///     Activity transfers quantity over validation levels.
         /// </summary>
-        /// <remarks></remarks>
-        public enum ActTransfersQtyOverValLevels : int
+        public enum ActTransfersQtyOverValLevels
         {
             /// <summary>
             /// Defines the NoValidationOrWarning.
@@ -131,10 +125,9 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        ///
+        ///     Activity transfers quantity under validation levels.
         /// </summary>
-        /// <remarks></remarks>
-        public enum ActTransfersQtyUnderValLevels : int
+        public enum ActTransfersQtyUnderValLevels
         {
             /// <summary>
             /// Defines the NoValidationOrWarning.
@@ -153,10 +146,9 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        ///
+        ///     Activity receiving quantity over validation levels.
         /// </summary>
-        /// <remarks></remarks>
-        public enum ActReceivingQtyOverValLevels : int
+        public enum ActReceivingQtyOverValLevels
         {
             /// <summary>
             /// Defines the NoValidationOrWarning.
@@ -175,10 +167,9 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        ///
+        ///     Activity receiving quantity under validation levels.
         /// </summary>
-        /// <remarks></remarks>
-        public enum ActReceivingQtyUnderValLevels : int
+        public enum ActReceivingQtyUnderValLevels
         {
             /// <summary>
             /// Defines the NoValidationOrWarning.
@@ -197,9 +188,9 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// Replenishment move type codes.
+        ///     Replenishment move type codes.
         /// </summary>
-        public enum ReplenishmentTypes : int
+        public enum ReplenishmentTypes
         {
             /// <summary>
             /// Manual replenishment move type.
@@ -218,10 +209,9 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        ///
+        ///     Adjustments types.
         /// </summary>
-        /// <remarks></remarks>
-        public enum AdjTypes : int
+        public enum AdjTypes
         {
             /// <summary>
             /// Defines the Inventory.
@@ -335,10 +325,9 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        ///
+        ///     Activity status types.
         /// </summary>
-        /// <remarks></remarks>
-        public enum ActStatus : int
+        public enum ActStatus
         {
             /// <summary>
             /// Defines the NoChange.
@@ -362,10 +351,9 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        ///
+        ///     Scheme extra types.
         /// </summary>
-        /// <remarks></remarks>
-        public enum SchemeExtraTypes : int
+        public enum SchemeExtraTypes
         {
             /// <summary>
             /// Defines the Disabled.
@@ -379,19 +367,21 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        ///
+        ///     Bar code rules.
         /// </summary>
-        /// <remarks></remarks>
-        public enum BarCodeRules : int
+        [SuppressMessage("ReSharper", "NonReadonlyMemberInGetHashCode", Justification = "Not sure how to fix the warnings.")]
+        public enum BarCodeRules
         {
             /// <summary>
             /// Defines the ParseCode_128AsUCC_EAN_128_SymbolCompliant.
             /// </summary>
+            // ReSharper disable once InconsistentNaming
             ParseCode_128AsUCC_EAN_128_SymbolCompliant = 1,
 
             /// <summary>
             /// Defines the ParseFINICA_Code_128_as_EAN_UCC_128.
             /// </summary>
+            // ReSharper disable once InconsistentNaming
             ParseFINICA_Code_128_as_EAN_UCC_128 = 2,
 
             /// <summary>
@@ -402,147 +392,174 @@ namespace dMobile.Bedrock
             /// <summary>
             /// Defines the NoZeroPaddingOfProductIdentifierForUCC_EAN_Family.
             /// </summary>
+            // ReSharper disable once InconsistentNaming
             NoZeroPaddingOfProductIdentifierForUCC_EAN_Family = 4,
 
             /// <summary>
             /// Defines the ParseWOOLWICH_Code_128_RemoveSpaces.
             /// </summary>
+            // ReSharper disable once InconsistentNaming
             ParseWOOLWICH_Code_128_RemoveSpaces = 5,
 
             /// <summary>
             /// Defines the Recognize_Code_128_AI13_PackagingDate_As_AI11_ProductionDate.
             /// </summary>
+            // ReSharper disable once InconsistentNaming
             Recognize_Code_128_AI13_PackagingDate_As_AI11_ProductionDate = 6,
 
             /// <summary>
             /// Defines the Recognize_Code_128_AI17_ExpiryDate_As_AI15_BestBeforeDate.
             /// </summary>
+            // ReSharper disable once InconsistentNaming
             Recognize_Code_128_AI17_ExpiryDate_As_AI15_BestBeforeDate = 7,
 
             /// <summary>
             /// Defines the Parse_Code_128_AI01_Nossack_AI21_SkidNumber_BoxCount.
             /// </summary>
+            // ReSharper disable once InconsistentNaming
             Parse_Code_128_AI01_Nossack_AI21_SkidNumber_BoxCount = 8,
 
             /// <summary>
             /// Defines the ProductBarCodeMinimumLength4Digits.
             /// </summary>
+            // ReSharper disable once InconsistentNaming
             ProductBarCodeMinimumLength4Digits = 9,
 
             /// <summary>
             /// Defines the Parse_UCC_12_UPC_E_as_Deli_PLU.
             /// </summary>
+            // ReSharper disable once InconsistentNaming
             Parse_UCC_12_UPC_E_as_Deli_PLU = 10,
 
             /// <summary>
             /// Defines the Parse_Code128_OvationFielding_Lamb.
             /// </summary>
+            // ReSharper disable once InconsistentNaming
             Parse_Code128_OvationFielding_Lamb = 11,
 
             /// <summary>
             /// Defines the Parse_Code128_China_Seafood.
             /// </summary>
+            // ReSharper disable once InconsistentNaming
             Parse_Code128_China_Seafood = 12,
 
             /// <summary>
             /// Defines the Parse_Code_128_AI01_BC_AI30_exclusive.
             /// </summary>
+            // ReSharper disable once InconsistentNaming
             Parse_Code_128_AI01_BC_AI30_exclusive = 13,
 
             /// <summary>
             /// Defines the ParseRenees_Code_128_RemoveSpaces.
             /// </summary>
+            // ReSharper disable once InconsistentNaming
             ParseRenees_Code_128_RemoveSpaces = 14,
 
             /// <summary>
             /// Defines the ParseLanzMeats_Code_128_AI10_as_AI21.
             /// </summary>
+            // ReSharper disable once InconsistentNaming
             ParseLanzMeats_Code_128_AI10_as_AI21 = 15,
 
             /// <summary>
             /// Defines the HeritageGlobalLocationIdentifierSecondPassIgnoreCheckDigit.
             /// </summary>
+            // ReSharper disable once InconsistentNaming
             HeritageGlobalLocationIdentifierSecondPassIgnoreCheckDigit = 16,
 
             /// <summary>
             /// Defines the ParseNossackBrokerMultiNationalProductFromChili.
             /// </summary>
+            // ReSharper disable once InconsistentNaming
             ParseNossackBrokerMultiNationalProductFromChili = 17,
 
             /// <summary>
             /// Defines the ParseUCC_13asUPC_12_UPC_E.
             /// </summary>
+            // ReSharper disable once InconsistentNaming
             ParseUCC_13asUPC_12_UPC_E = 18,
 
             /// <summary>
             /// Defines the Parse_HelaSpiceCanada_Code_128.
             /// </summary>
+            // ReSharper disable once InconsistentNaming
             Parse_HelaSpiceCanada_Code_128 = 19,
 
             /// <summary>
             /// Defines the NebraskaBeef_Parse_Lot_as_Serial_Code_128.
             /// </summary>
+            // ReSharper disable once InconsistentNaming
             NebraskaBeef_Parse_Lot_as_Serial_Code_128 = 20,
 
             /// <summary>
             /// Defines the ParseNorthernCoop_AustraliaBeefTrim_Product25612.
             /// </summary>
+            // ReSharper disable once InconsistentNaming
             ParseNorthernCoop_AustraliaBeefTrim_Product25612 = 21,
 
             /// <summary>
             /// Defines the ParseSumwaFarmFedWholeDuck_UseWeightRangeToIDProduct.
             /// </summary>
+            // ReSharper disable once InconsistentNaming
             ParseSumwaFarmFedWholeDuck_UseWeightRangeToIDProduct = 22,
 
             /// <summary>
             /// Defines the ParseEAN_UCC128_NossackProduct94600_ChileanBackRibs.
             /// </summary>
+            // ReSharper disable once InconsistentNaming
             ParseEAN_UCC128_NossackProduct94600_ChileanBackRibs = 23,
 
             /// <summary>
             /// Defines the ParseEAN_UCC128_NossackProduct51134_FrozenPorkCollarRemoveAI00.
             /// </summary>
+            // ReSharper disable once InconsistentNaming
             ParseEAN_UCC128_NossackProduct51134_FrozenPorkCollarRemoveAI00 = 24,
 
             /// <summary>
             /// Defines the ParseEAN_UCC128_SuppressAllParseErrorsForNonTrackedComponents.
             /// </summary>
+            // ReSharper disable once InconsistentNaming
             ParseEAN_UCC128_SuppressAllParseErrorsForNonTrackedComponents = 25,
 
             /// <summary>
             /// Defines the ParseEAN_UCC128_Nossack_GreenleaPremierMeats.
             /// </summary>
+            // ReSharper disable once InconsistentNaming
             ParseEAN_UCC128_Nossack_GreenleaPremierMeats = 26,
 
             /// <summary>
             /// Defines the ParseEAN_UCC128_Dovre_KiiNaturalsCrisps.
             /// </summary>
+            // ReSharper disable once InconsistentNaming
             ParseEAN_UCC128_Dovre_KiiNaturalsCrisps = 27,
 
             /// <summary>
             /// Defines the Parse_Code128_CleanSubstituteCharacter.
             /// </summary>
+            // ReSharper disable once InconsistentNaming
             Parse_Code128_CleanSubstituteCharacter = 28,
 
             /// <summary>
             /// Restrict the amount on deli PLU's from 5 to 4.
             /// </summary>
             /// <remarks>12345 becomes 2345.</remarks>
+            // ReSharper disable once InconsistentNaming
             Parse_UCC_12_UPC_E_as_Deli_PLU_4_Digit_Amount_Enabled = 29,
 
             /// <summary>
             /// Define the parse EAN / UCC Code 128 Bourvy Exports production date from the AI(21) serial number.
             /// </summary>
+            // ReSharper disable once InconsistentNaming
             ParseEAN_UCC128_BourvyExports_ProductionDate = 30,
         }
 
         /// <summary>
-        ///
+        ///     Activity subtypes.
         /// </summary>
         /// <remarks>
         /// Keep in sync with imsck_wms.datacntrl method request_skid_info_cursor() enums.
         /// </remarks>
-        public enum ActSubTypes : int
+        public enum ActSubTypes
         {
             /// <summary>
             /// Defines the NotApplicable.
@@ -751,10 +768,9 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        ///
+        ///     Activity count type fields.
         /// </summary>
-        /// <remarks></remarks>
-        public enum ActCountTypeFields : int
+        public enum ActCountTypeFields
         {
             /// <summary>
             /// Defines the PhysicalCountByWarehouse.
@@ -783,10 +799,9 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        ///
+        ///     Contact subtypes.
         /// </summary>
-        /// <remarks></remarks>
-        public enum ContactSubTypes : int
+        public enum ContactSubTypes
         {
             /// <summary>
             /// Defines the User.
@@ -815,10 +830,9 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        ///
+        ///     Product location map types.
         /// </summary>
-        /// <remarks></remarks>
-        public enum ProdLocMapTypes : int
+        public enum ProdLocMapTypes
         {
             /// <summary>
             /// Defines the Floor.
@@ -857,10 +871,9 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        ///
+        ///     Location map types.
         /// </summary>
-        /// <remarks></remarks>
-        public enum LocMapTypes : int
+        public enum LocMapTypes
         {
             /// <summary>
             /// Defines the IsTracked.
@@ -904,10 +917,9 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        ///
+        ///     Location map slot coordinate types.
         /// </summary>
-        /// <remarks></remarks>
-        public enum LocMapSlotCoordTypes : int
+        public enum LocMapSlotCoordTypes
         {
             /// <summary>
             /// Defines the Coord1.
@@ -926,10 +938,9 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        ///
+        ///     Location map subtypes.
         /// </summary>
-        /// <remarks></remarks>
-        public enum LocMapSubTypes : int
+        public enum LocMapSubTypes
         {
             /// <summary>
             /// Defines the None.
@@ -953,11 +964,11 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// Replace XML reserved characters in a string with the XML entity references.
+        ///     Replace XML reserved characters in a string with the XML entity references.
         /// </summary>
-        /// <param name="data">.</param>
+        /// <param name="data">Data to format.</param>
         /// <returns>Well formed xml string.</returns>
-        public static string AddXMLReservedChars(string data)
+        public static string AddXmlReservedChars(string data)
         {
             var xmlString = data.Replace("<", "&lt;");
             xmlString = xmlString.Replace(">", "&gt;");
@@ -969,11 +980,11 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// Replace the XML entity references in a string with the reserved characters.
+        ///     Replace the XML entity references in a string with the reserved characters.
         /// </summary>
         /// <param name="data">.</param>
         /// <returns>Restored string.</returns>
-        public static string RemoveXMLReservedChars(string data)
+        public static string RemoveXmlReservedChars(string data)
         {
             var xmlString = data.Replace("&lt;", "<");
             xmlString = xmlString.Replace("&gt;", ">");
@@ -988,7 +999,7 @@ namespace dMobile.Bedrock
         /// The IsAllowedChangeNegateQuantityFromAdjType.
         /// </summary>
         /// <param name="adjustmentType">.</param>
-        /// <returns>.</returns>
+        /// <returns>True if allowed to change negate quantity, else false.</returns>
         public static bool IsAllowedChangeNegateQuantityFromAdjType(AdjTypes adjustmentType)
         {
             var isAllowedNegateQuantity = false;
@@ -1068,6 +1079,9 @@ namespace dMobile.Bedrock
 
                 case AdjTypes.ConvertSkid:
                     break;
+
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(adjustmentType), adjustmentType, null);
             }
 
             return isAllowedNegateQuantity;
@@ -1077,7 +1091,7 @@ namespace dMobile.Bedrock
         /// The DefaultNegateQuantityFromAdjType.
         /// </summary>
         /// <param name="adjustmentType">.</param>
-        /// <returns>.</returns>
+        /// <returns>True if to default negate quantity, else false.</returns>
         public static bool DefaultNegateQuantityFromAdjType(AdjTypes adjustmentType)
         {
             var isNegateQuantity = false;
@@ -1160,16 +1174,19 @@ namespace dMobile.Bedrock
                 case AdjTypes.ConvertSkid:
                     isNegateQuantity = true;
                     break;
+
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(adjustmentType), adjustmentType, null);
             }
 
             return isNegateQuantity;
         }
 
         /// <summary>
-        /// device_id, login_id, revision_date, stamp.
+        ///     device_id, login_id, revision_date, stamp.
         /// </summary>
-        /// <param name="useRefreshedDataLast">.</param>
-        /// <returns>.</returns>
+        /// <param name="useRefreshedDataLast">Use refreshed data list.</param>
+        /// <returns>Requested default string.</returns>
         public static async Task<string> GetRequestDefaults(bool useRefreshedDataLast)
         {
             var sysEnv = SysEnvironment.GetInstance();
@@ -1184,42 +1201,41 @@ namespace dMobile.Bedrock
             // Easier to add it here than review every activity request, for filtering.
             var loginWhs = LocationMap.GetInstance().LoginWhsLocMapRefno;
             var loginLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(loginWhs);
-
-            var def = "<device_id>" + sysEnv.DeviceID + "</device_id>"
-                      + "<login_id>" + sysEnv.ContactLog.LoginID + "</login_id>"
-                      + "<login_whs_id>" + loginLocMap.WhsFkRefno + "</login_whs_id>"
-                      + "<revision_datetime>" + revision + "</revision_datetime>"
-                      + "<stamp>" + current + "</stamp>";
-
+            var def = $@"
+                <device_id>{sysEnv.DeviceId}</device_id>
+                <login_id>{sysEnv.ContactLog.LoginID}</login_id>
+                <login_whs_id>{loginLocMap.WhsFkRefno}</login_whs_id>
+                <revision_datetime>{revision}</revision_datetime>
+                <stamp>{current}</stamp>";
             return def;
         }
 
         /// <summary>
-        /// Check for any activities with change state not equal to ActivityStatus.NoChange.
+        ///     Check for any activities with change state not equal to ActivityStatus.NoChange.
         /// </summary>
         /// <returns>True or false if data that has not been submitted exists.</returns>
         public static async Task<bool> CheckForUnSubmittedData()
         {
             var isDataExists = false;
+            var noChangeStatus = Convert.ToInt32(ActStatus.NoChange);
 
-            var sql = new StringBuilder();
-            sql.Append("SELECT tActivity.ActivityRefno ");
-            sql.Append("FROM tActivity ");
-            sql.AppendFormat("WHERE tActivity.ActivityStatus <> {0} ", Convert.ToInt32(ActStatus.NoChange));
-            sql.Append("UNION ");
-            sql.Append("SELECT tActivity.ActivityRefno ");
-            sql.Append("FROM tActivity ");
-            sql.Append("INNER JOIN tActivityItem ON tActivityItem.ActivityRefno = tActivity.ActivityRefno ");
-            sql.AppendFormat("WHERE tActivityItem.ActivityItemStatus <> {0} ", Convert.ToInt32(ActStatus.NoChange));
-            sql.Append("UNION ");
-            sql.Append("SELECT tActivity.ActivityRefno ");
-            sql.Append("FROM tActivity ");
-            sql.Append("INNER JOIN tActivityItem ON tActivityItem.ActivityRefno = tActivity.ActivityRefno ");
-            sql.Append("INNER JOIN tActivityDetail ON tActivityDetail.ActivityItemRefno = tActivityItem.ActivityItemRefno ");
-            sql.AppendFormat("WHERE tActivityDetail.ActivityDetailStatus <> {0}", Convert.ToInt32(ActStatus.NoChange));
+            var sql = $@"
+                SELECT tActivity.ActivityRefno
+                FROM tActivity
+                WHERE tActivity.ActivityStatus <> {noChangeStatus}
+                UNION
+                SELECT tActivity.ActivityRefno
+                FROM tActivity
+                INNER JOIN tActivityItem ON tActivityItem.ActivityRefno = tActivity.ActivityRefno
+                WHERE tActivityItem.ActivityItemStatus <> {noChangeStatus}
+                UNION
+                SELECT tActivity.ActivityRefno
+                FROM tActivity
+                INNER JOIN tActivityItem ON tActivityItem.ActivityRefno = tActivity.ActivityRefno
+                INNER JOIN tActivityDetail ON tActivityDetail.ActivityItemRefno = tActivityItem.ActivityItemRefno
+                WHERE tActivityDetail.ActivityDetailStatus <> {noChangeStatus}";
 
             var results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<ActivityModel>(Convert.ToString(sql));
-
             if (results?.Count > 0)
             {
                 isDataExists = true;
@@ -1229,26 +1245,25 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// Make a nice formatted string of quantity and product units.
+        ///     Make a nice formatted string of quantity and product units.
         /// </summary>
-        /// <param name="prodInfo">.</param>
-        /// <param name="quantity">.</param>
-        /// <param name="weightQuantity">.</param>
+        /// <param name="prodInfo">Product information.</param>
+        /// <param name="quantity">Quantity.</param>
+        /// <param name="weightQuantity">Weight quantity.</param>
         /// <returns>Formatted nice readable string '12.000 CS @ 150.546 KG'.</returns>
         public static string NiceQuantityReadableString(ProductInfo prodInfo, decimal quantity, decimal weightQuantity)
         {
-            var unit = Math.Round(quantity, 3).ToString() + " " + prodInfo.UnitCode;
-            var wtUnit = Math.Round(weightQuantity, 3).ToString() + " " + prodInfo.WeightUnitCode;
-
+            var unit = Math.Round(quantity, 3).ToString(CultureInfo.CurrentCulture) + " " + prodInfo.UnitCode;
+            var wtUnit = Math.Round(weightQuantity, 3).ToString(CultureInfo.CurrentCulture) + " " + prodInfo.WeightUnitCode;
             return unit + " @ " + wtUnit;
         }
 
         /// <summary>
-        /// The FillQuantityStructureFromQuantity.
+        ///     Fill quantity structure from quantity.
         /// </summary>
         /// <param name="prodInfo"><see cref="ProductInfo"/> Product information.</param>
         /// <param name="quantity"><see cref="decimal"/> Quantity.</param>
-        /// <returns>.</returns>
+        /// <returns>Filled quantity structure.</returns>
         public static SFillQuantity FillQuantityStructureFromQuantity(ProductInfo prodInfo, decimal quantity)
         {
             var fill = default(SFillQuantity);
@@ -1306,30 +1321,27 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// Submit communication request.
+        ///     Submit communication request.
         /// </summary>
         /// <param name="sendData"><see cref="string"/> Communication data to submit.</param>
         /// <returns><see cref="string"/> Communication response.</returns>
         public static string SubmitComm(string sendData)
         {
-            Debug.WriteLine(sendData);
-            var receivedData = string.Empty;
+            string receivedData;
             var sysEnv = SysEnvironment.GetInstance();
             using var sysSock = sysEnv.SysSock.Connect();
             _ = sysSock ?? throw new Exception("Failed to connect.");
 
             try
             {
-                // KLUDGE: Temp fix until we can share a socket
-                ////System.Threading.Thread.Sleep(500);
-                var bytesSent = sysEnv.SysSock.SendRequest(sysSock, sendData);
+                sysEnv.SysSock.SendRequest(sysSock, sendData);
                 var compressedData = sysEnv.SysSock.ReceiveResponse(sysSock);
                 receivedData = Compress.UnZip(compressedData.ToArray());
-                SysCommon.CheckCommResponseForErrors(receivedData);
+                CheckCommResponseForErrors(receivedData);
             }
             finally
             {
-                if (sysSock != null && sysSock.Connected)
+                if (sysSock.Connected)
                 {
                     sysSock.Disconnect(true);
                     sysSock.Close();
@@ -1340,8 +1352,8 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// Checks a COM submission response string for errors.
-        /// Throws exceptions if errors are found.
+        ///     Checks a COM submission response string for errors.
+        ///     Throws exceptions if errors are found.
         /// </summary>
         /// <param name="response">XML response string.</param>
         public static void CheckCommResponseForErrors(string response)
@@ -1355,7 +1367,7 @@ namespace dMobile.Bedrock
             // xml.dom object.
             if (response.Contains("<message>ERROR</message>"))
             {
-                response = SysCommon.RemoveXMLReservedChars(response);
+                response = SysCommon.RemoveXmlReservedChars(response);
                 var receivedError = new XmlDocument();
                 receivedError.LoadXml(response);
                 if (receivedError.DocumentElement == null)
@@ -1370,7 +1382,7 @@ namespace dMobile.Bedrock
                     throw new CommunicationException("Received detail message was not complete.");
                 }
 
-                msg = receivedError.DocumentElement["detail"]!.InnerText;
+                msg = receivedError.DocumentElement["detail"] !.InnerText;
                 if (msg.Contains("MSGBOX-"))
                 {
                     // Throw a message only exception with the 'MSGBOX-' text removed.
@@ -1384,63 +1396,51 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// The IsEmptyDateTime.
+        ///     Check if the date time is empty.
         /// </summary>
-        /// <param name="dt">.</param>
-        /// <returns>.</returns>
+        /// <param name="dt">Date time to check.</param>
+        /// <returns>True if the date time is empty, else false.</returns>
         public static bool IsEmptyDateTime(DateTime dt)
         {
-            var isEmpty = false;
-            if (dt.Year <= 1900)
-            {
-                isEmpty = true;
-            }
-
-            return isEmpty;
+            return dt.Year <= 1900;
         }
 
         /// <summary>
-        /// The IsEmptyDate.
+        ///     Check if the date is empty.
         /// </summary>
-        /// <param name="dt">.</param>
-        /// <returns>.</returns>
+        /// <param name="dt">Date to check.</param>
+        /// <returns>True if the date is empty, else false.</returns>
         public static bool IsEmptyDate(DateTime dt)
         {
-            var isEmpty = false;
-            if (dt.Year <= 1900)
-            {
-                isEmpty = true;
-            }
-
-            return isEmpty;
+            return dt.Year <= 1900;
         }
 
         /// <summary>
-        /// The ConvertLB2KG.
+        /// Convert the LB to KG.
         /// </summary>
-        /// <param name="lbQuantity">The lbQuantity<see cref="double"/>.</param>
-        /// <returns>.</returns>
-        public static double ConvertLB2KG(double lbQuantity)
+        /// <param name="lbQuantity">The quantity in pounds.<see cref="double"/>.</param>
+        /// <returns>Quantity in kilograms.</returns>
+        public static double ConvertLb2Kg(double lbQuantity)
         {
             return lbQuantity * 0.4535923703;
         }
 
         /// <summary>
-        /// Converts LB to KG.
+        /// Converts the LB to KG.
         /// </summary>
-        /// <param name="lbQuantity">.</param>
-        /// <returns>.</returns>
-        public static decimal ConvertLB2KG(decimal lbQuantity)
+        /// <param name="lbQuantity">The quantity in pounds.<see cref="double"/>.</param>
+        /// <returns>Quantity in kilograms.</returns>
+        public static decimal ConvertLb2Kg(decimal lbQuantity)
         {
             return lbQuantity * 0.4535923703M;
         }
 
         /// <summary>
-        /// The ConvertKG2LB.
+        /// Convert the KG to LB.
         /// </summary>
-        /// <param name="kgQuantity">The kgQuantity<see cref="double"/>.</param>
-        /// <returns>.</returns>
-        public static double ConvertKG2LB(double kgQuantity)
+        /// <param name="kgQuantity">The quantity in kilograms.<see cref="double"/>.</param>
+        /// <returns>Quantity in pounds.</returns>
+        public static double ConvertKg2Lb(double kgQuantity)
         {
             return kgQuantity * 2.20462262;
         }
@@ -1449,37 +1449,26 @@ namespace dMobile.Bedrock
         /// Converts KG to LB.
         /// </summary>
         /// <param name="kgQuantity">.</param>
-        /// <returns>.</returns>
-        public static decimal ConvertKG2LB(decimal kgQuantity)
+        /// <returns>Quantity in pounds.</returns>
+        public static decimal ConvertKg2Lb(decimal kgQuantity)
         {
             return kgQuantity * 2.20462262M;
         }
 
         /// <summary>
-        /// The GetAssemblyVersion.
-        /// </summary>
-        /// <returns>.</returns>
-        public string GetAssemblyVersion()
-        {
-            var major = Assembly.GetExecutingAssembly().GetName().Version.Major;
-            var minor = Assembly.GetExecutingAssembly().GetName().Version.Minor;
-            var build = Assembly.GetExecutingAssembly().GetName().Version.Build;
-            var revision = Assembly.GetExecutingAssembly().GetName().Version.Revision;
-
-            return $"{major}.{minor}.{build}.{revision}";
-        }
-
-        /// <summary>
-        /// The ErrorReportAndRequestContinue.
+        ///     Error report and request continue.
         /// </summary>
         /// <param name="fullClassName">The fullClassName<see cref="string"/>.</param>
         /// <param name="reportingMethod">The reportingMethod<see cref="string"/>.</param>
         /// <param name="ex">.</param>
-        /// <returns>.</returns>
-        public static bool ErrorReportAndRequestContinue(string fullClassName, string reportingMethod,
+        /// <returns>True if request to continue else false.</returns>
+        public static bool ErrorReportAndRequestContinue(
+            string fullClassName,
+            string reportingMethod,
             Exception ex)
         {
             // Determine Class and Assembly
+            // TODO: Rework / reimplement this method.
             var aClass = fullClassName.Split('.');
             var assembly = aClass[0];
 
@@ -1537,7 +1526,7 @@ namespace dMobile.Bedrock
                 for (pos = 0; pos < text.Length; pos = next)
                 {
                     // Find end of line
-                    var eol = text.IndexOf(Environment.NewLine, pos);
+                    var eol = text.IndexOf(Environment.NewLine, pos, StringComparison.Ordinal);
                     if (eol == -1)
                     {
                         next = eol = text.Length;
@@ -1548,26 +1537,22 @@ namespace dMobile.Bedrock
                     }
 
                     // Copy this line of text, breaking into smaller lines as needed
-                    if (eol > pos)
+                    while (eol > pos)
                     {
-                        do
+                        var len = eol - pos;
+                        if (len > width)
                         {
-                            var len = eol - pos;
-                            if (len > width)
-                            {
-                                len = BreakLine(text, pos, width);
-                            }
-
-                            sb.Add(text.Substring(pos, len));
-
-                            // Trim whitespace following break
-                            pos += len;
-                            while (pos < eol && char.IsWhiteSpace(text[pos]))
-                            {
-                                pos++;
-                            }
+                            len = BreakLine(text, pos, width);
                         }
-                        while (eol > pos);
+
+                        sb.Add(text.Substring(pos, len));
+
+                        // Trim whitespace following break
+                        pos += len;
+                        while (pos < eol && char.IsWhiteSpace(text[pos]))
+                        {
+                            pos++;
+                        }
                     }
                 }
             }
@@ -1599,7 +1584,7 @@ namespace dMobile.Bedrock
                 for (pos = 0; pos < text.Length; pos = next)
                 {
                     // Find end of line
-                    var eol = text.IndexOf(Environment.NewLine, pos);
+                    var eol = text.IndexOf(Environment.NewLine, pos, StringComparison.Ordinal);
                     if (eol == -1)
                     {
                         next = eol = text.Length;
@@ -1643,39 +1628,6 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// Locates position to break the given line so as to avoid breaking words.
-        /// </summary>
-        /// <param name="text">String that contains line of text.</param>
-        /// <param name="pos">Index where line of text starts.</param>
-        /// <param name="max">Maximum line length.</param>
-        /// <returns>The modified line length.</returns>
-        private static int BreakLine(string text, int pos, int max)
-        {
-            // Find last whitespace in line
-            var i = max;
-
-            while (i >= 0 && !char.IsWhiteSpace(text[pos + i]))
-            {
-                i--;
-            }
-
-            // If no whitespace found, break at maximum length
-            if (i < 0)
-            {
-                return max;
-            }
-
-            // Find start of whitespace
-            while (i >= 0 && char.IsWhiteSpace(text[pos + i]))
-            {
-                i--;
-            }
-
-            // Return length of text before whitespace
-            return i + 1;
-        }
-
-        /// <summary>
         /// The GetXmlReader.
         /// </summary>
         /// <param name="xml">.</param>
@@ -1683,27 +1635,21 @@ namespace dMobile.Bedrock
         public static XmlReader GetXmlReader(ref string xml)
         {
             // Parse the Data into Schema and Data
-            var endSchema = "</xsd:schema>";
+            const string endSchema = "</xsd:schema>";
             var eoSchemaEnd = xml.IndexOf(endSchema, StringComparison.Ordinal);
             if (eoSchemaEnd >= 0)
             {
-                var length = xml.Length;
                 var actualSchemaEnd = eoSchemaEnd + endSchema.Length;
-                var schema = xml.Substring(0, actualSchemaEnd);
-
                 var dataLength = xml.Length - actualSchemaEnd;
                 var data = xml.Substring(actualSchemaEnd, dataLength);
 
-                // Create the XmlSchemaSet class.
-                var xmlschema = new XmlSchema();
-                xmlschema = XmlSchema.Read(new StringReader(schema), null);
-
-                var sc = new XmlSchemaSet();
-                sc.Add(xmlschema);
-
-                var settings = new XmlReaderSettings();
-                settings.ValidationType = ValidationType.None;
-                settings.Schemas = sc;
+                ////var schema = xml[..actualSchemaEnd];
+                ////var xmlschema = XmlSchema.Read(new StringReader(schema), null);
+                ////var sc = new XmlSchemaSet();
+                ////sc.Add(xmlschema);
+                ////var settings = new XmlReaderSettings();
+                ////settings.ValidationType = ValidationType.None;
+                ////settings.Schemas = sc;
 
                 var sr = new StringReader(data);
                 var xmlText = XmlReader.Create(sr);
@@ -1717,75 +1663,29 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// Defines the <see cref="MEMORYSTATUS" />.
-        /// </summary>
-        public struct MEMORYSTATUS
-        {
-            /// <summary>
-            /// Defines the dwLength.
-            /// </summary>
-            public uint dwLength;
-
-            /// <summary>
-            /// Defines the dwMemoryLoad.
-            /// </summary>
-            public uint dwMemoryLoad;
-
-            /// <summary>
-            /// Defines the dwTotalPhys.
-            /// </summary>
-            public uint dwTotalPhys;
-
-            /// <summary>
-            /// Defines the dwAvailPhys.
-            /// </summary>
-            public uint dwAvailPhys;
-
-            /// <summary>
-            /// Defines the dwTotalPageFile.
-            /// </summary>
-            public uint dwTotalPageFile;
-
-            /// <summary>
-            /// Defines the dwAvailPageFile.
-            /// </summary>
-            public uint dwAvailPageFile;
-
-            /// <summary>
-            /// Defines the dwTotalVirtual.
-            /// </summary>
-            public uint dwTotalVirtual;
-
-            /// <summary>
-            /// Defines the dwAvailVirtual.
-            /// </summary>
-            public uint dwAvailVirtual;
-        }
-
-        /// <summary>
         /// The ShowMemory.
         /// </summary>
         /// <returns>The <see cref="string"/>.</returns>
         public static string ShowMemory()
         {
             var memoryInfoString = new StringBuilder();
-
+            var runTime = Java.Lang.Runtime.GetRuntime();
             memoryInfoString.Append(
                 "Total Bytes Allocated " + Environment.NewLine + GC.GetTotalMemory(true) +
                 " Bytes" + Environment.NewLine);
             memoryInfoString.Append(
                 Environment.NewLine + "Used Heap Memory " + Environment.NewLine +
-                (Java.Lang.Runtime.GetRuntime().TotalMemory() - Java.Lang.Runtime.GetRuntime().FreeMemory()) +
+                (runTime !.TotalMemory() - runTime !.FreeMemory()) +
                 " Bytes" + Environment.NewLine);
             memoryInfoString.Append(
                 Environment.NewLine + "Free Heap Memory " + Environment.NewLine +
-                Java.Lang.Runtime.GetRuntime().FreeMemory() + " Bytes" + Environment.NewLine);
+                runTime!.FreeMemory() + " Bytes" + Environment.NewLine);
             memoryInfoString.Append(
                 Environment.NewLine + "Total Heap Memory " + Environment.NewLine +
-                Java.Lang.Runtime.GetRuntime().TotalMemory() + " Bytes" + Environment.NewLine);
+                runTime!.TotalMemory() + " Bytes" + Environment.NewLine);
             memoryInfoString.Append(
                 Environment.NewLine + "Max Heap Memory " + Environment.NewLine +
-                Java.Lang.Runtime.GetRuntime().MaxMemory() + " Bytes" + Environment.NewLine);
+                runTime!.MaxMemory() + " Bytes" + Environment.NewLine);
 
             return memoryInfoString.ToString();
         }
@@ -1794,8 +1694,8 @@ namespace dMobile.Bedrock
         /// The clone.
         /// </summary>
         /// <typeparam name="T">.</typeparam>
-        /// <param name="original">.</param>
-        /// <returns>.</returns>
+        /// <param name="original">Object to clone.</param>
+        /// <returns>New clone object.</returns>
         public static T Clone<T>(T original)
         {
             var tempMyClass = (T)Activator.CreateInstance(original.GetType());
@@ -1837,6 +1737,53 @@ namespace dMobile.Bedrock
                 ? msgEx.Message
                 : msgEx.Message["MSGBOX-".Length..];
             return msg;
+        }
+
+        /// <summary>
+        /// The GetAssemblyVersion.
+        /// </summary>
+        /// <returns>.</returns>
+        public string GetAssemblyVersion()
+        {
+            var major = Assembly.GetExecutingAssembly().GetName().Version.Major;
+            var minor = Assembly.GetExecutingAssembly().GetName().Version.Minor;
+            var build = Assembly.GetExecutingAssembly().GetName().Version.Build;
+            var revision = Assembly.GetExecutingAssembly().GetName().Version.Revision;
+
+            return $"{major}.{minor}.{build}.{revision}";
+        }
+
+        /// <summary>
+        /// Locates position to break the given line to avoid breaking words.
+        /// </summary>
+        /// <param name="text">String that contains line of text.</param>
+        /// <param name="pos">Index where line of text starts.</param>
+        /// <param name="max">Maximum line length.</param>
+        /// <returns>The modified line length.</returns>
+        private static int BreakLine(string text, int pos, int max)
+        {
+            // Find last whitespace in line
+            var i = max;
+
+            while (i >= 0 && !char.IsWhiteSpace(text[pos + i]))
+            {
+                i--;
+            }
+
+            // If no whitespace found, break at maximum length
+            if (i < 0)
+            {
+                return max;
+            }
+
+            // Find start of whitespace
+            while (i >= 0 && char.IsWhiteSpace(text[pos + i]))
+            {
+                i--;
+            }
+
+            // Return length of text before whitespace
+            return i + 1;
         }
     }
 }

@@ -80,7 +80,7 @@ namespace dMobile.View
             {
                 if (parse.NetWeightMetricKG > 0)
                 {
-                    weight = Convert.ToDecimal(SysCommon.ConvertKG2LB(Convert.ToDouble(parse.NetWeightMetricKG)));
+                    weight = Convert.ToDecimal(SysCommon.ConvertKg2Lb(Convert.ToDouble(parse.NetWeightMetricKG)));
                 }
                 else if (parse.NetWeightNonMetricLB > 0)
                 {
@@ -91,7 +91,7 @@ namespace dMobile.View
             {
                 if (parse.NetWeightNonMetricLB > 0)
                 {
-                    weight = Convert.ToDecimal(SysCommon.ConvertLB2KG(Convert.ToDouble(parse.NetWeightNonMetricLB)));
+                    weight = Convert.ToDecimal(SysCommon.ConvertLb2Kg(Convert.ToDouble(parse.NetWeightNonMetricLB)));
                 }
                 else if (parse.NetWeightMetricKG > 0)
                 {
@@ -144,9 +144,13 @@ namespace dMobile.View
             }
             else
             {
-                const string query = "select ProductUnitBarCodeRefno, ProductUnitRefno" +
-                                     " from tProductUnitBarCode where ProductUnitBarCodeCode = ?" +
-                                     " and ProductUnitBarCodeModifier1 = ?";
+                const string query = @"
+                    SELECT tProductUnitBarCode.ProductUnitBarCodeRefno,
+                        tProductUnitBarCode.ProductUnitRefno
+                    FROM tProductUnitBarCode
+                    WHERE ProductUnitBarCodeCode = ?
+                        AND ProductUnitBarCodeModifier1 = ?";
+
                 var results =
                     await DatabaseConnection.GetInstance().SqlConn.QueryAsync<tProductUnitBarCodeModel>(
                         query, barCodeParse.ProductIdentifier, sysEnv.CurrentBarCodeModifier1);
@@ -185,14 +189,14 @@ namespace dMobile.View
                         case "LB":
                             barCodeParse.NetWeightNonMetricLB = deliScaleWeight;
                             barCodeParse.NetWeightMetricKG = Convert.ToDecimal(
-                                SysCommon.ConvertLB2KG(Convert.ToDouble(
+                                SysCommon.ConvertLb2Kg(Convert.ToDouble(
                                     barCodeParse.NetWeightNonMetricLB)));
                             break;
 
                         case "KG":
                             barCodeParse.NetWeightMetricKG = deliScaleWeight;
                             barCodeParse.NetWeightNonMetricLB = Convert.ToDecimal(
-                                SysCommon.ConvertKG2LB(Convert.ToDouble(
+                                SysCommon.ConvertKg2Lb(Convert.ToDouble(
                                     barCodeParse.NetWeightMetricKG)));
                             break;
 
@@ -759,7 +763,7 @@ namespace dMobile.View
                         switch (prodInfo.WeightUnitCode)
                         {
                             case "LB" when barCodeParse.NetWeightMetricKG != 0:
-                                actDetail.WeightQuantity = SysCommon.ConvertKG2LB(barCodeParse.NetWeightMetricKG);
+                                actDetail.WeightQuantity = SysCommon.ConvertKg2Lb(barCodeParse.NetWeightMetricKG);
                                 break;
 
                             case "LB":
@@ -773,7 +777,7 @@ namespace dMobile.View
                             }
 
                             case "KG" when barCodeParse.NetWeightNonMetricLB != 0:
-                                actDetail.WeightQuantity = SysCommon.ConvertLB2KG(barCodeParse.NetWeightNonMetricLB);
+                                actDetail.WeightQuantity = SysCommon.ConvertLb2Kg(barCodeParse.NetWeightNonMetricLB);
                                 break;
 
                             case "KG":

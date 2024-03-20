@@ -354,14 +354,14 @@ namespace dMobile.View.Views
                 + "<ProductUnitRefno>" + this.ProdUnitRefno + "</ProductUnitRefno>"
                 + "<ProductRefno>" + this.ProdRefno + "</ProductRefno>"
                 + "<ProductCode>" + this.ProdCode + "</ProductCode>"
-                + "<ProductDescription>" + SysCommon.AddXMLReservedChars(this.ProdDesc) + "</ProductDescription>"
+                + "<ProductDescription>" + SysCommon.AddXmlReservedChars(this.ProdDesc) + "</ProductDescription>"
                 + "<ProductBrand>" + this.ProdBrand + "</ProductBrand>"
                 + "<UnitCode>" + this.UnitCode + "</UnitCode>"
                 + "<BaseUnitCode>" + this.BaseUnitCode + "</BaseUnitCode>"
                 + "<WeightUnitCode>" + this.WeightUnitCode + "</WeightUnitCode>"
                 + "<ProductUnitBC>" + this.ProdUnitBC + "</ProductUnitBC>"
                 + "<ProductUnitIsBC>" + this.ProdUnitIsBC + "</ProductUnitIsBC>"
-                + "<ProductUnitSizeDescription>" + SysCommon.AddXMLReservedChars(this.ProdUnitSizeDesc)
+                + "<ProductUnitSizeDescription>" + SysCommon.AddXmlReservedChars(this.ProdUnitSizeDesc)
                 + "</ProductUnitSizeDescription>"
                 + "</params>");
 

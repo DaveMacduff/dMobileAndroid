@@ -1111,7 +1111,7 @@ namespace dMobile.View.Activity
 
                         this.ActHdr.SkidInfo = await SysSkidInfo.GetSkidInfoFromBarCodeOrCode(barCodeParse.SSCC18);
 
-                        if (this.ActHdr.SkidInfo.CurrSkid.SkidFKRefno == 0)
+                        if (this.ActHdr.SkidInfo.CurrSkid.SkidFkRefno == 0)
                         {
                             throw new MessageOnlyException("Skid does not exist.");
                         }
@@ -1162,7 +1162,7 @@ namespace dMobile.View.Activity
                         await this.ActItem.AssignActivityItem(foundSelectedActivityItem);
                     }
 
-                    if (this.ActHdr.SkidInfo.CurrSkid.SkidFKRefno != 0)
+                    if (this.ActHdr.SkidInfo.CurrSkid.SkidFkRefno != 0)
                     {
                         if (this.ActHdr.SkidInfo.CurrSkid.ProdInfo.UnitRefno != this.ActItem.ProdInfo.UnitRefno)
                         {
@@ -1221,7 +1221,7 @@ namespace dMobile.View.Activity
                         // and the fact is isn't human readable friendly.
                         var schemeData = actDetail.SchemeData;
 
-                        if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno != 0)
+                        if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFkRefno != 0)
                         {
                             var skidInfo = this.ActItem.ActHdr.SkidInfo.CurrSkid;
                             schemeData.LogisticUnitSkidNumber = skidInfo.SkidCode;
@@ -1290,7 +1290,7 @@ namespace dMobile.View.Activity
 
                     await this.DisplayData();
 
-                    if (this.ActHdr.SkidInfo.CurrSkid.SkidFKRefno != 0)
+                    if (this.ActHdr.SkidInfo.CurrSkid.SkidFkRefno != 0)
                     {
                         this.cmdAddSkidIsEnabled = true;
 
@@ -1523,7 +1523,7 @@ namespace dMobile.View.Activity
         /// <returns>The <see cref="Task"/>.</returns>
         private async Task DisplayData()
         {
-            if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno > 0)
+            if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFkRefno > 0)
             {
                 await Device.InvokeOnMainThreadAsync(() =>
                 {
@@ -2115,7 +2115,7 @@ namespace dMobile.View.Activity
                         var xmlDoc = await form.GetXml();
                         this.ActHdr.SkidInfo = await SysSkidInfo.GetSkidInfoFromXml(xmlDoc);
 
-                        if (this.ActHdr.SkidInfo.CurrSkid.SkidFKRefno != 0)
+                        if (this.ActHdr.SkidInfo.CurrSkid.SkidFkRefno != 0)
                         {
                             this.cmdAddSkidIsEnabled = true;
 
@@ -2196,7 +2196,7 @@ namespace dMobile.View.Activity
 
                     XDocument xmlDoc = null;
 
-                    if (this.ActHdr.SkidInfo.CurrSkid.SkidFKRefno == 0)
+                    if (this.ActHdr.SkidInfo.CurrSkid.SkidFkRefno == 0)
                     {
                         // activity item object needs to check if a new location and product can be added, if not add a detail
                         if (!await LocationMapTasks.IsCompleteLocMap(this.LocMap.CurrLocMapRefno))
@@ -2224,10 +2224,10 @@ namespace dMobile.View.Activity
                             + "<ProductUnitRefno>" + info.UnitRefno + "</ProductUnitRefno>"
                             + "<ProductRefno>" + info.Refno + "</ProductRefno>"
                             + "<ProductCode>" + info.Code + "</ProductCode>"
-                            + "<ProductDescription>" + SysCommon.AddXMLReservedChars(info.Desc) + "</ProductDescription>"
+                            + "<ProductDescription>" + SysCommon.AddXmlReservedChars(info.Desc) + "</ProductDescription>"
                             + "<UnitCode>" + info.UnitCode + "</UnitCode>"
                             + "<ProductUnitBC>" + info.UnitBc + "</ProductUnitBC>"
-                            + "<ProductUnitSizeDescription>" + SysCommon.AddXMLReservedChars(info.UnitSizeDesc)
+                            + "<ProductUnitSizeDescription>" + SysCommon.AddXmlReservedChars(info.UnitSizeDesc)
                             + "</ProductUnitSizeDescription>"
                             + "</params>");
                     }
@@ -2565,7 +2565,7 @@ namespace dMobile.View.Activity
                     await this.ActItem.AssignActivityItem(this.ActItem.SelectedItem);
 
                     var currentSkid = this.ActItem.ActHdr.SkidInfo.CurrSkid;
-                    if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno != 0)
+                    if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFkRefno != 0)
                     {
                         if (currentSkid.ProdInfo.Refno != this.ActItem.ProdInfo.Refno)
                         {
@@ -2589,7 +2589,7 @@ namespace dMobile.View.Activity
 
                     await this.ActItem.UpdateItemTableQuantity(this.ActItem.SelectedItem);
 
-                    if (currentSkid.SkidFKRefno != 0)
+                    if (currentSkid.SkidFkRefno != 0)
                     {
                         this.cmdAddSkidIsEnabled = true;
                         this.cmdSelectSkidText = "Skid# " + currentSkid.SkidCode;

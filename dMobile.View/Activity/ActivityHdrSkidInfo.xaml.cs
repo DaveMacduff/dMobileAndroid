@@ -79,7 +79,7 @@ namespace dMobile.View.Activity
             this.CallingActFkRefno = activity.HdrFkRefno;
             this.CallingActItemFkRefno = 0;
             this.ActivityType = activityType;
-            if (activity.SkidInfo.CurrSkid.SkidFKRefno <= 0)
+            if (activity.SkidInfo.CurrSkid.SkidFkRefno <= 0)
             {
                 this.IsChangesMade = true;
                 this.IsCallerSkidLoaded = false;
@@ -132,7 +132,7 @@ namespace dMobile.View.Activity
             this.CallingActFkRefno = actItem.ActHdr.HdrFkRefno;
             this.CallingActItemFkRefno = actItem.ItemFkRefno;
             this.ActivityType = activityType;
-            if (actItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno <= 0)
+            if (actItem.ActHdr.SkidInfo.CurrSkid.SkidFkRefno <= 0)
             {
                 this.IsChangesMade = true;
                 this.IsCallerSkidLoaded = false;
@@ -383,7 +383,7 @@ namespace dMobile.View.Activity
             var skidInfo = this.SkidInfo.CurrSkid;
 
             XDocument xmlDoc;
-            if (skidInfo.SkidFKRefno == 0)
+            if (skidInfo.SkidFkRefno == 0)
             {
                 var dt = new DateTime(1900, 1, 1);
                 xmlDoc = XDocument.Parse(
@@ -424,8 +424,8 @@ namespace dMobile.View.Activity
                 xmlDoc = XDocument.Parse(
                     "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                     + "<params>"
-                    + "<skid_fk_refno>" + skidInfo.SkidFKRefno + "</skid_fk_refno>"
-                    + "<chep>" + skidInfo.IsCHEP + "</chep>"
+                    + "<skid_fk_refno>" + skidInfo.SkidFkRefno + "</skid_fk_refno>"
+                    + "<chep>" + skidInfo.IsChep + "</chep>"
                     + "<hold>" + skidInfo.IsHold + "</hold>"
                     + "<base_quantity>" + skidInfo.BaseQuantity + "</base_quantity>"
                     + "<cube>" + skidInfo.Cube + "</cube>"
@@ -676,7 +676,7 @@ namespace dMobile.View.Activity
         /// </summary>
         private async Task InitSkidInfo()
         {
-            if (this.SkidInfo.CurrSkid.SkidFKRefno <= 0)
+            if (this.SkidInfo.CurrSkid.SkidFkRefno <= 0)
             {
                 this.IsCallerSkidLoaded = false;
                 this.SkidInfo.CurrSkid = new SSkidInfo();
@@ -1047,7 +1047,7 @@ namespace dMobile.View.Activity
                             break;
 
                         case SysShared.ActivityType.Items:
-                            if (scannedSkidInfo.CurrSkid.SkidFKRefno <= 0)
+                            if (scannedSkidInfo.CurrSkid.SkidFkRefno <= 0)
                             {
                                 const string msg = "This skid does not currently exist. Also creating a new skid" +
                                                    " can on be performed on the line item detail level.";
@@ -1055,8 +1055,8 @@ namespace dMobile.View.Activity
                             }
 
                             // If the skid scanned is not the same as the current skid.
-                            if (this.SkidInfo.CurrSkid.SkidFKRefno > 0 &&
-                                scannedSkidInfo.CurrSkid.SkidFKRefno != this.SkidInfo.CurrSkid.SkidFKRefno)
+                            if (this.SkidInfo.CurrSkid.SkidFkRefno > 0 &&
+                                scannedSkidInfo.CurrSkid.SkidFkRefno != this.SkidInfo.CurrSkid.SkidFkRefno)
                             {
                                 // If the skid scanned is not in the current warehouse location.
                                 if (scannedSkidInfo.CurrSkid.LocMap.WhsLocMapRefno > 0 &&
@@ -1084,7 +1084,7 @@ namespace dMobile.View.Activity
 
                         case SysShared.ActivityType.Details:
                             if (this.SysEnv.SysSettings.IsPickDisableMakeSkid &&
-                                scannedSkidInfo.CurrSkid.SkidFKRefno <= 0 &&
+                                scannedSkidInfo.CurrSkid.SkidFkRefno <= 0 &&
                                 (this.CallingActSubType == SysCommon.ActSubTypes.Picking ||
                                  this.CallingActSubType == SysCommon.ActSubTypes.PickingSingle))
                             {
@@ -1428,7 +1428,7 @@ namespace dMobile.View.Activity
             {
                 await this.ScannerDisable();
 
-                if (this.SkidInfo.CurrSkid.SkidFKRefno == 0)
+                if (this.SkidInfo.CurrSkid.SkidFkRefno == 0)
                 {
                     const string msg = "A skid code is required to see it's details.";
                     throw new MessageOnlyException(msg);
@@ -1450,13 +1450,13 @@ namespace dMobile.View.Activity
 
                 // Create the activity skid detail, activity item.
                 var activity = ActivityFacade.GetActivity(SysCommon.ActSubTypes.SkidInfo);
-                activity.HdrFkRefno = this.SkidInfo.CurrSkid.SkidFKRefno;
-                activity.HdrRefno = this.SkidInfo.CurrSkid.SkidFKRefno;
+                activity.HdrFkRefno = this.SkidInfo.CurrSkid.SkidFkRefno;
+                activity.HdrRefno = this.SkidInfo.CurrSkid.SkidFkRefno;
                 activity.SkidInfo = this.SkidInfo;
 
                 var actItem = ActItemFacade.GetActItem(activity, SysCommon.ActSubTypes.SkidInfo);
-                actItem.ItemFkRefno = this.SkidInfo.CurrSkid.SkidFKRefno;
-                actItem.ItemRefno = this.SkidInfo.CurrSkid.SkidFKRefno;
+                actItem.ItemFkRefno = this.SkidInfo.CurrSkid.SkidFkRefno;
+                actItem.ItemRefno = this.SkidInfo.CurrSkid.SkidFkRefno;
                 actItem.LocMap = this.SkidInfo.CurrSkid.LocMap;
                 actItem.ProdInfo = this.SkidInfo.CurrSkid.ProdInfo;
 

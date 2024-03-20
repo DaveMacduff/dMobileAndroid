@@ -811,7 +811,7 @@ namespace dMobile.View.Activity
 
                     // If there is a selected skid check if the scanned product matches.
                     var currSkid = this.ActDetail.ActItem.ActHdr.SkidInfo.CurrSkid;
-                    if (currSkid.SkidFKRefno != 0)
+                    if (currSkid.SkidFkRefno != 0)
                     {
                         if (currSkid.ProdInfo.UnitRefno != prodUnitRefno)
                         {
@@ -839,7 +839,7 @@ namespace dMobile.View.Activity
                         // with the default skid schema.
                         var tempItemProdSchemeData = new ActItemSchemeData();
                         var schemeData = this.ActDetail.SchemeData;
-                        if (currSkid.SkidFKRefno != 0)
+                        if (currSkid.SkidFkRefno != 0)
                         {
                             schemeData.LogisticUnitSkidNumber = currSkid.SkidCode;
                             schemeData.LogisticUnitBatchLotNumber = currSkid.SchemeData.LogisticUnitBatchLotNumber;
@@ -1183,7 +1183,7 @@ namespace dMobile.View.Activity
                 var tempItemProdSchemeData = new ActItemSchemeData();
                 var schemeData = this.ActDetail.SchemeData;
                 var skidInfo = this.ActDetail.ActItem.ActHdr.SkidInfo.CurrSkid;
-                if (skidInfo.SkidFKRefno == 0)
+                if (skidInfo.SkidFkRefno == 0)
                 {
                     schemeData.LogisticUnitSkidNumber = string.Empty;
                     schemeData.LogisticUnitBatchLotNumber = string.Empty;

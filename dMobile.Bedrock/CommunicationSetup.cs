@@ -294,7 +294,7 @@ namespace dMobile.Bedrock
         {
             var xmlString = new StringBuilder();
             var xml = XmlWriter.Create(xmlString);
-            var deviceId = SysDeviceID.GetDeviceID();
+            var deviceId = SysDeviceId.GetDeviceId();
 
             var request = new XDocument(
                 new XDeclaration("1.0", "utf-8", "yes"),

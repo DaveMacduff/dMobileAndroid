@@ -193,7 +193,7 @@ namespace dMobile.BarCodeScanner
                     new XElement(
                         "imclient",
                         new XElement("command", new XElement("action", "REQUEST PRODUCT FROM BARCODE")),
-                        new XElement("device_id", sysEnv.DeviceID),
+                        new XElement("device_id", sysEnv.DeviceId),
                         new XElement("login_id", sysEnv.ContactLog.LoginID.ToString()),
                         new XElement("revision_datetime", revisionDateTime),
                         new XElement("stamp", currentDateTime),

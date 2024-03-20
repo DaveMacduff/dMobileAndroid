@@ -689,11 +689,11 @@ namespace dMobile.View.Activity
                         var skid = await SysSkidInfo.GetSkidInfoFromBarCodeOrCode(
                             scanArgs.ParseInfo.SSCC18);
 
-                        if (skid.CurrSkid.SkidFKRefno > 0)
+                        if (skid.CurrSkid.SkidFkRefno > 0)
                         {
                             //// AddScanMsg(sender, BarCodeScanArgs, "Skid identified")
                             await this.AddScanMsg($"Code: {skid.CurrSkid.LogisticUnitSkidCode}");
-                            await this.AddScanMsg($"Refno: {skid.CurrSkid.SkidFKRefno}");
+                            await this.AddScanMsg($"Refno: {skid.CurrSkid.SkidFkRefno}");
                             await this.AddScanMsg($"Number: {skid.CurrSkid.SkidCode}");
 
                             var locReadable = LocationMapTasks.GetReadableLocation(
@@ -711,7 +711,7 @@ namespace dMobile.View.Activity
                             await this.AddScanMsg($"Cube: {skid.CurrSkid.Cube} {skid.CurrSkid.CubeUnit}");
                             await this.AddScanMsg($"Height: {skid.CurrSkid.Height} {skid.CurrSkid.HeightUnit}");
                             await this.AddScanMsg($"Ti/Hi: {skid.CurrSkid.Ti}/{skid.CurrSkid.Hi}");
-                            await this.AddScanMsg($"CHEP: {skid.CurrSkid.IsCHEP}");
+                            await this.AddScanMsg($"CHEP: {skid.CurrSkid.IsChep}");
                             await this.AddScanMsg($"Completed: {skid.CurrSkid.IsCompleted}");
                             await this.AddScanMsg($"Consumed: {skid.CurrSkid.IsConsumed}");
                         }

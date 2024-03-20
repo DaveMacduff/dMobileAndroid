@@ -237,11 +237,11 @@ namespace dMobile.View.Menus
 
                 this.cmdInventory.IsEnabled = false;
                 if ((this.SysEnv.IsCommunicationTestSuccessful || this.SysEnv.SysSettings.IsDisconnectedMode)
-                    && this.SysEnv.ContactLog.LoginID != SysCommon.SetupLoginID
+                    && this.SysEnv.ContactLog.LoginID != SysCommon.SetupLoginId
                     && !this.SysEnv.RefreshOpt.IsRefreshDataFailed)
                 {
                     if (this.SysEnv.SysSettings.IsInventoryAdjustmentModule
-                        || this.SysEnv.ContactLog.LoginID == SysCommon.SystemLoginID)
+                        || this.SysEnv.ContactLog.LoginID == SysCommon.SystemLoginId)
                     {
                         this.cmdInventory.IsEnabled = true;
                     }
@@ -249,11 +249,11 @@ namespace dMobile.View.Menus
 
                 this.cmdProduction.IsEnabled = false;
                 if ((this.SysEnv.IsCommunicationTestSuccessful || this.SysEnv.SysSettings.IsDisconnectedMode)
-                    && this.SysEnv.ContactLog.LoginID != SysCommon.SetupLoginID
+                    && this.SysEnv.ContactLog.LoginID != SysCommon.SetupLoginId
                     && !this.SysEnv.RefreshOpt.IsRefreshDataFailed)
                 {
                     if (this.SysEnv.SysSettings.IsInventoryAdjustmentModule
-                        || this.SysEnv.ContactLog.LoginID == SysCommon.SystemLoginID)
+                        || this.SysEnv.ContactLog.LoginID == SysCommon.SystemLoginId)
                     {
                         this.cmdProduction.IsEnabled = true;
                     }
@@ -261,11 +261,11 @@ namespace dMobile.View.Menus
 
                 this.cmdRework.IsEnabled = false;
                 if ((this.SysEnv.IsCommunicationTestSuccessful || this.SysEnv.SysSettings.IsDisconnectedMode)
-                    && this.SysEnv.ContactLog.LoginID != SysCommon.SetupLoginID
+                    && this.SysEnv.ContactLog.LoginID != SysCommon.SetupLoginId
                     && !this.SysEnv.RefreshOpt.IsRefreshDataFailed)
                 {
                     if (this.SysEnv.SysSettings.IsInventoryAdjustmentModule
-                        || this.SysEnv.ContactLog.LoginID == SysCommon.SystemLoginID)
+                        || this.SysEnv.ContactLog.LoginID == SysCommon.SystemLoginId)
                     {
                         this.cmdRework.IsEnabled = true;
                     }
@@ -273,11 +273,11 @@ namespace dMobile.View.Menus
 
                 this.cmdRequisition.IsEnabled = false;
                 if ((this.SysEnv.IsCommunicationTestSuccessful || this.SysEnv.SysSettings.IsDisconnectedMode)
-                    && this.SysEnv.ContactLog.LoginID != SysCommon.SetupLoginID
+                    && this.SysEnv.ContactLog.LoginID != SysCommon.SetupLoginId
                     && !this.SysEnv.RefreshOpt.IsRefreshDataFailed)
                 {
                     if (this.SysEnv.SysSettings.IsInventoryAdjustmentModule
-                        || this.SysEnv.ContactLog.LoginID == SysCommon.SystemLoginID)
+                        || this.SysEnv.ContactLog.LoginID == SysCommon.SystemLoginId)
                     {
                         this.cmdRequisition.IsEnabled = true;
                     }
@@ -285,11 +285,11 @@ namespace dMobile.View.Menus
 
                 this.cmdDisposal.IsEnabled = false;
                 if ((this.SysEnv.IsCommunicationTestSuccessful || this.SysEnv.SysSettings.IsDisconnectedMode)
-                    && this.SysEnv.ContactLog.LoginID != SysCommon.SetupLoginID
+                    && this.SysEnv.ContactLog.LoginID != SysCommon.SetupLoginId
                     && !this.SysEnv.RefreshOpt.IsRefreshDataFailed)
                 {
                     if (this.SysEnv.SysSettings.IsInventoryAdjustmentModule
-                        || this.SysEnv.ContactLog.LoginID == SysCommon.SystemLoginID)
+                        || this.SysEnv.ContactLog.LoginID == SysCommon.SystemLoginId)
                     {
                         this.cmdDisposal.IsEnabled = true;
                     }
@@ -297,11 +297,11 @@ namespace dMobile.View.Menus
 
                 this.cmdConvertProduct.IsEnabled = false;
                 if ((this.SysEnv.IsCommunicationTestSuccessful || this.SysEnv.SysSettings.IsDisconnectedMode)
-                    && this.SysEnv.ContactLog.LoginID != SysCommon.SetupLoginID
+                    && this.SysEnv.ContactLog.LoginID != SysCommon.SetupLoginId
                     && !this.SysEnv.RefreshOpt.IsRefreshDataFailed)
                 {
                     if (this.SysEnv.SysSettings.IsInventoryAdjustmentModule
-                        || this.SysEnv.ContactLog.LoginID == SysCommon.SystemLoginID)
+                        || this.SysEnv.ContactLog.LoginID == SysCommon.SystemLoginId)
                     {
                         this.cmdConvertProduct.IsEnabled = true;
                     }

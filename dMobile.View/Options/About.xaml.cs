@@ -225,7 +225,7 @@ namespace dMobile.View.Options
             if (!this.IsControlLoaded)
             {
                 this.IsControlLoaded = true;
-                this.lblDeviceIDData.Text = SysCommon.WordWrap2String(SysDeviceID.GetDeviceID(), 30);
+                this.lblDeviceIDData.Text = SysCommon.WordWrap2String(SysDeviceId.GetDeviceId(), 30);
             }
         }
 

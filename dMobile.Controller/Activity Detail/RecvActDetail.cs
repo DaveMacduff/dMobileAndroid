@@ -1102,7 +1102,7 @@ namespace dMobile.Controller.Activity_Detail
                     + "<pono>" + ((RecvActivity)this.ActItem.ActHdr).Pono + "</pono>"
                     + "<ord_qty>" + this.Quantity + "</ord_qty>"
                     + "<ord_unit>" + this.ActItem.ProdInfo.UnitCode + "</ord_unit>"
-                    + "<skid_fk_refno>" + this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno + "</skid_fk_refno>"
+                    + "<skid_fk_refno>" + this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFkRefno + "</skid_fk_refno>"
                     + "</imclient>");
             }
             else
@@ -1168,7 +1168,7 @@ namespace dMobile.Controller.Activity_Detail
                     + "<pono>" + ((RecvActivity)this.ActItem.ActHdr).Pono + "</pono>"
                     + "<ord_qty>" + this.Quantity + "</ord_qty>"
                     + "<ord_unit>" + this.ActItem.ProdInfo.UnitCode + "</ord_unit>"
-                    + "<skid_fk_refno>" + this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno + "</skid_fk_refno>"
+                    + "<skid_fk_refno>" + this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFkRefno + "</skid_fk_refno>"
                     + "</imclient>");
             }
             else

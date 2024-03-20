@@ -21,9 +21,9 @@ namespace dMobile.Bedrock
         private string receiveEOM = "</EOM>" + (char)20;
 
         /// <summary>
-        /// Defines the recvTimeOutMilliseconds.
+        /// Defines the receive time out milliseconds.
         /// </summary>
-        private int recvTimeOutMilliseconds = 4102;
+        private int receiveTimeOutMilliseconds = 4102;
 
         /// <summary>
         /// The OnSysSocketStatusOutEventHandler.
@@ -104,9 +104,9 @@ namespace dMobile.Bedrock
         /// </summary>
         public int ReceiveTimeOutMilliseconds
         {
-            get => this.recvTimeOutMilliseconds;
+            get => this.receiveTimeOutMilliseconds;
 
-            set => this.recvTimeOutMilliseconds = value;
+            set => this.receiveTimeOutMilliseconds = value;
         }
 
         /// <summary>

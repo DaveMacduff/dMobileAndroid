@@ -456,7 +456,7 @@ namespace dMobile.Controller.Activity_Item
                 if (this.SysEnv.SysSettings.IsVerifyProductLocation)
                 {
                     var skidInfo = this.ActHdr.SkidInfo.CurrSkid;
-                    if (skidInfo.SkidFKRefno > 0 && skidInfo.ProdInfo.Refno == this.ProdInfo.Refno &&
+                    if (skidInfo.SkidFkRefno > 0 && skidInfo.ProdInfo.Refno == this.ProdInfo.Refno &&
                         skidInfo.LocMap.WhsLocMapRefno == itemLocMap.WhsLocMapRefno)
                     {
                         if (await LocationMapTasks.IsCompleteLocMap(skidInfo.LocMap))

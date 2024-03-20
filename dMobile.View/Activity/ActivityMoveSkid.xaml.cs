@@ -135,7 +135,7 @@ namespace dMobile.View.Activity
             try
             {
                 isReadyToSave = await LocationMapTasks.IsCompleteLocMap(this.LocMap.CurrLocMapRefno);
-                isReadyToSave = isReadyToSave && this.SkidInfo.CurrSkid.SkidFKRefno != 0;
+                isReadyToSave = isReadyToSave && this.SkidInfo.CurrSkid.SkidFkRefno != 0;
             }
             catch (MessageOnlyException msgEx)
             {
@@ -213,7 +213,7 @@ namespace dMobile.View.Activity
         public async Task<XDocument> GetXml()
         {
             XDocument xmlDoc;
-            if (this.SkidInfo.CurrSkid.SkidFKRefno == 0)
+            if (this.SkidInfo.CurrSkid.SkidFkRefno == 0)
             {
                 xmlDoc = XDocument.Parse(
                     "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
@@ -241,8 +241,8 @@ namespace dMobile.View.Activity
                 xmlDoc = XDocument.Parse(
                     "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                     + "<params>"
-                    + "<skid_fk_refno>" + this.SkidInfo.CurrSkid.SkidFKRefno + "</skid_fk_refno>"
-                    + "<chep>" + this.SkidInfo.CurrSkid.IsCHEP + "</chep>"
+                    + "<skid_fk_refno>" + this.SkidInfo.CurrSkid.SkidFkRefno + "</skid_fk_refno>"
+                    + "<chep>" + this.SkidInfo.CurrSkid.IsChep + "</chep>"
                     + "<hold>" + this.SkidInfo.CurrSkid.IsHold + "</hold>"
                     + "<base_quantity>" + this.SkidInfo.CurrSkid.BaseQuantity + "</base_quantity>"
                     + "<cube>" + this.SkidInfo.CurrSkid.Cube + "</cube>"
@@ -595,7 +595,7 @@ namespace dMobile.View.Activity
                     {
                         this.SkidInfo = await SysSkidInfo.GetSkidInfoFromBarCodeOrCode(parse.SSCC18);
 
-                        if (this.SkidInfo.CurrSkid.SkidFKRefno != 0)
+                        if (this.SkidInfo.CurrSkid.SkidFkRefno != 0)
                         {
                             this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
                                 this.SkidInfo.CurrSkid.LocMapRefno);
@@ -638,7 +638,7 @@ namespace dMobile.View.Activity
         {
             this.ExtraInfoItems.Clear();
 
-            if (this.SkidInfo.CurrSkid.SkidFKRefno != 0)
+            if (this.SkidInfo.CurrSkid.SkidFkRefno != 0)
             {
                 this.txtSkidCode.Text = this.SkidInfo.CurrSkid.SkidCode;
 
@@ -658,7 +658,7 @@ namespace dMobile.View.Activity
                 this.ExtraInfoItems.Add($"Ti: {this.SkidInfo.CurrSkid.Ti} Hi: {this.SkidInfo.CurrSkid.Hi}");
                 this.ExtraInfoItems.Add($"Height: {this.SkidInfo.CurrSkid.Height} {this.SkidInfo.CurrSkid.HeightUnit}");
                 this.ExtraInfoItems.Add($"Cube: {this.SkidInfo.CurrSkid.Cube} {this.SkidInfo.CurrSkid.CubeUnit}");
-                this.ExtraInfoItems.Add($"CHEP: {this.SkidInfo.CurrSkid.IsCHEP}");
+                this.ExtraInfoItems.Add($"CHEP: {this.SkidInfo.CurrSkid.IsChep}");
                 this.ExtraInfoItems.Add($"Hold: {this.SkidInfo.CurrSkid.IsHold}");
             }
             else
@@ -675,7 +675,7 @@ namespace dMobile.View.Activity
             try
             {
                 this.SkidInfo = await SysSkidInfo.GetSkidInfoFromBarCodeOrCode(this.txtSkidCode.Text);
-                if (this.SkidInfo.CurrSkid.SkidFKRefno != 0)
+                if (this.SkidInfo.CurrSkid.SkidFkRefno != 0)
                 {
                     this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
                         this.SkidInfo.CurrSkid.LocMapRefno);

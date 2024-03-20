@@ -306,7 +306,7 @@ namespace dMobile.GroundWork
             };
             var xml = XmlWriter.Create(xmlString, settings);
 
-            var deviceID = SysDeviceID.GetDeviceID();
+            var deviceID = SysDeviceId.GetDeviceId();
             var revision = new DateTime(1900, 1, 1).ToString("yyyy\'-\'MM\'-\'dd\'T\'HH\':\'mm\':\'ss");
             var loginID = this.SysEnv.ContactLog.LoginID.ToString();
 

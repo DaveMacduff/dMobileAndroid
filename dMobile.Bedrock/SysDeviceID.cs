@@ -1,4 +1,4 @@
-﻿// <copyright file="SysDeviceID.cs" company="InterSect Business Systems Inc">
+﻿// <copyright file="SysDeviceId.cs" company="InterSect Business Systems Inc">
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
@@ -11,28 +11,32 @@ namespace dMobile.Bedrock
     using Java.Util;
 
     /// <summary>
-    /// Defines the <see cref="SysDeviceID" />.
+    /// Defines the <see cref="SysDeviceId" />.
     /// </summary>
-    public class SysDeviceID
+    public class SysDeviceId
     {
         /// <summary>
         /// Get the Google Wide Vine SN.
         /// </summary>
         /// <returns><see cref="string"/> Wide vine serial number.</returns>
-        public static string GetWidevineSN()
+        public static string GetWidevineSn()
         {
             var sRet = string.Empty;
-            var wideVineUUID = new UUID(-0x121074568629b532L, -0x5c37d8232ae2de13L);
+            var wideVineUuid = new UUID(-0x121074568629b532L, -0x5c37d8232ae2de13L);
             MediaDrm mediaDrm = null;
 
             try
             {
-                mediaDrm = new MediaDrm(wideVineUUID);
+                mediaDrm = new MediaDrm(wideVineUuid);
                 var widevineId = mediaDrm.GetPropertyByteArray(MediaDrm.PropertyDeviceUniqueId);
 
                 var md = MessageDigest.GetInstance("SHA-256");
-                md.Update(widevineId);
-                sRet = BitConverter.ToString(md.Digest());
+                if (md != null)
+                {
+                    md.Update(widevineId);
+                    sRet = BitConverter.ToString(md.Digest() ?? Array.Empty<byte>());
+                }
+
                 sRet = sRet.Replace("-", string.Empty);
             }
             catch
@@ -62,12 +66,12 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// The GetDeviceID.
+        /// The GetDeviceId.
         /// </summary>
         /// <returns>.</returns>
-        public static string GetDeviceID()
+        public static string GetDeviceId()
         {
-            return GetWidevineSN();
+            return GetWidevineSn();
         }
     }
 }

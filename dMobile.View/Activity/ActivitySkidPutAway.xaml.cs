@@ -284,7 +284,7 @@ namespace dMobile.View.Activity
 
                     var tmpSkidInfo = await SysSkidInfo.GetSkidInfoFromXml(xmlDoc);
 
-                    if (tmpSkidInfo.CurrSkid.SkidFKRefno != 0)
+                    if (tmpSkidInfo.CurrSkid.SkidFkRefno != 0)
                     {
                         this.Activity.SkidInfo = tmpSkidInfo;
                         this.cmdAddProduct.IsEnabled = true;
@@ -306,11 +306,11 @@ namespace dMobile.View.Activity
                         this.cmdLocation.Text =
                             LocationMapTasks.GetReadableLocation(this.Activity.SkidInfo.CurrSkid.LocMap);
 
-                        this.Activity.HdrFkRefno = this.Activity.SkidInfo.CurrSkid.SkidFKRefno;
-                        this.Activity.HdrRefno = this.Activity.SkidInfo.CurrSkid.SkidFKRefno;
+                        this.Activity.HdrFkRefno = this.Activity.SkidInfo.CurrSkid.SkidFkRefno;
+                        this.Activity.HdrRefno = this.Activity.SkidInfo.CurrSkid.SkidFkRefno;
 
-                        this.ActItem.ItemFkRefno = this.Activity.SkidInfo.CurrSkid.SkidFKRefno;
-                        this.ActItem.ItemRefno = this.Activity.SkidInfo.CurrSkid.SkidFKRefno;
+                        this.ActItem.ItemFkRefno = this.Activity.SkidInfo.CurrSkid.SkidFkRefno;
+                        this.ActItem.ItemRefno = this.Activity.SkidInfo.CurrSkid.SkidFkRefno;
                         this.ActItem.LocMap = this.LocMap.CurrLocMap;
                         this.ActItem.ProdInfo = this.Activity.SkidInfo.CurrSkid.ProdInfo;
                         this.ActItem.ProdInfo.Unit2BaseUnitFactor =
@@ -381,7 +381,7 @@ namespace dMobile.View.Activity
         {
             try
             {
-                if (this.Activity.SkidInfo.CurrSkid.SkidFKRefno != 0)
+                if (this.Activity.SkidInfo.CurrSkid.SkidFkRefno != 0)
                 {
                     this.IsIndicatorRunning = true;
                     await this.ScannerDisable();
@@ -557,7 +557,7 @@ namespace dMobile.View.Activity
                 {
                     // Expect the control to close.
                     // Clear any properties.
-                    if (this.Activity.SkidInfo.CurrSkid.SkidFKRefno != 0)
+                    if (this.Activity.SkidInfo.CurrSkid.SkidFkRefno != 0)
                     {
                         if (await Device.InvokeOnMainThreadAsync(async () =>
                                 await this.DisplayAlert("Skid Put Away", "Do you wish to put away another skid?", "Yes",
@@ -630,7 +630,7 @@ namespace dMobile.View.Activity
             {
                 if (isReadyToSave)
                 {
-                    if (this.Activity.SkidInfo.CurrSkid.SkidFKRefno == 0)
+                    if (this.Activity.SkidInfo.CurrSkid.SkidFkRefno == 0)
                     {
                         isReadyToSave = false;
                     }
@@ -800,12 +800,12 @@ namespace dMobile.View.Activity
             });
 
             this.Activity.SkidInfo = new SysSkidInfo();
-            this.Activity.HdrFkRefno = this.Activity.SkidInfo.CurrSkid.SkidFKRefno;
-            this.Activity.HdrRefno = this.Activity.SkidInfo.CurrSkid.SkidFKRefno;
+            this.Activity.HdrFkRefno = this.Activity.SkidInfo.CurrSkid.SkidFkRefno;
+            this.Activity.HdrRefno = this.Activity.SkidInfo.CurrSkid.SkidFkRefno;
 
             this.ActItem = ActItemFacade.GetActItem(this.Activity, this.ActSubType);
-            this.ActItem.ItemFkRefno = this.Activity.SkidInfo.CurrSkid.SkidFKRefno;
-            this.ActItem.ItemRefno = this.Activity.SkidInfo.CurrSkid.SkidFKRefno;
+            this.ActItem.ItemFkRefno = this.Activity.SkidInfo.CurrSkid.SkidFkRefno;
+            this.ActItem.ItemRefno = this.Activity.SkidInfo.CurrSkid.SkidFkRefno;
 
             this.ActDetailOnSkid = ActDetailFacade.GetActDetail(this.ActItem, SysCommon.ActSubTypes.SkidInfo);
             this.ActDetailOnSkid.ActItem = this.ActItem;
@@ -961,7 +961,7 @@ namespace dMobile.View.Activity
                 _ = request.AppendFormat("<base_qty>{0}</base_qty>",
                     Convert.ToDecimal(skidDetail[idx].GetType().GetProperty("ActivityDetailBaseQuantity")
                         ?.GetValue(skidDetail[idx])) * -1);
-                _ = request.AppendFormat("<skid_fk_refno>{0}</skid_fk_refno>", currSkid.SkidFKRefno);
+                _ = request.AppendFormat("<skid_fk_refno>{0}</skid_fk_refno>", currSkid.SkidFkRefno);
                 _ = request.AppendFormat("<extra1>{0}</extra1>", this.ActDetailOnSkid.ActExtra.Text1);
                 _ = request.AppendFormat("<extra2>{0}</extra2>", this.ActDetailOnSkid.ActExtra.Text2);
                 _ = request.AppendFormat("<extra3>{0}</extra3>", this.ActDetailOnSkid.ActExtra.Text3);
@@ -1017,7 +1017,7 @@ namespace dMobile.View.Activity
                     detail[idx].GetType().GetProperty("ActivityDetailWeightQuantity").GetValue(detail[idx]));
                 _ = request.AppendFormat("<base_qty>{0}</base_qty>",
                     detail[idx].GetType().GetProperty("ActivityDetailBaseQuantity").GetValue(detail[idx]));
-                _ = request.AppendFormat("<skid_fk_refno>{0}</skid_fk_refno>", currSkid.SkidFKRefno);
+                _ = request.AppendFormat("<skid_fk_refno>{0}</skid_fk_refno>", currSkid.SkidFkRefno);
                 _ = request.AppendFormat("<extra1>{0}</extra1>", this.ActDetail.ActExtra.Text1);
                 _ = request.AppendFormat("<extra2>{0}</extra2>", this.ActDetail.ActExtra.Text2);
                 _ = request.AppendFormat("<extra3>{0}</extra3>", this.ActDetail.ActExtra.Text3);
@@ -1170,7 +1170,7 @@ namespace dMobile.View.Activity
                             throw new MessageOnlyException("Location must be set first.");
                         }
 
-                        if (this.Activity.SkidInfo.CurrSkid.SkidFKRefno == 0)
+                        if (this.Activity.SkidInfo.CurrSkid.SkidFkRefno == 0)
                         {
                             throw new MessageOnlyException(
                                 "A skid must be selected first before scanning any product detail.");
@@ -1215,12 +1215,12 @@ namespace dMobile.View.Activity
                         this.Activity.SkidInfo =
                             await SysSkidInfo.GetSkidInfoFromBarCodeOrCode(scanArgs.ParseInfo.SSCC18);
 
-                        if (this.Activity.SkidInfo.CurrSkid.SkidFKRefno == 0)
+                        if (this.Activity.SkidInfo.CurrSkid.SkidFkRefno == 0)
                         {
                             throw new MessageOnlyException("Skid does not exist.");
                         }
 
-                        if (this.Activity.SkidInfo.CurrSkid.SkidFKRefno != 0)
+                        if (this.Activity.SkidInfo.CurrSkid.SkidFkRefno != 0)
                         {
                             _ = await Device.InvokeOnMainThreadAsync(() => this.cmdAddProduct.IsEnabled = true);
 
@@ -1241,11 +1241,11 @@ namespace dMobile.View.Activity
                                 this.cmdLocation.Text =
                                     LocationMapTasks.GetReadableLocation(this.Activity.SkidInfo.CurrSkid.LocMap));
 
-                            this.Activity.HdrFkRefno = this.Activity.SkidInfo.CurrSkid.SkidFKRefno;
-                            this.Activity.HdrRefno = this.Activity.SkidInfo.CurrSkid.SkidFKRefno;
+                            this.Activity.HdrFkRefno = this.Activity.SkidInfo.CurrSkid.SkidFkRefno;
+                            this.Activity.HdrRefno = this.Activity.SkidInfo.CurrSkid.SkidFkRefno;
 
-                            this.ActItem.ItemFkRefno = this.Activity.SkidInfo.CurrSkid.SkidFKRefno;
-                            this.ActItem.ItemRefno = this.Activity.SkidInfo.CurrSkid.SkidFKRefno;
+                            this.ActItem.ItemFkRefno = this.Activity.SkidInfo.CurrSkid.SkidFkRefno;
+                            this.ActItem.ItemRefno = this.Activity.SkidInfo.CurrSkid.SkidFkRefno;
                             this.ActItem.ProdInfo = this.Activity.SkidInfo.CurrSkid.ProdInfo;
                             this.ActItem.ProdInfo.Unit2BaseUnitFactor =
                                 await ProductInfoTasks.GetUnitRelationFactor(this.ActItem.ProdInfo);
@@ -1282,7 +1282,7 @@ namespace dMobile.View.Activity
                         msg,
                         Resource.OK));
 
-                if (this.ActDetailOnSkid.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno != 0)
+                if (this.ActDetailOnSkid.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFkRefno != 0)
                 {
                     _ = await Device.InvokeOnMainThreadAsync(() =>
                         this.cmdSelectSkid.Text =
@@ -1297,7 +1297,7 @@ namespace dMobile.View.Activity
             }
             catch (IsReadyToApplyException ex)
             {
-                if (this.ActDetailOnSkid.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno != 0)
+                if (this.ActDetailOnSkid.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFkRefno != 0)
                 {
                     _ = await Device.InvokeOnMainThreadAsync(() =>
                         this.cmdSelectSkid.Text =
@@ -1321,7 +1321,7 @@ namespace dMobile.View.Activity
             }
             catch (GatherProductDataException ex)
             {
-                if (this.ActDetailOnSkid.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno != 0)
+                if (this.ActDetailOnSkid.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFkRefno != 0)
                 {
                     _ = await Device.InvokeOnMainThreadAsync(() =>
                         this.cmdSelectSkid.Text =
@@ -1345,7 +1345,7 @@ namespace dMobile.View.Activity
             }
             catch (Exception ex)
             {
-                if (this.ActDetailOnSkid.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFKRefno != 0)
+                if (this.ActDetailOnSkid.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFkRefno != 0)
                 {
                     _ = await Device.InvokeOnMainThreadAsync(() =>
                         this.cmdSelectSkid.Text =

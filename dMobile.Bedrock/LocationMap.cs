@@ -15,12 +15,12 @@ namespace dMobile.Bedrock
         /// <summary>
         /// Define the current location map reference number.
         /// </summary>
-        private int currLocMapRefno = 0;
+        private int currLocMapRefno;
 
         /// <summary>
         /// Define the user chosen location map reference number.
         /// </summary>
-        private int chosenLocMapRefno = 0;
+        private int chosenLocMapRefno;
 
         /// <summary>
         /// Prevents a default instance of the <see cref="LocationMap"/> class from being created.

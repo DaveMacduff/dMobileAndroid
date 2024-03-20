@@ -21,11 +21,6 @@ namespace dMobile.Bedrock
         private string fileName = "dMobileRefreshDataOptions.xml";
 
         /// <summary>
-        /// Defines the systemData.
-        /// </summary>
-        private bool systemData = true;
-
-        /// <summary>
         /// Defines the refreshedDataLast.
         /// </summary>
         private DateTime refreshedDataLast = new DateTime(1900, 1, 1);
@@ -73,12 +68,7 @@ namespace dMobile.Bedrock
         /// <summary>
         /// Gets or sets a value indicating whether SystemData.
         /// </summary>
-        public bool SystemData
-        {
-            get => this.systemData;
-
-            set => this.systemData = value;
-        }
+        public bool SystemData { get; set; } = true;
 
         /// <summary>
         /// Gets or sets a value indicating whether Adjustments.

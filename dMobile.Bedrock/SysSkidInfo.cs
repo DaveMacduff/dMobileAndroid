@@ -2,7 +2,6 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
-#nullable enable
 namespace dMobile.Bedrock
 {
     using System;
@@ -39,8 +38,8 @@ namespace dMobile.Bedrock
                 string.Empty,
                 new XElement(
                     "params",
-                    new XElement("skid_fk_refno", skid.CurrSkid.SkidFKRefno),
-                    new XElement("chep", skid.CurrSkid.IsCHEP),
+                    new XElement("skid_fk_refno", skid.CurrSkid.SkidFkRefno),
+                    new XElement("chep", skid.CurrSkid.IsChep),
                     new XElement("hold", skid.CurrSkid.IsHold),
                     new XElement("base_quantity", skid.CurrSkid.BaseQuantity),
                     new XElement("cube", skid.CurrSkid.Cube),
@@ -105,7 +104,7 @@ namespace dMobile.Bedrock
 
                 var skid = new SSkidInfo
                 {
-                    SkidFKRefno = int.Parse(data.Root.Element("skid_fk_refno") !.Value),
+                    SkidFkRefno = int.Parse(data.Root.Element("skid_fk_refno") !.Value),
                     LogisticUnitSkidCode = data.Root.Element("logistic_unit_skid_code") !.Value,
                     SkidCode = data.Root.Element("skid_code") !.Value,
                 };
@@ -125,7 +124,7 @@ namespace dMobile.Bedrock
                 skid.WeightQuantity = decimal.Parse(data.Root.Element("weight_quantity") !.Value);
 
                 // Attributes.
-                skid.IsCHEP = bool.Parse(data.Root.Element("chep") !.Value);
+                skid.IsChep = bool.Parse(data.Root.Element("chep") !.Value);
                 skid.IsHold = bool.Parse(data.Root.Element("hold") !.Value);
                 skid.Ti = int.Parse(data.Root.Element("ti") !.Value);
                 skid.Hi = int.Parse(data.Root.Element("hi") !.Value);
@@ -183,7 +182,7 @@ namespace dMobile.Bedrock
                     new XElement(
                         "imclient",
                         new XElement("command", new XElement("action", "SUBMIT MOVE SKID")),
-                        new XElement("device_id", sysEnv.DeviceID),
+                        new XElement("device_id", sysEnv.DeviceId),
                         new XElement("login_id", sysEnv.ContactLog.LoginID.ToString()),
                         new XElement("revision_datetime", revision),
                         new XElement("stamp", current),
@@ -234,11 +233,11 @@ namespace dMobile.Bedrock
                 new XElement(
                     "imclient",
                     new XElement("command", new XElement("action", "SUBMIT UPDATE SKID")),
-                    new XElement("device_id", sysEnv.DeviceID),
+                    new XElement("device_id", sysEnv.DeviceId),
                     new XElement("login_id", sysEnv.ContactLog.LoginID.ToString()),
                     new XElement("revision_datetime", revision),
                     new XElement("stamp", current),
-                    new XElement("chep", skid.CurrSkid.IsCHEP),
+                    new XElement("chep", skid.CurrSkid.IsChep),
                     new XElement("hold", skid.CurrSkid.IsHold),
                     new XElement("base_quantity", skid.CurrSkid.BaseQuantity),
                     new XElement("cube", skid.CurrSkid.Cube),
@@ -258,7 +257,7 @@ namespace dMobile.Bedrock
                     new XElement("product_unit_bc", skid.CurrSkid.ProdInfo.UnitBc),
                     new XElement("product_unit_code", skid.CurrSkid.ProdInfo.UnitCode),
                     new XElement("completed", skid.CurrSkid.IsCompleted),
-                    new XElement("skid_fk_refno", skid.CurrSkid.SkidFKRefno),
+                    new XElement("skid_fk_refno", skid.CurrSkid.SkidFkRefno),
                     new XElement("putaway", skid.CurrSkid.IsPutAway)));
 
             request.Save(writer);
@@ -288,7 +287,7 @@ namespace dMobile.Bedrock
                 new XElement(
                     "imclient",
                     new XElement("command", new XElement("action", "SUBMIT COMPLETE SKID")),
-                    new XElement("device_id", sysEnv.DeviceID),
+                    new XElement("device_id", sysEnv.DeviceId),
                     new XElement("login_id", sysEnv.ContactLog.LoginID.ToString()),
                     new XElement("revision_datetime", revision),
                     new XElement("stamp", current),
@@ -326,7 +325,7 @@ namespace dMobile.Bedrock
                 new XElement(
                     "imclient",
                     new XElement("command", new XElement("action", "SUBMIT PRINT SKID LABEL")),
-                    new XElement("device_id", sysEnv.DeviceID),
+                    new XElement("device_id", sysEnv.DeviceId),
                     new XElement("login_id", sysEnv.ContactLog.LoginID.ToString()),
                     new XElement("revision_datetime", revision),
                     new XElement("stamp", current),
@@ -359,7 +358,7 @@ namespace dMobile.Bedrock
                 new XElement(
                     "imclient",
                     new XElement("command", new XElement("action", "REQUEST SKIDS")),
-                    new XElement("device_id", sysEnv.DeviceID),
+                    new XElement("device_id", sysEnv.DeviceId),
                     new XElement("login_id", sysEnv.ContactLog.LoginID.ToString()),
                     new XElement("revision_datetime", revision),
                     new XElement("stamp", current)));
@@ -399,12 +398,12 @@ namespace dMobile.Bedrock
                 new XElement(
                     "imclient",
                     new XElement("command", new XElement("action", "REQUEST SKID DETAIL")),
-                    new XElement("device_id", sysEnv.DeviceID),
+                    new XElement("device_id", sysEnv.DeviceId),
                     new XElement("login_id", sysEnv.ContactLog.LoginID.ToString()),
                     new XElement("revision_datetime", revision),
                     new XElement("stamp", current),
                     new XElement("whs_id", locMap.CurrLocMap.WhsFkRefno),
-                    new XElement("skid_fk_refno", skid.CurrSkid.SkidFKRefno),
+                    new XElement("skid_fk_refno", skid.CurrSkid.SkidFkRefno),
                     new XElement("is_negate_qty", "false")));
 
             request.Save(writer);
@@ -449,7 +448,7 @@ namespace dMobile.Bedrock
                 new XElement(
                     "imclient",
                     new XElement("command", new XElement("action", "SUBMIT CREATE SKID")),
-                    new XElement("device_id", sysEnv.DeviceID),
+                    new XElement("device_id", sysEnv.DeviceId),
                     new XElement("login_id", sysEnv.ContactLog.LoginID.ToString()),
                     new XElement("revision_datetime", revDateTime),
                     new XElement("stamp", currDateTime),
@@ -485,7 +484,7 @@ namespace dMobile.Bedrock
             result.LoadXml(responseData);
             skid = await SysSkidInfo.GetSkidInfoFromXml(skidData);
             var tempSkidInfo = skid.CurrSkid;
-            tempSkidInfo.SkidFKRefno = int.Parse(result.DocumentElement["skid_fk_refno"].InnerText);
+            tempSkidInfo.SkidFkRefno = int.Parse(result.DocumentElement["skid_fk_refno"].InnerText);
             tempSkidInfo.SkidCode = result.DocumentElement["skid_code"].InnerText;
             tempSkidInfo.LogisticUnitSkidCode = result.DocumentElement["logistic_unit_skid_code"].InnerText;
             skid.CurrSkid = tempSkidInfo;
@@ -511,7 +510,7 @@ namespace dMobile.Bedrock
                 new XElement(
                     "imclient",
                     new XElement("command", new XElement("action", "SUBMIT BREAK SKID")),
-                    new XElement("device_id", sysEnv.DeviceID),
+                    new XElement("device_id", sysEnv.DeviceId),
                     new XElement("login_id", sysEnv.ContactLog.LoginID.ToString()),
                     new XElement("revision_datetime", revDateTime),
                     new XElement("stamp", currDateTime),
@@ -594,7 +593,7 @@ namespace dMobile.Bedrock
 
                 var skidInfo = new SSkidInfo();
                 var nodeName = @"/VFPData/cskidinfo/skidfkrefno";
-                skidInfo.SkidFKRefno = int.Parse(result.SelectSingleNode(nodeName) !.InnerText);
+                skidInfo.SkidFkRefno = int.Parse(result.SelectSingleNode(nodeName) !.InnerText);
 
                 nodeName = @"/VFPData/cskidinfo/skidcode";
                 skidInfo.SkidCode = result.SelectSingleNode(nodeName) !.InnerText;
@@ -612,7 +611,7 @@ namespace dMobile.Bedrock
                 skidInfo.WeightQuantity = decimal.Parse(result.SelectSingleNode(nodeName) !.InnerText);
 
                 nodeName = "/VFPData/cskidinfo/skidischep";
-                skidInfo.IsCHEP = bool.Parse(result.SelectSingleNode(nodeName) !.InnerText);
+                skidInfo.IsChep = bool.Parse(result.SelectSingleNode(nodeName) !.InnerText);
 
                 nodeName = "/VFPData/cskidinfo/skidisonhold";
                 skidInfo.IsHold = bool.Parse(result.SelectSingleNode(nodeName) !.InnerText);
@@ -710,7 +709,7 @@ namespace dMobile.Bedrock
                     new XElement(
                         "imclient",
                         new XElement("command", new XElement("action", "REQUEST SKID INFO")),
-                        new XElement("device_id", sysEnv.DeviceID),
+                        new XElement("device_id", sysEnv.DeviceId),
                         new XElement("login_id", sysEnv.ContactLog.LoginID.ToString()),
                         new XElement("revision_datetime", revDateTime),
                         new XElement("stamp", currDateTime),
