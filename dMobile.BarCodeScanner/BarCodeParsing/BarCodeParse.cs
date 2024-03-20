@@ -11,7 +11,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
     /// Bar code parsing information.
     /// </summary>
     [Serializable]
-    public abstract class BarCodeParse : IDisposable
+    public abstract class BarCodeParse : IDisposable, ICloneable
     {
         /// <summary>
         /// Character used to identify the ending of a variable length AI.
@@ -1372,6 +1372,15 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         protected virtual string IdentifyLengthOr1stDimensionMeters(string barCodeData)
         {
             throw new NotImplementedException();
+        }
+
+        /// <summary>
+        ///     Clone the bar code parse object.
+        /// </summary>
+        /// <returns>Shallow cloned bar code parse instance.</returns>
+        public object Clone()
+        {
+            return (BarCodeParse)this.MemberwiseClone();
         }
     }
 }

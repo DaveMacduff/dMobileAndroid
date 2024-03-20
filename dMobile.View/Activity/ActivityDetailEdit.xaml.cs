@@ -257,12 +257,12 @@ namespace dMobile.View.Activity
         /// <returns><see cref="Task" /> Task operation.</returns>
         public async Task ScannerEnable()
         {
-            if (!this.Scanner.IsBarCodeScanEventHandlerAdded())
-            {
-                this.Scanner.BarCodeScan += this.BarCodeHandler;
-            }
+            ////if (!this.Scanner.IsBarCodeScanEventHandlerAdded())
+            ////{
+            ////    this.Scanner.BarCodeScan += this.BarCodeHandler;
+            ////}
 
-            await this.Scanner.EnableScanning();
+            ////await this.Scanner.EnableScanning();
         }
 
         /// <summary>

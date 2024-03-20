@@ -2423,6 +2423,7 @@ namespace dMobile.View.Activity
             finally
             {
                 await Task.Run(this.LoadAndBindData);
+                await this.ScannerEnable();
             }
 
             return;

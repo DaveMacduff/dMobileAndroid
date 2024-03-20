@@ -101,6 +101,11 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
             }
         }
 
+        /// <summary>
+        ///     Is the bar code a Chili product.
+        /// </summary>
+        /// <param name="barcode">Bar code string.</param>
+        /// <returns>True if is a chili bar code, else false.</returns>
         public bool IsChiliBarcode(string barcode)
         {
             return barcode.Length >= 8

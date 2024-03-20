@@ -36,6 +36,38 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
                 }
 
                 barCodeParse.ParseBarCodeData(barCodeData);
+                this.GTIN = barCodeParse.GTIN;
+                this.ProductIdentifier = barCodeParse.ProductIdentifier;
+                this.Remainder = barCodeParse.Remainder;
+                this.ActDetailFKRefno = barCodeParse.ActDetailFKRefno;
+                this.DeliScaleAmount = barCodeParse.DeliScaleAmount;
+                this.CompanyPrefix = barCodeParse.CompanyPrefix;
+                this.ItemReference = barCodeParse.ItemReference;
+                this.ActFKRefno = barCodeParse.ActFKRefno;
+                this.ActItemFKRefno = barCodeParse.ActItemFKRefno;
+                this.LogisticUnitCountOfTradeItems = barCodeParse.LogisticUnitCountOfTradeItems;
+                this.LocationIdentifier = barCodeParse.LocationIdentifier;
+                this.LogisticUnitBatchLotNumber = barCodeParse.LogisticUnitBatchLotNumber;
+                this.LogisticUnitProductionDate = barCodeParse.LogisticUnitProductionDate;
+                this.LogisticUnitBestBeforeSellByDate = barCodeParse.LogisticUnitBestBeforeSellByDate;
+                this.LogisticUnitExpiryUseByDate = barCodeParse.LogisticUnitExpiryUseByDate;
+                this.PackagingType = barCodeParse.PackagingType;
+                this.SSCC18 = barCodeParse.SSCC18;
+                this.ItemReference = barCodeParse.ItemReference;
+                this.GTINLogisticUnit = barCodeParse.GTINLogisticUnit;
+                this.SingleTradeItemSerialNumber = barCodeParse.SingleTradeItemSerialNumber;
+                this.LogisticUnitDueDate = barCodeParse.LogisticUnitDueDate;
+                this.LogisticUnitPackagingDate = barCodeParse.LogisticUnitPackagingDate;
+                this.LogisticUnitProductVariant = barCodeParse.LogisticUnitProductVariant;
+                this.NetWeightMetricKG = barCodeParse.NetWeightMetricKG;
+                this.NetWeightMetricKGFoundAI = barCodeParse.NetWeightMetricKGFoundAI;
+                this.NetWeightNonMetricLB = barCodeParse.NetWeightNonMetricLB;
+                this.NetWeightNonMetricLBFoundAI = barCodeParse.NetWeightNonMetricLBFoundAI;
+                this.GrossWeightMetricKG = barCodeParse.GrossWeightMetricKG;
+                this.GrossWeightMetricKGFoundAI = barCodeParse.GrossWeightMetricKGFoundAI;
+                this.GrossWeightNonMetricLB = barCodeParse.GrossWeightNonMetricLB;
+                this.GrossWeightNonMetricLBFoundAI = barCodeParse.GrossWeightNonMetricLBFoundAI;
+                this.LogisticUnitVariableCount = barCodeParse.LogisticUnitVariableCount;
             }
             else
             {
