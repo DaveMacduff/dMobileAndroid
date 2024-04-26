@@ -5,7 +5,6 @@
 namespace dMobile.GroundWork
 {
     using System;
-    using System.Collections.Generic;
     using System.Data;
     using System.Text;
     using System.Threading.Tasks;
@@ -140,7 +139,6 @@ namespace dMobile.GroundWork
                     ds.ReadXml(SysCommon.GetXmlReader(ref responseData), XmlReadMode.Auto);
 
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving warehouse locations.", false);
-
                     if (ds.Tables.Count != 0)
                     {
                         var progMax = Convert.ToInt32(ds.Tables["seg"].Rows.Count);
@@ -157,7 +155,9 @@ namespace dMobile.GroundWork
                             whsLocMapFKRefno = Convert.ToInt32(drow["WarehouseLocationMapFKRefno"]);
                             errMsg += Environment.NewLine + "Warehouse fk refno " + whsLocMapFKRefno;
 
-                            var resultsLocationMapWarehouse = transaction.Query<tLocationMapWarehouseModel>("SELECT * FROM tLocationMapWarehouse WHERE LocationMapWarehouseFKRefno = ?", whsLocMapFKRefno);
+                            var resultsLocationMapWarehouse = transaction.Query<tLocationMapWarehouseModel>(
+                                "SELECT * FROM tLocationMapWarehouse WHERE LocationMapWarehouseFKRefno = ?",
+                                whsLocMapFKRefno);
 
                             if (resultsLocationMapWarehouse?.Count > 0)
                             {
@@ -177,18 +177,15 @@ namespace dMobile.GroundWork
                             switch (locMapSubType)
                             {
                                 case (int)SysCommon.LocMapSubTypes.Warehouse:
-                                    errMsg += Environment.NewLine + "Map sub type = " + locMapSubType
-                                        + ", 'Warehouse'.";
+                                    errMsg += Environment.NewLine + "Map sub type = " + locMapSubType + ", 'Warehouse'.";
                                     break;
 
                                 case (int)SysCommon.LocMapSubTypes.Section:
-                                    errMsg += Environment.NewLine + "Map sub type = " + locMapSubType
-                                        + ", 'Section'.";
+                                    errMsg += Environment.NewLine + "Map sub type = " + locMapSubType + ", 'Section'.";
                                     break;
 
                                 case (int)SysCommon.LocMapSubTypes.Slot:
-                                    errMsg += Environment.NewLine + "Map sub type = " + locMapSubType
-                                        + ", 'Slot'.";
+                                    errMsg += Environment.NewLine + "Map sub type = " + locMapSubType + ", 'Slot'.";
                                     break;
 
                                 default:
@@ -204,7 +201,9 @@ namespace dMobile.GroundWork
                             switch (locMapSubType)
                             {
                                 case (int)SysCommon.LocMapSubTypes.Warehouse:
-                                    var resultsWarehouse = transaction.Query<tLocationMapWarehouseModel>("SELECT * FROM tLocationMapWarehouse WHERE LocationMapWarehouseFKRefno = ?", locMapFKRefno);
+                                    var resultsWarehouse = transaction.Query<tLocationMapWarehouseModel>(
+                                        "SELECT * FROM tLocationMapWarehouse WHERE LocationMapWarehouseFKRefno = ?",
+                                        locMapFKRefno);
 
                                     if (resultsWarehouse?.Count > 0)
                                     {
@@ -218,7 +217,9 @@ namespace dMobile.GroundWork
                                     break;
 
                                 case (int)SysCommon.LocMapSubTypes.Section:
-                                    var resultsLocationMapSection = transaction.Query<tLocationMapSectionModel>("SELECT * FROM tLocationMapSection WHERE LocationMapSectionFKRefno = ?", locMapFKRefno);
+                                    var resultsLocationMapSection = transaction.Query<tLocationMapSectionModel>(
+                                        "SELECT * FROM tLocationMapSection WHERE LocationMapSectionFKRefno = ?",
+                                        locMapFKRefno);
 
                                     if (resultsLocationMapSection?.Count > 0)
                                     {
@@ -232,7 +233,9 @@ namespace dMobile.GroundWork
                                     break;
 
                                 case (int)SysCommon.LocMapSubTypes.Slot:
-                                    var resultsLocationMapSlot = transaction.Query<tLocationMapSlotModel>("SELECT * FROM tLocationMapSlot WHERE LocationMapSlotFKRefno = ?", locMapFKRefno);
+                                    var resultsLocationMapSlot = transaction.Query<tLocationMapSlotModel>(
+                                        "SELECT * FROM tLocationMapSlot WHERE LocationMapSlotFKRefno = ?",
+                                        locMapFKRefno);
 
                                     if (resultsLocationMapSlot?.Count > 0)
                                     {
@@ -254,7 +257,8 @@ namespace dMobile.GroundWork
 
                             if (this.SysEnv.RefreshOpt.RefreshDataChangesOnly)
                             {
-                                var resultsWarehouseLocationMapType = transaction.Query<tWarehouseLocationMapTypeModel>("SELECT * FROM tWarehouseLocationMapType WHERE WarehouseLocationMapRefno = ? AND WarehouseLocationMapTypeEnum = ?", whsLocMapRefno, whsLocMapType);
+                                var resultsWarehouseLocationMapType = transaction.Query<tWarehouseLocationMapTypeModel>(
+                                    "SELECT * FROM tWarehouseLocationMapType WHERE WarehouseLocationMapRefno = ? AND WarehouseLocationMapTypeEnum = ?", whsLocMapRefno, whsLocMapType);
 
                                 if (resultsWarehouseLocationMapType?.Count > 0)
                                 {

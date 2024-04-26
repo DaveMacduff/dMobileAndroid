@@ -458,7 +458,7 @@ namespace dMobile.View.Activity
         /// <summary>
         ///     Fires just before the page is displayed.
         /// </summary>
-        protected override async void OnAppearing()
+        protected override void OnAppearing()
         {
             base.OnAppearing();
             SubscribeKeyUpHandlers();

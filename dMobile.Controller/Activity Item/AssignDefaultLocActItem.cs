@@ -431,5 +431,10 @@ namespace dMobile.Controller.Activity_Item
             var foundIdx = -1;
             return foundIdx;
         }
+
+        public override XDocument CreateDump()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

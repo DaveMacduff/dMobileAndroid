@@ -1357,5 +1357,10 @@ namespace dMobile.Controller.Activity_Item
 
             return locMapRefno;
         }
+
+        public override XDocument CreateDump()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

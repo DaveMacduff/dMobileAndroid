@@ -373,5 +373,10 @@ namespace dMobile.Controller.Activity_Item
         {
             return this.ProdInfo.IsCatchAsk;
         }
+
+        public override XDocument CreateDump()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

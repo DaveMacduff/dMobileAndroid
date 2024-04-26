@@ -193,5 +193,10 @@ namespace dMobile.Bedrock
         /// Activity convert unit detail.
         /// </summary>
         ActivityConvertUnitDetail,
+
+        /// <summary>
+        /// Activity product label quantity.
+        /// </summary>
+        ActivityProductLabelQuantity,
     }
 }

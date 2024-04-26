@@ -1119,5 +1119,10 @@ namespace dMobile.Controller.Activity_Detail
 
             return (DataTemplate)this.ResourceDictionary["dataTemplateMaterialDetail"];
         }
+
+        public override XDocument CreateDump()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

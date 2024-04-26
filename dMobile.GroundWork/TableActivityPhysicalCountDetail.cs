@@ -11,8 +11,8 @@ namespace dMobile.GroundWork
     using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
-    using dMobile.Bedrock;
-    using dMobile.Resources.Models;
+    using Bedrock;
+    using Resources.Models;
     using SQLite;
 
     /// <summary>
@@ -130,35 +130,36 @@ namespace dMobile.GroundWork
         }
 
         /// <summary>
-        /// The Send.
+        ///     Send the request to the comm server.
         /// </summary>
-        /// <param name="actItemRefno"></param>
-        /// <returns></returns>
+        /// <param name="actItemRefno">Activity item reference number.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         protected override async Task<string> SendRequest(int actItemRefno)
         {
-            var query = "SELECT * FROM tActivityItemCount WHERE ActivityItemRefno = ?";
+            const string query = "SELECT * FROM tActivityItemCount WHERE ActivityItemRefno = ?";
             var results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<tActivityItemCountModel>(
                 query,
                 actItemRefno);
 
-            int actItemCountFKRefno;
+            int actItemCountFkRefno;
             if (results != null && results.Count > 0)
             {
-                actItemCountFKRefno = results[0].ActivityItemFKRefno;
+                actItemCountFkRefno = results[0].ActivityItemFKRefno;
             }
             else
             {
                 throw new Exception("No results in tActivityItemCount for ActivityItemRefno " + actItemRefno);
             }
 
-            return await this.SendComm(await this.CreateRequest(actItemCountFKRefno));
+            return await this.SendComm(await this.CreateRequest(actItemCountFkRefno));
         }
 
         /// <summary>
         /// The Save.
         /// </summary>
-        /// <param name="responseData"></param>
-        /// <param name="actItemCountRefno"></param>
+        /// <param name="responseData"> Response data.</param>
+        /// <param name="actItemCountRefno"> Activity item count reference number.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         protected override async Task Save(string responseData, int actItemCountRefno)
         {
             var errMsg = string.Empty;
@@ -196,45 +197,29 @@ namespace dMobile.GroundWork
                             {
                                 errMsg = "Arguments:";
                                 var parametersInsertDetail = new List<object>();
-                                var queryInsertDetail = "INSERT INTO tActivityDetail (" +
-                                                        "ActivityDetailSubType, " +
-                                                        "ActivityDetailStatus, " +
-                                                        "ActivityItemRefno, " +
-                                                        "LocationMapRefno, " +
-                                                        "ProductUnitRefno, " +
-                                                        "ActivityDetailUniqueSchemeID, " +
-                                                        "ActivityDetailSchemeID, " +
-                                                        "ActivityDetailQuantity, " +
-                                                        "ActivityDetailBaseQuantity, " +
-                                                        "ActivityDetailWeightQuantity, " +
-                                                        "ActivityDetailSingleTradeItemSerialNumber, " +
-                                                        "ActivityDetailLogisticUnitBatchLotNumber, " +
-                                                        "ActivityDetailLogisticUnitBestBeforeSellByDate, " +
-                                                        "ActivityDetailLogisticUnitExpiryUseByDate, " +
-                                                        "ActivityDetailLogisticUnitProductionDate, " +
-                                                        "ActivityDetailLogisticUnitDueDate, " +
-                                                        "ActivityDetailLogisticUnitPackagingDate, " +
-                                                        "ActivityDetailLogisticUnitSkidNumber" +
-                                                        ") VALUES (" +
-                                                        "?, " +
-                                                        "?, " +
-                                                        "?, " +
-                                                        "?, " +
-                                                        "?, " +
-                                                        "?, " +
-                                                        "?, " +
-                                                        "?, " +
-                                                        "?, " +
-                                                        "?, " +
-                                                        "?, " +
-                                                        "?, " +
-                                                        "?, " +
-                                                        "?, " +
-                                                        "?, " +
-                                                        "?, " +
-                                                        "?, " +
-                                                        "?" +
-                                                        ")";
+                                const string queryInsertDetail = @"
+                                    INSERT INTO tActivityDetail (
+                                            ActivityDetailSubType, 
+                                            ActivityDetailStatus, 
+                                            ActivityItemRefno, 
+                                            LocationMapRefno, 
+                                            ProductUnitRefno, 
+                                            ActivityDetailUniqueSchemeID, 
+                                            ActivityDetailSchemeID, 
+                                            ActivityDetailQuantity, 
+                                            ActivityDetailBaseQuantity, 
+                                            ActivityDetailWeightQuantity, 
+                                            ActivityDetailSingleTradeItemSerialNumber, 
+                                            ActivityDetailLogisticUnitBatchLotNumber, 
+                                            ActivityDetailLogisticUnitBestBeforeSellByDate, 
+                                            ActivityDetailLogisticUnitExpiryUseByDate, 
+                                            ActivityDetailLogisticUnitProductionDate, 
+                                            ActivityDetailLogisticUnitDueDate, 
+                                            ActivityDetailLogisticUnitPackagingDate, 
+                                            ActivityDetailLogisticUnitSkidNumber
+                                        ) VALUES (
+                                            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+                                        )";
 
                                 parametersInsertDetail.Add(Convert.ToInt32(SysCommon.ActSubTypes.PhysicalCounts));
                                 parametersInsertDetail.Add(Convert.ToInt32(0));
@@ -245,11 +230,17 @@ namespace dMobile.GroundWork
 
                                 transaction.Execute(queryInsertDetail, parametersInsertDetail.ToArray());
 
-                                actDetailRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivityDetail"));
+                                actDetailRefno = Convert.ToInt32(transaction.ExecuteScalar<int>(
+                                    "SELECT last_insert_rowid() FROM tActivityDetail"));
                                 actDetailPhysicalFKRefno = Convert.ToInt32(drow["f01"]);
                                 errMsg += Environment.NewLine + "Detail fk refno " + actDetailPhysicalFKRefno;
 
-                                transaction.Execute("INSERT INTO tActivityDetailCount (ActivityDetailRefno, ActivityDetailFKRefno) VALUES (?, ?)", actDetailRefno, actDetailPhysicalFKRefno);
+                                transaction.Execute(@"INSERT INTO tActivityDetailCount
+                                        (ActivityDetailRefno, ActivityDetailFKRefno) 
+                                        VALUES 
+                                        (?, ?)",
+                                    actDetailRefno,
+                                    actDetailPhysicalFKRefno);
 
                                 this.SaveCommonDetailVariant(drow, transaction, actDetailRefno, true);
                                 this.SaveDetailExtra(drow, transaction, actDetailRefno, true);
@@ -296,15 +287,14 @@ namespace dMobile.GroundWork
             };
             var xml = XmlWriter.Create(xmlString, settings);
 
-            var request = XDocument.Parse(
-                "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>"
-                + "<imclient>"
-                + "<command>" +
-                "<action>REQUEST PHYSICAL COUNT DETAILS</action>"
-                + await SysCommon.GetRequestDefaults(false)
-                + "<itm_refno>" + activityItemFkRefno.ToString() + "</itm_refno>"
-                + "</command>"
-                + "</imclient>");
+            var request = XDocument.Parse($@"<?xml version=""1.0"" encoding=""utf-8"" standalone=""yes""?>
+                <imclient>
+                <command>
+                <action>REQUEST PHYSICAL COUNT DETAILS</action>
+                {await SysCommon.GetRequestDefaults(false)}
+                <itm_refno>{activityItemFkRefno}</itm_refno>
+                </command>
+                </imclient>");
 
             request.Save(xml);
             await xml.FlushAsync();

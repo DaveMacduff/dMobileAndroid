@@ -10,6 +10,7 @@
                 <Button x:Name="cmdScanBarCodes" Clicked="cmdScanBarCodes_Click" Text="1) Scan Barcodes" />
                 <Button x:Name="cmdProductLabels" Clicked="cmdProductLabels_Click" Text="2) Product Labels" />
                 <Button x:Name="cmdAssignDefaultLocation" Clicked="cmdAssignDefaultLocation_Click" Text="3) Assign Default Locations" />
+                <Button x:Name="cmdDataDump" Clicked="cmdDataDump_Click" Text="4) Data Dump" />
             </StackLayout>
 
             <ActivityIndicator IsVisible="{Binding IsIndicatorRunning}" 

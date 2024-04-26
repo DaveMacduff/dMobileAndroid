@@ -41,8 +41,13 @@
                     </ScrollView>
                 </Frame>
 
-                <Frame VerticalOptions="Start" Grid.Row="2" OutlineColor="{DynamicResource BorderColor}">
-                    <ListView x:Name="ListViewDisplayExtraInfo" SelectionMode="None" HasUnevenRows="true" IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}" SeparatorVisibility="None" >
+                <Frame VerticalOptions="Start" Grid.Row="2" BorderColor="{DynamicResource BorderColor}">
+                    <ListView x:Name="ListViewDisplayExtraInfo"
+                              SelectionMode="None"
+                              HasUnevenRows="true"
+                              IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}"
+                              SeparatorVisibility="None"
+                              ItemSelected="ListViewMainActivity_ItemSelected">
                         <ListView.ItemTemplate>
                             <DataTemplate>
                                 <ViewCell>

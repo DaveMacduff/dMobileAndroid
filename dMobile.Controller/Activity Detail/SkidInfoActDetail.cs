@@ -829,5 +829,10 @@ namespace dMobile.Controller.Activity_Detail
 
             return (DataTemplate)this.ResourceDictionary["dataTemplateSkidInfoDetail"];
         }
+
+        public override XDocument CreateDump()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -588,5 +588,10 @@ namespace dMobile.Controller.Activity_Detail
 
             return (DataTemplate)this.ResourceDictionary["dataTemplatePutAwayDetail"];
         }
+
+        public override XDocument CreateDump()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

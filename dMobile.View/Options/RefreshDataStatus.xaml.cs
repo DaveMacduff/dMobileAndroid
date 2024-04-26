@@ -11,339 +11,430 @@ namespace dMobile.View.Options
     using System.Threading.Tasks;
     using System.Xml.Linq;
     using Android.Views;
-    using dMobile.Bedrock;
-    using dMobile.GroundWork;
-    using dMobile.Resources.Enums;
-    using dMobile.Resources.Types;
-    using dMobile.View.CustomPages.Modal;
-    using dMobile.View.Forms;
+    using Bedrock;
+    using Forms;
+    using GroundWork;
+    using Resources.Enums;
+    using Resources.Types;
     using SQLite;
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;
-    using Resource = dMobile.Resources.Properties.Resources;
+    using Resource = Resources.Properties.Resources;
 
+    /// <summary>
+    ///     Refresh database status.
+    /// </summary>
     [XamlCompilation(XamlCompilationOptions.Compile)]
-    public partial class RefreshDataStatus : DMobileModal, IAppArea, ISysSettingsEventListener,
+    public partial class RefreshDataStatus : IAppArea, ISysSettingsEventListener,
         IBarCodeSettingsEventListener, IPrnSettingsListener, IProdSchemeLabelSettingsListener,
         IDataNubListener, IDataAccessEventListener
     {
         private bool isFirstAppearance = true;
-        private int messageIndex = 0;
+        private int messageIndex;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="RefreshDataStatus"/> class.
+        ///     Initializes a new instance of the <see cref="RefreshDataStatus" /> class.
         /// </summary>
-        public RefreshDataStatus()
-        {
-            this.InitializeComponent();
-            this.IsIndicatorRunning = false;
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="RefreshDataStatus"/> class.
-        /// </summary>
-        /// <param name="actSubTypes"></param>
+        /// <param name="actSubTypes"><see cref="SysCommon.ActSubTypes" /> Activity subtypes.</param>
         public RefreshDataStatus(SysCommon.ActSubTypes actSubTypes)
         {
             this.InitializeComponent();
 
-            this.Title = this.GetControlDescription();
-            this.IsIndicatorRunning = false;
-            this.SysEnv = SysEnvironment.GetInstance();
-            this.LocMapWarehouse = new TableLocationMapWarehouse();
-            this.LocMapSection = new TableLocationMapSection();
-            this.LocMapType = new TableLocationMapType();
-            this.LocMapSlotCoordinate = new TableLocationMapSlotCoordinate();
-            this.LocMapSlot = new TableLocationMapSlot();
-            this.WhsLocMapType = new TableWarehouseLocationMapType();
-            this.Unit = new TableUnit();
-            this.Route = new TableRoute();
-            this.ProdScheme = new TableProductScheme();
-            this.ProdSchemeVariant = new TableProductSchemeVariant();
-            this.ProdSchemeVariantXRef = new TableProductSchemeVariantXRef();
-            this.ProdSchemeLot = new TableProductSchemeLotNumber();
-            this.ProdSchemeLotXRef = new TableProductSchemeLotNumberXRef();
-            this.Product = new TableProduct();
-            this.Family = new TableFamily();
-            this.ProdUnit = new TableProductUnit();
-            this.ProdUnitRelation = new TableProductUnitRelation();
-            this.ProdUnitBarCode = new TableProductUnitBarCode();
-            this.ProdLocMapType = new TableProductLocationMapType();
-            this.ProdLocMapWhsProdScheme = new TableLocationMapWarehouseProductScheme();
-            this.ContactUsers = new TableContactUsers();
-            this.PhysicalCount = new TableActivityPhysicalCount();
-            this.PhysicalCountItem = new TableActivityPhysicalCountItem();
-            this.PhysicalCountDetail = new TableActivityPhysicalCountDetail();
-            this.CycleCount = new TableActivityCycleCount();
-            this.CycleCountItem = new TableActivityCycleCountItem();
-            this.CycleCountDetail = new TableActivityCycleCountDetail();
-            this.ActDetailProdSchemeVariantXRef = new TableActivityDetailProductSchemeVariantXRef();
-            this.ActItemBarCodeAssocXRef = new TableActivityItemBarCodeAssociationXRef();
-            this.Picking = new TableActivityPicking();
-            this.PickingItem = new TableActivityPickingItem();
-            this.PickingItemComment = new TableActivityPickingItemComment();
-            this.PickingDetail = new TableActivityPickingDetail();
-            this.PickingRoute = new TableActivityPickingRoute();
-            this.Receiving = new TableActivityReceiving();
-            this.ReceivingItem = new TableActivityReceivingItem();
-            this.ReceivingItemComment = new TableActivityReceivingItemComment();
-            this.ReceivingDetail = new TableActivityReceivingDetail();
-            this.TransferFrom = new TableActivityTransferFrom();
-            this.TransferFromItem = new TableActivityTransferFromItem();
-            this.TransferFromDetail = new TableActivityTransferFromDetail();
-            this.TransferTo = new TableActivityTransferTo();
-            this.TransferToItem = new TableActivityTransferToItem();
-            this.TransferToDetail = new TableActivityTransferToDetail();
-            this.Returns = new TableActivityReturns();
-            this.ReturnsItem = new TableActivityReturnsItem();
-            this.ReturnsItemComment = new TableActivityReturnsItemComment();
-            this.ReturnsDetail = new TableActivityReturnsDetail();
-            this.Adjustment = new TableActivityAdjustment();
-            this.AdjustmentItem = new TableActivityAdjustmentItem();
-            this.AdjustmentDetail = new TableActivityAdjustmentDetail();
-            this.Activity = new TableActivity();
-            this.ActivityItem = new TableActivityItem();
-            this.TicketFinished = new TableActivityProductionTicketFinished();
-            this.TicketMaterial = new TableActivityProductionTicketMaterial();
-            this.TicketByProduct = new TableActivityProductionTicketByProduct();
-            this.TicketFinishedItem = new TableActivityProductionTicketFinishedItem();
-            this.TicketMaterialItem = new TableActivityProductionTicketMaterialItem();
-            this.TicketByProductItem = new TableActivityProductionTicketByProductItem();
-            this.TicketFinishedDetail = new TableActivityProductionTicketFinishedDetail();
-            this.TicketMaterialDetail = new TableActivityProductionTicketMaterialDetail();
-            this.TicketByProductDetail = new TableActivityProductionTicketByProductDetail();
-            this.PurchaseOrderWorkSheetItem = new TableActivityPurchaseOrderWorkSheetItem();
-            this.PrinterSettings = new PrinterSettings();
-            this.SchemeLabelSettings = new ProdSchemeLabelSettings();
-            this.ExtraInfoItems = new ObservableCollection<Message>();
             this.ActSubType = actSubTypes;
-        }
-
-        /// <summary>
-        /// The OnAppearing.
-        /// </summary>
-        protected override async void OnAppearing()
-        {
-            if (!this.IsIndicatorRunning)
-            {
-                this.IsIndicatorRunning = true;
-                base.OnAppearing();
-
-                this.lstStatus.ItemsSource = this.ExtraInfoItems;
-
-                MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), (keyPressed) =>
-                {
-                    _ = Enum.TryParse(keyPressed, out Keycode keycode);
-                });
-
-                if (this.isFirstAppearance)
-                {
-                    this.isFirstAppearance = false;
-                    await this.RefreshDataStatus_GotFocus(this, EventArgs.Empty);
-                }
-
-                this.IsIndicatorRunning = false;
-            }
-        }
-
-        /// <summary>
-        /// The OnDisappearing.
-        /// </summary>
-        protected override void OnDisappearing()
-        {
-            MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
-            base.OnDisappearing();
             this.IsIndicatorRunning = false;
-            GC.Collect();
-            GC.WaitForPendingFinalizers();
+            this.Title = this.GetControlDescription();
         }
-
-        /// <inheritdoc/>
-        protected override bool OnBackButtonPressed()
-        {
-            Device.BeginInvokeOnMainThread(async () =>
-            {
-                _ = base.OnBackButtonPressed();
-
-                if (await this.SaveChanges())
-                {
-                    this.DialogResult = DialogResult.OK;
-                    await this.Close();
-                }
-                else if (await this.CancelChanges())
-                {
-                    this.DialogResult = DialogResult.None;
-                    await this.Close();
-                }
-            });
-
-            return true;
-        }
-
-        private SysEnvironment SysEnv { get; set; }
-
-        private bool IsRefreshComplete { get; set; } = false;
-
-        private SysCommon.ActSubTypes ActSubType { get; set; } = SysCommon.ActSubTypes.NotApplicable;
-
-        private string FullClassName { get; set; } = typeof(RefreshDataStatus).FullName;
-
-        private DateTime RefreshTotal { get; set; } = DateTime.Now;
-
-        private TableProductLocationMapType ProdLocMapType { get; set; }
-
-        private TableUnit Unit { get; set; }
-
-        private TableRoute Route { get; set; }
-
-        private TableProductScheme ProdScheme { get; set; }
-
-        private TableProductSchemeVariant ProdSchemeVariant { get; set; }
-
-        private TableProductSchemeVariantXRef ProdSchemeVariantXRef { get; set; }
-
-        private TableProductSchemeLotNumber ProdSchemeLot { get; set; }
-
-        private TableProductSchemeLotNumberXRef ProdSchemeLotXRef { get; set; }
-
-        private TableProduct Product { get; set; }
-
-        private TableFamily Family { get; set; }
-
-        private TableProductUnit ProdUnit { get; set; }
-
-        private TableProductUnitRelation ProdUnitRelation { get; set; }
-
-        private TableProductUnitBarCode ProdUnitBarCode { get; set; }
-
-        private TableLocationMapWarehouse LocMapWarehouse { get; set; }
-
-        private TableLocationMapSection LocMapSection { get; set; }
-
-        private TableLocationMapType LocMapType { get; set; }
-
-        private TableLocationMapSlotCoordinate LocMapSlotCoordinate { get; set; }
-
-        private TableLocationMapSlot LocMapSlot { get; set; }
-
-        private TableWarehouseLocationMapType WhsLocMapType { get; set; }
-
-        private TableContactUsers ContactUsers { get; set; }
-
-        private TableActivityPhysicalCount PhysicalCount { get; set; }
-
-        private TableActivityPhysicalCountItem PhysicalCountItem { get; set; }
-
-        private TableActivityPhysicalCountDetail PhysicalCountDetail { get; set; }
-
-        private TableActivityCycleCount CycleCount { get; set; }
-
-        private TableActivityCycleCountItem CycleCountItem { get; set; }
-
-        private TableActivityCycleCountDetail CycleCountDetail { get; set; }
-
-        private TableActivityDetailProductSchemeVariantXRef ActDetailProdSchemeVariantXRef { get; set; }
-
-        private TableActivityItemBarCodeAssociationXRef ActItemBarCodeAssocXRef { get; set; }
-
-        private TableActivityPicking Picking { get; set; }
-
-        private TableActivityPickingItem PickingItem { get; set; }
-
-        private TableActivityPickingItemComment PickingItemComment { get; set; }
-
-        private TableActivityPickingDetail PickingDetail { get; set; }
-
-        private TableActivityPickingRoute PickingRoute { get; set; }
-
-        private TableActivityReceiving Receiving { get; set; }
-
-        private TableActivityReceivingItem ReceivingItem { get; set; }
-
-        private TableActivityReceivingItemComment ReceivingItemComment { get; set; }
-
-        private TableActivityReceivingDetail ReceivingDetail { get; set; }
-
-        private TableActivityTransferFrom TransferFrom { get; set; }
-
-        private TableActivityTransferFromItem TransferFromItem { get; set; }
-
-        private TableActivityTransferFromDetail TransferFromDetail { get; set; }
-
-        private TableActivityTransferTo TransferTo { get; set; }
-
-        private TableActivityTransferToItem TransferToItem { get; set; }
-
-        private TableActivityTransferToDetail TransferToDetail { get; set; }
-
-        private TableActivityReturns Returns { get; set; }
-
-        private TableActivityReturnsItem ReturnsItem { get; set; }
-
-        private TableActivityReturnsItemComment ReturnsItemComment { get; set; }
-
-        private TableActivityReturnsDetail ReturnsDetail { get; set; }
-
-        private TableActivityAdjustment Adjustment { get; set; }
-
-        private TableActivityAdjustmentItem AdjustmentItem { get; set; }
-
-        private TableActivityAdjustmentDetail AdjustmentDetail { get; set; }
-
-        private TableActivity Activity { get; set; }
-
-        private TableActivityItem ActivityItem { get; set; }
-
-        private TableActivityProductionTicketFinished TicketFinished { get; set; }
-
-        private TableActivityProductionTicketFinishedItem TicketFinishedItem { get; set; }
-
-        private TableActivityProductionTicketFinishedDetail TicketFinishedDetail { get; set; }
-
-        private TableActivityProductionTicketMaterial TicketMaterial { get; set; }
-
-        private TableActivityProductionTicketMaterialItem TicketMaterialItem { get; set; }
-
-        private TableActivityProductionTicketMaterialDetail TicketMaterialDetail { get; set; }
-
-        private TableActivityProductionTicketByProduct TicketByProduct { get; set; }
-
-        private TableActivityProductionTicketByProductItem TicketByProductItem { get; set; }
-
-        private TableActivityProductionTicketByProductDetail TicketByProductDetail { get; set; }
-
-        private TableActivityPurchaseOrderWorkSheetItem PurchaseOrderWorkSheetItem { get; set; }
-
-        private PrinterSettings PrinterSettings { get; set; }
-
-        private ProdSchemeLabelSettings SchemeLabelSettings { get; set; }
-
-        public ObservableCollection<Message> ExtraInfoItems { get; set; }
-
-        private TableLocationMapWarehouseProductScheme ProdLocMapWhsProdScheme { get; set; }
 
         /// <summary>
-        /// Unregister the bar code scan event handler and disable the scanner.
+        ///     Gets the <see cref="SysEnvironment" />.
         /// </summary>
-        /// <remarks></remarks>
+        private SysEnvironment SysEnv { get; } = SysEnvironment.GetInstance();
+
+        /// <summary>
+        ///     Gets or sets a value indicating whether the data refresh is complete.
+        /// </summary>
+        private bool IsRefreshComplete { get; set; }
+
+        /// <summary>
+        ///     Gets the activity subtype.
+        /// </summary>
+        private SysCommon.ActSubTypes ActSubType { get; }
+
+        /// <summary>
+        ///     Gets the full class name.
+        /// </summary>
+        private string FullClassName { get; } = typeof(RefreshDataStatus).FullName;
+
+        /// <summary>
+        ///     Gets the total refresh data time.
+        /// </summary>
+        private DateTime RefreshTotal { get; } = DateTime.Now;
+
+        /// <summary>
+        ///     Gets the product location map type table.
+        /// </summary>
+        private TableProductLocationMapType ProdLocMapType { get; } = new TableProductLocationMapType();
+
+        /// <summary>
+        ///     Gets the unit of measure table.
+        /// </summary>
+        private TableUnit Unit { get; } = new TableUnit();
+
+        /// <summary>
+        ///     Gets the route table.
+        /// </summary>
+        private TableRoute Route { get; } = new TableRoute();
+
+        /// <summary>
+        ///     Gets the product scheme table.
+        /// </summary>
+        private TableProductScheme ProdScheme { get; } = new TableProductScheme();
+
+        /// <summary>
+        ///     Gets the product scheme variant table.
+        /// </summary>
+        private TableProductSchemeVariant ProdSchemeVariant { get; } = new TableProductSchemeVariant();
+
+        /// <summary>
+        ///     Gets the product scheme variant xref table.
+        /// </summary>
+        private TableProductSchemeVariantXRef ProdSchemeVariantXRef { get; } = new TableProductSchemeVariantXRef();
+
+        /// <summary>
+        ///     Gets the product scheme lot number table.
+        /// </summary>
+        private TableProductSchemeLotNumber ProdSchemeLot { get; } = new TableProductSchemeLotNumber();
+
+        /// <summary>
+        ///     Gets the product scheme lot number xref table.
+        /// </summary>
+        private TableProductSchemeLotNumberXRef ProdSchemeLotXRef { get; } = new TableProductSchemeLotNumberXRef();
+
+        /// <summary>
+        ///     Gets the products table.
+        /// </summary>
+        private TableProduct Product { get; } = new TableProduct();
+
+        /// <summary>
+        ///     Gets the product families table.
+        /// </summary>
+        private TableFamily Family { get; } = new TableFamily();
+
+        /// <summary>
+        ///     Gets the product units table.
+        /// </summary>
+        private TableProductUnit ProdUnit { get; } = new TableProductUnit();
+
+        /// <summary>
+        ///     Gets the product unit relations table.
+        /// </summary>
+        private TableProductUnitRelation ProdUnitRelation { get; } = new TableProductUnitRelation();
+
+        /// <summary>
+        ///     Gets the product unit bar codes table.
+        /// </summary>
+        private TableProductUnitBarCode ProdUnitBarCode { get; } = new TableProductUnitBarCode();
+
+        /// <summary>
+        ///     Gets the location mpa warehouses table.
+        /// </summary>
+        private TableLocationMapWarehouse LocMapWarehouse { get; } = new TableLocationMapWarehouse();
+
+        /// <summary>
+        ///     Gets the location map sections table.
+        /// </summary>
+        private TableLocationMapSection LocMapSection { get; } = new TableLocationMapSection();
+
+        /// <summary>
+        ///     Gets the location map types table.
+        /// </summary>
+        private TableLocationMapType LocMapType { get; } = new TableLocationMapType();
+
+        /// <summary>
+        ///     Gets the location map slot coordinates table.
+        /// </summary>
+        private TableLocationMapSlotCoordinate LocMapSlotCoordinate { get; } = new TableLocationMapSlotCoordinate();
+
+        /// <summary>
+        ///     Gets the location map slots table.
+        /// </summary>
+        private TableLocationMapSlot LocMapSlot { get; } = new TableLocationMapSlot();
+
+        /// <summary>
+        ///     Gets the warehouse location map types table.
+        /// </summary>
+        private TableWarehouseLocationMapType WhsLocMapType { get; } = new TableWarehouseLocationMapType();
+
+        /// <summary>
+        ///     Gets the contact users table.
+        /// </summary>
+        private TableContactUsers ContactUsers { get; } = new TableContactUsers();
+
+        /// <summary>
+        ///     Gets the table activity physical count.
+        /// </summary>
+        private TableActivityPhysicalCount PhysicalCount { get; } = new TableActivityPhysicalCount();
+
+        /// <summary>
+        ///     Gets the table activity physical count item.
+        /// </summary>
+        private TableActivityPhysicalCountItem PhysicalCountItem { get; } = new TableActivityPhysicalCountItem();
+
+        /// <summary>
+        ///     Gets the table activity physical count detail.
+        /// </summary>
+        private TableActivityPhysicalCountDetail PhysicalCountDetail { get; } = new TableActivityPhysicalCountDetail();
+
+        /// <summary>
+        ///     Gets the table activity cycle count.
+        /// </summary>
+        private TableActivityCycleCount CycleCount { get; } = new TableActivityCycleCount();
+
+        /// <summary>
+        ///     Gets the table activity cycle count item.
+        /// </summary>
+        private TableActivityCycleCountItem CycleCountItem { get; } = new TableActivityCycleCountItem();
+
+        /// <summary>
+        ///     Gets the table activity cycle count detail.
+        /// </summary>
+        private TableActivityCycleCountDetail CycleCountDetail { get; } = new TableActivityCycleCountDetail();
+
+        /// <summary>
+        ///     Gets or sets the table activity detail product scheme variant xref.
+        /// </summary>
+        private TableActivityDetailProductSchemeVariantXRef ActDetailProdSchemeVariantXRef { get; set; } =
+            new TableActivityDetailProductSchemeVariantXRef();
+
+        /// <summary>
+        ///     Gets the table activity item bar code association xref.
+        /// </summary>
+        private TableActivityItemBarCodeAssociationXRef ActItemBarCodeAssocXRef { get; } =
+            new TableActivityItemBarCodeAssociationXRef();
+
+        /// <summary>
+        ///     Gets the table activity picking.
+        /// </summary>
+        private TableActivityPicking Picking { get; } = new TableActivityPicking();
+
+        /// <summary>
+        ///     Gets the table activity picking item.
+        /// </summary>
+        private TableActivityPickingItem PickingItem { get; } = new TableActivityPickingItem();
+
+        /// <summary>
+        ///     Gets the table activity picking item comment.
+        /// </summary>
+        private TableActivityPickingItemComment PickingItemComment { get; } = new TableActivityPickingItemComment();
+
+        /// <summary>
+        ///     Gets the table activity picking detail.
+        /// </summary>
+        private TableActivityPickingDetail PickingDetail { get; } = new TableActivityPickingDetail();
+
+        /// <summary>
+        ///     Gets the table activity picking route.
+        /// </summary>
+        private TableActivityPickingRoute PickingRoute { get; } = new TableActivityPickingRoute();
+
+        /// <summary>
+        ///     Gets the table activity receiving.
+        /// </summary>
+        private TableActivityReceiving Receiving { get; } = new TableActivityReceiving();
+
+        /// <summary>
+        ///     Gets the table activity receiving item.
+        /// </summary>
+        private TableActivityReceivingItem ReceivingItem { get; } = new TableActivityReceivingItem();
+
+        /// <summary>
+        ///     Gets the table activity receiving item comment.
+        /// </summary>
+        private TableActivityReceivingItemComment ReceivingItemComment { get; } =
+            new TableActivityReceivingItemComment();
+
+        /// <summary>
+        ///     Gets the table activity receiving detail.
+        /// </summary>
+        private TableActivityReceivingDetail ReceivingDetail { get; } = new TableActivityReceivingDetail();
+
+        /// <summary>
+        ///     Gets the table activity transfer from.
+        /// </summary>
+        private TableActivityTransferFrom TransferFrom { get; } = new TableActivityTransferFrom();
+
+        /// <summary>
+        ///     Gets the table activity transfer from item.
+        /// </summary>
+        private TableActivityTransferFromItem TransferFromItem { get; } = new TableActivityTransferFromItem();
+
+        /// <summary>
+        ///     Gets the table activity transfer from detail.
+        /// </summary>
+        private TableActivityTransferFromDetail TransferFromDetail { get; } = new TableActivityTransferFromDetail();
+
+        /// <summary>
+        ///     Gets the table activity transfer to.
+        /// </summary>
+        private TableActivityTransferTo TransferTo { get; } = new TableActivityTransferTo();
+
+        /// <summary>
+        ///     Gets the table activity transfer to item.
+        /// </summary>
+        private TableActivityTransferToItem TransferToItem { get; } = new TableActivityTransferToItem();
+
+        /// <summary>
+        ///     Gets the table activity transfer to detail.
+        /// </summary>
+        private TableActivityTransferToDetail TransferToDetail { get; } = new TableActivityTransferToDetail();
+
+        /// <summary>
+        ///     Gets the table activity returns.
+        /// </summary>
+        private TableActivityReturns Returns { get; } = new TableActivityReturns();
+
+        /// <summary>
+        ///     Gets the table activity returns item.
+        /// </summary>
+        private TableActivityReturnsItem ReturnsItem { get; } = new TableActivityReturnsItem();
+
+        /// <summary>
+        ///     Gets or sets the table activity returns item comment.
+        /// </summary>
+        private TableActivityReturnsItemComment ReturnsItemComment { get; set; } =
+            new TableActivityReturnsItemComment();
+
+        /// <summary>
+        ///     Gets the table activity returns detail.
+        /// </summary>
+        private TableActivityReturnsDetail ReturnsDetail { get; } = new TableActivityReturnsDetail();
+
+        /// <summary>
+        ///     Gets the table activity adjustments.
+        /// </summary>
+        private TableActivityAdjustment Adjustment { get; } = new TableActivityAdjustment();
+
+        /// <summary>
+        ///     Gets the table activity adjustment item.
+        /// </summary>
+        private TableActivityAdjustmentItem AdjustmentItem { get; } = new TableActivityAdjustmentItem();
+
+        /// <summary>
+        ///     Gets the table activity adjustment detail.
+        /// </summary>
+        private TableActivityAdjustmentDetail AdjustmentDetail { get; } = new TableActivityAdjustmentDetail();
+
+        /// <summary>
+        ///     Gets the table activity.
+        /// </summary>
+        private TableActivity Activity { get; } = new TableActivity();
+
+        /// <summary>
+        ///     Gets the table activity item.
+        /// </summary>
+        private TableActivityItem ActivityItem { get; } = new TableActivityItem();
+
+        /// <summary>
+        ///     Gets the table activity production finished tickets.
+        /// </summary>
+        private TableActivityProductionTicketFinished TicketFinished { get; } =
+            new TableActivityProductionTicketFinished();
+
+        /// <summary>
+        ///     Gets the table activity production finished item tickets.
+        /// </summary>
+        private TableActivityProductionTicketFinishedItem TicketFinishedItem { get; } =
+            new TableActivityProductionTicketFinishedItem();
+
+        /// <summary>
+        ///     Gets the table activity production finished detail tickets.
+        /// </summary>
+        private TableActivityProductionTicketFinishedDetail TicketFinishedDetail { get; } =
+            new TableActivityProductionTicketFinishedDetail();
+
+        /// <summary>
+        ///     Gets the table activity production material tickets.
+        /// </summary>
+        private TableActivityProductionTicketMaterial TicketMaterial { get; } =
+            new TableActivityProductionTicketMaterial();
+
+        /// <summary>
+        ///     Gets the table activity production material item tickets.
+        /// </summary>
+        private TableActivityProductionTicketMaterialItem TicketMaterialItem { get; } =
+            new TableActivityProductionTicketMaterialItem();
+
+        /// <summary>
+        ///     Gets the table activity production material detail tickets.
+        /// </summary>
+        private TableActivityProductionTicketMaterialDetail TicketMaterialDetail { get; } =
+            new TableActivityProductionTicketMaterialDetail();
+
+        /// <summary>
+        ///     Gets the table activity production by product tickets.
+        /// </summary>
+        private TableActivityProductionTicketByProduct TicketByProduct { get; } =
+            new TableActivityProductionTicketByProduct();
+
+        /// <summary>
+        ///     Gets the table activity production by product item tickets.
+        /// </summary>
+        private TableActivityProductionTicketByProductItem TicketByProductItem { get; } =
+            new TableActivityProductionTicketByProductItem();
+
+        /// <summary>
+        ///     Gets the table activity production by product detail tickets.
+        /// </summary>
+        private TableActivityProductionTicketByProductDetail TicketByProductDetail { get; } =
+            new TableActivityProductionTicketByProductDetail();
+
+        /// <summary>
+        ///     Gets the table activity purchase order work sheet items.
+        /// </summary>
+        private TableActivityPurchaseOrderWorkSheetItem PurchaseOrderWorkSheetItem { get; } =
+            new TableActivityPurchaseOrderWorkSheetItem();
+
+        /// <summary>
+        ///     Gets or sets the printer settings.
+        /// </summary>
+        private PrinterSettings PrinterSettings { get; set; } = new PrinterSettings();
+
+        /// <summary>
+        ///     Gets or sets the product scheme label settings.
+        /// </summary>
+        private ProdSchemeLabelSettings SchemeLabelSettings { get; set; } = new ProdSchemeLabelSettings();
+
+        /// <summary>
+        ///     Gets the location map warehouse product scheme.
+        /// </summary>
+        private TableLocationMapWarehouseProductScheme ProdLocMapWhsProdScheme { get; } =
+            new TableLocationMapWarehouseProductScheme();
+
+        /// <summary>
+        ///     Gets or sets the extra information items.
+        /// </summary>
+        /// <returns></returns>
+        public ObservableCollection<Message> ExtraInfoItems { get; set; } = new ObservableCollection<Message>();
+
+        /// <summary>
+        ///     Unregister the bar code scan event handler and disable the scanner.
+        /// </summary>
+        /// <returns></returns>
         public async Task ScannerDisable()
         {
         }
 
         /// <summary>
-        /// Registers the bar code scan event handler and enables the scanner.
+        ///     Registers the bar code scan event handler and enables the scanner.
         /// </summary>
-        /// <remarks></remarks>
+        /// <returns></returns>
         public async Task ScannerEnable()
         {
         }
 
         /// <summary>
-        ///
         /// </summary>
         /// <returns></returns>
-        /// <remarks></remarks>
-        /// <inheritdoc/>
         public async Task<bool> IsReadyToSave()
         {
             var isReadyToSave = true;
@@ -365,61 +456,32 @@ namespace dMobile.View.Options
         }
 
         /// <summary>
-        ///
         /// </summary>
         /// <returns></returns>
-        /// <remarks></remarks>
-        /// <inheritdoc/>
         public async Task<bool> IsReadyToClose()
         {
             return true;
         }
 
         /// <summary>
-        ///
         /// </summary>
         /// <returns></returns>
-        /// <remarks></remarks>
-        public string GetControlDescription()
-        {
-            if (this.ActSubType == SysCommon.ActSubTypes.PurgeActivityData)
-            {
-                return Resource.DMobilePurgeActivityData;
-            }
-            else
-            {
-                return "Refresh Data Status";
-            }
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
-        /// <inheritdoc/>
         public async Task<bool> SaveChanges()
         {
             return true;
         }
 
         /// <summary>
-        ///
         /// </summary>
         /// <returns></returns>
-        /// <remarks></remarks>
-        /// <inheritdoc/>
         public async Task<bool> CancelChanges()
         {
             return true;
         }
 
         /// <summary>
-        ///
         /// </summary>
         /// <returns></returns>
-        /// <remarks></remarks>
-        /// <inheritdoc/>
         public async Task<XDocument> GetXml()
         {
             var xmldocParams = XDocument.Parse(
@@ -432,45 +494,9 @@ namespace dMobile.View.Options
         }
 
         /// <summary>
-        ///
-        /// </summary>
-        /// <param name="sysSettingsEventPublisher"></param>
-        /// <param name="sysSettingsEventArgs"></param>
-        /// <remarks></remarks>
-        /// <inheritdoc/>
-        public void OnSysSettingsProgressOut(
-            ISysSettingsEventPublisher sysSettingsEventPublisher,
-            SysSettingsEventArgs sysSettingsEventArgs)
-        {
-            this.ProgressOut(
-                this,
-                null,
-                sysSettingsEventArgs.CurrentValue,
-                sysSettingsEventArgs.MinValue,
-                sysSettingsEventArgs.MaxValue);
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="sysSettingsEventPublisher"></param>
-        /// <param name="sysSettingsEventArgs"></param>
-        /// <remarks></remarks>
-        /// <inheritdoc/>
-        public void OnSysSettingsStatusOut(
-            ISysSettingsEventPublisher sysSettingsEventPublisher,
-            SysSettingsEventArgs sysSettingsEventArgs)
-        {
-            this.StatusOut(sysSettingsEventArgs.StatusOutMsg);
-        }
-
-        /// <summary>
-        ///
         /// </summary>
         /// <param name="BarCodeSettingsEventPublisher"></param>
         /// <param name="barCodeSettingsEventArgs"></param>
-        /// <remarks></remarks>
-        /// <inheritdoc/>
         public void OnBarCodeSettingsProgressOut(
             IBarCodeSettingsEventPublisher barCodeSettingsEventPublisher,
             BarCodeSettingsEventArgs barCodeSettingsEventArgs)
@@ -484,12 +510,11 @@ namespace dMobile.View.Options
         }
 
         /// <summary>
-        ///
         /// </summary>
         /// <param name="BarCodeSettingsEventPublisher"></param>
         /// <param name="barCodeSettingsEventArgs"></param>
         /// <remarks></remarks>
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public void OnBarCodeSettingsStatusOut(
             IBarCodeSettingsEventPublisher barCodeSettingsEventPublisher,
             BarCodeSettingsEventArgs barCodeSettingsEventArgs)
@@ -498,86 +523,10 @@ namespace dMobile.View.Options
         }
 
         /// <summary>
-        ///
-        /// </summary>
-        /// <param name="PrinterSettingsEventPublisher"></param>
-        /// <param name="PrinterSettingsEventArgs"></param>
-        /// <remarks></remarks>
-        /// <inheritdoc/>
-        public void OnPrnSettingsProgressOut(
-            IPrnSettingsPublisher printerSettingsEventPublisher,
-            PrnSettingsArgs printerSettingsEventArgs)
-        {
-            this.ProgressOut(
-                this,
-                null,
-                printerSettingsEventArgs.CurrentValue,
-                printerSettingsEventArgs.MinValue,
-                printerSettingsEventArgs.MaxValue);
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="PrinterSettingsEventPublisher"></param>
-        /// <param name="PrinterSettingsEventArgs"></param>
-        /// <remarks></remarks>
-        /// <inheritdoc/>
-        public void OnPrnSettingsStatusOut(
-            IPrnSettingsPublisher printerSettingsEventPublisher,
-            PrnSettingsArgs printerSettingsEventArgs)
-        {
-            this.StatusOut(printerSettingsEventArgs.StatusOutMsg);
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="prodSchemeLabelSettingsPublisher"></param>
-        /// <param name="prodSchemeLabelSettingsArgs"></param>
-        /// <inheritdoc/>
-        public void OnProdSchemeLabelSettingsStatusOut(
-          IProdSchemeLabelSettingsPublisher prodSchemeLabelSettingsPublisher,
-          ProdSchemeLabelSettingsEventArgs prodSchemeLabelSettingsArgs)
-        {
-            this.StatusOut(prodSchemeLabelSettingsArgs.StatusOutMsg);
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="prodSchemeLabelSettingsPublisher"></param>
-        /// <param name="prodSchemeLabelSettingsArgs"></param>
-        /// <inheritdoc/>
-        public void OnProdSchemeLabelSettingsProgressOut(
-          IProdSchemeLabelSettingsPublisher prodSchemeLabelSettingsPublisher,
-          ProdSchemeLabelSettingsEventArgs prodSchemeLabelSettingsArgs)
-        {
-            this.ProgressOut(
-                this,
-                null,
-                prodSchemeLabelSettingsArgs.CurrentValue,
-                prodSchemeLabelSettingsArgs.MinValue,
-                prodSchemeLabelSettingsArgs.MaxValue);
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="databaseNubEventPublisher"></param>
-        /// <param name="databaseNubEventArgs"></param>
-        /// <inheritdoc/>
-        public void OnNubStatOut(IDataNubPublisher databaseNubEventPublisher, DataNubEventArgs databaseNubEventArgs)
-        {
-            this.StatusOut(databaseNubEventArgs.StatusOutMsg);
-        }
-
-        /// <summary>
-        ///
         /// </summary>
         /// <param name="dataAccessEventPublisher"></param>
         /// <param name="dataAccessEventArgs"></param>
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public void OnDataAccessStatusOut(
             IDataAccessEventPublisher dataAccessEventPublisher,
             DataAccessEventArgs dataAccessEventArgs)
@@ -586,11 +535,10 @@ namespace dMobile.View.Options
         }
 
         /// <summary>
-        ///
         /// </summary>
         /// <param name="dataAccessEventPublisher"></param>
         /// <param name="dataAccessEventArgs"></param>
-        /// <inheritdoc/>
+        /// <inheritdoc />
         public void OnDataAccessProgressOut(
             IDataAccessEventPublisher dataAccessEventPublisher,
             DataAccessEventArgs dataAccessEventArgs)
@@ -604,7 +552,182 @@ namespace dMobile.View.Options
         }
 
         /// <summary>
-        ///
+        /// </summary>
+        /// <param name="databaseNubEventPublisher"></param>
+        /// <param name="databaseNubEventArgs"></param>
+        /// <inheritdoc />
+        public void OnNubStatOut(IDataNubPublisher databaseNubEventPublisher, DataNubEventArgs databaseNubEventArgs)
+        {
+            this.StatusOut(databaseNubEventArgs.StatusOutMsg);
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <param name="PrinterSettingsEventPublisher"></param>
+        /// <param name="PrinterSettingsEventArgs"></param>
+        /// <remarks></remarks>
+        /// <inheritdoc />
+        public void OnPrnSettingsProgressOut(
+            IPrnSettingsPublisher printerSettingsEventPublisher,
+            PrnSettingsArgs printerSettingsEventArgs)
+        {
+            this.ProgressOut(
+                this,
+                null,
+                printerSettingsEventArgs.CurrentValue,
+                printerSettingsEventArgs.MinValue,
+                printerSettingsEventArgs.MaxValue);
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <param name="PrinterSettingsEventPublisher"></param>
+        /// <param name="PrinterSettingsEventArgs"></param>
+        /// <remarks></remarks>
+        /// <inheritdoc />
+        public void OnPrnSettingsStatusOut(
+            IPrnSettingsPublisher printerSettingsEventPublisher,
+            PrnSettingsArgs printerSettingsEventArgs)
+        {
+            this.StatusOut(printerSettingsEventArgs.StatusOutMsg);
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <param name="prodSchemeLabelSettingsPublisher"></param>
+        /// <param name="prodSchemeLabelSettingsArgs"></param>
+        /// <inheritdoc />
+        public void OnProdSchemeLabelSettingsStatusOut(
+            IProdSchemeLabelSettingsPublisher prodSchemeLabelSettingsPublisher,
+            ProdSchemeLabelSettingsEventArgs prodSchemeLabelSettingsArgs)
+        {
+            this.StatusOut(prodSchemeLabelSettingsArgs.StatusOutMsg);
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <param name="prodSchemeLabelSettingsPublisher"></param>
+        /// <param name="prodSchemeLabelSettingsArgs"></param>
+        /// <inheritdoc />
+        public void OnProdSchemeLabelSettingsProgressOut(
+            IProdSchemeLabelSettingsPublisher prodSchemeLabelSettingsPublisher,
+            ProdSchemeLabelSettingsEventArgs prodSchemeLabelSettingsArgs)
+        {
+            this.ProgressOut(
+                this,
+                null,
+                prodSchemeLabelSettingsArgs.CurrentValue,
+                prodSchemeLabelSettingsArgs.MinValue,
+                prodSchemeLabelSettingsArgs.MaxValue);
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <param name="sysSettingsEventPublisher"></param>
+        /// <param name="sysSettingsEventArgs"></param>
+        /// <remarks></remarks>
+        /// <inheritdoc />
+        public void OnSysSettingsProgressOut(
+            ISysSettingsEventPublisher sysSettingsEventPublisher,
+            SysSettingsEventArgs sysSettingsEventArgs)
+        {
+            this.ProgressOut(
+                this,
+                null,
+                sysSettingsEventArgs.CurrentValue,
+                sysSettingsEventArgs.MinValue,
+                sysSettingsEventArgs.MaxValue);
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <param name="sysSettingsEventPublisher"></param>
+        /// <param name="sysSettingsEventArgs"></param>
+        /// <remarks></remarks>
+        /// <inheritdoc />
+        public void OnSysSettingsStatusOut(
+            ISysSettingsEventPublisher sysSettingsEventPublisher,
+            SysSettingsEventArgs sysSettingsEventArgs)
+        {
+            this.StatusOut(sysSettingsEventArgs.StatusOutMsg);
+        }
+
+        /// <summary>
+        ///     The OnAppearing.
+        /// </summary>
+        protected override async void OnAppearing()
+        {
+            if (!this.IsIndicatorRunning)
+            {
+                this.IsIndicatorRunning = true;
+                base.OnAppearing();
+
+                this.lstStatus.ItemsSource = this.ExtraInfoItems;
+
+                MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(),
+                    keyPressed => { _ = Enum.TryParse(keyPressed, out Keycode keycode); });
+
+                if (this.isFirstAppearance)
+                {
+                    this.isFirstAppearance = false;
+                    await this.RefreshDataStatus_GotFocus(this, EventArgs.Empty);
+                }
+
+                this.IsIndicatorRunning = false;
+            }
+        }
+
+        /// <summary>
+        ///     The OnDisappearing.
+        /// </summary>
+        protected override void OnDisappearing()
+        {
+            MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
+            base.OnDisappearing();
+            this.IsIndicatorRunning = false;
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+        }
+
+        /// <inheritdoc />
+        protected override bool OnBackButtonPressed()
+        {
+            Device.BeginInvokeOnMainThread(BackButtonCallback);
+            return true;
+
+            //////////////////////////////////////////////////////////////////////////
+            async void BackButtonCallback()
+            {
+                _ = base.OnBackButtonPressed();
+
+                if (await this.SaveChanges())
+                {
+                    this.DialogResult = DialogResult.OK;
+                    await this.Close();
+                }
+                else if (await this.CancelChanges())
+                {
+                    this.DialogResult = DialogResult.None;
+                    await this.Close();
+                }
+            }
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <returns></returns>
+        /// <remarks></remarks>
+        public string GetControlDescription()
+        {
+            if (this.ActSubType == SysCommon.ActSubTypes.PurgeActivityData)
+            {
+                return Resource.DMobilePurgeActivityData;
+            }
+
+            return "Refresh Data Status";
+        }
+
+        /// <summary>
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -617,7 +740,6 @@ namespace dMobile.View.Options
         }
 
         /// <summary>
-        ///
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -640,7 +762,8 @@ namespace dMobile.View.Options
                     {
                         this.StatusOut(Resource.DataStatusFailed);
 
-                        var errRpt = new FormErrorReport(this.ActSubType, ex, this.FullClassName, "tmrRefreshData_Tick");
+                        var errRpt = new FormErrorReport(this.ActSubType, ex, this.FullClassName,
+                            "tmrRefreshData_Tick");
                         _ = await Device.InvokeOnMainThreadAsync(async () => await errRpt.ShowDialog());
                     }
                 }
@@ -663,7 +786,8 @@ namespace dMobile.View.Options
                         // Store the last refresh date
                         refreshLast = this.SysEnv.RefreshOpt.RefreshedDataLast;
 
-                        if (this.SysEnv.RefreshOpt.SystemData && !this.SysEnv.RefreshOpt.RefreshDataChangesOnly && this.ActSubType != SysCommon.ActSubTypes.PurgeActivityData)
+                        if (this.SysEnv.RefreshOpt.SystemData && !this.SysEnv.RefreshOpt.RefreshDataChangesOnly &&
+                            this.ActSubType != SysCommon.ActSubTypes.PurgeActivityData)
                         {
                             await this.CreateDatabase();
                             this.SysEnv.RefreshOpt.IsDataCreatedInStartUp = false;
@@ -676,7 +800,8 @@ namespace dMobile.View.Options
                             refreshLast = this.SysEnv.RefreshOpt.RefreshedDataLast;
                             await this.RefreshSystemData();
                         }
-                        else if (this.SysEnv.RefreshOpt.RefreshDataChangesOnly && this.ActSubType != SysCommon.ActSubTypes.PurgeActivityData)
+                        else if (this.SysEnv.RefreshOpt.RefreshDataChangesOnly &&
+                                 this.ActSubType != SysCommon.ActSubTypes.PurgeActivityData)
                         {
                             DatabaseConnection.Open();
                             await this.RefreshSystemData();
@@ -706,7 +831,8 @@ namespace dMobile.View.Options
 
                         this.StatusOut(Resource.RefreshDataFailed);
 
-                        var errRpt = new FormErrorReport(this.ActSubType, /*this,*/ ex, this.FullClassName, "tmrRefreshData_Tick");
+                        var errRpt = new FormErrorReport(this.ActSubType, /*this,*/ ex, this.FullClassName,
+                            "tmrRefreshData_Tick");
                         _ = await Device.InvokeOnMainThreadAsync(async () => await errRpt.ShowDialog());
                     }
                     catch (Exception ex)
@@ -716,12 +842,14 @@ namespace dMobile.View.Options
 
                         this.StatusOut(Resource.RefreshDataFailed);
 
-                        var errRpt = new FormErrorReport(this.ActSubType, /*this,*/ ex, this.FullClassName, "tmrRefreshData_Tick");
+                        var errRpt = new FormErrorReport(this.ActSubType, /*this,*/ ex, this.FullClassName,
+                            "tmrRefreshData_Tick");
                         _ = await Device.InvokeOnMainThreadAsync(async () => await errRpt.ShowDialog());
                     }
                     finally
                     {
-                        this.SysEnv.RefreshOpt.IsRefreshedLastDataChangesOnly = this.SysEnv.RefreshOpt.RefreshDataChangesOnly;
+                        this.SysEnv.RefreshOpt.IsRefreshedLastDataChangesOnly =
+                            this.SysEnv.RefreshOpt.RefreshDataChangesOnly;
                         var tempRefreshOpt3 = this.SysEnv.RefreshOpt;
                         _ = this.SysEnv.RefreshOpt.SaveData(ref tempRefreshOpt3);
                     }
@@ -734,7 +862,6 @@ namespace dMobile.View.Options
         }
 
         /// <summary>
-        ///
         /// </summary>
         /// <remarks></remarks>
         private async Task CreateDatabase()
@@ -790,7 +917,6 @@ namespace dMobile.View.Options
         }
 
         /// <summary>
-        ///
         /// </summary>
         /// <remarks></remarks>
         private async Task RefreshData()
@@ -806,13 +932,12 @@ namespace dMobile.View.Options
         }
 
         /// <summary>
-        ///
         /// </summary>
         /// <remarks></remarks>
         private async Task RefreshSystemData()
         {
-            this.SysEnv.SysSettings.RegisterSysSettingsListenerStatusOut((ISysSettingsEventListener)this);
-            this.SysEnv.SysSettings.RegisterSysSettingsListenerProgressOut((ISysSettingsEventListener)this);
+            this.SysEnv.SysSettings.RegisterSysSettingsListenerStatusOut(this);
+            this.SysEnv.SysSettings.RegisterSysSettingsListenerProgressOut(this);
             var settings = this.SysEnv.SysSettings;
             SystemSettingsTasks.RequestSystemSettings(ref settings);
             this.SysEnv.SysSettings = settings;
@@ -820,27 +945,27 @@ namespace dMobile.View.Options
             var tempSystemSettings = this.SysEnv.SysSettings;
             _ = SystemSettingsTasks.SaveData(ref tempSystemSettings);
 
-            this.SysEnv.SysSettings.UnregisterSysSettingsListenerStatusOut((ISysSettingsEventListener)this);
-            this.SysEnv.SysSettings.UnregisterSysSettingsListenerProgressOut((ISysSettingsEventListener)this);
+            this.SysEnv.SysSettings.UnregisterSysSettingsListenerStatusOut(this);
+            this.SysEnv.SysSettings.UnregisterSysSettingsListenerProgressOut(this);
             this.StatusOut(string.Empty);
 
-            this.SysEnv.BarCodeSettings.RegisterBarCodeSettingsListenerStatusOut((IBarCodeSettingsEventListener)this);
-            this.SysEnv.BarCodeSettings.RegisterBarCodeSettingsListenerProgressOut((IBarCodeSettingsEventListener)this);
+            this.SysEnv.BarCodeSettings.RegisterBarCodeSettingsListenerStatusOut(this);
+            this.SysEnv.BarCodeSettings.RegisterBarCodeSettingsListenerProgressOut(this);
             this.SysEnv.BarCodeSettings.RequestBarCodeSettings();
             var tempBarCodeSettings = this.SysEnv.BarCodeSettings;
             _ = this.SysEnv.BarCodeSettings.SaveData(ref tempBarCodeSettings);
-            this.SysEnv.BarCodeSettings.UnregisterBarCodeSettingsListenerStatusOut((IBarCodeSettingsEventListener)this);
-            this.SysEnv.BarCodeSettings.UnregisterBarCodeSettingsListenerProgressOut((IBarCodeSettingsEventListener)this);
+            this.SysEnv.BarCodeSettings.UnregisterBarCodeSettingsListenerStatusOut(this);
+            this.SysEnv.BarCodeSettings.UnregisterBarCodeSettingsListenerProgressOut(this);
             this.StatusOut(string.Empty);
 
-            this.PrinterSettings.RegPrnSettingsListenerStatusOut((IPrnSettingsListener)this);
-            this.PrinterSettings.RegPrnSettingsListenerProgressOut((IPrnSettingsListener)this);
+            this.PrinterSettings.RegPrnSettingsListenerStatusOut(this);
+            this.PrinterSettings.RegPrnSettingsListenerProgressOut(this);
             this.PrinterSettings.RequestPrinterSettings();
             var tempPrinterSettings = this.PrinterSettings;
             _ = this.PrinterSettings.SaveData(ref tempPrinterSettings);
             this.PrinterSettings = tempPrinterSettings;
-            this.PrinterSettings.UnregPrnSettingsListenerStatusOut((IPrnSettingsListener)this);
-            this.PrinterSettings.UnregPrnSettingsListenerProgressOut((IPrnSettingsListener)this);
+            this.PrinterSettings.UnregPrnSettingsListenerStatusOut(this);
+            this.PrinterSettings.UnregPrnSettingsListenerProgressOut(this);
             this.StatusOut(string.Empty);
 
             this.ContactUsers.RegisterDataAccessListenerProgressOut(this);
@@ -880,7 +1005,6 @@ namespace dMobile.View.Options
         }
 
         /// <summary>
-        ///
         /// </summary>
         /// <remarks></remarks>
         private async Task DataStatus()
@@ -889,8 +1013,17 @@ namespace dMobile.View.Options
 
             await Device.InvokeOnMainThreadAsync(() =>
             {
-                this.ExtraInfoItems.Add(new Message() { MessageIndex = this.messageIndex++, MessageValue = Resource.LastRefresh + " " + this.SysEnv.RefreshOpt.RefreshedDataLast.ToString() });
-                this.ExtraInfoItems.Add(new Message() { MessageIndex = this.messageIndex++, MessageValue = Resource.RefreshChangesOnly + " " + this.SysEnv.RefreshOpt.IsRefreshedLastDataChangesOnly.ToString() });
+                this.ExtraInfoItems.Add(new Message
+                {
+                    MessageIndex = this.messageIndex++,
+                    MessageValue = Resource.LastRefresh + " " + this.SysEnv.RefreshOpt.RefreshedDataLast
+                });
+                this.ExtraInfoItems.Add(new Message
+                {
+                    MessageIndex = this.messageIndex++,
+                    MessageValue = Resource.RefreshChangesOnly + " " +
+                                   this.SysEnv.RefreshOpt.IsRefreshedLastDataChangesOnly
+                });
             });
 
             this.ContactUsers.RegisterDataAccessListenerProgressOut(this);
@@ -932,7 +1065,6 @@ namespace dMobile.View.Options
         }
 
         /// <summary>
-        ///
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -941,13 +1073,12 @@ namespace dMobile.View.Options
         {
             Device.BeginInvokeOnMainThread(() =>
             {
-                this.ExtraInfoItems.Add(new Message() { MessageIndex = this.messageIndex++, MessageValue = message });
+                this.ExtraInfoItems.Add(new Message { MessageIndex = this.messageIndex++, MessageValue = message });
                 this.lstStatus.ScrollTo(this.ExtraInfoItems.LastOrDefault(), ScrollToPosition.MakeVisible, false);
             });
         }
 
         /// <summary>
-        ///
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -962,7 +1093,6 @@ namespace dMobile.View.Options
         }
 
         /// <summary>
-        ///
         /// </summary>
         private async Task RefreshSystemDataLocationMap()
         {
@@ -1010,7 +1140,6 @@ namespace dMobile.View.Options
         }
 
         /// <summary>
-        ///
         /// </summary>
         private async Task RefreshSystemDataProducts()
         {
@@ -1044,17 +1173,18 @@ namespace dMobile.View.Options
 
             // This xml settings file need to be called hear not called from the refresh system data method,
             // because scheme codes must exist in there table. This routine seeks the scheme code.
-            this.SchemeLabelSettings.RegProdSchemeLabelSettingsListenerStatusOut((IProdSchemeLabelSettingsListener)this);
-            this.SchemeLabelSettings.RegProdSchemeLabelSettingsListenerProgressOut((IProdSchemeLabelSettingsListener)this);
+            this.SchemeLabelSettings.RegProdSchemeLabelSettingsListenerStatusOut(this);
+            this.SchemeLabelSettings.RegProdSchemeLabelSettingsListenerProgressOut(this);
             await this.SchemeLabelSettings.RequestProductSchemeLabelSettings();
             var tempSchemeLblSettings = this.SchemeLabelSettings;
             _ = this.SchemeLabelSettings.SaveData(ref tempSchemeLblSettings);
             this.SchemeLabelSettings = tempSchemeLblSettings;
-            this.SchemeLabelSettings.UnregProdSchemeLabelSettingsListenerStatusOut((IProdSchemeLabelSettingsListener)this);
-            this.SchemeLabelSettings.UnregProdSchemeLabelSettingsListenerProgressOut((IProdSchemeLabelSettingsListener)this);
+            this.SchemeLabelSettings.UnregProdSchemeLabelSettingsListenerStatusOut(this);
+            this.SchemeLabelSettings.UnregProdSchemeLabelSettingsListenerProgressOut(this);
             this.StatusOut(string.Empty);
 
-            if (this.SysEnv.SysSettings.IsEnableDefaultDetailValues || this.ActSubType == SysCommon.ActSubTypes.PurgeActivityData)
+            if (this.SysEnv.SysSettings.IsEnableDefaultDetailValues ||
+                this.ActSubType == SysCommon.ActSubTypes.PurgeActivityData)
             {
                 this.ProdSchemeLot.RegisterDataAccessListenerProgressOut(this);
                 this.ProdSchemeLot.RegisterDataAccessListenerStatusOut(this);
@@ -1115,7 +1245,6 @@ namespace dMobile.View.Options
         }
 
         /// <summary>
-        ///
         /// </summary>
         private async Task DataStatusLocationMap()
         {
@@ -1151,7 +1280,6 @@ namespace dMobile.View.Options
         }
 
         /// <summary>
-        ///
         /// </summary>
         private async Task DataStatusProducts()
         {
@@ -1217,7 +1345,6 @@ namespace dMobile.View.Options
         }
 
         /// <summary>
-        ///
         /// </summary>
         private async Task DataStatusReceiving()
         {
@@ -1241,7 +1368,6 @@ namespace dMobile.View.Options
         }
 
         /// <summary>
-        ///
         /// </summary>
         private async Task DataStatusPicking()
         {
@@ -1265,7 +1391,6 @@ namespace dMobile.View.Options
         }
 
         /// <summary>
-        ///
         /// </summary>
         private async Task DataStatusReturns()
         {
@@ -1289,7 +1414,6 @@ namespace dMobile.View.Options
         }
 
         /// <summary>
-        ///
         /// </summary>
         private async Task DataStatusTransfers()
         {
@@ -1331,7 +1455,6 @@ namespace dMobile.View.Options
         }
 
         /// <summary>
-        ///
         /// </summary>
         private async Task DataStatusCounts()
         {
@@ -1373,7 +1496,6 @@ namespace dMobile.View.Options
         }
 
         /// <summary>
-        ///
         /// </summary>
         private async Task DataStatusTickets()
         {
@@ -1433,7 +1555,6 @@ namespace dMobile.View.Options
         }
 
         /// <summary>
-        ///
         /// </summary>
         private async Task RefreshDataBarCodeAssociation()
         {
@@ -1455,7 +1576,6 @@ namespace dMobile.View.Options
         }
 
         /// <summary>
-        ///
         /// </summary>
         private async Task RefreshDataAdjustments()
         {
@@ -1503,7 +1623,6 @@ namespace dMobile.View.Options
         }
 
         /// <summary>
-        ///
         /// </summary>
         private async Task RefreshDataCounts()
         {
@@ -1590,7 +1709,6 @@ namespace dMobile.View.Options
         }
 
         /// <summary>
-        ///
         /// </summary>
         private async Task RefreshDataProduction()
         {
@@ -1704,7 +1822,6 @@ namespace dMobile.View.Options
         }
 
         /// <summary>
-        ///
         /// </summary>
         private async Task RefreshDataReceiving()
         {
@@ -1756,11 +1873,11 @@ namespace dMobile.View.Options
         }
 
         /// <summary>
-        ///
         /// </summary>
         private async Task RefreshDataPurchaseOrderWorkSheet()
         {
-            if (this.SysEnv.RefreshOpt.PurchaseOrderWorkSheet || this.ActSubType == SysCommon.ActSubTypes.PurgeActivityData)
+            if (this.SysEnv.RefreshOpt.PurchaseOrderWorkSheet ||
+                this.ActSubType == SysCommon.ActSubTypes.PurgeActivityData)
             {
                 this.PurchaseOrderWorkSheetItem.RegisterDataAccessListenerStatusOut(this);
                 await this.PurchaseOrderWorkSheetItem.PurgeData();
@@ -1779,7 +1896,6 @@ namespace dMobile.View.Options
         }
 
         /// <summary>
-        ///
         /// </summary>
         private async Task RefreshDataPicking()
         {
@@ -1835,7 +1951,6 @@ namespace dMobile.View.Options
         }
 
         /// <summary>
-        ///
         /// </summary>
         private async Task RefreshDataTransfers()
         {

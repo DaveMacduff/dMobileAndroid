@@ -322,7 +322,9 @@ namespace dMobile.GroundWork
                             dictionaryFamily.TryGetValue(familyCode, out familyRefno);
                             isProdFound = false;
 
-                            var resultsProduct = transaction.Query<tProductModel>("SELECT ProductFKRefno FROM tProduct WHERE ProductFKRefno = ?", prodFKRefno);
+                            var resultsProduct = transaction.Query<tProductModel>(
+                                "SELECT ProductFKRefno FROM tProduct WHERE ProductFKRefno = ?",
+                                prodFKRefno);
 
                             if (resultsProduct?.Count > 0)
                             {
@@ -330,18 +332,18 @@ namespace dMobile.GroundWork
 
                                 if (refreshDataChangesOnly)
                                 {
-                                    var queryUpdate = "UPDATE tProduct" +
-                                                      " SET FamilyRefno = ?," +
-                                                      " ProductCode = ?," +
-                                                      " ProductDescription = ?," +
-                                                      " ProductBrandDescription = ?," +
-                                                      " ProductIsCatchCount = ?," +
-                                                      " ProductIsCatchWeight = ?," +
-                                                      " ProductIsCatchAsk = ?," +
-                                                      " ProductIsCatchAskZero = ?," +
-                                                      " ProductAllowConvertProduct = ?" +
-                                                      " ProductAcceptDays = ?" +
-                                                      " WHERE ProductFKRefno = ?";
+                                    var queryUpdate = @"UPDATE tProduct
+                                        SET FamilyRefno = ?,
+                                            ProductCode = ?,
+                                            ProductDescription = ?,
+                                            ProductBrandDescription = ?,
+                                            ProductIsCatchCount = ?,
+                                            ProductIsCatchWeight = ?,
+                                            ProductIsCatchAsk = ?,
+                                            ProductIsCatchAskZero = ?,
+                                            ProductAllowConvertProduct = ?,
+                                            ProductAcceptDays = ?
+                                        WHERE ProductFKRefno = ?";
                                     var parametersUpdate = new object[]
                                     {
                                         familyRefno,
@@ -363,33 +365,33 @@ namespace dMobile.GroundWork
 
                             if (!isProdFound)
                             {
-                                var queryInsert = "INSERT INTO tProduct " +
-                                                  "(ProductSchemeRefno, " +
-                                                  "FamilyRefno, " +
-                                                  "ProductCode, " +
-                                                  "ProductFKRefno, " +
-                                                  "ProductDescription, " +
-                                                  "ProductIsCatchCount, " +
-                                                  "ProductIsCatchWeight, " +
-                                                  "ProductIsCatchAsk, " +
-                                                  "ProductIsCatchAskZero, " +
-                                                  "ProductBrandDescription, " +
-                                                  "ProductAllowConvertProduct, " +
-                                                  "ProductAcceptDays) " +
-                                                  "VALUES " +
-                                                  "(?, " +
-                                                  "?, " +
-                                                  "?, " +
-                                                  "?, " +
-                                                  "?, " +
-                                                  "?, " +
-                                                  "?, " +
-                                                  "?, " +
-                                                  "?, " +
-                                                  "?, " +
-                                                  "?, " +
-                                                  "?)";
-                                var parametersInsert = new object[]
+                                var queryInsert = @"INSERT INTO tProduct 
+                                        (ProductSchemeRefno, 
+                                        FamilyRefno, 
+                                        ProductCode, 
+                                        ProductFKRefno, 
+                                        ProductDescription, 
+                                        ProductIsCatchCount, 
+                                        ProductIsCatchWeight, 
+                                        ProductIsCatchAsk, 
+                                        ProductIsCatchAskZero, 
+                                        ProductBrandDescription, 
+                                        ProductAllowConvertProduct, 
+                                        ProductAcceptDays) 
+                                    VALUES 
+                                        (?, 
+                                        ?, 
+                                        ?, 
+                                        ?, 
+                                        ?, 
+                                        ?, 
+                                        ?, 
+                                        ?, 
+                                        ?, 
+                                        ?, 
+                                        ?, 
+                                        ?)";
+                                    var parametersInsert = new object[]
                                 {
                                     schemeRefno,
                                     familyRefno,
@@ -453,14 +455,14 @@ namespace dMobile.GroundWork
             var xml = XmlWriter.Create(xmlString, settings);
 
             var request = XDocument.Parse(
-                "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>"
-                + "<imclient>"
-                + "<command>"
-                + "<action>REQUEST PRODUCTS</action>"
-                + await SysCommon.GetRequestDefaults(true)
-                + "<family_code>" + strFamilyCode + "</family_code>"
-                + "</command>"
-                + "</imclient>");
+                $@"<?xml version=""1.0"" encoding=""utf-8"" standalone=""yes""?>
+                    <imclient>
+                    <command>
+                        <action>REQUEST PRODUCTS</action>
+                        {await SysCommon.GetRequestDefaults(true)}
+                        <family_code>{strFamilyCode}</family_code>
+                    </command>
+                    </imclient>");
 
             request.Save(xml);
             await xml.FlushAsync();

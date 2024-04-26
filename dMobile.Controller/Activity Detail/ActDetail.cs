@@ -60,6 +60,10 @@ namespace dMobile.Controller.Activity_Detail
         /// </summary>
         public event DataLayerProgressOutEventHandler OnDataLayerProgressOut;
 
+        public bool Flag { get; set; }
+
+        public Color ItemBackColor => Flag ? Color.Green : Color.Red;
+
         /// <summary>
         ///     Gets or sets the full class name.
         /// </summary>
@@ -296,6 +300,12 @@ namespace dMobile.Controller.Activity_Detail
         /// <param name="listViewMain"><see cref="ListView" /> List view of activity details.</param>
         /// <returns>Constructed observable collection.</returns>
         public abstract ObservableCollection<object> DesignGrid(ref Grid gridMain, ref ListView listViewMain);
+
+        /// <summary>
+        ///     Create an activity data dump.
+        /// </summary>
+        /// <returns><see cref="XDocument"/> XML data dump.</returns>
+        public abstract XDocument CreateDump();
 
         /// <summary>
         ///     Design activity grid template.
@@ -595,29 +605,28 @@ namespace dMobile.Controller.Activity_Detail
         /// <returns><see cref="XDocument" /> Activity detail XML.</returns>
         public XDocument GetXml(ActDetail actDetail)
         {
-            return XDocument.Parse(
-                "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
-                + "<params>"
-                + "<refno></refno>"
-                + "<ser_refno></ser_refno>"
-                + "<serial>" + actDetail.SchemeData.SingleTradeItemSerialNumber + "</serial>"
-                + "<pdate>" + actDetail.SchemeData.LogisticUnitProductionDate + "</pdate>"
-                + "<lot_no>" + actDetail.SchemeData.LogisticUnitBatchLotNumber + "</lot_no>"
-                + "<bdate>" + actDetail.SchemeData.LogisticUnitBestBeforeSellByDate + "</bdate>"
-                + "<variant_code>" + actDetail.SchemeData.VariantCode + "</variant_code>"
-                + "<variant_no>" + actDetail.SchemeData.VariantNumber + "</variant_no>"
-                + "<alt_qty>" + actDetail.Quantity + "</alt_qty>"
-                + "<wt_qty>" + actDetail.WeightQuantity + "</wt_qty>"
-                + "<base_qty>" + actDetail.BaseQuantity + "</base_qty>"
-                + "<skid_code>" + this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidCode + "</skid_code>"
-                + "<is_batch_print_product_label>" + this.SysEnv.SysSettings.IsPrintProductLabelsAsBatch
-                + "</is_batch_print_product_label>"
-                + "<extra1>" + actDetail.ActExtra.Text1 + "</extra1>"
-                + "<extra2>" + actDetail.ActExtra.Text2 + "</extra2>"
-                + "<extra3>" + actDetail.ActExtra.Text3 + "</extra3>"
-                + "<extra4>" + actDetail.ActExtra.Text4 + "</extra4>"
-                + "<extra5>" + actDetail.ActExtra.DateTime1 + "</extra5>"
-                + "</params>");
+            string xml = $@"<?xml version=""1.0"" encoding=""utf-16"" standalone=""yes""?>
+                <params>
+                <refno></refno>
+                <ser_refno></ser_refno>
+                <serial>{actDetail.SchemeData.SingleTradeItemSerialNumber}</serial>
+                <pdate>{actDetail.SchemeData.LogisticUnitProductionDate}</pdate>
+                <lot_no>{actDetail.SchemeData.LogisticUnitBatchLotNumber}</lot_no>
+                <bdate>{actDetail.SchemeData.LogisticUnitBestBeforeSellByDate}</bdate>
+                <variant_code>{actDetail.SchemeData.VariantCode}</variant_code>
+                <variant_no>{actDetail.SchemeData.VariantNumber}</variant_no>
+                <alt_qty>{actDetail.Quantity}</alt_qty>
+                <wt_qty>{actDetail.WeightQuantity}</wt_qty>
+                <base_qty>{actDetail.BaseQuantity}</base_qty>
+                <skid_code>{this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidCode}</skid_code>
+                <is_batch_print_product_label>{this.SysEnv.SysSettings.IsPrintProductLabelsAsBatch}</is_batch_print_product_label>
+                <extra1>{actDetail.ActExtra.Text1}</extra1>
+                <extra2>{actDetail.ActExtra.Text2}</extra2>
+                <extra3>{actDetail.ActExtra.Text3}</extra3>
+                <extra4>{actDetail.ActExtra.Text4}</extra4>
+                <extra5>{actDetail.ActExtra.DateTime1}</extra5>
+                </params>";
+            return XDocument.Parse(xml);
         }
 
         /// <summary>
@@ -906,31 +915,32 @@ namespace dMobile.Controller.Activity_Detail
             }
 
             var itemFkRefno = this.ActItem.ActStatus == SysCommon.ActStatus.Inserted ? 0 : this.ActItem.ItemFkRefno;
-            var def = "<prod_id>" + this.ActItem.ProdInfo.Code + "</prod_id>"
-                      + "<is_bc>" + this.ActItem.ProdInfo.UnitIsBc + "</is_bc>"
-                      + "<whs_id>" + this.LocMap.CurrLocMap.WhsFkRefno + "</whs_id>"
-                      + "<sect_refno>" + this.LocMap.CurrLocMap.SectFkRefno + "</sect_refno>"
-                      + "<slot_refno>" + this.LocMap.CurrLocMap.SlotFkRefno + "</slot_refno>"
-                      + "<refno>" + this.ActItem.ActHdr.HdrFkRefno + "</refno>"
-                      + "<itm_refno>" + itemFkRefno + "</itm_refno>"
-                      + "<ser_refno>" + this.DetailFkRefno + "</ser_refno>"
-                      + "<alt_qty>" + this.Quantity + "</alt_qty>"
-                      + "<alt_unit>" + this.ActItem.ProdInfo.UnitCode + "</alt_unit>"
-                      + "<base_qty>" + this.BaseQuantity + "</base_qty>"
-                      + "<base_unit>" + this.ActItem.ProdInfo.BaseUnitCode + "</base_unit>"
-                      + "<wt_qty>" + this.WeightQuantity + "</wt_qty>"
-                      + "<wt_unit>" + this.ActItem.ProdInfo.WeightUnitCode + "</wt_unit>"
-                      + "<serial>" + this.SchemeData.SingleTradeItemSerialNumber + "</serial>"
-                      + "<lot_no>" + this.SchemeData.LogisticUnitBatchLotNumber + "</lot_no>"
-                      + "<pdate>" + productionDate + "</pdate>"
-                      + "<bdate>" + bestBeforeDate + "</bdate>"
-                      + "<variant_no>" + this.SchemeData.VariantNumber + "</variant_no>"
-                      + "<extra1>" + this.ActExtra.Text1 + "</extra1>"
-                      + "<extra2>" + this.ActExtra.Text2 + "</extra2>"
-                      + "<extra3>" + this.ActExtra.Text3 + "</extra3>"
-                      + "<extra4>" + this.ActExtra.Text4 + "</extra4>"
-                      + "<extra5>" + this.ActExtra.DateTime1 + "</extra5>"
-                      + "<is_disconnected>" + this.SysEnv.SysSettings.IsDisconnectedMode + "</is_disconnected>";
+            string def = $@"
+                <prod_id>{this.ActItem.ProdInfo.Code}</prod_id>
+                <is_bc>{this.ActItem.ProdInfo.UnitIsBc}</is_bc>
+                <whs_id>{this.LocMap.CurrLocMap.WhsFkRefno}</whs_id>
+                <sect_refno>{this.LocMap.CurrLocMap.SectFkRefno}</sect_refno>
+                <slot_refno>{this.LocMap.CurrLocMap.SlotFkRefno}</slot_refno>
+                <refno>{this.ActItem.ActHdr.HdrFkRefno}</refno>
+                <itm_refno>{itemFkRefno}</itm_refno>
+                <ser_refno>{this.DetailFkRefno}</ser_refno>
+                <alt_qty>{this.Quantity}</alt_qty>
+                <alt_unit>{this.ActItem.ProdInfo.UnitCode}</alt_unit>
+                <base_qty>{this.BaseQuantity}</base_qty>
+                <base_unit>{this.ActItem.ProdInfo.BaseUnitCode}</base_unit>
+                <wt_qty>{this.WeightQuantity}</wt_qty>
+                <wt_unit>{this.ActItem.ProdInfo.WeightUnitCode}</wt_unit>
+                <serial>{this.SchemeData.SingleTradeItemSerialNumber}</serial>
+                <lot_no>{this.SchemeData.LogisticUnitBatchLotNumber}</lot_no>
+                <pdate>{productionDate}</pdate>
+                <bdate>{bestBeforeDate}</bdate>
+                <variant_no>{this.SchemeData.VariantNumber}</variant_no>
+                <extra1>{this.ActExtra.Text1}</extra1>
+                <extra2>{this.ActExtra.Text2}</extra2>
+                <extra3>{this.ActExtra.Text3}</extra3>
+                <extra4>{this.ActExtra.Text4}</extra4>
+                <extra5>{this.ActExtra.DateTime1}</extra5>
+                <is_disconnected>{this.SysEnv.SysSettings.IsDisconnectedMode}</is_disconnected>";
 
             return def;
         }
@@ -1042,45 +1052,46 @@ namespace dMobile.Controller.Activity_Detail
                 ////    }
                 ////}
 
-                const string query = "INSERT INTO tActivityDetail (" +
-                                     "ActivityDetailSubType, " +
-                                     "ActivityDetailStatus, " +
-                                     "ActivityItemRefno, " +
-                                     "LocationMapRefno, " +
-                                     "ProductUnitRefno, " +
-                                     "ActivityDetailUniqueSchemeID, " +
-                                     "ActivityDetailSchemeID, " +
-                                     "ActivityDetailQuantity, " +
-                                     "ActivityDetailBaseQuantity, " +
-                                     "ActivityDetailWeightQuantity, " +
-                                     "ActivityDetailSingleTradeItemSerialNumber, " +
-                                     "ActivityDetailLogisticUnitBatchLotNumber, " +
-                                     "ActivityDetailLogisticUnitBestBeforeSellByDate, " +
-                                     "ActivityDetailLogisticUnitExpiryUseByDate, " +
-                                     "ActivityDetailLogisticUnitProductionDate, " +
-                                     "ActivityDetailLogisticUnitDueDate, " +
-                                     "ActivityDetailLogisticUnitPackagingDate, " +
-                                     "ActivityDetailLogisticUnitSkidNumber" +
-                                     ") VALUES (" +
-                                     "?, " +
-                                     "?, " +
-                                     "?, " +
-                                     "?, " +
-                                     "?, " +
-                                     "?, " +
-                                     "?, " +
-                                     "?, " +
-                                     "?, " +
-                                     "?, " +
-                                     "?, " +
-                                     "?, " +
-                                     "?, " +
-                                     "?, " +
-                                     "?, " +
-                                     "?, " +
-                                     "?, " +
-                                     "?" +
-                                     ")";
+                const string query = @"
+                    INSERT INTO tActivityDetail (
+                        ActivityDetailSubType, 
+                        ActivityDetailStatus, 
+                        ActivityItemRefno, 
+                        LocationMapRefno, 
+                        ProductUnitRefno, 
+                        ActivityDetailUniqueSchemeID, 
+                        ActivityDetailSchemeID, 
+                        ActivityDetailQuantity, 
+                        ActivityDetailBaseQuantity, 
+                        ActivityDetailWeightQuantity, 
+                        ActivityDetailSingleTradeItemSerialNumber, 
+                        ActivityDetailLogisticUnitBatchLotNumber, 
+                        ActivityDetailLogisticUnitBestBeforeSellByDate, 
+                        ActivityDetailLogisticUnitExpiryUseByDate, 
+                        ActivityDetailLogisticUnitProductionDate, 
+                        ActivityDetailLogisticUnitDueDate, 
+                        ActivityDetailLogisticUnitPackagingDate, 
+                        ActivityDetailLogisticUnitSkidNumber
+                    ) VALUES (
+                        ?, 
+                        ?, 
+                        ?, 
+                        ?, 
+                        ?, 
+                        ?, 
+                        ?, 
+                        ?, 
+                        ?, 
+                        ?, 
+                        ?, 
+                        ?, 
+                        ?, 
+                        ?, 
+                        ?, 
+                        ?, 
+                        ?, 
+                        ?
+                    )";
 
                 var parameters = new object[]
                 {
@@ -1120,8 +1131,9 @@ namespace dMobile.Controller.Activity_Detail
                     {
                         var schemeVarRefno = Convert.ToInt32(results[0].ProductSchemeVariantRefno);
                         _ = await conn.ExecuteAsync(
-                            "INSERT INTO tActivityDetailProductSchemeVariantXRef" +
-                            " (ActivityDetailRefno, ProductSchemeVariantRefno) VALUES (?, ?)",
+                            @"INSERT INTO tActivityDetailProductSchemeVariantXRef
+                                (ActivityDetailRefno, ProductSchemeVariantRefno)
+                                VALUES (?, ?)",
                             Convert.ToInt32(actDetailRefno),
                             Convert.ToInt32(schemeVarRefno));
                     }
@@ -1137,23 +1149,24 @@ namespace dMobile.Controller.Activity_Detail
                     string.IsNullOrEmpty(this.ActExtra.Text4) ||
                     SysCommon.IsEmptyDate(this.ActExtra.DateTime1))
                 {
-                    var queryExtra = "INSERT INTO tActivityDetailExtra (" +
-                                     "ActivityDetailRefno, " +
-                                     "ActivityDetailSubType, " +
-                                     "ActivityDetailExtra1Text, " +
-                                     "ActivityDetailExtra2Text, " +
-                                     "ActivityDetailExtra3Text, " +
-                                     "ActivityDetailExtra4Text, " +
-                                     "ActivityDetailExtra5Date" +
-                                     ") VALUES (" +
-                                     "?, " +
-                                     "?, " +
-                                     "?, " +
-                                     "?, " +
-                                     "?, " +
-                                     "?, " +
-                                     "?" +
-                                     ")";
+                    var queryExtra = @"
+                        INSERT INTO tActivityDetailExtra (
+                            ActivityDetailRefno, 
+                            ActivityDetailSubType, 
+                            ActivityDetailExtra1Text, 
+                            ActivityDetailExtra2Text, 
+                            ActivityDetailExtra3Text, 
+                            ActivityDetailExtra4Text, 
+                            ActivityDetailExtra5Date
+                        ) VALUES (
+                            ?, 
+                            ?, 
+                            ?, 
+                            ?, 
+                            ?, 
+                            ?, 
+                            ?
+                        )";
 
                     var parametersExtra = new object[]
                     {

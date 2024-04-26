@@ -184,5 +184,14 @@ namespace dMobile.Controller.Activity
         {
             throw new NotImplementedException();
         }
+
+        /// <summary>
+        ///     Create a dump of the activity header data
+        /// </summary>
+        /// <returns><see cref="XDocument"/> XML of activity data.</returns>
+        public override XDocument CreateDump()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -525,5 +525,10 @@ namespace dMobile.Controller.Activity_Detail
 
             return (DataTemplate)this.resourceDictionary["dataTemplateInventoryInquiryDetail"];
         }
+
+        public override XDocument CreateDump()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

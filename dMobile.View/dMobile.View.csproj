@@ -55,6 +55,10 @@
     <Compile Update="Activity\ActivityConvertUnitDetail.xaml.cs">
       <DependentUpon>ActivityConvertUnitDetail.xaml</DependentUpon>
     </Compile>
+    <Compile Update="Activity\ActivityProductLabelQuantity.xaml.cs">
+      <SubType>Code</SubType>
+      <DependentUpon>ActivityProductLabelQuantity.xaml</DependentUpon>
+    </Compile>
     <Compile Update="Activity\ActivityHdrReplenishment.xaml.cs">
       <DependentUpon>ActivityHdrReplenishment.xaml</DependentUpon>
     </Compile>
@@ -193,6 +197,10 @@
     <Compile Update="Menus\UtilitiesMenu.xaml.cs">
       <DependentUpon>UtilitiesMenu.xaml</DependentUpon>
     </Compile>
+    <Compile Update="Options\DataDump.xaml.cs">
+      <SubType>Code</SubType>
+      <DependentUpon>DataDump.xaml</DependentUpon>
+    </Compile>
     <Compile Update="Options\SubmitBatchFilter.xaml.cs">
       <DependentUpon>SubmitBatchFilter.xaml</DependentUpon>
     </Compile>
@@ -241,5 +249,15 @@
     <Compile Update="Views\SelectSkid.xaml.cs">
       <DependentUpon>SelectSkid.xaml</DependentUpon>
     </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Update="Activity\ActivityProductLabelQuantity.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Options\DataDump.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
   </ItemGroup>
 </Project>

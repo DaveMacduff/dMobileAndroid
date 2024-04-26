@@ -1253,5 +1253,10 @@ namespace dMobile.Controller.Activity_Detail
         {
             return $"Adjustment # {this.ActItem.ActHdr.HdrFkRefno}";
         }
+
+        public override XDocument CreateDump()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

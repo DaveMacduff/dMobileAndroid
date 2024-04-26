@@ -334,15 +334,15 @@ namespace dMobile.View.Activity
 
                 // IsReadyToApply will perform any validations, such as duplicate checks and
                 // quantity validations.
-                var xmlParam = XDocument.Parse(
-                    "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
-                    + "<imclient>"
-                    + "<itm_refno>" + this.ActDetail.ActItem.ItemFkRefno + "</itm_refno>"
-                    + "<alt_qty>" + this.ActDetailEdit.AltQuantity + "</alt_qty>"
-                    + "<wt_qty>" + this.ActDetailEdit.WeightQuantity + "</wt_qty>"
-                    + "<ActivityDetailUniqueSchemeID>" + uniqueSchemeId + "</ActivityDetailUniqueSchemeID>"
-                    + "</imclient>");
+                var xml = $@"<?xml version=""1.0"" encoding=""utf-16"" standalone=""yes""?>
+                    <imclient>
+                    <itm_refno>{this.ActDetail.ActItem.ItemFkRefno}</itm_refno>
+                    <alt_qty>{this.ActDetailEdit.AltQuantity}</alt_qty>
+                    <wt_qty>{this.ActDetailEdit.WeightQuantity}</wt_qty>
+                    <ActivityDetailUniqueSchemeID>{uniqueSchemeId}</ActivityDetailUniqueSchemeID>
+                    </imclient>";
 
+                var xmlParam = XDocument.Parse(xml);
                 await this.ActDetail.ActItem.IsReadyToApply(xmlParam);
                 return;
 
@@ -365,8 +365,7 @@ namespace dMobile.View.Activity
 
                     if (this.ActDetailEdit.WeightQuantity == 0)
                     {
-                        throw new MessageOnlyException(
-                            "Weight quantity is expected to have a value not equal to zero.");
+                        throw new MessageOnlyException("Weight quantity is expected to have a value not equal to zero.");
                     }
 
                     // Alt quantity equal to zero will be considered valid for these activity subtypes.
@@ -813,6 +812,8 @@ namespace dMobile.View.Activity
                                     "The entered best before date is outside an acceptable range.");
                             }
                         }
+
+                        CheckBestBeforeAcceptedDays();
                     }
 
                     //////////////////////////////////////////////////////////////////////////
@@ -840,6 +841,8 @@ namespace dMobile.View.Activity
                                     "The entered production date is outside an acceptable range.");
                             }
                         }
+
+                        CheckProductionAcceptedDays();
                     }
 
                     //////////////////////////////////////////////////////////////////////////
@@ -1134,6 +1137,20 @@ namespace dMobile.View.Activity
             // Set the focus to the first control, if this is the first appearance.
             if (this.IsFirstAppearance)
             {
+                try
+                {
+                    this.CheckProductionAcceptedDays();
+                    this.CheckBestBeforeAcceptedDays();
+                }
+                catch (MessageOnlyException msgEx)
+                {
+                    await Device.InvokeOnMainThreadAsync(async () =>
+                        await Application.Current.MainPage.DisplayAlert(
+                            this.ActDetail.GetControlDescription(),
+                            msgEx.Message,
+                            Resource.OK));
+                }
+
                 await this.SetStartingFocus();
             }
 
@@ -1612,6 +1629,12 @@ namespace dMobile.View.Activity
                 }
                 else
                 {
+                    ////var form = new FormDialogContainer(
+                    ////    EDialogTypes.ActivityProductLabelQuantity,
+                    ////    this.ActDetail,
+                    ////    this.ActSubType);
+                    ////_ = await form.DisplayControl.ShowDialog();
+
                     var sendReq = await this.ActDetail.CreateSubmitProductLabelXml(
                         await this.ActDetailEdit.GetXmlFromActivityDetailEdit(this.ActDetailEdit));
                     _ = SysCommon.SubmitComm(sendReq);
@@ -1696,6 +1719,48 @@ namespace dMobile.View.Activity
             finally
             {
                 await this.ScannerEnable();
+            }
+        }
+
+        /// <summary>
+        ///     Check the accepted days for production date and best before date.
+        /// </summary>
+        private void CheckProductionAcceptedDays()
+        {
+            if (this.ActSubType == SysCommon.ActSubTypes.Receiving && this.ActDetail.ActItem.ProdInfo.ProductAcceptDays > 0)
+            {
+                if (this.ActDetail.ActItem.ProdInfo.Scheme.IsProductionDateTracked &&
+                    this.ActDetail.SchemeData.LogisticUnitProductionDate > new DateTime(1900, 1, 1))
+                {
+                    var acceptDate = this.ActDetail.SchemeData.LogisticUnitProductionDate.AddDays(
+                        this.ActDetail.ActItem.ProdInfo.ProductAcceptDays);
+                    if (acceptDate < DateTime.Now.Date)
+                    {
+                        var msg = $"Production date {acceptDate:MM/dd/yyyy} must be greater than {DateTime.Now.Date:MM/dd/yyyy}.";
+                        throw new MessageOnlyException(msg);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        ///     Check the accepted days for best before date.
+        /// </summary>
+        private void CheckBestBeforeAcceptedDays()
+        {
+            if (this.ActSubType == SysCommon.ActSubTypes.Receiving && this.ActDetail.ActItem.ProdInfo.ProductAcceptDays > 0)
+            {
+                if (this.ActDetail.ActItem.ProdInfo.Scheme.IsBestBeforeDateTracked &&
+                    this.ActDetail.SchemeData.LogisticUnitBestBeforeSellByDate > new DateTime(1900, 1, 1))
+                {
+                    var acceptDate = DateTime.Now.AddDays(this.ActDetail.ActItem.ProdInfo.ProductAcceptDays);
+                    if (this.ActDetail.SchemeData.LogisticUnitBestBeforeSellByDate <= acceptDate)
+                    {
+                        var msg = $"Best before date {this.ActDetail.SchemeData.LogisticUnitBestBeforeSellByDate:MM/dd/yyyy}" +
+                                  $" must be greater than {acceptDate:MM/dd/yyyy}.";
+                        throw new MessageOnlyException(msg);
+                    }
+                }
             }
         }
 

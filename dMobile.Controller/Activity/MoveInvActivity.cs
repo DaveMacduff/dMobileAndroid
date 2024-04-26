@@ -184,5 +184,10 @@ namespace dMobile.Controller.Activity
         {
             throw new NotImplementedException();
         }
+
+        public override XDocument CreateDump()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

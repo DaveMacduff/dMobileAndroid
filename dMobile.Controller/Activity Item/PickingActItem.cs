@@ -195,7 +195,7 @@ namespace dMobile.Controller.Activity_Item
             if (actItemFoundRefno >= 0)
             {
                 var idx = 0;
-                foreach (PickingItem item in this.ListItems)
+                foreach (PickingItem item in this.ListItems.Cast<PickingItem>())
                 {
                     if (item.ActivityItemRefno == this.ItemRefno)
                     {
@@ -328,7 +328,7 @@ namespace dMobile.Controller.Activity_Item
                 if (weight < weightLower || weight > weightUpper)
                 {
                     // clsPickingSingleAcivityitem is different, it only raises a message box as a warning, but continues.
-                    // Lekker changed it's mind again and only wanting a warning rather than stop.
+                    // Lekker changed its mind again and only wanting a warning rather than stop.
                     // TODO: Figure out why raising a MessageOnlyException is not being caught as such, but rather
                     // as a System.Exception.
                     throw new MessageOnlyException("Item is outside of expected weight.");
@@ -375,7 +375,7 @@ namespace dMobile.Controller.Activity_Item
         /// </summary>
         /// <param name="activityDetailFkRefno">.</param>
         /// <returns>.</returns>
-        public async override Task<ActItemSchemeData> GetProdSchemeDataFromDetailFkRefno(int activityDetailFkRefno)
+        public override async Task<ActItemSchemeData> GetProdSchemeDataFromDetailFkRefno(int activityDetailFkRefno)
         {
             var xmlString = new StringBuilder();
             var settings = new XmlWriterSettings
@@ -387,16 +387,17 @@ namespace dMobile.Controller.Activity_Item
 
             var itemSchemeData = new ActItemSchemeData();
 
-            var request = XDocument.Parse(
-                "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>"
-                + "<imclient>"
-                + "<command>"
-                + "<action>REQUEST SALES ORDER ITEM FROM DETAIL</action>"
-                + await SysCommon.GetRequestDefaults(false)
-                + "<ser_refno>" + activityDetailFkRefno + "</ser_refno>"
-                + "</command>"
-                + "</imclient>");
+            var xmlRequest = $@"
+                <?xml version=""1.0"" encoding=""utf-8"" standalone=""yes""?>
+                <imclient>
+                    <command>
+                        <action>REQUEST SALES ORDER ITEM FROM DETAIL</action>
+                        {await SysCommon.GetRequestDefaults(false)}
+                        <ser_refno>{activityDetailFkRefno}</ser_refno>
+                    </command>
+                </imclient>";
 
+            var request = XDocument.Parse(xmlRequest);
             request.Save(xml);
             await xml.FlushAsync();
             xml.Close();
@@ -406,7 +407,7 @@ namespace dMobile.Controller.Activity_Item
             xmlDoc.LoadXml(responseData);
             var tempSchemeData = new ProductSchemeData();
             itemSchemeData.ActItemFkRefno = int.Parse(
-                xmlDoc.SelectSingleNode("/VFPData/seg/ActivityItemFKRefno").InnerText);
+                xmlDoc.SelectSingleNode("/VFPData/seg/ActivityItemFKRefno")?.InnerText);
             itemSchemeData.ActDetailQuantity = decimal.Parse(
                 xmlDoc.SelectSingleNode("/VFPData/seg/activitydetailquantity").InnerText);
             itemSchemeData.UnitCode = xmlDoc.SelectSingleNode("/VFPData/seg/unitcode").InnerText;
@@ -564,9 +565,12 @@ namespace dMobile.Controller.Activity_Item
                     try
                     {
                         // NOTE: ActivityItemStatus is set to inserted for later submission use.
-                        _ = transaction.Execute(
-                            "INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus," +
-                                " ActivityRefno, ActivityItemIsAdded) VALUES (?, ?, ?, ?)",
+                        _ = transaction.Execute(@"INSERT INTO tActivityItem (
+                                ActivityItemSubType
+                                ,ActivityItemStatus
+                                ,ActivityRefno
+                                ,ActivityItemIsAdded
+                                ) VALUES (?, ?, ?, ?)",
                             Convert.ToInt32(SysCommon.ActSubTypes.Picking),
                             Convert.ToInt32(SysCommon.ActStatus.Inserted),
                             Convert.ToInt32(this.ActHdr.HdrRefno),
@@ -577,50 +581,50 @@ namespace dMobile.Controller.Activity_Item
 
                         // Get temporary item FK refno for newly inserted line item.
                         this.ItemFkRefno = Convert.ToInt32(transaction.ExecuteScalar<int>(
-                            "SELECT MAX(tActivityItemCount.ActivityItemFKRefno)" +
-                            $" FROM tActivityItemCount WHERE tActivityItemCount.ActivityItemSubType" +
+                            @"SELECT MAX(tActivityItemCount.ActivityItemFKRefno)
+                              FROM tActivityItemCount WHERE tActivityItemCount.ActivityItemSubType" +
                             $" = {(int)SysCommon.ActSubTypes.Picking}"));
                         this.ItemFkRefno = this.ItemFkRefno + 1;
 
-                        var query = "INSERT INTO tActivityItemPicking (" +
-                                    "ActivityItemRefno, " +
-                                    "ActivityItemSubType, " +
-                                    "ActivityItemFKRefno, " +
-                                    "ActivityItemStringFKRefno, " +
-                                    "ProductUnitRefno, " +
-                                    "WarehouseLocationMapRefno, " +
-                                    "ActivityItemPickingQuantityOrdered, " +
-                                    "ActivityItemPickingBaseQuantityOrdered, " +
-                                    "ActivityItemPickingWeightQuantityOrdered, " +
-                                    "ActivityItemPickingQuantityShipped, " +
-                                    "ActivityItemPickingBaseQuantityShipped, " +
-                                    "ActivityItemPickingWeightQuantityShipped, " +
-                                    "ActivityItemPickingCustomerProductUnitCode, " +
-                                    "ActivityItemPickingDescription, " +
-                                    "ActivityItemPickingQuantityAvailable, " +
-                                    "ActivityItemPickingBaseQuantityAvailable, " +
-                                    "ActivityItemPickingWeightQuantityAvailable, " +
-                                    "ActivityItemPickingIsReviewed" +
-                                    ") VALUES (" +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?, " +
-                                    "?" +
-                                    ")";
+                        var query = @"
+                            INSERT INTO tActivityItemPicking (
+                                    ActivityItemRefno, 
+                                    ActivityItemSubType, 
+                                    ActivityItemFKRefno, 
+                                    ActivityItemStringFKRefno, 
+                                    ProductUnitRefno, 
+                                    WarehouseLocationMapRefno, 
+                                    ActivityItemPickingQuantityOrdered, 
+                                    ActivityItemPickingBaseQuantityOrdered, 
+                                    ActivityItemPickingWeightQuantityOrdered, 
+                                    ActivityItemPickingQuantityShipped, 
+                                    ActivityItemPickingBaseQuantityShipped, 
+                                    ActivityItemPickingWeightQuantityShipped, 
+                                    ActivityItemPickingCustomerProductUnitCode, 
+                                    ActivityItemPickingDescription, 
+                                    ActivityItemPickingQuantityAvailable, 
+                                    ActivityItemPickingBaseQuantityAvailable, 
+                                    ActivityItemPickingWeightQuantityAvailable, 
+                                    ActivityItemPickingIsReviewed
+                                ) VALUES (
+                                    ?, 
+                                    ?, 
+                                    ?, 
+                                    ?, 
+                                    ?, 
+                                    ?, 
+                                    ?, 
+                                    ?, 
+                                    ?, 
+                                    ?, 
+                                    ?, 
+                                    ?, 
+                                    ?, 
+                                    ?, 
+                                    ?, 
+                                    ?, 
+                                    ?, 
+                                    ?)";
 
                         var locMap = LocationMap.GetInstance().CurrLocMap;
                         var parameters = new object[]
@@ -885,137 +889,132 @@ namespace dMobile.Controller.Activity_Item
         /// <returns>.</returns>
         public override async Task<List<object>> GetActivityItemList(bool isSubmitBatch)
         {
-            var sql = new StringBuilder();
-
+            var sql = string.Empty;
             if (isSubmitBatch)
             {
                 // Gather any newly added line items.
                 // Also perform union into tActivityDetail to check of detail exists.
-                sql.Append("SELECT tActivityItemPicking.ActivityItemRefno,");
-                sql.Append("tActivityItemPicking.ActivityItemFKRefno,");
-                sql.Append("tActivityItemPicking.ActivityItemStringFKRefno,");
-                sql.Append("tProductUnit.ProductUnitRefno AS ProductUnitRefno,");
-                sql.Append("tProduct.ProductRefno AS ProductRefno,");
-                sql.Append("tProduct.ProductCode AS ProductCode,");
-                sql.Append("tProduct.ProductDescription AS ProductDescription,");
-                sql.Append("tProduct.ProductBrandDescription AS ProductBrandDescription,");
-                sql.Append("tUnit.UnitCode AS UnitCode,");
-                sql.Append("tProductUnit.ProductUnitBC AS ProductUnitBC,");
-                sql.Append("tProductUnit.ProductUnitSizeDescription AS ProductUnitSizeDescription,");
-                sql.Append("tActivityItemPicking.ActivityItemPickingQuantityOrdered AS ActivityItemPickingQuantityOrdered,");
-                sql.Append("tActivityItemPicking.ActivityItemPickingBaseQuantityOrdered AS ActivityItemPickingBaseQuantityOrdered,");
-                sql.Append("tActivityItemPicking.ActivityItemPickingWeightQuantityOrdered AS ActivityItemPickingWeightQuantityOrdered,");
-                sql.Append("tActivityItemPicking.ActivityItemPickingQuantityShipped AS ActivityItemPickingQuantityShipped,");
-                sql.Append("tActivityItemPicking.ActivityItemPickingBaseQuantityShipped AS ActivityItemPickingBaseQuantityShipped,");
-                sql.Append("tActivityItemPicking.ActivityItemPickingWeightQuantityShipped AS ActivityItemPickingWeightQuantityShipped,");
-                sql.Append("tActivityItemPicking.ActivityItemPickingCustomerProductUnitCode AS ActivityItemPickingCustomerProductUnitCode,");
-                sql.Append("tLocationMapWarehouse.LocationMapRefno AS LocationMapRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapWarehouseCode AS LocationCode,");
-                sql.Append("tLocationMapWarehouse.LocationMapWarehouseName AS LocationName,");
-                sql.Append("tActivityItemPicking.ActivityItemPickingQuantityAvailable AS ActivityItemPickingQuantityAvailable,");
-                sql.Append("tActivityItemPicking.ActivityItemPickingBaseQuantityAvailable AS ActivityItemPickingBaseQuantityAvailable,");
-                sql.Append("tActivityItemPicking.ActivityItemPickingWeightQuantityAvailable AS ActivityItemPickingWeightQuantityAvailable,");
-                sql.Append("tActivityItemPicking.ActivityItemPickingIsReviewed AS ActivityItemPickingIsReviewed,");
-                sql.Append("CASE WHEN tActivityItemPickingComment.ActivityItemPickingCommentComment IS NULL ");
-                sql.Append("THEN \' \' ELSE \'*\' END AS IsActivityItemPickingComment,");
-                sql.Append("tActivityItem.ActivityItemStatus AS ActivityItemStatus ");
-                sql.Append("FROM tActivityItemPicking ");
-                sql.Append("INNER JOIN tActivityItem ON tActivityItem.ActivityItemRefno ");
-                sql.Append("= tActivityItemPicking.ActivityItemRefno ");
-                sql.Append("INNER JOIN tProductUnit ON tProductUnit.ProductUnitRefno = tActivityItemPicking.ProductUnitRefno ");
-                sql.Append("INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno ");
-                sql.Append("INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno ");
-                sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno ");
-                sql.Append("= tActivityItemPicking.WarehouseLocationMapRefno ");
-                sql.Append("LEFT JOIN tActivityItemPickingComment ON tActivityItemPickingComment.ActivityItemRefno ");
-                sql.Append("= tActivityItemPicking.ActivityItemRefno ");
-                sql.AppendFormat("WHERE tActivityItem.ActivityRefno = {0} ", this.ActHdr.HdrRefno);
-                sql.AppendFormat("AND tActivityItem.ActivityItemStatus <> {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
-                sql.Append("UNION ");
-                sql.Append("SELECT tActivityItemPicking.ActivityItemRefno,");
-                sql.Append("tActivityItemPicking.ActivityItemFKRefno,");
-                sql.Append("tActivityItemPicking.ActivityItemStringFKRefno,");
-                sql.Append("tProductUnit.ProductUnitRefno AS ProductUnitRefno,");
-                sql.Append("tProduct.ProductRefno AS ProductRefno,");
-                sql.Append("tProduct.ProductCode AS ProductCode,");
-                sql.Append("tProduct.ProductDescription AS ProductDescription,");
-                sql.Append("tProduct.ProductBrandDescription AS ProductBrandDescription,");
-                sql.Append("tUnit.UnitCode AS UnitCode,");
-                sql.Append("tProductUnit.ProductUnitBC AS ProductUnitBC,");
-                sql.Append("tProductUnit.ProductUnitSizeDescription AS ProductUnitSizeDescription,");
-                sql.Append("tActivityItemPicking.ActivityItemPickingQuantityOrdered AS ActivityItemPickingQuantityOrdered,");
-                sql.Append("tActivityItemPicking.ActivityItemPickingBaseQuantityOrdered AS ActivityItemPickingBaseQuantityOrdered,");
-                sql.Append("tActivityItemPicking.ActivityItemPickingWeightQuantityOrdered AS ActivityItemPickingWeightQuantityOrdered,");
-                sql.Append("tActivityItemPicking.ActivityItemPickingQuantityShipped AS ActivityItemPickingQuantityShipped,");
-                sql.Append("tActivityItemPicking.ActivityItemPickingBaseQuantityShipped AS ActivityItemPickingBaseQuantityShipped,");
-                sql.Append("tActivityItemPicking.ActivityItemPickingWeightQuantityShipped AS ActivityItemPickingWeightQuantityShipped,");
-                sql.Append("tActivityItemPicking.ActivityItemPickingCustomerProductUnitCode AS ActivityItemPickingCustomerProductUnitCode,");
-                sql.Append("tLocationMapWarehouse.LocationMapRefno AS LocationMapRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapWarehouseCode AS LocationCode,");
-                sql.Append("tLocationMapWarehouse.LocationMapWarehouseName AS LocationName,");
-                sql.Append("tActivityItemPicking.ActivityItemPickingQuantityAvailable AS ActivityItemPickingQuantityAvailable,");
-                sql.Append("tActivityItemPicking.ActivityItemPickingBaseQuantityAvailable AS ActivityItemPickingBaseQuantityAvailable,");
-                sql.Append("tActivityItemPicking.ActivityItemPickingWeightQuantityAvailable AS ActivityItemPickingWeightQuantityAvailable,");
-                sql.Append("tActivityItemPicking.ActivityItemPickingIsReviewed AS ActivityItemPickingIsReviewed,");
-                sql.Append("CASE WHEN tActivityItemPickingComment.ActivityItemPickingCommentComment IS NULL ");
-                sql.Append("THEN \' \' ELSE \'*\' END AS IsActivityItemPickingComment,");
-                sql.Append("tActivityItem.ActivityItemStatus AS ActivityItemStatus ");
-                sql.Append("FROM tActivityItemPicking ");
-                sql.Append("INNER JOIN tActivityItem ON tActivityItem.ActivityItemRefno ");
-                sql.Append("= tActivityItemPicking.ActivityItemRefno ");
-                sql.Append("INNER JOIN tActivityDetail ON tActivityDetail.ActivityItemRefno ");
-                sql.Append("= tActivityItemPicking.ActivityItemRefno ");
-                sql.Append("INNER JOIN tProductUnit ON tProductUnit.ProductUnitRefno = tActivityItemPicking.ProductUnitRefno ");
-                sql.Append("INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno ");
-                sql.Append("INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno ");
-                sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno ");
-                sql.Append("= tActivityItemPicking.WarehouseLocationMapRefno ");
-                sql.Append("LEFT JOIN tActivityItemPickingComment ON tActivityItemPickingComment.ActivityItemRefno ");
-                sql.Append("= tActivityItemPicking.ActivityItemRefno ");
-                sql.AppendFormat("WHERE tActivityItem.ActivityRefno = {0} ", this.ActHdr.HdrRefno);
-                sql.AppendFormat("AND tActivityDetail.ActivityDetailStatus <> {0}", Convert.ToInt32(SysCommon.ActStatus.NoChange));
+                sql = $@"
+                    SELECT tActivityItemPicking.ActivityItemRefno,
+                        tActivityItemPicking.ActivityItemFKRefno,
+                        tActivityItemPicking.ActivityItemStringFKRefno,
+                        tProductUnit.ProductUnitRefno AS ProductUnitRefno,
+                        tProduct.ProductRefno AS ProductRefno,
+                        tProduct.ProductCode AS ProductCode,
+                        tProduct.ProductDescription AS ProductDescription,
+                        tProduct.ProductBrandDescription AS ProductBrandDescription,
+                        tUnit.UnitCode AS UnitCode,
+                        tProductUnit.ProductUnitBC AS ProductUnitBC,
+                        tProductUnit.ProductUnitSizeDescription AS ProductUnitSizeDescription,
+                        tActivityItemPicking.ActivityItemPickingQuantityOrdered AS ActivityItemPickingQuantityOrdered,
+                        tActivityItemPicking.ActivityItemPickingBaseQuantityOrdered AS ActivityItemPickingBaseQuantityOrdered,
+                        tActivityItemPicking.ActivityItemPickingWeightQuantityOrdered AS ActivityItemPickingWeightQuantityOrdered,
+                        tActivityItemPicking.ActivityItemPickingQuantityShipped AS ActivityItemPickingQuantityShipped,
+                        tActivityItemPicking.ActivityItemPickingBaseQuantityShipped AS ActivityItemPickingBaseQuantityShipped,
+                        tActivityItemPicking.ActivityItemPickingWeightQuantityShipped AS ActivityItemPickingWeightQuantityShipped,
+                        tActivityItemPicking.ActivityItemPickingCustomerProductUnitCode AS ActivityItemPickingCustomerProductUnitCode,
+                        tLocationMapWarehouse.LocationMapRefno AS LocationMapRefno,
+                        tLocationMapWarehouse.LocationMapWarehouseCode AS LocationCode,
+                        tLocationMapWarehouse.LocationMapWarehouseName AS LocationName,
+                        tActivityItemPicking.ActivityItemPickingQuantityAvailable AS ActivityItemPickingQuantityAvailable,
+                        tActivityItemPicking.ActivityItemPickingBaseQuantityAvailable AS ActivityItemPickingBaseQuantityAvailable,
+                        tActivityItemPicking.ActivityItemPickingWeightQuantityAvailable AS ActivityItemPickingWeightQuantityAvailable,
+                        tActivityItemPicking.ActivityItemPickingIsReviewed AS ActivityItemPickingIsReviewed,
+                        CASE WHEN tActivityItemPickingComment.ActivityItemPickingCommentComment IS NULL 
+                        THEN ' ' ELSE '*' END AS IsActivityItemPickingComment,
+                        tActivityItem.ActivityItemStatus AS ActivityItemStatus 
+                    FROM tActivityItemPicking 
+                    INNER JOIN tActivityItem ON tActivityItem.ActivityItemRefno = tActivityItemPicking.ActivityItemRefno 
+                    INNER JOIN tProductUnit ON tProductUnit.ProductUnitRefno = tActivityItemPicking.ProductUnitRefno 
+                    INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno 
+                    INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno 
+                    INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno = tActivityItemPicking.WarehouseLocationMapRefno 
+                    LEFT JOIN tActivityItemPickingComment ON tActivityItemPickingComment.ActivityItemRefno = tActivityItemPicking.ActivityItemRefno 
+                    WHERE tActivityItem.ActivityRefno = {this.ActHdr.HdrRefno} 
+                        AND tActivityItem.ActivityItemStatus <> {Convert.ToInt32(SysCommon.ActStatus.NoChange)}
+                    UNION 
+                    SELECT tActivityItemPicking.ActivityItemRefno,
+                        tActivityItemPicking.ActivityItemFKRefno,
+                        tActivityItemPicking.ActivityItemStringFKRefno,
+                        tProductUnit.ProductUnitRefno AS ProductUnitRefno,
+                        tProduct.ProductRefno AS ProductRefno,
+                        tProduct.ProductCode AS ProductCode,
+                        tProduct.ProductDescription AS ProductDescription,
+                        tProduct.ProductBrandDescription AS ProductBrandDescription,
+                        tUnit.UnitCode AS UnitCode,
+                        tProductUnit.ProductUnitBC AS ProductUnitBC,
+                        tProductUnit.ProductUnitSizeDescription AS ProductUnitSizeDescription,
+                        tActivityItemPicking.ActivityItemPickingQuantityOrdered AS ActivityItemPickingQuantityOrdered,
+                        tActivityItemPicking.ActivityItemPickingBaseQuantityOrdered AS ActivityItemPickingBaseQuantityOrdered,
+                        tActivityItemPicking.ActivityItemPickingWeightQuantityOrdered AS ActivityItemPickingWeightQuantityOrdered,
+                        tActivityItemPicking.ActivityItemPickingQuantityShipped AS ActivityItemPickingQuantityShipped,
+                        tActivityItemPicking.ActivityItemPickingBaseQuantityShipped AS ActivityItemPickingBaseQuantityShipped,
+                        tActivityItemPicking.ActivityItemPickingWeightQuantityShipped AS ActivityItemPickingWeightQuantityShipped,
+                        tActivityItemPicking.ActivityItemPickingCustomerProductUnitCode AS ActivityItemPickingCustomerProductUnitCode,
+                        tLocationMapWarehouse.LocationMapRefno AS LocationMapRefno,
+                        tLocationMapWarehouse.LocationMapWarehouseCode AS LocationCode,
+                        tLocationMapWarehouse.LocationMapWarehouseName AS LocationName,
+                        tActivityItemPicking.ActivityItemPickingQuantityAvailable AS ActivityItemPickingQuantityAvailable,
+                        tActivityItemPicking.ActivityItemPickingBaseQuantityAvailable AS ActivityItemPickingBaseQuantityAvailable,
+                        tActivityItemPicking.ActivityItemPickingWeightQuantityAvailable AS ActivityItemPickingWeightQuantityAvailable,
+                        tActivityItemPicking.ActivityItemPickingIsReviewed AS ActivityItemPickingIsReviewed,
+                        CASE WHEN tActivityItemPickingComment.ActivityItemPickingCommentComment IS NULL 
+                            THEN ' '
+                            ELSE '*'
+                            END AS IsActivityItemPickingComment,
+                        tActivityItem.ActivityItemStatus AS ActivityItemStatus 
+                    FROM tActivityItemPicking 
+                    INNER JOIN tActivityItem ON tActivityItem.ActivityItemRefno = tActivityItemPicking.ActivityItemRefno 
+                    INNER JOIN tActivityDetail ON tActivityDetail.ActivityItemRefno = tActivityItemPicking.ActivityItemRefno 
+                    INNER JOIN tProductUnit ON tProductUnit.ProductUnitRefno = tActivityItemPicking.ProductUnitRefno 
+                    INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno 
+                    INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno 
+                    INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno = tActivityItemPicking.WarehouseLocationMapRefno 
+                    LEFT JOIN tActivityItemPickingComment ON tActivityItemPickingComment.ActivityItemRefno = tActivityItemPicking.ActivityItemRefno 
+                    WHERE tActivityItem.ActivityRefno = {this.ActHdr.HdrRefno} 
+                        AND tActivityDetail.ActivityDetailStatus <> {Convert.ToInt32(SysCommon.ActStatus.NoChange)}";
             }
             else
             {
-                sql.Append("SELECT tActivityItemPicking.ActivityItemRefno,");
-                sql.Append("tActivityItemPicking.ActivityItemFKRefno,");
-                sql.Append("tActivityItemPicking.ActivityItemStringFKRefno,");
-                sql.Append("tProductUnit.ProductUnitRefno AS ProductUnitRefno,");
-                sql.Append("tProduct.ProductRefno AS ProductRefno,");
-                sql.Append("tProduct.ProductCode AS ProductCode,");
-                sql.Append("tProduct.ProductDescription AS ProductDescription,");
-                sql.Append("tProduct.ProductBrandDescription AS ProductBrandDescription,");
-                sql.Append("tUnit.UnitCode AS UnitCode,");
-                sql.Append("tProductUnit.ProductUnitBC AS ProductUnitBC,");
-                sql.Append("tProductUnit.ProductUnitSizeDescription AS ProductUnitSizeDescription,");
-                sql.Append("tActivityItemPicking.ActivityItemPickingQuantityOrdered AS ActivityItemPickingQuantityOrdered,");
-                sql.Append("tActivityItemPicking.ActivityItemPickingBaseQuantityOrdered AS ActivityItemPickingBaseQuantityOrdered,");
-                sql.Append("tActivityItemPicking.ActivityItemPickingWeightQuantityOrdered AS ActivityItemPickingWeightQuantityOrdered,");
-                sql.Append("tActivityItemPicking.ActivityItemPickingQuantityShipped AS ActivityItemPickingQuantityShipped,");
-                sql.Append("tActivityItemPicking.ActivityItemPickingBaseQuantityShipped AS ActivityItemPickingBaseQuantityShipped,");
-                sql.Append("tActivityItemPicking.ActivityItemPickingWeightQuantityShipped AS ActivityItemPickingWeightQuantityShipped,");
-                sql.Append("tActivityItemPicking.ActivityItemPickingCustomerProductUnitCode AS ActivityItemPickingCustomerProductUnitCode,");
-                sql.Append("tLocationMapWarehouse.LocationMapRefno AS LocationMapRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapWarehouseCode AS LocationCode,");
-                sql.Append("tLocationMapWarehouse.LocationMapWarehouseName AS LocationName,");
-                sql.Append("tActivityItemPicking.ActivityItemPickingQuantityAvailable AS ActivityItemPickingQuantityAvailable,");
-                sql.Append("tActivityItemPicking.ActivityItemPickingBaseQuantityAvailable AS ActivityItemPickingBaseQuantityAvailable,");
-                sql.Append("tActivityItemPicking.ActivityItemPickingWeightQuantityAvailable AS ActivityItemPickingWeightQuantityAvailable,");
-                sql.Append("tActivityItemPicking.ActivityItemPickingIsReviewed AS ActivityItemPickingIsReviewed,");
-                sql.Append("CASE WHEN tActivityItemPickingComment.ActivityItemPickingCommentComment IS NULL ");
-                sql.Append("THEN \' \' ELSE \'*\' END AS IsActivityItemPickingComment,");
-                sql.Append("tActivityItem.ActivityItemStatus AS ActivityItemStatus ");
-                sql.Append("FROM tActivityItemPicking ");
-                sql.Append("INNER JOIN tActivityItem ON tActivityItem.ActivityItemRefno ");
-                sql.Append("= tActivityItemPicking.ActivityItemRefno ");
-                sql.Append("INNER JOIN tProductUnit ON tProductUnit.ProductUnitRefno = tActivityItemPicking.ProductUnitRefno ");
-                sql.Append("INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno ");
-                sql.Append("INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno ");
-                sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno ");
-                sql.Append("= tActivityItemPicking.WarehouseLocationMapRefno ");
-                sql.Append("LEFT JOIN tActivityItemPickingComment ON tActivityItemPickingComment.ActivityItemRefno ");
-                sql.Append("= tActivityItemPicking.ActivityItemRefno ");
-                sql.AppendFormat("WHERE tActivityItem.ActivityRefno = {0}", this.ActHdr.HdrRefno);
+                sql = $@"
+                    SELECT tActivityItemPicking.ActivityItemRefno,
+                        tActivityItemPicking.ActivityItemFKRefno,
+                        tActivityItemPicking.ActivityItemStringFKRefno,
+                        tProductUnit.ProductUnitRefno AS ProductUnitRefno,
+                        tProduct.ProductRefno AS ProductRefno,
+                        tProduct.ProductCode AS ProductCode,
+                        tProduct.ProductDescription AS ProductDescription,
+                        tProduct.ProductBrandDescription AS ProductBrandDescription,
+                        tUnit.UnitCode AS UnitCode,
+                        tProductUnit.ProductUnitBC AS ProductUnitBC,
+                        tProductUnit.ProductUnitSizeDescription AS ProductUnitSizeDescription,
+                        tActivityItemPicking.ActivityItemPickingQuantityOrdered AS ActivityItemPickingQuantityOrdered,
+                        tActivityItemPicking.ActivityItemPickingBaseQuantityOrdered AS ActivityItemPickingBaseQuantityOrdered,
+                        tActivityItemPicking.ActivityItemPickingWeightQuantityOrdered AS ActivityItemPickingWeightQuantityOrdered,
+                        tActivityItemPicking.ActivityItemPickingQuantityShipped AS ActivityItemPickingQuantityShipped,
+                        tActivityItemPicking.ActivityItemPickingBaseQuantityShipped AS ActivityItemPickingBaseQuantityShipped,
+                        tActivityItemPicking.ActivityItemPickingWeightQuantityShipped AS ActivityItemPickingWeightQuantityShipped,
+                        tActivityItemPicking.ActivityItemPickingCustomerProductUnitCode AS ActivityItemPickingCustomerProductUnitCode,
+                        tLocationMapWarehouse.LocationMapRefno AS LocationMapRefno,
+                        tLocationMapWarehouse.LocationMapWarehouseCode AS LocationCode,
+                        tLocationMapWarehouse.LocationMapWarehouseName AS LocationName,
+                        tActivityItemPicking.ActivityItemPickingQuantityAvailable AS ActivityItemPickingQuantityAvailable,
+                        tActivityItemPicking.ActivityItemPickingBaseQuantityAvailable AS ActivityItemPickingBaseQuantityAvailable,
+                        tActivityItemPicking.ActivityItemPickingWeightQuantityAvailable AS ActivityItemPickingWeightQuantityAvailable,
+                        tActivityItemPicking.ActivityItemPickingIsReviewed AS ActivityItemPickingIsReviewed,
+                        CASE WHEN tActivityItemPickingComment.ActivityItemPickingCommentComment IS NULL 
+                            THEN ' '
+                            ELSE '*'
+                            END AS IsActivityItemPickingComment,
+                        tActivityItem.ActivityItemStatus AS ActivityItemStatus 
+                    FROM tActivityItemPicking 
+                    INNER JOIN tActivityItem ON tActivityItem.ActivityItemRefno = tActivityItemPicking.ActivityItemRefno 
+                    INNER JOIN tProductUnit ON tProductUnit.ProductUnitRefno = tActivityItemPicking.ProductUnitRefno 
+                    INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno 
+                    INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno 
+                    INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno = tActivityItemPicking.WarehouseLocationMapRefno 
+                    LEFT JOIN tActivityItemPickingComment ON tActivityItemPickingComment.ActivityItemRefno = tActivityItemPicking.ActivityItemRefno 
+                    WHERE tActivityItem.ActivityRefno = {this.ActHdr.HdrRefno}";
             }
 
             // using (SQLiteDataAdapter da = new SQLiteDataAdapter(sql.ToString(), DatabaseConnection.GetInstance().SQLConn))
@@ -1140,21 +1139,19 @@ namespace dMobile.Controller.Activity_Item
         {
             var foundActItemRefno = 0;
 
-            var sql = new StringBuilder();
-            sql.Append("SELECT tActivityItem.ActivityItemRefno,");
-            sql.Append("tActivityItemPicking.ActivityItemFKRefno,");
-            sql.Append("tActivityItemPicking.ProductUnitRefno,");
-            sql.Append("tLocationMapWarehouse.LocationMapRefno ");
-            sql.Append("FROM tActivityItemPicking ");
-            sql.Append("INNER JOIN tActivityItem ON tActivityItem.ActivityItemRefno ");
-            sql.Append("= tActivityItemPicking.ActivityItemRefno ");
-            sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno ");
-            sql.Append("= tActivityItemPicking.WarehouseLocationMapRefno ");
-            sql.AppendFormat("WHERE tActivityItem.ActivityRefno = {0} ", this.ActHdr.HdrRefno);
-            sql.AppendFormat("AND tActivityItemPicking.WarehouseLocationMapRefno = {0} ", locMap.WhsLocMapRefno);
-            sql.AppendFormat("AND tActivityItemPicking.ProductUnitRefno = {0}", prodUnitRefno);
+            var sql = $@"
+                SELECT tActivityItem.ActivityItemRefno,
+                        tActivityItemPicking.ActivityItemFKRefno,
+                        tActivityItemPicking.ProductUnitRefno,
+                        tLocationMapWarehouse.LocationMapRefno 
+                    FROM tActivityItemPicking 
+                    INNER JOIN tActivityItem ON tActivityItem.ActivityItemRefno = tActivityItemPicking.ActivityItemRefno 
+                    INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno = tActivityItemPicking.WarehouseLocationMapRefno 
+                    WHERE tActivityItem.ActivityRefno = {this.ActHdr.HdrRefno} 
+                        AND tActivityItemPicking.WarehouseLocationMapRefno = {locMap.WhsLocMapRefno} 
+                        AND tActivityItemPicking.ProductUnitRefno = {prodUnitRefno}";
 
-            var results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<PickingItem>(sql.ToString());
+            var results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<PickingItem>(sql);
             if (results != null && results.Count > 0)
             {
                 this.ItemFkRefno = Convert.ToInt32(results[0].ActivityItemFKRefno);
@@ -1185,21 +1182,18 @@ namespace dMobile.Controller.Activity_Item
                 // warehouse friend because the can't mix warehouses or are created by the mobile itself.
                 if (foundActItemRefno == 0 && this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc)
                 {
-                    sql = new StringBuilder();
-                    sql.Append("SELECT tActivityItem.ActivityItemRefno,");
-                    sql.Append("tActivityItemPicking.ActivityItemFKRefno,");
-                    sql.Append("tActivityItemPicking.ProductUnitRefno,");
-                    sql.Append("tLocationMapWarehouse.LocationMapRefno ");
-                    sql.Append("FROM tActivityItemPicking ");
-                    sql.Append("INNER JOIN tActivityItem ON tActivityItem.ActivityItemRefno ");
-                    sql.Append("= tActivityItemPicking.ActivityItemRefno ");
-                    sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno ");
-                    sql.Append("= tActivityItemPicking.WarehouseLocationMapRefno ");
-                    sql.AppendFormat("WHERE tActivityItem.ActivityRefno = {0} ", this.ActHdr.HdrRefno);
-                    sql.AppendFormat("AND tActivityItemPicking.ProductUnitRefno = {0}", prodUnitRefno);
+                    sql = $@"
+                        SELECT tActivityItem.ActivityItemRefno,
+                                tActivityItemPicking.ActivityItemFKRefno,
+                                tActivityItemPicking.ProductUnitRefno,
+                                tLocationMapWarehouse.LocationMapRefno 
+                            FROM tActivityItemPicking 
+                            INNER JOIN tActivityItem ON tActivityItem.ActivityItemRefno = tActivityItemPicking.ActivityItemRefno 
+                            INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno = tActivityItemPicking.WarehouseLocationMapRefno 
+                            WHERE tActivityItem.ActivityRefno = {this.ActHdr.HdrRefno} 
+                            AND tActivityItemPicking.ProductUnitRefno = {prodUnitRefno}";
 
-                    results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<PickingItem>(sql.ToString());
-
+                    results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<PickingItem>(sql);
                     if (results != null && results.Count > 0)
                     {
                         var locMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(
@@ -1495,7 +1489,7 @@ namespace dMobile.Controller.Activity_Item
                 {
                     foreach (dynamic pickingItem in results)
                     {
-                        // Because an agregate sum function is used in a query. There will always be a result record.
+                        // Because an aggregate sum function is used in a query. There will always be a result record.
                         // This causes problems detecting if there is nothing to sum, resulting in null.
                         // Converting Convert.ToDecimal(dr["Ordered"]) fails because there is not data. However to a string works.
                         msg +=
@@ -1622,6 +1616,11 @@ namespace dMobile.Controller.Activity_Item
         /// <param name="isRepackQuantityOnly">The isRepackQuantityOnly<see cref="bool"/>.</param>
         /// <returns>The <see cref="Task{SLabelQuantity}"/>.</returns>
         public override Task<SLabelQuantity> GetLabelQuantity(bool isRepackQuantityOnly)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override XDocument CreateDump()
         {
             throw new NotImplementedException();
         }

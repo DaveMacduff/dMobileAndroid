@@ -4,18 +4,6 @@
 
 namespace dMobile.View.Activity
 {
-    using Android.Views;
-    using BarCodeScanner.BarCodeParsing;
-    using BarCodeScanner.BarCodeScanners;
-    using Bedrock;
-    using Controller;
-    using Controller.Activity;
-    using Controller.Activity_Detail;
-    using Controller.Activity_Item;
-    using dMobile.View.Helpers;
-    using Forms;
-    using Resources.Enums;
-    using Resources.Types;
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
@@ -24,9 +12,20 @@ namespace dMobile.View.Activity
     using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
-    using Java.Net;
+    using Android.Views;
+    using BarCodeScanner.BarCodeParsing;
+    using BarCodeScanner.BarCodeScanners;
+    using Bedrock;
+    using Controller;
+    using Controller.Activity;
+    using Controller.Activity_Detail;
+    using Controller.Activity_Item;
+    using Forms;
+    using Resources.Enums;
+    using Resources.Types;
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;
+    using static Android.Graphics.ColorSpace;
     using Resource = dMobile.Resources.Properties.Resources;
 
     /// <summary>
@@ -99,10 +98,13 @@ namespace dMobile.View.Activity
             this.ActDetail.ActItem = actItem;
 
             this.Title = this.ActDetail.GetControlDescription();
-            this.Timer = new SysTimer(this.TimerTickCallback, 1000);
+            this.Timer = new SysTimer(this.TimerTickCallback);
             this.ScannerEnable().FireAndForgetSafeAsync();
             this.LoadAndBindData().FireAndForgetSafeAsync();
         }
+        public bool IsSelected { get; set; }
+
+        public Color BackColor => IsSelected ? Color.LightGray : Color.Transparent;
 
         /// <summary>
         ///     Gets the bar code scanner instance.
@@ -1076,17 +1078,9 @@ namespace dMobile.View.Activity
             {
                 try
                 {
-                    var xmlString = new StringBuilder();
-                    var settings = new XmlWriterSettings
-                    {
-                        Async = true,
-                        Indent = false
-                    };
-                    _ = XmlWriter.Create(xmlString, settings);
-
                     await CheckIfActivityCanBeConfirmed();
-                    SubmitDetailConfirmation(xmlString);
-                    MarkDetailAsConfirmed();
+                    await MarkDetailAsConfirmed();
+                    await this.DisplayDataItem();
                 }
                 catch (MessageOnlyException msgEx)
                 {
@@ -1105,29 +1099,63 @@ namespace dMobile.View.Activity
                         _ = await errorReport.ShowDialog();
                     });
                 }
-                finally
-                {
-                    _ = this.ListViewMainActivity.Focus();
-                }
 
                 return;
 
                 //////////////////////////////////////////////////////////////////////////
-                void MarkDetailAsConfirmed()
+                async Task MarkDetailAsConfirmed()
                 {
                     if (this.ListViewMainActivity.SelectedItem is PickingDetail pickDetail)
                     {
-                        pickDetail = (PickingDetail)this.ActDetail.ListDetails[
-                            this.MainActivityItems.IndexOf(this.ListViewMainActivity.SelectedItem)];
-                        pickDetail.ActivityDetailIsConfirmed = true;
-                        pickDetail.ActivityDetailIsConfirmedString = "C";
+                        var idx = this.MainActivityItems.IndexOf(this.ListViewMainActivity.SelectedItem);
+                        pickDetail = (PickingDetail)this.ActDetail.ListDetails[idx];
+                        if (pickDetail.ActivityDetailIsConfirmed)
+                        {
+                            pickDetail.ActivityDetailIsConfirmed = false;
+                            pickDetail.ActivityDetailIsConfirmedString = " ";
+                        }
+                        else
+                        {
+                            pickDetail.ActivityDetailIsConfirmed = true;
+                            pickDetail.ActivityDetailIsConfirmedString = "C";
+                        }
+
+                        ((PickingActDetail)this.ActDetail).UpdateConfirmedStatus(idx);
+
+                        this.MainActivityItems[idx] = pickDetail;
+                        Device.BeginInvokeOnMainThread(() =>
+                        {
+                            this.ListViewMainActivity.ItemsSource = this.MainActivityItems;
+                            this.ListViewMainActivity.ScrollTo(
+                                this.ListViewMainActivity.SelectedItem,
+                                ScrollToPosition.MakeVisible,
+                                false);
+                        });
                     }
                     else if (this.ListViewMainActivity.SelectedItem is ReturnDetail returnDetail)
                     {
-                        returnDetail = (ReturnDetail)this.ActDetail.ListDetails[
-                            this.MainActivityItems.IndexOf(this.ListViewMainActivity.SelectedItem)];
-                        returnDetail.ActivityDetailIsConfirmed = true;
-                        returnDetail.ActivityDetailIsConfirmedString = "C";
+                        var idx = this.MainActivityItems.IndexOf(this.ListViewMainActivity.SelectedItem);
+                        returnDetail = (ReturnDetail)this.ActDetail.ListDetails[idx];
+                        if (returnDetail.ActivityDetailIsConfirmed)
+                        {
+                            returnDetail.ActivityDetailIsConfirmed = false;
+                            returnDetail.ActivityDetailIsConfirmedString = " ";
+                        }
+                        else
+                        {
+                            returnDetail.ActivityDetailIsConfirmed = true;
+                            returnDetail.ActivityDetailIsConfirmedString = "C";
+                        }
+
+                        this.MainActivityItems[idx] = returnDetail;
+                        Device.BeginInvokeOnMainThread(() =>
+                        {
+                            this.ListViewMainActivity.SelectedItem = returnDetail;
+                            this.ListViewMainActivity.ScrollTo(
+                                this.ListViewMainActivity.SelectedItem,
+                                ScrollToPosition.MakeVisible,
+                                false);
+                        });
                     }
                     else if (this.ListViewMainActivity.SelectedItem is TransferDetail transferDetail)
                     {
@@ -1136,59 +1164,62 @@ namespace dMobile.View.Activity
                         ////transferDetail.ActivityDetailIsConfirmed = true;
                         ////transferDetail.ActivityDetailIsConfirmedString = "C";
                     }
-                }
 
-                //////////////////////////////////////////////////////////////////////////
-                static void SubmitDetailConfirmation(StringBuilder xmlString)
-                {
-                    _ = SysCommon.SubmitComm(xmlString.ToString());
+                    return;
                 }
 
                 //////////////////////////////////////////////////////////////////////////
                 async Task CheckIfActivityCanBeConfirmed()
                 {
-                    XDocument request = null;
+                    var xmlString = new StringBuilder();
+                    var settings = new XmlWriterSettings
+                    {
+                        Async = true,
+                        Indent = false
+                    };
+                    string action;
 
                     if (this.ActSubType == SysCommon.ActSubTypes.Picking)
                     {
-                        request = XDocument.Parse(
-                            "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
-                            + "<imclient>"
-                            + "<command>"
-                            + "<action>SUBMIT SALES ORDER DETAIL CONFIRM</action>"
-                            + "</command>"
-                            + await SysCommon.GetRequestDefaults(false)
-                            + "<refno>" + this.ActDetail.DetailFkRefno + "</refno>"
-                            + "</imclient>");
+                        action = $@"<?xml version=""1.0"" encoding=""utf-16"" standalone=""yes""?>
+                            <imclient>
+                                <command>
+                                    <action>SUBMIT SALES ORDER DETAIL CONFIRM</action>
+                                </command>
+                                {await SysCommon.GetRequestDefaults(false)}
+                                <refno>{this.ActDetail.DetailFkRefno}</refno>
+                            </imclient>";
                     }
                     else if (this.ActSubType == SysCommon.ActSubTypes.TransferFrom)
                     {
-                        request = XDocument.Parse(
-                            "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
-                            + "<imclient>"
-                            + "<command>"
-                            + "<action>SUBMIT TRANSFER FROM DETAIL CONFIRM</action>"
-                            + "</command>"
-                            + await SysCommon.GetRequestDefaults(false)
-                            + "<refno>" + this.ActDetail.DetailFkRefno + "</refno>"
-                            + "</imclient>");
+                        action = $@"<?xml version=""1.0"" encoding=""utf-16"" standalone=""yes""?>
+                            <imclient>
+                                <command>
+                                    <action>SUBMIT TRANSFER FROM DETAIL CONFIRM</action>
+                                </command>
+                                {await SysCommon.GetRequestDefaults(false)}
+                                <refno>{this.ActDetail.DetailFkRefno}</refno>
+                            </imclient>";
                     }
                     else if (this.ActSubType == SysCommon.ActSubTypes.TransferTo)
                     {
-                        request = XDocument.Parse(
-                            "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
-                            + "<imclient>"
-                            + "<command>"
-                            + "<action>SUBMIT TRANSFER TO DETAIL CONFIRM</action>"
-                            + "</command>"
-                            + await SysCommon.GetRequestDefaults(false)
-                            + "<refno>" + this.ActDetail.DetailFkRefno + "</refno>"
-                            + "</imclient>");
+                        action = $@"<?xml version=""1.0"" encoding=""utf-16"" standalone=""yes""?>
+                            <imclient>
+                                <command>
+                                    <action>SUBMIT TRANSFER TO DETAIL CONFIRM</action>
+                                </command>
+                                {await SysCommon.GetRequestDefaults(false)}
+                                <refno>{this.ActDetail.DetailFkRefno}</refno>
+                            </imclient>";
                     }
                     else
                     {
                         throw new MessageOnlyException("Confirmations are not supported with this activity.");
                     }
+
+                    xmlString.Append(action);
+                    _ = XmlWriter.Create(xmlString, settings);
+                    _ = SysCommon.SubmitComm(xmlString.ToString());
                 }
             }
 
@@ -2082,7 +2113,16 @@ namespace dMobile.View.Activity
                     this.ExtraInfoItems.Add(prodDesc.Trim() + " " + prodUnitSizeDesc.Trim());
 
                     this.ExtraInfoItems.Add("Default Location: " + defProdLoc.Trim());
-                    this.ExtraInfoItems.Add("Picked Location: " + detailLoc.Trim());
+
+                    if (pickDetail.ActivityDetailIsConfirmed || !SysEnv.SysSettings.IsPickConfirmDet)
+                    {
+                        this.ExtraInfoItems.Add("Picked Location: " + detailLoc.Trim());
+                    }
+                    else
+                    {
+                        this.ExtraInfoItems.Add("Picking Location: " + detailLoc.Trim());
+                    }
+
                     ////this.ExtraInfoItems.Add(pickDetail.ActivityDetailSchemeID);
 
                     ////var qty = (this.ActDetail.ActItem.SelectedItem as PickingItem).

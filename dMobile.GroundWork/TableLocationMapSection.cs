@@ -115,7 +115,8 @@ namespace dMobile.GroundWork
             int rowsAffected;
             try
             {
-                rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SqlConn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tLocationMapSection"));
+                rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SqlConn.ExecuteScalarAsync<int>(
+                    "SELECT COUNT(*) FROM tLocationMapSection"));
 
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"{rowsAffected} sections.", true);
             }

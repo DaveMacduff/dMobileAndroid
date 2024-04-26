@@ -15,6 +15,7 @@ namespace dMobile.View
     using Controller.Activity_Detail;
     using Controller.Activity_Item;
     using CustomPages;
+    using dMobile.Controller;
     using Forms;
     using Resources.Enums;
     using Resources.Models;
@@ -973,6 +974,32 @@ namespace dMobile.View
                         else
                         {
                             isStopForDetail = true;
+                        }
+                    }
+                }
+
+                if (!isStopForDetail)
+                {
+                    if (actSubType == SysCommon.ActSubTypes.Receiving && actDetail.ActItem.ProdInfo.ProductAcceptDays > 0)
+                    {
+                        if (actDetail.ActItem.ProdInfo.Scheme.IsProductionDateTracked &&
+                            actDetail.SchemeData.LogisticUnitProductionDate > new DateTime(1900, 1, 1))
+                        {
+                            if (actDetail.SchemeData.LogisticUnitProductionDate.AddDays(
+                                actDetail.ActItem.ProdInfo.ProductAcceptDays) < DateTime.Now.Date)
+                            {
+                                isStopForDetail = true;
+                            }
+                        }
+
+                        if (actDetail.ActItem.ProdInfo.Scheme.IsBestBeforeDateTracked &&
+                            actDetail.SchemeData.LogisticUnitBestBeforeSellByDate > new DateTime(1900, 1, 1))
+                        {
+                            if (actDetail.SchemeData.LogisticUnitBestBeforeSellByDate >
+                                DateTime.Now.AddDays(actDetail.ActItem.ProdInfo.ProductAcceptDays))
+                            {
+                                isStopForDetail = true;
+                            }
                         }
                     }
                 }

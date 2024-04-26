@@ -11,7 +11,7 @@ namespace dMobile.GroundWork
     using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
-    using dMobile.Bedrock;
+    using Bedrock;
     using SQLite;
 
     /// <summary>
@@ -34,6 +34,7 @@ namespace dMobile.GroundWork
         /// <summary>
         /// The Purge.
         /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public override async Task PurgeData()
         {
             ////var conn = DatabaseConnection.GetInstance().SQLConn;
@@ -123,29 +124,30 @@ namespace dMobile.GroundWork
 
                             transaction.Execute("INSERT INTO tActivity (ActivityStatus, ActivitySubType) VALUES (?, ?)", 0, Convert.ToInt32(SysCommon.ActSubTypes.PhysicalCounts));
 
-                            actRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivity"));
+                            actRefno = Convert.ToInt32(transaction.ExecuteScalar<int>(
+                                "SELECT last_insert_rowid() FROM tActivity"));
+
                             countFKRefno = Convert.ToInt32(drow["ActivityFKRefno"]);
-                            var query = "INSERT INTO tActivityCount (" +
-                                        "ActivityRefno, " +
-                                        "ActivitySubType, " +
-                                        "ActivityFKRefno, " +
-                                        "ActivityStringFKRefno, " +
-                                        "WarehouseLocationMapRefno, " +
-                                        "ActivityCountType, " +
-                                        "ActivityCountDateTime, " +
-                                        "ActivityCountTypeDescription, " +
-                                        "ActivityCountDescription" +
-                                        ") VALUES (" +
-                                        "?, " +
-                                        "?, " +
-                                        "?, " +
-                                        "?, " +
-                                        "?, " +
-                                        "?, " +
-                                        "?, " +
-                                        "?, " +
-                                        "?" +
-                                        ")";
+                            const string query = @"INSERT INTO tActivityCount (
+                                ActivityRefno, 
+                                ActivitySubType, 
+                                ActivityFKRefno, 
+                                ActivityStringFKRefno, 
+                                WarehouseLocationMapRefno, 
+                                ActivityCountType, 
+                                ActivityCountDateTime, 
+                                ActivityCountTypeDescription, 
+                                ActivityCountDescription
+                                ) VALUES (
+                                ?, 
+                                ?, 
+                                ?, 
+                                ?, 
+                                ?, 
+                                ?, 
+                                ?, 
+                                ?, 
+                                ?)";
                             var parameters = new List<object>()
                                 {
                                     actRefno,
@@ -268,6 +270,7 @@ namespace dMobile.GroundWork
 
                 sb.Append(charArray[i]);
             }
+
             return sb.ToString();
         }
 
@@ -285,14 +288,13 @@ namespace dMobile.GroundWork
             };
             var xml = XmlWriter.Create(xmlString, settings);
 
-            var request = XDocument.Parse(
-                "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>"
-                + "<imclient>"
-                + "<command>"
-                + "<action>REQUEST PHYSICAL COUNTS</action>"
-                + await SysCommon.GetRequestDefaults(false)
-                + "</command>"
-                + "</imclient>");
+            var request = XDocument.Parse($@"<?xml version=""1.0"" encoding=""utf-8"" standalone=""yes""?>
+                <imclient>
+                <command>
+                <action>REQUEST PHYSICAL COUNTS</action>
+                {await SysCommon.GetRequestDefaults(false)}
+                </command>
+                </imclient>");
 
             request.Save(xml);
             await xml.FlushAsync();

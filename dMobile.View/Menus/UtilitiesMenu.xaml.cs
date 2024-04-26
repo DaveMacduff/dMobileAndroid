@@ -7,11 +7,13 @@ namespace dMobile.View.Menus
     using System;
     using System.Threading.Tasks;
     using System.Xml.Linq;
+    using Android;
     using Android.Views;
     using dMobile.Bedrock;
     using dMobile.Resources.Enums;
     using dMobile.View.Activity;
     using dMobile.View.CustomPages;
+    using dMobile.View.Options;
     using dMobile.View.Utilities;
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;
@@ -32,6 +34,7 @@ namespace dMobile.View.Menus
             this.cmdScanBarCodes.Text = "1) Scan Barcodes";
             this.cmdProductLabels.Text = "2) Product Labels";
             this.cmdAssignDefaultLocation.Text = "3) Assign Default Locations";
+            this.cmdDataDump.Text = "3) Data Dump";
 
             if (!DesignMode.IsDesignModeEnabled)
             {
@@ -75,6 +78,14 @@ namespace dMobile.View.Menus
                     _ = await productLabel.ShowDialog();
                 }
                 else if (keycode == Keycode.Num3 && this.cmdAssignDefaultLocation.IsEnabled)
+                {
+                    this.DisableControls();
+                    this.IsControlLoaded = false;
+
+                    var assignDefaultLocation = new AssignDefaultLocation();
+                    await assignDefaultLocation.Show();
+                }
+                else if (keycode == Keycode.Num4 && this.cmdDataDump.IsEnabled)
                 {
                     this.DisableControls();
                     this.IsControlLoaded = false;
@@ -284,6 +295,22 @@ namespace dMobile.View.Menus
 
                 _ = this.cmdScanBarCodes.Focus();
             }
+        }
+
+        /// <summary>
+        ///     Data dump click event handler.
+        /// </summary>
+        /// <param name="sender"><see cref="object" /> Object that generated this event.</param>
+        /// <param name="e"><see cref="EventArgs" /> Event argument data.</param>
+        private void cmdDataDump_Click(object sender, EventArgs e)
+        {
+            ////this.DisableControls();
+            this.IsControlLoaded = false;
+
+            Application.Current.MainPage.DisplayAlert(
+                "Data export dump",
+                "This is a development debug tool. It is currently under construction.",
+                "OK").FireAndForgetSafeAsync();
         }
     }
 }

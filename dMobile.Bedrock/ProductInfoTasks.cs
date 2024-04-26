@@ -64,7 +64,8 @@ namespace dMobile.Bedrock
                     new XElement("ProductUnitIsDefault", prodInfo.UnitIsDefault.ToString()),
                     new XElement("ProductUnitBoxCount", prodInfo.BoxCount.ToString(CultureInfo.CurrentCulture)),
                     new XElement("ProductUnitWeightTolerance", prodInfo.WeightTolerance.ToString(CultureInfo.CurrentCulture)),
-                    new XElement("ProductUnitWeight", prodInfo.UnitGrossWeight.ToString(CultureInfo.CurrentCulture))));
+                    new XElement("ProductUnitWeight", prodInfo.UnitGrossWeight.ToString(CultureInfo.CurrentCulture))),
+                    new XElement("ProductAcceptDays", prodInfo.ProductAcceptDays.ToString()));
 
             return request;
         }
@@ -133,6 +134,7 @@ namespace dMobile.Bedrock
                             ,tProduct.ProductIsCatchAsk
                             ,tProduct.ProductIsCatchAskZero
                             ,tProduct.ProductAllowConvertProduct
+                            ,tProduct.ProductAcceptDays
                             ,tProductUnit.ProductUnitRefno
                             ,tProductUnit.ProductUnitBC
                             ,tProductUnit.ProductUnitIsBC
@@ -182,6 +184,7 @@ namespace dMobile.Bedrock
                     prodInfo.UnitIsSellUnit = results[0].ProductUnitIsSellUnit;
                     prodInfo.BoxCount = results[0].ProductUnitBoxCount;
                     prodInfo.WeightTolerance = results[0].ProductUnitWeightTolerance;
+                    prodInfo.ProductAcceptDays = results[0].ProductAcceptDays;
                 }
 
                 prodInfo.Unit2BaseUnitFactor = await GetUnitRelationFactor(prodInfo);
@@ -215,6 +218,7 @@ namespace dMobile.Bedrock
                             ,tProduct.ProductIsCatchAsk
                             ,tProduct.ProductIsCatchAskZero
                             ,tProduct.ProductAllowConvertProduct
+                            ,tProduct.ProductAcceptDays
                             ,tProductUnit.ProductUnitRefno
                             ,tProductUnit.ProductUnitBC
                             ,tProductUnit.ProductUnitIsBC
@@ -260,6 +264,7 @@ namespace dMobile.Bedrock
                     prodInfo.UnitIsSellUnit = results[0].ProductUnitIsSellUnit;
                     prodInfo.BoxCount = results[0].ProductUnitBoxCount;
                     prodInfo.WeightTolerance = results[0].ProductUnitWeightTolerance;
+                    prodInfo.ProductAcceptDays = results[0].ProductAcceptDays;
                 }
 
                 prodInfo.Unit2BaseUnitFactor = await GetUnitRelationFactor(prodInfo);
@@ -301,6 +306,7 @@ namespace dMobile.Bedrock
                         ,tProductUnit.ProductUnitIsDefault
                         ,tProductUnit.ProductUnitBoxCount
                         ,tProductUnit.ProductUnitWeightTolerance
+                        ,tProduct.ProductAcceptDays
                     FROM tProductUnit
                     INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno
                     INNER JOIN tUnit AS aUnitWeight ON aUnitWeight.UnitRefno = tProductUnit.WtUnitRefno
@@ -337,6 +343,7 @@ namespace dMobile.Bedrock
                 prodInfo.UnitIsSellUnit = results[0].ProductUnitIsSellUnit;
                 prodInfo.BoxCount = results[0].ProductUnitBoxCount;
                 prodInfo.WeightTolerance = results[0].ProductUnitWeightTolerance;
+                prodInfo.ProductAcceptDays = results[0].ProductAcceptDays;
             }
 
             prodInfo.Unit2BaseUnitFactor = await GetUnitRelationFactor(prodInfo);

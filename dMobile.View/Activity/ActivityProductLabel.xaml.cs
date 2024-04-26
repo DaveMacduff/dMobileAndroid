@@ -90,16 +90,21 @@ namespace dMobile.View.Activity
             this.ActDetail.ActItem.ActSubType = this.ActSubType;
             this.ActDetail.ActItem.ActHdr.ActSubType = this.ActSubType;
 
-            this.ActDetailEdit = new ActDetailEdit();
-            this.ActDetailEdit.SchemeData = this.ActDetail.SchemeData;
-            this.ActDetailEdit.AltQuantity = this.ActDetail.Quantity;
-            this.ActDetailEdit.BaseQuantity = this.ActDetail.BaseQuantity;
-            this.ActDetailEdit.WeightQuantity = this.ActDetail.WeightQuantity;
-            this.ActDetailEdit.ActExtra.Text1 = this.ActDetail.ActExtra.Text1;
-            this.ActDetailEdit.ActExtra.Text2 = this.ActDetail.ActExtra.Text2;
-            this.ActDetailEdit.ActExtra.Text3 = this.ActDetail.ActExtra.Text3;
-            this.ActDetailEdit.ActExtra.Text4 = this.ActDetail.ActExtra.Text4;
-            this.ActDetailEdit.ActExtra.DateTime1 = this.ActDetail.ActExtra.DateTime1;
+            this.ActDetailEdit = new ActDetailEdit
+            {
+                SchemeData = this.ActDetail.SchemeData,
+                AltQuantity = this.ActDetail.Quantity,
+                BaseQuantity = this.ActDetail.BaseQuantity,
+                WeightQuantity = this.ActDetail.WeightQuantity,
+                ActExtra =
+                {
+                    Text1 = this.ActDetail.ActExtra.Text1,
+                    Text2 = this.ActDetail.ActExtra.Text2,
+                    Text3 = this.ActDetail.ActExtra.Text3,
+                    Text4 = this.ActDetail.ActExtra.Text4,
+                    DateTime1 = this.ActDetail.ActExtra.DateTime1
+                }
+            };
         }
 
         /// <summary>
@@ -390,6 +395,29 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
+        ///     The GetControlDescription.
+        /// </summary>
+        /// <returns>.</returns>
+        public string GetControlDescription()
+        {
+            return "Product Label Edit";
+        }
+
+        /// <summary>
+        ///     The txtWtQty_GotFocus.
+        /// </summary>
+        /// <param name="sender">.</param>
+        /// <param name="e">.</param>
+        public void txtWtQty_GotFocus(object sender, EventArgs e)
+        {
+            if (this.txtWtQty.Text != null)
+            {
+                this.txtWtQty.CursorPosition = 0;
+                this.txtWtQty.SelectionLength = this.txtWtQty.Text.Length;
+            }
+        }
+
+        /// <summary>
         ///     The OnAppearing.
         /// </summary>
         protected override async void OnAppearing()
@@ -449,7 +477,11 @@ namespace dMobile.View.Activity
         /// <returns>The <see cref="bool" />.</returns>
         protected override bool OnBackButtonPressed()
         {
-            Device.BeginInvokeOnMainThread(async () =>
+            Device.BeginInvokeOnMainThread(BackButtonCallback);
+            return true;
+
+            //////////////////////////////////////////////////////////////////////////
+            async void BackButtonCallback()
             {
                 _ = base.OnBackButtonPressed();
 
@@ -463,40 +495,15 @@ namespace dMobile.View.Activity
                     this.DialogResult = DialogResult.None;
                     await this.Close();
                 }
-            });
-
-            return true;
-        }
-
-        /// <summary>
-        ///     The GetControlDescription.
-        /// </summary>
-        /// <returns>.</returns>
-        public string GetControlDescription()
-        {
-            return "Product Label Edit";
-        }
-
-        /// <summary>
-        ///     The txtWtQty_GotFocus.
-        /// </summary>
-        /// <param name="sender">.</param>
-        /// <param name="e">.</param>
-        public void txtWtQty_GotFocus(object sender, EventArgs e)
-        {
-            if (this.txtWtQty.Text != null)
-            {
-                this.txtWtQty.CursorPosition = 0;
-                this.txtWtQty.SelectionLength = this.txtWtQty.Text.Length;
             }
         }
 
         /// <summary>
-        ///     The txtQuantity_GotFocus.
+        ///     The TxtQuantity_GotFocus.
         /// </summary>
         /// <param name="sender">The sender<see cref="object" />.</param>
         /// <param name="e">The e<see cref="EventArgs" />.</param>
-        private void txtQuantity_GotFocus(object sender, EventArgs e)
+        private void TxtQuantity_GotFocus(object sender, EventArgs e)
         {
             if (this.txtAltQuantity.Text != null)
             {

@@ -6,10 +6,11 @@ namespace dMobile.Bedrock
 {
     using System;
     using System.Collections.Generic;
+    using System.Runtime.CompilerServices;
     using System.Threading.Tasks;
-    using dMobile.Resources.Models;
-    using dMobile.Resources.QueryResults;
-    using dMobile.Resources.Types;
+    using Resources.Models;
+    using Resources.QueryResults;
+    using Resources.Types;
 
     /// <summary>
     /// Defines the <see cref="LocationMapTasks" /> Location map tasks.
@@ -26,15 +27,13 @@ namespace dMobile.Bedrock
             var foundLocMapRefno = 0;
             var barCodeSettings = new SysBarCodeSettings().LoadData();
 
-            // This option was needed because of a screw up calculating the location check digit.
+            // This option was needed because of a screw-up calculating the location check digit.
             // Need to ignore the check digit when attempting to find the location.
             var ignoreCheckDigitAttempt =
                 barCodeSettings.IsRuleEnabled_HeritageGlobalLocationIdentifierSecondPassIgnoreCheckDigit;
-            var barCodeCheckDigitRemoved = globalLocationIdentifier.Substring(
-                0,
-                globalLocationIdentifier.TrimEnd().Length - 1);
+            var barCodeCheckDigitRemoved = globalLocationIdentifier[.. (globalLocationIdentifier.TrimEnd().Length - 1)];
 
-            // Because we each warehouse has it's own map structure now we can't assume the tracking map.
+            // Because we each warehouse has its own map structure now we can't assume the tracking map.
             // So this will be a little slower, plus the extra parsing rules to include.
 
             // first attempt to find the location as a complete SLOT bar code
@@ -124,7 +123,7 @@ namespace dMobile.Bedrock
 
             if (locationMapRefno == 0)
             {
-                throw new ArgumentOutOfRangeException("locationMapRefno == 0");
+                throw new ArgumentOutOfRangeException(nameof(locationMapRefno));
             }
 
             return locationMapRefno;
@@ -137,8 +136,8 @@ namespace dMobile.Bedrock
         public static async Task<List<Warehouse>> GetWhsList()
         {
             return await DatabaseConnection.GetInstance().SqlConn.QueryAsync<Warehouse>(
-                "SELECT LocationMapWarehouseCode, LocationMapWarehouseName, LocationMapRefno" +
-                " FROM tLocationMapWarehouse ORDER BY LocationMapWarehouseCode");
+                @"SELECT LocationMapWarehouseCode, LocationMapWarehouseName, LocationMapRefno
+                    FROM tLocationMapWarehouse ORDER BY LocationMapWarehouseCode");
         }
 
         /// <summary>
@@ -147,14 +146,14 @@ namespace dMobile.Bedrock
         /// <returns><see cref="Task{T}"/> List of sections.</returns>
         public static async Task<List<Section>> GetSectList()
         {
-            var sql = "SELECT LocationMapSectionCode,"
-                      + "LocationMapSectionName,"
-                      + "LocationMapRefno,"
-                      + "WarehouseLocationMapRefno "
-                      + "FROM tLocationMapSection "
-                      + "ORDER BY LocationMapSectionCode";
+            const string query = @"SELECT LocationMapSectionCode,
+                    LocationMapSectionName,
+                    LocationMapRefno,
+                    WarehouseLocationMapRefno 
+                FROM tLocationMapSection 
+                ORDER BY LocationMapSectionCode";
 
-            return await DatabaseConnection.GetInstance().SqlConn.QueryAsync<Section>(sql);
+            return await DatabaseConnection.GetInstance().SqlConn.QueryAsync<Section>(query);
         }
 
         /// <summary>
@@ -188,19 +187,18 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// Get a list of slot 1 coordinates.
+        /// Get a list of slot one coordinates.
         /// </summary>
-        /// <returns><see cref="Task{T}"/> List of slot 1 coordinates.</returns>
+        /// <returns><see cref="Task{T}"/> List of slot one coordinates.</returns>
         public static async Task<List<Slot>> GetSlotCoord1List()
         {
-            var sql = "SELECT DISTINCT tLocationMapSlotCoordinate.LocationMapSlotCoordinateCode,"
-                      + "tLocationMapSlotCoordinate.LocationMapSlotCoordinateRefno,"
-                      + "tLocationMapSlot.SectionLocationMapRefno "
-                      + "FROM tLocationMapSlot "
-                      + "INNER JOIN tLocationMapSlotCoordinate ON tLocationMapSlotCoordinate.LocationMapSlotCoordinateRefno "
-                      + "= tLocationMapSlot.SlotCoord1LocationMapRefno "
-                      + "WHERE tLocationMapSlotCoordinate.LocationMapSlotCoordinateEnum = ?"
-                      + " ORDER BY tLocationMapSlotCoordinate.LocationMapSlotCoordinateCode";
+            const string sql = @"SELECT DISTINCT tLocationMapSlotCoordinate.LocationMapSlotCoordinateCode,
+                    tLocationMapSlotCoordinate.LocationMapSlotCoordinateRefno,
+                    tLocationMapSlot.SectionLocationMapRefno 
+                FROM tLocationMapSlot 
+                INNER JOIN tLocationMapSlotCoordinate ON tLocationMapSlotCoordinate.LocationMapSlotCoordinateRefno = tLocationMapSlot.SlotCoord1LocationMapRefno 
+                WHERE tLocationMapSlotCoordinate.LocationMapSlotCoordinateEnum = ?
+                ORDER BY tLocationMapSlotCoordinate.LocationMapSlotCoordinateCode";
 
             return await DatabaseConnection.GetInstance().SqlConn.QueryAsync<Slot>(
                 sql,
@@ -210,20 +208,19 @@ namespace dMobile.Bedrock
         /// <summary>
         /// Get a list of slot 2 coordinates.
         /// </summary>
-        /// <returns><see cref="Task{List{Slot}}"/> List of slot 2 coordinates.</returns>
+        /// <returns>List of slot 2 coordinates.</returns>
         public static async Task<List<Slot>> GetSlotCoord2List()
         {
-            var sql = "SELECT DISTINCT tLocationMapSlotCoordinate.LocationMapSlotCoordinateCode,"
-                      + "tLocationMapSlotCoordinate.LocationMapSlotCoordinateRefno,"
-                      + "tLocationMapSlot.SectionLocationMapRefno "
-                      + "FROM tLocationMapSlot "
-                      + "INNER JOIN tLocationMapSlotCoordinate ON tLocationMapSlotCoordinate.LocationMapSlotCoordinateRefno "
-                      + "= tLocationMapSlot.SlotCoord2LocationMapRefno "
-                      + "WHERE tLocationMapSlotCoordinate.LocationMapSlotCoordinateEnum = ?"
-                      + " ORDER BY tLocationMapSlotCoordinate.LocationMapSlotCoordinateCode";
+            const string query = @"SELECT DISTINCT tLocationMapSlotCoordinate.LocationMapSlotCoordinateCode,
+                    tLocationMapSlotCoordinate.LocationMapSlotCoordinateRefno,
+                    tLocationMapSlot.SectionLocationMapRefno 
+                FROM tLocationMapSlot 
+                INNER JOIN tLocationMapSlotCoordinate ON tLocationMapSlotCoordinate.LocationMapSlotCoordinateRefno = tLocationMapSlot.SlotCoord2LocationMapRefno 
+                WHERE tLocationMapSlotCoordinate.LocationMapSlotCoordinateEnum = ?
+                ORDER BY tLocationMapSlotCoordinate.LocationMapSlotCoordinateCode";
 
             return await DatabaseConnection.GetInstance().SqlConn.QueryAsync<Slot>(
-                sql,
+                query,
                 Convert.ToInt32(SysCommon.LocMapSlotCoordTypes.Coord2));
         }
 
@@ -233,17 +230,16 @@ namespace dMobile.Bedrock
         /// <returns><see cref="Task{T}"/> List of slot 3 coordinates.</returns>
         public static async Task<List<Slot>> GetSlotCoord3List()
         {
-            const string sql = "SELECT DISTINCT tLocationMapSlotCoordinate.LocationMapSlotCoordinateCode,"
-                               + "tLocationMapSlotCoordinate.LocationMapSlotCoordinateRefno,"
-                               + "tLocationMapSlot.SectionLocationMapRefno "
-                               + "FROM tLocationMapSlot "
-                               + "INNER JOIN tLocationMapSlotCoordinate ON tLocationMapSlotCoordinate.LocationMapSlotCoordinateRefno "
-                               + "= tLocationMapSlot.SlotCoord3LocationMapRefno "
-                               + "WHERE tLocationMapSlotCoordinate.LocationMapSlotCoordinateEnum = ?"
-                               + " ORDER BY tLocationMapSlotCoordinate.LocationMapSlotCoordinateCode";
+            const string query = @"SELECT DISTINCT tLocationMapSlotCoordinate.LocationMapSlotCoordinateCode,
+                    tLocationMapSlotCoordinate.LocationMapSlotCoordinateRefno,
+                    tLocationMapSlot.SectionLocationMapRefno 
+                FROM tLocationMapSlot 
+                INNER JOIN tLocationMapSlotCoordinate ON tLocationMapSlotCoordinate.LocationMapSlotCoordinateRefno = tLocationMapSlot.SlotCoord3LocationMapRefno 
+                WHERE tLocationMapSlotCoordinate.LocationMapSlotCoordinateEnum = ?
+                ORDER BY tLocationMapSlotCoordinate.LocationMapSlotCoordinateCode";
 
             return await DatabaseConnection.GetInstance().SqlConn.QueryAsync<Slot>(
-                sql,
+                query,
                 Convert.ToInt32(SysCommon.LocMapSlotCoordTypes.Coord3));
         }
 
@@ -271,12 +267,12 @@ namespace dMobile.Bedrock
             {
                 case true when locMap.IsSlotCoord2Tracked &&
                                locMap.IsSlotCoord3Tracked:
-                    query = "SELECT tLocationMapSlot.LocationMapRefno "
-                            + "FROM tLocationMapSlot "
-                            + "WHERE tLocationMapSlot.SectionLocationMapRefno = ?"
-                            + " AND tLocationMapSlot.SlotCoord1LocationMapRefno = ?"
-                            + " AND tLocationMapSlot.SlotCoord2LocationMapRefno = ?"
-                            + " AND tLocationMapSlot.SlotCoord3LocationMapRefno = ?";
+                    query = @"SELECT tLocationMapSlot.LocationMapRefno 
+                        FROM tLocationMapSlot 
+                        WHERE tLocationMapSlot.SectionLocationMapRefno = ?
+                        AND tLocationMapSlot.SlotCoord1LocationMapRefno = ?
+                        AND tLocationMapSlot.SlotCoord2LocationMapRefno = ?
+                        AND tLocationMapSlot.SlotCoord3LocationMapRefno = ?";
                     parameters.Add(Convert.ToInt32(sectionLocMapRefno));
                     parameters.Add(Convert.ToInt32(slotCoord1Refno));
                     parameters.Add(Convert.ToInt32(slotCoord2Refno));
@@ -284,27 +280,23 @@ namespace dMobile.Bedrock
                     break;
 
                 case true when locMap.IsSlotCoord2Tracked:
-                    query = "SELECT tLocationMapSlot.LocationMapRefno "
-                            + "FROM tLocationMapSlot "
-                            + "WHERE tLocationMapSlot.SectionLocationMapRefno = ?"
-                            + " AND tLocationMapSlot.SlotCoord1LocationMapRefno = ?"
-                            + " AND tLocationMapSlot.SlotCoord2LocationMapRefno = ?";
+                    query = @"SELECT tLocationMapSlot.LocationMapRefno 
+                        FROM tLocationMapSlot 
+                        WHERE tLocationMapSlot.SectionLocationMapRefno = ?
+                        AND tLocationMapSlot.SlotCoord1LocationMapRefno = ?
+                        AND tLocationMapSlot.SlotCoord2LocationMapRefno = ?";
                     parameters.Add(Convert.ToInt32(sectionLocMapRefno));
                     parameters.Add(Convert.ToInt32(slotCoord1Refno));
                     parameters.Add(Convert.ToInt32(slotCoord2Refno));
                     break;
 
                 case true:
-                    query = "SELECT tLocationMapSlot.LocationMapRefno "
-                            + "FROM tLocationMapSlot "
-                            + "WHERE tLocationMapSlot.SectionLocationMapRefno = ?"
-                            + " AND tLocationMapSlot.SlotCoord1LocationMapRefno = ?";
+                    query = @"SELECT tLocationMapSlot.LocationMapRefno 
+                        FROM tLocationMapSlot 
+                        WHERE tLocationMapSlot.SectionLocationMapRefno = ?
+                        AND tLocationMapSlot.SlotCoord1LocationMapRefno = ?";
                     parameters.Add(Convert.ToInt32(sectionLocMapRefno));
                     parameters.Add(Convert.ToInt32(slotCoord1Refno));
-                    break;
-
-                default:
-                    // throw new Exception("Location map tracking map settings are not set.");
                     break;
             }
 
@@ -462,40 +454,38 @@ namespace dMobile.Bedrock
             {
                 case SysCommon.LocMapSubTypes.Slot:
                     {
-                        const string query = "SELECT tLocationMapSlot.LocationMapRefno, "
-                                             + "tLocationMapSlot.LocationMapSlotCode, "
-                                             + "tLocationMapSlot.LocationMapSlotName, "
-                                             + "tLocationMapSlot.LocationMapSlotFKRefno, "
-                                             + "tLocationMapSlot.SectionLocationMapRefno, "
-                                             + "tLocationMapSlot.SlotCoord1LocationMapRefno, "
-                                             + "tLocationMapSlot.SlotCoord2LocationMapRefno, "
-                                             + "tLocationMapSlot.SlotCoord3LocationMapRefno, "
-                                             + "tLocationMapSection.LocationMapSectionCode, "
-                                             + "tLocationMapSection.LocationMapSectionName, "
-                                             + "tLocationMapSection.LocationMapSectionFKRefno, "
-                                             + "tLocationMapSection.WarehouseLocationMapRefno, "
-                                             + "tLocationMapWarehouse.LocationMapWarehouseName, "
-                                             + "tLocationMapWarehouse.LocationMapWarehouseCode, "
-                                             + "tLocationMapWarehouse.LocationMapWarehouseIsWMS,  "
-                                             + "tLocationMapWarehouse.LocationMapWarehouseFKRefno, "
-                                             + "tLocationMapWarehouse.LocationMapWarehouseMask, "
-                                             + "tLocationMapWarehouse.LocationMapWarehouseSectionMask, "
-                                             + "tLocationMapWarehouse.LocationMapWarehouseSlotMask, "
-                                             + "tLocationMapWarehouse.LocationMapWarehouseSlotCoordinate1Mask, "
-                                             + "tLocationMapWarehouse.LocationMapWarehouseSlotCoordinate2Mask, "
-                                             + "tLocationMapWarehouse.LocationMapWarehouseSlotCoordinate3Mask, "
-                                             + "tLocationMapWarehouse.LocationMapWarehouseSlotCoordinate1Name, "
-                                             + "tLocationMapWarehouse.LocationMapWarehouseSlotCoordinate2Name, "
-                                             + "tLocationMapWarehouse.LocationMapWarehouseSlotCoordinate3Name, "
-                                             + "tLocationMapWarehouse.LocationMapWarehouseIsSectionTracked, "
-                                             + "tLocationMapWarehouse.LocationMapWarehouseIsSlotTracked, "
-                                             + "tLocationMapWarehouse.LocationMapWarehouseAdhocEnabled "
-                                             + "FROM tLocationMapSlot "
-                                             + "INNER JOIN tLocationMapSection ON tLocationMapSection.LocationMapRefno =" +
-                                             " tLocationMapSlot.SectionLocationMapRefno "
-                                             + "INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno =" +
-                                             " tLocationMapSection.WarehouseLocationMapRefno "
-                                             + "WHERE tLocationMapSlot.LocationMapRefno = ?";
+                        const string query = @"SELECT tLocationMapSlot.LocationMapRefno, 
+                                tLocationMapSlot.LocationMapSlotCode, 
+                                tLocationMapSlot.LocationMapSlotName, 
+                                tLocationMapSlot.LocationMapSlotFKRefno, 
+                                tLocationMapSlot.SectionLocationMapRefno, 
+                                tLocationMapSlot.SlotCoord1LocationMapRefno, 
+                                tLocationMapSlot.SlotCoord2LocationMapRefno, 
+                                tLocationMapSlot.SlotCoord3LocationMapRefno, 
+                                tLocationMapSection.LocationMapSectionCode, 
+                                tLocationMapSection.LocationMapSectionName, 
+                                tLocationMapSection.LocationMapSectionFKRefno, 
+                                tLocationMapSection.WarehouseLocationMapRefno, 
+                                tLocationMapWarehouse.LocationMapWarehouseName, 
+                                tLocationMapWarehouse.LocationMapWarehouseCode, 
+                                tLocationMapWarehouse.LocationMapWarehouseIsWMS,  
+                                tLocationMapWarehouse.LocationMapWarehouseFKRefno, 
+                                tLocationMapWarehouse.LocationMapWarehouseMask, 
+                                tLocationMapWarehouse.LocationMapWarehouseSectionMask, 
+                                tLocationMapWarehouse.LocationMapWarehouseSlotMask, 
+                                tLocationMapWarehouse.LocationMapWarehouseSlotCoordinate1Mask, 
+                                tLocationMapWarehouse.LocationMapWarehouseSlotCoordinate2Mask, 
+                                tLocationMapWarehouse.LocationMapWarehouseSlotCoordinate3Mask, 
+                                tLocationMapWarehouse.LocationMapWarehouseSlotCoordinate1Name, 
+                                tLocationMapWarehouse.LocationMapWarehouseSlotCoordinate2Name, 
+                                tLocationMapWarehouse.LocationMapWarehouseSlotCoordinate3Name, 
+                                tLocationMapWarehouse.LocationMapWarehouseIsSectionTracked, 
+                                tLocationMapWarehouse.LocationMapWarehouseIsSlotTracked, 
+                                tLocationMapWarehouse.LocationMapWarehouseAdhocEnabled 
+                            FROM tLocationMapSlot 
+                            INNER JOIN tLocationMapSection ON tLocationMapSection.LocationMapRefno = tLocationMapSlot.SectionLocationMapRefno 
+                            INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno = tLocationMapSection.WarehouseLocationMapRefno 
+                            WHERE tLocationMapSlot.LocationMapRefno = ?";
 
                         var results = await conn.QueryAsync<tLocationMapSlotQueryResult>(query, Convert.ToInt32(locMapRefno));
 
@@ -535,31 +525,30 @@ namespace dMobile.Bedrock
 
                 case SysCommon.LocMapSubTypes.Section:
                     {
-                        const string query = "SELECT tLocationMapSection.LocationMapRefno, "
-                                             + "tLocationMapSection.LocationMapSectionCode, "
-                                             + "tLocationMapSection.LocationMapSectionName, "
-                                             + "tLocationMapSection.LocationMapSectionFKRefno, "
-                                             + "tLocationMapSection.WarehouseLocationMapRefno, "
-                                             + "tLocationMapWarehouse.LocationMapWarehouseName, "
-                                             + "tLocationMapWarehouse.LocationMapWarehouseCode, "
-                                             + "tLocationMapWarehouse.LocationMapWarehouseIsWMS, "
-                                             + "tLocationMapWarehouse.LocationMapWarehouseFKRefno, "
-                                             + "tLocationMapWarehouse.LocationMapWarehouseMask, "
-                                             + "tLocationMapWarehouse.LocationMapWarehouseSectionMask, "
-                                             + "tLocationMapWarehouse.LocationMapWarehouseSlotMask, "
-                                             + "tLocationMapWarehouse.LocationMapWarehouseSlotCoordinate1Mask, "
-                                             + "tLocationMapWarehouse.LocationMapWarehouseSlotCoordinate2Mask, "
-                                             + "tLocationMapWarehouse.LocationMapWarehouseSlotCoordinate3Mask, "
-                                             + "tLocationMapWarehouse.LocationMapWarehouseSlotCoordinate1Name, "
-                                             + "tLocationMapWarehouse.LocationMapWarehouseSlotCoordinate2Name, "
-                                             + "tLocationMapWarehouse.LocationMapWarehouseSlotCoordinate3Name, "
-                                             + "tLocationMapWarehouse.LocationMapWarehouseIsSectionTracked, "
-                                             + "tLocationMapWarehouse.LocationMapWarehouseIsSlotTracked, "
-                                             + "tLocationMapWarehouse.LocationMapWarehouseAdhocEnabled "
-                                             + "FROM tLocationMapSection "
-                                             + "INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno "
-                                             + "= tLocationMapSection.WarehouseLocationMapRefno "
-                                             + "WHERE tLocationMapSection.LocationMapRefno = ?";
+                        const string query = @"SELECT tLocationMapSection.LocationMapRefno, 
+                                tLocationMapSection.LocationMapSectionCode, 
+                                tLocationMapSection.LocationMapSectionName, 
+                                tLocationMapSection.LocationMapSectionFKRefno, 
+                                tLocationMapSection.WarehouseLocationMapRefno, 
+                                tLocationMapWarehouse.LocationMapWarehouseName, 
+                                tLocationMapWarehouse.LocationMapWarehouseCode, 
+                                tLocationMapWarehouse.LocationMapWarehouseIsWMS, 
+                                tLocationMapWarehouse.LocationMapWarehouseFKRefno, 
+                                tLocationMapWarehouse.LocationMapWarehouseMask, 
+                                tLocationMapWarehouse.LocationMapWarehouseSectionMask, 
+                                tLocationMapWarehouse.LocationMapWarehouseSlotMask, 
+                                tLocationMapWarehouse.LocationMapWarehouseSlotCoordinate1Mask, 
+                                tLocationMapWarehouse.LocationMapWarehouseSlotCoordinate2Mask, 
+                                tLocationMapWarehouse.LocationMapWarehouseSlotCoordinate3Mask, 
+                                tLocationMapWarehouse.LocationMapWarehouseSlotCoordinate1Name, 
+                                tLocationMapWarehouse.LocationMapWarehouseSlotCoordinate2Name, 
+                                tLocationMapWarehouse.LocationMapWarehouseSlotCoordinate3Name, 
+                                tLocationMapWarehouse.LocationMapWarehouseIsSectionTracked, 
+                                tLocationMapWarehouse.LocationMapWarehouseIsSlotTracked, 
+                                tLocationMapWarehouse.LocationMapWarehouseAdhocEnabled 
+                            FROM tLocationMapSection 
+                            INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno = tLocationMapSection.WarehouseLocationMapRefno 
+                            WHERE tLocationMapSection.LocationMapRefno = ?";
 
                         var results = await conn.QueryAsync<tLocationMapSectionQueryResult>(query, Convert.ToInt32(locMapRefno));
 
@@ -592,25 +581,25 @@ namespace dMobile.Bedrock
 
                 case SysCommon.LocMapSubTypes.Warehouse:
                     {
-                        const string query = "SELECT tLocationMapWarehouse.LocationMapRefno, "
-                                             + "tLocationMapWarehouse.LocationMapWarehouseName, "
-                                             + "tLocationMapWarehouse.LocationMapWarehouseCode, "
-                                             + "tLocationMapWarehouse.LocationMapWarehouseIsWMS, "
-                                             + "tLocationMapWarehouse.LocationMapWarehouseFKRefno,  "
-                                             + "tLocationMapWarehouse.LocationMapWarehouseMask, "
-                                             + "tLocationMapWarehouse.LocationMapWarehouseSectionMask, "
-                                             + "tLocationMapWarehouse.LocationMapWarehouseSlotMask, "
-                                             + "tLocationMapWarehouse.LocationMapWarehouseSlotCoordinate1Mask, "
-                                             + "tLocationMapWarehouse.LocationMapWarehouseSlotCoordinate2Mask, "
-                                             + "tLocationMapWarehouse.LocationMapWarehouseSlotCoordinate3Mask, "
-                                             + "tLocationMapWarehouse.LocationMapWarehouseSlotCoordinate1Name, "
-                                             + "tLocationMapWarehouse.LocationMapWarehouseSlotCoordinate2Name, "
-                                             + "tLocationMapWarehouse.LocationMapWarehouseSlotCoordinate3Name, "
-                                             + "tLocationMapWarehouse.LocationMapWarehouseIsSectionTracked, "
-                                             + "tLocationMapWarehouse.LocationMapWarehouseIsSlotTracked, "
-                                             + "tLocationMapWarehouse.LocationMapWarehouseAdhocEnabled "
-                                             + "FROM tLocationMapWarehouse "
-                                             + "WHERE tLocationMapWarehouse.LocationMapRefno = ?";
+                        const string query = @"SELECT tLocationMapWarehouse.LocationMapRefno, 
+                                tLocationMapWarehouse.LocationMapWarehouseName, 
+                                tLocationMapWarehouse.LocationMapWarehouseCode, 
+                                tLocationMapWarehouse.LocationMapWarehouseIsWMS, 
+                                tLocationMapWarehouse.LocationMapWarehouseFKRefno,  
+                                tLocationMapWarehouse.LocationMapWarehouseMask, 
+                                tLocationMapWarehouse.LocationMapWarehouseSectionMask, 
+                                tLocationMapWarehouse.LocationMapWarehouseSlotMask, 
+                                tLocationMapWarehouse.LocationMapWarehouseSlotCoordinate1Mask, 
+                                tLocationMapWarehouse.LocationMapWarehouseSlotCoordinate2Mask, 
+                                tLocationMapWarehouse.LocationMapWarehouseSlotCoordinate3Mask, 
+                                tLocationMapWarehouse.LocationMapWarehouseSlotCoordinate1Name, 
+                                tLocationMapWarehouse.LocationMapWarehouseSlotCoordinate2Name, 
+                                tLocationMapWarehouse.LocationMapWarehouseSlotCoordinate3Name, 
+                                tLocationMapWarehouse.LocationMapWarehouseIsSectionTracked, 
+                                tLocationMapWarehouse.LocationMapWarehouseIsSlotTracked, 
+                                tLocationMapWarehouse.LocationMapWarehouseAdhocEnabled 
+                            FROM tLocationMapWarehouse 
+                            WHERE tLocationMapWarehouse.LocationMapRefno = ?";
 
                         var results = await conn.QueryAsync<tLocationMapWarehouseModel>(query, Convert.ToInt32(locMapRefno));
 
@@ -650,6 +639,7 @@ namespace dMobile.Bedrock
         /// <summary>
         /// Returns a human-readable (nice) formatted location string e.g. '001.FREEZER.123.45.6'.
         /// </summary>
+        /// <param name="skidInfo">Skid information.</param>
         /// <returns><see cref="string"/> Location string.</returns>
         public static string GetCurrentReadableLocation(SSkidInfo skidInfo)
         {
@@ -670,6 +660,35 @@ namespace dMobile.Bedrock
             if (skidInfo.LocMap.SlotLocMapRefno != 0 && skidInfo.LocMap.SlotName != null)
             {
                 location = location + "." + skidInfo.LocMap.SlotName.TrimEnd();
+            }
+
+            return location;
+        }
+
+        /// <summary>
+        /// Returns a human-readable (nice) formatted reversed location string e.g. '123.45.6.FREEZER.001'.
+        /// </summary>
+        /// <returns><see cref="string"/> Location string.</returns>
+        public static string GetReversedReadableLocation()
+        {
+            var location = string.Empty;
+            var locMap = LocationMap.GetInstance();
+
+            if (locMap.CurrLocMap.SlotLocMapRefno != 0 && locMap.CurrLocMap.SlotName != null)
+            {
+                location += locMap.CurrLocMap.SlotName.TrimEnd();
+            }
+
+            if (locMap.CurrLocMap.SectLocMapRefno != 0 && locMap.CurrLocMap.SectName != null)
+            {
+                location = location + "." + locMap.CurrLocMap.SectName.TrimEnd();
+            }
+
+            if (locMap.CurrLocMap.WhsLocMapRefno != 0)
+            {
+                // Warehouse Example 001M
+                location = location + "." + locMap.CurrLocMap.WhsCode.ToString().TrimEnd().PadLeft(
+                    locMap.CurrLocMap.WhsCodeMask.Length, '0') + "M";
             }
 
             return location;
@@ -705,7 +724,7 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// Returns a human readable (nice) formatted location string e.g. '001.FREEZER.123.45.6'.
+        /// Returns a human-readable (nice) formatted location string e.g. '001.FREEZER.123.45.6'.
         /// </summary>
         /// <returns><see cref="string"/> Location string.</returns>
         public static string GetChosenReadableLocation()
@@ -734,7 +753,7 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// Returns a human readable (nice) formatted location string e.g. '001145'.
+        /// Returns a human-readable (nice) formatted location string e.g. '001145'.
         /// </summary>
         /// <returns><see cref="string"/> Location string.</returns>
         public static string GetCurrentLocation()
@@ -764,7 +783,7 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// Returns a human readable (nice) formatted location string e.g. '001145'.
+        /// Returns a human-readable (nice) formatted location string e.g. '001145'.
         /// </summary>
         /// <returns><see cref="string"/> Location string.</returns>
         public static string GetChosenLocation()
@@ -795,7 +814,7 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// Returns a human readable (nice) formatted location string e.g. '001.FREEZER.123.45.6'.
+        /// Returns a human-readable (nice) formatted location string e.g. '001.FREEZER.123.45.6'.
         /// </summary>
         /// <param name="isSeparateSlotCoords"><see cref="bool"/> Separate slot coordinates.</param>
         /// <returns><see cref="string"/> Location string.</returns>
@@ -841,7 +860,7 @@ namespace dMobile.Bedrock
                     {
                         location = location + "." + locMap.CurrLocMap.SlotName[
                             (locMap.CurrLocMap.SlotCoord1Mask.Length +
-                            locMap.CurrLocMap.SlotCoord2Mask.Length)..];
+                            locMap.CurrLocMap.SlotCoord2Mask.Length) ..];
                     }
                 }
                 else
@@ -854,7 +873,7 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// Returns a human readable (nice) formatted location string e.g. '001.FREEZER.123.45.6'.
+        /// Returns a human-readable (nice) formatted location string e.g. '001.FREEZER.123.45.6'.
         /// </summary>
         /// <param name="isSeparateSlotCoords"><see cref="bool"/> Separate slot coordinates.</param>
         /// <returns><see cref="string"/> Location string.</returns>
@@ -898,7 +917,7 @@ namespace dMobile.Bedrock
                     {
                         location = location + "." + locMap.ChosenLocMap.SlotName[
                             (locMap.ChosenLocMap.SlotCoord1Mask.Length +
-                            locMap.ChosenLocMap.SlotCoord2Mask.Length)..];
+                            locMap.ChosenLocMap.SlotCoord2Mask.Length) ..];
                     }
                 }
                 else
@@ -941,7 +960,7 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// Returns a human readable (nice) formatted location string e.g. '001.FREEZER.123.45.6'.
+        /// Returns a human-readable (nice) formatted location string e.g. '001.FREEZER.123.45.6'.
         /// </summary>
         /// <param name="locMapInfo"><see cref="SLocMap"/> Location map.</param>
         /// <param name="isSepSlotCoords"><see cref="bool"/> Separate slot coordinates.</param>
@@ -969,9 +988,10 @@ namespace dMobile.Bedrock
                 {
                     if (locMapInfo.IsSlotCoord1Tracked)
                     {
-                        location = location + "." + locMapInfo.SlotName.Substring(
-                            0,
-                            locMapInfo.SlotCoord1Mask.Length);
+                        if (locMapInfo.SlotName.Length > 0)
+                        {
+                            location = location + "." + locMapInfo.SlotName[.. locMapInfo.SlotCoord1Mask.Length];
+                        }
                     }
 
                     if (locMapInfo.IsSlotCoord2Tracked)
@@ -983,8 +1003,8 @@ namespace dMobile.Bedrock
 
                     if (locMapInfo.IsSlotCoord3Tracked)
                     {
-                        location = location + "." + locMapInfo.SlotName[
-                            (locMapInfo.SlotCoord1Mask.Length + locMapInfo.SlotCoord2Mask.Length)..];
+                        var slotIdx = locMapInfo.SlotCoord1Mask.Length + locMapInfo.SlotCoord2Mask.Length;
+                        location = location + "." + locMapInfo.SlotName[slotIdx ..];
                     }
                 }
                 else
@@ -1062,7 +1082,7 @@ namespace dMobile.Bedrock
                 sum += digit;
             }
 
-            return (numberBase - (sum %= numberBase)) % numberBase;
+            return (numberBase - (sum % numberBase)) % numberBase;
         }
 
         /// <summary>
@@ -1081,22 +1101,20 @@ namespace dMobile.Bedrock
             var defaultWhsLocMapRefno = whsLocMapRefno;
             var defaultSectLocMapRefno = 0;
             var defaultSlotLocMapRefno = 0;
-            var locMap = LocationMap.GetInstance();
+            var locMap = await GetSLocMapFromLocMapRefno(defaultWhsLocMapRefno);
 
-            if (locMap.CurrLocMap.IsSlotTracked && defaultWhsLocMapRefno != 0)
+            if (locMap.IsSlotTracked && defaultWhsLocMapRefno != 0)
             {
                 // Check for default slot for the warehouse and product.
                 if (prodRefno > 0)
                 {
-                    var query = "SELECT tProductLocationMapType.LocationMapRefno "
-                                + "FROM tProductLocationMapType "
-                                + "INNER JOIN tLocationMapSlot ON tLocationMapSlot.LocationMapRefno "
-                                + "= tProductLocationMapType.LocationMapRefno "
-                                + "INNER JOIN tLocationMapSection ON tLocationMapSection.LocationMapRefno "
-                                + "= tLocationMapSlot.SectionLocationMapRefno "
-                                + "WHERE tProductLocationMapType.ProductRefno = ? "
-                                + "AND tProductLocationMapType.ProductLocationMapTypeEnum = ? "
-                                + "AND tLocationMapSection.WarehouseLocationMapRefno = ?";
+                    const string query = @"SELECT tProductLocationMapType.LocationMapRefno 
+                        FROM tProductLocationMapType 
+                        INNER JOIN tLocationMapSlot ON tLocationMapSlot.LocationMapRefno = tProductLocationMapType.LocationMapRefno 
+                        INNER JOIN tLocationMapSection ON tLocationMapSection.LocationMapRefno = tLocationMapSlot.SectionLocationMapRefno 
+                        WHERE tProductLocationMapType.ProductRefno = ? 
+                            AND tProductLocationMapType.ProductLocationMapTypeEnum = ? 
+                            AND tLocationMapSection.WarehouseLocationMapRefno = ?";
 
                     var results = await DatabaseConnection.GetInstance().
                         SqlConn.QueryAsync<tProductLocationMapTypeModel>(
@@ -1114,10 +1132,10 @@ namespace dMobile.Bedrock
                 // Check for default slot for the warehouse if not found for product.
                 if (defaultSlotLocMapRefno == 0)
                 {
-                    const string query = "SELECT tWarehouseLocationMapType.LocationMapRefno "
-                                         + "FROM tWarehouseLocationMapType "
-                                         + "WHERE tWarehouseLocationMapType.WarehouseLocationMapTypeEnum = ?"
-                                         + " AND tWarehouseLocationMapType.WarehouseLocationMapRefno = ?";
+                    const string query = @"SELECT tWarehouseLocationMapType.LocationMapRefno 
+                        FROM tWarehouseLocationMapType 
+                        WHERE tWarehouseLocationMapType.WarehouseLocationMapTypeEnum = ?
+                        AND tWarehouseLocationMapType.WarehouseLocationMapRefno = ?";
 
                     var results = await DatabaseConnection.GetInstance().
                         SqlConn.QueryAsync<tWarehouseLocationMapTypeModel>(
@@ -1132,18 +1150,17 @@ namespace dMobile.Bedrock
                 }
             }
 
-            if (defaultSlotLocMapRefno == 0 && locMap.CurrLocMap.IsSectionTracked && defaultWhsLocMapRefno != 0)
+            if (defaultSlotLocMapRefno == 0 && locMap.IsSectionTracked && defaultWhsLocMapRefno != 0)
             {
                 // Check for default section for the warehouse and product.
                 if (prodRefno > 0)
                 {
-                    const string query = "SELECT tProductLocationMapType.LocationMapRefno "
-                                         + "FROM tProductLocationMapType "
-                                         + "INNER JOIN tLocationMapSection ON tLocationMapSection.LocationMapRefno "
-                                         + "= tProductLocationMapType.LocationMapRefno "
-                                         + "WHERE tProductLocationMapType.ProductRefno = ? "
-                                         + "AND tProductLocationMapType.ProductLocationMapTypeEnum = ? "
-                                         + "AND tLocationMapSection.WarehouseLocationMapRefno = ?";
+                    const string query = @"SELECT tProductLocationMapType.LocationMapRefno 
+                        FROM tProductLocationMapType 
+                        INNER JOIN tLocationMapSection ON tLocationMapSection.LocationMapRefno = tProductLocationMapType.LocationMapRefno 
+                        WHERE tProductLocationMapType.ProductRefno = ? 
+                            AND tProductLocationMapType.ProductLocationMapTypeEnum = ? 
+                            AND tLocationMapSection.WarehouseLocationMapRefno = ?";
 
                     var results = await DatabaseConnection.GetInstance().
                         SqlConn.QueryAsync<tProductLocationMapTypeModel>(
@@ -1161,10 +1178,10 @@ namespace dMobile.Bedrock
                 // Check for default section for the warehouse if not found for product.
                 if (defaultSectLocMapRefno == 0)
                 {
-                    const string query = "SELECT tWarehouseLocationMapType.LocationMapRefno "
-                                         + "FROM tWarehouseLocationMapType "
-                                         + "WHERE tWarehouseLocationMapType.WarehouseLocationMapTypeEnum = ? "
-                                         + "AND tWarehouseLocationMapType.WarehouseLocationMapRefno = ?";
+                    const string query = @"SELECT tWarehouseLocationMapType.LocationMapRefno 
+                        FROM tWarehouseLocationMapType 
+                        WHERE tWarehouseLocationMapType.WarehouseLocationMapTypeEnum = ? 
+                            AND tWarehouseLocationMapType.WarehouseLocationMapRefno = ?";
 
                     var results = await DatabaseConnection.GetInstance().
                         SqlConn.QueryAsync<tWarehouseLocationMapTypeModel>(
@@ -1181,7 +1198,7 @@ namespace dMobile.Bedrock
 
             if (defaultWhsLocMapRefno == 0)
             {
-                defaultWhsLocMapRefno = locMap.LoginWhsLocMapRefno;
+                defaultWhsLocMapRefno = LocationMap.GetInstance().LoginWhsLocMapRefno;
             }
 
             int locMapRefno;

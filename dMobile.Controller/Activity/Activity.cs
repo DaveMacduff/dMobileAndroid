@@ -258,6 +258,12 @@ namespace dMobile.Controller.Activity
         public abstract Task<bool> ChangeStatus(object selectedActivity);
 
         /// <summary>
+        ///     Create an activity data dump.
+        /// </summary>
+        /// <returns><see cref="XDocument"/> XML data dump.</returns>
+        public abstract XDocument CreateDump();
+
+        /// <summary>
         /// Create an activity header. Insert a tActivity record and assign this.Refno.
         /// </summary>
         /// <param name="actSubType"><see cref="SysCommon.ActSubTypes"/> Activity sub type.</param>

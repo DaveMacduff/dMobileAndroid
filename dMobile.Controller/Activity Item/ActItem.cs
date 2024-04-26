@@ -381,6 +381,12 @@ namespace dMobile.Controller.Activity_Item
         public abstract bool IsCatchAskZero();
 
         /// <summary>
+        ///     Create an activity data dump.
+        /// </summary>
+        /// <returns><see cref="XDocument"/> XML data dump.</returns>
+        public abstract XDocument CreateDump();
+
+        /// <summary>
         /// Iterate through the activity item list items searching for them matching the activity item foreign key
         /// reference number.
         /// </summary>
@@ -408,9 +414,9 @@ namespace dMobile.Controller.Activity_Item
 
             var itemLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(itemLocMapRefno);
 
-            if (await LocationMapTasks.IsCompleteLocMap(itemLocMapRefno))
+            if (await LocationMapTasks.IsCompleteLocMap(itemLocMap.LocMapRefno))
             {
-                selectedLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(itemLocMapRefno);
+                selectedLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(itemLocMap.LocMapRefno);
             }
 
             var isGetDefault = false;

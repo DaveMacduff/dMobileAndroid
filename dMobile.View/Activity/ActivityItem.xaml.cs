@@ -10,6 +10,7 @@ namespace dMobile.View.Activity
     using System.Linq;
     using System.Runtime.CompilerServices;
     using System.Text;
+    using System.Threading;
     using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
@@ -22,8 +23,6 @@ namespace dMobile.View.Activity
     using Controller.Activity_Detail;
     using Controller.Activity_Item;
     using Forms;
-    using Helpers;
-    using Java.Util.Concurrent;
     using Resources.Enums;
     using Resources.Types;
     using Xamarin.Forms;
@@ -1564,19 +1563,18 @@ namespace dMobile.View.Activity
         {
             var isExist2Print = false;
             var xmlString = new StringBuilder();
-            var xml = XmlWriter.Create(xmlString, new XmlWriterSettings
-                { Async = true });
-            var request = XDocument.Parse(
-                "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>"
-                + "<imclient>"
-                + await SysCommon.GetRequestDefaults(false)
-                + "<command>"
-                + "<action>REQUEST CHECK IF SKIDS 2 PRINT</action>"
-                + "<whs_id>" + this.LocMap.CurrLocMap.WhsFkRefno + "</whs_id>"
-                + "<fk_refno>" + this.ActItem.ActHdr.HdrFkRefno + "</fk_refno>"
-                + "<fk_source>PO</fk_source>"
-                + "</command>"
-                + "</imclient>");
+            var xml = XmlWriter.Create(xmlString, new XmlWriterSettings { Async = true });
+            var xmlRequest = $@"<?xml version=""1.0"" encoding=""utf-8"" standalone=""yes""?>
+                <imclient>
+                {await SysCommon.GetRequestDefaults(false)}
+                <command>
+                <action>REQUEST CHECK IF SKIDS 2 PRINT</action>
+                <whs_id>{this.LocMap.CurrLocMap.WhsFkRefno}</whs_id>
+                <fk_refno>{this.ActItem.ActHdr.HdrFkRefno}</fk_refno>
+                <fk_source>PO</fk_source>
+                </command>
+                </imclient>";
+            var request = XDocument.Parse(xmlRequest);
 
             request.Save(xml);
             await xml.FlushAsync();
@@ -1593,7 +1591,7 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        ///     Double click on list view item event handler.
+        ///     Double-click on list view item event handler.
         /// </summary>
         /// <param name="sender"><see cref="object" /> Sender object.</param>
         /// <param name="e"><see cref="ItemTappedEventArgs" /> Item tapped event arguments.</param>
@@ -1643,7 +1641,7 @@ namespace dMobile.View.Activity
         {
             var isReviewed = true;
 
-            // TODO: Looks like confirmations have not been implemented. Currently picking and warehouse transfers can use confirmations.
+            // TODO: Looks like confirmations have not been implemented. Currently, picking and warehouse transfers can use confirmations.
             if (this.ActSubType == SysCommon.ActSubTypes.Picking && this.SysEnv.SysSettings.IsPickMustReviewItemsBeforeRel)
             {
                 if (this.ActItem.SelectedItem != null)
@@ -1665,7 +1663,7 @@ namespace dMobile.View.Activity
         {
             var isReviewed = true;
 
-            // TODO: Looks like confirmations have not been implemented. Currently picking and
+            // TODO: Looks like confirmations have not been implemented. Currently, picking and
             // warehouse transfers can use confirmations.
             if (this.SysEnv.SysSettings.IsPickMustReviewItemsBeforeRel)
             {
@@ -1844,11 +1842,14 @@ namespace dMobile.View.Activity
                         Math.Round(decimal.Parse(qty), 3),
                         Math.Round(decimal.Parse(baseQty), 3),
                         Math.Round(decimal.Parse(weightQty), 3));
-                    await this.ActItem.UpdateItemTableQuantity(this.ListViewMainActivity.SelectedItem);
-                    this.ActItem.ListItems[this.ActItem.SelectedListIdx] = this.ActItem.SelectedItem;
+                    await this.ActItem.UpdateItemTableQuantity(this.ActItem.SelectedItem);
                     this.MainActivityItems[this.ActItem.SelectedListIdx] = this.ActItem.SelectedItem;
                     this.ListViewMainActivity.ItemsSource = this.MainActivityItems;
-                    await this.LoadAndBindData();
+                    ////this.ActItem.ListItems[this.ActItem.SelectedListIdx] = this.ActItem.SelectedItem;
+                    ////this.MainActivityItems[this.ActItem.SelectedListIdx] = this.ActItem.SelectedItem;
+                    ////this.ListViewMainActivity.ItemsSource = this.MainActivityItems;
+                    ////await this.LoadAndBindData();
+                    await this.FindSelectedItemAsync();
                 }
             }
             catch (MessageOnlyException msgEx)
@@ -2074,15 +2075,14 @@ namespace dMobile.View.Activity
 
                             // IsReadyToApply will perform any validations, such as duplicate checks
                             // and quantity validations.
-                            var xmlParam = XDocument.Parse(
-                                "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
-                                + "<imclient>"
-                                + "<itm_refno>" + this.ActItem.ItemFkRefno + "</itm_refno>"
-                                + "<alt_qty>" + this.ActItem.ActHdr.SkidInfo.CurrSkid.Quantity + "</alt_qty>"
-                                + "<wt_qty>" + this.ActItem.ActHdr.SkidInfo.CurrSkid.WeightQuantity + "</wt_qty>"
-                                + "<ActivityDetailUniqueSchemeID>" + actDetail.UniqueSchemeId +
-                                "</ActivityDetailUniqueSchemeID>"
-                                + "</imclient>");
+                            var xmlString = $@"<?xml version=""1.0"" encoding=""utf-16"" standalone=""yes""?>
+                                <imclient>
+                                <itm_refno>{this.ActItem.ItemFkRefno}</itm_refno>
+                                <alt_qty>{this.ActItem.ActHdr.SkidInfo.CurrSkid.Quantity}</alt_qty>
+                                <wt_qty>{this.ActItem.ActHdr.SkidInfo.CurrSkid.WeightQuantity}</wt_qty>
+                                <ActivityDetailUniqueSchemeID>{actDetail.UniqueSchemeId}</ActivityDetailUniqueSchemeID>
+                                </imclient>";
+                            var xmlParam = XDocument.Parse(xmlString);
 
                             await this.ActItem.IsReadyToApply(xmlParam);
                             await actDetail.InsertSkid(this.ActItem.ActHdr.SkidInfo);
@@ -2242,7 +2242,7 @@ namespace dMobile.View.Activity
             async Task BarCodeHandlerLocationIdentifier(BarCodeParse parse)
             {
                 // If section filtering was set in the activity header. Do we want to enforce
-                // the scanned section location.
+                // the scanned section location?
                 var tmpLoc = await LocationMapTasks.GetSLocMapFromLocMapRefno(
                     await LocationMapTasks.GetLocMapRefnoFromBarCodeGlobalLocIdentifier(
                         parse.LocationIdentifier));
@@ -2586,19 +2586,18 @@ namespace dMobile.View.Activity
         private async Task<string> MakeSkidLabelsRequestString()
         {
             var xmlString = new StringBuilder();
-            var xml = XmlWriter.Create(xmlString, new XmlWriterSettings
-                { Async = true });
-            var request = XDocument.Parse(
-                "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>"
-                + "<imclient>"
-                + await SysCommon.GetRequestDefaults(false)
-                + "<command>"
-                + "<action>SUBMIT PRINT ALL SKID LABELS</action>"
-                + "<whs_id>" + this.LocMap.CurrLocMap.WhsFkRefno + "</whs_id>"
-                + "<fk_refno>" + this.ActItem.ActHdr.HdrFkRefno + "</fk_refno>"
-                + "<fk_source>PO</fk_source>"
-                + "</command>"
-                + "</imclient>");
+            var xml = XmlWriter.Create(xmlString, new XmlWriterSettings { Async = true });
+            var xmlRequest = $@"<?xml version=""1.0"" encoding=""utf-8"" standalone=""yes""?>
+                <imclient>
+                {await SysCommon.GetRequestDefaults(false)}
+                <command>
+                <action>SUBMIT PRINT ALL SKID LABELS</action>
+                <whs_id>{this.LocMap.CurrLocMap.WhsFkRefno}</whs_id>
+                <fk_refno>{this.ActItem.ActHdr.HdrFkRefno}</fk_refno>
+                <fk_source>PO</fk_source>
+                </command>
+                </imclient>";
+            var request = XDocument.Parse(xmlRequest);
 
             request.Save(xml);
             await xml.FlushAsync();
@@ -2614,7 +2613,7 @@ namespace dMobile.View.Activity
         private ProductSchemeData DefaultSchemeDataFromCurrentSkidSchemeDetail(ActDetail actDetail)
         {
             // Did not use this.ActItem.ActHdr.SkidInfo.CurrSkid.LogisticUnitSkidCode
-            // because of the length of the code and the fact is isn't human readable friendly.
+            // because of the length of the code and the fact isn't human-readable friendly.
             var schemeData = actDetail.SchemeData;
             if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFkRefno != 0)
             {
@@ -2914,7 +2913,7 @@ namespace dMobile.View.Activity
                     var prodDesc = transferItemTo.ProductDescription;
                     var prodUnitSizeDesc = transferItemTo.ProductUnitSizeDescription;
                     var defLocMapRefno = await this.ActItem.GetDefaultLocMapRefno(
-                        transferItemTo.LocationCode,
+                        transferItemTo.LocationMapRefno,
                         transferItemTo.ProductRefno);
                     var sLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
                         defLocMapRefno);
@@ -2941,7 +2940,7 @@ namespace dMobile.View.Activity
 
                     // Get product default location info
                     var defLocMapRefno = await this.ActItem.GetDefaultLocMapRefno(
-                        transferItemFrom.LocationCode,
+                        transferItemFrom.LocationMapRefno,
                         transferItemFrom.ProductRefno);
                     var sLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
                         defLocMapRefno);
@@ -2970,7 +2969,7 @@ namespace dMobile.View.Activity
 
                     // Get product default location info
                     var defLocMapRefno = await this.ActItem.GetDefaultLocMapRefno(
-                        returnItem.LocationCode,
+                        returnItem.LocationMapRefno,
                         returnItem.ProductRefno);
                     var sLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(defLocMapRefno);
                     var defLoc = LocationMapTasks.GetReadableLocation(sLocMap);
@@ -3017,7 +3016,7 @@ namespace dMobile.View.Activity
 
                     // Get product default location info
                     var defLocMapRefno = await this.ActItem.GetDefaultLocMapRefno(
-                        receiveItem.LocationCode,
+                        receiveItem.LocationMapRefno,
                         receiveItem.ProductRefno);
                     var sLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
                         defLocMapRefno);
@@ -3045,7 +3044,7 @@ namespace dMobile.View.Activity
 
                     // Get product default location info
                     var defLocMapRefno = await this.ActItem.GetDefaultLocMapRefno(
-                        purchaseOrderWorkSheetItem.LocationCode,
+                        purchaseOrderWorkSheetItem.LocationMapRefno,
                         purchaseOrderWorkSheetItem.ProductRefno);
                     var sLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
                         defLocMapRefno);
@@ -3073,7 +3072,7 @@ namespace dMobile.View.Activity
 
                     // Get product default location info
                     var defLocMapRefno = await this.ActItem.GetDefaultLocMapRefno(
-                        productionTicketMaterialItem.LocationCode,
+                        productionTicketMaterialItem.LocationMapRefno,
                         productionTicketMaterialItem.ProductRefno);
                     var sLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
                         defLocMapRefno);
@@ -3101,7 +3100,7 @@ namespace dMobile.View.Activity
 
                     // Get product default location info
                     var defLocMapRefno = await this.ActItem.GetDefaultLocMapRefno(
-                        productionTicketFinishedItem.LocationCode,
+                        productionTicketFinishedItem.LocationMapRefno,
                         productionTicketFinishedItem.ProductRefno);
                     var sLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
                         defLocMapRefno);
@@ -3129,7 +3128,7 @@ namespace dMobile.View.Activity
 
                     // Get product default location info
                     var defLocMapRefno = await this.ActItem.GetDefaultLocMapRefno(
-                        productionTicketByProductItem.LocationCode,
+                        productionTicketByProductItem.LocationMapRefno,
                         productionTicketByProductItem.ProductRefno);
                     var sLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
                         defLocMapRefno);
@@ -3157,7 +3156,7 @@ namespace dMobile.View.Activity
 
                     // Get product default location info
                     var defLocMapRefno = await this.ActItem.GetDefaultLocMapRefno(
-                        pickingItemSingle.LocationCode,
+                        pickingItemSingle.LocationMapRefno,
                         pickingItemSingle.ProductRefno);
                     var sLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
                         defLocMapRefno);
@@ -3224,7 +3223,7 @@ namespace dMobile.View.Activity
 
                     // Get product default location info
                     var defLocMapRefno = await this.ActItem.GetDefaultLocMapRefno(
-                        pickingItem.LocationCode,
+                        pickingItem.LocationMapRefno,
                         pickingItem.ProductRefno);
                     var sLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
                         defLocMapRefno);
@@ -3329,7 +3328,7 @@ namespace dMobile.View.Activity
 
                     // Get product default location info
                     var defLocMapRefno = await this.ActItem.GetDefaultLocMapRefno(
-                        adjustmentItem.LocationCode,
+                        adjustmentItem.LocationMapRefno,
                         adjustmentItem.ProductRefno);
                     var sLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
                         defLocMapRefno);
@@ -3733,19 +3732,19 @@ namespace dMobile.View.Activity
                         // this.ActItem.ProdInfo assigned in Insert();
                         // this.ActItem.ProdInfo.Scheme assigned in Insert();
                         var unitSizeDesc = SysCommon.AddXmlReservedChars(prodInfo.UnitSizeDesc);
-                        xmlDoc = XDocument.Parse(
-                            "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
-                            + "<params>"
-                            + "<ProductUnitRefno>" + prodInfo.UnitRefno + "</ProductUnitRefno>"
-                            + "<ProductRefno>" + prodInfo.Refno + "</ProductRefno>"
-                            + "<ProductCode>" + prodInfo.Code + "</ProductCode>"
-                            + "<ProductDescription>" + SysCommon.AddXmlReservedChars(prodInfo.Desc) +
-                            "</ProductDescription>"
-                            + "<UnitCode>" + prodInfo.UnitCode + "</UnitCode>"
-                            + "<BaseUnitCode>" + prodInfo.BaseUnitCode + "</BaseUnitCode>"
-                            + "<ProductUnitBC>" + prodInfo.UnitBc + "</ProductUnitBC>"
-                            + "<ProductUnitSizeDescription>" + unitSizeDesc + "</ProductUnitSizeDescription>"
-                            + "</params>");
+                        var xmlString = $@"<?xml version=""1.0"" encoding=""utf-16"" standalone=""yes""?>
+                            <params>
+                            <ProductUnitRefno>{prodInfo.UnitRefno}</ProductUnitRefno>
+                            <ProductRefno>{prodInfo.Refno}</ProductRefno>
+                            <ProductCode>{prodInfo.Code}</ProductCode>
+                            <ProductDescription>{SysCommon.AddXmlReservedChars(prodInfo.Desc)}</ProductDescription>
+                            <UnitCode>{prodInfo.UnitCode}</UnitCode>
+                            <BaseUnitCode>{prodInfo.BaseUnitCode}</BaseUnitCode>
+                            <ProductUnitBC>{prodInfo.UnitBc}</ProductUnitBC>
+                            <ProductUnitSizeDescription>{unitSizeDesc}</ProductUnitSizeDescription>
+                            </params>";
+                        xmlDoc = XDocument.Parse(xmlString);
+
                         await this.ActItem.Insert(xmlDoc);
                         this.ActItem.SetSelectedActivityItemFromList(this.ActItem.ItemRefno);
                         await this.ActItem.AssignActivityItem(this.ActItem.SelectedItem);

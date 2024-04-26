@@ -592,6 +592,15 @@ namespace dMobile.Controller.Activity
         }
 
         /// <summary>
+        ///     Create a dump of the activity header data
+        /// </summary>
+        /// <returns><see cref="XDocument"/> XML of activity data.</returns>
+        public override XDocument CreateDump()
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
         /// Insert, create a new activity adjustment header.
         /// </summary>
         /// <param name="xmlParams">The xmlParams<see cref="XDocument"/>.</param>

@@ -17,6 +17,7 @@ using dMobile.Resources.Services;
 using dMobile.Resources.Types;
 using SQLite;
 using Xamarin.Forms;
+using Xamarin.Forms.Xaml;
 
 namespace dMobile.Controller.Activity_Detail
 {
@@ -134,32 +135,32 @@ namespace dMobile.Controller.Activity_Detail
         }
 
         /// <summary>
-        /// Gets or sets the grid column 0 width..
+        /// Gets or sets the grid column 0 width.
         /// </summary>
         public double ColumnWidth0 { get; set; } = 0;
 
         /// <summary>
-        /// Gets or sets the grid column 1 width..
+        /// Gets or sets the grid column 1 width
         /// </summary>
         public double ColumnWidth1 { get; set; } = 0;
 
         /// <summary>
-        /// Gets or sets the grid column 2 width..
+        /// Gets or sets the grid column 2 width.
         /// </summary>
         public double ColumnWidth2 { get; set; } = 0;
 
         /// <summary>
-        /// Gets or sets the grid column 3 width..
+        /// Gets or sets the grid column 3 width.
         /// </summary>
         public double ColumnWidth3 { get; set; } = 0;
 
         /// <summary>
-        /// Gets or sets the grid column 4 width..
+        /// Gets or sets the grid column 4 width.
         /// </summary>
         public double ColumnWidth4 { get; set; } = 0;
 
         /// <summary>
-        /// Gets or sets the resource dictionary..
+        /// Gets or sets the resource dictionary.
         /// </summary>
         public ResourceDictionary ResourceDictionary { get; set; } = new ResourceDictionary();
 
@@ -202,7 +203,7 @@ namespace dMobile.Controller.Activity_Detail
         /// Update detail in the detail list.
         /// </summary>
         /// <param name="listDetailIdx"><see cref="int"/> Zero based list detail index.</param>
-        public override void UpdateListDetail(int listDetailIdx)
+        public override async void UpdateListDetail(int listDetailIdx)
         {
             var detail = (PickingDetail)this.ListDetails[listDetailIdx];
             detail.ActivityDetailQuantity += Math.Round(this.Quantity, 3);
@@ -217,11 +218,10 @@ namespace dMobile.Controller.Activity_Detail
         /// <returns><see cref="Task"/> Task operation.</returns>
         public override async Task InsertSkid(SysSkidInfo skidInfo)
         {
-            var request = XDocument.Parse(
-                "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
-                + "<params>"
-                + "<skid_data>" + skidInfo.CurrSkid.SkidCode + "</skid_data>"
-                + "</params>");
+            var request = XDocument.Parse($@"<?xml version=""1.0"" encoding=""utf-16"" standalone=""yes""?>
+                <params>
+                <skid_data>{skidInfo.CurrSkid.SkidCode}</skid_data>
+                </params>");
 
             var xmlSend = await this.CreateSubmitXml(request);
             var responseData = SysCommon.SubmitComm(xmlSend);
@@ -252,6 +252,19 @@ namespace dMobile.Controller.Activity_Detail
         }
 
         /// <summary>
+        /// Update the confirmed status of the picking detail in the database.
+        /// </summary>
+        /// <param name="listDetailIdx">List index.</param>
+        public async void UpdateConfirmedStatus(int listDetailIdx)
+        {
+            var detail = (PickingDetail)this.ListDetails[listDetailIdx];
+            var query = $@"UPDATE tActivityDetailPicking
+                SET ActivityDetailPickingIsConfirmed = {detail.ActivityDetailIsConfirmed}
+                WHERE ActivityDetailRefno = {detail.ActivityDetailRefno}";
+            await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync(query);
+        }
+
+        /// <summary>
         /// The Insert.
         /// </summary>
         /// <param name="data">.</param>
@@ -275,8 +288,13 @@ namespace dMobile.Controller.Activity_Detail
             if (this.DetailRefno < 0)
             {
                 this.DetailRefno = await this.InsertDetailIntoTablesDetail();
-                const string query = "INSERT INTO tActivityDetailPicking (ActivityDetailRefno, ActivityDetailFKRefno," +
-                                     " ActivityDetailPickingIsConfirmed) VALUES (?, ?, ?)";
+                const string query = @"
+                    INSERT INTO tActivityDetailPicking (
+                            ActivityDetailRefno,
+                            ActivityDetailFKRefno,
+                            ActivityDetailPickingIsConfirmed)
+                        VALUES
+                            (?, ?, ?)";
                 var rowsAffected = await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync(
                     query,
                     Convert.ToInt32(this.DetailRefno),
@@ -367,9 +385,10 @@ namespace dMobile.Controller.Activity_Detail
                         item.ActivityItemStringFKRefno = this.ActItem.ItemFkRefno.ToString();
 
                         rowsAffected = await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync(
-                            "UPDATE tActivityItemPicking SET ActivityItemFKRefno = ?" +
-                            ",ActivityItemStringFKRefno = ?" +
-                            " WHERE ActivityItemRefno = ?",
+                            @"UPDATE tActivityItemPicking
+                                SET ActivityItemFKRefno = ?
+                                    ,ActivityItemStringFKRefno = ?
+                                WHERE ActivityItemRefno = ?",
                             item.ActivityItemFKRefno,
                             item.ActivityItemStringFKRefno,
                             this.ActItem.ItemRefno);
@@ -557,367 +576,347 @@ namespace dMobile.Controller.Activity_Detail
         /// <returns>Data view result of the query.</returns>
         public override async Task<List<object>> GetActivityDetailList(bool isSubmitBatch)
         {
-            var sql = new StringBuilder();
+            var sql = string.Empty;
 
             if (isSubmitBatch)
             {
-                sql.Append("SELECT tActivityDetail.ActivityDetailRefno,");
-                sql.Append("tActivityDetail.LocationMapRefno AS LocationMapRefno,");
-                sql.Append("tActivityDetailPicking.ActivityDetailFKRefno,");
-                sql.Append("tUnit.UnitCode AS UnitCode,");
-                sql.Append("aUnitWeight.UnitCode AS WtUnitCode,");
-                sql.Append("aUnitBase.UnitCode AS BaseUnitCode,");
-                sql.Append("tProduct.ProductCode AS ProductCode,");
-                sql.Append("tProduct.ProductRefno AS ProductRefno,");
-                sql.Append("tProduct.ProductDescription AS ProductDescription,");
-                sql.Append("tProduct.ProductBrandDescription AS ProductBrandDescription,");
-                sql.Append("tProductUnit.ProductUnitBC AS ProductUnitBC,");
-                sql.Append("tProductUnit.ProductUnitIsBC AS ProductUnitIsBC,");
-                sql.Append("tProductUnit.ProductUnitSizeDescription AS ProductUnitSizeDescription,");
-                sql.Append("tActivityDetail.ActivityDetailQuantity AS ActivityDetailQuantity,");
-                sql.Append("tActivityDetail.ActivityDetailBaseQuantity AS ActivityDetailBaseQuantity,");
-                sql.Append("tActivityDetail.ActivityDetailWeightQuantity AS ActivityDetailWeightQuantity,");
-                sql.Append("tActivityDetail.ActivityDetailLogisticUnitBestBeforeSellByDate AS ActivityDetailLogisticUnitBestBeforeSellByDate,");
-                sql.Append("tActivityDetail.ActivityDetailSchemeID AS ActivityDetailSchemeID,");
-                sql.Append("tActivityDetail.ActivityDetailUniqueSchemeID AS ActivityDetailUniqueSchemeID,");
-                sql.Append("tActivityDetail.ActivityDetailSingleTradeItemSerialNumber AS ActivityDetailSingleTradeItemSerialNumber,");
-                sql.Append("tActivityDetail.ActivityDetailLogisticUnitBatchLotNumber AS ActivityDetailLogisticUnitBatchLotNumber,");
-                sql.Append("tActivityDetail.ActivityDetailLogisticUnitExpiryUseByDate AS ActivityDetailLogisticUnitExpiryUseByDate,");
-                sql.Append("tActivityDetail.ActivityDetailLogisticUnitProductionDate AS ActivityDetailLogisticUnitProductionDate,");
-                sql.Append("tActivityDetail.ActivityDetailLogisticUnitSkidNumber AS ActivityDetailLogisticUnitSkidNumber,");
-                sql.Append("tLocationMapSlot.LocationMapSlotCode AS LocationCode,");
-                sql.Append("CAST(tLocationMapSlot.LocationMapSlotName AS NVARCHAR(22)) AS LocationName,");
-                sql.Append("CAST(\'Slot\' AS NVARCHAR(8)) AS Location,");
-                sql.Append("tProductSchemeVariant.ProductSchemeVariantCode AS ProductSchemeVariantCode,");
-                sql.Append("tProductSchemeVariant.ProductSchemeVariantNo AS ProductSchemeVariantNo,");
-                sql.Append("tProductSchemeVariant.ProductSchemeVariantDescription AS ProductSchemeVariantDescription,");
-                sql.Append("tActivityDetail.ActivityDetailStatus AS ActivityDetailStatus,");
-                sql.Append("tActivityDetailPicking.ActivityDetailPickingIsConfirmed AS ActivityDetailIsConfirmed,");
-                sql.Append("CASE tActivityDetailPicking.ActivityDetailPickingIsConfirmed WHEN 1 THEN \'C\' ELSE \' \' END ");
-                sql.Append("AS ActivityDetailIsConfirmedString,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra1Text AS ActivityDetailExtra1Text,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra2Text AS ActivityDetailExtra2Text,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra3Text AS ActivityDetailExtra3Text,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra4Text AS ActivityDetailExtra4Text,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra5Date AS ActivityDetailExtra5Date ");
-                sql.Append("FROM tActivityDetailPicking ");
-                sql.Append("INNER JOIN tActivityDetail ON tActivityDetail.ActivityDetailRefno ");
-                sql.Append("= tActivityDetailPicking.ActivityDetailRefno ");
-                sql.Append("INNER JOIN tProductUnit ON tProductUnit.ProductUnitRefno = tActivityDetail.ProductUnitRefno ");
-                sql.Append("INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno ");
-                sql.Append("INNER JOIN tUnit AS aUnitWeight ON aUnitWeight.UnitRefno = tProductUnit.WtUnitRefno ");
-                sql.Append("INNER JOIN tUnit AS aUnitBase ON aUnitBase.UnitRefno = tProductUnit.BaseUnitRefno ");
-                sql.Append("INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno ");
-                sql.Append("INNER JOIN tLocationMapSlot ON tLocationMapSlot.LocationMapRefno ");
-                sql.Append("= tActivityDetail.LocationMapRefno ");
-                sql.Append("LEFT JOIN tActivityDetailProductSchemeVariantXRef ON ");
-                sql.Append("tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno = ");
-                sql.Append("tActivityDetailPicking.ActivityDetailRefno ");
-                sql.Append("LEFT JOIN tProductSchemeVariant ON tProductSchemeVariant.ProductSchemeVariantRefno ");
-                sql.Append("= tActivityDetailProductSchemeVariantXRef.ProductSchemeVariantRefno ");
-                sql.Append("LEFT JOIN tActivityDetailExtra ON tActivityDetailExtra.ActivityDetailRefno ");
-                sql.Append("= tActivityDetail.ActivityDetailRefno ");
-                sql.AppendFormat("WHERE tActivityDetail.ActivityItemRefno = {0} ", this.ActItem.ItemRefno);
-                sql.AppendFormat("AND tActivityDetail.ActivityDetailStatus <> {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
-                sql.Append("UNION ");
-                sql.Append("SELECT tActivityDetail.ActivityDetailRefno,");
-                sql.Append("tActivityDetail.LocationMapRefno,");
-                sql.Append("tActivityDetailPicking.ActivityDetailFKRefno,");
-                sql.Append("tUnit.UnitCode,");
-                sql.Append("aUnitWeight.UnitCode AS WtUnitCode,");
-                sql.Append("aUnitBase.UnitCode AS BaseUnitCode,");
-                sql.Append("tProduct.ProductCode,");
-                sql.Append("tProduct.ProductRefno,");
-                sql.Append("tProduct.ProductDescription,");
-                sql.Append("tProduct.ProductBrandDescription,");
-                sql.Append("tProductUnit.ProductUnitBC,");
-                sql.Append("tProductUnit.ProductUnitIsBC,");
-                sql.Append("tProductUnit.ProductUnitSizeDescription,");
-                sql.Append("tActivityDetail.ActivityDetailQuantity,");
-                sql.Append("tActivityDetail.ActivityDetailBaseQuantity,");
-                sql.Append("tActivityDetail.ActivityDetailWeightQuantity,");
-                sql.Append("tActivityDetail.ActivityDetailLogisticUnitBestBeforeSellByDate,");
-                sql.Append("tActivityDetail.ActivityDetailSchemeID,");
-                sql.Append("tActivityDetail.ActivityDetailUniqueSchemeID,");
-                sql.Append("tActivityDetail.ActivityDetailSingleTradeItemSerialNumber,");
-                sql.Append("tActivityDetail.ActivityDetailLogisticUnitBatchLotNumber,");
-                sql.Append("tActivityDetail.ActivityDetailLogisticUnitExpiryUseByDate,");
-                sql.Append("tActivityDetail.ActivityDetailLogisticUnitProductionDate,");
-                sql.Append("tActivityDetail.ActivityDetailLogisticUnitSkidNumber,");
-                sql.Append("tLocationMapSection.LocationMapSectionCode AS LocationCode,");
-                sql.Append("CAST(tLocationMapSection.LocationMapSectionName AS NVARCHAR(22)) AS LocationName,");
-                sql.Append("CAST(\'Section\' AS NVARCHAR(8)) AS Location,");
-                sql.Append("tProductSchemeVariant.ProductSchemeVariantCode,");
-                sql.Append("tProductSchemeVariant.ProductSchemeVariantNo,");
-                sql.Append("tProductSchemeVariant.ProductSchemeVariantDescription,");
-                sql.Append("tActivityDetail.ActivityDetailStatus,");
-                sql.Append("tActivityDetailPicking.ActivityDetailPickingIsConfirmed AS ActivityDetailIsConfirmed,");
-                sql.Append("CASE tActivityDetailPicking.ActivityDetailPickingIsConfirmed WHEN 1 THEN \'C\' ELSE \' \' END ");
-                sql.Append("AS ActivityDetailIsConfirmedString,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra1Text,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra2Text,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra3Text,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra4Text,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra5Date ");
-                sql.Append("FROM tActivityDetailPicking ");
-                sql.Append("INNER JOIN tActivityDetail ON tActivityDetail.ActivityDetailRefno ");
-                sql.Append("= tActivityDetailPicking.ActivityDetailRefno ");
-                sql.Append("INNER JOIN tProductUnit ON tProductUnit.ProductUnitRefno = tActivityDetail.ProductUnitRefno ");
-                sql.Append("INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno ");
-                sql.Append("INNER JOIN tUnit AS aUnitWeight ON aUnitWeight.UnitRefno = tProductUnit.WtUnitRefno ");
-                sql.Append("INNER JOIN tUnit AS aUnitBase ON aUnitBase.UnitRefno = tProductUnit.BaseUnitRefno ");
-                sql.Append("INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno ");
-                sql.Append("INNER JOIN tLocationMapSection ON tLocationMapSection.LocationMapRefno ");
-                sql.Append("= tActivityDetail.LocationMapRefno ");
-                sql.Append("LEFT JOIN tActivityDetailProductSchemeVariantXRef ON ");
-                sql.Append("tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno ");
-                sql.Append("= tActivityDetailPicking.ActivityDetailRefno ");
-                sql.Append("LEFT JOIN tProductSchemeVariant ON tProductSchemeVariant.ProductSchemeVariantRefno ");
-                sql.Append("= tActivityDetailProductSchemeVariantXRef.ProductSchemeVariantRefno ");
-                sql.Append("LEFT JOIN tActivityDetailExtra ON tActivityDetailExtra.ActivityDetailRefno ");
-                sql.Append("= tActivityDetail.ActivityDetailRefno ");
-                sql.AppendFormat("WHERE tActivityDetail.ActivityItemRefno = {0} ", this.ActItem.ItemRefno);
-                sql.AppendFormat("AND tActivityDetail.ActivityDetailStatus <> {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
-                sql.Append("UNION ");
-                sql.Append("SELECT tActivityDetail.ActivityDetailRefno,");
-                sql.Append("tActivityDetail.LocationMapRefno,");
-                sql.Append("tActivityDetailPicking.ActivityDetailFKRefno,");
-                sql.Append("tUnit.UnitCode,");
-                sql.Append("aUnitWeight.UnitCode AS WtUnitCode,");
-                sql.Append("aUnitBase.UnitCode AS BaseUnitCode,");
-                sql.Append("tProduct.ProductCode,");
-                sql.Append("tProduct.ProductRefno,");
-                sql.Append("tProduct.ProductDescription,");
-                sql.Append("tProduct.ProductBrandDescription,");
-                sql.Append("tProductUnit.ProductUnitBC,");
-                sql.Append("tProductUnit.ProductUnitIsBC,");
-                sql.Append("tProductUnit.ProductUnitSizeDescription,");
-                sql.Append("tActivityDetail.ActivityDetailQuantity,");
-                sql.Append("tActivityDetail.ActivityDetailBaseQuantity,");
-                sql.Append("tActivityDetail.ActivityDetailWeightQuantity,");
-                sql.Append("tActivityDetail.ActivityDetailLogisticUnitBestBeforeSellByDate,");
-                sql.Append("tActivityDetail.ActivityDetailSchemeID,");
-                sql.Append("tActivityDetail.ActivityDetailUniqueSchemeID,");
-                sql.Append("tActivityDetail.ActivityDetailSingleTradeItemSerialNumber,");
-                sql.Append("tActivityDetail.ActivityDetailLogisticUnitBatchLotNumber,");
-                sql.Append("tActivityDetail.ActivityDetailLogisticUnitExpiryUseByDate,");
-                sql.Append("tActivityDetail.ActivityDetailLogisticUnitProductionDate,");
-                sql.Append("tActivityDetail.ActivityDetailLogisticUnitSkidNumber,");
-                sql.Append("tLocationMapWarehouse.LocationMapWarehouseCode AS LocationCode,");
-                sql.Append("CAST(tLocationMapWarehouse.LocationMapWarehouseName AS NVARCHAR(22)) AS LocationName,");
-                sql.Append("CAST(\'Whs\' AS NVARCHAR(8)) AS Location,");
-                sql.Append("tProductSchemeVariant.ProductSchemeVariantCode,");
-                sql.Append("tProductSchemeVariant.ProductSchemeVariantNo,");
-                sql.Append("tProductSchemeVariant.ProductSchemeVariantDescription,");
-                sql.Append("tActivityDetail.ActivityDetailStatus,");
-                sql.Append("tActivityDetailPicking.ActivityDetailPickingIsConfirmed AS ActivityDetailIsConfirmed,");
-                sql.Append("CASE tActivityDetailPicking.ActivityDetailPickingIsConfirmed WHEN 1 THEN \'C\' ELSE \' \' END ");
-                sql.Append("AS ActivityDetailIsConfirmedString,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra1Text,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra2Text,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra3Text,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra4Text,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra5Date ");
-                sql.Append("FROM tActivityDetailPicking ");
-                sql.Append("INNER JOIN tActivityDetail ON tActivityDetail.ActivityDetailRefno ");
-                sql.Append("= tActivityDetailPicking.ActivityDetailRefno ");
-                sql.Append("INNER JOIN tProductUnit ON tProductUnit.ProductUnitRefno = tActivityDetail.ProductUnitRefno ");
-                sql.Append("INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno ");
-                sql.Append("INNER JOIN tUnit AS aUnitWeight ON aUnitWeight.UnitRefno = tProductUnit.WtUnitRefno ");
-                sql.Append("INNER JOIN tUnit AS aUnitBase ON aUnitBase.UnitRefno = tProductUnit.BaseUnitRefno ");
-                sql.Append("INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno ");
-                sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno ");
-                sql.Append("= tActivityDetail.LocationMapRefno ");
-                sql.Append("LEFT JOIN tActivityDetailProductSchemeVariantXRef ON ");
-                sql.Append("tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno ");
-                sql.Append("= tActivityDetailPicking.ActivityDetailRefno ");
-                sql.Append("LEFT JOIN tProductSchemeVariant ON tProductSchemeVariant.ProductSchemeVariantRefno ");
-                sql.Append("= tActivityDetailProductSchemeVariantXRef.ProductSchemeVariantRefno ");
-                sql.Append("LEFT JOIN tActivityDetailExtra ON tActivityDetailExtra.ActivityDetailRefno ");
-                sql.Append("= tActivityDetail.ActivityDetailRefno ");
-                sql.AppendFormat("WHERE tActivityDetail.ActivityItemRefno = {0} ", this.ActItem.ItemRefno);
-                sql.AppendFormat("AND tActivityDetail.ActivityDetailStatus <> {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
-                sql.Append("ORDER BY tActivityDetail.ActivityDetailRefno");
+                sql = $@"SELECT tActivityDetail.ActivityDetailRefno,
+                    tActivityDetail.LocationMapRefno AS LocationMapRefno,
+                    tActivityDetailPicking.ActivityDetailFKRefno,
+                    tUnit.UnitCode AS UnitCode,
+                    aUnitWeight.UnitCode AS WtUnitCode,
+                    aUnitBase.UnitCode AS BaseUnitCode,
+                    tProduct.ProductCode AS ProductCode,
+                    tProduct.ProductRefno AS ProductRefno,
+                    tProduct.ProductDescription AS ProductDescription,
+                    tProduct.ProductBrandDescription AS ProductBrandDescription,
+                    tProductUnit.ProductUnitBC AS ProductUnitBC,
+                    tProductUnit.ProductUnitIsBC AS ProductUnitIsBC,
+                    tProductUnit.ProductUnitSizeDescription AS ProductUnitSizeDescription,
+                    tActivityDetail.ActivityDetailQuantity AS ActivityDetailQuantity,
+                    tActivityDetail.ActivityDetailBaseQuantity AS ActivityDetailBaseQuantity,
+                    tActivityDetail.ActivityDetailWeightQuantity AS ActivityDetailWeightQuantity,
+                    tActivityDetail.ActivityDetailLogisticUnitBestBeforeSellByDate AS ActivityDetailLogisticUnitBestBeforeSellByDate,
+                    tActivityDetail.ActivityDetailSchemeID AS ActivityDetailSchemeID,
+                    tActivityDetail.ActivityDetailUniqueSchemeID AS ActivityDetailUniqueSchemeID,
+                    tActivityDetail.ActivityDetailSingleTradeItemSerialNumber AS ActivityDetailSingleTradeItemSerialNumber,
+                    tActivityDetail.ActivityDetailLogisticUnitBatchLotNumber AS ActivityDetailLogisticUnitBatchLotNumber,
+                    tActivityDetail.ActivityDetailLogisticUnitExpiryUseByDate AS ActivityDetailLogisticUnitExpiryUseByDate,
+                    tActivityDetail.ActivityDetailLogisticUnitProductionDate AS ActivityDetailLogisticUnitProductionDate,
+                    tActivityDetail.ActivityDetailLogisticUnitSkidNumber AS ActivityDetailLogisticUnitSkidNumber,
+                    tLocationMapSlot.LocationMapSlotCode AS LocationCode,
+                    CAST(tLocationMapSlot.LocationMapSlotName AS NVARCHAR(22)) AS LocationName,
+                    CAST('Slot' AS NVARCHAR(8)) AS Location,
+                    tProductSchemeVariant.ProductSchemeVariantCode AS ProductSchemeVariantCode,
+                    tProductSchemeVariant.ProductSchemeVariantNo AS ProductSchemeVariantNo,
+                    tProductSchemeVariant.ProductSchemeVariantDescription AS ProductSchemeVariantDescription,
+                    tActivityDetail.ActivityDetailStatus AS ActivityDetailStatus,
+                    tActivityDetailPicking.ActivityDetailPickingIsConfirmed AS ActivityDetailIsConfirmed,
+                    CASE tActivityDetailPicking.ActivityDetailPickingIsConfirmed WHEN 1 THEN 'C' ELSE ' ' END 
+                    AS ActivityDetailIsConfirmedString,
+                    tActivityDetailExtra.ActivityDetailExtra1Text AS ActivityDetailExtra1Text,
+                    tActivityDetailExtra.ActivityDetailExtra2Text AS ActivityDetailExtra2Text,
+                    tActivityDetailExtra.ActivityDetailExtra3Text AS ActivityDetailExtra3Text,
+                    tActivityDetailExtra.ActivityDetailExtra4Text AS ActivityDetailExtra4Text,
+                    tActivityDetailExtra.ActivityDetailExtra5Date AS ActivityDetailExtra5Date 
+                    FROM tActivityDetailPicking 
+                    INNER JOIN tActivityDetail ON tActivityDetail.ActivityDetailRefno 
+                    = tActivityDetailPicking.ActivityDetailRefno 
+                    INNER JOIN tProductUnit ON tProductUnit.ProductUnitRefno = tActivityDetail.ProductUnitRefno 
+                    INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno 
+                    INNER JOIN tUnit AS aUnitWeight ON aUnitWeight.UnitRefno = tProductUnit.WtUnitRefno 
+                    INNER JOIN tUnit AS aUnitBase ON aUnitBase.UnitRefno = tProductUnit.BaseUnitRefno 
+                    INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno 
+                    INNER JOIN tLocationMapSlot ON tLocationMapSlot.LocationMapRefno 
+                    = tActivityDetail.LocationMapRefno 
+                    LEFT JOIN tActivityDetailProductSchemeVariantXRef ON 
+                    tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno = 
+                    tActivityDetailPicking.ActivityDetailRefno 
+                    LEFT JOIN tProductSchemeVariant ON tProductSchemeVariant.ProductSchemeVariantRefno 
+                    = tActivityDetailProductSchemeVariantXRef.ProductSchemeVariantRefno 
+                    LEFT JOIN tActivityDetailExtra ON tActivityDetailExtra.ActivityDetailRefno 
+                    = tActivityDetail.ActivityDetailRefno 
+                    WHERE tActivityDetail.ActivityItemRefno = {this.ActItem.ItemRefno} 
+                    AND tActivityDetail.ActivityDetailStatus <> {Convert.ToInt32(SysCommon.ActStatus.NoChange)}
+                    UNION 
+                    SELECT tActivityDetail.ActivityDetailRefno,
+                    tActivityDetail.LocationMapRefno,
+                    tActivityDetailPicking.ActivityDetailFKRefno,
+                    tUnit.UnitCode,
+                    aUnitWeight.UnitCode AS WtUnitCode,
+                    aUnitBase.UnitCode AS BaseUnitCode,
+                    tProduct.ProductCode,
+                    tProduct.ProductRefno,
+                    tProduct.ProductDescription,
+                    tProduct.ProductBrandDescription,
+                    tProductUnit.ProductUnitBC,
+                    tProductUnit.ProductUnitIsBC,
+                    tProductUnit.ProductUnitSizeDescription,
+                    tActivityDetail.ActivityDetailQuantity,
+                    tActivityDetail.ActivityDetailBaseQuantity,
+                    tActivityDetail.ActivityDetailWeightQuantity,
+                    tActivityDetail.ActivityDetailLogisticUnitBestBeforeSellByDate,
+                    tActivityDetail.ActivityDetailSchemeID,
+                    tActivityDetail.ActivityDetailUniqueSchemeID,
+                    tActivityDetail.ActivityDetailSingleTradeItemSerialNumber,
+                    tActivityDetail.ActivityDetailLogisticUnitBatchLotNumber,
+                    tActivityDetail.ActivityDetailLogisticUnitExpiryUseByDate,
+                    tActivityDetail.ActivityDetailLogisticUnitProductionDate,
+                    tActivityDetail.ActivityDetailLogisticUnitSkidNumber,
+                    tLocationMapSection.LocationMapSectionCode AS LocationCode,
+                    CAST(tLocationMapSection.LocationMapSectionName AS NVARCHAR(22)) AS LocationName,
+                    CAST('Section' AS NVARCHAR(8)) AS Location,
+                    tProductSchemeVariant.ProductSchemeVariantCode,
+                    tProductSchemeVariant.ProductSchemeVariantNo,
+                    tProductSchemeVariant.ProductSchemeVariantDescription,
+                    tActivityDetail.ActivityDetailStatus,
+                    tActivityDetailPicking.ActivityDetailPickingIsConfirmed AS ActivityDetailIsConfirmed,
+                    CASE tActivityDetailPicking.ActivityDetailPickingIsConfirmed WHEN 1 THEN 'C' ELSE ' ' END 
+                    AS ActivityDetailIsConfirmedString,
+                    tActivityDetailExtra.ActivityDetailExtra1Text,
+                    tActivityDetailExtra.ActivityDetailExtra2Text,
+                    tActivityDetailExtra.ActivityDetailExtra3Text,
+                    tActivityDetailExtra.ActivityDetailExtra4Text,
+                    tActivityDetailExtra.ActivityDetailExtra5Date 
+                    FROM tActivityDetailPicking 
+                    INNER JOIN tActivityDetail ON tActivityDetail.ActivityDetailRefno 
+                    = tActivityDetailPicking.ActivityDetailRefno 
+                    INNER JOIN tProductUnit ON tProductUnit.ProductUnitRefno = tActivityDetail.ProductUnitRefno 
+                    INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno 
+                    INNER JOIN tUnit AS aUnitWeight ON aUnitWeight.UnitRefno = tProductUnit.WtUnitRefno 
+                    INNER JOIN tUnit AS aUnitBase ON aUnitBase.UnitRefno = tProductUnit.BaseUnitRefno 
+                    INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno 
+                    INNER JOIN tLocationMapSection ON tLocationMapSection.LocationMapRefno 
+                    = tActivityDetail.LocationMapRefno 
+                    LEFT JOIN tActivityDetailProductSchemeVariantXRef ON 
+                    tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno 
+                    = tActivityDetailPicking.ActivityDetailRefno 
+                    LEFT JOIN tProductSchemeVariant ON tProductSchemeVariant.ProductSchemeVariantRefno 
+                    = tActivityDetailProductSchemeVariantXRef.ProductSchemeVariantRefno 
+                    LEFT JOIN tActivityDetailExtra ON tActivityDetailExtra.ActivityDetailRefno 
+                    = tActivityDetail.ActivityDetailRefno 
+                    WHERE tActivityDetail.ActivityItemRefno = {this.ActItem.ItemRefno} 
+                    AND tActivityDetail.ActivityDetailStatus <> {Convert.ToInt32(SysCommon.ActStatus.NoChange)}
+                    UNION 
+                    SELECT tActivityDetail.ActivityDetailRefno,
+                    tActivityDetail.LocationMapRefno,
+                    tActivityDetailPicking.ActivityDetailFKRefno,
+                    tUnit.UnitCode,
+                    aUnitWeight.UnitCode AS WtUnitCode,
+                    aUnitBase.UnitCode AS BaseUnitCode,
+                    tProduct.ProductCode,
+                    tProduct.ProductRefno,
+                    tProduct.ProductDescription,
+                    tProduct.ProductBrandDescription,
+                    tProductUnit.ProductUnitBC,
+                    tProductUnit.ProductUnitIsBC,
+                    tProductUnit.ProductUnitSizeDescription,
+                    tActivityDetail.ActivityDetailQuantity,
+                    tActivityDetail.ActivityDetailBaseQuantity,
+                    tActivityDetail.ActivityDetailWeightQuantity,
+                    tActivityDetail.ActivityDetailLogisticUnitBestBeforeSellByDate,
+                    tActivityDetail.ActivityDetailSchemeID,
+                    tActivityDetail.ActivityDetailUniqueSchemeID,
+                    tActivityDetail.ActivityDetailSingleTradeItemSerialNumber,
+                    tActivityDetail.ActivityDetailLogisticUnitBatchLotNumber,
+                    tActivityDetail.ActivityDetailLogisticUnitExpiryUseByDate,
+                    tActivityDetail.ActivityDetailLogisticUnitProductionDate,
+                    tActivityDetail.ActivityDetailLogisticUnitSkidNumber,
+                    tLocationMapWarehouse.LocationMapWarehouseCode AS LocationCode,
+                    CAST(tLocationMapWarehouse.LocationMapWarehouseName AS NVARCHAR(22)) AS LocationName,
+                    CAST('Whs' AS NVARCHAR(8)) AS Location,
+                    tProductSchemeVariant.ProductSchemeVariantCode,
+                    tProductSchemeVariant.ProductSchemeVariantNo,
+                    tProductSchemeVariant.ProductSchemeVariantDescription,
+                    tActivityDetail.ActivityDetailStatus,
+                    tActivityDetailPicking.ActivityDetailPickingIsConfirmed AS ActivityDetailIsConfirmed,
+                    CASE tActivityDetailPicking.ActivityDetailPickingIsConfirmed WHEN 1 THEN 'C' ELSE ' ' END 
+                    AS ActivityDetailIsConfirmedString,
+                    tActivityDetailExtra.ActivityDetailExtra1Text,
+                    tActivityDetailExtra.ActivityDetailExtra2Text,
+                    tActivityDetailExtra.ActivityDetailExtra3Text,
+                    tActivityDetailExtra.ActivityDetailExtra4Text,
+                    tActivityDetailExtra.ActivityDetailExtra5Date 
+                    FROM tActivityDetailPicking 
+                    INNER JOIN tActivityDetail ON tActivityDetail.ActivityDetailRefno 
+                    = tActivityDetailPicking.ActivityDetailRefno 
+                    INNER JOIN tProductUnit ON tProductUnit.ProductUnitRefno = tActivityDetail.ProductUnitRefno 
+                    INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno 
+                    INNER JOIN tUnit AS aUnitWeight ON aUnitWeight.UnitRefno = tProductUnit.WtUnitRefno 
+                    INNER JOIN tUnit AS aUnitBase ON aUnitBase.UnitRefno = tProductUnit.BaseUnitRefno 
+                    INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno 
+                    INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno 
+                    = tActivityDetail.LocationMapRefno 
+                    LEFT JOIN tActivityDetailProductSchemeVariantXRef ON 
+                    tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno 
+                    = tActivityDetailPicking.ActivityDetailRefno 
+                    LEFT JOIN tProductSchemeVariant ON tProductSchemeVariant.ProductSchemeVariantRefno 
+                    = tActivityDetailProductSchemeVariantXRef.ProductSchemeVariantRefno 
+                    LEFT JOIN tActivityDetailExtra ON tActivityDetailExtra.ActivityDetailRefno 
+                    = tActivityDetail.ActivityDetailRefno 
+                    WHERE tActivityDetail.ActivityItemRefno = {this.ActItem.ItemRefno} 
+                    AND tActivityDetail.ActivityDetailStatus <> {Convert.ToInt32(SysCommon.ActStatus.NoChange)}
+                    ORDER BY tActivityDetail.ActivityDetailRefno";
             }
             else
             {
-                sql.Append("SELECT tActivityDetail.ActivityDetailRefno,");
-                sql.Append("tActivityDetail.LocationMapRefno AS LocationMapRefno,");
-                sql.Append("tActivityDetailPicking.ActivityDetailFKRefno,");
-                sql.Append("tUnit.UnitCode AS UnitCode,");
-                sql.Append("aUnitWeight.UnitCode AS WtUnitCode,");
-                sql.Append("aUnitBase.UnitCode AS BaseUnitCode,");
-                sql.Append("tProduct.ProductCode AS ProductCode,");
-                sql.Append("tProduct.ProductRefno AS ProductRefno,");
-                sql.Append("tProduct.ProductDescription AS ProductDescription,");
-                sql.Append("tProduct.ProductBrandDescription AS ProductBrandDescription,");
-                sql.Append("tProductUnit.ProductUnitBC AS ProductUnitBC,");
-                sql.Append("tProductUnit.ProductUnitIsBC AS ProductUnitIsBC,");
-                sql.Append("tProductUnit.ProductUnitSizeDescription AS ProductUnitSizeDescription,");
-                sql.Append("tActivityDetail.ActivityDetailQuantity AS ActivityDetailQuantity,");
-                sql.Append("tActivityDetail.ActivityDetailBaseQuantity AS ActivityDetailBaseQuantity,");
-                sql.Append("tActivityDetail.ActivityDetailWeightQuantity AS ActivityDetailWeightQuantity,");
-                sql.Append("tActivityDetail.ActivityDetailLogisticUnitBestBeforeSellByDate AS ActivityDetailLogisticUnitBestBeforeSellByDate,");
-                sql.Append("tActivityDetail.ActivityDetailSchemeID AS ActivityDetailSchemeID,");
-                sql.Append("tActivityDetail.ActivityDetailUniqueSchemeID AS ActivityDetailUniqueSchemeID,");
-                sql.Append("tActivityDetail.ActivityDetailSingleTradeItemSerialNumber AS ActivityDetailSingleTradeItemSerialNumber,");
-                sql.Append("tActivityDetail.ActivityDetailLogisticUnitBatchLotNumber AS ActivityDetailLogisticUnitBatchLotNumber,");
-                sql.Append("tActivityDetail.ActivityDetailLogisticUnitExpiryUseByDate AS ActivityDetailLogisticUnitExpiryUseByDate,");
-                sql.Append("tActivityDetail.ActivityDetailLogisticUnitProductionDate AS ActivityDetailLogisticUnitProductionDate,");
-                sql.Append("tActivityDetail.ActivityDetailLogisticUnitSkidNumber AS ActivityDetailLogisticUnitSkidNumber,");
-                sql.Append("tLocationMapSlot.LocationMapSlotCode AS LocationCode,");
-                sql.Append("CAST(tLocationMapSlot.LocationMapSlotName AS NVARCHAR(22)) AS LocationName,");
-                sql.Append("CAST(\'Slot\' AS NVARCHAR(8)) AS Location,");
-                sql.Append("tProductSchemeVariant.ProductSchemeVariantCode AS ProductSchemeVariantCode,");
-                sql.Append("tProductSchemeVariant.ProductSchemeVariantNo AS ProductSchemeVariantNo,");
-                sql.Append("tProductSchemeVariant.ProductSchemeVariantDescription AS ProductSchemeVariantDescription,");
-                sql.Append("tActivityDetail.ActivityDetailStatus AS ActivityDetailStatus,");
-                sql.Append("tActivityDetailPicking.ActivityDetailPickingIsConfirmed AS ActivityDetailIsConfirmed,");
-                sql.Append("CASE tActivityDetailPicking.ActivityDetailPickingIsConfirmed WHEN 1 THEN \'C\' ELSE \' \' END ");
-                sql.Append("AS ActivityDetailIsConfirmedString,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra1Text AS ActivityDetailExtra1Text,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra2Text AS ActivityDetailExtra2Text,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra3Text AS ActivityDetailExtra3Text,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra4Text AS ActivityDetailExtra4Text,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra5Date AS ActivityDetailExtra5Date ");
-                sql.Append("FROM tActivityDetailPicking ");
-                sql.Append("INNER JOIN tActivityDetail ON tActivityDetail.ActivityDetailRefno ");
-                sql.Append("= tActivityDetailPicking.ActivityDetailRefno ");
-                sql.Append("INNER JOIN tProductUnit ON tProductUnit.ProductUnitRefno = tActivityDetail.ProductUnitRefno ");
-                sql.Append("INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno ");
-                sql.Append("INNER JOIN tUnit AS aUnitWeight ON aUnitWeight.UnitRefno = tProductUnit.WtUnitRefno ");
-                sql.Append("INNER JOIN tUnit AS aUnitBase ON aUnitBase.UnitRefno = tProductUnit.BaseUnitRefno ");
-                sql.Append("INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno ");
-                sql.Append("INNER JOIN tLocationMapSlot ON tLocationMapSlot.LocationMapRefno ");
-                sql.Append("= tActivityDetail.LocationMapRefno ");
-                sql.Append("LEFT JOIN tActivityDetailProductSchemeVariantXRef ON ");
-                sql.Append("tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno ");
-                sql.Append("= tActivityDetailPicking.ActivityDetailRefno ");
-                sql.Append("LEFT JOIN tProductSchemeVariant ON tProductSchemeVariant.ProductSchemeVariantRefno ");
-                sql.Append("= tActivityDetailProductSchemeVariantXRef.ProductSchemeVariantRefno ");
-                sql.Append("LEFT JOIN tActivityDetailExtra ON tActivityDetailExtra.ActivityDetailRefno ");
-                sql.Append("= tActivityDetail.ActivityDetailRefno ");
-                sql.AppendFormat("WHERE tActivityDetail.ActivityItemRefno = {0} ", this.ActItem.ItemRefno);
-                sql.Append("UNION ");
-                sql.Append("SELECT tActivityDetail.ActivityDetailRefno,");
-                sql.Append("tActivityDetail.LocationMapRefno,");
-                sql.Append("tActivityDetailPicking.ActivityDetailFKRefno,");
-                sql.Append("tUnit.UnitCode,");
-                sql.Append("aUnitWeight.UnitCode AS WtUnitCode,");
-                sql.Append("aUnitBase.UnitCode AS BaseUnitCode,");
-                sql.Append("tProduct.ProductCode,");
-                sql.Append("tProduct.ProductRefno,");
-                sql.Append("tProduct.ProductDescription,");
-                sql.Append("tProduct.ProductBrandDescription,");
-                sql.Append("tProductUnit.ProductUnitBC,");
-                sql.Append("tProductUnit.ProductUnitIsBC,");
-                sql.Append("tProductUnit.ProductUnitSizeDescription,");
-                sql.Append("tActivityDetail.ActivityDetailQuantity,");
-                sql.Append("tActivityDetail.ActivityDetailBaseQuantity,");
-                sql.Append("tActivityDetail.ActivityDetailWeightQuantity,");
-                sql.Append("tActivityDetail.ActivityDetailLogisticUnitBestBeforeSellByDate,");
-                sql.Append("tActivityDetail.ActivityDetailSchemeID,");
-                sql.Append("tActivityDetail.ActivityDetailUniqueSchemeID,");
-                sql.Append("tActivityDetail.ActivityDetailSingleTradeItemSerialNumber,");
-                sql.Append("tActivityDetail.ActivityDetailLogisticUnitBatchLotNumber,");
-                sql.Append("tActivityDetail.ActivityDetailLogisticUnitExpiryUseByDate,");
-                sql.Append("tActivityDetail.ActivityDetailLogisticUnitProductionDate,");
-                sql.Append("tActivityDetail.ActivityDetailLogisticUnitSkidNumber,");
-                sql.Append("tLocationMapSection.LocationMapSectionCode AS LocationCode,");
-                sql.Append("CAST(tLocationMapSection.LocationMapSectionName AS NVARCHAR(22)) AS LocationName,");
-                sql.Append("CAST(\'Section\' AS NVARCHAR(8)) AS Location,");
-                sql.Append("tProductSchemeVariant.ProductSchemeVariantCode,");
-                sql.Append("tProductSchemeVariant.ProductSchemeVariantNo,");
-                sql.Append("tProductSchemeVariant.ProductSchemeVariantDescription,");
-                sql.Append("tActivityDetail.ActivityDetailStatus,");
-                sql.Append("tActivityDetailPicking.ActivityDetailPickingIsConfirmed AS ActivityDetailIsConfirmed,");
-                sql.Append("CASE tActivityDetailPicking.ActivityDetailPickingIsConfirmed WHEN 1 THEN \'C\' ELSE \' \' END ");
-                sql.Append("AS ActivityDetailIsConfirmedString,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra1Text,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra2Text,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra3Text,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra4Text,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra5Date ");
-                sql.Append("FROM tActivityDetailPicking ");
-                sql.Append("INNER JOIN tActivityDetail ON tActivityDetail.ActivityDetailRefno ");
-                sql.Append("= tActivityDetailPicking.ActivityDetailRefno ");
-                sql.Append("INNER JOIN tProductUnit ON tProductUnit.ProductUnitRefno = tActivityDetail.ProductUnitRefno ");
-                sql.Append("INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno ");
-                sql.Append("INNER JOIN tUnit AS aUnitWeight ON aUnitWeight.UnitRefno = tProductUnit.WtUnitRefno ");
-                sql.Append("INNER JOIN tUnit AS aUnitBase ON aUnitBase.UnitRefno = tProductUnit.BaseUnitRefno ");
-                sql.Append("INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno ");
-                sql.Append("INNER JOIN tLocationMapSection ON tLocationMapSection.LocationMapRefno ");
-                sql.Append("= tActivityDetail.LocationMapRefno ");
-                sql.Append("LEFT JOIN tActivityDetailProductSchemeVariantXRef ON ");
-                sql.Append("tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno ");
-                sql.Append("= tActivityDetailPicking.ActivityDetailRefno ");
-                sql.Append("LEFT JOIN tProductSchemeVariant ON tProductSchemeVariant.ProductSchemeVariantRefno ");
-                sql.Append("= tActivityDetailProductSchemeVariantXRef.ProductSchemeVariantRefno ");
-                sql.Append("LEFT JOIN tActivityDetailExtra ON tActivityDetailExtra.ActivityDetailRefno ");
-                sql.Append("= tActivityDetail.ActivityDetailRefno ");
-                sql.AppendFormat("WHERE tActivityDetail.ActivityItemRefno = {0} ", this.ActItem.ItemRefno);
-                sql.Append("UNION ");
-                sql.Append("SELECT tActivityDetail.ActivityDetailRefno,");
-                sql.Append("tActivityDetail.LocationMapRefno,");
-                sql.Append("tActivityDetailPicking.ActivityDetailFKRefno,");
-                sql.Append("tUnit.UnitCode,");
-                sql.Append("aUnitWeight.UnitCode AS WtUnitCode,");
-                sql.Append("aUnitBase.UnitCode AS BaseUnitCode,");
-                sql.Append("tProduct.ProductCode,");
-                sql.Append("tProduct.ProductRefno,");
-                sql.Append("tProduct.ProductDescription,");
-                sql.Append("tProduct.ProductBrandDescription,");
-                sql.Append("tProductUnit.ProductUnitBC,");
-                sql.Append("tProductUnit.ProductUnitIsBC,");
-                sql.Append("tProductUnit.ProductUnitSizeDescription,");
-                sql.Append("tActivityDetail.ActivityDetailQuantity,");
-                sql.Append("tActivityDetail.ActivityDetailBaseQuantity,");
-                sql.Append("tActivityDetail.ActivityDetailWeightQuantity,");
-                sql.Append("tActivityDetail.ActivityDetailLogisticUnitBestBeforeSellByDate,");
-                sql.Append("tActivityDetail.ActivityDetailSchemeID,");
-                sql.Append("tActivityDetail.ActivityDetailUniqueSchemeID,");
-                sql.Append("tActivityDetail.ActivityDetailSingleTradeItemSerialNumber,");
-                sql.Append("tActivityDetail.ActivityDetailLogisticUnitBatchLotNumber,");
-                sql.Append("tActivityDetail.ActivityDetailLogisticUnitExpiryUseByDate,");
-                sql.Append("tActivityDetail.ActivityDetailLogisticUnitProductionDate,");
-                sql.Append("tActivityDetail.ActivityDetailLogisticUnitSkidNumber,");
-                sql.Append("tLocationMapWarehouse.LocationMapWarehouseCode AS LocationCode,");
-                sql.Append("CAST(tLocationMapWarehouse.LocationMapWarehouseName AS NVARCHAR(22)) AS LocationName,");
-                sql.Append("CAST(\'Whs\' AS NVARCHAR(8)) AS Location,");
-                sql.Append("tProductSchemeVariant.ProductSchemeVariantCode,");
-                sql.Append("tProductSchemeVariant.ProductSchemeVariantNo,");
-                sql.Append("tProductSchemeVariant.ProductSchemeVariantDescription,");
-                sql.Append("tActivityDetail.ActivityDetailStatus,");
-                sql.Append("tActivityDetailPicking.ActivityDetailPickingIsConfirmed AS ActivityDetailIsConfirmed,");
-                sql.Append("CASE tActivityDetailPicking.ActivityDetailPickingIsConfirmed WHEN 1 THEN \'C\' ELSE \' \' END ");
-                sql.Append("AS ActivityDetailIsConfirmedString,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra1Text,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra2Text,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra3Text,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra4Text,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra5Date ");
-                sql.Append("FROM tActivityDetailPicking ");
-                sql.Append("INNER JOIN tActivityDetail ON tActivityDetail.ActivityDetailRefno ");
-                sql.Append("= tActivityDetailPicking.ActivityDetailRefno ");
-                sql.Append("INNER JOIN tProductUnit ON tProductUnit.ProductUnitRefno = tActivityDetail.ProductUnitRefno ");
-                sql.Append("INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno ");
-                sql.Append("INNER JOIN tUnit AS aUnitWeight ON aUnitWeight.UnitRefno = tProductUnit.WtUnitRefno ");
-                sql.Append("INNER JOIN tUnit AS aUnitBase ON aUnitBase.UnitRefno = tProductUnit.BaseUnitRefno ");
-                sql.Append("INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno ");
-                sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno = ");
-                sql.Append("tActivityDetail.LocationMapRefno ");
-                sql.Append("LEFT JOIN tActivityDetailProductSchemeVariantXRef ON ");
-                sql.Append("tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno ");
-                sql.Append("= tActivityDetailPicking.ActivityDetailRefno ");
-                sql.Append("LEFT JOIN tProductSchemeVariant ON tProductSchemeVariant.ProductSchemeVariantRefno ");
-                sql.Append("= tActivityDetailProductSchemeVariantXRef.ProductSchemeVariantRefno ");
-                sql.Append("LEFT JOIN tActivityDetailExtra ON tActivityDetailExtra.ActivityDetailRefno ");
-                sql.Append("= tActivityDetail.ActivityDetailRefno ");
-                sql.AppendFormat("WHERE tActivityDetail.ActivityItemRefno = {0} ", this.ActItem.ItemRefno);
-                sql.Append("ORDER BY tActivityDetail.ActivityDetailRefno");
+                sql = $@"
+                    SELECT tActivityDetail.ActivityDetailRefno,
+                    tActivityDetail.LocationMapRefno AS LocationMapRefno,
+                    tActivityDetailPicking.ActivityDetailFKRefno,
+                    tUnit.UnitCode AS UnitCode,
+                    aUnitWeight.UnitCode AS WtUnitCode,
+                    aUnitBase.UnitCode AS BaseUnitCode,
+                    tProduct.ProductCode AS ProductCode,
+                    tProduct.ProductRefno AS ProductRefno,
+                    tProduct.ProductDescription AS ProductDescription,
+                    tProduct.ProductBrandDescription AS ProductBrandDescription,
+                    tProductUnit.ProductUnitBC AS ProductUnitBC,
+                    tProductUnit.ProductUnitIsBC AS ProductUnitIsBC,
+                    tProductUnit.ProductUnitSizeDescription AS ProductUnitSizeDescription,
+                    tActivityDetail.ActivityDetailQuantity AS ActivityDetailQuantity,
+                    tActivityDetail.ActivityDetailBaseQuantity AS ActivityDetailBaseQuantity,
+                    tActivityDetail.ActivityDetailWeightQuantity AS ActivityDetailWeightQuantity,
+                    tActivityDetail.ActivityDetailLogisticUnitBestBeforeSellByDate AS ActivityDetailLogisticUnitBestBeforeSellByDate,
+                    tActivityDetail.ActivityDetailSchemeID AS ActivityDetailSchemeID,
+                    tActivityDetail.ActivityDetailUniqueSchemeID AS ActivityDetailUniqueSchemeID,
+                    tActivityDetail.ActivityDetailSingleTradeItemSerialNumber AS ActivityDetailSingleTradeItemSerialNumber,
+                    tActivityDetail.ActivityDetailLogisticUnitBatchLotNumber AS ActivityDetailLogisticUnitBatchLotNumber,
+                    tActivityDetail.ActivityDetailLogisticUnitExpiryUseByDate AS ActivityDetailLogisticUnitExpiryUseByDate,
+                    tActivityDetail.ActivityDetailLogisticUnitProductionDate AS ActivityDetailLogisticUnitProductionDate,
+                    tActivityDetail.ActivityDetailLogisticUnitSkidNumber AS ActivityDetailLogisticUnitSkidNumber,
+                    tLocationMapSlot.LocationMapSlotCode AS LocationCode,
+                    CAST(tLocationMapSlot.LocationMapSlotName AS NVARCHAR(22)) AS LocationName,
+                    CAST('Slot' AS NVARCHAR(8)) AS Location,
+                    tProductSchemeVariant.ProductSchemeVariantCode AS ProductSchemeVariantCode,
+                    tProductSchemeVariant.ProductSchemeVariantNo AS ProductSchemeVariantNo,
+                    tProductSchemeVariant.ProductSchemeVariantDescription AS ProductSchemeVariantDescription,
+                    tActivityDetail.ActivityDetailStatus AS ActivityDetailStatus,
+                    tActivityDetailPicking.ActivityDetailPickingIsConfirmed AS ActivityDetailIsConfirmed,
+                    CASE tActivityDetailPicking.ActivityDetailPickingIsConfirmed WHEN 1 THEN 'C' ELSE ' ' END AS ActivityDetailIsConfirmedString,
+                    tActivityDetailExtra.ActivityDetailExtra1Text AS ActivityDetailExtra1Text,
+                    tActivityDetailExtra.ActivityDetailExtra2Text AS ActivityDetailExtra2Text,
+                    tActivityDetailExtra.ActivityDetailExtra3Text AS ActivityDetailExtra3Text,
+                    tActivityDetailExtra.ActivityDetailExtra4Text AS ActivityDetailExtra4Text,
+                    tActivityDetailExtra.ActivityDetailExtra5Date AS ActivityDetailExtra5Date
+                    FROM tActivityDetailPicking
+                    INNER JOIN tActivityDetail ON tActivityDetail.ActivityDetailRefno = tActivityDetailPicking.ActivityDetailRefno
+                    INNER JOIN tProductUnit ON tProductUnit.ProductUnitRefno = tActivityDetail.ProductUnitRefno
+                    INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno
+                    INNER JOIN tUnit AS aUnitWeight ON aUnitWeight.UnitRefno = tProductUnit.WtUnitRefno
+                    INNER JOIN tUnit AS aUnitBase ON aUnitBase.UnitRefno = tProductUnit.BaseUnitRefno
+                    INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno
+                    INNER JOIN tLocationMapSlot ON tLocationMapSlot.LocationMapRefno = tActivityDetail.LocationMapRefno
+                    LEFT JOIN tActivityDetailProductSchemeVariantXRef ON tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno = tActivityDetailPicking.ActivityDetailRefno
+                    LEFT JOIN tProductSchemeVariant ON tProductSchemeVariant.ProductSchemeVariantRefno = tActivityDetailProductSchemeVariantXRef.ProductSchemeVariantRefno
+                    LEFT JOIN tActivityDetailExtra ON tActivityDetailExtra.ActivityDetailRefno = tActivityDetail.ActivityDetailRefno
+                    WHERE tActivityDetail.ActivityItemRefno = {this.ActItem.ItemRefno}
+                    UNION
+                    SELECT tActivityDetail.ActivityDetailRefno,
+                    tActivityDetail.LocationMapRefno,
+                    tActivityDetailPicking.ActivityDetailFKRefno,
+                    tUnit.UnitCode,
+                    aUnitWeight.UnitCode AS WtUnitCode,
+                    aUnitBase.UnitCode AS BaseUnitCode,
+                    tProduct.ProductCode,
+                    tProduct.ProductRefno,
+                    tProduct.ProductDescription,
+                    tProduct.ProductBrandDescription,
+                    tProductUnit.ProductUnitBC,
+                    tProductUnit.ProductUnitIsBC,
+                    tProductUnit.ProductUnitSizeDescription,
+                    tActivityDetail.ActivityDetailQuantity,
+                    tActivityDetail.ActivityDetailBaseQuantity,
+                    tActivityDetail.ActivityDetailWeightQuantity,
+                    tActivityDetail.ActivityDetailLogisticUnitBestBeforeSellByDate,
+                    tActivityDetail.ActivityDetailSchemeID,
+                    tActivityDetail.ActivityDetailUniqueSchemeID,
+                    tActivityDetail.ActivityDetailSingleTradeItemSerialNumber,
+                    tActivityDetail.ActivityDetailLogisticUnitBatchLotNumber,
+                    tActivityDetail.ActivityDetailLogisticUnitExpiryUseByDate,
+                    tActivityDetail.ActivityDetailLogisticUnitProductionDate,
+                    tActivityDetail.ActivityDetailLogisticUnitSkidNumber,
+                    tLocationMapSection.LocationMapSectionCode AS LocationCode,
+                    CAST(tLocationMapSection.LocationMapSectionName AS NVARCHAR(22)) AS LocationName,
+                    CAST('Section' AS NVARCHAR(8)) AS Location,
+                    tProductSchemeVariant.ProductSchemeVariantCode,
+                    tProductSchemeVariant.ProductSchemeVariantNo,
+                    tProductSchemeVariant.ProductSchemeVariantDescription,
+                    tActivityDetail.ActivityDetailStatus,
+                    tActivityDetailPicking.ActivityDetailPickingIsConfirmed AS ActivityDetailIsConfirmed,
+                    CASE tActivityDetailPicking.ActivityDetailPickingIsConfirmed WHEN 1 THEN 'C' ELSE ' ' END AS ActivityDetailIsConfirmedString,
+                    tActivityDetailExtra.ActivityDetailExtra1Text,
+                    tActivityDetailExtra.ActivityDetailExtra2Text,
+                    tActivityDetailExtra.ActivityDetailExtra3Text,
+                    tActivityDetailExtra.ActivityDetailExtra4Text,
+                    tActivityDetailExtra.ActivityDetailExtra5Date
+                    FROM tActivityDetailPicking
+                    INNER JOIN tActivityDetail ON tActivityDetail.ActivityDetailRefno = tActivityDetailPicking.ActivityDetailRefno
+                    INNER JOIN tProductUnit ON tProductUnit.ProductUnitRefno = tActivityDetail.ProductUnitRefno
+                    INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno
+                    INNER JOIN tUnit AS aUnitWeight ON aUnitWeight.UnitRefno = tProductUnit.WtUnitRefno
+                    INNER JOIN tUnit AS aUnitBase ON aUnitBase.UnitRefno = tProductUnit.BaseUnitRefno
+                    INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno
+                    INNER JOIN tLocationMapSection ON tLocationMapSection.LocationMapRefno = tActivityDetail.LocationMapRefno
+                    LEFT JOIN tActivityDetailProductSchemeVariantXRef ON tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno = tActivityDetailPicking.ActivityDetailRefno
+                    LEFT JOIN tProductSchemeVariant ON tProductSchemeVariant.ProductSchemeVariantRefno = tActivityDetailProductSchemeVariantXRef.ProductSchemeVariantRefno
+                    LEFT JOIN tActivityDetailExtra ON tActivityDetailExtra.ActivityDetailRefno = tActivityDetail.ActivityDetailRefno
+                    WHERE tActivityDetail.ActivityItemRefno = {this.ActItem.ItemRefno}
+                    UNION
+                    SELECT tActivityDetail.ActivityDetailRefno,
+                    tActivityDetail.LocationMapRefno,
+                    tActivityDetailPicking.ActivityDetailFKRefno,
+                    tUnit.UnitCode,
+                    aUnitWeight.UnitCode AS WtUnitCode,
+                    aUnitBase.UnitCode AS BaseUnitCode,
+                    tProduct.ProductCode,
+                    tProduct.ProductRefno,
+                    tProduct.ProductDescription,
+                    tProduct.ProductBrandDescription,
+                    tProductUnit.ProductUnitBC,
+                    tProductUnit.ProductUnitIsBC,
+                    tProductUnit.ProductUnitSizeDescription,
+                    tActivityDetail.ActivityDetailQuantity,
+                    tActivityDetail.ActivityDetailBaseQuantity,
+                    tActivityDetail.ActivityDetailWeightQuantity,
+                    tActivityDetail.ActivityDetailLogisticUnitBestBeforeSellByDate,
+                    tActivityDetail.ActivityDetailSchemeID,
+                    tActivityDetail.ActivityDetailUniqueSchemeID,
+                    tActivityDetail.ActivityDetailSingleTradeItemSerialNumber,
+                    tActivityDetail.ActivityDetailLogisticUnitBatchLotNumber,
+                    tActivityDetail.ActivityDetailLogisticUnitExpiryUseByDate,
+                    tActivityDetail.ActivityDetailLogisticUnitProductionDate,
+                    tActivityDetail.ActivityDetailLogisticUnitSkidNumber,
+                    tLocationMapWarehouse.LocationMapWarehouseCode AS LocationCode,
+                    CAST(tLocationMapWarehouse.LocationMapWarehouseName AS NVARCHAR(22)) AS LocationName,
+                    CAST('Whs' AS NVARCHAR(8)) AS Location,
+                    tProductSchemeVariant.ProductSchemeVariantCode,
+                    tProductSchemeVariant.ProductSchemeVariantNo,
+                    tProductSchemeVariant.ProductSchemeVariantDescription,
+                    tActivityDetail.ActivityDetailStatus,
+                    tActivityDetailPicking.ActivityDetailPickingIsConfirmed AS ActivityDetailIsConfirmed,
+                    CASE tActivityDetailPicking.ActivityDetailPickingIsConfirmed WHEN 1 THEN 'C' ELSE ' ' END AS ActivityDetailIsConfirmedString,
+                    tActivityDetailExtra.ActivityDetailExtra1Text,
+                    tActivityDetailExtra.ActivityDetailExtra2Text,
+                    tActivityDetailExtra.ActivityDetailExtra3Text,
+                    tActivityDetailExtra.ActivityDetailExtra4Text,
+                    tActivityDetailExtra.ActivityDetailExtra5Date
+                    FROM tActivityDetailPicking
+                    INNER JOIN tActivityDetail ON tActivityDetail.ActivityDetailRefno = tActivityDetailPicking.ActivityDetailRefno
+                    INNER JOIN tProductUnit ON tProductUnit.ProductUnitRefno = tActivityDetail.ProductUnitRefno
+                    INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno
+                    INNER JOIN tUnit AS aUnitWeight ON aUnitWeight.UnitRefno = tProductUnit.WtUnitRefno
+                    INNER JOIN tUnit AS aUnitBase ON aUnitBase.UnitRefno = tProductUnit.BaseUnitRefno
+                    INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno
+                    INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno = tActivityDetail.LocationMapRefno
+                    LEFT JOIN tActivityDetailProductSchemeVariantXRef ON tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno = tActivityDetailPicking.ActivityDetailRefno
+                    LEFT JOIN tProductSchemeVariant ON tProductSchemeVariant.ProductSchemeVariantRefno = tActivityDetailProductSchemeVariantXRef.ProductSchemeVariantRefno
+                    LEFT JOIN tActivityDetailExtra ON tActivityDetailExtra.ActivityDetailRefno = tActivityDetail.ActivityDetailRefno
+                    WHERE tActivityDetail.ActivityItemRefno = {this.ActItem.ItemRefno}
+                    ORDER BY tActivityDetail.ActivityDetailRefno";
             }
 
-            this.ListPickingDetails = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<PickingDetail>(sql.ToString());
+            this.ListPickingDetails = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<PickingDetail>(sql);
             this.ListDetails = this.ListPickingDetails.Cast<object>().ToList();
             return this.ListDetails;
         }
@@ -1076,6 +1075,26 @@ namespace dMobile.Controller.Activity_Detail
                 }
             }
 
+            ////var template = new DataTemplate();
+            ////template.LoadFromXaml(@"<ViewCell xmlns=""http://xamarin.com/schemas/2014/forms""
+            ////    xmlns:x=""http://schemas.microsoft.com/winfx/2009/xaml"" 
+            ////    x:Class=""ImfMobile.Views.PickingDetailTemplate"">
+            ////    <Grid Padding=""5"">
+            ////        <Grid.ColumnDefinitions>
+            ////            <ColumnDefinition Width=""{Binding Source={x:Reference Name=gridHeader}, Path=ColumnDefinitions[0].Width}"" />
+            ////            <ColumnDefinition Width=""{Binding Source={x:Reference Name=gridHeader}, Path=ColumnDefinitions[1].Width}"" />
+            ////            <ColumnDefinition Width=""{Binding Source={x:Reference Name=gridHeader}, Path=ColumnDefinitions[2].Width}"" />
+            ////            <ColumnDefinition Width=""{Binding Source={x:Reference Name=gridHeader}, Path=ColumnDefinitions[3].Width}"" />
+            ////            <ColumnDefinition Width=""{Binding Source={x:Reference Name=gridHeader}, Path=ColumnDefinitions[4].Width}"" />
+            ////        </Grid.ColumnDefinitions>
+            ////        <Label Grid.Column=""0"" Text=""{Binding ActivityDetailIsConfirmedString}"" VerticalOptions=""Center"" HorizontalOptions=""Start"" />
+            ////        <Label Grid.Column=""1"" Text=""{Binding ActivityDetailQuantity:F3}"" VerticalOptions=""Center"" HorizontalOptions=""Start"" />
+            ////        <Label Grid.Column=""2"" Text=""{Binding ActivityDetailWeightQuantity:F3}"" VerticalOptions=""Center"" HorizontalOptions=""Start"" />
+            ////        <Label Grid.Column=""3"" Text=""{Binding UnitCode}"" VerticalOptions=""Center"" HorizontalOptions=""Start"" />
+            ////        <Label Grid.Column=""4"" Text=""{Binding ActivityDetailSchemeID}"" VerticalOptions=""Center"" HorizontalOptions=""Start"" />
+            ////    </Grid>)");
+            ////listViewMain.ItemTemplate = template;
+
             listViewMain.ItemTemplate = (DataTemplate)this.ResourceDictionary["dataTemplatePickingDetail"];
 
             return observableCollection;
@@ -1227,6 +1246,31 @@ namespace dMobile.Controller.Activity_Detail
                 gridHeader.ColumnDefinitions[4].Width = this.ColumnWidth4;
             }
 
+            ////var template = new DataTemplate();
+            ////template.LoadFromXaml(@"<ViewCell xmlns=""http://xamarin.com/schemas/2014/forms"" 
+            ////    xmlns:x=""http://schemas.microsoft.com/winfx/2009/xaml"" 
+            ////    x:Class=""ImfMobile.Views.PickingDetailTemplate"">
+            ////    <Grid Padding=""5"">
+            ////        <Grid.ColumnDefinitions>
+            ////            <ColumnDefinition Width=""{Binding Source={x:Reference Name=gridHeader}, Path=ColumnDefinitions[0].Width}"" />
+            ////            <ColumnDefinition Width=""{Binding Source={x:Reference Name=gridHeader}, Path=ColumnDefinitions[1].Width}"" />
+            ////            <ColumnDefinition Width=""{Binding Source={x:Reference Name=gridHeader}, Path=ColumnDefinitions[2].Width}"" />
+            ////            <ColumnDefinition Width=""{Binding Source={x:Reference Name=gridHeader}, Path=ColumnDefinitions[3].Width}"" />
+            ////            <ColumnDefinition Width=""{Binding Source={x:Reference Name=gridHeader}, Path=ColumnDefinitions[4].Width}"" />
+            ////        </Grid.ColumnDefinitions>
+            ////        <Label Grid.Column=""0"" Text=""{Binding ActivityDetailIsConfirmedString}"" VerticalOptions=""Center"" HorizontalOptions=""Start"" />
+            ////        <Label Grid.Column=""1"" Text=""{Binding ActivityDetailQuantity:F3}"" VerticalOptions=""Center"" HorizontalOptions=""Start"" />
+            ////        <Label Grid.Column=""2"" Text=""{Binding ActivityDetailWeightQuantity:F3}"" VerticalOptions=""Center"" HorizontalOptions=""Start"" />
+            ////        <Label Grid.Column=""3"" Text=""{Binding UnitCode}"" VerticalOptions=""Center"" HorizontalOptions=""Start"" />
+            ////        <Label Grid.Column=""4"" Text=""{Binding ActivityDetailSchemeID}"" VerticalOptions=""Center"" HorizontalOptions=""Start"" />
+            ////        <ViewCell>
+            ////            <StackLayout BackgroundColor=""{Binding BackgroundColor}"">
+            ////                <!-- Your cell content here -->
+            ////                <Label Text=""{Binding Title}"" />
+            ////            </StackLayout>
+            ////        </ViewCell>
+            ////    </Grid>)");
+
             return (DataTemplate)this.ResourceDictionary["dataTemplatePickingDetail"];
         }
 
@@ -1256,12 +1300,12 @@ namespace dMobile.Controller.Activity_Detail
         /// <returns>.</returns>
         public override async Task<string> CreateSubmitXml(XDocument sendData)
         {
-            var xmlString = new StringBuilder();
             var settings = new XmlWriterSettings
             {
                 Async = true,
                 Indent = false,
             };
+            var xmlString = new StringBuilder();
             var xml = XmlWriter.Create(xmlString, settings);
 
             XDocument request;
@@ -1272,56 +1316,55 @@ namespace dMobile.Controller.Activity_Detail
                     if (this.SysEnv.SysSettings.IsDisconnectedMode)
                     {
                         request = XDocument.Parse(
-                            "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
-                            + "<imclient>"
-                            + "<command>"
-                            + "<action>SUBMIT SALES ORDER DETAIL</action>"
-                            + "<whs_id></whs_id>"
-                            + "<sect_refno></sect_refno>"
-                            + "</command>"
-                            + await SysCommon.GetRequestDefaults(false)
-                            + this.GetRequestDetailDefaults()
-                            + "<skid_fk_refno>" + 0 + "</skid_fk_refno>"
-                            + "</imclient>");
+                            @$"<?xml version = ""1.0"" encoding = ""utf - 16"" standalone = ""yes"" ?>
+                            <imclient>
+                                <command>
+                                    <action>SUBMIT SALES ORDER DETAIL</action>
+                                    <whs_id></whs_id>
+                                    <sect_refno></sect_refno>
+                                </command>
+                                {await SysCommon.GetRequestDefaults(false)}
+                                {this.GetRequestDetailDefaults()}
+                                <skid_fk_refno>0</skid_fk_refno>
+                            </imclient>");
                     }
                     else
                     {
                         request = XDocument.Parse(
-                            "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
-                            + "<imclient>"
-                            + "<command>"
-                            + "<action>SUBMIT SALES ORDER DETAIL</action>"
-                            + "<whs_id></whs_id>"
-                            + "<sect_refno></sect_refno>"
-                            + "</command>"
-                            + await SysCommon.GetRequestDefaults(false)
-                            + this.GetRequestDetailDefaults()
-                            + "<skid_fk_refno>" + this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFkRefno + "</skid_fk_refno>"
-                            + "</imclient>");
+                            @$"<?xml version = ""1.0"" encoding = ""utf - 16"" standalone = ""yes"" ?>
+                            <imclient>
+                                <command>
+                                    <action>SUBMIT SALES ORDER DETAIL</action>
+                                    <whs_id></whs_id>
+                                    <sect_refno></sect_refno>
+                                </command>
+                                {await SysCommon.GetRequestDefaults(false)}
+                                {this.GetRequestDetailDefaults()}
+                                <skid_fk_refno>{this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFkRefno}</skid_fk_refno>
+                            </imclient>");
                     }
                 }
                 else
                 {
-                    request = XDocument.Parse(
-                        "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
-                        + "<imclient>"
-                        + "<command>"
-                        + "<action>SUBMIT SALES ORDER DETAIL SKID</action>"
-                        + "<whs_id></whs_id>"
-                        + "<sect_refno></sect_refno>"
-                        + "</command>"
-                        + await SysCommon.GetRequestDefaults(false)
-                        + "<skid_data>" + sendData.Root.Element("skid_data").Value + "</skid_data>"
-                        + "<whs_id>" + this.LocMap.CurrLocMap.WhsFkRefno + "</whs_id>"
-                        + "<refno>" + this.ActItem.ActHdr.HdrFkRefno + "</refno>"
-                        + "<itm_refno>" + this.ActItem.ItemFkRefno + "</itm_refno>"
-                        + "<is_negate_qty>false</is_negate_qty>"
-                        + "<extra1>" + this.ActExtra.Text1 + "</extra1>"
-                        + "<extra2>" + this.ActExtra.Text2 + "</extra2>"
-                        + "<extra3>" + this.ActExtra.Text3 + "</extra3>"
-                        + "<extra4>" + this.ActExtra.Text4 + "</extra4>"
-                        + "<extra5>" + this.ActExtra.DateTime1 + "</extra5>"
-                        + "</imclient>");
+                    request = XDocument.Parse(@$"<?xml version=""1.0"" encoding=""utf-16"" standalone=""yes""?>
+                        <imclient>
+                            <command>
+                                <action>SUBMIT SALES ORDER DETAIL SKID</action>
+                                <whs_id></whs_id>
+                                <sect_refno></sect_refno>
+                            </command>
+                            {await SysCommon.GetRequestDefaults(false)}
+                            <skid_data>{sendData.Root.Element("skid_data").Value}</skid_data>
+                            <whs_id>{this.LocMap.CurrLocMap.WhsFkRefno}</whs_id>
+                            <refno>{this.ActItem.ActHdr.HdrFkRefno}</refno>
+                            <itm_refno>{this.ActItem.ItemFkRefno}</itm_refno>
+                            <is_negate_qty>false</is_negate_qty>
+                            <extra1>{this.ActExtra.Text1}</extra1>
+                            <extra2>{this.ActExtra.Text2}</extra2>
+                            <extra3>{this.ActExtra.Text3}</extra3>
+                            <extra4>{this.ActExtra.Text4}</extra4>
+                            <extra5>{this.ActExtra.DateTime1}</extra5>
+                        </imclient>");
                 }
             }
             else
@@ -1507,6 +1550,11 @@ namespace dMobile.Controller.Activity_Detail
             ////return prod;
 
             return $"Pick # {this.ActItem.ActHdr.HdrFkRefno}";
+        }
+
+        public override XDocument CreateDump()
+        {
+            throw new NotImplementedException();
         }
     }
 }

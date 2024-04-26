@@ -172,33 +172,35 @@ namespace dMobile.Controller.Activity
                 + labelQty.RepackLiveQuantity + labelQty.RepackDryQuantity + labelQty.PalletQuantity
                 + labelQty.BundleQuantity > 0)
             {
-                var request = XDocument.Parse(
-                    "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" + "<imclient>"
-                    + "<command>"
-                    + "<action>SUBMIT PRINT SHIPPING LABEL</action>"
-                    + "</command>"
-                    + await SysCommon.GetRequestDefaults(false)
-                    + "<refno>" + this.HdrFkRefno + "</refno>"
-                    + "<itm_refno>" + data.Root.Element("itm_refno").Value + "</itm_refno>"
-                    + "<whs_id>" + locMap.WhsFkRefno + "</whs_id>"
-                    + "<sect_refno>" + locMap.SectFkRefno + "</sect_refno>"
-                    + "<full_alt_qty>" + data.Root.Element("full_alt_qty").Value + "</full_alt_qty>"
-                    + "<repack_alt_qty>" + data.Root.Element("repack_alt_qty").Value + "</repack_alt_qty>"
-                    + "<fresh_alt_qty>" + data.Root.Element("fresh_alt_qty").Value + "</fresh_alt_qty>"
-                    + "<frozen_alt_qty>" + data.Root.Element("frozen_alt_qty").Value + "</frozen_alt_qty>"
-                    + "<live_alt_qty>" + data.Root.Element("live_alt_qty").Value + "</live_alt_qty>"
-                    + "<dry_alt_qty>" + data.Root.Element("dry_alt_qty").Value + "</dry_alt_qty>"
-                    + "<repack_fresh_alt_qty>" + data.Root.Element("repack_fresh_alt_qty").Value + "</repack_fresh_alt_qty>"
-                    + "<repack_frozen_alt_qty>" + data.Root.Element("repack_frozen_alt_qty").Value + "</repack_frozen_alt_qty>"
-                    + "<repack_live_alt_qty>" + data.Root.Element("repack_live_alt_qty").Value + "</repack_live_alt_qty>"
-                    + "<repack_dry_alt_qty>" + data.Root.Element("repack_dry_alt_qty").Value + "</repack_dry_alt_qty>"
-                    + "<pallet_alt_qty>" + data.Root.Element("pallet_alt_qty").Value + "</pallet_alt_qty>"
-                    + "<bundle_alt_qty>" + data.Root.Element("bundle_alt_qty").Value + "</bundle_alt_qty>"
-                    + "<total_alt_qty>" + data.Root.Element("total_alt_qty").Value + "</total_alt_qty>"
-                    + "<mobile_printer_name>"
-                    + (prnSettings.IsEnabledShippingLabelPrinter ? prnSettings.ShippingLabelPrinterName : string.Empty)
-                    + "</mobile_printer_name>"
-                    + "</imclient>");
+                var xmlRequest = $@"<?xml version=""1.0"" encoding=""utf-16"" standalone=""yes""?>
+                    <imclient>
+                    <command>
+                        <action>SUBMIT PRINT SHIPPING LABEL</action>
+                    </command>
+                    {await SysCommon.GetRequestDefaults(false)}
+                    <refno>{this.HdrFkRefno}</refno>
+                    <itm_refno>{data.Root.Element("itm_refno").Value}</itm_refno>
+                    <whs_id>{locMap.WhsFkRefno}</whs_id>
+                    <sect_refno>{locMap.SectFkRefno}</sect_refno>
+                    <full_alt_qty>{data.Root.Element("full_alt_qty").Value}</full_alt_qty>
+                    <repack_alt_qty>{data.Root.Element("repack_alt_qty").Value}</repack_alt_qty>
+                    <fresh_alt_qty>{data.Root.Element("fresh_alt_qty").Value}</fresh_alt_qty>
+                    <frozen_alt_qty>{data.Root.Element("frozen_alt_qty").Value}</frozen_alt_qty>
+                    <live_alt_qty>{data.Root.Element("live_alt_qty").Value}</live_alt_qty>
+                    <dry_alt_qty>{data.Root.Element("dry_alt_qty").Value}</dry_alt_qty>
+                    <repack_fresh_alt_qty>{data.Root.Element("repack_fresh_alt_qty").Value}</repack_fresh_alt_qty>
+                    <repack_frozen_alt_qty>{data.Root.Element("repack_frozen_alt_qty").Value}</repack_frozen_alt_qty>
+                    <repack_live_alt_qty>{data.Root.Element("repack_live_alt_qty").Value}</repack_live_alt_qty>
+                    <repack_dry_alt_qty>{data.Root.Element("repack_dry_alt_qty").Value}</repack_dry_alt_qty>
+                    <pallet_alt_qty>{data.Root.Element("pallet_alt_qty").Value}</pallet_alt_qty>
+                    <bundle_alt_qty>{data.Root.Element("bundle_alt_qty").Value}</bundle_alt_qty>
+                    <total_alt_qty>{data.Root.Element("total_alt_qty").Value}</total_alt_qty>
+                    <mobile_printer_name>
+                        {(prnSettings.IsEnabledShippingLabelPrinter ? prnSettings.ShippingLabelPrinterName : string.Empty)}
+                    </mobile_printer_name>
+                    </imclient>";
+
+                var request = XDocument.Parse(xmlRequest);
 
                 request.Save(xml);
                 await xml.FlushAsync();
@@ -235,16 +237,17 @@ namespace dMobile.Controller.Activity
                     slotLocMapFkRefno: 0);
                 var locMap = sLocMapAndRefno.SLocMap;
 
-                request = XDocument.Parse(
-                    "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
-                    + "<imclient>"
-                    + "<command>"
-                    + "<action>REQUEST SHIPPING LABEL QUANTITY</action>"
-                    + "</command>"
-                    + await SysCommon.GetRequestDefaults(false)
-                    + "<refno>" + this.HdrFkRefno + "</refno>"
-                    + "<sect_refno>" + locMap.SectFkRefno + "</sect_refno>"
-                    + "</imclient>");
+                var xmlRequest = $@"<?xml version=""1.0"" encoding=""utf-16"" standalone=""yes""?>
+                    <imclient>
+                    <command>
+                        <action>REQUEST SHIPPING LABEL QUANTITY</action>
+                    </command>
+                    {await SysCommon.GetRequestDefaults(false)}
+                    <refno>{this.HdrFkRefno}</refno>
+                    <sect_refno>{locMap.SectFkRefno}</sect_refno>
+                    </imclient>";
+
+                request = XDocument.Parse(xmlRequest);
 
                 request.Save(xml);
                 await xml.FlushAsync();
@@ -313,18 +316,18 @@ namespace dMobile.Controller.Activity
 
             XDocument request = null;
 
-            request = XDocument.Parse(
-                "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
-                + "<imclient>"
-                + "<command>"
-                + "<action>REQUEST SALES ORDER IS BEING PICKED</action>"
-                + await SysCommon.GetRequestDefaults(false)
-                + "<refno>" + this.HdrFkRefno.ToString() + "</refno>"
-                + "<whs_id>" + locMap.WhsFkRefno + "</whs_id>"
-                + "<sect_refno>" + locMap.SectFkRefno + "</sect_refno>"
-                + "</command>"
-                + "</imclient>");
+            var xmlRequest = $@"<?xml version=""1.0"" encoding=""utf-16"" standalone=""yes""?>
+                <imclient>
+                <command>
+                    <action>REQUEST SALES ORDER IS BEING PICKED</action>
+                    {await SysCommon.GetRequestDefaults(false)}
+                    <refno>{this.HdrFkRefno.ToString()}</refno>
+                    <whs_id>{locMap.WhsFkRefno}</whs_id>
+                    <sect_refno>{locMap.SectFkRefno}</sect_refno>
+                </command>
+                </imclient>";
 
+            request = XDocument.Parse(xmlRequest);
             request.Save(xml);
             await xml.FlushAsync();
             xml.Close();
@@ -337,8 +340,10 @@ namespace dMobile.Controller.Activity
             {
                 isBeingPicked = true;
                 var errorDetail = xmlDoc.DocumentElement["detail"].InnerText;
-
-                await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert(this.GetControlDescription(), errorDetail, "OK"));
+                await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert(
+                    this.GetControlDescription(),
+                    errorDetail,
+                    "OK"));
             }
 
             return isBeingPicked;
@@ -368,23 +373,22 @@ namespace dMobile.Controller.Activity
                     Indent = false,
                 };
                 var xml = XmlWriter.Create(xmlString, settings);
-
                 XDocument request = null;
-
                 isClearedBeingPicked = false;
-                request = XDocument.Parse(
-                    "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
-                    + "<imclient>"
-                    + "<command>"
-                    + "<action>SUBMIT SALES ORDER CLEAR BEING PICKED</action>"
-                    + await SysCommon.GetRequestDefaults(false)
-                    + "<refno>" + this.HdrFkRefno.ToString() + "</refno>"
-                    + "<whs_id>" + locMap.WhsFkRefno + "</whs_id>"
-                    + "<sect_refno>" + locMap.SectFkRefno + "</sect_refno>"
-                    + "<device_only>" + clearDeviceOnly + "</device_only>"
-                    + "</command>"
-                    + "</imclient>");
 
+                var xmlRequest = $@"<?xml version=""1.0"" encoding=""utf-16"" standalone=""yes""?>
+                    <imclient>
+                        <command>
+                            <action>SUBMIT SALES ORDER CLEAR BEING PICKED</action>
+                            {await SysCommon.GetRequestDefaults(false)}
+                            <refno>{this.HdrFkRefno.ToString()}</refno>
+                            <whs_id>{locMap.WhsFkRefno}</whs_id>
+                            <sect_refno>{locMap.SectFkRefno}</sect_refno>
+                            <device_only>{clearDeviceOnly}</device_only>
+                        </command>
+                    </imclient>";
+
+                request = XDocument.Parse(xmlRequest);
                 request.Save(xml);
                 await xml.FlushAsync();
                 xml.Close();
@@ -430,17 +434,16 @@ namespace dMobile.Controller.Activity
                 };
                 var xml = XmlWriter.Create(xmlString, settings);
 
+                var xmlRequest = $@"<?xml version=""1.0"" encoding=""utf-16"" standalone=""yes""?>
+                    <imclient>
+                        <command>
+                            <action>RELEASE SALES ORDER BY ORDER</action>
+                        </command>
+                        {await SysCommon.GetRequestDefaults(false)}
+                        <refno>{this.HdrFkRefno}</refno>
+                    </imclient>";
 
-                var request = XDocument.Parse(
-                    "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
-                    + "<imclient>"
-                    + "<command>"
-                    + "<action>RELEASE SALES ORDER BY ORDER</action>"
-                    + "</command>"
-                    + await SysCommon.GetRequestDefaults(false)
-                    + "<refno>" + this.HdrFkRefno.ToString() + "</refno>"
-                    + "</imclient>");
-
+                var request = XDocument.Parse(xmlRequest);
                 request.Save(xml);
                 await xml.FlushAsync();
                 xml.Close();
@@ -470,16 +473,13 @@ namespace dMobile.Controller.Activity
         {
             if (this.SysEnv.SysSettings.IsDisconnectedMode)
             {
-
-                // cmndItemPicking.IndexName = string.Empty;
-                var query = "SELECT COUNT(tActivityItem.ActivityItemRefno) "
-                            + "FROM tActivityItem "
-                            + "INNER JOIN tActivityItemPicking ON tActivityItemPicking.ActivityItemRefno "
-                            + "= tActivityItem.ActivityItemRefno "
-                            + "WHERE tActivityItem.ActivityRefno = " + this.HdrRefno + " "
-                            + "AND 0 < tActivityItemPicking.ActivityItemPickingBaseQuantityAvailable "
-                            + "AND tActivityItemPicking.ActivityItemPickingQuantityShipped "
-                            + "< tActivityItemPicking.ActivityItemPickingQuantityOrdered";
+                var query = $@"
+                    SELECT COUNT(tActivityItem.ActivityItemRefno) 
+                        FROM tActivityItem 
+                        INNER JOIN tActivityItemPicking ON tActivityItemPicking.ActivityItemRefno = tActivityItem.ActivityItemRefno 
+                        WHERE tActivityItem.ActivityRefno = {this.HdrRefno}
+                            AND 0 < tActivityItemPicking.ActivityItemPickingBaseQuantityAvailable 
+                            AND tActivityItemPicking.ActivityItemPickingQuantityShipped < tActivityItemPicking.ActivityItemPickingQuantityOrdered";
 
                 var rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SqlConn.ExecuteScalarAsync<object>(query));
 
@@ -501,17 +501,17 @@ namespace dMobile.Controller.Activity
 
                 var locMap = LocationMap.GetInstance();
 
-                var request = XDocument.Parse(
-                    "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
-                    + "<imclient>"
-                    + "<command>"
-                    + "<action>REQUEST SALES ORDER QUANTITY UNDER CHECK</action>"
-                    + "</command>"
-                    + await SysCommon.GetRequestDefaults(false)
-                    + "<refno>" + this.HdrFkRefno + "</refno>"
-                    + "<whs_id>" + locMap.CurrLocMap.WhsFkRefno + "</whs_id>"
-                    + "<sect_refno>" + locMap.CurrLocMap.SectFkRefno + "</sect_refno>"
-                    + "</imclient>");
+                var xmlRequest = $@"<?xml version=""1.0"" encoding=""utf-16"" standalone=""yes""?>
+                    <imclient>
+                        <command>
+                            <action>REQUEST SALES ORDER QUANTITY UNDER CHECK</action>
+                        </command>
+                        {await SysCommon.GetRequestDefaults(false)}
+                        <refno>{this.HdrFkRefno}</refno>
+                        <whs_id>{locMap.CurrLocMap.WhsFkRefno}</whs_id>
+                        <sect_refno>{locMap.CurrLocMap.SectFkRefno}</sect_refno>
+                    </imclient>";
+                var request = XDocument.Parse(xmlRequest);
 
                 request.Save(xml);
                 await xml.FlushAsync();
@@ -791,130 +791,109 @@ namespace dMobile.Controller.Activity
         public override async Task<List<object>> GetActivityList(bool isSubmitBatch)
         {
             var pickingSettings = new PickingSettings().LoadData();
-            var sql = new StringBuilder();
-
+            var sql = string.Empty;
             if (isSubmitBatch)
             {
-                sql.Append("SELECT tActivityPicking.ActivityRefno,");
-                sql.Append("tActivityPicking.ActivityFKRefno,");
-                sql.Append("tActivityPicking.ActivityStringFKRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapRefno AS LocationMapRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapWarehouseFKRefno AS LocationMapWarehouseFKRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapWarehouseName AS LocationMapWarehouseName,");
-                sql.Append("tActivityPicking.ActivityPickingOrderedDateTime AS ActivityPickingOrderedDateTime,");
-                sql.Append("tActivityPicking.ActivityPickingDeliveryDateTime AS ActivityPickingDeliveryDateTime,");
-                sql.Append("tActivityPicking.ActivityPickingCustomerContactName AS ActivityPickingCustomerContactName,");
-                sql.Append("tActivityPicking.ActivityPickingCustomerShipToInfo AS ActivityPickingCustomerShipToInfo,");
-                sql.Append("tRoute.RouteCode AS RouteCode,");
-                sql.Append("tRoute.RouteDescription AS RouteDescription,");
-                sql.Append("tRoute.RouteDayOfWeek AS RouteDayOfWeek,");
-                sql.Append("tActivityPickingRoute.RouteStop AS RouteStop,");
-                sql.Append("tActivity.ActivityStatus AS ActivityStatus,");
-                sql.Append("tActivityPicking.ActivityPickingIsReviewed AS ActivityPickingIsReviewed ");
-                sql.Append("FROM tActivityPicking ");
-                sql.Append("INNER JOIN tActivity ON tActivity.ActivityRefno = tActivityPicking.ActivityRefno ");
-                sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno "
-                    + "= tActivityPicking.WarehouseLocationMapRefno ");
-                sql.Append("LEFT JOIN tActivityPickingRoute ON tActivityPickingRoute.PickingActivityRefno "
-                    + "= tActivityPicking.ActivityRefno ");
-                sql.Append("LEFT JOIN tRoute ON tRoute.RouteRefno = tActivityPickingRoute.RouteRefno ");
-                sql.AppendFormat("WHERE tActivity.ActivityStatus <> {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
-                sql.Append("UNION ");
-                sql.Append("SELECT tActivityPicking.ActivityRefno,");
-                sql.Append("tActivityPicking.ActivityFKRefno,");
-                sql.Append("tActivityPicking.ActivityStringFKRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapWarehouseFKRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapWarehouseName,");
-                sql.Append("tActivityPicking.ActivityPickingOrderedDateTime,");
-                sql.Append("tActivityPicking.ActivityPickingDeliveryDateTime,");
-                sql.Append("tActivityPicking.ActivityPickingCustomerContactName,");
-                sql.Append("tActivityPicking.ActivityPickingCustomerShipToInfo,");
-                sql.Append("tRoute.RouteCode,");
-                sql.Append("tRoute.RouteDescription,");
-                sql.Append("tRoute.RouteDayOfWeek,");
-                sql.Append("tActivityPickingRoute.RouteStop,");
-                sql.Append("tActivity.ActivityStatus,");
-                sql.Append("tActivityPicking.ActivityPickingIsReviewed ");
-                sql.Append("FROM tActivityPicking ");
-                sql.Append("INNER JOIN tActivity ON tActivity.ActivityRefno = tActivityPicking.ActivityRefno ");
-                sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno "
-                    + "= tActivityPicking.WarehouseLocationMapRefno ");
-                sql.Append("INNER JOIN tActivityItem ON tActivityItem.ActivityRefno = tActivity.ActivityRefno ");
-                sql.Append("LEFT JOIN tActivityPickingRoute ON tActivityPickingRoute.PickingActivityRefno "
-                    + "= tActivityPicking.ActivityRefno ");
-                sql.Append("LEFT JOIN tRoute ON tRoute.RouteRefno = tActivityPickingRoute.RouteRefno ");
-                sql.AppendFormat("WHERE tActivityItem.ActivityItemStatus <> {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
-                sql.Append("UNION ");
-                sql.Append("SELECT tActivityPicking.ActivityRefno,");
-                sql.Append("tActivityPicking.ActivityFKRefno,");
-                sql.Append("tActivityPicking.ActivityStringFKRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapWarehouseFKRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapWarehouseName,");
-                sql.Append("tActivityPicking.ActivityPickingOrderedDateTime,");
-                sql.Append("tActivityPicking.ActivityPickingDeliveryDateTime,");
-                sql.Append("tActivityPicking.ActivityPickingCustomerContactName,");
-                sql.Append("tActivityPicking.ActivityPickingCustomerShipToInfo,");
-                sql.Append("tRoute.RouteCode,");
-                sql.Append("tRoute.RouteDescription,");
-                sql.Append("tRoute.RouteDayOfWeek,");
-                sql.Append("tActivityPickingRoute.RouteStop,");
-                sql.Append("tActivity.ActivityStatus,");
-                sql.Append("tActivityPicking.ActivityPickingIsReviewed ");
-                sql.Append("FROM tActivityPicking ");
-                sql.Append("INNER JOIN tActivity ON tActivity.ActivityRefno = tActivityPicking.ActivityRefno ");
-                sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno "
-                    + "= tActivityPicking.WarehouseLocationMapRefno ");
-                sql.Append("INNER JOIN tActivityItem ON tActivityItem.ActivityRefno = tActivity.ActivityRefno ");
-                sql.Append("INNER JOIN tActivityDetail ON tActivityDetail.ActivityItemRefno "
-                    + "= tActivityItem.ActivityItemRefno ");
-                sql.Append("LEFT JOIN tActivityPickingRoute ON tActivityPickingRoute.PickingActivityRefno "
-                    + "= tActivityPicking.ActivityRefno ");
-                sql.Append("LEFT JOIN tRoute ON tRoute.RouteRefno = tActivityPickingRoute.RouteRefno ");
-                sql.AppendFormat("WHERE tActivityDetail.ActivityDetailStatus <> {0}", Convert.ToInt32(SysCommon.ActStatus.NoChange));
+                sql = $@"
+                    SELECT tActivityPicking.ActivityRefno,
+                        tActivityPicking.ActivityFKRefno,
+                        tActivityPicking.ActivityStringFKRefno,
+                        tLocationMapWarehouse.LocationMapRefno AS LocationMapRefno,
+                        tLocationMapWarehouse.LocationMapWarehouseFKRefno AS LocationMapWarehouseFKRefno,
+                        tLocationMapWarehouse.LocationMapWarehouseName AS LocationMapWarehouseName,
+                        tActivityPicking.ActivityPickingOrderedDateTime AS ActivityPickingOrderedDateTime,
+                        tActivityPicking.ActivityPickingDeliveryDateTime AS ActivityPickingDeliveryDateTime,
+                        tActivityPicking.ActivityPickingCustomerContactName AS ActivityPickingCustomerContactName,
+                        tActivityPicking.ActivityPickingCustomerShipToInfo AS ActivityPickingCustomerShipToInfo,
+                        tRoute.RouteCode AS RouteCode,
+                        tRoute.RouteDescription AS RouteDescription,
+                        tRoute.RouteDayOfWeek AS RouteDayOfWeek,
+                        tActivityPickingRoute.RouteStop AS RouteStop,
+                        tActivity.ActivityStatus AS ActivityStatus,
+                        tActivityPicking.ActivityPickingIsReviewed AS ActivityPickingIsReviewed 
+                    FROM tActivityPicking 
+                    INNER JOIN tActivity ON tActivity.ActivityRefno = tActivityPicking.ActivityRefno 
+                    INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno = tActivityPicking.WarehouseLocationMapRefno 
+                    LEFT JOIN tActivityPickingRoute ON tActivityPickingRoute.PickingActivityRefno = tActivityPicking.ActivityRefno 
+                    LEFT JOIN tRoute ON tRoute.RouteRefno = tActivityPickingRoute.RouteRefno 
+                    WHERE tActivity.ActivityStatus <> {Convert.ToInt32(SysCommon.ActStatus.NoChange)} 
+                    UNION 
+                    SELECT tActivityPicking.ActivityRefno,
+                        tActivityPicking.ActivityFKRefno,
+                        tActivityPicking.ActivityStringFKRefno,
+                        tLocationMapWarehouse.LocationMapRefno,
+                        tLocationMapWarehouse.LocationMapWarehouseFKRefno,
+                        tLocationMapWarehouse.LocationMapWarehouseName,
+                        tActivityPicking.ActivityPickingOrderedDateTime,
+                        tActivityPicking.ActivityPickingDeliveryDateTime,
+                        tActivityPicking.ActivityPickingCustomerContactName,
+                        tActivityPicking.ActivityPickingCustomerShipToInfo,
+                        tRoute.RouteCode,
+                        tRoute.RouteDescription,
+                        tRoute.RouteDayOfWeek,
+                        tActivityPickingRoute.RouteStop,
+                        tActivity.ActivityStatus,
+                        tActivityPicking.ActivityPickingIsReviewed 
+                    FROM tActivityPicking 
+                    INNER JOIN tActivity ON tActivity.ActivityRefno = tActivityPicking.ActivityRefno 
+                    INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno = tActivityPicking.WarehouseLocationMapRefno 
+                    INNER JOIN tActivityItem ON tActivityItem.ActivityRefno = tActivity.ActivityRefno 
+                    LEFT JOIN tActivityPickingRoute ON tActivityPickingRoute.PickingActivityRefno = tActivityPicking.ActivityRefno 
+                    LEFT JOIN tRoute ON tRoute.RouteRefno = tActivityPickingRoute.RouteRefno 
+                    WHERE tActivityItem.ActivityItemStatus <> {Convert.ToInt32(SysCommon.ActStatus.NoChange)} 
+                    UNION 
+                    SELECT tActivityPicking.ActivityRefno,
+                        tActivityPicking.ActivityFKRefno,
+                        tActivityPicking.ActivityStringFKRefno,
+                        tLocationMapWarehouse.LocationMapRefno,
+                        tLocationMapWarehouse.LocationMapWarehouseFKRefno,
+                        tLocationMapWarehouse.LocationMapWarehouseName,
+                        tActivityPicking.ActivityPickingOrderedDateTime,
+                        tActivityPicking.ActivityPickingDeliveryDateTime,
+                        tActivityPicking.ActivityPickingCustomerContactName,
+                        tActivityPicking.ActivityPickingCustomerShipToInfo,
+                        tRoute.RouteCode,
+                        tRoute.RouteDescription,
+                        tRoute.RouteDayOfWeek,
+                        tActivityPickingRoute.RouteStop,
+                        tActivity.ActivityStatus,
+                        tActivityPicking.ActivityPickingIsReviewed 
+                    FROM tActivityPicking 
+                    INNER JOIN tActivity ON tActivity.ActivityRefno = tActivityPicking.ActivityRefno 
+                    INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno = tActivityPicking.WarehouseLocationMapRefno 
+                    INNER JOIN tActivityItem ON tActivityItem.ActivityRefno = tActivity.ActivityRefno 
+                    INNER JOIN tActivityDetail ON tActivityDetail.ActivityItemRefno = tActivityItem.ActivityItemRefno 
+                    LEFT JOIN tActivityPickingRoute ON tActivityPickingRoute.PickingActivityRefno = tActivityPicking.ActivityRefno 
+                    LEFT JOIN tRoute ON tRoute.RouteRefno = tActivityPickingRoute.RouteRefno 
+                    WHERE tActivityDetail.ActivityDetailStatus <> {Convert.ToInt32(SysCommon.ActStatus.NoChange)}";
             }
             else
             {
-                sql.Append("SELECT tActivityPicking.ActivityRefno,");
-                sql.Append("tActivityPicking.ActivityFKRefno,");
-                sql.Append("tActivityPicking.ActivityStringFKRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapRefno AS LocationMapRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapWarehouseFKRefno AS LocationMapWarehouseFKRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapWarehouseName AS LocationMapWarehouseName,");
-                sql.Append("tActivityPicking.ActivityPickingOrderedDateTime AS ActivityPickingOrderedDateTime,");
-                sql.Append("tActivityPicking.ActivityPickingDeliveryDateTime AS ActivityPickingDeliveryDateTime,");
-                sql.Append("tActivityPicking.ActivityPickingCustomerContactName AS ActivityPickingCustomerContactName,");
-                sql.Append("tActivityPicking.ActivityPickingCustomerShipToInfo AS ActivityPickingCustomerShipToInfo,");
-                sql.Append("tRoute.RouteCode AS RouteCode,");
-                sql.Append("tRoute.RouteDescription AS RouteDescription,");
-                sql.Append("tRoute.RouteDayOfWeek AS RouteDayOfWeek,");
-                sql.Append("tActivityPickingRoute.RouteStop AS RouteStop,");
-                sql.Append("tActivity.ActivityStatus AS ActivityStatus,");
-                sql.Append("tActivityPicking.ActivityPickingIsReviewed AS ActivityPickingIsReviewed ");
-                sql.Append("FROM tActivityPicking ");
-                sql.Append("INNER JOIN tActivity ON tActivity.ActivityRefno = tActivityPicking.ActivityRefno ");
-                sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno "
-                    + "= tActivityPicking.WarehouseLocationMapRefno ");
-                sql.Append("LEFT JOIN tActivityPickingRoute ON tActivityPickingRoute.PickingActivityRefno "
-                    + "= tActivityPicking.ActivityRefno ");
-                sql.Append("LEFT JOIN tRoute ON tRoute.RouteRefno = tActivityPickingRoute.RouteRefno");
+                sql = @"
+                    SELECT tActivityPicking.ActivityRefno,
+                        tActivityPicking.ActivityFKRefno,
+                        tActivityPicking.ActivityStringFKRefno,
+                        tLocationMapWarehouse.LocationMapRefno AS LocationMapRefno,
+                        tLocationMapWarehouse.LocationMapWarehouseFKRefno AS LocationMapWarehouseFKRefno,
+                        tLocationMapWarehouse.LocationMapWarehouseName AS LocationMapWarehouseName,
+                        tActivityPicking.ActivityPickingOrderedDateTime AS ActivityPickingOrderedDateTime,
+                        tActivityPicking.ActivityPickingDeliveryDateTime AS ActivityPickingDeliveryDateTime,
+                        tActivityPicking.ActivityPickingCustomerContactName AS ActivityPickingCustomerContactName,
+                        tActivityPicking.ActivityPickingCustomerShipToInfo AS ActivityPickingCustomerShipToInfo,
+                        tRoute.RouteCode AS RouteCode,
+                        tRoute.RouteDescription AS RouteDescription,
+                        tRoute.RouteDayOfWeek AS RouteDayOfWeek,
+                        tActivityPickingRoute.RouteStop AS RouteStop,
+                        tActivity.ActivityStatus AS ActivityStatus,
+                        tActivityPicking.ActivityPickingIsReviewed AS ActivityPickingIsReviewed 
+                    FROM tActivityPicking 
+                    INNER JOIN tActivity ON tActivity.ActivityRefno = tActivityPicking.ActivityRefno 
+                    INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno = tActivityPicking.WarehouseLocationMapRefno 
+                    LEFT JOIN tActivityPickingRoute ON tActivityPickingRoute.PickingActivityRefno = tActivityPicking.ActivityRefno 
+                    LEFT JOIN tRoute ON tRoute.RouteRefno = tActivityPickingRoute.RouteRefno";
             }
 
-            // using (SQLiteDataAdapter da = new SQLiteDataAdapter(sql.ToString(), DatabaseConnection.GetInstance().SQLConn))
-            // {
-            //    using (DataSet ds = new DataSet())
-            //    {
-            //        da.Fill(ds);
-
-            // this.DataViewHdrs = ds.Tables[0].DefaultView;
-            //        this.DataViewHdrs.Table.TableName = this.MainGridMappingName;
-            //        this.DataViewHdrs.Sort = pickingSettings.GetDataViewSortBy();
-            //        this.DataViewHdrs.RowFilter = this.GetFilter();
-            //    }
-            // }
-            this.listPicking = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<Picking>(sql.ToString());
-
+            this.listPicking = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<Picking>(sql);
             foreach (var sort in pickingSettings.GetDataViewSortBy())
             {
                 if (sort.SortOrder == Resources.Enums.SortOrder.ASC)
@@ -1084,7 +1063,8 @@ namespace dMobile.Controller.Activity
                     var minDate = new DateTime(dt.Year, dt.Month, dt.Day, 00, 00, 00);
                     var maxDate = new DateTime(dt.Year, dt.Month, dt.Day, 23, 59, 59);
 
-                    this.listPicking = this.listPicking.Where(pick => pick.ActivityPickingOrderedDateTime >= minDate && pick.ActivityPickingOrderedDateTime <= maxDate).ToList();
+                    this.listPicking = this.listPicking.Where(pick => pick.ActivityPickingOrderedDateTime >= minDate
+                    && pick.ActivityPickingOrderedDateTime <= maxDate).ToList();
                 }
             }
 
@@ -1096,7 +1076,8 @@ namespace dMobile.Controller.Activity
                     var minDate = new DateTime(dt.Year, dt.Month, dt.Day, 00, 00, 00);
                     var maxDate = new DateTime(dt.Year, dt.Month, dt.Day, 23, 59, 59);
 
-                    this.listPicking = this.listPicking.Where(pick => pick.ActivityPickingDeliveryDateTime >= minDate && pick.ActivityPickingDeliveryDateTime <= maxDate).ToList();
+                    this.listPicking = this.listPicking.Where(pick => pick.ActivityPickingDeliveryDateTime >= minDate
+                    && pick.ActivityPickingDeliveryDateTime <= maxDate).ToList();
                 }
             }
         }
@@ -1126,7 +1107,8 @@ namespace dMobile.Controller.Activity
                     var minDate = new DateTime(dt.Year, dt.Month, dt.Day, 00, 00, 00);
                     var maxDate = new DateTime(dt.Year, dt.Month, dt.Day, 23, 59, 59);
 
-                    this.listPicking = this.listPicking.Where(pick => pick.ActivityPickingOrderedDateTime >= minDate && pick.ActivityPickingOrderedDateTime <= maxDate).ToList();
+                    this.listPicking = this.listPicking.Where(pick => pick.ActivityPickingOrderedDateTime >= minDate
+                    && pick.ActivityPickingOrderedDateTime <= maxDate).ToList();
                 }
             }
 
@@ -1138,7 +1120,8 @@ namespace dMobile.Controller.Activity
                     var minDate = new DateTime(dt.Year, dt.Month, dt.Day, 00, 00, 00);
                     var maxDate = new DateTime(dt.Year, dt.Month, dt.Day, 23, 59, 59);
 
-                    this.listPicking = this.listPicking.Where(pick => pick.ActivityPickingDeliveryDateTime >= minDate && pick.ActivityPickingDeliveryDateTime <= maxDate).ToList();
+                    this.listPicking = this.listPicking.Where(pick => pick.ActivityPickingDeliveryDateTime >= minDate
+                    && pick.ActivityPickingDeliveryDateTime <= maxDate).ToList();
                 }
             }
         }
@@ -1150,22 +1133,12 @@ namespace dMobile.Controller.Activity
         private async Task<bool> ReleaseBySection()
         {
             var isReleased = false;
-
-            var locMapRefno = 0;
             var sLocMapAndRefno = await LocationMapTasks.GetSLocMapFromLocMapFkRefno(
                 int.Parse(this.XmlDataCriteria.Root.Element("whs_id").Value),
                 int.Parse(this.XmlDataCriteria.Root.Element("sect_refno").Value),
                 slotLocMapFkRefno: 0);
             var locMap = sLocMapAndRefno.SLocMap;
-
             var msg = $"Release order# {this.HdrFkRefno} for warehouse {locMap.WhsName}, section {locMap.SectName}?";
-
-            // if (MessageBox.Show(
-            //    msg,
-            //    this.GetControlDescription(),
-            //    MessageBoxButtons.YesNo,
-            //    MessageBoxIcon.Question,
-            //    MessageBoxDefaultButton.Button2) == DialogResult.Yes)
             if (await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert(
                     this.GetControlDescription(),
                     msg,
@@ -1180,21 +1153,18 @@ namespace dMobile.Controller.Activity
                     Indent = false,
                 };
                 var xml = XmlWriter.Create(xmlString, settings);
-
                 XDocument request = null;
-
-                request = XDocument.Parse(
-                    "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
-                    + "<imclient>"
-                    + "<command>"
-                    + "<action>RELEASE SALES ORDER BY ORDER ITEM SECTION</action>"
-                    + "</command>"
-                    + await SysCommon.GetRequestDefaults(false)
-                    + "<refno>" + this.HdrFkRefno.ToString() + "</refno>"
-                    + "<whs_id>" + locMap.WhsFkRefno + "</whs_id>"
-                    + "<sect_refno>" + locMap.SectFkRefno + "</sect_refno>"
-                    + "</imclient>");
-
+                var xmlRequest = $@"<?xml version=""1.0"" encoding=""utf-16"" standalone=""yes""?>
+                    <imclient>
+                        <command>
+                            <action>RELEASE SALES ORDER BY ORDER ITEM SECTION</action>
+                        </command>
+                        {await SysCommon.GetRequestDefaults(false)}
+                        <refno>{this.HdrFkRefno.ToString()}</refno>
+                        <whs_id>{locMap.WhsFkRefno}</whs_id>
+                        <sect_refno>{locMap.SectFkRefno}</sect_refno>
+                    </imclient>";
+                request = XDocument.Parse(xmlRequest);
                 request.Save(xml);
                 await xml.FlushAsync();
                 xml.Close();
@@ -1206,7 +1176,8 @@ namespace dMobile.Controller.Activity
                     docError.LoadXml(responseData);
                     var errorDetail = docError.DocumentElement["detail"].InnerText;
 
-                    throw new Exception(string.Format("Release order# {0} by order item section {1} failed." + Environment.NewLine + errorDetail, this.HdrFkRefno.ToString(), locMap.SectName));
+                    throw new Exception(string.Format("Release order# {0} by order item section {1} failed." +
+                        Environment.NewLine + errorDetail, this.HdrFkRefno.ToString(), locMap.SectName));
                 }
 
                 isReleased = true;
@@ -1230,6 +1201,11 @@ namespace dMobile.Controller.Activity
         /// </summary>
         /// <returns>The <see cref="Task"/>.</returns>
         public override Task Delete()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override XDocument CreateDump()
         {
             throw new NotImplementedException();
         }
