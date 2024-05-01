@@ -6,7 +6,6 @@ namespace dMobile.Bedrock
 {
     using System;
     using System.Collections.Generic;
-    using System.Runtime.CompilerServices;
     using System.Threading.Tasks;
     using Resources.Models;
     using Resources.QueryResults;
@@ -135,9 +134,13 @@ namespace dMobile.Bedrock
         /// <returns><see cref="Task{T}"/> List of warehouses.</returns>
         public static async Task<List<Warehouse>> GetWhsList()
         {
-            return await DatabaseConnection.GetInstance().SqlConn.QueryAsync<Warehouse>(
-                @"SELECT LocationMapWarehouseCode, LocationMapWarehouseName, LocationMapRefno
-                    FROM tLocationMapWarehouse ORDER BY LocationMapWarehouseCode");
+            const string query = @"SELECT LocationMapWarehouseCode,
+                    LocationMapWarehouseName,
+                    LocationMapRefno
+                FROM tLocationMapWarehouse
+                ORDER BY LocationMapWarehouseCode";
+
+            return await DatabaseConnection.GetInstance().SqlConn.QueryAsync<Warehouse>(query);
         }
 
         /// <summary>
@@ -163,10 +166,11 @@ namespace dMobile.Bedrock
         /// <returns>Name of the section.</returns>
         public static async Task<string> GetSectionName(int locMapSectFkRefno)
         {
+            const string query = @"SELECT LocationMapSectionName
+                FROM tLocationMapSection
+                WHERE LocationMapSectionFKRefno = ?";
             var results = await DatabaseConnection.GetInstance().
-                SqlConn.QueryAsync<tLocationMapSectionModel>(
-                "SELECT LocationMapSectionName FROM tLocationMapSection WHERE LocationMapSectionFKRefno = ?",
-                Convert.ToInt32(locMapSectFkRefno));
+                SqlConn.QueryAsync<tLocationMapSectionModel>(query, Convert.ToInt32(locMapSectFkRefno));
 
             return Convert.ToString(results[0].LocationMapSectionName);
         }
@@ -270,9 +274,9 @@ namespace dMobile.Bedrock
                     query = @"SELECT tLocationMapSlot.LocationMapRefno 
                         FROM tLocationMapSlot 
                         WHERE tLocationMapSlot.SectionLocationMapRefno = ?
-                        AND tLocationMapSlot.SlotCoord1LocationMapRefno = ?
-                        AND tLocationMapSlot.SlotCoord2LocationMapRefno = ?
-                        AND tLocationMapSlot.SlotCoord3LocationMapRefno = ?";
+                            AND tLocationMapSlot.SlotCoord1LocationMapRefno = ?
+                            AND tLocationMapSlot.SlotCoord2LocationMapRefno = ?
+                            AND tLocationMapSlot.SlotCoord3LocationMapRefno = ?";
                     parameters.Add(Convert.ToInt32(sectionLocMapRefno));
                     parameters.Add(Convert.ToInt32(slotCoord1Refno));
                     parameters.Add(Convert.ToInt32(slotCoord2Refno));
@@ -283,8 +287,8 @@ namespace dMobile.Bedrock
                     query = @"SELECT tLocationMapSlot.LocationMapRefno 
                         FROM tLocationMapSlot 
                         WHERE tLocationMapSlot.SectionLocationMapRefno = ?
-                        AND tLocationMapSlot.SlotCoord1LocationMapRefno = ?
-                        AND tLocationMapSlot.SlotCoord2LocationMapRefno = ?";
+                            AND tLocationMapSlot.SlotCoord1LocationMapRefno = ?
+                            AND tLocationMapSlot.SlotCoord2LocationMapRefno = ?";
                     parameters.Add(Convert.ToInt32(sectionLocMapRefno));
                     parameters.Add(Convert.ToInt32(slotCoord1Refno));
                     parameters.Add(Convert.ToInt32(slotCoord2Refno));
@@ -294,7 +298,7 @@ namespace dMobile.Bedrock
                     query = @"SELECT tLocationMapSlot.LocationMapRefno 
                         FROM tLocationMapSlot 
                         WHERE tLocationMapSlot.SectionLocationMapRefno = ?
-                        AND tLocationMapSlot.SlotCoord1LocationMapRefno = ?";
+                            AND tLocationMapSlot.SlotCoord1LocationMapRefno = ?";
                     parameters.Add(Convert.ToInt32(sectionLocMapRefno));
                     parameters.Add(Convert.ToInt32(slotCoord1Refno));
                     break;
@@ -901,9 +905,7 @@ namespace dMobile.Bedrock
                 {
                     if (locMap.ChosenLocMap.IsSlotCoord1Tracked)
                     {
-                        location = location + "." + locMap.ChosenLocMap.SlotName.Substring(
-                            0,
-                            locMap.ChosenLocMap.SlotCoord1Mask.Length);
+                        location = location + "." + locMap.ChosenLocMap.SlotName[..locMap.ChosenLocMap.SlotCoord1Mask.Length];
                     }
 
                     if (locMap.ChosenLocMap.IsSlotCoord2Tracked)

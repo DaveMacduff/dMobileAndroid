@@ -126,7 +126,7 @@ namespace dMobile.View.Activity
         /// <summary>
         ///     Gets or sets the selected activity detail foreign key reference number.
         /// </summary>
-        private int SelectedActivityDetailFKRefno { get; set; }
+        private int SelectedActivityDetailFkRefno { get; set; }
 
         /// <summary>
         ///     Un-register the bar code scan event handler and disable the scanner.
@@ -144,23 +144,18 @@ namespace dMobile.View.Activity
         /// <returns><see cref="Task" /> Task operation.</returns>
         public async Task ScannerEnable()
         {
-            await this.Scanner.EnableScanning();
             if (!this.Scanner.IsBarCodeScanEventHandlerAdded())
             {
-                if (!this.Scanner.IsBarCodeScanEventHandlerAdded())
-                {
-                    this.Scanner.BarCodeScan += this.BarCodeHandler;
-                }
+                this.Scanner.BarCodeScan += this.BarCodeHandler;
             }
+
+            await this.Scanner.EnableScanning();
         }
 
         /// <summary>
+        ///     Check if the activity header data is ready to be saved.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks>
-        ///     Used for post validation of all control combinations. Not an individual, use ValidateEntry.
-        ///     Must have a try catch block.
-        /// </remarks>
+        /// <returns><see cref="bool" /> True if the data is ready to be saved else false.</returns>
         public async Task<bool> IsReadyToSave()
         {
             var isReadyToSave = true;
@@ -212,10 +207,9 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
+        ///     Check if this form is ready to close, that is can be closed.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
-        /// <inheritdoc />
+        /// <returns><see cref="bool" /> True if the form is ready to close else false.</returns>
         public async Task<bool> IsReadyToClose()
         {
             var isReadyToClose = true;
@@ -236,7 +230,6 @@ namespace dMobile.View.Activity
             catch (Exception ex)
             {
                 isReadyToClose = false;
-
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     var errorReport = new FormErrorReport(this.ActSubType, ex);
@@ -248,10 +241,9 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
+        ///     Check if a save can be performed and do so.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
-        /// <inheritdoc />
+        /// <returns><see cref="bool" /> True if a save was performed successfully else false.</returns>
         public async Task<bool> SaveChanges()
         {
             var saveComplete = false;
@@ -260,12 +252,11 @@ namespace dMobile.View.Activity
             {
                 if (await this.IsReadyToSave())
                 {
-                    if (this.FromProdUnitRefno != 0 && this.ActItem.ListItems.Count != 0 &&
-                        this.ActDetail.ListDetails.Count != 0)
+                    if (this.FromProdUnitRefno != 0
+                        && this.ActItem.ListItems.Count != 0
+                        && this.ActDetail.ListDetails.Count != 0)
                     {
-                        var responseData = SysCommon.SubmitComm(await this.MakeConvertUnitSubmitString());
-                        var xmlDoc = new XmlDocument();
-                        xmlDoc.LoadXml(responseData);
+                        _ = SysCommon.SubmitComm(await this.MakeConvertUnitSubmitString());
                         if (this.SysEnv.SysSettings.CanPrintProductLabelConvertUnits)
                         {
                             if (await Device.InvokeOnMainThreadAsync(async () =>
@@ -373,10 +364,9 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
+        ///     Check if there are any pending changes, if so cancel them.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
-        /// <inheritdoc />
+        /// <returns><see cref="bool" /> True if the changes where canceled, else false.</returns>
         public async Task<bool> CancelChanges()
         {
             var cancelChanges = true;
@@ -430,17 +420,19 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
+        ///     Assemble a XML string of activity data to return to the calling parent form.
         /// </summary>
-        /// <returns></returns>
-        /// <inheritdoc />
+        /// <returns><see cref="Task" /> Task operation containing an XDocument.</returns>
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
         public async Task<XDocument> GetXml()
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
         {
-            var xmlDoc = XDocument.Parse(
+            var xmldocParams = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                 + "<params>"
                 + "</params>");
 
-            return xmlDoc;
+            return xmldocParams;
         }
 
         /// <summary>
@@ -618,9 +610,9 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
+        ///     Get the control description.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <returns><see cref="string"/> Control description.</returns>
         public string GetControlDescription()
         {
             return "Convert Unit";
@@ -638,11 +630,10 @@ namespace dMobile.View.Activity
                 // TODO: Test selected listItem value is correct
                 await Device.InvokeOnMainThreadAsync(() =>
                 {
-                    var altQty =
-                        Math.Round(Convert.ToDecimal((this.ActItem.ListItems[0] as dynamic).ActivityDetailQuantity), 3);
-                    this.lblFullUnitInfo.Text = $"Qty {(this.ActItem.ListItems[0] as dynamic).ActivityDetailQuantity}" +
-                                                $" {fromProdInfo.UnitCode} @ {altQty}" +
-                                                $" {fromProdInfo.WeightUnitCode}";
+                    var altQty = Math.Round(Convert.ToDecimal((this.ActItem.ListItems[0] as dynamic).ActivityDetailQuantity), 3);
+                    var baseQty = Math.Round(Convert.ToDecimal((this.ActItem.ListItems[0] as dynamic).ActivityDetailBaseQuantity), 3);
+                    this.lblFullUnitInfo.Text = $"Qty {altQty}" + $" {fromProdInfo.UnitCode}" +
+                        $" @ {baseQty} {fromProdInfo.BaseUnitCode}";
                 });
             }
             else
@@ -987,7 +978,10 @@ namespace dMobile.View.Activity
             _ = req.AppendFormat("<alt_unit>{0}</alt_unit>",
                 this.ActDetail.ListDetails[idx].GetType().GetProperty("UnitCode")
                     ?.GetValue(this.ActDetail.ListDetails[idx]));
-            _ = req.AppendFormat("<wt_unit>{0}</wt_unit>", prodInfo.WeightUnitCode);
+            _ = req.AppendFormat("<wt_unit>{0}</wt_unit>", ActItem.ProdInfo.WeightUnitCode);
+            _ = req.AppendFormat("<base_unit>{0}</base_unit>",
+                this.ActDetail.ListDetails[idx].GetType().GetProperty("BaseUnitCode")
+                    ?.GetValue(this.ActDetail.ListDetails[idx]));
             _ = req.AppendFormat("<serial>{0}</serial>",
                 this.ActDetail.ListDetails[idx].GetType().GetProperty("ActivityDetailSingleTradeItemSerialNumber")
                     ?.GetValue(this.ActDetail.ListDetails[idx]));
@@ -1010,7 +1004,7 @@ namespace dMobile.View.Activity
                     ?.GetValue(this.ActDetail.ListDetails[idx]));
             _ = req.AppendFormat("<base_qty>{0}</base_qty>",
                 this.ActDetail.ListDetails[idx].GetType().GetProperty("ActivityDetailBaseQuantity")
-                    .GetValue(this.ActDetail.ListDetails[idx]));
+                    ?.GetValue(this.ActDetail.ListDetails[idx]));
             _ = req.AppendFormat("<{0}>{1}</{0}>", "mobile_printer_name",
                 prnSettings.IsEnabledProductLabelPrinter ? prnSettings.ProductLabelPrinterName : string.Empty);
             _ = req.Append("</imclient>");
@@ -1215,13 +1209,13 @@ namespace dMobile.View.Activity
 
                 var xmlDoc = await form.GetXml();
                 await this.ActItem.Insert(xmlDoc);
-                var query = "SELECT tProduct.ProductCode,"
-                            + "tProductUnit.ProductUnitBC,"
-                            + "tUnit.UnitCode "
-                            + "FROM tProductUnit "
-                            + "INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno "
-                            + "INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno "
-                            + "WHERE tProductUnit.ProductUnitRefno = ?";
+                const string query = "SELECT tProduct.ProductCode,"
+                                     + "tProductUnit.ProductUnitBC,"
+                                     + "tUnit.UnitCode "
+                                     + "FROM tProductUnit "
+                                     + "INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno "
+                                     + "INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno "
+                                     + "WHERE tProductUnit.ProductUnitRefno = ?";
 
                 var results = await DatabaseConnection.GetInstance().SqlConn
                     .QueryAsync<ProductUnit>(query, this.FromProdUnitRefno);
@@ -1658,7 +1652,7 @@ namespace dMobile.View.Activity
         {
             await this.ActDetail.AssignActivityDetail(e.SelectedItem);
             this.ActDetail.SelectedListIdx = e.SelectedItemIndex;
-            this.SelectedActivityDetailFKRefno = this.ActDetail.DetailFkRefno;
+            this.SelectedActivityDetailFkRefno = this.ActDetail.DetailFkRefno;
         }
 
         /// <summary>

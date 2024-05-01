@@ -364,7 +364,7 @@ namespace dMobile.View.Activity
         /// <summary>
         ///     Check if there are any pending changes, if so cancel them.
         /// </summary>
-        /// <returns><see cref="bool" />. True if the changes where canceled, else false.</returns>
+        /// <returns><see cref="bool" /> True if the changes where canceled, else false.</returns>
         public async Task<bool> CancelChanges()
         {
             var cancelChanges = true;

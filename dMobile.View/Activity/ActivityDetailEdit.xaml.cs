@@ -15,7 +15,6 @@ namespace dMobile.View.Activity
     using Bedrock;
     using Controller.Activity_Detail;
     using Forms;
-    using Helpers;
     using Resources.Enums;
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;

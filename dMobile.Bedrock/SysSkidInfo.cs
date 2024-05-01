@@ -438,7 +438,7 @@ namespace dMobile.Bedrock
             var revDateTime = sysEnv.RefreshOpt.RefreshedDataLast.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
             var currDateTime = DateTime.Now.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
             var prodInfo = await ProductInfoTasks.GetInfoFromUnitRefno(
-                int.Parse(root.Element("product_unit_refno") !.Value));
+                int.Parse(root!.Element("product_unit_refno") !.Value));
 
             var skidLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
                 int.Parse(root.Element("location_map_refno") !.Value));
@@ -471,22 +471,21 @@ namespace dMobile.Bedrock
                     new XElement("product_id", prodInfo.Code),
                     new XElement("product_unit_bc", prodInfo.UnitBc),
                     new XElement("product_unit_code", prodInfo.UnitCode),
-                    new XElement("completed", root.Element("completed").Value),
-                    new XElement("putaway", root.Element("putaway").Value)));
+                    new XElement("completed", root.Element("completed") !.Value),
+                    new XElement("putaway", root.Element("putaway") !.Value)));
 
             request.Save(writer);
-            writer.Flush();
+            await writer.FlushAsync();
             writer.Close();
 
             var responseData = SysCommon.SubmitComm(xmlString.ToString());
-            SysSkidInfo skid;
             var result = new XmlDocument();
             result.LoadXml(responseData);
-            skid = await SysSkidInfo.GetSkidInfoFromXml(skidData);
+            var skid = await GetSkidInfoFromXml(skidData);
             var tempSkidInfo = skid.CurrSkid;
-            tempSkidInfo.SkidFkRefno = int.Parse(result.DocumentElement["skid_fk_refno"].InnerText);
-            tempSkidInfo.SkidCode = result.DocumentElement["skid_code"].InnerText;
-            tempSkidInfo.LogisticUnitSkidCode = result.DocumentElement["logistic_unit_skid_code"].InnerText;
+            tempSkidInfo.SkidFkRefno = int.Parse(result.DocumentElement!["skid_fk_refno"] !.InnerText);
+            tempSkidInfo.SkidCode = result.DocumentElement!["skid_code"]!.InnerText;
+            tempSkidInfo.LogisticUnitSkidCode = result.DocumentElement!["logistic_unit_skid_code"] !.InnerText;
             skid.CurrSkid = tempSkidInfo;
             return skid;
         }
@@ -530,11 +529,11 @@ namespace dMobile.Bedrock
                     xmlResult.LoadXml(data);
                     if (data.Contains("MSGBOX-"))
                     {
-                        throw new MessageOnlyException(xmlResult.DocumentElement["detail"].InnerText);
+                        throw new MessageOnlyException(xmlResult.DocumentElement!["detail"] !.InnerText);
                     }
                     else
                     {
-                        throw new Exception(xmlResult.DocumentElement["detail"].InnerText);
+                        throw new Exception(xmlResult.DocumentElement!["detail"] !.InnerText);
                     }
                 }
                 else

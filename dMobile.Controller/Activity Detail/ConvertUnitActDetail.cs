@@ -470,7 +470,9 @@ namespace dMobile.Controller.Activity_Detail
         /// <returns><see cref="string"/> Get activity item control description.</returns>
         public override string GetControlDescription()
         {
-            return $"Convert Unit # {this.ActItem.ActHdr.HdrFkRefno}";
+            var msg = (this.ActItem.ProdInfo.Code + " " + this.ActItem.ProdInfo.UnitBc).TrimEnd() + " "
+                + this.ActItem.ProdInfo.UnitCode;
+            return $"Convert {msg}";
         }
 
         /// <summary>

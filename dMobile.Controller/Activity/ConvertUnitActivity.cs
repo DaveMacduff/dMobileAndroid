@@ -95,17 +95,9 @@ namespace dMobile.Controller.Activity
         }
 
         /// <summary>
-        /// ///// </summary>
-        ///// <param name="dataGridMain"></param>
-        // public override void DesignDataGrid(DataGrid dataGridMain)
-        // {
-        //    throw new NotImplementedException();
-        // }
-
-        /// <summary>
-        ///.
+        ///     Refresh.
         /// </summary>
-        /// <param name="data">The data<see cref="XDocument"/>.</param>
+        /// <param name="data">The data<see cref="XDocument"/>.</param> 
         /// <returns>The <see cref="Task"/>.</returns>
         public override Task Refresh(XDocument data)
         {

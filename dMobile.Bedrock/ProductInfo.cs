@@ -2,6 +2,7 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
+// ReSharper disable NonReadonlyMemberInGetHashCode
 namespace dMobile.Bedrock
 {
     using System;
@@ -225,7 +226,6 @@ namespace dMobile.Bedrock
         ///     Get the hash code.
         /// </summary>
         /// <returns>Calculated hash code.</returns>
-        [SuppressMessage("ReSharper", "NonReadonlyMemberInGetHashCode", Justification = "Not sure how to fix the warnings.")]
         public override int GetHashCode()
         {
             var hashCode = new HashCode();
