@@ -50,6 +50,8 @@ namespace dMobile.View.Activity
         public ActivityHdr(SysCommon.ActSubTypes activitySubType, XDocument xmlDataCriteria, SLocMap pickingLocMapFilter)
         {
             this.InitializeComponent();
+            this.Scanner = ScannerEngine.GetInstance().Scanner;
+            this.ScannerDisable().FireAndForgetSafeAsync();
 
             this.cmdAdd.Text = "Add";
             this.cmdAdd.IsEnabled = false;
@@ -57,7 +59,6 @@ namespace dMobile.View.Activity
             this.FilterIsEnabled = true;
             this.SysEnv = SysEnvironment.GetInstance();
             this.SysEnv.SysSettings.IsShowActivityFilterSelection = true;
-            this.Scanner = ScannerEngine.GetInstance().Scanner;
             this.ActSubType = activitySubType;
             this.ActHdr = ActivityFacade.GetActivity(this.ActSubType);
             this.Title = this.ActHdr.GetControlDescription();
@@ -68,8 +69,8 @@ namespace dMobile.View.Activity
             this.ActHdr.XmlDataCriteria = xmlDataCriteria;
             ((PickingActivity)this.ActHdr).PickingLocationMapFilter = pickingLocMapFilter;
             this.Timer = new SysTimer(this.TimerTickCallback, 1000);
-            this.ScannerEnable().FireAndForgetSafeAsync();
             this.LoadAndBindData().FireAndForgetSafeAsync();
+            this.ScannerEnable().FireAndForgetSafeAsync();
         }
 
         /// <summary>
@@ -79,14 +80,14 @@ namespace dMobile.View.Activity
         public ActivityHdr(SysCommon.ActSubTypes activitySubType)
         {
             this.InitializeComponent();
-
+            this.Scanner = ScannerEngine.GetInstance().Scanner;
+            this.ScannerDisable().FireAndForgetSafeAsync();
             this.cmdAdd.Text = "Add";
             this.cmdAdd.IsEnabled = false;
             this.FilterText = "Filter";
             this.FilterIsEnabled = true;
             this.SysEnv = SysEnvironment.GetInstance();
             this.SysEnv.SysSettings.IsShowActivityFilterSelection = true;
-            this.Scanner = ScannerEngine.GetInstance().Scanner;
 
             this.ActSubType = activitySubType;
             this.ActHdr = ActivityFacade.GetActivity(this.ActSubType);
@@ -102,13 +103,8 @@ namespace dMobile.View.Activity
                 "<sect_refno>0</sect_refno>" +
                 "</params>");
             this.Timer = new SysTimer(this.TimerTickCallback, 1000);
-            this.ScannerEnable().FireAndForgetSafeAsync();
             this.LoadAndBindData().FireAndForgetSafeAsync();
-        }
-
-        public ActivityHdr(BarCodeScanner scanner)
-        {
-            this.Scanner = scanner;
+            this.ScannerEnable().FireAndForgetSafeAsync();
         }
 
         /// <summary>
@@ -154,12 +150,14 @@ namespace dMobile.View.Activity
         /// <summary>
         ///     Gets the list of items.
         /// </summary>
-        private ObservableCollection<string> ExtraInfoItems { get; } = new ObservableCollection<string>();
+        private ObservableCollection<string> ExtraInfoItems { get; } =
+            new ObservableCollection<string>();
 
         /// <summary>
         ///     Gets or sets the list of items bound to data grid / list main activity.
         /// </summary>
-        private ObservableCollection<object> MainActivityItems { get; set; } = new ObservableCollection<object>();
+        private ObservableCollection<object> MainActivityItems { get; set; } =
+            new ObservableCollection<object>();
 
         /// <summary>
         ///     Gets the OptionsMenuItems.
@@ -1907,7 +1905,6 @@ namespace dMobile.View.Activity
                             this.LoadAndBindData().FireAndForgetSafeAsync();
                         }
                     });
-
                 }
             }
             catch (MessageOnlyException msgEx)

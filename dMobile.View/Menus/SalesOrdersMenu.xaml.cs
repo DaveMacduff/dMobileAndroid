@@ -153,7 +153,7 @@ namespace dMobile.View.Menus
             {
                 _ = Enum.TryParse(keyPressed, out Keycode keycode);
 
-                this.DisableControls();
+                ////this.DisableControls();
                 switch (keycode)
                 {
                     case Keycode.Num1 when this.CmdPicking.IsEnabled:
