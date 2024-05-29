@@ -281,7 +281,11 @@ namespace dMobile.GroundWork
                 this.OnNubStatOut(this, this.MsgEventArgs);
             }
 
-            await DatabaseConnection.GetInstance().SqlConn.CreateTableAsync<tActivityDetailExtraModel>();
+            var result = await DatabaseConnection.GetInstance().SqlConn.CreateTableAsync<tActivityDetailExtraModel>();
+            if (result != CreateTableResult.Created)
+            {
+                throw new Exception("Failed to create table tActivityDetailExtraModel");
+            }
         }
 
         /// <summary>

@@ -8,9 +8,15 @@ namespace dMobile.Resources.Models
     using SQLite;
     using SQLiteNetExtensions.Attributes;
 
+    /// <summary>
+    ///     Activity adjustment header model.
+    /// </summary>
     [Table("tActivityAdjustment")]
     public class ActivityAdjustmentModel
     {
+        /// <summary>
+        /// 
+        /// </summary>
         [PrimaryKey]
         [NotNull]
         [ForeignKey(typeof(ActivityModel))]

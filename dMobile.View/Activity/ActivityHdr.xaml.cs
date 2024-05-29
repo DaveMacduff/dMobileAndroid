@@ -18,7 +18,6 @@ namespace dMobile.View.Activity
     using Controller;
     using Controller.Activity;
     using Forms;
-    using Helpers;
     using Resources.Enums;
     using Resources.Types;
     using Xamarin.Forms;

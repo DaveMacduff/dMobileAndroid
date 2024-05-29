@@ -10,7 +10,6 @@ namespace dMobile.View.Activity
     using System.Linq;
     using System.Runtime.CompilerServices;
     using System.Text;
-    using System.Threading;
     using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
@@ -132,7 +131,7 @@ namespace dMobile.View.Activity
                                                  && this.CmdAddSkidIsEnabled && this.CmdSelectSkidIsEnabled;
 
             ParseAndSeedBarCodeModifier();
-            this.Title = this.ActItem.ActHdr.GetControlDescription();
+            this.Title = this.ActItem.GetControlDescription();
             this.Timer = new SysTimer(this.TimerTickCallback, 1000);
             this.ScannerEnable().FireAndForgetSafeAsync();
             this.LoadAndBindData().FireAndForgetSafeAsync();
@@ -3695,10 +3694,6 @@ namespace dMobile.View.Activity
                                 throw new CancelOperationException();
                             }
                         }
-                        else
-                        {
-
-                        }
                     }
 
                     if (prodInfo != null)
@@ -3749,9 +3744,17 @@ namespace dMobile.View.Activity
                         this.ActItem.SetSelectedActivityItemFromList(this.ActItem.ItemRefno);
                         await this.ActItem.AssignActivityItem(this.ActItem.SelectedItem);
                         this.SelectedActivityItemFkRefno = this.ActItem.ItemFkRefno;
-                    }
 
-                    await this.LoadAndBindData();
+                        if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFkRefno != 0
+                            && await LocationMapTasks.IsCompleteLocMap(this.ActItem.ActHdr.SkidInfo.CurrSkid.LocMap))
+                        {
+                            this.ActItem.ActHdr.SkidInfo.CurrSkid.LocMap = this.LocMap.CurrLocMap.Clone();
+                        }
+
+                        this.MainActivityItems.Add(this.ActItem);
+                        await this.DesignGrid();
+                        await this.FindSelectedItemAsync(this.ActItem.ItemRefno);
+                    }
                 }
                 catch (CancelOperationException)
                 {

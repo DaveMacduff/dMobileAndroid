@@ -1138,7 +1138,12 @@ namespace dMobile.View.Activity
                 // Android dMobile F1 & F3 Button Not Working Same As Windows dMobile
                 try
                 {
-                    var msg = await this.ActDetail.ActItem.GetTotalQuantity();
+                    var qty = await this.ActDetail.GetTotalQuantityFromListDetail();
+                    var msg = $"Total:\r{qty.Quantity}" +
+                        $" {this.ActDetail.ActItem.ProdInfo.UnitCode}" +
+                        $" @ {qty.WeightQuantity}" +
+                        $" {this.ActDetail.ActItem.ProdInfo.WeightUnitCode}";
+
                     if (!string.IsNullOrEmpty(msg))
                     {
                         await Device.InvokeOnMainThreadAsync(

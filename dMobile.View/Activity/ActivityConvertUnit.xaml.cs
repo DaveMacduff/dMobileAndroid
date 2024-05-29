@@ -20,7 +20,6 @@ namespace dMobile.View.Activity
     using Controller.Activity_Item;
     using CustomPages;
     using Forms;
-    using Helpers;
     using Resources.Enums;
     using Resources.Types;
     using SQLite;
@@ -541,12 +540,23 @@ namespace dMobile.View.Activity
                         switch (keycode)
                         {
                             case Keycode.Enter:
+                                break;
+
                             case Keycode.F1:
                             {
-                                if (await this.SaveChanges())
+                                const string msg = "Confirm to convert unit?";
+                                if (await Device.InvokeOnMainThreadAsync(
+                                    async () => await Application.Current.MainPage.DisplayAlert(
+                                        this.GetControlDescription(),
+                                        msg,
+                                        "Yes",
+                                        "No")))
                                 {
-                                    await this.ScannerDisable();
-                                    await this.Close();
+                                    if (await this.SaveChanges())
+                                    {
+                                        await this.ScannerDisable();
+                                        await this.Close();
+                                    }
                                 }
 
                                 break;
@@ -1288,7 +1298,6 @@ namespace dMobile.View.Activity
                 await SelectToProductUnit();
                 await SetDetailQuantity();
                 SetDetailScheme();
-
                 var form = new FormDialogContainer(
                     EDialogTypes.ActivityConvertUnitEdit,
                     this.ActDetail,

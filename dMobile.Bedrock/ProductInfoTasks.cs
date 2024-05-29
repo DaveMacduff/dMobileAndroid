@@ -64,8 +64,8 @@ namespace dMobile.Bedrock
                     new XElement("ProductUnitIsDefault", prodInfo.UnitIsDefault.ToString()),
                     new XElement("ProductUnitBoxCount", prodInfo.BoxCount.ToString(CultureInfo.CurrentCulture)),
                     new XElement("ProductUnitWeightTolerance", prodInfo.WeightTolerance.ToString(CultureInfo.CurrentCulture)),
-                    new XElement("ProductUnitWeight", prodInfo.UnitGrossWeight.ToString(CultureInfo.CurrentCulture))),
-                    new XElement("ProductAcceptDays", prodInfo.ProductAcceptDays.ToString()));
+                    new XElement("ProductUnitWeight", prodInfo.UnitGrossWeight.ToString(CultureInfo.CurrentCulture)),
+                    new XElement("ProductAcceptDays", prodInfo.ProductAcceptDays.ToString())));
 
             return request;
         }
