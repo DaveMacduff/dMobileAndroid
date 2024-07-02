@@ -44,10 +44,7 @@ namespace dMobile.View.Options
             this.Title = this.GetControlDescription();
 
             this.IsIndicatorRunning = false;
-            this.lblConnectionAttempts.Text = "Connection Attempts";
             this.lblSendTimeOutSec.Text = "Send Timeout Seconds";
-            this.lblSendAttempts.Text = "Send Attempts";
-            this.lblReceiveAttempts.Text = "Receive Attempts";
             this.lblReceiveTimeOutSec.Text = "Receive Timeout Seconds";
             this.lblReceiveBufferSize.Text = "Receive Buffer Size Bytes";
             this.btnSave.Text = "Save";
@@ -176,18 +173,11 @@ namespace dMobile.View.Options
 
             try
             {
-                isReadyToSave = int.Parse(this.updnConnectionAttempts.Text) >= this.connectionAttemptsMin &&
-                                int.Parse(this.updnConnectionAttempts.Text) <= this.connectionAttemptsMax;
-                isReadyToSave = isReadyToSave && int.Parse(this.updnReceiveAttempts.Text) >= this.receivedAttemptsMin &&
-                                int.Parse(this.updnReceiveAttempts.Text) <= this.receivedAttemptsMax;
-                isReadyToSave = isReadyToSave &&
-                                int.Parse(this.updnReceiveBufferSize.Text) >= this.receiveBufferSizeMin &&
+                isReadyToSave = int.Parse(this.updnReceiveBufferSize.Text) >= this.receiveBufferSizeMin &&
                                 int.Parse(this.updnReceiveBufferSize.Text) <= this.receiveBufferSizeMax;
                 isReadyToSave = isReadyToSave &&
                                 int.Parse(this.updnReceiveTimeOutSec.Text) >= this.receiveTimeoutSecondsMin &&
                                 int.Parse(this.updnReceiveTimeOutSec.Text) <= this.receiveTimeoutSecondsMax;
-                isReadyToSave = isReadyToSave && int.Parse(this.updnSendAttempts.Text) >= this.sendAttemptsMin &&
-                                int.Parse(this.updnSendAttempts.Text) <= this.sendAttemptsMax;
                 isReadyToSave = isReadyToSave &&
                                 int.Parse(this.updnSendTimeOutSec.Text) >= this.sendTimeoutSecondsMin &&
                                 int.Parse(this.updnSendTimeOutSec.Text) <= this.sendTimeoutSecondsMax;
@@ -227,11 +217,8 @@ namespace dMobile.View.Options
             {
                 if (this.IsReadyToSave())
                 {
-                    this.SysEnv.CommSetup.ConnectionAttempts = Convert.ToInt32(this.updnConnectionAttempts.Text);
-                    this.SysEnv.CommSetup.ReceiveAttempts = Convert.ToInt32(this.updnReceiveAttempts.Text);
                     this.SysEnv.CommSetup.ReceiveBufferSize = Convert.ToInt32(this.updnReceiveBufferSize.Text);
                     this.SysEnv.CommSetup.ReceiveTimeOutSeconds = Convert.ToInt32(this.updnReceiveTimeOutSec.Text);
-                    this.SysEnv.CommSetup.SendAttempts = Convert.ToInt32(this.updnSendAttempts.Text);
                     this.SysEnv.CommSetup.SendTimeOutSeconds = Convert.ToInt32(this.updnSendTimeOutSec.Text);
 
                     var tempCommSetup = this.SysEnv.CommSetup;
@@ -411,7 +398,6 @@ namespace dMobile.View.Options
         {
             this.LoadData();
             this.IsControlLoaded = true;
-            _ = this.updnConnectionAttempts.Focus();
         }
 
         /// <summary>
@@ -423,28 +409,6 @@ namespace dMobile.View.Options
         {
             try
             {
-                // Connection Attempts
-                if (int.Parse(this.updnConnectionAttempts.Text) < this.connectionAttemptsMin ||
-                    int.Parse(this.updnConnectionAttempts.Text) > this.connectionAttemptsMax)
-                {
-                    e.Cancel = true;
-
-                    var msg =
-                        $"Connection attempts must be between {this.connectionAttemptsMin} and {this.connectionAttemptsMax}";
-                    throw new MessageOnlyException(msg);
-                }
-
-                // Socket Receive Data Attempts
-                if (int.Parse(this.updnReceiveAttempts.Text) < this.receivedAttemptsMin ||
-                    int.Parse(this.updnReceiveAttempts.Text) > this.receivedAttemptsMax)
-                {
-                    e.Cancel = true;
-
-                    var msg =
-                        $"Receive attempts must be between {this.receivedAttemptsMin} and {this.receivedAttemptsMax}";
-                    throw new MessageOnlyException(msg);
-                }
-
                 // Socket Receive Buffer Size
                 if (int.Parse(this.updnReceiveBufferSize.Text) < this.receiveBufferSizeMin ||
                     int.Parse(this.updnReceiveBufferSize.Text) > this.receiveBufferSizeMax)
@@ -464,16 +428,6 @@ namespace dMobile.View.Options
 
                     var msg =
                         $"Receive buffer size must be between {this.receiveTimeoutSecondsMin} and {this.receiveTimeoutSecondsMax}";
-                    throw new MessageOnlyException(msg);
-                }
-
-                // Socket Send Data Attempts
-                if (int.Parse(this.updnSendAttempts.Text) < this.sendAttemptsMin ||
-                    int.Parse(this.updnSendAttempts.Text) > this.sendAttemptsMax)
-                {
-                    e.Cancel = true;
-
-                    var msg = $"Send attempts must be between {this.sendAttemptsMin} and {this.sendAttemptsMax}";
                     throw new MessageOnlyException(msg);
                 }
 
@@ -555,11 +509,8 @@ namespace dMobile.View.Options
         {
             this.SysEnv.CommSetup = this.SysEnv.CommSetup.LoadData();
 
-            this.updnConnectionAttempts.Text = this.SysEnv.CommSetup.ConnectionAttempts.ToString();
-            this.updnReceiveAttempts.Text = this.SysEnv.CommSetup.ReceiveAttempts.ToString();
             this.updnReceiveBufferSize.Text = this.SysEnv.CommSetup.ReceiveBufferSize.ToString();
             this.updnReceiveTimeOutSec.Text = this.SysEnv.CommSetup.ReceiveTimeOutSeconds.ToString();
-            this.updnSendAttempts.Text = this.SysEnv.CommSetup.SendAttempts.ToString();
             this.updnSendTimeOutSec.Text = this.SysEnv.CommSetup.SendTimeOutSeconds.ToString();
         }
 

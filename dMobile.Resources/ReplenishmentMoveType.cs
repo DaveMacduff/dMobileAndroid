@@ -5,8 +5,6 @@
 namespace dMobile.Resources
 {
     using System;
-    using System.Collections.Generic;
-    using System.Text;
 
     /// <summary>
     /// Replenishment move types.
@@ -19,17 +17,17 @@ namespace dMobile.Resources
         public enum Code : int
         {
             /// <summary>
-            /// Manual replenishment move type.
+            /// Defines the Manual
             /// </summary>
             Manual = 0,
 
             /// <summary>
-            /// PullDown replenishment move type.
+            /// Defines the PullDown
             /// </summary>
             PullDown = 1,
 
             /// <summary>
-            /// Restock replenishment move type.
+            /// Defines the Restock
             /// </summary>
             Restock = 2,
         }
@@ -37,7 +35,7 @@ namespace dMobile.Resources
         /// <summary>
         /// Convert enum ReplenishmentMoveType.Code value to reason string.
         /// </summary>
-        /// <param name="subType">ReplenishmentMoveType.Code enum value.</param>
+        /// <param name="subType">ReplenishmentMoveType.Code enum value</param>
         /// <returns>Reason name string.</returns>
         public static string? Enum2String(Code subType)
         {

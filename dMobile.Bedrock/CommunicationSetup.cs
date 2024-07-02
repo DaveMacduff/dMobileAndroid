@@ -84,22 +84,22 @@ namespace dMobile.Bedrock
         /// <summary>
         /// Seconds to wait for a send request.
         /// </summary>
-        private int sendTimeOutSeconds = 60;
+        private int sendTimeOutSeconds = 10;
 
         /// <summary>
         /// Number of times to attempt to send.
         /// </summary>
-        private int sendAttempts = 4;
+        private int sendAttempts = 0;
 
         /// <summary>
         /// Defines the receiveAttempts.
         /// </summary>
-        private int receiveAttempts = 1;
+        private int receiveAttempts = 0;
 
         /// <summary>
         /// Seconds to wait for a received response.
         /// </summary>
-        private int receiveTimeOutSeconds = 99;
+        private int receiveTimeOutSeconds = 30;
 
         /// <summary>
         /// Defines the receiveBufferSize.

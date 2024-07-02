@@ -32,11 +32,11 @@ namespace dMobile.Bedrock
             this.LoginSocket.MaxPorts = this.CommSetup.MaxSocketPorts;
             this.LoginSocket.ConnTotalRetries = this.CommSetup.ConnectionAttempts;
             this.LoginSocket.SendTotalRetries = this.CommSetup.SendAttempts;
-            this.LoginSocket.RecvTotalRetries = this.CommSetup.ReceiveAttempts;
+            this.LoginSocket.ReceiveTotalRetries = this.CommSetup.ReceiveAttempts;
             this.LoginSocket.SendTimeOutMilliseconds = this.CommSetup.SendTimeOutSeconds * 1000;
             this.LoginSocket.ReceiveTimeOutMilliseconds = this.CommSetup.ReceiveTimeOutSeconds * 1000;
-            this.LoginSocket.RecvBuffSize = this.CommSetup.ReceiveBufferSize;
-            this.LoginSocket.ServerIP = this.CommSetup.HostIpAddressComponent1.ToString() + "." +
+            this.LoginSocket.ReceiveBuffSize = this.CommSetup.ReceiveBufferSize;
+            this.LoginSocket.ServerIp = this.CommSetup.HostIpAddressComponent1.ToString() + "." +
                     this.CommSetup.HostIpAddressComponent2.ToString() + "." +
                     this.CommSetup.HostIpAddressComponent3.ToString() + "." +
                     this.CommSetup.HostIpAddressComponent4.ToString();
@@ -255,7 +255,7 @@ namespace dMobile.Bedrock
                     this.OnContactLoginStatusOut(this, msgEventArg);
                 }
 
-                socket = this.LoginSocket.Connect();
+                this.LoginSocket.Connect(ref socket);
 
                 if (socket != null)
                 {
@@ -344,7 +344,7 @@ namespace dMobile.Bedrock
         private string SubmitContactLogOutCommunication()
         {
             string sendSubmit = null;
-            var socket = default(Socket);
+            Socket socket = null;
             var bytesSent = default(int);
             List<byte> bytRecvData = null;
             var responseData = string.Empty;
@@ -369,8 +369,7 @@ namespace dMobile.Bedrock
                     this.OnContactLoginStatusOut(this, msgEventArg);
                 }
 
-                socket = this.LoginSocket.Connect();
-
+                this.LoginSocket.Connect(ref socket);
                 if (socket != null)
                 {
                     if (this.OnContactLoginStatusOut != null)

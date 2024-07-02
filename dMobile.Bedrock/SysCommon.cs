@@ -9,7 +9,9 @@ namespace dMobile.Bedrock
     using System.Diagnostics.CodeAnalysis;
     using System.Globalization;
     using System.IO;
+    using System.Net.Sockets;
     using System.Reflection;
+    using System.Runtime.CompilerServices;
     using System.Text;
     using System.Threading.Tasks;
     using System.Xml;
@@ -1327,28 +1329,61 @@ namespace dMobile.Bedrock
         /// <returns><see cref="string"/> Communication response.</returns>
         public static string SubmitComm(string sendData)
         {
-            string receivedData;
+            var receivedData = string.Empty;
             var sysEnv = SysEnvironment.GetInstance();
-            using var sysSock = sysEnv.SysSock.Connect();
-            _ = sysSock ?? throw new Exception("Failed to connect.");
-
-            try
+            Socket sysSock = null;
+            var port = sysEnv.SysSock.DefSocketPort;
+            const int numberOfPasses = 2;
+            var success = false;
+            var maxAttempts = sysEnv.SysSock.MaxPorts * numberOfPasses;
+            maxAttempts = (maxAttempts > 1) ? maxAttempts - 1 : 1;
+            for (var attempt = 1; attempt <= maxAttempts; attempt++)
             {
-                sysEnv.SysSock.SendRequest(sysSock, sendData);
-                var compressedData = sysEnv.SysSock.ReceiveResponse(sysSock);
-                receivedData = Compress.UnZip(compressedData.ToArray());
-                CheckCommResponseForErrors(receivedData);
-            }
-            finally
-            {
-                if (sysSock.Connected)
+                var tryNewPort = false;
+                try
                 {
-                    sysSock.Disconnect(true);
-                    sysSock.Close();
+                    sysEnv.SysSock.Connect(ref sysSock, port, ref tryNewPort);
+                    if (tryNewPort)
+                    {
+                        port = GetNextPort();
+                    }
+                    else
+                    {
+                        sysEnv.SysSock.SendRequest(sysSock, sendData);
+                        var compressedData = sysEnv.SysSock.ReceiveResponse(sysSock);
+                        receivedData = Compress.UnZip(compressedData.ToArray());
+                        CheckCommResponseForErrors(receivedData);
+                        success = true;
+                    }
+                }
+                finally
+                {
+                    sysEnv.SysSock.Disconnect(sysSock);
+                }
+
+                if (success)
+                {
+                    break;
                 }
             }
 
             return receivedData;
+
+            ///////////////////////////////////////////////////////////
+            int GetNextPort()
+            {
+                // New port will be compared to the current port to determine if we have
+                // tried all ports. Or if we have tried all ports, we will start over at the
+                // base port. Depending on the error code, we will assign the new port to the
+                // current port.
+                var newPort = port + 1;
+                if (newPort > sysEnv.SysSock.BasePort + (sysEnv.SysSock.MaxPorts - 1))
+                {
+                    newPort = sysEnv.SysSock.BasePort;
+                }
+
+                return newPort;
+            }
         }
 
         /// <summary>

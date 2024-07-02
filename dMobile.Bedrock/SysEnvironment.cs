@@ -185,18 +185,18 @@ namespace dMobile.Bedrock
         {
             get
             {
-                if (string.IsNullOrEmpty(sysSock.ServerIP))
+                if (string.IsNullOrEmpty(sysSock.ServerIp))
                 {
                     sysSock.BasePort = this.CommSetup.BaseSocketPort;
                     sysSock.DefSocketPort = this.CommSetup.DefaultSocketPort;
                     sysSock.MaxPorts = this.CommSetup.MaxSocketPorts;
                     sysSock.ConnTotalRetries = this.CommSetup.ConnectionAttempts;
                     sysSock.SendTotalRetries = this.CommSetup.SendAttempts;
-                    sysSock.RecvTotalRetries = this.CommSetup.ReceiveAttempts;
+                    sysSock.ReceiveTotalRetries = this.CommSetup.ReceiveAttempts;
                     sysSock.SendTimeOutMilliseconds = this.CommSetup.SendTimeOutSeconds * 1000;
                     sysSock.ReceiveTimeOutMilliseconds = this.CommSetup.ReceiveTimeOutSeconds * 1000;
-                    sysSock.RecvBuffSize = this.CommSetup.ReceiveBufferSize;
-                    sysSock.ServerIP = this.CommSetup.HostIpAddressComponent1 +
+                    sysSock.ReceiveBuffSize = this.CommSetup.ReceiveBufferSize;
+                    sysSock.ServerIp = this.CommSetup.HostIpAddressComponent1 +
                         "." + this.CommSetup.HostIpAddressComponent2 + "." +
                         this.CommSetup.HostIpAddressComponent3 + "." +
                         this.CommSetup.HostIpAddressComponent4;

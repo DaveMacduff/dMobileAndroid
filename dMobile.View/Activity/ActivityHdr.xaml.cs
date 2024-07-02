@@ -22,7 +22,7 @@ namespace dMobile.View.Activity
     using Resources.Types;
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;
-    using Resource = dMobile.Resources.Properties.Resources;
+    using Resource = Resources.Properties.Resources;
 
     /// <summary>
     ///     Defines the <see cref="ActivityHdr" /> Activity header.
@@ -31,12 +31,12 @@ namespace dMobile.View.Activity
     public partial class ActivityHdr : IAppArea, IDataLayerEventListener
     {
         /// <summary>
-        ///     Define the filter text was enabled.
+        ///     Define the filter text is enabled.
         /// </summary>
         private bool filterIsEnabled;
 
         /// <summary>
-        ///     Defines the text filter.
+        ///     Defines the text filter holder.
         /// </summary>
         private string filterText = string.Empty;
 
@@ -1313,7 +1313,10 @@ namespace dMobile.View.Activity
                 else
                 {
                     await this.ActHdr.SelectActivity(selectedItem);
-                    Device.BeginInvokeOnMainThread(() => { this.ListViewMainActivity.SelectedItem = this.ActHdr.SelectedActivity; });
+                    Device.BeginInvokeOnMainThread(() =>
+                    {
+                        this.ListViewMainActivity.SelectedItem = this.ActHdr.SelectedActivity;
+                    });
                 }
 
                 Device.BeginInvokeOnMainThread(() =>

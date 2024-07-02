@@ -71,11 +71,11 @@ namespace dMobile.Bedrock
             Socket.MaxPorts = CommSetup.MaxSocketPorts;
             Socket.ConnTotalRetries = CommSetup.ConnectionAttempts;
             Socket.SendTotalRetries = CommSetup.SendAttempts;
-            Socket.RecvTotalRetries = CommSetup.ReceiveAttempts;
+            Socket.ReceiveTotalRetries = CommSetup.ReceiveAttempts;
             Socket.SendTimeOutMilliseconds = CommSetup.SendTimeOutSeconds * 1000;
             Socket.ReceiveTimeOutMilliseconds = CommSetup.ReceiveTimeOutSeconds * 1000;
-            Socket.RecvBuffSize = CommSetup.ReceiveBufferSize;
-            Socket.ServerIP = CommSetup.HostIpAddressComponent1.ToString() + "."
+            Socket.ReceiveBuffSize = CommSetup.ReceiveBufferSize;
+            Socket.ServerIp = CommSetup.HostIpAddressComponent1.ToString() + "."
                 + CommSetup.HostIpAddressComponent2.ToString() + "."
                 + CommSetup.HostIpAddressComponent3.ToString() + "."
                 + CommSetup.HostIpAddressComponent4.ToString();

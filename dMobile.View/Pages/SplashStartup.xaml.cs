@@ -370,32 +370,30 @@ namespace dMobile.View.Pages
                     MaxPorts = this.SysEnv.CommSetup.MaxSocketPorts,
                     ConnTotalRetries = this.SysEnv.CommSetup.ConnectionAttempts,
                     SendTotalRetries = this.SysEnv.CommSetup.SendAttempts,
-                    RecvTotalRetries = this.SysEnv.CommSetup.ReceiveAttempts,
+                    ReceiveTotalRetries = this.SysEnv.CommSetup.ReceiveAttempts,
                 };
 
                 this.StartUpStatusOut(sender, e, $"Base socket port: {sysSock.BasePort}");
                 this.StartUpStatusOut(sender, e, $"Default socket port: {sysSock.DefSocketPort}");
                 this.StartUpStatusOut(sender, e, $"Max socket port: {sysSock.MaxPorts}");
-                this.StartUpStatusOut(sender, e, $"Connection retries: {sysSock.ConnTotalRetries}");
-                this.StartUpStatusOut(sender, e, $"Socket send retries: {sysSock.SendTotalRetries}");
-                this.StartUpStatusOut(sender, e, $"Socket receive retries: {sysSock.RecvTotalRetries}");
                 this.StartUpStatusOut(sender, e, $"Send time out: {this.SysEnv.CommSetup.SendTimeOutSeconds} seconds.");
                 this.StartUpStatusOut(sender, e, $"Receive time out: {this.SysEnv.CommSetup.ReceiveTimeOutSeconds} seconds.");
 
-                sysSock.RecvBuffSize = this.SysEnv.CommSetup.ReceiveBufferSize;
-                this.StartUpStatusOut(sender, e, $"Receive buffer size: {sysSock.RecvBuffSize} ");
+                sysSock.ReceiveBuffSize = this.SysEnv.CommSetup.ReceiveBufferSize;
+                this.StartUpStatusOut(sender, e, $"Receive buffer size: {sysSock.ReceiveBuffSize} ");
 
-                sysSock.ServerIP = this.SysEnv.CommSetup.HostIpAddressComponent1 + "."
+                sysSock.ServerIp = this.SysEnv.CommSetup.HostIpAddressComponent1 + "."
                     + this.SysEnv.CommSetup.HostIpAddressComponent2 + "."
                     + this.SysEnv.CommSetup.HostIpAddressComponent3 + "."
                     + this.SysEnv.CommSetup.HostIpAddressComponent4;
 
-                this.StartUpStatusOut(sender, e, $"Server host IP: {sysSock.ServerIP}");
+                this.StartUpStatusOut(sender, e, $"Server host IP: {sysSock.ServerIp}");
                 this.StartUpStatusOut(sender, e, "Creating connection request.");
 
                 try
                 {
-                    var socket = sysSock.Connect();
+                    Socket socket = null;
+                    sysSock.Connect(ref socket);
                     if (socket == null)
                     {
                         this.StartUpStatusOut(sender, e, "Connection failed.");

@@ -218,7 +218,7 @@ namespace dMobile.GroundWork
                                             ActivityDetailLogisticUnitPackagingDate, 
                                             ActivityDetailLogisticUnitSkidNumber
                                         ) VALUES (
-                                            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+                                            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
                                         )";
 
                                 parametersInsertDetail.Add(Convert.ToInt32(SysCommon.ActSubTypes.PhysicalCounts));

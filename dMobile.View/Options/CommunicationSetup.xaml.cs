@@ -661,7 +661,7 @@ namespace dMobile.View.Options
             await Task.Run(() =>
             {
                 string sendReq;
-                Socket socket;
+                Socket socket = null;
                 int bytesSent;
                 List<byte> bytRecvData;
                 var responseData = string.Empty;
@@ -689,10 +689,10 @@ namespace dMobile.View.Options
 
                 this.AddCommMsg(this, EventArgs.Empty, $"Socket send retries: {this.SysEnv.SysSock.SendTotalRetries}");
 
-                this.SysEnv.SysSock.RecvTotalRetries = this.SysEnv.CommSetup.ReceiveAttempts;
+                this.SysEnv.SysSock.ReceiveTotalRetries = this.SysEnv.CommSetup.ReceiveAttempts;
 
                 this.AddCommMsg(this, EventArgs.Empty,
-                    $"Socket receive retries: {this.SysEnv.SysSock.RecvTotalRetries}");
+                    $"Socket receive retries: {this.SysEnv.SysSock.ReceiveTotalRetries}");
 
                 this.SysEnv.SysSock.SendTimeOutMilliseconds = this.SysEnv.CommSetup.SendTimeOutSeconds * 1000;
 
@@ -704,16 +704,16 @@ namespace dMobile.View.Options
                 this.AddCommMsg(this, EventArgs.Empty,
                     $"Receive time out: {this.SysEnv.CommSetup.ReceiveTimeOutSeconds} seconds.");
 
-                this.SysEnv.SysSock.RecvBuffSize = this.SysEnv.CommSetup.ReceiveBufferSize;
+                this.SysEnv.SysSock.ReceiveBuffSize = this.SysEnv.CommSetup.ReceiveBufferSize;
 
-                this.AddCommMsg(this, EventArgs.Empty, $"Receive buffer size: {this.SysEnv.SysSock.RecvBuffSize} ");
+                this.AddCommMsg(this, EventArgs.Empty, $"Receive buffer size: {this.SysEnv.SysSock.ReceiveBuffSize} ");
 
-                this.SysEnv.SysSock.ServerIP = this.SysEnv.CommSetup.HostIpAddressComponent1
+                this.SysEnv.SysSock.ServerIp = this.SysEnv.CommSetup.HostIpAddressComponent1
                     + "." + this.SysEnv.CommSetup.HostIpAddressComponent2 + "."
                     + this.SysEnv.CommSetup.HostIpAddressComponent3 + "."
                     + this.SysEnv.CommSetup.HostIpAddressComponent4;
 
-                this.AddCommMsg(this, EventArgs.Empty, $"Server host ip: {this.SysEnv.SysSock.ServerIP}");
+                this.AddCommMsg(this, EventArgs.Empty, $"Server host ip: {this.SysEnv.SysSock.ServerIp}");
                 this.AddCommMsg(this, EventArgs.Empty, "Creating connection request.");
 
                 sendReq = Bedrock.CommunicationSetup.CreateXmlSubmitDeviceId();
@@ -722,7 +722,8 @@ namespace dMobile.View.Options
                 {
                     this.SysSock.RegSockListenerStatusOut((ISysSocketEventListener)this);
                     this.SysEnv.IsCommunicationTestSuccessful = false;
-                    socket = this.SysEnv.SysSock.Connect();
+                    this.SysEnv.SysSock.Connect(ref socket);
+                    ////socket = this.SysEnv.SysSock.Connect();
 
                     if (socket == null)
                     {
