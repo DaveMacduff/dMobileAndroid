@@ -927,15 +927,15 @@ namespace dMobile.View.Utilities
 
                     await Device.InvokeOnMainThreadAsync(async () => await this.DisplayData());
                 }
-                else if (!string.IsNullOrEmpty(parse.ActItemFKRefno))
+                else if (!string.IsNullOrEmpty(parse.ActItemFkRefno))
                 {
                     throw new MessageOnlyException("Scanning a line item bar code is not supported here!");
                 }
-                else if (!string.IsNullOrEmpty(parse.ActDetailFKRefno))
+                else if (!string.IsNullOrEmpty(parse.ActDetailFkRefno))
                 {
                     throw new MessageOnlyException("Scanning a detail bar code is not supported here!");
                 }
-                else if (!string.IsNullOrEmpty(parse.SSCC18))
+                else if (!string.IsNullOrEmpty(parse.Sscc18))
                 {
                     throw new MessageOnlyException("Scanning an shipping container bar code is not supported here!");
                 }

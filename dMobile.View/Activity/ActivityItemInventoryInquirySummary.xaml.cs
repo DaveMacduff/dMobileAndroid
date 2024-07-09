@@ -591,11 +591,11 @@ namespace dMobile.View.Activity
                 this.IsIndicatorRunning = true;
                 this.BarParse = scanArgs.ParseInfo;
 
-                if (!string.IsNullOrEmpty(this.BarParse.ActFKRefno))
+                if (!string.IsNullOrEmpty(this.BarParse.ActFkRefno))
                 {
                     throw new Exception("Scanning an activity reference # is not supported here.");
                 }
-                else if (!string.IsNullOrEmpty(this.BarParse.ActItemFKRefno))
+                else if (!string.IsNullOrEmpty(this.BarParse.ActItemFkRefno))
                 {
                     throw new Exception("Scanning an activity item reference # is not supported here.");
                 }
@@ -603,7 +603,7 @@ namespace dMobile.View.Activity
                 {
                     throw new Exception("Scanning an product identifier is not supported here.");
                 }
-                else if (!string.IsNullOrEmpty(this.BarParse.SSCC18))
+                else if (!string.IsNullOrEmpty(this.BarParse.Sscc18))
                 {
                     throw new Exception("Scanning a shipping container bar code is not supported here.");
                 }

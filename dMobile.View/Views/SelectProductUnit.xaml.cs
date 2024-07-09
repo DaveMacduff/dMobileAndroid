@@ -802,25 +802,25 @@ namespace dMobile.View.Views
                 }
 
                 // Activity item fk refno
-                if (!string.IsNullOrEmpty(parse.ActFKRefno))
+                if (!string.IsNullOrEmpty(parse.ActFkRefno))
                 {
                     throw new Exception("Scanning an activity bar code is not supported here!");
                 }
 
                 // Activity item fk refno
-                if (!string.IsNullOrEmpty(parse.ActItemFKRefno))
+                if (!string.IsNullOrEmpty(parse.ActItemFkRefno))
                 {
                     throw new Exception("Scanning a line item bar code is not supported here!");
                 }
 
                 // Activity detail fk refno
-                if (!string.IsNullOrEmpty(parse.ActDetailFKRefno))
+                if (!string.IsNullOrEmpty(parse.ActDetailFkRefno))
                 {
                     throw new Exception("Scanning a line item detail bar code is not supported here!");
                 }
 
                 // Shipping container scanned, skid
-                if (!string.IsNullOrEmpty(parse.SSCC18))
+                if (!string.IsNullOrEmpty(parse.Sscc18))
                 {
                     throw new Exception("Scanning a shipping container bar code is not supported here!");
                 }

@@ -1238,15 +1238,15 @@ namespace dMobile.View.Activity
                 {
                     await ProductIdentifierHandler();
                 }
-                else if (!string.IsNullOrEmpty(this.BarCodeParse.ActFKRefno))
+                else if (!string.IsNullOrEmpty(this.BarCodeParse.ActFkRefno))
                 {
                     throw new MessageOnlyException("Scanning an header reference # is not supported here.");
                 }
-                else if (!string.IsNullOrEmpty(this.BarCodeParse.ActItemFKRefno))
+                else if (!string.IsNullOrEmpty(this.BarCodeParse.ActItemFkRefno))
                 {
                     throw new MessageOnlyException("Scanning an item reference # is not supported here.");
                 }
-                else if (!string.IsNullOrEmpty(this.BarCodeParse.SSCC18))
+                else if (!string.IsNullOrEmpty(this.BarCodeParse.Sscc18))
                 {
                     throw new MessageOnlyException("Scanning a shipping container bar code # is not supported here.");
                 }

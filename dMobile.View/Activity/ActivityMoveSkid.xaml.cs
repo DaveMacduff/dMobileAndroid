@@ -581,19 +581,19 @@ namespace dMobile.View.Activity
                         throw new MessageOnlyException("Scanning a shipping container bar code is not supported here!");
                     }
 
-                    if (!string.IsNullOrEmpty(parse.ActItemFKRefno))
+                    if (!string.IsNullOrEmpty(parse.ActItemFkRefno))
                     {
                         throw new MessageOnlyException("Scanning a line item bar code is not supported here!");
                     }
 
-                    if (!string.IsNullOrEmpty(parse.ActDetailFKRefno))
+                    if (!string.IsNullOrEmpty(parse.ActDetailFkRefno))
                     {
                         throw new MessageOnlyException("Scanning an line item detail bar code is not supported here!");
                     }
 
-                    if (!string.IsNullOrEmpty(parse.SSCC18))
+                    if (!string.IsNullOrEmpty(parse.Sscc18))
                     {
-                        this.SkidInfo = await SysSkidInfo.GetSkidInfoFromBarCodeOrCode(parse.SSCC18);
+                        this.SkidInfo = await SysSkidInfo.GetSkidInfoFromBarCodeOrCode(parse.Sscc18);
 
                         if (this.SkidInfo.CurrSkid.SkidFkRefno != 0)
                         {

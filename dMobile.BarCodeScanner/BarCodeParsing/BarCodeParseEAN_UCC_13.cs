@@ -32,19 +32,19 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
                 // Remove any leading extra zero padding, max bar code length will be 12.
                 if (barCodeData.Length > 12)
                 {
-                    barCodeData = barCodeData.Substring(barCodeData.Length - 12);
+                    barCodeData = barCodeData[^12..];
                 }
 
                 barCodeParse.ParseBarCodeData(barCodeData);
-                this.GTIN = barCodeParse.GTIN;
+                this.Gtin = barCodeParse.Gtin;
                 this.ProductIdentifier = barCodeParse.ProductIdentifier;
                 this.Remainder = barCodeParse.Remainder;
-                this.ActDetailFKRefno = barCodeParse.ActDetailFKRefno;
+                this.ActDetailFkRefno = barCodeParse.ActDetailFkRefno;
                 this.DeliScaleAmount = barCodeParse.DeliScaleAmount;
                 this.CompanyPrefix = barCodeParse.CompanyPrefix;
                 this.ItemReference = barCodeParse.ItemReference;
-                this.ActFKRefno = barCodeParse.ActFKRefno;
-                this.ActItemFKRefno = barCodeParse.ActItemFKRefno;
+                this.ActFkRefno = barCodeParse.ActFkRefno;
+                this.ActItemFkRefno = barCodeParse.ActItemFkRefno;
                 this.LogisticUnitCountOfTradeItems = barCodeParse.LogisticUnitCountOfTradeItems;
                 this.LocationIdentifier = barCodeParse.LocationIdentifier;
                 this.LogisticUnitBatchLotNumber = barCodeParse.LogisticUnitBatchLotNumber;
@@ -52,26 +52,26 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
                 this.LogisticUnitBestBeforeSellByDate = barCodeParse.LogisticUnitBestBeforeSellByDate;
                 this.LogisticUnitExpiryUseByDate = barCodeParse.LogisticUnitExpiryUseByDate;
                 this.PackagingType = barCodeParse.PackagingType;
-                this.SSCC18 = barCodeParse.SSCC18;
+                this.Sscc18 = barCodeParse.Sscc18;
                 this.ItemReference = barCodeParse.ItemReference;
-                this.GTINLogisticUnit = barCodeParse.GTINLogisticUnit;
+                this.GtinLogisticUnit = barCodeParse.GtinLogisticUnit;
                 this.SingleTradeItemSerialNumber = barCodeParse.SingleTradeItemSerialNumber;
                 this.LogisticUnitDueDate = barCodeParse.LogisticUnitDueDate;
                 this.LogisticUnitPackagingDate = barCodeParse.LogisticUnitPackagingDate;
                 this.LogisticUnitProductVariant = barCodeParse.LogisticUnitProductVariant;
-                this.NetWeightMetricKG = barCodeParse.NetWeightMetricKG;
-                this.NetWeightMetricKGFoundAI = barCodeParse.NetWeightMetricKGFoundAI;
-                this.NetWeightNonMetricLB = barCodeParse.NetWeightNonMetricLB;
-                this.NetWeightNonMetricLBFoundAI = barCodeParse.NetWeightNonMetricLBFoundAI;
-                this.GrossWeightMetricKG = barCodeParse.GrossWeightMetricKG;
-                this.GrossWeightMetricKGFoundAI = barCodeParse.GrossWeightMetricKGFoundAI;
-                this.GrossWeightNonMetricLB = barCodeParse.GrossWeightNonMetricLB;
-                this.GrossWeightNonMetricLBFoundAI = barCodeParse.GrossWeightNonMetricLBFoundAI;
+                this.NetWeightMetricKg = barCodeParse.NetWeightMetricKg;
+                this.NetWeightMetricKgFoundAi = barCodeParse.NetWeightMetricKgFoundAi;
+                this.NetWeightNonMetricLb = barCodeParse.NetWeightNonMetricLb;
+                this.NetWeightNonMetricLbFoundAi = barCodeParse.NetWeightNonMetricLbFoundAi;
+                this.GrossWeightMetricKg = barCodeParse.GrossWeightMetricKg;
+                this.GrossWeightMetricKgFoundAi = barCodeParse.GrossWeightMetricKgFoundAi;
+                this.GrossWeightNonMetricLb = barCodeParse.GrossWeightNonMetricLb;
+                this.GrossWeightNonMetricLbFoundAi = barCodeParse.GrossWeightNonMetricLbFoundAi;
                 this.LogisticUnitVariableCount = barCodeParse.LogisticUnitVariableCount;
             }
             else
             {
-                barCodeData = this.IdentifyGTIN(barCodeData);     // does not remove data
+                barCodeData = this.IdentifyGtin(barCodeData);     // does not remove data
                 barCodeData = this.IdentifyProductIdentifier(barCodeData);   // does not remove data
 
                 barCodeData = barCodeData.Remove(0, 1);   // remove implied zero
@@ -118,7 +118,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// <inheritdoc/>
         protected override string IdentifyCompanyPrefix(string barCodeData)
         {
-            this.CompanyPrefix = barCodeData.Substring(0, 5);
+            this.CompanyPrefix = barCodeData[..5];
 
             // remove the Company Prefix from the bar code data
             barCodeData = barCodeData.Remove(0, this.CompanyPrefix.Length);
@@ -133,7 +133,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// <returns></returns>
         protected override string IdentifyItemReference(string barCodeData)
         {
-            this.ItemReference = barCodeData.Substring(0, 5);
+            this.ItemReference = barCodeData[..5];
 
             // remove the Item Reference from the bar code data
             barCodeData = barCodeData.Remove(0, this.ItemReference.Length);
@@ -147,11 +147,11 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// <param name="barCodeData"></param>
         /// <returns></returns>
         /// <inheritdoc/>
-        protected override string IdentifyGTIN(string barCodeData)
+        protected override string IdentifyGtin(string barCodeData)
         {
             var len = (barCodeData.Length > 14) ? 14 : barCodeData.Length;
 
-            this.GTIN = barCodeData.Substring(0, len).PadLeft(14, '0');
+            this.Gtin = barCodeData[..len].PadLeft(14, '0');
 
             // remove the GTIN from the bar code data
             // barCodeData = barCodeData.Remove(0, barCodeData.Length);

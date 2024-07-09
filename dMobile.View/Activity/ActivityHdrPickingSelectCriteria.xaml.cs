@@ -784,12 +784,12 @@ namespace dMobile.View.Activity
                 // GoFocus and LostFocus events will handle the scanner
                 this.BarParse = scanArgs.ParseInfo;
 
-                if (!string.IsNullOrEmpty(this.BarParse.ActFKRefno))
+                if (!string.IsNullOrEmpty(this.BarParse.ActFkRefno))
                 {
                     throw new MessageOnlyException("Scanning an activity header reference # is not supported here.");
                 }
 
-                if (!string.IsNullOrEmpty(this.BarParse.ActItemFKRefno))
+                if (!string.IsNullOrEmpty(this.BarParse.ActItemFkRefno))
                 {
                     throw new MessageOnlyException("Scanning an activity item reference # is not supported here.");
                 }
@@ -799,7 +799,7 @@ namespace dMobile.View.Activity
                     throw new MessageOnlyException("Scanning a product bar code is not supported here.");
                 }
 
-                if (!string.IsNullOrEmpty(this.BarParse.SSCC18))
+                if (!string.IsNullOrEmpty(this.BarParse.Sscc18))
                 {
                     throw new MessageOnlyException("Scanning a shipping container bar code is not supported here.");
                 }

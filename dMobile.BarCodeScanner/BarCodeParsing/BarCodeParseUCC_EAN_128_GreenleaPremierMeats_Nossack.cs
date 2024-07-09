@@ -7,24 +7,24 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
     using System;
 
     /// <summary>
-    /// Defines the <see cref="BarCodeParseUCC_EAN_128_GreenleaPremierMeats_Nossack" />.
+    ///     Defines the bar code parsing for UCC/EAN-128 symbology for Greenlea Premier Meats Nossack.
     /// </summary>
     public class BarCodeParseUCC_EAN_128_GreenleaPremierMeats_Nossack : BarCodeParse
     {
         /// <summary>
-        /// The ParseBarCodeData.
+        ///     Parse bar code data.
         /// </summary>
         /// <param name="barCodeData">The barCodeData<see cref="string"/>.</param>
         public override void ParseBarCodeData(string barCodeData)
         {
             // strip first character (unknown)
-            barCodeData = barCodeData.Substring(1);
+            barCodeData = barCodeData[1..];
 
             barCodeData = this.IdentifyProductIdentifier(barCodeData);
-            barCodeData = this.IdentifyNetWeightMetricKG(barCodeData);
+            barCodeData = this.IdentifyNetWeightMetricKg(barCodeData);
 
             // strip one character (unknown)
-            barCodeData = barCodeData.Substring(1);
+            barCodeData = barCodeData[1..];
 
             // read production date (Julian -> Convert to Gregorian)
             barCodeData = this.IdentifyLogisticUnitProductionDate(barCodeData);
@@ -39,8 +39,8 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// <returns>The <see cref="string"/>.</returns>
         protected override string IdentifyProductIdentifier(string barCodeData)
         {
-            this.ProductIdentifier = barCodeData.Substring(0, 5);
-            return barCodeData.Substring(5);
+            this.ProductIdentifier = barCodeData[..5];
+            return barCodeData[5..];
         }
 
         /// <summary>
@@ -48,24 +48,25 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// </summary>
         /// <param name="barCodeData">The barCodeData<see cref="string"/>.</param>
         /// <returns>The <see cref="string"/>.</returns>
-        protected override string IdentifyNetWeightMetricKG(string barCodeData)
+        protected override string IdentifyNetWeightMetricKg(string barCodeData)
         {
-            this.NetWeightMetricKGFoundAI = true;
-            var fieldLength = 3;
-            var decimalPlaces = 1; //
+            this.NetWeightMetricKgFoundAi = true;
+            const int fieldLength = 3;
+            const int decimalPlaces = 1;
             if (decimalPlaces > 0)
             {
-                this.NetWeightMetricKG = Convert.ToDecimal(
-                    barCodeData.Substring(0, fieldLength - decimalPlaces)
+                this.NetWeightMetricKg = Convert.ToDecimal(
+                    barCodeData[.. (fieldLength - decimalPlaces)]
                     + "."
                     + barCodeData.Substring(fieldLength - decimalPlaces, decimalPlaces));
             }
             else
             {
-                this.NetWeightMetricKG = Convert.ToDecimal(
-                    barCodeData.Substring(0, fieldLength));
+                this.NetWeightMetricKg = Convert.ToDecimal(
+                    barCodeData[..fieldLength]);
             }
-            return barCodeData.Substring(fieldLength);
+
+            return barCodeData[fieldLength..];
         }
 
         /// <summary>
@@ -75,7 +76,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// <returns>.</returns>
         protected override string IdentifyLogisticUnitProductionDate(string barCodeData)
         {
-            var julianYear = Convert.ToInt32(barCodeData.Substring(0, 1));
+            var julianYear = Convert.ToInt32(barCodeData[..1]);
             var currentYear = DateTime.Now.Year;
             int year;
             if (julianYear > currentYear % 10)
@@ -86,6 +87,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
             {
                 year = currentYear - ((currentYear % 10) - julianYear);
             }
+
             var julianDay = Convert.ToInt32(barCodeData.Substring(1, 3));
             var gregorianDate = DateTime.Parse("1 Jan " + year);
 
@@ -94,7 +96,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
 
             this.LogisticUnitProductionDate = gregorianDate;
 
-            return barCodeData.Substring(4);
+            return barCodeData[4..];
         }
     }
 }

@@ -1458,10 +1458,10 @@ namespace dMobile.View.Activity
                         var isLocationBarCodeScanned =
                             !string.IsNullOrEmpty(parse.LocationIdentifier);
                         var isProductScanned = !string.IsNullOrEmpty(parse.ProductIdentifier);
-                        var isFkRefnoScanned = !string.IsNullOrEmpty(parse.ActFKRefno);
-                        var isFkItemRefnoScanned = !string.IsNullOrEmpty(parse.ActItemFKRefno);
-                        var isFkDetailRefnoScanned = !string.IsNullOrEmpty(parse.ActDetailFKRefno);
-                        var isSkidScanned = !string.IsNullOrEmpty(parse.SSCC18);
+                        var isFkRefnoScanned = !string.IsNullOrEmpty(parse.ActFkRefno);
+                        var isFkItemRefnoScanned = !string.IsNullOrEmpty(parse.ActItemFkRefno);
+                        var isFkDetailRefnoScanned = !string.IsNullOrEmpty(parse.ActDetailFkRefno);
+                        var isSkidScanned = !string.IsNullOrEmpty(parse.Sscc18);
 
                         // GLOBAL LOCATION IDENTIFIER SCANNED
                         if (isLocationBarCodeScanned)
@@ -1618,7 +1618,7 @@ namespace dMobile.View.Activity
                 }
 
                 var skidInfo =
-                    await SysSkidInfo.GetSkidInfoFromBarCodeOrCode(scanArgs.ParseInfo.SSCC18);
+                    await SysSkidInfo.GetSkidInfoFromBarCodeOrCode(scanArgs.ParseInfo.Sscc18);
                 if (skidInfo.CurrSkid.SkidFkRefno == 0)
                 {
                     _ = await Device.InvokeOnMainThreadAsync(

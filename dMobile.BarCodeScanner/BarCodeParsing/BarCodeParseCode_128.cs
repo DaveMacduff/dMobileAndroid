@@ -5,8 +5,11 @@
 namespace dMobile.BarCodeScanner.BarCodeParsing
 {
     using System;
-    using dMobile.Bedrock;
+    using Bedrock;
 
+    /// <summary>
+    ///     Bar code parsing for Code 128 symbology.
+    /// </summary>
     public class BarCodeParseCode_128 : BarCodeParse
     {
         /// <summary>
@@ -15,6 +18,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// <param name="barCodeData">Bar code data to parse.</param>
         public override void ParseBarCodeData(string barCodeData)
         {
+            barCodeData = barCodeData ?? throw new ArgumentNullException(nameof(barCodeData));
             this.Remainder = barCodeData;
 
             // WO 14686
@@ -22,7 +26,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
                 !string.IsNullOrEmpty(barCodeData) &&
                 barCodeData[0] == 0x001a)
             {
-                barCodeData = barCodeData.Substring(1);
+                barCodeData = barCodeData[1..];
                 this.Remainder = barCodeData;
             }
 
@@ -32,13 +36,15 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
                 {
                     if (this.Settings.IsRuleEnabled_ProductBarCodeMinimumLengthRequirement4Digits)
                     {
-                        throw new RuleViolationException("Bar code minimum length rule violated, must have a length greater than 4.");
+                        const string msg = "Bar code minimum length rule violated, must have a" +
+                                           " length greater than 4.";
+                        throw new RuleViolationException(msg);
                     }
                 }
 
                 if (this.Settings.IsRuleEnabled_ParseNorthernCoop_AustraliaBeefTrim_Product25612
                     && this.Remainder.Length >= 6
-                    && barCodeData.Substring(0, 6) == "256912")
+                    && barCodeData[..6] == "256912")
                 {
                     this.ClearResetBarCodeProperties(false);
                     var barCodeParse
@@ -47,7 +53,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
                 }
                 else if (this.Settings.IsRuleEnabled_ParseFINICA_Code_128_as_EAN_UCC_128
                     && this.Remainder.Length >= 7
-                    && barCodeData.Substring(0, 7) == "9062852")
+                    && barCodeData[..7] == "9062852")
                 {
                     this.ClearResetBarCodeProperties(false);
                     var barCodeParse = new BarCodeParseCode_128_FINICA_as_EAN_UCC_128();
@@ -74,7 +80,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
                 }
                 else if (this.Settings.IsRuleEnabled_Parse_HelaSpiceCanada_Code_128
                     && this.Remainder.Length >= 8
-                    && barCodeData.Substring(0, 8) == "10066973")
+                    && barCodeData[..8] == "10066973")
                 {
                     this.ClearResetBarCodeProperties(false);
                     var barCodeParse = new BarCodeParseUCC_EAN_128_Symbol();
@@ -108,8 +114,9 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// <returns>True if is a chili bar code, else false.</returns>
         public bool IsChiliBarcode(string barcode)
         {
+            barcode = barcode ?? throw new ArgumentNullException(nameof(barcode));
             return barcode.Length >= 8
-                && barcode.Substring(2, 6) == "896775";
+                   && barcode.Substring(2, 6) == "896775";
         }
 
         /// <summary>
@@ -127,7 +134,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
             }
             else if (barCodeData.Length > 14)
             {
-                this.ProductIdentifier = barCodeData.Substring(0, 14);
+                this.ProductIdentifier = barCodeData[..14];
                 len = 14;
             }
             else

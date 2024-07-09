@@ -8,7 +8,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
     using System;
 
     /// <summary>
-    /// Defines the <see cref="BarCodeParseUCC_EAN_128_Symbol_NossackProduct94600_ChileanBackRibs" />.
+    /// Define bar code parsing for UCC/EAN-128 symbology for Nossack Product 94600 Chilean Back Ribs.
     /// </summary>
     public class BarCodeParseUCC_EAN_128_Symbol_NossackProduct94600_ChileanBackRibs : BarCodeParseUCC_EAN_128_Symbol
     {
@@ -21,15 +21,15 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
             try
             {
                 var parse = barCodeData;
-                var compare = string.Empty;
+                string compare;
 
                 do
                 {
                     compare = parse;
-                    parse = this.IdentifySSCC18(parse);
+                    parse = this.IdentifySscc18(parse);
                     parse = this.IdentifyLocationIdentifier(parse);
-                    parse = this.IdentifyGTIN(parse);
-                    parse = this.IdentifyGTINinLogisticUnit(parse);
+                    parse = this.IdentifyGtin(parse);
+                    parse = this.IdentifyGtiNinLogisticUnit(parse);
                     parse = this.IdentifyLogisticUnitBestBeforeSellByDate(parse);
                     parse = this.IdentifyLogisticUnitExpiryUseByDate(parse);
                     parse = this.IdentifyLogisticUnitDueDate(parse);
@@ -40,16 +40,16 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
                     parse = this.IdentifyLogisticUnitVariableCount(parse);
                     parse = this.IdentifyLogisticUnitBatchLotNumber(parse);
                     parse = this.IdentifySingleTradeItemSerialNumber(parse);
-                    parse = this.IdentifyNetWeightMetricKG(parse);
-                    parse = this.IdentifyNetWeightNonMetricLB(parse);
-                    parse = this.IdentifyGrossWeightMetricKG(parse);
-                    parse = this.IdentifyGrossWeightNonMetricLB(parse);
-                    parse = this.IdentifyLengthOr1stDimensionMeters(parse);
-                    parse = this.IdentifyActivityFKRefno(parse);
-                    parse = this.IdentifyActivityItemFKRefno(parse);
-                    parse = this.IdentifyActivityDetailFKRefno(parse);
+                    parse = this.IdentifyNetWeightMetricKg(parse);
+                    parse = this.IdentifyNetWeightNonMetricLb(parse);
+                    parse = this.IdentifyGrossWeightMetricKg(parse);
+                    parse = this.IdentifyGrossWeightNonMetricLb(parse);
+                    parse = this.IdentifyLengthOr1StDimensionMeters(parse);
+                    parse = this.IdentifyActivityFkRefno(parse);
+                    parse = this.IdentifyActivityItemFkRefno(parse);
+                    parse = this.IdentifyActivityDetailFkRefno(parse);
                 }
-                while (string.Compare(parse, compare) != 0);
+                while (string.CompareOrdinal(parse, compare) != 0);
 
                 this.IdentifyProductIdentifier(barCodeData);
                 this.Remainder = parse;
@@ -77,7 +77,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// </summary>
         /// <param name="barCodeData">.</param>
         /// <returns>.</returns>
-        protected override string IdentifyGTIN(string barCodeData)
+        protected override string IdentifyGtin(string barCodeData)
         {
             var tempData = barCodeData;
 
@@ -89,12 +89,12 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
                 // Barcode AI01 only for this rule has a length 12 for the GTIN.
                 // <WO ID="14938" Comment="Assume they fixed their 12 digit to a 14 digit GTIN" />
                 // assign the GTIN
-                this.GTIN = tempData.Substring(0, 14);// .PadLeft(14, '0');
+                this.Gtin = tempData[..14];// .PadLeft(14, '0');
 
                 // remove the GTIN from the bar code data
                 tempData = tempData.Remove(0, 14);
 
-                this.IdentifyCompanyPrefix(this.GTIN);
+                this.IdentifyCompanyPrefix(this.Gtin);
             }
 
             return tempData;
@@ -109,15 +109,15 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         {
             var tempData = barCodeData;
 
-            if (!string.IsNullOrEmpty(this.GTIN))
+            if (!string.IsNullOrEmpty(this.Gtin))
             {
-                this.ProductIdentifier = this.GTIN;
+                this.ProductIdentifier = this.Gtin;
             }
             else
             {
                 if (tempData.Length > 12)
                 {
-                    this.ProductIdentifier = tempData.Substring(0, 12).PadLeft(14, '0');
+                    this.ProductIdentifier = tempData[..12].PadLeft(14, '0');
                 }
                 else
                 {
@@ -146,7 +146,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
                 {
                     // assign the PRODUCTION DATE
                     // <issue="13609" comment="DDMMYY"/>
-                    var day = Convert.ToInt32(tempData.Substring(0, 2));
+                    var day = Convert.ToInt32(tempData[..2]);
                     var month = Convert.ToInt32(tempData.Substring(2, 2));
                     var year = Convert.ToInt32(tempData.Substring(4, 2));
                     if (year < 80)

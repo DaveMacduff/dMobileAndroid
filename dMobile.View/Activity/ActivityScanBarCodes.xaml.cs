@@ -535,7 +535,7 @@ namespace dMobile.View.Activity
                     await Device.InvokeOnMainThreadAsync(() => { this.cmdAssignProduct.IsEnabled = false; });
                 }
 
-                if (!string.IsNullOrEmpty(scanArgs.ParseInfo.SSCC18))
+                if (!string.IsNullOrEmpty(scanArgs.ParseInfo.Sscc18))
                 {
                     await BarCodeHandlerSscc18();
                 }
@@ -545,14 +545,14 @@ namespace dMobile.View.Activity
                     await BarCodeHandlerLocationIdentifier();
                 }
 
-                if (!string.IsNullOrEmpty(scanArgs.ParseInfo.GTIN))
+                if (!string.IsNullOrEmpty(scanArgs.ParseInfo.Gtin))
                 {
-                    await this.AddScanMsg("GTIN: " + scanArgs.ParseInfo.GTIN);
+                    await this.AddScanMsg("GTIN: " + scanArgs.ParseInfo.Gtin);
                 }
 
-                if (!string.IsNullOrEmpty(scanArgs.ParseInfo.GTINLogisticUnit))
+                if (!string.IsNullOrEmpty(scanArgs.ParseInfo.GtinLogisticUnit))
                 {
-                    await this.AddScanMsg("GTIN in a Logistic Unit: " + scanArgs.ParseInfo.GTINLogisticUnit);
+                    await this.AddScanMsg("GTIN in a Logistic Unit: " + scanArgs.ParseInfo.GtinLogisticUnit);
                 }
 
                 if (scanArgs.ParseInfo.PackagingType != 0)
@@ -585,21 +585,21 @@ namespace dMobile.View.Activity
                 await BarCodeHandlerScheme();
 
                 // AI 91 Activity Item FK Refno
-                if (!string.IsNullOrEmpty(scanArgs.ParseInfo.ActItemFKRefno))
+                if (!string.IsNullOrEmpty(scanArgs.ParseInfo.ActItemFkRefno))
                 {
-                    await this.AddScanMsg("Activity Item FK Ref#: " + scanArgs.ParseInfo.ActItemFKRefno);
+                    await this.AddScanMsg("Activity Item FK Ref#: " + scanArgs.ParseInfo.ActItemFkRefno);
                 }
 
                 // AI 92 Activity FK Refno
-                if (!string.IsNullOrEmpty(scanArgs.ParseInfo.ActFKRefno))
+                if (!string.IsNullOrEmpty(scanArgs.ParseInfo.ActFkRefno))
                 {
-                    await this.AddScanMsg("Activity FK Ref#: " + scanArgs.ParseInfo.ActFKRefno);
+                    await this.AddScanMsg("Activity FK Ref#: " + scanArgs.ParseInfo.ActFkRefno);
                 }
 
                 // AI 93 Activity Detail FK Refno
-                if (!string.IsNullOrEmpty(scanArgs.ParseInfo.ActDetailFKRefno))
+                if (!string.IsNullOrEmpty(scanArgs.ParseInfo.ActDetailFkRefno))
                 {
-                    await this.AddScanMsg("Activity Detail FK Ref#: " + scanArgs.ParseInfo.ActDetailFKRefno);
+                    await this.AddScanMsg("Activity Detail FK Ref#: " + scanArgs.ParseInfo.ActDetailFkRefno);
                 }
 
                 if (!string.IsNullOrEmpty(scanArgs.ParseInfo.Remainder))
@@ -675,7 +675,7 @@ namespace dMobile.View.Activity
             //////////////////////////////////////////////////////////////////////////
             async Task BarCodeHandlerSscc18()
             {
-                await this.AddScanMsg("SSCC-18: " + scanArgs.ParseInfo.SSCC18);
+                await this.AddScanMsg("SSCC-18: " + scanArgs.ParseInfo.Sscc18);
 
                 if (this.SysEnv.SysSettings.IsDisconnectedMode)
                 {
@@ -687,7 +687,7 @@ namespace dMobile.View.Activity
                     {
                         this.lblProductData.Text = "Unidentified";
                         var skid = await SysSkidInfo.GetSkidInfoFromBarCodeOrCode(
-                            scanArgs.ParseInfo.SSCC18);
+                            scanArgs.ParseInfo.Sscc18);
 
                         if (skid.CurrSkid.SkidFkRefno > 0)
                         {
@@ -771,33 +771,33 @@ namespace dMobile.View.Activity
                     await this.AddScanMsg("Variable Count: " + scanArgs.ParseInfo.LogisticUnitVariableCount);
                 }
 
-                if (scanArgs.ParseInfo.LengthOr1stDimensionMeters != 0)
+                if (scanArgs.ParseInfo.LengthOr1StDimensionMeters != 0)
                 {
-                    await this.AddScanMsg("Length Meters: " + scanArgs.ParseInfo.LengthOr1stDimensionMeters);
+                    await this.AddScanMsg("Length Meters: " + scanArgs.ParseInfo.LengthOr1StDimensionMeters);
                 }
 
                 return;
 
                 async Task DisplayParsedWeights()
                 {
-                    if (scanArgs.ParseInfo.NetWeightMetricKGFoundAI)
+                    if (scanArgs.ParseInfo.NetWeightMetricKgFoundAi)
                     {
-                        await this.AddScanMsg("Net weight metric KG: " + scanArgs.ParseInfo.NetWeightMetricKG);
+                        await this.AddScanMsg("Net weight metric KG: " + scanArgs.ParseInfo.NetWeightMetricKg);
                     }
 
-                    if (scanArgs.ParseInfo.NetWeightNonMetricLBFoundAI)
+                    if (scanArgs.ParseInfo.NetWeightNonMetricLbFoundAi)
                     {
-                        await this.AddScanMsg("Net weight non-metric LB: " + scanArgs.ParseInfo.NetWeightNonMetricLB);
+                        await this.AddScanMsg("Net weight non-metric LB: " + scanArgs.ParseInfo.NetWeightNonMetricLb);
                     }
 
-                    if (scanArgs.ParseInfo.GrossWeightMetricKGFoundAI)
+                    if (scanArgs.ParseInfo.GrossWeightMetricKgFoundAi)
                     {
-                        await this.AddScanMsg("Gross weight metric KG: " + scanArgs.ParseInfo.GrossWeightMetricKG);
+                        await this.AddScanMsg("Gross weight metric KG: " + scanArgs.ParseInfo.GrossWeightMetricKg);
                     }
 
-                    if (scanArgs.ParseInfo.GrossWeightNonMetricLBFoundAI)
+                    if (scanArgs.ParseInfo.GrossWeightNonMetricLbFoundAi)
                     {
-                        await this.AddScanMsg("Gross weight non-metric LB: " + scanArgs.ParseInfo.NetWeightNonMetricLB);
+                        await this.AddScanMsg("Gross weight non-metric LB: " + scanArgs.ParseInfo.NetWeightNonMetricLb);
                     }
                 }
 

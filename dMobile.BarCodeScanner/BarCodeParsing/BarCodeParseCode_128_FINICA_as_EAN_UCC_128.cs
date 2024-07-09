@@ -17,9 +17,9 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// <param name="barCodeData">.</param>
         public override void ParseBarCodeData(string barCodeData)
         {
-            barCodeData = this.IdentifyGTIN(barCodeData);    // do not remove data
+            barCodeData = this.IdentifyGtin(barCodeData);    // do not remove data
             barCodeData = this.IdentifyProductIdentifier(barCodeData);
-            barCodeData = this.IdentifyNetWeightMetricKG(barCodeData);
+            barCodeData = this.IdentifyNetWeightMetricKg(barCodeData);
             barCodeData = this.IdentifyLogisticUnitBestBeforeSellByDate(barCodeData);
             this.Remainder = barCodeData;
         }
@@ -37,7 +37,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
             }
             else if (barCodeData.Length > 14)
             {
-                this.ProductIdentifier = barCodeData.Substring(0, 14);
+                this.ProductIdentifier = barCodeData[..14];
             }
             else
             {
@@ -54,11 +54,11 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// </summary>
         /// <param name="barCodeData">.</param>
         /// <returns>.</returns>
-        protected override string IdentifyGTIN(string barCodeData)
+        protected override string IdentifyGtin(string barCodeData)
         {
             this.Data = barCodeData;
 
-            this.GTIN = this.Data.Substring(0, 14);
+            this.Gtin = this.Data[..14];
 
             // Do not remove the gtin from the data
             return this.Data;
@@ -72,7 +72,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         protected override string IdentifyLogisticUnitBestBeforeSellByDate(string barCodeData)
         {
             // Assign the BEST BEFORE SELL BY DATE
-            var year = Convert.ToInt32(barCodeData.Substring(0, 2));
+            var year = Convert.ToInt32(barCodeData[..2]);
             if (year < 80)
             {
                 year = year + 2000;
@@ -97,23 +97,22 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// </summary>
         /// <param name="barCodeData">.</param>
         /// <returns>.</returns>
-        protected override string IdentifyNetWeightMetricKG(string barCodeData)
+        protected override string IdentifyNetWeightMetricKg(string barCodeData)
         {
-            this.NetWeightMetricKGFoundAI = true;
+            this.NetWeightMetricKgFoundAi = true;
 
             // Get the number of decimal places
             var places = 2;
 
             // assign the METRIC NET WEIGHT KG
-            var wholeNumber = barCodeData.Substring(0, 6);
+            var wholeNumber = barCodeData[..6];
             if (places != 0)
             {
-                this.NetWeightMetricKG = Convert.ToDecimal(wholeNumber.Substring(0,
-                    wholeNumber.Length - places) + "." + wholeNumber.Substring(wholeNumber.Length - places));
+                this.NetWeightMetricKg = Convert.ToDecimal(wholeNumber[..^places] + "." + wholeNumber[^places..]);
             }
             else
             {
-                this.NetWeightMetricKG = Convert.ToDecimal(wholeNumber);
+                this.NetWeightMetricKg = Convert.ToDecimal(wholeNumber);
             }
 
             // Remove the METRIC NET WEIGHT KG from the bar code data

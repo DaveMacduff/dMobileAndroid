@@ -1010,7 +1010,7 @@ namespace dMobile.View.Activity
                     }
 
                     // Activity item fk refno
-                    if (!string.IsNullOrEmpty(barCodeParse.ActItemFKRefno) && !this.SysEnv.SysSettings.IsDisconnectedMode)
+                    if (!string.IsNullOrEmpty(barCodeParse.ActItemFkRefno) && !this.SysEnv.SysSettings.IsDisconnectedMode)
                     {
                         // this.ActItem.DataViewItems.Sort = this.ActItem.GetDataViewSortFKRefnoIdx();
                         if (this.ActSubType == SysCommon.ActSubTypes.PickingSingle)
@@ -1024,7 +1024,7 @@ namespace dMobile.View.Activity
                                     Convert.ToString(activityItem.GetType()
                                         .GetProperty(this.ActItem.GetDataViewSortFkRefnoIdx())
                                         ?.GetValue(activityItem)) ==
-                                    Convert.ToString(scanArgs.ParseInfo.ActItemFKRefno));
+                                    Convert.ToString(scanArgs.ParseInfo.ActItemFkRefno));
 
                             if (foundSelectedActivityItem != null)
                             {
@@ -1042,14 +1042,14 @@ namespace dMobile.View.Activity
                                 {
                                     throw new MessageOnlyException(
                                         this.ActItem.GetUnableToFindItemFkRefnoMessage(
-                                            scanArgs.ParseInfo.ActItemFKRefno));
+                                            scanArgs.ParseInfo.ActItemFkRefno));
                                 }
                             }
                         }
                     }
 
                     // Activity detail fk refno
-                    if (!string.IsNullOrEmpty(barCodeParse.ActDetailFKRefno) && !this.SysEnv.SysSettings.IsDisconnectedMode)
+                    if (!string.IsNullOrEmpty(barCodeParse.ActDetailFkRefno) && !this.SysEnv.SysSettings.IsDisconnectedMode)
                     {
                         if (this.ActSubType == SysCommon.ActSubTypes.PickingSingle)
                         {
@@ -1059,7 +1059,7 @@ namespace dMobile.View.Activity
                         {
                             tempItemSchemeData =
                                 await this.ActItem.GetProdSchemeDataFromDetailFkRefno(
-                                    int.Parse(barCodeParse.ActDetailFKRefno));
+                                    int.Parse(barCodeParse.ActDetailFkRefno));
                             foundSelectedActivityItem = this.ActItem.ListItems.OfType<object>().FirstOrDefault(
                                 activityItem =>
                                     Convert.ToString(activityItem.GetType()
@@ -1084,19 +1084,19 @@ namespace dMobile.View.Activity
                             else
                             {
                                 throw new MessageOnlyException(
-                                    this.ActItem.GetUnableToFindItemFkRefnoMessage(scanArgs.ParseInfo.ActItemFKRefno));
+                                    this.ActItem.GetUnableToFindItemFkRefnoMessage(scanArgs.ParseInfo.ActItemFkRefno));
                             }
                         }
                     }
 
-                    if (!string.IsNullOrEmpty(barCodeParse.ActDetailFKRefno) && this.SysEnv.SysSettings.IsDisconnectedMode)
+                    if (!string.IsNullOrEmpty(barCodeParse.ActDetailFkRefno) && this.SysEnv.SysSettings.IsDisconnectedMode)
                     {
                         throw new MessageOnlyException(
                             "Scanning an line item detail bar code is not supported here in disconnected mode.");
                     }
 
                     // Shipping container scanned, skid
-                    if (!string.IsNullOrEmpty(barCodeParse.SSCC18))
+                    if (!string.IsNullOrEmpty(barCodeParse.Sscc18))
                     {
                         if (!this.SysEnv.SysSettings.IsSkidTrackingModule)
                         {
@@ -1109,7 +1109,7 @@ namespace dMobile.View.Activity
                                 "Scanning a shipping container bar code is not supported in disconnected mode.");
                         }
 
-                        this.ActHdr.SkidInfo = await SysSkidInfo.GetSkidInfoFromBarCodeOrCode(barCodeParse.SSCC18);
+                        this.ActHdr.SkidInfo = await SysSkidInfo.GetSkidInfoFromBarCodeOrCode(barCodeParse.Sscc18);
 
                         if (this.ActHdr.SkidInfo.CurrSkid.SkidFkRefno == 0)
                         {
@@ -1171,7 +1171,7 @@ namespace dMobile.View.Activity
                         }
                     }
 
-                    if (string.IsNullOrEmpty(barCodeParse.SSCC18))
+                    if (string.IsNullOrEmpty(barCodeParse.Sscc18))
                     {
                         var isVerifyActivity = this.ActSubType == SysCommon.ActSubTypes.Picking ||
                                                this.ActSubType == SysCommon.ActSubTypes.PickingSingle ||

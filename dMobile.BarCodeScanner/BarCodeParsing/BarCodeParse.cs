@@ -5,387 +5,413 @@
 namespace dMobile.BarCodeScanner.BarCodeParsing
 {
     using System;
-    using dMobile.Bedrock;
+    using Bedrock;
 
     /// <summary>
-    /// Bar code parsing information.
+    ///     Bar code parsing information.
     /// </summary>
     [Serializable]
     public abstract class BarCodeParse : IDisposable, ICloneable
     {
         /// <summary>
-        /// Character used to identify the ending of a variable length AI.
+        ///     Character used to identify the ending of a variable length AI.
         /// </summary>
         /// <remarks>0x1D is the group separator character.</remarks>
-        private static readonly short GroupSeparator = 29;
+        private const short GroupSeparator = 29;
 
         /// <summary>
-        /// Bar code settings xml file.
+        ///     Bar code settings xml file.
         /// </summary>
         /// <remarks>Contains parsing rules.</remarks>
         private static SysBarCodeSettings settings = new SysBarCodeSettings();
 
         /// <summary>
-        /// Bar code raw data read, direct from the scan engine.
+        ///     Bar code raw data read, direct from the scan engine.
         /// </summary>
         /// <remarks>Contains the symbology characters.</remarks>
         private static string raw = string.Empty;
 
         /// <summary>
-        /// Bar code symbology, enumeration type.
+        ///     Bar code symbology, enumeration type.
         /// </summary>
         private static BarCodeSymbologies symbology = BarCodeSymbologies.UNDEFINED;
 
         /// <summary>
-        /// Bar code symbology characters.
+        ///     Bar code symbology characters.
         /// </summary>
-        /// <remarks>The symbology prefix is usually the first 3 characters
-        /// taken from the raw data.</remarks>
+        /// <remarks>
+        ///     The symbology prefix is usually the first 3 characters
+        ///     taken from the raw data.
+        /// </remarks>
         private static string symbologyPrefix = string.Empty;
 
         /// <summary>
-        /// Bar code data, with the symbology prefix removed.
+        ///     Bar code data, with the symbology prefix removed.
         /// </summary>
         private static string data = string.Empty;
 
         /// <summary>
-        /// Portion of a bar code used to identify a product.
+        ///     Portion of a bar code used to identify a product.
         /// </summary>
         private static string productIdentifier = string.Empty;
 
         /// <summary>
-        /// Bar code data that could not be parsed / identified.
-        /// Remainder after the parse code has be executed.
+        ///     Bar code data that could not be parsed / identified.
+        ///     Remainder after the parse code has be executed.
         /// </summary>
         private static string remainder = string.Empty;
 
         /// <summary>
-        /// Bar code length of parsable data.
+        ///     Bar code length of parsable data.
         /// </summary>
-        /// <remarks>The symbology prefix length is not included just the parsable data.
-        /// Decided to make this a property instead of checking the length of this.data,
-        /// because this.data can be altered or shortened during parsing.</remarks>
-        private static int length = 0;
+        /// <remarks>
+        ///     The symbology prefix length is not included just the parsable data.
+        ///     Decided to make this a property instead of checking the length of this.data,
+        ///     because this.data can be altered or shortened during parsing.
+        /// </remarks>
+        private static int length;
 
         /// <summary>
-        /// SSCC18 bar code data component.
+        ///     SSCC18 bar code data component.
         /// </summary>
-        private static int packagingType = 0;
+        private static int packagingType;
 
         /// <summary>
-        /// Used in identifying the type of UPC code.
+        ///     Used in identifying the type of UPC code.
         /// </summary>
-        private static int numberSystemCharacter = 0;
+        private static int numberSystemCharacter;
 
         /// <summary>
-        /// GTIN company prefix.
+        ///     GTIN company prefix.
         /// </summary>
         private static string companyPrefix = string.Empty;
 
         /// <summary>
-        /// Define the GTIN item reference component.
+        ///     Define the GTIN item reference component.
         /// </summary>
         private static string itemReference = string.Empty;
 
         /// <summary>
-        /// SSCC18 serial number.
+        ///     SSCC18 serial number.
         /// </summary>
-        private static long manufacturerSerialNumber = 0;
+        private static long manufacturerSerialNumber;
 
         /// <summary>
-        /// SSCC (Serial Shipping Container Code) N2+N18 SSCC: AI (00).
+        ///     SSCC (Serial Shipping Container Code) N2+N18 SSCC: AI (00).
         /// </summary>
         private static string sscc18 = string.Empty;
 
         /// <summary>
-        /// Identification of a Fixed Measure Trade Item (GTIN): AI (01).
+        ///     Identification of a Fixed Measure Trade Item (GTIN): AI (01).
         /// </summary>
-        /// <remarks> The Application Identifier (01) indicates that the GS1 Application Identifier
-        /// data field contains a GTIN. The GTIN is used to identify trade items
-        /// The GTIN for Fixed Measure Trade Items may be a GTIN-8, GTIN-12, GTIN-13 or a GTIN-14.
-        /// The Check Digit verification, which must be carried out in the application software,
-        /// ensures that the number is correctly composed.</remarks>
+        /// <remarks>
+        ///     The Application Identifier (01) indicates that the GS1 Application Identifier
+        ///     data field contains a GTIN. The GTIN is used to identify trade items
+        ///     The GTIN for Fixed Measure Trade Items may be a GTIN-8, GTIN-12, GTIN-13 or a GTIN-14.
+        ///     The Check Digit verification, which must be carried out in the application software,
+        ///     ensures that the number is correctly composed.
+        /// </remarks>
         private static string gtin = string.Empty;
 
         /// <summary>
-        /// GTIN of Contained Trade Items N2+N14 CONTENT: AI (02).
+        ///     GTIN of Contained Trade Items N2+N14 CONTENT: AI (02).
         /// </summary>
         /// <remarks>
-        /// Identification of Fixed Measure Trade Items Contained in a Logistic Unit:
-        /// AI (02)
-        /// Identification of Variable Measure Trade Items Contained in a Logistic
-        /// Unit: AI (02)
-        /// The Application Identifier (02) indicates that the GS1 Application Identifier
-        /// data field includes the GTIN of the contained trade items.
-        /// Indicator digit 9 is required for a GTIN-14 used for Variable Measure Trade Items.
-        /// Note: This Element String may be used only on a logistic unit that is not itself
-        /// a trade item and if all trade items that are contained at the same level have
-        /// the same GTIN. If the trade items are Variable Measure Trade Items, then this GTIN
-        /// will be the implied item number that does not appear on the items contained.
-        /// The Application Identifier (02) indicates that the GS1 Application Identifier
-        /// data field includes the GTIN of the contained trade items.
-        /// Note: This Element String may be used only on a logistic unit that is not itself
-        /// a trade item and if all trade items that are contained at the same level have
-        /// the same GTIN.
-        /// The GTIN of the trade items contained represents the identification number of the
-        /// highest level of trade item contained in the logistic unit.
-        /// The Check Digit verification, which must be carried out in the application software,
-        /// ensures that the number is correctly composed.</remarks>
+        ///     Identification of Fixed Measure Trade Items Contained in a Logistic Unit:
+        ///     AI (02)
+        ///     Identification of Variable Measure Trade Items Contained in a Logistic
+        ///     Unit: AI (02)
+        ///     The Application Identifier (02) indicates that the GS1 Application Identifier
+        ///     data field includes the GTIN of the contained trade items.
+        ///     Indicator digit 9 is required for a GTIN-14 used for Variable Measure Trade Items.
+        ///     Note: This Element String may be used only on a logistic unit that is not itself
+        ///     a trade item and if all trade items that are contained at the same level have
+        ///     the same GTIN. If the trade items are Variable Measure Trade Items, then this GTIN
+        ///     will be the implied item number that does not appear on the items contained.
+        ///     The Application Identifier (02) indicates that the GS1 Application Identifier
+        ///     data field includes the GTIN of the contained trade items.
+        ///     Note: This Element String may be used only on a logistic unit that is not itself
+        ///     a trade item and if all trade items that are contained at the same level have
+        ///     the same GTIN.
+        ///     The GTIN of the trade items contained represents the identification number of the
+        ///     highest level of trade item contained in the logistic unit.
+        ///     The Check Digit verification, which must be carried out in the application software,
+        ///     ensures that the number is correctly composed.
+        /// </remarks>
         private static string gtinLogisticUnit = string.Empty;
 
         /// <summary>
-        /// Serial Number: AI (21).
+        ///     Serial Number: AI (21).
         /// </summary>
-        /// <remarks>The Application Identifier (21) indicates that the GS1 Application Identifier
-        /// data field contains a serial number. A serial number is assigned to an entity
-        /// for its lifetime. When combined with a GTIN, a serial number uniquely identifies
-        /// an individual item. The serial number field is alphanumeric.
-        /// The data transmitted from the bar code reader means that the Element String
-        /// denoting a serial number has been captured. As this Element String is an
-        /// attribute of a trade item, it must be processed together with the GTIN of the
-        /// trade item to which it relates.</remarks>
+        /// <remarks>
+        ///     The Application Identifier (21) indicates that the GS1 Application Identifier
+        ///     data field contains a serial number. A serial number is assigned to an entity
+        ///     for its lifetime. When combined with a GTIN, a serial number uniquely identifies
+        ///     an individual item. The serial number field is alphanumeric.
+        ///     The data transmitted from the bar code reader means that the Element String
+        ///     denoting a serial number has been captured. As this Element String is an
+        ///     attribute of a trade item, it must be processed together with the GTIN of the
+        ///     trade item to which it relates.
+        /// </remarks>
         private static string singleTradeItemSerialNumber = string.Empty;
 
         /// <summary>
-        /// Batch or Lot Number: AI (10).
+        ///     Batch or Lot Number: AI (10).
         /// </summary>
-        /// <remarks>The Application Identifier (10) indicates that the GS1 Application Identifier
-        /// data field contains a batch or lot number. The batch or lot number associates
-        /// an item with information the manufacturer considers relevant for traceability
-        /// of the trade item to which the Element String is applied.
-        /// The data may refer to the trade item itself or to items contained.
-        /// The number may be, for example, a production lot number, a shift number,
-        /// a machine number, a time, or an internal production code. The data is alphanumeric.</remarks>
+        /// <remarks>
+        ///     The Application Identifier (10) indicates that the GS1 Application Identifier
+        ///     data field contains a batch or lot number. The batch or lot number associates
+        ///     an item with information the manufacturer considers relevant for traceability
+        ///     of the trade item to which the Element String is applied.
+        ///     The data may refer to the trade item itself or to items contained.
+        ///     The number may be, for example, a production lot number, a shift number,
+        ///     a machine number, a time, or an internal production code. The data is alphanumeric.
+        /// </remarks>
         private static string logisticUnitBatchLotNumber = string.Empty;
 
         /// <summary>
-        /// Best Before Date: AI (15).
+        ///     Best Before Date: AI (15).
         /// </summary>
-        /// <remarks>The Application Identifier (15) indicates that the GS1 Application Identifier
-        /// data fields contain a best before date. The best before date indicates the ideal
-        /// consumption or best effective use date of a product.
-        /// It is a statement about quality. It is often referred to as a sell by date or a
-        /// minimum durability date.
-        /// The structure is:
-        /// Year: the tens and units of the year (e.g., 2003 = 03), which is mandatory
-        /// Month: the number of the month (e.g., January = 01), which is mandatory
-        /// Day: the number of the day of the relevant month (e.g., second day = 02);
-        /// if it is not necessary to specify the day, the field must be filled with two zeros.</remarks>
+        /// <remarks>
+        ///     The Application Identifier (15) indicates that the GS1 Application Identifier
+        ///     data fields contain a best before date. The best before date indicates the ideal
+        ///     consumption or best effective use date of a product.
+        ///     It is a statement about quality. It is often referred to as a sell by date or a
+        ///     minimum durability date.
+        ///     The structure is:
+        ///     Year: the tens and units of the year (e.g., 2003 = 03), which is mandatory
+        ///     Month: the number of the month (e.g., January = 01), which is mandatory
+        ///     Day: the number of the day of the relevant month (e.g., second day = 02);
+        ///     if it is not necessary to specify the day, the field must be filled with two zeros.
+        /// </remarks>
         private static DateTime logisticUnitBestBeforeSellByDate = new DateTime(1900, 1, 1);
 
         /// <summary>
-        /// Expiration Date: AI (17).
+        ///     Expiration Date: AI (17).
         /// </summary>
-        /// <remarks>The Application Identifier (17) indicates that the GS1 Application Identifier
-        /// data fields contain an expiration date. The expiration date is the date that
-        /// determines the limit of consumption or use of a product.
-        /// Its meaning is determined based on the trade item context (e.g., for food, the date
-        /// will indicate the possibility of a direct health risk resulting from use of the
-        /// product after the date, for pharmaceutical products, it will indicate the
-        /// possibility of an indirect health risk resulting from the ineffectiveness of
-        /// the product after the date). It is often referred to as "use by date" or
-        /// "maximum durability date.”
-        /// The structure is:
-        /// Year: the tens and units of the year (e.g., 2003 = 03), which is mandatory
-        /// Month: the number of the month (e.g., January = 01), which is mandatory
-        /// Day: the number of the day of the relevant month (e.g., second day = 02);
-        /// if it is not necessary to specify the day, the field must be filled with two zeros.</remarks>
+        /// <remarks>
+        ///     The Application Identifier (17) indicates that the GS1 Application Identifier
+        ///     data fields contain an expiration date. The expiration date is the date that
+        ///     determines the limit of consumption or use of a product.
+        ///     Its meaning is determined based on the trade item context (e.g., for food, the date
+        ///     will indicate the possibility of a direct health risk resulting from use of the
+        ///     product after the date, for pharmaceutical products, it will indicate the
+        ///     possibility of an indirect health risk resulting from the ineffectiveness of
+        ///     the product after the date). It is often referred to as "use by date" or
+        ///     "maximum durability date.”
+        ///     The structure is:
+        ///     Year: the tens and units of the year (e.g., 2003 = 03), which is mandatory
+        ///     Month: the number of the month (e.g., January = 01), which is mandatory
+        ///     Day: the number of the day of the relevant month (e.g., second day = 02);
+        ///     if it is not necessary to specify the day, the field must be filled with two zeros.
+        /// </remarks>
         private static DateTime logisticUnitExpiryUseByDate = new DateTime(1900, 1, 1);
 
         /// <summary>
-        /// Production Date: AI (11).
+        ///     Production Date: AI (11).
         /// </summary>
-        /// <remarks>The Application Identifier (11) indicates that the GS1 Application Identifier
-        /// data field contains a production date. The production date is the production
-        /// or assembly date determined by the manufacturer.
-        /// The date may refer to the trade item itself or to items contained.
-        /// The structure is:
-        /// Year: the tens and units of the year (e.g., 2003 = 03), which is mandatory
-        /// Month: the number of the month (e.g., January = 01), which is mandatory
-        /// Day: the number of the day of the relevant month (e.g., second day = 02);
-        /// if it is not necessary to specify the day, the field must be filled with two zeros.</remarks>
+        /// <remarks>
+        ///     The Application Identifier (11) indicates that the GS1 Application Identifier
+        ///     data field contains a production date. The production date is the production
+        ///     or assembly date determined by the manufacturer.
+        ///     The date may refer to the trade item itself or to items contained.
+        ///     The structure is:
+        ///     Year: the tens and units of the year (e.g., 2003 = 03), which is mandatory
+        ///     Month: the number of the month (e.g., January = 01), which is mandatory
+        ///     Day: the number of the day of the relevant month (e.g., second day = 02);
+        ///     if it is not necessary to specify the day, the field must be filled with two zeros.
+        /// </remarks>
         private static DateTime logisticUnitProductionDate = new DateTime(1900, 1, 1);
 
         /// <summary>
-        /// Due Date for Amount on Payment Slip: AI (12).
+        ///     Due Date for Amount on Payment Slip: AI (12).
         /// </summary>
-        /// <remarks>The Application Identifier (12) indicates that the GS1 Application Identifier
-        /// data field contains the date by which an invoice should be paid.
-        /// This data element represents an attribute of a payment slip reference number,
-        /// AI (8020), and a Global Location Number (GLN) of the invoicing party.
-        /// The structure is:
-        /// Year: the tens and units of the year (e.g., 2003 = 03), which is mandatory
-        /// Month: the number of the month (e.g., January = 01), which is mandatory
-        /// Day: the number of the day of the relevant month (e.g., second day = 02);
-        /// if it is not necessary to specify the day, the field must be filled with two zeros.</remarks>
+        /// <remarks>
+        ///     The Application Identifier (12) indicates that the GS1 Application Identifier
+        ///     data field contains the date by which an invoice should be paid.
+        ///     This data element represents an attribute of a payment slip reference number,
+        ///     AI (8020), and a Global Location Number (GLN) of the invoicing party.
+        ///     The structure is:
+        ///     Year: the tens and units of the year (e.g., 2003 = 03), which is mandatory
+        ///     Month: the number of the month (e.g., January = 01), which is mandatory
+        ///     Day: the number of the day of the relevant month (e.g., second day = 02);
+        ///     if it is not necessary to specify the day, the field must be filled with two zeros.
+        /// </remarks>
         private static DateTime logisticUnitDueDate = new DateTime(1900, 1, 1);
 
         /// <summary>
-        /// Packaging Date: AI (13).
+        ///     Packaging Date: AI (13).
         /// </summary>
-        /// <remarks>The Application Identifier (13) indicates that the GS1 Application Identifier
-        /// data fields contain a packaging date. The packaging date is the date when
-        /// the goods were packed as determined by the packager.
-        /// The date may refer to the trade item itself or to items contained.
-        /// The structure is:
-        /// Year: the tens and units of the year (e.g., 2003 = 03), which is mandatory
-        /// Month: the number of the month (e.g., January = 01), which is mandatory
-        /// Day: the number of the day of the relevant month (e.g., second day = 02);
-        /// if it is not necessary to specify the day, the field must be filled with two zeros.</remarks>
+        /// <remarks>
+        ///     The Application Identifier (13) indicates that the GS1 Application Identifier
+        ///     data fields contain a packaging date. The packaging date is the date when
+        ///     the goods were packed as determined by the packager.
+        ///     The date may refer to the trade item itself or to items contained.
+        ///     The structure is:
+        ///     Year: the tens and units of the year (e.g., 2003 = 03), which is mandatory
+        ///     Month: the number of the month (e.g., January = 01), which is mandatory
+        ///     Day: the number of the day of the relevant month (e.g., second day = 02);
+        ///     if it is not necessary to specify the day, the field must be filled with two zeros.
+        /// </remarks>
         private static DateTime logisticUnitPackagingDate = new DateTime(1900, 1, 1);
 
         /// <summary>
-        /// Product Variant: AI (20).
+        ///     Product Variant: AI (20).
         /// </summary>
-        /// <remarks>This Element String may be used to distinguish a variant from the usual item
-        /// if the variation is not sufficiently significant to require a separate Global
-        /// Trade Item Number (GTIN) and the variation is relevant only to the brand owner
-        /// and any third party acting on its behalf.
-        /// The product variant is only for use by the brand owner and any third party
-        /// acting on its behalf and not for dealings with any other trading partners.
-        /// The product variant shall not be used where the variation would trigger the
-        /// allocation of a different GTIN per the GTIN Allocation Rules. Although the
-        /// Element String will not have meaning to all trading partners, the Element String
-        /// may remain on the item throughout distribution.
-        /// The Application Identifier (20) indicates that the data field contains a
-        /// variant number.
-        /// The variant number must only be assigned by the brand owner. It forms a
-        /// subsidiary numbering facility that can be used in addition to the items GTIN
-        /// and allows the creation of 100 variants of a particular item.
-        /// The data transmitted from the bar code reader means that the Element String
-        /// denoting a product variant has been captured. The product variant must be
-        /// processed together with the GTIN of the same trade item. Beyond the brand owner
-        /// and any third party acting on its behalf, it should be ignored.</remarks>
-        private static int logisticUnitProductVariant = 0;
+        /// <remarks>
+        ///     This Element String may be used to distinguish a variant from the usual item
+        ///     if the variation is not sufficiently significant to require a separate Global
+        ///     Trade Item Number (GTIN) and the variation is relevant only to the brand owner
+        ///     and any third party acting on its behalf.
+        ///     The product variant is only for use by the brand owner and any third party
+        ///     acting on its behalf and not for dealings with any other trading partners.
+        ///     The product variant shall not be used where the variation would trigger the
+        ///     allocation of a different GTIN per the GTIN Allocation Rules. Although the
+        ///     Element String will not have meaning to all trading partners, the Element String
+        ///     may remain on the item throughout distribution.
+        ///     The Application Identifier (20) indicates that the data field contains a
+        ///     variant number.
+        ///     The variant number must only be assigned by the brand owner. It forms a
+        ///     subsidiary numbering facility that can be used in addition to the items GTIN
+        ///     and allows the creation of 100 variants of a particular item.
+        ///     The data transmitted from the bar code reader means that the Element String
+        ///     denoting a product variant has been captured. The product variant must be
+        ///     processed together with the GTIN of the same trade item. Beyond the brand owner
+        ///     and any third party acting on its behalf, it should be ignored.
+        /// </remarks>
+        private static int logisticUnitProductVariant;
 
         /// <summary>
-        /// Net weight, kilograms (Variable Measure Trade Item) N4+N6 NET WEIGHT (kg).
+        ///     Net weight, kilograms (Variable Measure Trade Item) N4+N6 NET WEIGHT (kg).
         /// </summary>
-        private static decimal netWeightMetricKG = 0;
-
-        private static bool netWeightMetricKGFoundAI = false;
+        private static decimal netWeightMetricKg;
 
         /// <summary>
-        /// Net weight, pounds (Variable Measure Trade Item) N4+N6 NET WEIGHT (lb)
-        /// AI 320 (n).
+        ///     Net weight metric KG found AI.
         /// </summary>
-        private static decimal netWeightNonMetricLB = 0;
+        private static bool netWeightMetricKgFoundAi;
 
         /// <summary>
-        /// Net weight, pounds (Non metric LB found AI).
+        ///     Net weight, pounds (Variable Measure Trade Item) N4+N6 NET WEIGHT (lb)
+        ///     AI 320 (n).
         /// </summary>
-        private static bool netWeightNonMetricLBFoundAI = false;
+        private static decimal netWeightNonMetricLb;
 
         /// <summary>
-        /// Logistic weight, kilograms N4+N6 GROSS WEIGHT (kg)
-        /// AI 330 (n).
+        ///     Net weight, pounds (non-metric LB found AI).
         /// </summary>
-        private static decimal grossWeightMetricKG = 0;
+        private static bool netWeightNonMetricLbFoundAi;
 
         /// <summary>
-        /// Gross weight metric KG found AI.
+        ///     Logistic weight, kilograms N4+N6 GROSS WEIGHT (kg)
+        ///     AI 330 (n).
         /// </summary>
-        private static bool grossWeightMetricKGFoundAI = false;
+        private static decimal grossWeightMetricKg;
 
         /// <summary>
-        /// Logistic weight, pounds N4+N6 GROSS WEIGHT (lb)
-        /// AI 340 (n).
+        ///     Gross weight metric KG found AI.
         /// </summary>
-        private static decimal grossWeightNonMetricLB = 0;
+        private static bool grossWeightMetricKgFoundAi;
 
         /// <summary>
-        /// Gross weight non metric LB found AI.
+        ///     Logistic weight, pounds N4+N6 GROSS WEIGHT (lb)
+        ///     AI 340 (n).
         /// </summary>
-        private static bool grossWeightNonMetricLBFoundAI = false;
+        private static decimal grossWeightNonMetricLb;
 
         /// <summary>
-        /// Length or 1st dimension, trade Meters
-        /// AI 311 (n).
+        ///     Gross weight non-metric LB found AI.
         /// </summary>
-        private static decimal lengthOr1stDimensionMeters = 0;
+        private static bool grossWeightNonMetricLbFoundAi;
 
         /// <summary>
-        /// Identification of a Physical Location - Global Location Number N3+N13 LOC No.
+        ///     Length or 1st dimension, trade Meters
+        ///     AI 311 (n).
         /// </summary>
-        /// <remarks>The Application Identifier (414) indicates that the GS1 Application Identifier
-        /// data field contains the Global Location Number (GLN) of a physical location
-        /// The structure is:
-        /// AI: 414
-        /// Company Prefix: N7
-        /// Location Reference: N5
-        /// Check Digit: N1.</remarks>
+        private static decimal lengthOr1StDimensionMeters;
+
+        /// <summary>
+        ///     Identification of a Physical Location - Global Location Number N3+N13 LOC No.
+        /// </summary>
+        /// <remarks>
+        ///     The Application Identifier (414) indicates that the GS1 Application Identifier
+        ///     data field contains the Global Location Number (GLN) of a physical location
+        ///     The structure is:
+        ///     AI: 414
+        ///     Company Prefix: N7
+        ///     Location Reference: N5
+        ///     Check Digit: N1.
+        /// </remarks>
         private static string locationIdentifier = string.Empty;
 
         /// <summary>
-        /// AI 37 N2+N..8 (FNC1) COUNT
-        /// Count of Trade Items Contained in a Logistic Unit: AI (37).
+        ///     AI 37 N2+N..8 (FNC1) COUNT
+        ///     Count of Trade Items Contained in a Logistic Unit: AI (37).
         /// </summary>
-        /// <remarks>The Application Identifier (37) indicates that the GS1 Application Identifier data
-        /// field contains the Number of trade items contained in a logistic unit.
-        /// This Element String is a mandatory completion of AI (02) described in
-        /// Sections 3.3.4 and 3.3.5. The Count of Trade Items field contains the number of
-        /// trade items contained in the respective logistic unit.
-        /// This information refers to the identification number of the contained trade items.</remarks>
-        private static int logisticUnitCountOfTradeItems = 0;
+        /// <remarks>
+        ///     The Application Identifier (37) indicates that the GS1 Application Identifier data
+        ///     field contains the Number of trade items contained in a logistic unit.
+        ///     This Element String is a mandatory completion of AI (02) described in
+        ///     Sections 3.3.4 and 3.3.5. The Count of Trade Items field contains the number of
+        ///     trade items contained in the respective logistic unit.
+        ///     This information refers to the identification number of the contained trade items.
+        /// </remarks>
+        private static int logisticUnitCountOfTradeItems;
 
         /// <summary>
-        /// AI 30 N2+N..8 (FNC1) VAR. COUNT
-        /// Variable Count: AI (30).
+        ///     AI 30 N2+N..8 (FNC1) VAR. COUNT
+        ///     Variable Count: AI (30).
         /// </summary>
-        /// <remarks>The Application Identifier (30) indicates that the GS1 Application Identifier
-        /// data field contains the number of items contained in a Variable Measure Trade Item.
-        /// This Element String is used to complete the identification of a Variable Measure
-        /// Trade Item and, therefore, should never be applied in isolation.
-        /// The Count of Items field represents the quantity contained in the respective
-        /// trade item. It is of variable length and may have up to eight digits.</remarks>
-        private static int logisticUnitVariableCount = 0;
+        /// <remarks>
+        ///     The Application Identifier (30) indicates that the GS1 Application Identifier
+        ///     data field contains the number of items contained in a Variable Measure Trade Item.
+        ///     This Element String is used to complete the identification of a Variable Measure
+        ///     Trade Item and, therefore, should never be applied in isolation.
+        ///     The Count of Items field represents the quantity contained in the respective
+        ///     trade item. It is of variable length and may have up to eight digits.
+        /// </remarks>
+        private static int logisticUnitVariableCount;
 
         /// <summary>
-        /// Company Internal Information: AI (91-99)
-        /// FK Refno: AI (92).
+        ///     Company Internal Information: AI (91-99)
+        ///     FK Refno: AI (92).
         /// </summary>
-        private static string actFKRefno = string.Empty;
+        private static string actFkRefno = string.Empty;
 
         /// <summary>
-        /// Company Internal Information: AI (91-99)
-        /// FK Item Refno: AI (91).
+        ///     Company Internal Information: AI (91-99)
+        ///     FK Item Refno: AI (91).
         /// </summary>
-        private static string actItemFKRefno = string.Empty;
+        private static string actItemFkRefno = string.Empty;
 
         /// <summary>
-        /// Company Internal Information: AI (91-99)
-        /// FK Detail Refno: AI (93).
+        ///     Company Internal Information: AI (91-99)
+        ///     FK Detail Refno: AI (93).
         /// </summary>
-        private static string actDetailFKRefno = string.Empty;
+        private static string actDetailFkRefno = string.Empty;
 
         /// <summary>
-        /// Assigned from system settings xml.
+        ///     Assigned from system settings xml.
         /// </summary>
-        private static string systemGTINCompanyPrefix = string.Empty;
+        private static string systemGtinCompanyPrefix = string.Empty;
 
         /// <summary>
-        /// Contains fields that failed and their error messages.
+        ///     Contains fields that failed and their error messages.
         /// </summary>
         private BarCodeParseDetails parseDetails = new BarCodeParseDetails();
 
         /// <summary>
-        /// Finalizes an instance of the <see cref="BarCodeParse"/> class.
+        ///     Gets or sets the AI 30 N2+N..8 (FNC1) VAR. COUNT
+        ///     Variable Count: AI (30).
         /// </summary>
-        ~BarCodeParse()
-        {
-            this.Dispose(false);
-        }
-
-        /// <summary>
-        /// Gets or sets the AI 30 N2+N..8 (FNC1) VAR. COUNT
-        /// Variable Count: AI (30).
-        /// </summary>
-        /// <remarks>The Application Identifier (30) indicates that the GS1 Application Identifier
-        /// data field contains the number of items contained in a Variable Measure Trade Item.
-        /// This Element String is used to complete the identification of a Variable Measure
-        /// Trade Item and, therefore, should never be applied in isolation.
-        /// The Count of Items field represents the quantity contained in the respective
-        /// trade item. It is of variable length and may have up to eight digits.</remarks>
+        /// <remarks>
+        ///     The Application Identifier (30) indicates that the GS1 Application Identifier
+        ///     data field contains the number of items contained in a Variable Measure Trade Item.
+        ///     This Element String is used to complete the identification of a Variable Measure
+        ///     Trade Item and, therefore, should never be applied in isolation.
+        ///     The Count of Items field represents the quantity contained in the respective
+        ///     trade item. It is of variable length and may have up to eight digits.
+        /// </remarks>
         public int LogisticUnitVariableCount
         {
             get => logisticUnitVariableCount;
@@ -394,7 +420,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         }
 
         /// <summary>
-        /// Gets or sets the SSCC18 serial number.
+        ///     Gets or sets the SSCC18 serial number.
         /// </summary>
         public long ManufacturerSerialNumber
         {
@@ -404,12 +430,12 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         }
 
         /// <summary>
-        /// Gets or sets the deli scale amount.
+        ///     Gets or sets the deli scale amount.
         /// </summary>
-        public decimal DeliScaleAmount { get; set; } = 0;
+        public decimal DeliScaleAmount { get; set; }
 
         /// <summary>
-        /// Gets or sets the bar code settings xml file.
+        ///     Gets or sets the bar code settings xml file.
         /// </summary>
         /// <remarks>Contains parsing rules.</remarks>
         public SysBarCodeSettings Settings
@@ -420,7 +446,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         }
 
         /// <summary>
-        /// Gets or sets the bar code raw data read, direct from the scan engine.
+        ///     Gets or sets the bar code raw data read, direct from the scan engine.
         /// </summary>
         /// <remarks>Contains the symbology characters.</remarks>
         public string Raw
@@ -431,7 +457,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         }
 
         /// <summary>
-        /// Gets or sets the bar code symbology, enumeration type.
+        ///     Gets or sets the bar code symbology, enumeration type.
         /// </summary>
         public BarCodeSymbologies Symbology
         {
@@ -441,7 +467,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         }
 
         /// <summary>
-        /// Gets or sets the parse details which show which fields failed to parse correctly.
+        ///     Gets or sets the parse details which show which fields failed to parse correctly.
         /// </summary>
         public BarCodeParseDetails Details
         {
@@ -451,10 +477,12 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         }
 
         /// <summary>
-        /// Gets or sets the bar code symbology characters.
+        ///     Gets or sets the bar code symbology characters.
         /// </summary>
-        /// <remarks>The symbology prefix is usually the first 3 characters
-        /// taken from the raw data.</remarks>
+        /// <remarks>
+        ///     The symbology prefix is usually the first 3 characters
+        ///     taken from the raw data.
+        /// </remarks>
         public string SymbologyPrefix
         {
             get => symbologyPrefix;
@@ -463,7 +491,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         }
 
         /// <summary>
-        /// Gets or sets the bar code data, with the symbology prefix removed.
+        ///     Gets or sets the bar code data, with the symbology prefix removed.
         /// </summary>
         public string Data
         {
@@ -473,7 +501,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         }
 
         /// <summary>
-        /// Gets or sets the portion of a bar code used to identify a product.
+        ///     Gets or sets the portion of a bar code used to identify a product.
         /// </summary>
         public string ProductIdentifier
         {
@@ -483,8 +511,8 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         }
 
         /// <summary>
-        /// Gets or sets the bar code data that could not be parsed / identified.
-        /// Remainder after the parse code has be executed.
+        ///     Gets or sets the bar code data that could not be parsed / identified.
+        ///     Remainder after the parse code has be executed.
         /// </summary>
         public string Remainder
         {
@@ -494,11 +522,13 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         }
 
         /// <summary>
-        /// Gets or sets the bar code length of parsable data.
+        ///     Gets or sets the bar code length of parsable data.
         /// </summary>
-        /// <remarks>The symbology prefix length is not included just the parsable data.
-        /// Decided to make this a property instead of checking the length of this.data,
-        /// because this.data can be altered or shortened during parsing.</remarks>
+        /// <remarks>
+        ///     The symbology prefix length is not included just the parsable data.
+        ///     Decided to make this a property instead of checking the length of this.data,
+        ///     because this.data can be altered or shortened during parsing.
+        /// </remarks>
         public int Length
         {
             get => length;
@@ -507,7 +537,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         }
 
         /// <summary>
-        /// Gets or sets the SSCC18 bar code data component.
+        ///     Gets or sets the SSCC18 bar code data component.
         /// </summary>
         public int PackagingType
         {
@@ -517,7 +547,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         }
 
         /// <summary>
-        /// Gets or sets the used in identifying the type of UPC code.
+        ///     Gets or sets the used in identifying the type of UPC code.
         /// </summary>
         public int NumberSystemCharacter
         {
@@ -527,9 +557,9 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         }
 
         /// <summary>
-        /// Gets or sets the SSCC (Serial Shipping Container Code) N2+N18 SSCC: AI (00).
+        ///     Gets or sets the SSCC (Serial Shipping Container Code) N2+N18 SSCC: AI (00).
         /// </summary>
-        public string SSCC18
+        public string Sscc18
         {
             get => sscc18;
 
@@ -537,7 +567,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         }
 
         /// <summary>
-        /// Gets or sets the GTIN company prefix.
+        ///     Gets or sets the GTIN company prefix.
         /// </summary>
         public string CompanyPrefix
         {
@@ -547,7 +577,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         }
 
         /// <summary>
-        /// Gets or sets the GTIN item reference component.
+        ///     Gets or sets the GTIN item reference component.
         /// </summary>
         public string ItemReference
         {
@@ -557,14 +587,16 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         }
 
         /// <summary>
-        /// Gets or sets the identification of a Fixed Measure Trade Item (GTIN): AI (01).
+        ///     Gets or sets the identification of a Fixed Measure Trade Item (GTIN): AI (01).
         /// </summary>
-        /// <remarks> The Application Identifier (01) indicates that the GS1 Application Identifier
-        /// data field contains a GTIN. The GTIN is used to identify trade items
-        /// The GTIN for Fixed Measure Trade Items may be a GTIN-8, GTIN-12, GTIN-13 or a GTIN-14.
-        /// The Check Digit verification, which must be carried out in the application software,
-        /// ensures that the number is correctly composed.</remarks>
-        public string GTIN
+        /// <remarks>
+        ///     The Application Identifier (01) indicates that the GS1 Application Identifier
+        ///     data field contains a GTIN. The GTIN is used to identify trade items
+        ///     The GTIN for Fixed Measure Trade Items may be a GTIN-8, GTIN-12, GTIN-13 or a GTIN-14.
+        ///     The Check Digit verification, which must be carried out in the application software,
+        ///     ensures that the number is correctly composed.
+        /// </remarks>
+        public string Gtin
         {
             get => gtin;
 
@@ -572,30 +604,31 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         }
 
         /// <summary>
-        /// Gets or sets the GTIN of Contained Trade Items N2+N14 CONTENT: AI (02).
+        ///     Gets or sets the GTIN of Contained Trade Items N2+N14 CONTENT: AI (02).
         /// </summary>
         /// <remarks>
-        /// Identification of Fixed Measure Trade Items Contained in a Logistic Unit:
-        /// AI (02)
-        /// Identification of Variable Measure Trade Items Contained in a Logistic
-        /// Unit: AI (02)
-        /// The Application Identifier (02) indicates that the GS1 Application Identifier
-        /// data field includes the GTIN of the contained trade items.
-        /// Indicator digit 9 is required for a GTIN-14 used for Variable Measure Trade Items.
-        /// Note: This Element String may be used only on a logistic unit that is not itself
-        /// a trade item and if all trade items that are contained at the same level have
-        /// the same GTIN. If the trade items are Variable Measure Trade Items, then this GTIN
-        /// will be the implied item number that does not appear on the items contained.
-        /// The Application Identifier (02) indicates that the GS1 Application Identifier
-        /// data field includes the GTIN of the contained trade items.
-        /// Note: This Element String may be used only on a logistic unit that is not itself
-        /// a trade item and if all trade items that are contained at the same level have
-        /// the same GTIN.
-        /// The GTIN of the trade items contained represents the identification number of the
-        /// highest level of trade item contained in the logistic unit.
-        /// The Check Digit verification, which must be carried out in the application software,
-        /// ensures that the number is correctly composed.</remarks>
-        public string GTINLogisticUnit
+        ///     Identification of Fixed Measure Trade Items Contained in a Logistic Unit:
+        ///     AI (02)
+        ///     Identification of Variable Measure Trade Items Contained in a Logistic
+        ///     Unit: AI (02)
+        ///     The Application Identifier (02) indicates that the GS1 Application Identifier
+        ///     data field includes the GTIN of the contained trade items.
+        ///     Indicator digit 9 is required for a GTIN-14 used for Variable Measure Trade Items.
+        ///     Note: This Element String may be used only on a logistic unit that is not itself
+        ///     a trade item and if all trade items that are contained at the same level have
+        ///     the same GTIN. If the trade items are Variable Measure Trade Items, then this GTIN
+        ///     will be the implied item number that does not appear on the items contained.
+        ///     The Application Identifier (02) indicates that the GS1 Application Identifier
+        ///     data field includes the GTIN of the contained trade items.
+        ///     Note: This Element String may be used only on a logistic unit that is not itself
+        ///     a trade item and if all trade items that are contained at the same level have
+        ///     the same GTIN.
+        ///     The GTIN of the trade items contained represents the identification number of the
+        ///     highest level of trade item contained in the logistic unit.
+        ///     The Check Digit verification, which must be carried out in the application software,
+        ///     ensures that the number is correctly composed.
+        /// </remarks>
+        public string GtinLogisticUnit
         {
             get => gtinLogisticUnit;
 
@@ -603,16 +636,18 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         }
 
         /// <summary>
-        /// Gets or sets the Serial Number: AI (21).
+        ///     Gets or sets the Serial Number: AI (21).
         /// </summary>
-        /// <remarks>The Application Identifier (21) indicates that the GS1 Application Identifier
-        /// data field contains a serial number. A serial number is assigned to an entity
-        /// for its lifetime. When combined with a GTIN, a serial number uniquely identifies
-        /// an individual item. The serial number field is alphanumeric.
-        /// The data transmitted from the bar code reader means that the Element String
-        /// denoting a serial number has been captured. As this Element String is an
-        /// attribute of a trade item, it must be processed together with the GTIN of the
-        /// trade item to which it relates.</remarks>
+        /// <remarks>
+        ///     The Application Identifier (21) indicates that the GS1 Application Identifier
+        ///     data field contains a serial number. A serial number is assigned to an entity
+        ///     for its lifetime. When combined with a GTIN, a serial number uniquely identifies
+        ///     an individual item. The serial number field is alphanumeric.
+        ///     The data transmitted from the bar code reader means that the Element String
+        ///     denoting a serial number has been captured. As this Element String is an
+        ///     attribute of a trade item, it must be processed together with the GTIN of the
+        ///     trade item to which it relates.
+        /// </remarks>
         public string SingleTradeItemSerialNumber
         {
             get => singleTradeItemSerialNumber;
@@ -621,15 +656,17 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         }
 
         /// <summary>
-        /// Gets or sets the Batch or Lot Number: AI (10).
+        ///     Gets or sets the Batch or Lot Number: AI (10).
         /// </summary>
-        /// <remarks>The Application Identifier (10) indicates that the GS1 Application Identifier
-        /// data field contains a batch or lot number. The batch or lot number associates
-        /// an item with information the manufacturer considers relevant for traceability
-        /// of the trade item to which the Element String is applied.
-        /// The data may refer to the trade item itself or to items contained.
-        /// The number may be, for example, a production lot number, a shift number,
-        /// a machine number, a time, or an internal production code. The data is alphanumeric.</remarks>
+        /// <remarks>
+        ///     The Application Identifier (10) indicates that the GS1 Application Identifier
+        ///     data field contains a batch or lot number. The batch or lot number associates
+        ///     an item with information the manufacturer considers relevant for traceability
+        ///     of the trade item to which the Element String is applied.
+        ///     The data may refer to the trade item itself or to items contained.
+        ///     The number may be, for example, a production lot number, a shift number,
+        ///     a machine number, a time, or an internal production code. The data is alphanumeric.
+        /// </remarks>
         public string LogisticUnitBatchLotNumber
         {
             get => logisticUnitBatchLotNumber;
@@ -638,18 +675,20 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         }
 
         /// <summary>
-        /// Gets or sets the Best Before Date: AI (15).
+        ///     Gets or sets the Best Before Date: AI (15).
         /// </summary>
-        /// <remarks>The Application Identifier (15) indicates that the GS1 Application Identifier
-        /// data fields contain a best before date. The best before date indicates the ideal
-        /// consumption or best effective use date of a product.
-        /// It is a statement about quality. It is often referred to as a sell by date or a
-        /// minimum durability date.
-        /// The structure is:
-        /// Year: the tens and units of the year (e.g., 2003 = 03), which is mandatory
-        /// Month: the number of the month (e.g., January = 01), which is mandatory
-        /// Day: the number of the day of the relevant month (e.g., second day = 02);
-        /// if it is not necessary to specify the day, the field must be filled with two zeros.</remarks>
+        /// <remarks>
+        ///     The Application Identifier (15) indicates that the GS1 Application Identifier
+        ///     data fields contain a best before date. The best before date indicates the ideal
+        ///     consumption or best effective use date of a product.
+        ///     It is a statement about quality. It is often referred to as a sell by date or a
+        ///     minimum durability date.
+        ///     The structure is:
+        ///     Year: the tens and units of the year (e.g., 2003 = 03), which is mandatory
+        ///     Month: the number of the month (e.g., January = 01), which is mandatory
+        ///     Day: the number of the day of the relevant month (e.g., second day = 02);
+        ///     if it is not necessary to specify the day, the field must be filled with two zeros.
+        /// </remarks>
         public DateTime LogisticUnitBestBeforeSellByDate
         {
             get => logisticUnitBestBeforeSellByDate;
@@ -658,22 +697,24 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         }
 
         /// <summary>
-        /// Gets or sets the expiration Date: AI (17).
+        ///     Gets or sets the expiration Date: AI (17).
         /// </summary>
-        /// <remarks>The Application Identifier (17) indicates that the GS1 Application Identifier
-        /// data fields contain an expiration date. The expiration date is the date that
-        /// determines the limit of consumption or use of a product.
-        /// Its meaning is determined based on the trade item context (e.g., for food, the date
-        /// will indicate the possibility of a direct health risk resulting from use of the
-        /// product after the date, for pharmaceutical products, it will indicate the
-        /// possibility of an indirect health risk resulting from the ineffectiveness of
-        /// the product after the date). It is often referred to as "use by date" or
-        /// "maximum durability date.”
-        /// The structure is:
-        /// Year: the tens and units of the year (e.g., 2003 = 03), which is mandatory
-        /// Month: the number of the month (e.g., January = 01), which is mandatory
-        /// Day: the number of the day of the relevant month (e.g., second day = 02);
-        /// if it is not necessary to specify the day, the field must be filled with two zeros.</remarks>
+        /// <remarks>
+        ///     The Application Identifier (17) indicates that the GS1 Application Identifier
+        ///     data fields contain an expiration date. The expiration date is the date that
+        ///     determines the limit of consumption or use of a product.
+        ///     Its meaning is determined based on the trade item context (e.g., for food, the date
+        ///     will indicate the possibility of a direct health risk resulting from use of the
+        ///     product after the date, for pharmaceutical products, it will indicate the
+        ///     possibility of an indirect health risk resulting from the ineffectiveness of
+        ///     the product after the date). It is often referred to as "use by date" or
+        ///     "maximum durability date.”
+        ///     The structure is:
+        ///     Year: the tens and units of the year (e.g., 2003 = 03), which is mandatory
+        ///     Month: the number of the month (e.g., January = 01), which is mandatory
+        ///     Day: the number of the day of the relevant month (e.g., second day = 02);
+        ///     if it is not necessary to specify the day, the field must be filled with two zeros.
+        /// </remarks>
         public DateTime LogisticUnitExpiryUseByDate
         {
             get => logisticUnitExpiryUseByDate;
@@ -682,17 +723,19 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         }
 
         /// <summary>
-        /// Gets or sets the Production Date: AI (11).
+        ///     Gets or sets the Production Date: AI (11).
         /// </summary>
-        /// <remarks>The Application Identifier (11) indicates that the GS1 Application Identifier
-        /// data field contains a production date. The production date is the production
-        /// or assembly date determined by the manufacturer.
-        /// The date may refer to the trade item itself or to items contained.
-        /// The structure is:
-        /// Year: the tens and units of the year (e.g., 2003 = 03), which is mandatory
-        /// Month: the number of the month (e.g., January = 01), which is mandatory
-        /// Day: the number of the day of the relevant month (e.g., second day = 02);
-        /// if it is not necessary to specify the day, the field must be filled with two zeros.</remarks>
+        /// <remarks>
+        ///     The Application Identifier (11) indicates that the GS1 Application Identifier
+        ///     data field contains a production date. The production date is the production
+        ///     or assembly date determined by the manufacturer.
+        ///     The date may refer to the trade item itself or to items contained.
+        ///     The structure is:
+        ///     Year: the tens and units of the year (e.g., 2003 = 03), which is mandatory
+        ///     Month: the number of the month (e.g., January = 01), which is mandatory
+        ///     Day: the number of the day of the relevant month (e.g., second day = 02);
+        ///     if it is not necessary to specify the day, the field must be filled with two zeros.
+        /// </remarks>
         public DateTime LogisticUnitProductionDate
         {
             get => logisticUnitProductionDate;
@@ -701,17 +744,19 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         }
 
         /// <summary>
-        /// Gets or sets the Due Date for Amount on Payment Slip: AI (12).
+        ///     Gets or sets the Due Date for Amount on Payment Slip: AI (12).
         /// </summary>
-        /// <remarks>The Application Identifier (12) indicates that the GS1 Application Identifier
-        /// data field contains the date by which an invoice should be paid.
-        /// This data element represents an attribute of a payment slip reference number,
-        /// AI (8020), and a Global Location Number (GLN) of the invoicing party.
-        /// The structure is:
-        /// Year: the tens and units of the year (e.g., 2003 = 03), which is mandatory
-        /// Month: the number of the month (e.g., January = 01), which is mandatory
-        /// Day: the number of the day of the relevant month (e.g., second day = 02);
-        /// if it is not necessary to specify the day, the field must be filled with two zeros.</remarks>
+        /// <remarks>
+        ///     The Application Identifier (12) indicates that the GS1 Application Identifier
+        ///     data field contains the date by which an invoice should be paid.
+        ///     This data element represents an attribute of a payment slip reference number,
+        ///     AI (8020), and a Global Location Number (GLN) of the invoicing party.
+        ///     The structure is:
+        ///     Year: the tens and units of the year (e.g., 2003 = 03), which is mandatory
+        ///     Month: the number of the month (e.g., January = 01), which is mandatory
+        ///     Day: the number of the day of the relevant month (e.g., second day = 02);
+        ///     if it is not necessary to specify the day, the field must be filled with two zeros.
+        /// </remarks>
         public DateTime LogisticUnitDueDate
         {
             get => logisticUnitDueDate;
@@ -720,17 +765,19 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         }
 
         /// <summary>
-        /// Gets or sets the Packaging Date: AI (13).
+        ///     Gets or sets the Packaging Date: AI (13).
         /// </summary>
-        /// <remarks>The Application Identifier (13) indicates that the GS1 Application Identifier
-        /// data fields contain a packaging date. The packaging date is the date when
-        /// the goods were packed as determined by the packager.
-        /// The date may refer to the trade item itself or to items contained.
-        /// The structure is:
-        /// Year: the tens and units of the year (e.g., 2003 = 03), which is mandatory
-        /// Month: the number of the month (e.g., January = 01), which is mandatory
-        /// Day: the number of the day of the relevant month (e.g., second day = 02);
-        /// if it is not necessary to specify the day, the field must be filled with two zeros.</remarks>
+        /// <remarks>
+        ///     The Application Identifier (13) indicates that the GS1 Application Identifier
+        ///     data fields contain a packaging date. The packaging date is the date when
+        ///     the goods were packed as determined by the packager.
+        ///     The date may refer to the trade item itself or to items contained.
+        ///     The structure is:
+        ///     Year: the tens and units of the year (e.g., 2003 = 03), which is mandatory
+        ///     Month: the number of the month (e.g., January = 01), which is mandatory
+        ///     Day: the number of the day of the relevant month (e.g., second day = 02);
+        ///     if it is not necessary to specify the day, the field must be filled with two zeros.
+        /// </remarks>
         public DateTime LogisticUnitPackagingDate
         {
             get => logisticUnitPackagingDate;
@@ -739,27 +786,29 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         }
 
         /// <summary>
-        /// Gets or sets the Product Variant: AI (20).
+        ///     Gets or sets the Product Variant: AI (20).
         /// </summary>
-        /// <remarks>This Element String may be used to distinguish a variant from the usual item
-        /// if the variation is not sufficiently significant to require a separate Global
-        /// Trade Item Number (GTIN) and the variation is relevant only to the brand owner
-        /// and any third party acting on its behalf.
-        /// The product variant is only for use by the brand owner and any third party
-        /// acting on its behalf and not for dealings with any other trading partners.
-        /// The product variant shall not be used where the variation would trigger the
-        /// allocation of a different GTIN per the GTIN Allocation Rules. Although the
-        /// Element String will not have meaning to all trading partners, the Element String
-        /// may remain on the item throughout distribution.
-        /// The Application Identifier (20) indicates that the data field contains a
-        /// variant number.
-        /// The variant number must only be assigned by the brand owner. It forms a
-        /// subsidiary numbering facility that can be used in addition to the item GTIN
-        /// and allows the creation of 100 variants of a particular item.
-        /// The data transmitted from the bar code reader means that the Element String
-        /// denoting a product variant has been captured. The product variant must be
-        /// processed together with the GTIN of the same trade item. Beyond the brand owner
-        /// and any third party acting on its behalf, it should be ignored.</remarks>
+        /// <remarks>
+        ///     This Element String may be used to distinguish a variant from the usual item
+        ///     if the variation is not sufficiently significant to require a separate Global
+        ///     Trade Item Number (GTIN) and the variation is relevant only to the brand owner
+        ///     and any third party acting on its behalf.
+        ///     The product variant is only for use by the brand owner and any third party
+        ///     acting on its behalf and not for dealings with any other trading partners.
+        ///     The product variant shall not be used where the variation would trigger the
+        ///     allocation of a different GTIN per the GTIN Allocation Rules. Although the
+        ///     Element String will not have meaning to all trading partners, the Element String
+        ///     may remain on the item throughout distribution.
+        ///     The Application Identifier (20) indicates that the data field contains a
+        ///     variant number.
+        ///     The variant number must only be assigned by the brand owner. It forms a
+        ///     subsidiary numbering facility that can be used in addition to the item GTIN
+        ///     and allows the creation of 100 variants of a particular item.
+        ///     The data transmitted from the bar code reader means that the Element String
+        ///     denoting a product variant has been captured. The product variant must be
+        ///     processed together with the GTIN of the same trade item. Beyond the brand owner
+        ///     and any third party acting on its behalf, it should be ignored.
+        /// </remarks>
         public int LogisticUnitProductVariant
         {
             get => logisticUnitProductVariant;
@@ -768,109 +817,111 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         }
 
         /// <summary>
-        /// Gets or sets the Net weight, kilograms (Variable Measure Trade Item) N4+N6 NET WEIGHT (kg).
+        ///     Gets or sets the Net weight, kilograms (Variable Measure Trade Item) N4+N6 NET WEIGHT (kg).
         /// </summary>
-        public decimal NetWeightMetricKG
+        public decimal NetWeightMetricKg
         {
-            get => netWeightMetricKG;
+            get => netWeightMetricKg;
 
-            set => netWeightMetricKG = value;
+            set => netWeightMetricKg = value;
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether the net weight metric KG AI was found.
+        ///     Gets or sets a value indicating whether the net weight metric KG AI was found.
         /// </summary>
-        public bool NetWeightMetricKGFoundAI
+        public bool NetWeightMetricKgFoundAi
         {
-            get => netWeightMetricKGFoundAI;
+            get => netWeightMetricKgFoundAi;
 
-            set => netWeightMetricKGFoundAI = value;
+            set => netWeightMetricKgFoundAi = value;
         }
 
         /// <summary>
-        /// Gets or sets Net weight, pounds (Variable Measure Trade Item) N4+N6 NET WEIGHT (lb)
-        /// AI 320 (n).
+        ///     Gets or sets Net weight, pounds (Variable Measure Trade Item) N4+N6 NET WEIGHT (lb)
+        ///     AI 320 (n).
         /// </summary>
-        public decimal NetWeightNonMetricLB
+        public decimal NetWeightNonMetricLb
         {
-            get => netWeightNonMetricLB;
+            get => netWeightNonMetricLb;
 
-            set => netWeightNonMetricLB = value;
+            set => netWeightNonMetricLb = value;
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether the net weight non metric LG AI was found.
+        ///     Gets or sets a value indicating whether the net weight non-metric LG AI was found.
         /// </summary>
-        public bool NetWeightNonMetricLBFoundAI
+        public bool NetWeightNonMetricLbFoundAi
         {
-            get => netWeightNonMetricLBFoundAI;
+            get => netWeightNonMetricLbFoundAi;
 
-            set => netWeightNonMetricLBFoundAI = value;
+            set => netWeightNonMetricLbFoundAi = value;
         }
 
         /// <summary>
-        /// Gets or sets the Logistic weight, kilograms N4+N6 GROSS WEIGHT (kg)
-        /// AI 330 (n).
+        ///     Gets or sets the Logistic weight, kilograms N4+N6 GROSS WEIGHT (kg)
+        ///     AI 330 (n).
         /// </summary>
-        public decimal GrossWeightMetricKG
+        public decimal GrossWeightMetricKg
         {
-            get => grossWeightMetricKG;
+            get => grossWeightMetricKg;
 
-            set => grossWeightMetricKG = value;
+            set => grossWeightMetricKg = value;
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether the gross weight metric KG AI was found.
+        ///     Gets or sets a value indicating whether the gross weight metric KG AI was found.
         /// </summary>
-        public bool GrossWeightMetricKGFoundAI
+        public bool GrossWeightMetricKgFoundAi
         {
-            get => grossWeightMetricKGFoundAI;
+            get => grossWeightMetricKgFoundAi;
 
-            set => grossWeightMetricKGFoundAI = value;
+            set => grossWeightMetricKgFoundAi = value;
         }
 
         /// <summary>
-        /// Gets or sets the Logistic weight, pounds N4+N6 GROSS WEIGHT (lb)
-        /// AI 340 (n).
+        ///     Gets or sets the Logistic weight, pounds N4+N6 GROSS WEIGHT (lb)
+        ///     AI 340 (n).
         /// </summary>
-        public decimal GrossWeightNonMetricLB
+        public decimal GrossWeightNonMetricLb
         {
-            get => grossWeightNonMetricLB;
+            get => grossWeightNonMetricLb;
 
-            set => grossWeightNonMetricLB = value;
+            set => grossWeightNonMetricLb = value;
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether the gross weight non metric LB AI was found.
+        ///     Gets or sets a value indicating whether the gross weight non-metric LB AI was found.
         /// </summary>
-        public bool GrossWeightNonMetricLBFoundAI
+        public bool GrossWeightNonMetricLbFoundAi
         {
-            get => grossWeightNonMetricLBFoundAI;
+            get => grossWeightNonMetricLbFoundAi;
 
-            set => grossWeightNonMetricLBFoundAI = value;
+            set => grossWeightNonMetricLbFoundAi = value;
         }
 
         /// <summary>
-        /// Gets or sets the Length or 1st dimension, trade Meters.
-        /// AI 311 (n).
+        ///     Gets or sets the Length or 1st dimension, trade Meters.
+        ///     AI 311 (n).
         /// </summary>
-        public decimal LengthOr1stDimensionMeters
+        public decimal LengthOr1StDimensionMeters
         {
-            get => lengthOr1stDimensionMeters;
+            get => lengthOr1StDimensionMeters;
 
-            set => lengthOr1stDimensionMeters = value;
+            set => lengthOr1StDimensionMeters = value;
         }
 
         /// <summary>
-        /// Gets or sets the Identification of a Physical Location - Global Location Number N3+N13 LOC No.
+        ///     Gets or sets the Identification of a Physical Location - Global Location Number N3+N13 LOC No.
         /// </summary>
-        /// <remarks>The Application Identifier (414) indicates that the GS1 Application Identifier
-        /// data field contains the Global Location Number (GLN) of a physical location
-        /// The structure is:
-        /// AI: 414
-        /// Company Prefix: N7
-        /// Location Reference: N5
-        /// Check Digit: N1.</remarks>
+        /// <remarks>
+        ///     The Application Identifier (414) indicates that the GS1 Application Identifier
+        ///     data field contains the Global Location Number (GLN) of a physical location
+        ///     The structure is:
+        ///     AI: 414
+        ///     Company Prefix: N7
+        ///     Location Reference: N5
+        ///     Check Digit: N1.
+        /// </remarks>
         public string LocationIdentifier
         {
             get => locationIdentifier;
@@ -879,15 +930,17 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         }
 
         /// <summary>
-        /// Gets or sets the AI 37 N2+N..8 (FNC1) COUNT
-        /// Count of Trade Items Contained in a Logistic Unit: AI (37).
+        ///     Gets or sets the AI 37 N2+N..8 (FNC1) COUNT
+        ///     Count of Trade Items Contained in a Logistic Unit: AI (37).
         /// </summary>
-        /// <remarks>The Application Identifier (37) indicates that the GS1 Application Identifier data
-        /// field contains the Number of trade items contained in a logistic unit.
-        /// This Element String is a mandatory completion of AI (02) described in
-        /// Sections 3.3.4 and 3.3.5. The Count of Trade Items field contains the number of
-        /// trade items contained in the respective logistic unit.
-        /// This information refers to the identification number of the contained trade items.</remarks>
+        /// <remarks>
+        ///     The Application Identifier (37) indicates that the GS1 Application Identifier data
+        ///     field contains the Number of trade items contained in a logistic unit.
+        ///     This Element String is a mandatory completion of AI (02) described in
+        ///     Sections 3.3.4 and 3.3.5. The Count of Trade Items field contains the number of
+        ///     trade items contained in the respective logistic unit.
+        ///     This information refers to the identification number of the contained trade items.
+        /// </remarks>
         public int LogisticUnitCountOfTradeItems
         {
             get => logisticUnitCountOfTradeItems;
@@ -896,56 +949,74 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         }
 
         /// <summary>
-        /// Gets or sets the Company Internal Information: AI (91-99)
-        /// FK Refno: AI (92).
+        ///     Gets or sets the Company Internal Information: AI (91-99)
+        ///     FK Refno: AI (92).
         /// </summary>
-        public string ActFKRefno
+        public string ActFkRefno
         {
-            get => actFKRefno;
+            get => actFkRefno;
 
-            set => actFKRefno = value;
+            set => actFkRefno = value;
         }
 
         /// <summary>
-        /// Gets or sets the Company Internal Information: AI (91-99)
-        /// FK Item Refno: AI (91).
+        ///     Gets or sets the Company Internal Information: AI (91-99)
+        ///     FK Item Refno: AI (91).
         /// </summary>
-        public string ActItemFKRefno
+        public string ActItemFkRefno
         {
-            get => actItemFKRefno;
+            get => actItemFkRefno;
 
-            set => actItemFKRefno = value;
+            set => actItemFkRefno = value;
         }
 
         /// <summary>
-        /// Gets or sets the Company Internal Information: AI (91-99)
-        /// FK Detail Refno: AI (93).
+        ///     Gets or sets the Company Internal Information: AI (91-99)
+        ///     FK Detail Refno: AI (93).
         /// </summary>
-        public string ActDetailFKRefno
+        public string ActDetailFkRefno
         {
-            get => actDetailFKRefno;
+            get => actDetailFkRefno;
 
-            set => actDetailFKRefno = value;
+            set => actDetailFkRefno = value;
         }
 
         /// <summary>
-        /// Gets or sets the assigned from system settings XML.
+        ///     Gets or sets the assigned from system settings XML.
         /// </summary>
-        public string SystemGTINCompanyPrefix
+        public string SystemGtinCompanyPrefix
         {
-            get => systemGTINCompanyPrefix;
+            get => systemGtinCompanyPrefix;
 
-            set => systemGTINCompanyPrefix = value;
+            set => systemGtinCompanyPrefix = value;
         }
 
         /// <summary>
-        /// Parse the bar code data.
+        ///     Clone the bar code parse object.
         /// </summary>
-        /// <param name="barCodeData"><see cref="string"/> Bar code data.</param>
+        /// <returns>Shallow cloned bar code parse instance.</returns>
+        public object Clone()
+        {
+            return (BarCodeParse)this.MemberwiseClone();
+        }
+
+        /// <summary>
+        ///     Dispose.
+        /// </summary>
+        public virtual void Dispose()
+        {
+            this.Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
+        ///     Parse the bar code data.
+        /// </summary>
+        /// <param name="barCodeData"><see cref="string" /> Bar code data.</param>
         public abstract void ParseBarCodeData(string barCodeData);
 
         /// <summary>
-        /// Clear and reset the bar code parse properties.
+        ///     Clear and reset the bar code parse properties.
         /// </summary>
         public void ClearResetBarCodeProperties()
         {
@@ -953,17 +1024,17 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         }
 
         /// <summary>
-        /// The bIncludeSymbologyData = true argument resets the values that where assigned
-        /// in the class BarCodeParseFacade method IdentifySymbology.
+        ///     The bIncludeSymbologyData = true argument resets the values that where assigned
+        ///     in the class BarCodeParseFacade method IdentifySymbology.
         /// </summary>
-        /// <param name="resetSymbologyData"><see cref="bool"/> Reset symbology data.</param>
+        /// <param name="resetSymbologyData"><see cref="bool" /> Reset symbology data.</param>
         public void ClearResetBarCodeProperties(bool resetSymbologyData)
         {
             var sysSettings = SysEnvironment.GetInstance().SysSettings;
             //// this.LocMapWhsCodeMask = sysSettings.LocMapWarehouseMask;
             //// this.LocMapSectCodeMask = sysSettings.LocMapSectionMask;
             //// this.LocMapSlotCodeMask = sysSettings.LocMapSlotMask;
-            this.SystemGTINCompanyPrefix = sysSettings.GTINCompanyPrefix;
+            this.SystemGtinCompanyPrefix = sysSettings.GTINCompanyPrefix;
 
             if (resetSymbologyData)
             {
@@ -977,11 +1048,11 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
             this.ProductIdentifier = string.Empty;
             this.Remainder = string.Empty;
             this.PackagingType = 0;
-            this.SSCC18 = string.Empty;
+            this.Sscc18 = string.Empty;
             this.CompanyPrefix = string.Empty;
             this.ItemReference = string.Empty;
-            this.GTIN = string.Empty;
-            this.GTINLogisticUnit = string.Empty;
+            this.Gtin = string.Empty;
+            this.GtinLogisticUnit = string.Empty;
             this.SingleTradeItemSerialNumber = string.Empty;
             this.LogisticUnitBatchLotNumber = string.Empty;
             this.LogisticUnitBestBeforeSellByDate = new DateTime(1900, 1, 1);
@@ -990,37 +1061,37 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
             this.LogisticUnitDueDate = new DateTime(1900, 1, 1);
             this.LogisticUnitPackagingDate = new DateTime(1900, 1, 1);
             this.LogisticUnitProductVariant = 0;
-            this.NetWeightMetricKG = 0;
-            this.NetWeightMetricKGFoundAI = false;
-            this.NetWeightNonMetricLB = 0;
-            this.NetWeightNonMetricLBFoundAI = false;
-            this.GrossWeightMetricKG = 0;
-            this.GrossWeightMetricKGFoundAI = false;
-            this.GrossWeightNonMetricLB = 0;
-            this.GrossWeightNonMetricLBFoundAI = false;
+            this.NetWeightMetricKg = 0;
+            this.NetWeightMetricKgFoundAi = false;
+            this.NetWeightNonMetricLb = 0;
+            this.NetWeightNonMetricLbFoundAi = false;
+            this.GrossWeightMetricKg = 0;
+            this.GrossWeightMetricKgFoundAi = false;
+            this.GrossWeightNonMetricLb = 0;
+            this.GrossWeightNonMetricLbFoundAi = false;
             this.LocationIdentifier = string.Empty;
             this.LogisticUnitCountOfTradeItems = 0;
-            this.ActFKRefno = string.Empty;
-            this.ActItemFKRefno = string.Empty;
-            this.ActDetailFKRefno = string.Empty;
+            this.ActFkRefno = string.Empty;
+            this.ActItemFkRefno = string.Empty;
+            this.ActDetailFkRefno = string.Empty;
             this.DeliScaleAmount = 0;
             this.LogisticUnitVariableCount = 0;
             this.Details.ClearErrors();
         }
 
         /// <summary>
-        /// Checks if there are errors caught for this parsing.
+        ///     Checks if there are errors caught for this parsing.
         /// </summary>
         /// <returns>True if errors exist.</returns>
         public bool HasErrors()
         {
-            return (this.parseDetails != null) && this.parseDetails.HasErrors;
+            return this.parseDetails is { HasErrors: true };
         }
 
         /// <summary>
-        /// Dispose of the bar code parse instance.
+        ///     Dispose of the bar code parse instance.
         /// </summary>
-        /// <param name="disposing"><see cref="bool"/> Flag indicating is disposing.</param>
+        /// <param name="disposing"><see cref="bool" /> Flag indicating is disposing.</param>
         public virtual void Dispose(bool disposing)
         {
             if (disposing)
@@ -1032,20 +1103,13 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         }
 
         /// <summary>
-        /// Dispose.
-        /// </summary>
-        public virtual void Dispose()
-        {
-            this.Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        /// <summary>
-        /// Find the location of the first group separator occurrences in a bar code.
+        ///     Find the location of the first group separator occurrences in a bar code.
         /// </summary>
         /// <param name="barCodeData">Bar code data.</param>
-        /// <returns>Zero based index location of the group separator.
-        /// Negative 1 for no group separator found.</returns>
+        /// <returns>
+        ///     Zero based index location of the group separator.
+        ///     Negative 1 for no group separator found.
+        /// </returns>
         public int FindGroupSeparatorInBarCode(string barCodeData)
         {
             if (barCodeData == null)
@@ -1054,11 +1118,10 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
             }
 
             var sepIndex = -1;
-            var data = barCodeData.ToCharArray();
-
-            for (var i = 0; i < data.Length; i++)
+            var arrayData = barCodeData.ToCharArray();
+            for (var i = 0; i < arrayData.Length; i++)
             {
-                if (data[i] == GroupSeparator)
+                if (arrayData[i] == GroupSeparator)
                 {
                     sepIndex = i;
                     break;
@@ -1069,15 +1132,15 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         }
 
         /// <summary>
-        /// Identify the product identifier.
+        ///     Identify the product identifier.
         /// </summary>
-        /// <param name="barCodeData"><see cref="string"/> Bar code data.</param>
-        /// <returns><see cref="string"/> Remaining bar code data.</returns>
+        /// <param name="barCodeData"><see cref="string" /> Bar code data.</param>
+        /// <returns><see cref="string" /> Remaining bar code data.</returns>
         protected virtual string IdentifyProductIdentifier(string barCodeData)
         {
             if (barCodeData.Length > 14)
             {
-                this.ProductIdentifier = barCodeData.Substring(0, 14);
+                this.ProductIdentifier = barCodeData[..14];
             }
             else
             {
@@ -1090,11 +1153,13 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         }
 
         /// <summary>
-        /// Adds a parse exception to the list.
+        ///     Adds a parse exception to the list.
         /// </summary>
-        /// <param name="exception"><see cref="BarCodeExceptionReason"/> Bar code exception reason.</param>
-        /// <param name="e"><see cref="BarCodeParseException"/> Bar code exception.</param>
-        protected void AddParseErrorDetail(BarCodeExceptionReason exception, BarCodeParseException e)
+        /// <param name="exception"><see cref="BarCodeExceptionReason" /> Bar code exception reason.</param>
+        /// <param name="e"><see cref="BarCodeParseException" /> Bar code exception.</param>
+        protected void AddParseErrorDetail(
+            BarCodeExceptionReason exception,
+            BarCodeParseException e)
         {
             if (this.parseDetails == null)
             {
@@ -1105,282 +1170,273 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         }
 
         /// <summary>
-        /// Identify the packaging type.
+        ///     Identify the packaging type.
         /// </summary>
-        /// <param name="barCodeData"><see cref="string"/> Bar code data.</param>
-        /// <returns><see cref="string"/> Remaining bar code data.</returns>
+        /// <param name="barCodeData"><see cref="string" /> Bar code data.</param>
+        /// <returns><see cref="string" /> Remaining bar code data.</returns>
         protected virtual string IdentifyPackagingType(string barCodeData)
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        /// Identify the company prefix.
+        ///     Identify the company prefix.
         /// </summary>
-        /// <param name="barCodeData"><see cref="string"/> Bar code data.</param>
-        /// <returns><see cref="string"/> Remaining bar code data.</returns>
+        /// <param name="barCodeData"><see cref="string" /> Bar code data.</param>
+        /// <returns><see cref="string" /> Remaining bar code data.</returns>
         protected virtual string IdentifyCompanyPrefix(string barCodeData)
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        /// Identify the GTIN item reference.
+        ///     Identify the GTIN item reference.
         /// </summary>
-        /// <param name="barCodeData"><see cref="string"/> Bar code data.</param>
-        /// <returns><see cref="string"/> Remaining bar code data.</returns>
+        /// <param name="barCodeData"><see cref="string" /> Bar code data.</param>
+        /// <returns><see cref="string" /> Remaining bar code data.</returns>
         protected virtual string IdentifyItemReference(string barCodeData)
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        /// Identify the company GTIN.
+        ///     Identify the company GTIN.
         /// </summary>
-        /// <param name="barCodeData"><see cref="string"/> Bar code data.</param>
-        /// <returns><see cref="string"/> Remaining bar code data.</returns>
-        protected virtual string IdentifyGTIN(string barCodeData)
+        /// <param name="barCodeData"><see cref="string" /> Bar code data.</param>
+        /// <returns><see cref="string" /> Remaining bar code data.</returns>
+        protected virtual string IdentifyGtin(string barCodeData)
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        /// Identify the GTIN in logistic unit.
+        ///     Identify the GTIN in logistic unit.
         /// </summary>
-        /// <param name="barCodeData"><see cref="string"/> Bar code data.</param>
-        /// <returns><see cref="string"/> Remaining bar code data.</returns>
-        protected virtual string IdentifyGTINinLogisticUnit(string barCodeData)
+        /// <param name="barCodeData"><see cref="string" /> Bar code data.</param>
+        /// <returns><see cref="string" /> Remaining bar code data.</returns>
+        protected virtual string IdentifyGtiNinLogisticUnit(string barCodeData)
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        /// Identify the SSCC18.
+        ///     Identify the SSCC18.
         /// </summary>
-        /// <param name="barCodeData"><see cref="string"/> Bar code data.</param>
-        /// <returns><see cref="string"/> Remaining bar code data.</returns>
-        protected virtual string IdentifySSCC18(string barCodeData)
+        /// <param name="barCodeData"><see cref="string" /> Bar code data.</param>
+        /// <returns><see cref="string" /> Remaining bar code data.</returns>
+        protected virtual string IdentifySscc18(string barCodeData)
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        /// Identify the logistic unit batch lot number.
+        ///     Identify the logistic unit batch lot number.
         /// </summary>
-        /// <param name="barCodeData"><see cref="string"/> Bar code data.</param>
-        /// <returns><see cref="string"/> Remaining bar code data.</returns>
+        /// <param name="barCodeData"><see cref="string" /> Bar code data.</param>
+        /// <returns><see cref="string" /> Remaining bar code data.</returns>
         protected virtual string IdentifyLogisticUnitBatchLotNumber(string barCodeData)
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        /// Identify the single trade item serial number.
+        ///     Identify the single trade item serial number.
         /// </summary>
-        /// <param name="barCodeData"><see cref="string"/> Bar code data.</param>
-        /// <returns><see cref="string"/> Remaining bar code data.</returns>
+        /// <param name="barCodeData"><see cref="string" /> Bar code data.</param>
+        /// <returns><see cref="string" /> Remaining bar code data.</returns>
         protected virtual string IdentifySingleTradeItemSerialNumber(string barCodeData)
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        /// Identify the logistic unit production date.
+        ///     Identify the logistic unit production date.
         /// </summary>
-        /// <param name="barCodeData"><see cref="string"/> Bar code data.</param>
-        /// <returns><see cref="string"/> Remaining bar code data.</returns>
+        /// <param name="barCodeData"><see cref="string" /> Bar code data.</param>
+        /// <returns><see cref="string" /> Remaining bar code data.</returns>
         protected virtual string IdentifyLogisticUnitProductionDate(string barCodeData)
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        /// Identify the logistic unit due date.
+        ///     Identify the logistic unit due date.
         /// </summary>
-        /// <param name="barCodeData"><see cref="string"/> Bar code data.</param>
-        /// <returns><see cref="string"/> Remaining bar code data.</returns>
+        /// <param name="barCodeData"><see cref="string" /> Bar code data.</param>
+        /// <returns><see cref="string" /> Remaining bar code data.</returns>
         protected virtual string IdentifyLogisticUnitDueDate(string barCodeData)
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        /// Identify the logistic unit packaging date.
+        ///     Identify the logistic unit packaging date.
         /// </summary>
-        /// <param name="barCodeData"><see cref="string"/> Bar code data.</param>
-        /// <returns><see cref="string"/> Remaining bar code data.</returns>
+        /// <param name="barCodeData"><see cref="string" /> Bar code data.</param>
+        /// <returns><see cref="string" /> Remaining bar code data.</returns>
         protected virtual string IdentifyLogisticUnitPackagingDate(string barCodeData)
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        /// Identify the logistic unit best before sell by date.
+        ///     Identify the logistic unit best before sell by date.
         /// </summary>
-        /// <param name="barCodeData"><see cref="string"/> Bar code data.</param>
-        /// <returns><see cref="string"/> Remaining bar code data.</returns>
+        /// <param name="barCodeData"><see cref="string" /> Bar code data.</param>
+        /// <returns><see cref="string" /> Remaining bar code data.</returns>
         protected virtual string IdentifyLogisticUnitBestBeforeSellByDate(string barCodeData)
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        /// Identify the logistic unit expiry use by date.
+        ///     Identify the logistic unit expiry use by date.
         /// </summary>
-        /// <param name="barCodeData"><see cref="string"/> Bar code data.</param>
-        /// <returns><see cref="string"/> Remaining bar code data.</returns>
+        /// <param name="barCodeData"><see cref="string" /> Bar code data.</param>
+        /// <returns><see cref="string" /> Remaining bar code data.</returns>
         protected virtual string IdentifyLogisticUnitExpiryUseByDate(string barCodeData)
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        /// Identify the logistic unit product variant.
+        ///     Identify the logistic unit product variant.
         /// </summary>
-        /// <param name="barCodeData"><see cref="string"/> Bar code data.</param>
-        /// <returns><see cref="string"/> Remaining bar code data.</returns>
+        /// <param name="barCodeData"><see cref="string" /> Bar code data.</param>
+        /// <returns><see cref="string" /> Remaining bar code data.</returns>
         protected virtual string IdentifyLogisticUnitProductVariant(string barCodeData)
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        /// Identify the logistic unit count of trade items.
+        ///     Identify the logistic unit count of trade items.
         /// </summary>
-        /// <param name="barCodeData"><see cref="string"/> Bar code data.</param>
-        /// <returns><see cref="string"/> Remaining bar code data.</returns>
+        /// <param name="barCodeData"><see cref="string" /> Bar code data.</param>
+        /// <returns><see cref="string" /> Remaining bar code data.</returns>
         protected virtual string IdentifyLogisticUnitCountOfTradeItems(string barCodeData)
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        /// Identify the logistic unit variable count.
+        ///     Identify the logistic unit variable count.
         /// </summary>
-        /// <param name="barCodeData"><see cref="string"/> Bar code data.</param>
-        /// <returns><see cref="string"/> Remaining bar code data.</returns>
+        /// <param name="barCodeData"><see cref="string" /> Bar code data.</param>
+        /// <returns><see cref="string" /> Remaining bar code data.</returns>
         protected virtual string IdentifyLogisticUnitVariableCount(string barCodeData)
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        /// Identify the location identifier.
+        ///     Identify the location identifier.
         /// </summary>
-        /// <param name="barCodeData"><see cref="string"/> Bar code data.</param>
-        /// <returns><see cref="string"/> Remaining bar code data.</returns>
+        /// <param name="barCodeData"><see cref="string" /> Bar code data.</param>
+        /// <returns><see cref="string" /> Remaining bar code data.</returns>
         protected virtual string IdentifyLocationIdentifier(string barCodeData)
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        /// Identify the net weight metrix KG.
+        ///     Identify the net weight metric KG.
         /// </summary>
-        /// <param name="barCodeData"><see cref="string"/> Bar code data.</param>
-        /// <returns><see cref="string"/> Remaining bar code data.</returns>
-        protected virtual string IdentifyNetWeightMetricKG(string barCodeData)
+        /// <param name="barCodeData"><see cref="string" /> Bar code data.</param>
+        /// <returns><see cref="string" /> Remaining bar code data.</returns>
+        protected virtual string IdentifyNetWeightMetricKg(string barCodeData)
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        /// Identify the net weight non metric LB.
+        ///     Identify the net weight non-metric LB.
         /// </summary>
-        /// <param name="barCodeData"><see cref="string"/> Bar code data.</param>
-        /// <returns><see cref="string"/> Remaining bar code data.</returns>
-        protected virtual string IdentifyNetWeightNonMetricLB(string barCodeData)
+        /// <param name="barCodeData"><see cref="string" /> Bar code data.</param>
+        /// <returns><see cref="string" /> Remaining bar code data.</returns>
+        protected virtual string IdentifyNetWeightNonMetricLb(string barCodeData)
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        /// Identify the gross weight metric KG.
+        ///     Identify the gross weight metric KG.
         /// </summary>
-        /// <param name="barCodeData"><see cref="string"/> Bar code data.</param>
-        /// <returns><see cref="string"/> Remaining bar code data.</returns>
-        protected virtual string IdentifyGrossWeightMetricKG(string barCodeData)
+        /// <param name="barCodeData"><see cref="string" /> Bar code data.</param>
+        /// <returns><see cref="string" /> Remaining bar code data.</returns>
+        protected virtual string IdentifyGrossWeightMetricKg(string barCodeData)
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        /// Identify the gross weight non metric LB.
+        ///     Identify the gross weight non-metric LB.
         /// </summary>
-        /// <param name="barCodeData"><see cref="string"/> Bar code data.</param>
-        /// <returns><see cref="string"/> Remaining bar code data.</returns>
-        protected virtual string IdentifyGrossWeightNonMetricLB(string barCodeData)
+        /// <param name="barCodeData"><see cref="string" /> Bar code data.</param>
+        /// <returns><see cref="string" /> Remaining bar code data.</returns>
+        protected virtual string IdentifyGrossWeightNonMetricLb(string barCodeData)
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        /// Identify the activity foreign key reference number.
+        ///     Identify the activity foreign key reference number.
         /// </summary>
-        /// <param name="barCodeData"><see cref="string"/> Bar code data.</param>
-        /// <returns><see cref="string"/> Remaining bar code data.</returns>
-        protected virtual string IdentifyActivityFKRefno(string barCodeData)
+        /// <param name="barCodeData"><see cref="string" /> Bar code data.</param>
+        /// <returns><see cref="string" /> Remaining bar code data.</returns>
+        protected virtual string IdentifyActivityFkRefno(string barCodeData)
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        /// Identify the activity item foreign key reference number.
+        ///     Identify the activity item foreign key reference number.
         /// </summary>
-        /// <param name="barCodeData"><see cref="string"/> Bar code data.</param>
-        /// <returns><see cref="string"/> Remaining bar code data.</returns>
-        protected virtual string IdentifyActivityItemFKRefno(string barCodeData)
+        /// <param name="barCodeData"><see cref="string" /> Bar code data.</param>
+        /// <returns><see cref="string" /> Remaining bar code data.</returns>
+        protected virtual string IdentifyActivityItemFkRefno(string barCodeData)
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        /// Identify the activity detail foreign key reference number.
+        ///     Identify the activity detail foreign key reference number.
         /// </summary>
-        /// <param name="barCodeData"><see cref="string"/> Bar code data.</param>
-        /// <returns><see cref="string"/> Remaining bar code data.</returns>
-        protected virtual string IdentifyActivityDetailFKRefno(string barCodeData)
+        /// <param name="barCodeData"><see cref="string" /> Bar code data.</param>
+        /// <returns><see cref="string" /> Remaining bar code data.</returns>
+        protected virtual string IdentifyActivityDetailFkRefno(string barCodeData)
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        /// Identify the manufacturer serial number.
+        ///     Identify the manufacturer serial number.
         /// </summary>
-        /// <param name="barCodeData"><see cref="string"/> Bar code data.</param>
-        /// <returns><see cref="string"/> Remaining bar code data.</returns>
+        /// <param name="barCodeData"><see cref="string" /> Bar code data.</param>
+        /// <returns><see cref="string" /> Remaining bar code data.</returns>
         protected virtual string IdentifyManufacturerSerialNumber(string barCodeData)
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        /// Identify the number system character.
+        ///     Identify the number system character.
         /// </summary>
-        /// <param name="barCodeData"><see cref="string"/> Bar code data.</param>
-        /// <returns><see cref="string"/> Remaining bar code data.</returns>
+        /// <param name="barCodeData"><see cref="string" /> Bar code data.</param>
+        /// <returns><see cref="string" /> Remaining bar code data.</returns>
         protected virtual string IdentifyNumberSystemCharacter(string barCodeData)
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        /// Identify the length or 1st dimension meters.
+        ///     Identify the length or 1st dimension meters.
         /// </summary>
-        /// <param name="barCodeData"><see cref="string"/> Bar code data.</param>
-        /// <returns><see cref="string"/> Remaining bar code data.</returns>
-        protected virtual string IdentifyLengthOr1stDimensionMeters(string barCodeData)
+        /// <param name="barCodeData"><see cref="string" /> Bar code data.</param>
+        /// <returns><see cref="string" /> Remaining bar code data.</returns>
+        protected virtual string IdentifyLengthOr1StDimensionMeters(string barCodeData)
         {
             throw new NotImplementedException();
-        }
-
-        /// <summary>
-        ///     Clone the bar code parse object.
-        /// </summary>
-        /// <returns>Shallow cloned bar code parse instance.</returns>
-        public object Clone()
-        {
-            return (BarCodeParse)this.MemberwiseClone();
         }
     }
 }

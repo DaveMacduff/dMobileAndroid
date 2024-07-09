@@ -20,7 +20,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         public override void ParseBarCodeData(string barCodeData)
         {
             barCodeData = this.IdentifyProductIdentifier(barCodeData);   // does not remove data
-            barCodeData = this.IdentifyGTIN(barCodeData);   // does not remove data
+            barCodeData = this.IdentifyGtin(barCodeData);   // does not remove data
 
             // parse the GTIN
             barCodeData = this.IdentifyNumberSystemCharacter(barCodeData);
@@ -46,7 +46,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         protected override string IdentifyNumberSystemCharacter(string barCodeData)
         {
             var strBarCodeData = barCodeData;
-            this.NumberSystemCharacter = Convert.ToInt32(strBarCodeData.Substring(0, 1));
+            this.NumberSystemCharacter = Convert.ToInt32(strBarCodeData[..1]);
 
             // remove the Number System Character from the bar code data
             strBarCodeData = strBarCodeData.Remove(0, 1);
@@ -85,7 +85,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         protected override string IdentifyCompanyPrefix(string barCodeData)
         {
             var strBarCodeData = barCodeData;
-            this.CompanyPrefix = strBarCodeData.Substring(0, 5);
+            this.CompanyPrefix = strBarCodeData[..5];
 
             // remove the Company Prefix from the bar code data
             strBarCodeData = strBarCodeData.Remove(0, this.CompanyPrefix.Length);
@@ -103,7 +103,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         {
             var strBarCodeData = barCodeData;
 
-            this.ItemReference = strBarCodeData.Substring(0, 5);
+            this.ItemReference = strBarCodeData[..5];
 
             // remove the Item Reference from the bar code data
             strBarCodeData = strBarCodeData.Remove(0, this.ItemReference.Length);
@@ -117,11 +117,11 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// <param name="barCodeData"></param>
         /// <returns></returns>
         /// <inheritdoc/>
-        protected override string IdentifyGTIN(string barCodeData)
+        protected override string IdentifyGtin(string barCodeData)
         {
             var iLen = (barCodeData.Length > 14) ? 14 : barCodeData.Length;
 
-            this.GTIN = barCodeData.Substring(0, iLen).PadLeft(14, '0');
+            this.Gtin = barCodeData[..iLen].PadLeft(14, '0');
 
             // remove the GTIN from the bar code data
             // barCodeData = barCodeData.Remove(0, strGTIN.Length);

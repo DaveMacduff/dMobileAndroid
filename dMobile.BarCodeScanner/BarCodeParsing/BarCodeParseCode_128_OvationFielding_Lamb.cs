@@ -42,11 +42,11 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
             barCodeData = barCodeData.Remove(0, 1);     // check digit
             barCodeData = barCodeData.Remove(0, 3);     // carton number
             barCodeData = barCodeData.Remove(0, 1);     // check digit
-            barCodeData = this.IdentifyGTIN(barCodeData);    // do not remove data
+            barCodeData = this.IdentifyGtin(barCodeData);    // do not remove data
             barCodeData = this.IdentifyProductIdentifier(barCodeData);
             barCodeData = barCodeData.Remove(0, 1);     // check digit
             barCodeData = barCodeData.Remove(0, 1);     // check digit
-            barCodeData = this.IdentifyNetWeightMetricKG(barCodeData);
+            barCodeData = this.IdentifyNetWeightMetricKg(barCodeData);
             barCodeData = barCodeData.Remove(0, 1);     // check digit
             barCodeData = barCodeData.Remove(0, 2);     // year
             barCodeData = barCodeData.Remove(0, 3);     // day of the year
@@ -63,7 +63,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// <inheritdoc/>
         protected override string IdentifyProductIdentifier(string barCodeData)
         {
-            this.ProductIdentifier = barCodeData.Substring(0, 5);
+            this.ProductIdentifier = barCodeData[..5];
             barCodeData = barCodeData.Remove(0, this.ProductIdentifier.Length);
 
             return barCodeData;
@@ -75,11 +75,11 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// <param name="barCodeData"></param>
         /// <returns></returns>
         /// <inheritdoc/>
-        protected override string IdentifyGTIN(string barCodeData)
+        protected override string IdentifyGtin(string barCodeData)
         {
             this.Data = barCodeData;
 
-            this.GTIN = this.Data.Substring(0, 5).PadLeft(13, '0');
+            this.Gtin = this.Data[..5].PadLeft(13, '0');
 
             // strBarCodeData = strBarCodeData.Remove(0, 5);
             return this.Data;
@@ -93,7 +93,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// <inheritdoc/>
         protected override string IdentifyLogisticUnitPackagingDate(string barCodeData)
         {
-            var year = Convert.ToInt32(barCodeData.Substring(0, 2));
+            var year = Convert.ToInt32(barCodeData[..2]);
             if (year < 80)
             {
                 year = year + 2000;
@@ -122,24 +122,22 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// <param name="barCodeData"></param>
         /// <returns></returns>
         /// <inheritdoc/>
-        protected override string IdentifyNetWeightMetricKG(string barCodeData)
+        protected override string IdentifyNetWeightMetricKg(string barCodeData)
         {
-            this.NetWeightMetricKGFoundAI = false;
+            this.NetWeightMetricKgFoundAi = false;
 
             // get the number of decimal places
             var iDecPlaces = 2;
 
             // assign the METRIC NET WEIGHT KG
-            var wholeNumber = barCodeData.Substring(0, 4);
+            var wholeNumber = barCodeData[..4];
             if (iDecPlaces != 0)
             {
-                this.NetWeightMetricKG = Convert.ToDecimal(wholeNumber.Substring(0,
-                    wholeNumber.Length - iDecPlaces) + "." + wholeNumber.Substring(
-                    wholeNumber.Length - iDecPlaces));
+                this.NetWeightMetricKg = Convert.ToDecimal(wholeNumber[..^iDecPlaces] + "." + wholeNumber[^iDecPlaces..]);
             }
             else
             {
-                this.NetWeightMetricKG = Convert.ToDecimal(wholeNumber);
+                this.NetWeightMetricKg = Convert.ToDecimal(wholeNumber);
             }
 
             // remove the METRIC NET WEIGHT KG from the bar code data

@@ -1551,7 +1551,7 @@ namespace dMobile.View.Views
                 // GoFocus and LostFocus events will handle the scanner
                 this.Parse = scanArgs.ParseInfo;
 
-                if (!string.IsNullOrEmpty(this.Parse.ActFKRefno))
+                if (!string.IsNullOrEmpty(this.Parse.ActFkRefno))
                 {
                     await Device.InvokeOnMainThreadAsync(async () =>
                         await this.DisplayAlert(
@@ -1559,7 +1559,7 @@ namespace dMobile.View.Views
                             "Scanning an header reference # is not supported here!",
                             "OK"));
                 }
-                else if (!string.IsNullOrEmpty(this.Parse.ActItemFKRefno))
+                else if (!string.IsNullOrEmpty(this.Parse.ActItemFkRefno))
                 {
                     await Device.InvokeOnMainThreadAsync(async () =>
                         await this.DisplayAlert(
@@ -1575,7 +1575,7 @@ namespace dMobile.View.Views
                             "Scanning a product bar code is not supported here!",
                             "OK"));
                 }
-                else if (!string.IsNullOrEmpty(this.Parse.SSCC18))
+                else if (!string.IsNullOrEmpty(this.Parse.Sscc18))
                 {
                     await Device.InvokeOnMainThreadAsync(async () =>
                         await this.DisplayAlert(

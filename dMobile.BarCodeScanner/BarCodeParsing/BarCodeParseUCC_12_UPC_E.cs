@@ -17,7 +17,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         public override void ParseBarCodeData(string barCodeData)
         {
             barCodeData = this.IdentifyProductIdentifier(barCodeData);
-            barCodeData = this.IdentifyGTIN(barCodeData);
+            barCodeData = this.IdentifyGtin(barCodeData);
             this.Remainder = barCodeData;
         }
 
@@ -113,11 +113,11 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// <param name="barCodeData"></param>
         /// <returns></returns>
         /// <inheritdoc/>
-        protected override string IdentifyGTIN(string barCodeData)
+        protected override string IdentifyGtin(string barCodeData)
         {
             var iLen = (barCodeData.Length > 14) ? 14 : barCodeData.Length;
 
-            this.GTIN = barCodeData.Substring(0, iLen).PadLeft(14, '0');
+            this.Gtin = barCodeData[..iLen].PadLeft(14, '0');
 
             // remove the GTIN from the bar code data
             barCodeData = barCodeData.Remove(0, iLen);

@@ -988,13 +988,13 @@ namespace dMobile.View.Activity
                     }
 
                     this.BarParse = scanArgs.ParseInfo;
-                    if (!string.IsNullOrEmpty(this.BarParse.ActFKRefno))
+                    if (!string.IsNullOrEmpty(this.BarParse.ActFkRefno))
                     {
                         // this.BarParse.ActFKRefno e.g. format is 'OE:12345678'.
                         // EnableScanning at 3th position for the foreign key reference number.
-                        await BarCodeHandlerFkRefno(this.BarParse.ActFKRefno);
+                        await BarCodeHandlerFkRefno(this.BarParse.ActFkRefno);
                     }
-                    else if (!string.IsNullOrEmpty(this.BarParse.ActItemFKRefno))
+                    else if (!string.IsNullOrEmpty(this.BarParse.ActItemFkRefno))
                     {
                         throw new MessageOnlyException(
                             "Scanning an activity item reference # is not supported here!");
@@ -1004,7 +1004,7 @@ namespace dMobile.View.Activity
                         throw new MessageOnlyException(
                             "Scanning a product bar code is not supported here!");
                     }
-                    else if (!string.IsNullOrEmpty(this.BarParse.SSCC18))
+                    else if (!string.IsNullOrEmpty(this.BarParse.Sscc18))
                     {
                         throw new MessageOnlyException(
                             "Scanning a shipping container bar code is not supported here!");

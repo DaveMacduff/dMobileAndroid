@@ -703,10 +703,10 @@ namespace dMobile.View.Activity
                 this.BarParse = scanArgs.ParseInfo;
                 var isLocationBarCodeScanned = !string.IsNullOrEmpty(this.BarParse.LocationIdentifier);
                 var isProductScanned = !string.IsNullOrEmpty(this.BarParse.ProductIdentifier);
-                var isFkRefnoScanned = !string.IsNullOrEmpty(this.BarParse.ActFKRefno);
-                var isFkItemRefnoScanned = !string.IsNullOrEmpty(this.BarParse.ActItemFKRefno);
-                var isFkDetailRefnoScanned = !string.IsNullOrEmpty(this.BarParse.ActDetailFKRefno);
-                var isSkidScanned = !string.IsNullOrEmpty(this.BarParse.SSCC18);
+                var isFkRefnoScanned = !string.IsNullOrEmpty(this.BarParse.ActFkRefno);
+                var isFkItemRefnoScanned = !string.IsNullOrEmpty(this.BarParse.ActItemFkRefno);
+                var isFkDetailRefnoScanned = !string.IsNullOrEmpty(this.BarParse.ActDetailFkRefno);
+                var isSkidScanned = !string.IsNullOrEmpty(this.BarParse.Sscc18);
 
                 if (isFkRefnoScanned)
                 {

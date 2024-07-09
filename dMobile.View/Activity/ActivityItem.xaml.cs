@@ -1903,10 +1903,10 @@ namespace dMobile.View.Activity
                     var parse = scanArgs.ParseInfo;
                     var isLocationBarCodeScanned = !string.IsNullOrEmpty(parse.LocationIdentifier);
                     var isProductScanned = !string.IsNullOrEmpty(parse.ProductIdentifier);
-                    var isFkRefnoScanned = !string.IsNullOrEmpty(parse.ActFKRefno);
-                    var isFkItemRefnoScanned = !string.IsNullOrEmpty(parse.ActItemFKRefno);
-                    var isFkDetailRefnoScanned = !string.IsNullOrEmpty(parse.ActDetailFKRefno);
-                    var isSkidScanned = !string.IsNullOrEmpty(parse.SSCC18);
+                    var isFkRefnoScanned = !string.IsNullOrEmpty(parse.ActFkRefno);
+                    var isFkItemRefnoScanned = !string.IsNullOrEmpty(parse.ActItemFkRefno);
+                    var isFkDetailRefnoScanned = !string.IsNullOrEmpty(parse.ActDetailFkRefno);
+                    var isSkidScanned = !string.IsNullOrEmpty(parse.Sscc18);
 
                     // GLOBAL LOCATION IDENTIFIER SCANNED
                     if (isLocationBarCodeScanned)
@@ -2021,11 +2021,11 @@ namespace dMobile.View.Activity
                             selectedItem = this.ActItem.ListItems.FirstOrDefault(activityItem =>
                                 Convert.ToString(activityItem.GetType().GetProperty(
                                     this.ActItem.GetDataViewSortFkRefnoIdx())?.GetValue(activityItem)) ==
-                                Convert.ToString(scanArgs.ParseInfo.ActItemFKRefno));
+                                Convert.ToString(scanArgs.ParseInfo.ActItemFkRefno));
                             if (selectedItem == null)
                             {
                                 throw new Exception(
-                                    this.ActItem.GetUnableToFindItemFkRefnoMessage(scanArgs.ParseInfo.ActItemFKRefno));
+                                    this.ActItem.GetUnableToFindItemFkRefnoMessage(scanArgs.ParseInfo.ActItemFkRefno));
                             }
 
                             await this.ActItem.AssignActivityItem(selectedItem);
@@ -2291,7 +2291,7 @@ namespace dMobile.View.Activity
                     throw new MessageOnlyException(msg);
                 }
 
-                this.ActItem.ActHdr.SkidInfo = await SysSkidInfo.GetSkidInfoFromBarCodeOrCode(parse.SSCC18);
+                this.ActItem.ActHdr.SkidInfo = await SysSkidInfo.GetSkidInfoFromBarCodeOrCode(parse.Sscc18);
 
                 // The current location will supersede the skid location on counts.
                 if (!(this.ActItem.ActSubType == SysCommon.ActSubTypes.PhysicalCounts ||

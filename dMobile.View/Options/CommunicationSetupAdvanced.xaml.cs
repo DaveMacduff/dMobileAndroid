@@ -20,18 +20,6 @@ namespace dMobile.View.Options
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class CommunicationSetupAdvanced : DMobileContentPage
     {
-        private readonly int connectionAttemptsMax = 10;
-        private readonly int connectionAttemptsMin = 0;
-        private readonly int receiveBufferSizeMax = 65536;
-        private readonly int receiveBufferSizeMin = 2048;
-        private readonly int receivedAttemptsMax = 10;
-        private readonly int receivedAttemptsMin = 0;
-        private readonly int receiveTimeoutSecondsMax = 999;
-        private readonly int receiveTimeoutSecondsMin = 0;
-        private readonly int sendAttemptsMax = 10;
-        private readonly int sendAttemptsMin = 0;
-        private readonly int sendTimeoutSecondsMax = 60;
-        private readonly int sendTimeoutSecondsMin = 0;
         private bool isChangesMade;
 
         /// <summary>
@@ -64,6 +52,18 @@ namespace dMobile.View.Options
             }
         }
 
+        public int ReceiveBufferSizeMax { get; } = 65536;
+
+        public int ReceiveBufferSizeMin { get; } = 2048;
+
+        public int ReceiveTimeoutSecondsMax { get; } = 30;
+
+        public int ReceiveTimeoutSecondsMin { get; } = 0;
+
+        public int SendTimeoutSecondsMax { get; } = 10;
+
+        public int SendTimeoutSecondsMin { get; } = 0;
+
         public bool IsChangesMade
         {
             get => this.isChangesMade;
@@ -89,18 +89,22 @@ namespace dMobile.View.Options
                 this.IsIndicatorRunning = true;
                 base.OnAppearing();
 
-                MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async keyPressed =>
-                {
-                    _ = Enum.TryParse(keyPressed, out Keycode keycode);
-
-                    if (keycode == Keycode.Enter || keycode == Keycode.F1)
+                MessagingCenter.Subscribe<string>(
+                    this,
+                    EventTypes.OnKeyUp.ToString(),
+                    async keyPressed =>
                     {
-                        if (await this.SaveChanges())
+                        _ = Enum.TryParse(keyPressed, out Keycode keycode);
+
+                        if (keycode == Keycode.Enter ||
+                            keycode == Keycode.F1)
                         {
-                            await this.Close();
+                            if (await this.SaveChanges())
+                            {
+                                await this.Close();
+                            }
                         }
-                    }
-                });
+                    });
 
                 this.IsIndicatorRunning = false;
             }
@@ -121,19 +125,20 @@ namespace dMobile.View.Options
         /// <inheritdoc />
         protected override bool OnBackButtonPressed()
         {
-            Device.BeginInvokeOnMainThread(async () =>
-            {
-                _ = base.OnBackButtonPressed();
+            Device.BeginInvokeOnMainThread(
+                async () =>
+                {
+                    _ = base.OnBackButtonPressed();
 
-                if (await this.SaveChanges())
-                {
-                    await this.Close();
-                }
-                else if (await this.CancelChanges())
-                {
-                    await this.Close();
-                }
-            });
+                    if (await this.SaveChanges())
+                    {
+                        await this.Close();
+                    }
+                    else if (await this.CancelChanges())
+                    {
+                        await this.Close();
+                    }
+                });
 
             return true;
         }
@@ -173,34 +178,44 @@ namespace dMobile.View.Options
 
             try
             {
-                isReadyToSave = int.Parse(this.updnReceiveBufferSize.Text) >= this.receiveBufferSizeMin &&
-                                int.Parse(this.updnReceiveBufferSize.Text) <= this.receiveBufferSizeMax;
+                isReadyToSave = int.Parse(this.updnReceiveBufferSize.Text) >=
+                                this.ReceiveBufferSizeMin &&
+                                int.Parse(this.updnReceiveBufferSize.Text) <=
+                                this.ReceiveBufferSizeMax;
                 isReadyToSave = isReadyToSave &&
-                                int.Parse(this.updnReceiveTimeOutSec.Text) >= this.receiveTimeoutSecondsMin &&
-                                int.Parse(this.updnReceiveTimeOutSec.Text) <= this.receiveTimeoutSecondsMax;
+                                int.Parse(this.updnReceiveTimeOutSec.Text) >=
+                                this.ReceiveTimeoutSecondsMin &&
+                                int.Parse(this.updnReceiveTimeOutSec.Text) <=
+                                this.ReceiveTimeoutSecondsMax;
                 isReadyToSave = isReadyToSave &&
-                                int.Parse(this.updnSendTimeOutSec.Text) >= this.sendTimeoutSecondsMin &&
-                                int.Parse(this.updnSendTimeOutSec.Text) <= this.sendTimeoutSecondsMax;
+                                int.Parse(this.updnSendTimeOutSec.Text) >=
+                                this.SendTimeoutSecondsMin &&
+                                int.Parse(this.updnSendTimeOutSec.Text) <=
+                                this.SendTimeoutSecondsMax;
             }
             catch (MessageOnlyException msgEx)
             {
                 var msg = SysCommon.GetMessageFromMessageException(msgEx);
                 isReadyToSave = false;
-                _ = Device.InvokeOnMainThreadAsync(async () =>
-                    await Application.Current.MainPage.DisplayAlert(
-                        this.GetControlDescription(),
-                        msg,
-                        Resource.OK));
+                _ = Device.InvokeOnMainThreadAsync(
+                    async () =>
+                        await Application.Current.MainPage.DisplayAlert(
+                            this.GetControlDescription(),
+                            msg,
+                            Resource.OK));
             }
             catch (Exception ex)
             {
                 isReadyToSave = false;
 
-                Device.BeginInvokeOnMainThread(async () =>
-                {
-                    var errorReport = new FormErrorReport(SysCommon.ActSubTypes.CommunicationSetup, /*this,*/ ex);
-                    _ = await errorReport.ShowDialog();
-                });
+                Device.BeginInvokeOnMainThread(
+                    async () =>
+                    {
+                        var errorReport = new FormErrorReport(
+                            SysCommon.ActSubTypes.CommunicationSetup, /*this,*/
+                            ex);
+                        _ = await errorReport.ShowDialog();
+                    });
             }
 
             return isReadyToSave;
@@ -217,9 +232,12 @@ namespace dMobile.View.Options
             {
                 if (this.IsReadyToSave())
                 {
-                    this.SysEnv.CommSetup.ReceiveBufferSize = Convert.ToInt32(this.updnReceiveBufferSize.Text);
-                    this.SysEnv.CommSetup.ReceiveTimeOutSeconds = Convert.ToInt32(this.updnReceiveTimeOutSec.Text);
-                    this.SysEnv.CommSetup.SendTimeOutSeconds = Convert.ToInt32(this.updnSendTimeOutSec.Text);
+                    this.SysEnv.CommSetup.ReceiveBufferSize =
+                        Convert.ToInt32(this.updnReceiveBufferSize.Text);
+                    this.SysEnv.CommSetup.ReceiveTimeOutSeconds =
+                        Convert.ToInt32(this.updnReceiveTimeOutSec.Text);
+                    this.SysEnv.CommSetup.SendTimeOutSeconds =
+                        Convert.ToInt32(this.updnSendTimeOutSec.Text);
 
                     var tempCommSetup = this.SysEnv.CommSetup;
                     saveComplete = this.SysEnv.CommSetup.SaveData(ref tempCommSetup);
@@ -228,31 +246,36 @@ namespace dMobile.View.Options
                 }
                 else
                 {
-                    await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(
-                        this.GetControlDescription(),
-                        "Data failed validation. Check your data.",
-                        "OK"));
+                    await Device.InvokeOnMainThreadAsync(
+                        async () => await this.DisplayAlert(
+                            this.GetControlDescription(),
+                            "Data failed validation. Check your data.",
+                            "OK"));
                 }
             }
             catch (MessageOnlyException msgEx)
             {
                 var msg = SysCommon.GetMessageFromMessageException(msgEx);
                 saveComplete = false;
-                await Device.InvokeOnMainThreadAsync(async () =>
-                    await Application.Current.MainPage.DisplayAlert(
-                        this.GetControlDescription(),
-                        msg,
-                        Resource.OK));
+                await Device.InvokeOnMainThreadAsync(
+                    async () =>
+                        await Application.Current.MainPage.DisplayAlert(
+                            this.GetControlDescription(),
+                            msg,
+                            Resource.OK));
             }
             catch (Exception ex)
             {
                 saveComplete = false;
 
-                await Device.InvokeOnMainThreadAsync(async () =>
-                {
-                    var errorReport = new FormErrorReport(SysCommon.ActSubTypes.RefreshData, /*this,*/ ex);
-                    _ = await errorReport.ShowDialog();
-                });
+                await Device.InvokeOnMainThreadAsync(
+                    async () =>
+                    {
+                        var errorReport = new FormErrorReport(
+                            SysCommon.ActSubTypes.RefreshData, /*this,*/
+                            ex);
+                        _ = await errorReport.ShowDialog();
+                    });
             }
 
             return saveComplete;
@@ -287,11 +310,12 @@ namespace dMobile.View.Options
             {
                 var msg = SysCommon.GetMessageFromMessageException(msgEx);
                 isReadyToClose = false;
-                await Device.InvokeOnMainThreadAsync(async () =>
-                    await Application.Current.MainPage.DisplayAlert(
-                        this.GetControlDescription(),
-                        msg,
-                        Resource.OK));
+                await Device.InvokeOnMainThreadAsync(
+                    async () =>
+                        await Application.Current.MainPage.DisplayAlert(
+                            this.GetControlDescription(),
+                            msg,
+                            Resource.OK));
             }
             catch (Exception ex)
             {
@@ -303,11 +327,14 @@ namespace dMobile.View.Options
                 // {
                 //    errRpt.ShowDialog();
                 // }
-                Device.BeginInvokeOnMainThread(async () =>
-                {
-                    var errorReport = new FormErrorReport(SysCommon.ActSubTypes.RefreshData, /*this,*/ ex);
-                    _ = await errorReport.ShowDialog();
-                });
+                Device.BeginInvokeOnMainThread(
+                    async () =>
+                    {
+                        var errorReport = new FormErrorReport(
+                            SysCommon.ActSubTypes.RefreshData, /*this,*/
+                            ex);
+                        _ = await errorReport.ShowDialog();
+                    });
             }
 
             return isReadyToClose;
@@ -348,11 +375,12 @@ namespace dMobile.View.Options
             {
                 var msg = SysCommon.GetMessageFromMessageException(msgEx);
                 cancelChanges = false;
-                await Device.InvokeOnMainThreadAsync(async () =>
-                    await Application.Current.MainPage.DisplayAlert(
-                        this.GetControlDescription(),
-                        msg,
-                        Resource.OK));
+                await Device.InvokeOnMainThreadAsync(
+                    async () =>
+                        await Application.Current.MainPage.DisplayAlert(
+                            this.GetControlDescription(),
+                            msg,
+                            Resource.OK));
             }
             catch (Exception ex)
             {
@@ -362,11 +390,14 @@ namespace dMobile.View.Options
                 // {
                 //    errorReport.ShowDialog();
                 // }
-                await Device.InvokeOnMainThreadAsync(async () =>
-                {
-                    var errorReport = new FormErrorReport(SysCommon.ActSubTypes.CommunicationSetup, /*this,*/ ex);
-                    _ = await errorReport.ShowDialog();
-                });
+                await Device.InvokeOnMainThreadAsync(
+                    async () =>
+                    {
+                        var errorReport = new FormErrorReport(
+                            SysCommon.ActSubTypes.CommunicationSetup, /*this,*/
+                            ex);
+                        _ = await errorReport.ShowDialog();
+                    });
             }
 
             return cancelChanges;
@@ -382,9 +413,9 @@ namespace dMobile.View.Options
         public async Task<XDocument> GetXML()
         {
             var xmldocParams = XDocument.Parse(
-                "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
-                + "<params>"
-                + "</params>");
+                "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" +
+                "<params>" +
+                "</params>");
 
             return xmldocParams;
         }
@@ -410,35 +441,35 @@ namespace dMobile.View.Options
             try
             {
                 // Socket Receive Buffer Size
-                if (int.Parse(this.updnReceiveBufferSize.Text) < this.receiveBufferSizeMin ||
-                    int.Parse(this.updnReceiveBufferSize.Text) > this.receiveBufferSizeMax)
+                if (int.Parse(this.updnReceiveBufferSize.Text) < this.ReceiveBufferSizeMin ||
+                    int.Parse(this.updnReceiveBufferSize.Text) > this.ReceiveBufferSizeMax)
                 {
                     e.Cancel = true;
 
                     var msg =
-                        $"Receive buffer size must be between {this.receiveBufferSizeMin} and {this.receiveBufferSizeMax}";
+                        $"Receive buffer size must be between {this.ReceiveBufferSizeMin} and {this.ReceiveBufferSizeMax}";
                     throw new MessageOnlyException(msg);
                 }
 
                 // Socket Receive Time Out Seconds
-                if (int.Parse(this.updnReceiveTimeOutSec.Text) < this.receiveTimeoutSecondsMin ||
-                    int.Parse(this.updnReceiveTimeOutSec.Text) > this.receiveTimeoutSecondsMax)
+                if (int.Parse(this.updnReceiveTimeOutSec.Text) < this.ReceiveTimeoutSecondsMin ||
+                    int.Parse(this.updnReceiveTimeOutSec.Text) > this.ReceiveTimeoutSecondsMax)
                 {
                     e.Cancel = true;
 
                     var msg =
-                        $"Receive buffer size must be between {this.receiveTimeoutSecondsMin} and {this.receiveTimeoutSecondsMax}";
+                        $"Receive buffer size must be between {this.ReceiveTimeoutSecondsMin} and {this.ReceiveTimeoutSecondsMax}";
                     throw new MessageOnlyException(msg);
                 }
 
                 // Socket Send Time Out Seconds
-                if (int.Parse(this.updnSendTimeOutSec.Text) < this.sendTimeoutSecondsMin ||
-                    int.Parse(this.updnSendTimeOutSec.Text) > this.sendTimeoutSecondsMax)
+                if (int.Parse(this.updnSendTimeOutSec.Text) < this.SendTimeoutSecondsMin ||
+                    int.Parse(this.updnSendTimeOutSec.Text) > this.SendTimeoutSecondsMax)
                 {
                     e.Cancel = true;
 
                     var msg =
-                        $"Send time out seconds must be between {this.sendTimeoutSecondsMin} and {this.sendTimeoutSecondsMax}";
+                        $"Send time out seconds must be between {this.SendTimeoutSecondsMin} and {this.SendTimeoutSecondsMax}";
                     throw new MessageOnlyException(msg);
                 }
             }
@@ -446,21 +477,25 @@ namespace dMobile.View.Options
             {
                 var msg = SysCommon.GetMessageFromMessageException(msgEx);
                 e.Cancel = true;
-                _ = Device.InvokeOnMainThreadAsync(async () =>
-                    await Application.Current.MainPage.DisplayAlert(
-                        this.GetControlDescription(),
-                        msg,
-                        Resource.OK));
+                _ = Device.InvokeOnMainThreadAsync(
+                    async () =>
+                        await Application.Current.MainPage.DisplayAlert(
+                            this.GetControlDescription(),
+                            msg,
+                            Resource.OK));
             }
             catch (Exception ex)
             {
                 e.Cancel = false;
 
-                Device.BeginInvokeOnMainThread(async () =>
-                {
-                    var errorReport = new FormErrorReport(SysCommon.ActSubTypes.CommunicationSetup, /*this,*/ ex);
-                    _ = await errorReport.ShowDialog();
-                });
+                Device.BeginInvokeOnMainThread(
+                    async () =>
+                    {
+                        var errorReport = new FormErrorReport(
+                            SysCommon.ActSubTypes.CommunicationSetup, /*this,*/
+                            ex);
+                        _ = await errorReport.ShowDialog();
+                    });
             }
         }
 
@@ -484,21 +519,25 @@ namespace dMobile.View.Options
 
                 // Do not set the IsChangesMade. MessageOnlyException is really not and error.
                 // Allow the validation to handle the setting for IsChangesMade.
-                _ = Device.InvokeOnMainThreadAsync(async () =>
-                    await Application.Current.MainPage.DisplayAlert(
-                        this.GetControlDescription(),
-                        msg,
-                        Resource.OK));
+                _ = Device.InvokeOnMainThreadAsync(
+                    async () =>
+                        await Application.Current.MainPage.DisplayAlert(
+                            this.GetControlDescription(),
+                            msg,
+                            Resource.OK));
             }
             catch (Exception ex)
             {
                 this.IsChangesMade = true;
 
-                Device.BeginInvokeOnMainThread(async () =>
-                {
-                    var errorReport = new FormErrorReport(SysCommon.ActSubTypes.CommunicationSetup, /*this,*/ ex);
-                    _ = await errorReport.ShowDialog();
-                });
+                Device.BeginInvokeOnMainThread(
+                    async () =>
+                    {
+                        var errorReport = new FormErrorReport(
+                            SysCommon.ActSubTypes.CommunicationSetup, /*this,*/
+                            ex);
+                        _ = await errorReport.ShowDialog();
+                    });
             }
         }
 
@@ -510,7 +549,8 @@ namespace dMobile.View.Options
             this.SysEnv.CommSetup = this.SysEnv.CommSetup.LoadData();
 
             this.updnReceiveBufferSize.Text = this.SysEnv.CommSetup.ReceiveBufferSize.ToString();
-            this.updnReceiveTimeOutSec.Text = this.SysEnv.CommSetup.ReceiveTimeOutSeconds.ToString();
+            this.updnReceiveTimeOutSec.Text =
+                this.SysEnv.CommSetup.ReceiveTimeOutSeconds.ToString();
             this.updnSendTimeOutSec.Text = this.SysEnv.CommSetup.SendTimeOutSeconds.ToString();
         }
 

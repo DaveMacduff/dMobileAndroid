@@ -525,10 +525,10 @@ namespace dMobile.View.Activity
 
                 await this.ScannerDisable();
 
-                if (!string.IsNullOrEmpty(this.Parse.ActFKRefno))
+                if (!string.IsNullOrEmpty(this.Parse.ActFkRefno))
                 {
                     // this.Parse.ActivityFKRefno e.g. format is 'OE:12345678' start at 4th pos for the fk refno
-                    var actStringFKRefno = this.Parse.ActFKRefno;
+                    var actStringFKRefno = this.Parse.ActFkRefno;
 
                     if (!string.IsNullOrEmpty(actStringFKRefno))
                     {
@@ -563,7 +563,7 @@ namespace dMobile.View.Activity
                             await this.DisplayAlert(this.GetControlDescription(), message, "OK"));
                     }
                 }
-                else if (!string.IsNullOrEmpty(this.Parse.ActItemFKRefno))
+                else if (!string.IsNullOrEmpty(this.Parse.ActItemFkRefno))
                 {
                     await Device.InvokeOnMainThreadAsync(async () =>
                         await this.DisplayAlert(this.GetControlDescription(),
@@ -575,7 +575,7 @@ namespace dMobile.View.Activity
                         await this.DisplayAlert(this.GetControlDescription(),
                             "Scanning a product bar code is not supported here.", "OK"));
                 }
-                else if (!string.IsNullOrEmpty(this.Parse.SSCC18))
+                else if (!string.IsNullOrEmpty(this.Parse.Sscc18))
                 {
                     await Device.InvokeOnMainThreadAsync(async () =>
                         await this.DisplayAlert(this.GetControlDescription(),

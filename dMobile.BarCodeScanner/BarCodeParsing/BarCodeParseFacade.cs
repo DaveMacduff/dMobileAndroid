@@ -301,10 +301,10 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
             if (RawData.StartsWith("]"))
             {
                 // Parse out the Prefix
-                if (!string.IsNullOrEmpty(RawData.Substring(0, 3)))
+                if (!string.IsNullOrEmpty(RawData[..3]))
                 {
                     // First 3 Characters are the Prefix
-                    Prefix = RawData.Substring(0, 3);
+                    Prefix = RawData[..3];
 
                     if (!string.IsNullOrEmpty(rawData[Prefix.Length..]))
                     {

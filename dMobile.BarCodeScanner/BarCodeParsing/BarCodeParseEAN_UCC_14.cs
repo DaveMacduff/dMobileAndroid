@@ -24,7 +24,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         {
             barCodeData = this.IdentifyProductIdentifier(barCodeData);   // does not remove data
 
-            barCodeData = this.IdentifyGTIN(barCodeData);   // does not remove data
+            barCodeData = this.IdentifyGtin(barCodeData);   // does not remove data
 
             // parse the GTIN
             barCodeData = barCodeData.Remove(0, 2);   // remove the UPC numbering system or EAN prefix
@@ -73,7 +73,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         protected override string IdentifyCompanyPrefix(string barCodeData)
         {
             var strBarCodeData = barCodeData;
-            this.CompanyPrefix = strBarCodeData.Substring(0, 5);
+            this.CompanyPrefix = strBarCodeData[..5];
 
             // remove the Company Prefix from the bar code data
             strBarCodeData = strBarCodeData.Remove(0, this.CompanyPrefix.Length);
@@ -89,7 +89,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// <inheritdoc/>
         protected override string IdentifyItemReference(string barCodeData)
         {
-            this.ItemReference = barCodeData.Substring(0, 5);
+            this.ItemReference = barCodeData[..5];
 
             // remove the Item Reference from the bar code data
             barCodeData = barCodeData.Remove(0, this.ItemReference.Length);
@@ -103,11 +103,11 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// <param name="barCodeData"></param>
         /// <returns></returns>
         /// <inheritdoc/>
-        protected override string IdentifyGTIN(string barCodeData)
+        protected override string IdentifyGtin(string barCodeData)
         {
             var len = (barCodeData.Length > 14) ? 14 : barCodeData.Length;
 
-            this.GTIN = barCodeData.Substring(0, len).PadLeft(14, '0');
+            this.Gtin = barCodeData[..len].PadLeft(14, '0');
 
             // remove the GTIN from the bar code data
             // barCodeData = barCodeData.Remove(0, strGTIN.Length);

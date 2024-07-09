@@ -881,18 +881,18 @@ namespace dMobile.View.Activity
                     throw new MessageOnlyException("Scanning a location code is not supported here.");
                 }
 
-                if (!string.IsNullOrEmpty(this.Parse.ActFKRefno))
+                if (!string.IsNullOrEmpty(this.Parse.ActFkRefno))
                 {
                     throw new MessageOnlyException(
                         "Scanning an activity header reference number is not supported here.");
                 }
 
-                if (!string.IsNullOrEmpty(this.Parse.ActItemFKRefno))
+                if (!string.IsNullOrEmpty(this.Parse.ActItemFkRefno))
                 {
                     throw new MessageOnlyException("Scanning an activity item reference number is not supported here.");
                 }
 
-                if (!string.IsNullOrEmpty(this.Parse.SSCC18))
+                if (!string.IsNullOrEmpty(this.Parse.Sscc18))
                 {
                     throw new MessageOnlyException("Scanning an shipping container code is not supported here.");
                 }

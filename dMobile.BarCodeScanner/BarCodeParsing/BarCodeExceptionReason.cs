@@ -2,6 +2,7 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
+// ReSharper disable InconsistentNaming
 namespace dMobile.BarCodeScanner.BarCodeParsing
 {
     /// <summary>
@@ -106,12 +107,12 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         NetWeightMetricKG_UnknownDecimalPlaces,
 
         /// <summary>
-        /// Couldn't parse "Non Metric Net Weight LB" - Invalid Decimal
+        /// Couldn't parse "Non-Metric Net Weight LB" - Invalid Decimal
         /// </summary>
         NetWeightNonMetricLB_InvalidDecimal,
 
         /// <summary>
-        /// Couldn't parse "Non Metric Net Weight LB" - Unknown Decimal Places
+        /// Couldn't parse "Non-Metric Net Weight LB" - Unknown Decimal Places
         /// </summary>
         NetWeightNonMetricLB_UnknownDecimalPlaces,
 
@@ -126,12 +127,12 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         GrossWeightMetricKG_UnknownDecimalPlaces,
 
         /// <summary>
-        /// Couldn't parse "Non Metric Gross Weight LB" - Invalid Decimal
+        /// Couldn't parse "Non-Metric Gross Weight LB" - Invalid Decimal
         /// </summary>
         GrossWeightNonMetricLB_InvalidDecimal,
 
         /// <summary>
-        /// Couldn't parse "Non Metric Gross Weight LB" - Unknown Decimal Places
+        /// Couldn't parse "Non-Metric Gross Weight LB" - Unknown Decimal Places
         /// </summary>
         GrossWeightNonMetricLB_UnknownDecimalPlaces,
 

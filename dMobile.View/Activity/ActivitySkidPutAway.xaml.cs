@@ -1186,17 +1186,17 @@ namespace dMobile.View.Activity
 
                         await this.GatherProductData(scanArgs.ParseInfo);
                     }
-                    else if (!string.IsNullOrEmpty(this.BarCodeParse.ActFKRefno))
+                    else if (!string.IsNullOrEmpty(this.BarCodeParse.ActFkRefno))
                     {
                         throw new MessageOnlyException(
                             "Scanning an activity header reference # is not supported here.");
                     }
-                    else if (!string.IsNullOrEmpty(this.BarCodeParse.ActItemFKRefno))
+                    else if (!string.IsNullOrEmpty(this.BarCodeParse.ActItemFkRefno))
                     {
                         throw new MessageOnlyException(
                             "Scanning an activity item reference # is not supported here.");
                     }
-                    else if (!string.IsNullOrEmpty(this.BarCodeParse.SSCC18))
+                    else if (!string.IsNullOrEmpty(this.BarCodeParse.Sscc18))
                     {
                         if (!this.SysEnv.SysSettings.IsSkidTrackingModule)
                         {
@@ -1213,7 +1213,7 @@ namespace dMobile.View.Activity
                         await this.ClearContents();
 
                         this.Activity.SkidInfo =
-                            await SysSkidInfo.GetSkidInfoFromBarCodeOrCode(scanArgs.ParseInfo.SSCC18);
+                            await SysSkidInfo.GetSkidInfoFromBarCodeOrCode(scanArgs.ParseInfo.Sscc18);
 
                         if (this.Activity.SkidInfo.CurrSkid.SkidFkRefno == 0)
                         {

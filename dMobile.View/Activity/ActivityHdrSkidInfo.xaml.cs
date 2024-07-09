@@ -1021,10 +1021,10 @@ namespace dMobile.View.Activity
                 var codeParse = scanArgs.ParseInfo;
                 var isLocationBarCodeScanned = !string.IsNullOrEmpty(codeParse.LocationIdentifier);
                 var isProductScanned = !string.IsNullOrEmpty(codeParse.ProductIdentifier);
-                var isFkRefnoScanned = !string.IsNullOrEmpty(codeParse.ActFKRefno);
-                var isFkItemRefnoScanned = !string.IsNullOrEmpty(codeParse.ActItemFKRefno);
-                var isFkDetailRefnoScanned = !string.IsNullOrEmpty(codeParse.ActDetailFKRefno);
-                var isSkidScanned = !string.IsNullOrEmpty(codeParse.SSCC18);
+                var isFkRefnoScanned = !string.IsNullOrEmpty(codeParse.ActFkRefno);
+                var isFkItemRefnoScanned = !string.IsNullOrEmpty(codeParse.ActItemFkRefno);
+                var isFkDetailRefnoScanned = !string.IsNullOrEmpty(codeParse.ActDetailFkRefno);
+                var isSkidScanned = !string.IsNullOrEmpty(codeParse.Sscc18);
 
                 if (isLocationBarCodeScanned)
                 {
@@ -1096,7 +1096,7 @@ namespace dMobile.View.Activity
                 try
                 {
                     var scannedSkidInfo =
-                        await SysSkidInfo.GetSkidInfoFromBarCodeOrCode(codeParse.SSCC18.TrimEnd());
+                        await SysSkidInfo.GetSkidInfoFromBarCodeOrCode(codeParse.Sscc18.TrimEnd());
                     switch (this.ActivityType)
                     {
                         case SysShared.ActivityType.Header:

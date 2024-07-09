@@ -79,24 +79,24 @@ namespace dMobile.View
 
             if (actDetail.ActItem.ProdInfo.WeightUnitCode == "LB")
             {
-                if (parse.NetWeightMetricKG > 0)
+                if (parse.NetWeightMetricKg > 0)
                 {
-                    weight = Convert.ToDecimal(SysCommon.ConvertKg2Lb(Convert.ToDouble(parse.NetWeightMetricKG)));
+                    weight = Convert.ToDecimal(SysCommon.ConvertKg2Lb(Convert.ToDouble(parse.NetWeightMetricKg)));
                 }
-                else if (parse.NetWeightNonMetricLB > 0)
+                else if (parse.NetWeightNonMetricLb > 0)
                 {
-                    weight = parse.NetWeightNonMetricLB;
+                    weight = parse.NetWeightNonMetricLb;
                 }
             }
             else if (actDetail.ActItem.ProdInfo.WeightUnitCode == "KG")
             {
-                if (parse.NetWeightNonMetricLB > 0)
+                if (parse.NetWeightNonMetricLb > 0)
                 {
-                    weight = Convert.ToDecimal(SysCommon.ConvertLb2Kg(Convert.ToDouble(parse.NetWeightNonMetricLB)));
+                    weight = Convert.ToDecimal(SysCommon.ConvertLb2Kg(Convert.ToDouble(parse.NetWeightNonMetricLb)));
                 }
-                else if (parse.NetWeightMetricKG > 0)
+                else if (parse.NetWeightMetricKg > 0)
                 {
-                    weight = parse.NetWeightMetricKG;
+                    weight = parse.NetWeightMetricKg;
                 }
             }
 
@@ -188,17 +188,17 @@ namespace dMobile.View
                     switch (deliScaleWeightUnit)
                     {
                         case "LB":
-                            barCodeParse.NetWeightNonMetricLB = deliScaleWeight;
-                            barCodeParse.NetWeightMetricKG = Convert.ToDecimal(
+                            barCodeParse.NetWeightNonMetricLb = deliScaleWeight;
+                            barCodeParse.NetWeightMetricKg = Convert.ToDecimal(
                                 SysCommon.ConvertLb2Kg(Convert.ToDouble(
-                                    barCodeParse.NetWeightNonMetricLB)));
+                                    barCodeParse.NetWeightNonMetricLb)));
                             break;
 
                         case "KG":
-                            barCodeParse.NetWeightMetricKG = deliScaleWeight;
-                            barCodeParse.NetWeightNonMetricLB = Convert.ToDecimal(
+                            barCodeParse.NetWeightMetricKg = deliScaleWeight;
+                            barCodeParse.NetWeightNonMetricLb = Convert.ToDecimal(
                                 SysCommon.ConvertKg2Lb(Convert.ToDouble(
-                                    barCodeParse.NetWeightMetricKG)));
+                                    barCodeParse.NetWeightMetricKg)));
                             break;
 
                         default:
@@ -313,7 +313,7 @@ namespace dMobile.View
             var isInsertDetailReady = false;
 
             // Can't remember why this block is needed.
-            if (!string.IsNullOrEmpty(barParse.ActDetailFKRefno) && !sysEnv.SysSettings.IsDisconnectedMode)
+            if (!string.IsNullOrEmpty(barParse.ActDetailFkRefno) && !sysEnv.SysSettings.IsDisconnectedMode)
             {
                 defaultItemSchemeData = new ActItemSchemeData();
                 var locMap = LocationMap.GetInstance();
@@ -466,8 +466,8 @@ namespace dMobile.View
                 //////////////////////////////////////////////////////////////////////////
                 static bool IsNebraskaBeefRuleMet(BarCodeParse barParse)
                 {
-                    return (barParse.GTIN.Contains("0740780")
-                            || barParse.GTIN.Contains("19336"))
+                    return (barParse.Gtin.Contains("0740780")
+                            || barParse.Gtin.Contains("19336"))
                            && !string.IsNullOrEmpty(barParse.LogisticUnitBatchLotNumber);
                 }
 
@@ -576,7 +576,7 @@ namespace dMobile.View
                         {
                             var lotCodeDefault = await GetLotCodeDefaultFromSupplierCompanyPrefix(
                                 actDetail.ActItem.ProdInfo.Scheme.SchemeRefno,
-                                barCodeParse.GTIN);
+                                barCodeParse.Gtin);
 
                             if (!string.IsNullOrEmpty(lotCodeDefault))
                             {
@@ -763,29 +763,29 @@ namespace dMobile.View
                     {
                         switch (prodInfo.WeightUnitCode)
                         {
-                            case "LB" when barCodeParse.NetWeightMetricKG != 0:
-                                actDetail.WeightQuantity = SysCommon.ConvertKg2Lb(barCodeParse.NetWeightMetricKG);
+                            case "LB" when barCodeParse.NetWeightMetricKg != 0:
+                                actDetail.WeightQuantity = SysCommon.ConvertKg2Lb(barCodeParse.NetWeightMetricKg);
                                 break;
 
                             case "LB":
                             {
-                                if (barCodeParse.NetWeightNonMetricLB != 0)
+                                if (barCodeParse.NetWeightNonMetricLb != 0)
                                 {
-                                    actDetail.WeightQuantity = barCodeParse.NetWeightNonMetricLB;
+                                    actDetail.WeightQuantity = barCodeParse.NetWeightNonMetricLb;
                                 }
 
                                 break;
                             }
 
-                            case "KG" when barCodeParse.NetWeightNonMetricLB != 0:
-                                actDetail.WeightQuantity = SysCommon.ConvertLb2Kg(barCodeParse.NetWeightNonMetricLB);
+                            case "KG" when barCodeParse.NetWeightNonMetricLb != 0:
+                                actDetail.WeightQuantity = SysCommon.ConvertLb2Kg(barCodeParse.NetWeightNonMetricLb);
                                 break;
 
                             case "KG":
                             {
-                                if (barCodeParse.NetWeightMetricKG != 0)
+                                if (barCodeParse.NetWeightMetricKg != 0)
                                 {
-                                    actDetail.WeightQuantity = barCodeParse.NetWeightMetricKG;
+                                    actDetail.WeightQuantity = barCodeParse.NetWeightMetricKg;
                                 }
 
                                 break;
@@ -1054,48 +1054,48 @@ namespace dMobile.View
         public static void BarCodeRuleParseSumwaFarmFedWholeDuckUseWeightRangeToIdProduct(
             BarCodeParse barCodeParse)
         {
-            if (barCodeParse.NetWeightMetricKG >= Convert.ToDecimal(11.00) &&
-                barCodeParse.NetWeightMetricKG <= Convert.ToDecimal(11.99))
+            if (barCodeParse.NetWeightMetricKg >= Convert.ToDecimal(11.00) &&
+                barCodeParse.NetWeightMetricKg <= Convert.ToDecimal(11.99))
             {
                 barCodeParse.ProductIdentifier = "MC10448";
             }
-            else if (barCodeParse.NetWeightMetricKG >= Convert.ToDecimal(12.00) &&
-                     barCodeParse.NetWeightMetricKG <= Convert.ToDecimal(12.49))
+            else if (barCodeParse.NetWeightMetricKg >= Convert.ToDecimal(12.00) &&
+                     barCodeParse.NetWeightMetricKg <= Convert.ToDecimal(12.49))
             {
                 barCodeParse.ProductIdentifier = "MC10443";
             }
-            else if (barCodeParse.NetWeightMetricKG >= Convert.ToDecimal(12.50) &&
-                     barCodeParse.NetWeightMetricKG <= Convert.ToDecimal(12.99))
+            else if (barCodeParse.NetWeightMetricKg >= Convert.ToDecimal(12.50) &&
+                     barCodeParse.NetWeightMetricKg <= Convert.ToDecimal(12.99))
             {
                 barCodeParse.ProductIdentifier = "MC10441";
             }
-            else if (barCodeParse.NetWeightMetricKG >= Convert.ToDecimal(13.00) &&
-                     barCodeParse.NetWeightMetricKG <= Convert.ToDecimal(13.49))
+            else if (barCodeParse.NetWeightMetricKg >= Convert.ToDecimal(13.00) &&
+                     barCodeParse.NetWeightMetricKg <= Convert.ToDecimal(13.49))
             {
                 barCodeParse.ProductIdentifier = "MC10442";
             }
-            else if (barCodeParse.NetWeightMetricKG >= Convert.ToDecimal(13.50) &&
-                     barCodeParse.NetWeightMetricKG <= Convert.ToDecimal(13.99))
+            else if (barCodeParse.NetWeightMetricKg >= Convert.ToDecimal(13.50) &&
+                     barCodeParse.NetWeightMetricKg <= Convert.ToDecimal(13.99))
             {
                 barCodeParse.ProductIdentifier = "MC10440";
             }
-            else if (barCodeParse.NetWeightMetricKG >= Convert.ToDecimal(14.00) &&
-                     barCodeParse.NetWeightMetricKG <= Convert.ToDecimal(14.49))
+            else if (barCodeParse.NetWeightMetricKg >= Convert.ToDecimal(14.00) &&
+                     barCodeParse.NetWeightMetricKg <= Convert.ToDecimal(14.49))
             {
                 barCodeParse.ProductIdentifier = "MC10445";
             }
-            else if (barCodeParse.NetWeightMetricKG >= Convert.ToDecimal(14.50) &&
-                     barCodeParse.NetWeightMetricKG <= Convert.ToDecimal(14.99))
+            else if (barCodeParse.NetWeightMetricKg >= Convert.ToDecimal(14.50) &&
+                     barCodeParse.NetWeightMetricKg <= Convert.ToDecimal(14.99))
             {
                 barCodeParse.ProductIdentifier = "MC10446";
             }
-            else if (barCodeParse.NetWeightMetricKG >= Convert.ToDecimal(15.00) &&
-                     barCodeParse.NetWeightMetricKG <= Convert.ToDecimal(15.49))
+            else if (barCodeParse.NetWeightMetricKg >= Convert.ToDecimal(15.00) &&
+                     barCodeParse.NetWeightMetricKg <= Convert.ToDecimal(15.49))
             {
                 barCodeParse.ProductIdentifier = "MC10447";
             }
-            else if (barCodeParse.NetWeightMetricKG >= Convert.ToDecimal(15.50) &&
-                     barCodeParse.NetWeightMetricKG <= Convert.ToDecimal(16.00))
+            else if (barCodeParse.NetWeightMetricKg >= Convert.ToDecimal(15.50) &&
+                     barCodeParse.NetWeightMetricKg <= Convert.ToDecimal(16.00))
             {
                 barCodeParse.ProductIdentifier = "MC10450";
             }

@@ -18,7 +18,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         public override void ParseBarCodeData(string barCodeData)
         {
             barCodeData = this.IdentifyProductIdentifier(barCodeData);
-            barCodeData = this.IdentifyNetWeightMetricKG(barCodeData);
+            barCodeData = this.IdentifyNetWeightMetricKg(barCodeData);
             barCodeData = this.IdentifyLogisticUnitProductionDate(barCodeData);
             this.Remainder = barCodeData;
         }
@@ -36,7 +36,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
             }
             else if (barCodeData.Length > 6)
             {
-                this.ProductIdentifier = barCodeData.Substring(0, 6);
+                this.ProductIdentifier = barCodeData[..6];
             }
             else
             {
@@ -53,23 +53,22 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// </summary>
         /// <param name="barCodeData">.</param>
         /// <returns>.</returns>
-        protected override string IdentifyNetWeightMetricKG(string barCodeData)
+        protected override string IdentifyNetWeightMetricKg(string barCodeData)
         {
-            this.NetWeightMetricKGFoundAI = true;
+            this.NetWeightMetricKgFoundAi = true;
 
             // Get the number of decimal places
             var places = 2;
 
             // assign the METRIC NET WEIGHT KG
-            var wholeNumber = barCodeData.Substring(0, 4);
+            var wholeNumber = barCodeData[..4];
             if (places != 0)
             {
-                this.NetWeightMetricKG = Convert.ToDecimal(wholeNumber.Substring(0,
-                    wholeNumber.Length - places) + "." + wholeNumber.Substring(wholeNumber.Length - places));
+                this.NetWeightMetricKg = Convert.ToDecimal(wholeNumber[..^places] + "." + wholeNumber[^places..]);
             }
             else
             {
-                this.NetWeightMetricKG = Convert.ToDecimal(wholeNumber);
+                this.NetWeightMetricKg = Convert.ToDecimal(wholeNumber);
             }
 
             // Remove the METRIC NET WEIGHT KG from the bar code data
@@ -90,7 +89,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
             if (tempData.Length >= 8)
             {
                 // assign the PRODUCTION DATE
-                var year = Convert.ToInt32(tempData.Substring(0, 2));
+                var year = Convert.ToInt32(tempData[..2]);
                 if (year < 80)
                 {
                     year = year + 2000;

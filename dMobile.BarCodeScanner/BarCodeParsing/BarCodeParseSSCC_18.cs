@@ -6,6 +6,9 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
 {
     using System;
 
+    /// <summary>
+    ///     Bar code parser for SSCC-18
+    /// </summary>
     public class BarCodeParseSSCC_18 : BarCodeParse
     {
         /// <summary>
@@ -14,12 +17,11 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// Position 2-16 company prefix and manufacturer serial number
         /// Position 18 is a check digit.
         /// </summary>
-        /// <param name="barCodeData"></param>
-        /// <returns></returns>
+        /// <param name="barCodeData"><see cref="string"/> Bar code data.</param>
         public override void ParseBarCodeData(string barCodeData)
         {
             // do not remove data
-            barCodeData = this.IdentifySSCC18(barCodeData);
+            barCodeData = this.IdentifySscc18(barCodeData);
 
             // must follow IdentifySSCC18(), also do not remove data
             barCodeData = this.IdentifyProductIdentifier(barCodeData);
@@ -38,14 +40,13 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         }
 
         /// <summary>
-        ///
+        ///     Identify the Manufacturer Serial Number.
         /// </summary>
-        /// <param name="barCodeData"></param>
-        /// <returns></returns>
-        /// <inheritdoc/>
+        /// <param name="barCodeData"><see cref="string"/> Bar code data.</param>
+        /// <returns>Remainder of the unparsable bar code data.</returns>
         protected override string IdentifyManufacturerSerialNumber(string barCodeData)
         {
-            this.ManufacturerSerialNumber = Convert.ToInt64(barCodeData.Substring(0, 9));
+            this.ManufacturerSerialNumber = Convert.ToInt64(barCodeData[..9]);
 
             // remove the Manufacturer Serial Number from the bar code data
             barCodeData = barCodeData.Remove(0, 9);
@@ -54,14 +55,13 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         }
 
         /// <summary>
-        ///
+        ///     Identify the Packaging Type.
         /// </summary>
-        /// <param name="barCodeData"></param>
-        /// <returns></returns>
-        /// <inheritdoc/>
+        /// <param name="barCodeData"><see cref="string"/> Bar code data.</param>
+        /// <returns>Remainder of the unparsable bar code data.</returns>
         protected override string IdentifyPackagingType(string barCodeData)
         {
-            this.PackagingType = Convert.ToInt32(barCodeData.Substring(0, 1));
+            this.PackagingType = Convert.ToInt32(barCodeData[..1]);
 
             // remove the Packaging Type from the bar code data
             barCodeData = barCodeData.Remove(0, 1);
@@ -70,11 +70,10 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         }
 
         /// <summary>
-        ///
+        ///     Identify the Product Identifier.
         /// </summary>
-        /// <param name="barCodeData"></param>
-        /// <returns></returns>
-        /// <inheritdoc/>
+        /// <param name="barCodeData"><see cref="string"/> Bar code data.</param>
+        /// <returns>Remainder of the unparsable bar code data.</returns>
         protected override string IdentifyProductIdentifier(string barCodeData)
         {
             this.ProductIdentifier = barCodeData;
@@ -84,14 +83,13 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         }
 
         /// <summary>
-        ///
+        ///     Identify the Company Prefix.
         /// </summary>
-        /// <param name="barCodeData"></param>
-        /// <returns></returns>
-        /// <inheritdoc/>
+        /// <param name="barCodeData"><see cref="string"/> Bar code data.</param>
+        /// <returns>Remainder of the unparsable bar code data.</returns>
         protected override string IdentifyCompanyPrefix(string barCodeData)
         {
-            this.CompanyPrefix = barCodeData.Substring(0, 7);
+            this.CompanyPrefix = barCodeData[..7];
 
             // remove the Company Prefix from the bar code data
             barCodeData = barCodeData.Remove(0, this.CompanyPrefix.Length);
@@ -100,12 +98,11 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         }
 
         /// <summary>
-        ///
+        ///     Identify the SSCC-18.
         /// </summary>
-        /// <param name="barCodeData"></param>
-        /// <returns></returns>
-        /// <inheritdoc/>
-        protected override string IdentifySSCC18(string barCodeData)
+        /// <param name="barCodeData"><see cref="string"/> Bar code data.</param>
+        /// <returns>Remainder of the unparsable bar code data.</returns>
+        protected override string IdentifySscc18(string barCodeData)
         {
             if (barCodeData.StartsWith("00") && barCodeData.Length >= 18)
             {
@@ -113,11 +110,12 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
                 barCodeData = barCodeData.Remove(0, 2);
 
                 // assign the SSCC-18
-                this.SSCC18 = barCodeData.Substring(0, 18);
+                this.Sscc18 = barCodeData[..18];
 
                 // remove the SSCC-18 from the bar code data
                 // barCodeData = barCodeData.Remove(0, strSSCC18.Length);
             }
+
             return barCodeData;
         }
     }

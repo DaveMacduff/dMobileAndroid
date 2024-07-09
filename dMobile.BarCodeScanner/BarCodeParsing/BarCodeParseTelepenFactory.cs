@@ -10,7 +10,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
     public class BarCodeParseTelepenFactory : BarCodeParseFactory
     {
         /// <summary>
-        /// The GetBarCodeParse.
+        ///     Gets the <see cref="BarCodeParse"/>.
         /// </summary>
         /// <returns>The <see cref="BarCodeParse"/>.</returns>
         public override BarCodeParse GetBarCodeParse()

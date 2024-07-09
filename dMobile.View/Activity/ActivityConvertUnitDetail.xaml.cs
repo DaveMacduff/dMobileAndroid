@@ -874,19 +874,19 @@ namespace dMobile.View.Activity
                         ////}
                     }
                 }
-                else if (!string.IsNullOrEmpty(parse.ActFKRefno))
+                else if (!string.IsNullOrEmpty(parse.ActFkRefno))
                 {
                     throw new MessageOnlyException("Scanning a header reference # is not supported here.");
                 }
-                else if (!string.IsNullOrEmpty(parse.ActItemFKRefno))
+                else if (!string.IsNullOrEmpty(parse.ActItemFkRefno))
                 {
                     throw new MessageOnlyException("Scanning an item reference # is not supported here.");
                 }
-                else if (!string.IsNullOrEmpty(parse.ActDetailFKRefno))
+                else if (!string.IsNullOrEmpty(parse.ActDetailFkRefno))
                 {
                     throw new MessageOnlyException("Scanning a detail reference # is not supported here.");
                 }
-                else if (!string.IsNullOrEmpty(parse.SSCC18))
+                else if (!string.IsNullOrEmpty(parse.Sscc18))
                 {
                     throw new MessageOnlyException("Scanning a shipping container bar code is not supported here.");
                 }
