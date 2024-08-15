@@ -26,7 +26,7 @@ namespace dMobile.View.Activity
     using Resources.Types;
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;
-    using Resource = dMobile.Resources.Properties.Resources;
+    using Resource = Resources.Properties.Resources;
 
     /// <summary>
     ///     Activity items control.
@@ -127,14 +127,15 @@ namespace dMobile.View.Activity
             // If the skid was not set on the header activity define an empty one.
             activity.SkidInfo ??= new SysSkidInfo();
 
-            this.CmdClearSelectedSkidIsEnabled = this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFkRefno != 0
-                                                 && this.CmdAddSkidIsEnabled && this.CmdSelectSkidIsEnabled;
+            this.CmdClearSelectedSkidIsEnabled =
+                this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFkRefno != 0 &&
+                this.CmdAddSkidIsEnabled &&
+                this.CmdSelectSkidIsEnabled;
 
             ParseAndSeedBarCodeModifier();
             this.Title = this.ActItem.GetControlDescription();
             this.Timer = new SysTimer(this.TimerTickCallback, 1000);
-            this.ScannerEnable().FireAndForgetSafeAsync();
-            this.LoadAndBindData().FireAndForgetSafeAsync();
+            this.IsFirstAppearance = true;
             return;
 
             //////////////////////////////////////////////////////////////////////////
@@ -223,12 +224,12 @@ namespace dMobile.View.Activity
         /// <summary>
         ///     Gets or sets a counter that tracks the number of screen taps, for double click.
         /// </summary>
-        private int NumTaps { get; set; }
+        private int NumberOfScreenTapsForDoubleClick { get; set; }
 
         /// <summary>
         ///     Gets or sets the sender for tracking the number of screen taps, for double click.
         /// </summary>
-        private object PreviousSender { get; set; }
+        private object PreviousSenderForDoubleClick { get; set; }
 
         /// <summary>
         ///     Gets or sets the command location text.
@@ -412,6 +413,11 @@ namespace dMobile.View.Activity
         private SysTimer Timer { get; set; }
 
         /// <summary>
+        ///     Gets or sets a value indicating whether this is the first appearance of the form.
+        /// </summary>
+        private bool IsFirstAppearance { get; set; }
+
+        /// <summary>
         ///     Timer tick call back.
         /// </summary>
         public void TimerTickCallback()
@@ -528,7 +534,7 @@ namespace dMobile.View.Activity
                 {
                     if (this.IsShowDataValidMsg)
                     {
-                        // IsReadyToSave will raise errors for invalid data. This is a catch all
+                        // IsReadyToSave will raise errors for invalid data. This is a catch-all
                         // in the event that IsReadyToSave just returns false.
                         throw new MessageOnlyException(
                             "Data failed validation. Check your data.");
@@ -556,6 +562,7 @@ namespace dMobile.View.Activity
                 {
                     var errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
+                    return Task.CompletedTask;
                 });
             }
 
@@ -594,6 +601,7 @@ namespace dMobile.View.Activity
                 {
                     var errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
+                    return Task.CompletedTask;
                 });
             }
 
@@ -817,10 +825,18 @@ namespace dMobile.View.Activity
         protected override async void OnAppearing()
         {
             base.OnAppearing();
-            this.NumTaps = 0;
+            this.NumberOfScreenTapsForDoubleClick = 0;
             this.SubscribeKeyUpHandlers();
             this.ListViewMainActivity.ItemTapped += this.ListViewMainActivity_ItemTapped;
             await this.EnableMenuItems();
+
+            if (this.IsFirstAppearance)
+            {
+                this.IsFirstAppearance = false;
+                await this.LoadAndBindData();
+                await this.ScannerEnable();
+            }
+
             if (!this.IsSearchEntryFocused)
             {
                 await this.FindSelectedItemAsync();
@@ -851,9 +867,13 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// Load and bind the data.
+        ///     Load and bind the data.
         /// </summary>
-        private async Task LoadAndBindData()
+        /// <param name="performRefreshData">
+        /// True, request the data from the comm server and read it from the database.
+        /// </param>
+        /// <returns>Async operation.</returns>
+        private async Task LoadAndBindData(bool performRefreshData = true)
         {
             try
             {
@@ -861,13 +881,17 @@ namespace dMobile.View.Activity
                 {
                     this.IsDataLoading = true;
 
-                    // The activity indicator control messes up the search text control focus. Disable for searching.
+                    // The activity indicator control messes up the search text control focus.
+                    // Disable it for searching.
                     if (!this.IsSearchEntryFocused)
                     {
                         this.IsIndicatorRunning = true;
                     }
 
-                    await RefreshDataBySubType();
+                    if (performRefreshData)
+                    {
+                        await RefreshDataBySubType();
+                    }
 
                     await this.DesignGrid();
                     if (this.MainActivityItems == null || this.MainActivityItems.Count == 0)
@@ -886,6 +910,7 @@ namespace dMobile.View.Activity
                 {
                     var errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
+                    return Task.CompletedTask;
                 });
             }
             finally
@@ -919,6 +944,7 @@ namespace dMobile.View.Activity
                             await this.ActItem.Refresh(this.ActItem.ActHdr.XmlDataCriteria);
                             await Device.InvokeOnMainThreadAsync(() => this.ActItem.ListItems.Clear());
                             this.ActItem.ListItems = await this.ActItem.GetActivityItemList(false);
+                            return Task.CompletedTask;
                         });
                     }
                     catch (Exception ex)
@@ -931,6 +957,7 @@ namespace dMobile.View.Activity
                                 this.ActItem.GetControlDescription(),
                                 "Refresh");
                             _ = await errRpt.ShowDialog();
+                            return Task.CompletedTask;
                         });
                     }
                     finally
@@ -1032,6 +1059,7 @@ namespace dMobile.View.Activity
         /// <summary>
         /// Find the selected item.
         /// </summary>
+        /// <param name="activityItemRefno"><see cref="int" /> Activity item reference number.</param>
         private async Task FindSelectedItemAsync(int activityItemRefno)
         {
             if (this.ActItem.ListItems.Count > 0 && this.MainActivityItems.Count > 0)
@@ -1464,6 +1492,7 @@ namespace dMobile.View.Activity
                     {
                         var errRpt = new FormErrorReport(this.ActSubType, ex);
                         _ = await errRpt.ShowDialog();
+                        return Task.CompletedTask;
                     });
                 }
                 finally
@@ -1503,6 +1532,7 @@ namespace dMobile.View.Activity
                     {
                         var errRpt = new FormErrorReport(this.ActSubType, ex);
                         _ = await errRpt.ShowDialog();
+                        return Task.CompletedTask;
                     });
                 }
             }
@@ -1542,6 +1572,7 @@ namespace dMobile.View.Activity
                     {
                         var errRpt = new FormErrorReport(this.ActSubType, ex);
                         _ = await errRpt.ShowDialog();
+                        return Task.CompletedTask;
                     });
                 }
                 finally
@@ -1596,13 +1627,13 @@ namespace dMobile.View.Activity
         /// <param name="e"><see cref="ItemTappedEventArgs" /> Item tapped event arguments.</param>
         private async void ListViewMainActivity_ItemTapped(object sender, ItemTappedEventArgs e)
         {
-            this.NumTaps++;
+            this.NumberOfScreenTapsForDoubleClick++;
 
-            if (this.PreviousSender == e.Item)
+            if (this.PreviousSenderForDoubleClick == e.Item)
             {
-                if (this.NumTaps == 2)
+                if (this.NumberOfScreenTapsForDoubleClick == 2)
                 {
-                    this.NumTaps = 0;
+                    this.NumberOfScreenTapsForDoubleClick = 0;
                     try
                     {
                         await this.ScannerDisable();
@@ -1625,12 +1656,12 @@ namespace dMobile.View.Activity
             }
             else
             {
-                this.PreviousSender = e.Item;
-                this.NumTaps = 1;
+                this.PreviousSenderForDoubleClick = e.Item;
+                this.NumberOfScreenTapsForDoubleClick = 1;
             }
 
             await Task.Delay(500);
-            this.NumTaps = 0;
+            this.NumberOfScreenTapsForDoubleClick = 0;
         }
 
         /// <summary>
@@ -1842,13 +1873,11 @@ namespace dMobile.View.Activity
                         Math.Round(decimal.Parse(baseQty), 3),
                         Math.Round(decimal.Parse(weightQty), 3));
                     await this.ActItem.UpdateItemTableQuantity(this.ActItem.SelectedItem);
-                    this.MainActivityItems[this.ActItem.SelectedListIdx] = this.ActItem.SelectedItem;
-                    this.ListViewMainActivity.ItemsSource = this.MainActivityItems;
-                    ////this.ActItem.ListItems[this.ActItem.SelectedListIdx] = this.ActItem.SelectedItem;
+
+                    await this.LoadAndBindData(false);
                     ////this.MainActivityItems[this.ActItem.SelectedListIdx] = this.ActItem.SelectedItem;
                     ////this.ListViewMainActivity.ItemsSource = this.MainActivityItems;
-                    ////await this.LoadAndBindData();
-                    await this.FindSelectedItemAsync();
+                    ////this.ListViewMainActivity.SelectedItem = this.ActItem.SelectedItem;
                 }
             }
             catch (MessageOnlyException msgEx)
@@ -1866,6 +1895,7 @@ namespace dMobile.View.Activity
                 {
                     var errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
+                    return Task.CompletedTask;
                 });
             }
             finally
@@ -1884,6 +1914,7 @@ namespace dMobile.View.Activity
         {
             await Task.Run(async () =>
             {
+                var isNewLineItemAdded = false;
                 try
                 {
                     await this.ScannerDisable();
@@ -1928,8 +1959,9 @@ namespace dMobile.View.Activity
                                 {
                                     if (this.ActItem.ActHdr.SkidInfo.CurrSkid.ProdInfo.UnitRefno != prodUnitRefno)
                                     {
-                                        const string msg = "Selected skid product does not match the scanned product." +
-                                                           " Please scan the skid assigned product or clear the selected skid.";
+                                        const string msg = "Selected skid product does not match" +
+                                        " the scanned product. Please scan the skid assigned" +
+                                        " product or clear the selected skid.";
                                         throw new MessageOnlyException(msg);
                                     }
                                 }
@@ -1948,7 +1980,9 @@ namespace dMobile.View.Activity
                             }
 
                             await this.SetDefaultLocationBeforeKnownActivityItem(scannedProdInfo);
-                            actItemFoundRefno = await this.ActItem.GetActivityItemRefno(prodUnitRefno, this.LocMap.CurrLocMap);
+                            actItemFoundRefno = await this.ActItem.GetActivityItemRefno(
+                                prodUnitRefno,
+                                this.LocMap.CurrLocMap);
                             if (actItemFoundRefno > 0)
                             {
                                 this.ActItem.SetSelectedActivityItemFromList(actItemFoundRefno);
@@ -1959,7 +1993,9 @@ namespace dMobile.View.Activity
                                 if (this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc
                                     && !this.IsAllowedDefaultLocationOverride())
                                 {
-                                    var itemLocMap = await this.ActItem.GetSelectedItemLocation(this.ActItem.LocMapRefno);
+                                    var itemLocMap =
+                                        await this.ActItem.GetSelectedItemLocation(
+                                            this.ActItem.LocMapRefno);
                                     if (await LocationMapTasks.IsCompleteLocMap(itemLocMap))
                                     {
                                         this.LocMap.CurrLocMap = itemLocMap;
@@ -1990,7 +2026,8 @@ namespace dMobile.View.Activity
                                         actItemFoundRefno = this.ActItem.ItemRefno;
 
                                         if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFkRefno != 0
-                                            && await LocationMapTasks.IsCompleteLocMap(this.ActItem.ActHdr.SkidInfo.CurrSkid.LocMap))
+                                            && await LocationMapTasks.IsCompleteLocMap(
+                                                this.ActItem.ActHdr.SkidInfo.CurrSkid.LocMap))
                                         {
                                             this.ActItem.ActHdr.SkidInfo.CurrSkid.LocMap = this.LocMap.CurrLocMap.Clone();
                                         }
@@ -1998,6 +2035,7 @@ namespace dMobile.View.Activity
                                         this.MainActivityItems.Add(this.ActItem);
                                         await this.DesignGrid();
                                         await this.FindSelectedItemAsync(this.ActItem.ItemRefno);
+                                        isNewLineItemAdded = true;
                                     }
                                     else
                                     {
@@ -2201,6 +2239,7 @@ namespace dMobile.View.Activity
                         {
                             var errRpt = new FormErrorReport(this.ActSubType, ex);
                             _ = await errRpt.ShowDialog();
+                            return Task.CompletedTask;
                         });
                     }
                 }
@@ -2212,6 +2251,7 @@ namespace dMobile.View.Activity
                         {
                             var errRpt = new FormErrorReport(this.ActSubType, ex);
                             _ = await errRpt.ShowDialog();
+                            return Task.CompletedTask;
                         });
                     }
                 }
@@ -2221,6 +2261,7 @@ namespace dMobile.View.Activity
                     {
                         var errRpt = new FormErrorReport(this.ActSubType, ex);
                         _ = await errRpt.ShowDialog();
+                        return Task.CompletedTask;
                     });
                 }
                 finally
@@ -2228,7 +2269,24 @@ namespace dMobile.View.Activity
                     if (scanArgs != null)
                     {
                         this.ListViewDisplayExtraInfo.ItemsSource = this.ExtraInfoItems;
-                        await this.LoadAndBindData();
+                        if (isNewLineItemAdded)
+                        {
+                            await this.LoadAndBindData();
+                        }
+                        else
+                        {
+                            this.MainActivityItems[this.ActItem.SelectedListIdx] = this.ActItem.SelectedItem;
+                            this.ListViewMainActivity.ItemsSource = this.MainActivityItems;
+                            await Device.InvokeOnMainThreadAsync(() =>
+                            {
+                                this.ListViewMainActivity.SelectedItem = this.ActItem.SelectedItem;
+                                this.ListViewMainActivity.ScrollTo(
+                                    this.ListViewMainActivity.SelectedItem,
+                                    ScrollToPosition.MakeVisible,
+                                    true);
+                                return Task.CompletedTask;
+                            });
+                        }
                     }
 
                     await this.ScannerEnable();
@@ -2247,6 +2305,12 @@ namespace dMobile.View.Activity
                         parse.LocationIdentifier));
                 this.LocMap.CurrLocMap = tmpLoc;
                 this.LocMap.ChosenLocMap = this.LocMap.CurrLocMap.Clone();
+
+                await Device.InvokeOnMainThreadAsync(() =>
+                {
+                    this.lblSelectedLocation.Text = "Selected Location: " +
+                        LocationMapTasks.GetCurrentReadableLocation();
+                });
 
                 await CheckIfScannedSectionMatchesFilteredOne(tmpLoc);
                 return;
@@ -2654,6 +2718,8 @@ namespace dMobile.View.Activity
                     {
                         isAddNewItem = true;
                     }
+
+                    return Task.CompletedTask;
                 });
             }
             else
@@ -2685,6 +2751,8 @@ namespace dMobile.View.Activity
                 {
                     isAssignProductToSkid = true;
                 }
+
+                return Task.CompletedTask;
             });
 
             return isAssignProductToSkid;
@@ -2709,6 +2777,7 @@ namespace dMobile.View.Activity
                 }
 
                 this.ListViewMainActivity.ItemsSource = this.MainActivityItems;
+                return Task.CompletedTask;
             });
         }
 
@@ -2789,6 +2858,7 @@ namespace dMobile.View.Activity
                         }
 
                         this.CmdSelectSkidText = "Skid# " + this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidCode;
+                        return Task.CompletedTask;
                     });
                 }
                 else
@@ -2801,6 +2871,7 @@ namespace dMobile.View.Activity
                         this.CmdClearSelectedSkidIsEnabled = false;
                         this.CmdLocationIsEnabled = true;
                         this.CmdSelectSkidText = "Select Skid";
+                        return Task.CompletedTask;
                     });
                 }
 
@@ -2896,7 +2967,8 @@ namespace dMobile.View.Activity
                         throw new ArgumentOutOfRangeException();
                 }
 
-                this.ExtraInfoItems.Add("Selected Location: " + LocationMapTasks.GetCurrentReadableLocation());
+                ////this.ExtraInfoItems.Add("Selected Location: " + LocationMapTasks.GetCurrentReadableLocation());
+                this.lblSelectedLocation.Text = "Selected Location: " + LocationMapTasks.GetCurrentReadableLocation();
 
                 this.ListViewDisplayExtraInfo.ItemsSource = this.ExtraInfoItems;
             });
@@ -3409,6 +3481,7 @@ namespace dMobile.View.Activity
                     var currentReadableLocation = LocationMapTasks.GetCurrentReadableLocation();
                     _ = await Device.InvokeOnMainThreadAsync(() => this.CmdLocationText =
                         "Location: " + Environment.NewLine + currentReadableLocation);
+                    return Task.CompletedTask;
                 });
 
                 var result = await this.DisplayActionSheet(
@@ -3457,6 +3530,7 @@ namespace dMobile.View.Activity
                 {
                     var errRpt = new FormErrorReport(this.ActSubType, ex);
                     _ = await errRpt.ShowDialog();
+                    return Task.CompletedTask;
                 });
             }
             finally
@@ -3776,6 +3850,7 @@ namespace dMobile.View.Activity
                         {
                             var errRpt = new FormErrorReport(this.ActSubType, ex);
                             _ = await errRpt.ShowDialog();
+                            return Task.CompletedTask;
                         });
                     }
 

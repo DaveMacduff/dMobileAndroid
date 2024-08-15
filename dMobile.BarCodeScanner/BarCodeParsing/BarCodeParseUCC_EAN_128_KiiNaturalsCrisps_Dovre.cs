@@ -4,29 +4,29 @@
 
 namespace dMobile.BarCodeScanner.BarCodeParsing
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
-
+    /// <summary>
+    /// 
+    /// </summary>
     public class BarCodeParseUCC_EAN_128_KiiNaturalsCrisps_Dovre : BarCodeParseUCC_EAN_128_Symbol
     {
         public static readonly string KiiNaturalsCrispsVendorNumber = "0678629";
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         protected override string IdentifyGtin(string barCodeData)
         {
             var data = barCodeData;
 
             // they have their GTIN's ID'd 02 instead of 01
-            if (data.StartsWith("02") && data.Length >= 16)
+            if (data.StartsWith("02") &&
+                data.Length >= 16)
             {
                 data = "01" + data[2..];
             }
+
             return base.IdentifyGtin(data);
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         protected override string IdentifyGtiNinLogisticUnit(string barCodeData)
         {
             // They have their GTIN's ID'd 02 instead of 01
@@ -34,15 +34,17 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
             return barCodeData;
         }
 
-        /// <inheritdoc/>
+        /// <inheritdoc />
         protected override string IdentifyLogisticUnitBestBeforeSellByDate(string barCodeData)
         {
             var tempData = barCodeData;
-            if (tempData.StartsWith("15") && tempData.Length >= 8)
+            if (tempData.StartsWith("15") &&
+                tempData.Length >= 8)
             {
                 // For Vendor # 0678629
                 // stored as DDMMYY and it should be YYMMDD
-                if (this.Gtin != null && this.Gtin[1..].StartsWith(KiiNaturalsCrispsVendorNumber))
+                if (this.Gtin != null &&
+                    this.Gtin[1..].StartsWith(KiiNaturalsCrispsVendorNumber))
                 {
                     // Reverse
                     var years = tempData.Substring(2, 2);
@@ -56,7 +58,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
                         days +
                         months +
                         years +
-                        tempData[8..];     // Rest of string
+                        tempData[8..]; // Rest of string
                 }
 
                 return base.IdentifyLogisticUnitBestBeforeSellByDate(tempData);

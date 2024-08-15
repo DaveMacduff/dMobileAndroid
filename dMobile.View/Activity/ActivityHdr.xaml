@@ -14,11 +14,11 @@
                   Padding="10"
                   AbsoluteLayout.LayoutFlags="All"
                   AbsoluteLayout.LayoutBounds="0,0,1,1">
+                
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="65*"/>
-                    <RowDefinition Height="20*"/>
-                    <RowDefinition Height="15*"/>
-                    <!--<RowDefinition Height="3*"/>-->
+                    <RowDefinition Height="70*"/>
+                    <RowDefinition Height="18*"/>
+                    <RowDefinition Height="12*"/>
                 </Grid.RowDefinitions>
 
                 <Frame VerticalOptions="Start" Grid.Row="0" OutlineColor="{DynamicResource BorderColor}">
@@ -56,10 +56,6 @@
                         </ListView.ItemTemplate>
                     </ListView>
                 </Frame>
-
-                <!--
-                <Button x:Name="cmdFilter" Grid.Row="2" Grid.Column="1" Text="Filter" Clicked="cmdFilter_Click" IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}"/>
-                -->
                 
                 <Grid Grid.Row="2">
                     <Entry x:Name="txtSearchHdr"
@@ -77,11 +73,6 @@
                             Clicked="CmdAdd_Click"
                             IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}"/>
                 </Grid>
-                <!--
-                <Grid Grid.Row="3">
-                    <ProgressBar x:Name="progBarMain" Grid.Row="0" Grid.Column="0" Visual="Default"></ProgressBar>
-                </Grid>
-                -->
             </Grid>
 
             <!-- This control takes focus away from the current control. Watch for this. -->

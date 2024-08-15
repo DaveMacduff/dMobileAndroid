@@ -622,7 +622,7 @@ namespace dMobile.View
                                     from tProductSchemeLotNumberXRef
                                     inner join tProductSchemeLotNumber ON tProductSchemeLotNumber.ProductSchemeLotNumberRefno =
                                             tProductSchemeLotNumberXRef.ProductSchemeLotNumberRefno
-                                        where tProductSchemeLotNumberXRef.ProductSchemeRefno =
+                                        where tProductSchemeLotNumberXRef.ProductSchemeRefno = ?
                                     order by ProductSchemeLotNumberCode DESC";
                             var results =
                                 await DatabaseConnection.GetInstance().SqlConn.QueryAsync<tProductSchemeLotNumberModel>(

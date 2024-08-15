@@ -98,8 +98,7 @@ namespace dMobile.View.Activity
 
             this.Title = this.ActDetail.GetControlDescription();
             this.Timer = new SysTimer(this.TimerTickCallback);
-            this.ScannerEnable().FireAndForgetSafeAsync();
-            this.LoadAndBindData().FireAndForgetSafeAsync();
+            IsFirstAppearance = true;
         }
 
         public bool IsSelected { get; set; }
@@ -255,6 +254,11 @@ namespace dMobile.View.Activity
         ///     Gets or sets the search text box original text.
         /// </summary>
         private string SearchTextOrig { get; set; } = string.Empty;
+
+        /// <summary>
+        ///     Gets or sets a value indicating whether this is the first appearance of the form.
+        /// </summary>
+        private bool IsFirstAppearance { get; set; }
 
         /// <summary>
         ///     Unregister the bar code scan event handler and disable the scanner.
@@ -645,14 +649,6 @@ namespace dMobile.View.Activity
             IDataLayerEventPublisher publisher,
             DataLayerEventArgs dataLayerEventArgs)
         {
-            if (dataLayerEventArgs.CurrentValue > 0 &&
-                dataLayerEventArgs.MaxValue > 0)
-            {
-                var percent = (double)100 *
-                              dataLayerEventArgs.CurrentValue /
-                              dataLayerEventArgs.MaxValue;
-                this.progBarMain.Progress = percent / 100;
-            }
         }
 
         /// <summary>
@@ -665,7 +661,8 @@ namespace dMobile.View.Activity
                 this.txtSearchDetail.Text != this.SearchTextOrig)
             {
                 this.SearchTextOrig = this.txtSearchDetail.Text;
-                this.LoadAndBindData().FireAndForgetSafeAsync();
+                ////this.LoadAndBindData().FireAndForgetSafeAsync();
+                this.DesignGrid().FireAndForgetSafeAsync();
             }
 
             // Did not start the timer again here because the timer is started in the OnTextChange event.
@@ -769,6 +766,14 @@ namespace dMobile.View.Activity
         {
             base.OnAppearing();
             this.SubscribeKeyUpHandlers();
+
+            if (this.IsFirstAppearance)
+            {
+                this.IsFirstAppearance = false;
+                await this.LoadAndBindData();
+                await this.ScannerEnable();
+            }
+
             if (!this.IsSearchEntryFocused)
             {
                 this.ListViewMainActivity.Focus();
@@ -2277,25 +2282,33 @@ namespace dMobile.View.Activity
                 if (this.ListViewMainActivity.SelectedItem is PickingDetail pickDetail)
                 {
                     // Get the line item location.
-                    var itemLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
-                        Convert.ToInt32(pickDetail.LocationMapRefno));
-                    var detailLoc = LocationMapTasks.GetReadableLocation(itemLocMap);
+                    DisplayProductInfo(pickDetail);
 
                     // Using the line item warehouse, get the product default location.
-                    var defLocMapRefno =
-                        await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(
-                            itemLocMap.WhsLocMapRefno,
-                            Convert.ToInt32(pickDetail.ProductRefno),
-                            SysCommon.ProdLocMapTypes.Picking);
-                    var defProdLoc = LocationMapTasks.GetReadableLocation(
-                        await LocationMapTasks.GetSLocMapFromLocMapRefno(defLocMapRefno));
+                    var itemLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
+                        Convert.ToInt32(pickDetail.LocationMapRefno));
+                    await DisplayDefaultLocation(itemLocMap, pickDetail);
 
-                    var prodDesc = pickDetail.ProductDescription;
-                    var prodUnitSizeDesc = pickDetail.ProductUnitSizeDescription;
-                    this.ExtraInfoItems.Add(prodDesc.Trim() + " " + prodUnitSizeDesc.Trim());
+                    DisplayPickingLocation(itemLocMap, pickDetail);
 
-                    this.ExtraInfoItems.Add("Default Location: " + defProdLoc.Trim());
+                    ////this.ExtraInfoItems.Add(pickDetail.ActivityDetailSchemeID);
 
+                    var qty = ((this.ActDetail.ActItem.SelectedItem as PickingItem)!).
+                        ActivityItemPickingQuantityOrdered;
+
+                    var wtQty = ((this.ActDetail.ActItem.SelectedItem as PickingItem)!).
+                        ActivityItemPickingWeightQuantityOrdered;
+
+                    this.ExtraInfoItems.Add("Ordered: " + SysCommon.NiceQuantityReadableString(
+                        this.ActDetail.ActItem.ProdInfo,
+                        qty,
+                        wtQty));
+                }
+
+                ///////////////////////////////////////////////////////////
+                void DisplayPickingLocation(SLocMap itemLocMap, PickingDetail pickDetail)
+                {
+                    var detailLoc = LocationMapTasks.GetReadableLocation(itemLocMap);
                     if (pickDetail.ActivityDetailIsConfirmed ||
                         !this.SysEnv.SysSettings.IsPickConfirmDet)
                     {
@@ -2305,19 +2318,29 @@ namespace dMobile.View.Activity
                     {
                         this.ExtraInfoItems.Add("Picking Location: " + detailLoc.Trim());
                     }
+                }
 
-                    ////this.ExtraInfoItems.Add(pickDetail.ActivityDetailSchemeID);
+                ///////////////////////////////////////////////////////////
+                async Task DisplayDefaultLocation(SLocMap itemLocMap, PickingDetail pickDetail)
+                {
+                    var defLocMapRefno =
+                        await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(
+                            itemLocMap.WhsLocMapRefno,
+                            Convert.ToInt32(pickDetail.ProductRefno),
+                            SysCommon.ProdLocMapTypes.Picking);
+                    var defProdLoc = LocationMapTasks.GetReadableLocation(
+                        await LocationMapTasks.GetSLocMapFromLocMapRefno(defLocMapRefno));
+                    this.ExtraInfoItems.Add("Default Location: " + defProdLoc.Trim());
+                }
 
-                    ////var qty = (this.ActDetail.ActItem.SelectedItem as PickingItem).
-                    ////    ActivityItemPickingQuantityShipped;
-
-                    ////var wtQty = (this.ActDetail.ActItem.SelectedItem as PickingItem).
-                    ////    ActivityItemPickingWeightQuantityShipped;
-
-                    ////this.ExtraInfoItems.Add("Total: " + SysCommon.NiceQuantityReadableString(
-                    ////    this.ActDetail.ActItem.ProdInfo,
-                    ////    qty,
-                    ////    wtQty));
+                ///////////////////////////////////////////////////////////
+                void DisplayProductInfo(PickingDetail pickDetail)
+                {
+                    var prodCode = pickDetail.ProductCode;
+                    var prodDesc = pickDetail.ProductDescription;
+                    var prodUnitSizeDesc = pickDetail.ProductUnitSizeDescription;
+                    this.ExtraInfoItems.Add(prodCode.Trim() + " " + prodDesc.Trim() + " " +
+                                            prodUnitSizeDesc.Trim());
                 }
             }
 

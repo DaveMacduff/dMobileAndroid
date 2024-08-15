@@ -1538,10 +1538,11 @@ namespace dMobile.View.Views
                 if (scanArgs == null)
                 {
                     const string msg = "Scanner event fired but no data was received.";
-                    await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert(
-                        this.GetControlDescription(),
-                        msg,
-                        Resource.OK));
+                    await Device.InvokeOnMainThreadAsync(async () =>
+                        await Application.Current.MainPage.DisplayAlert(
+                            this.GetControlDescription(),
+                            msg,
+                            Resource.OK));
                     throw new TaskCanceledException();
                 }
 

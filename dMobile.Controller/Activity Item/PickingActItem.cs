@@ -36,107 +36,162 @@ namespace dMobile.Controller.Activity_Item
             this.IsAllowAddItem = this.SysEnv.SysSettings.AllowAddProd2Pick;
             this.IsAskCreateNewItem = !this.SysEnv.SysSettings.IsPickCreateNewItemNoAsk;
 
-            // Data grid
-            var dataTemplate = new DataTemplate(() =>
+            DefineInitialGrid();
+            return;
+
+            ///////////////////////////////////////////////////////////
+            void DefineInitialGrid()
             {
-                var gridData = new Grid
-                {
-                    Padding = new Thickness(5),
-                    ColumnDefinitions =
+                var dataTemplate = new DataTemplate(
+                    () =>
                     {
-                        new ColumnDefinition { Width = new GridLength(this.ColumnWidth0, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(this.ColumnWidth1, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(this.ColumnWidth2, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(this.ColumnWidth3, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(this.ColumnWidth4, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(this.ColumnWidth5, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(this.ColumnWidth6, GridUnitType.Absolute) },
-                    },
-                };
+                        var gridData = new Grid
+                        {
+                            Padding = new Thickness(5),
+                            ColumnDefinitions =
+                            {
+                                new ColumnDefinition
+                                {
+                                    Width = new GridLength(this.ColumnWidth0, GridUnitType.Absolute)
+                                },
+                                new ColumnDefinition
+                                {
+                                    Width = new GridLength(this.ColumnWidth1, GridUnitType.Absolute)
+                                },
+                                new ColumnDefinition
+                                {
+                                    Width = new GridLength(this.ColumnWidth2, GridUnitType.Absolute)
+                                },
+                                new ColumnDefinition
+                                {
+                                    Width = new GridLength(this.ColumnWidth3, GridUnitType.Absolute)
+                                },
+                                new ColumnDefinition
+                                {
+                                    Width = new GridLength(this.ColumnWidth4, GridUnitType.Absolute)
+                                },
+                                new ColumnDefinition
+                                {
+                                    Width = new GridLength(this.ColumnWidth5, GridUnitType.Absolute)
+                                },
+                                new ColumnDefinition
+                                    { Width = new GridLength(this.ColumnWidth6, GridUnitType.Absolute) }
+                            }
+                        };
 
-                var labelActivityItemPickingIsActivityItemPickingComment = new Label
-                {
-                    VerticalOptions = LayoutOptions.Center,
-                    HorizontalOptions = LayoutOptions.Start,
-                };
-                var labelActivityItemPickingProductCode = new Label
-                {
-                    VerticalOptions = LayoutOptions.Center,
-                    HorizontalOptions = LayoutOptions.Start,
-                };
-                var labelActivityItemPickingProductUnitBc = new Label
-                {
-                    VerticalOptions = LayoutOptions.Center,
-                    HorizontalOptions = LayoutOptions.Start,
-                };
-                var labelActivityItemPickingUnitCode = new Label
-                {
-                    VerticalOptions = LayoutOptions.Center,
-                    HorizontalOptions = LayoutOptions.Start,
-                };
-                var labelActivityItemPickingQuantityOrdered = new Label
-                {
-                    VerticalOptions = LayoutOptions.Center,
-                    HorizontalOptions = LayoutOptions.Start,
-                };
-                var labelActivityItemPickingQuantityReceived = new Label
-                {
-                    VerticalOptions = LayoutOptions.Center,
-                    HorizontalOptions = LayoutOptions.Start,
-                };
-                var labelActivityItemPickingQuantityAvailable = new Label
-                {
-                    VerticalOptions = LayoutOptions.Center,
-                    HorizontalOptions = LayoutOptions.Start,
-                };
-                labelActivityItemPickingIsActivityItemPickingComment.SetBinding(Label.TextProperty, new Binding("IsActivityItemPickingComment"));
-                labelActivityItemPickingProductCode.SetBinding(Label.TextProperty, new Binding("ProductCode"));
-                labelActivityItemPickingProductUnitBc.SetBinding(Label.TextProperty, new Binding("ProductUnitBC"));
-                labelActivityItemPickingUnitCode.SetBinding(Label.TextProperty, new Binding("UnitCode"));
-                labelActivityItemPickingQuantityOrdered.SetBinding(Label.TextProperty, new Binding("ActivityItemPickingQuantityOrdered", BindingMode.Default, null, null, "{0:F3}"));
-                labelActivityItemPickingQuantityReceived.SetBinding(Label.TextProperty, new Binding("ActivityItemPickingQuantityShipped", BindingMode.Default, null, null, "{0:F3}"));
-                labelActivityItemPickingQuantityAvailable.SetBinding(Label.TextProperty, new Binding("ActivityItemPickingQuantityAvailable", BindingMode.Default, null, null, "{0:F3}"));
+                        var labelActivityItemPickingIsActivityItemPickingComment = new Label
+                        {
+                            VerticalOptions = LayoutOptions.Center,
+                            HorizontalOptions = LayoutOptions.Start
+                        };
+                        var labelActivityItemPickingProductCode = new Label
+                        {
+                            VerticalOptions = LayoutOptions.Center,
+                            HorizontalOptions = LayoutOptions.Start
+                        };
+                        var labelActivityItemPickingProductUnitBc = new Label
+                        {
+                            VerticalOptions = LayoutOptions.Center,
+                            HorizontalOptions = LayoutOptions.Start
+                        };
+                        var labelActivityItemPickingUnitCode = new Label
+                        {
+                            VerticalOptions = LayoutOptions.Center,
+                            HorizontalOptions = LayoutOptions.Start
+                        };
+                        var labelActivityItemPickingQuantityOrdered = new Label
+                        {
+                            VerticalOptions = LayoutOptions.Center,
+                            HorizontalOptions = LayoutOptions.Start
+                        };
+                        var labelActivityItemPickingQuantityReceived = new Label
+                        {
+                            VerticalOptions = LayoutOptions.Center,
+                            HorizontalOptions = LayoutOptions.Start
+                        };
+                        var labelActivityItemPickingQuantityAvailable = new Label
+                        {
+                            VerticalOptions = LayoutOptions.Center,
+                            HorizontalOptions = LayoutOptions.Start
+                        };
+                        labelActivityItemPickingIsActivityItemPickingComment.SetBinding(
+                            Label.TextProperty,
+                            new Binding("IsActivityItemPickingComment"));
+                        labelActivityItemPickingProductCode.SetBinding(
+                            Label.TextProperty,
+                            new Binding("ProductCode"));
+                        labelActivityItemPickingProductUnitBc.SetBinding(
+                            Label.TextProperty,
+                            new Binding("ProductUnitBC"));
+                        labelActivityItemPickingUnitCode.SetBinding(
+                            Label.TextProperty,
+                            new Binding("UnitCode"));
+                        labelActivityItemPickingQuantityOrdered.SetBinding(
+                            Label.TextProperty,
+                            new Binding(
+                                "ActivityItemPickingQuantityOrdered",
+                                BindingMode.Default,
+                                null,
+                                null,
+                                "{0:F3}"));
+                        labelActivityItemPickingQuantityReceived.SetBinding(
+                            Label.TextProperty,
+                            new Binding(
+                                "ActivityItemPickingQuantityShipped",
+                                BindingMode.Default,
+                                null,
+                                null,
+                                "{0:F3}"));
+                        labelActivityItemPickingQuantityAvailable.SetBinding(
+                            Label.TextProperty,
+                            new Binding(
+                                "ActivityItemPickingQuantityAvailable",
+                                BindingMode.Default,
+                                null,
+                                null,
+                                "{0:F3}"));
 
-                gridData.Children.Add(labelActivityItemPickingIsActivityItemPickingComment);
-                gridData.Children.Add(labelActivityItemPickingProductCode);
-                gridData.Children.Add(labelActivityItemPickingProductUnitBc);
-                gridData.Children.Add(labelActivityItemPickingUnitCode);
-                gridData.Children.Add(labelActivityItemPickingQuantityOrdered);
-                gridData.Children.Add(labelActivityItemPickingQuantityReceived);
+                        gridData.Children.Add(labelActivityItemPickingIsActivityItemPickingComment);
+                        gridData.Children.Add(labelActivityItemPickingProductCode);
+                        gridData.Children.Add(labelActivityItemPickingProductUnitBc);
+                        gridData.Children.Add(labelActivityItemPickingUnitCode);
+                        gridData.Children.Add(labelActivityItemPickingQuantityOrdered);
+                        gridData.Children.Add(labelActivityItemPickingQuantityReceived);
 
-                if (this.SysEnv.SysSettings.IsPickShowItemQtyAvail)
+                        if (this.SysEnv.SysSettings.IsPickShowItemQtyAvail)
+                        {
+                            gridData.Children.Add(labelActivityItemPickingQuantityAvailable);
+                        }
+
+                        Grid.SetColumn(labelActivityItemPickingIsActivityItemPickingComment, 0);
+                        Grid.SetColumn(labelActivityItemPickingProductCode, 1);
+                        Grid.SetColumn(labelActivityItemPickingProductUnitBc, 2);
+                        Grid.SetColumn(labelActivityItemPickingUnitCode, 3);
+                        Grid.SetColumn(labelActivityItemPickingQuantityOrdered, 4);
+                        Grid.SetColumn(labelActivityItemPickingQuantityReceived, 5);
+
+                        if (this.SysEnv.SysSettings.IsPickShowItemQtyAvail)
+                        {
+                            Grid.SetColumn(labelActivityItemPickingQuantityAvailable, 6);
+                        }
+
+                        return new ViewCell { View = gridData };
+                    });
+
+                // TODO: Change dictionary key to string variable
+                var isAddKey = true;
+                foreach (var item in this.ResourceDictionary)
                 {
-                    gridData.Children.Add(labelActivityItemPickingQuantityAvailable);
+                    if (item.Key == "dataTemplatePickingItem")
+                    {
+                        isAddKey = false;
+                    }
                 }
 
-                Grid.SetColumn(labelActivityItemPickingIsActivityItemPickingComment, 0);
-                Grid.SetColumn(labelActivityItemPickingProductCode, 1);
-                Grid.SetColumn(labelActivityItemPickingProductUnitBc, 2);
-                Grid.SetColumn(labelActivityItemPickingUnitCode, 3);
-                Grid.SetColumn(labelActivityItemPickingQuantityOrdered, 4);
-                Grid.SetColumn(labelActivityItemPickingQuantityReceived, 5);
-
-                if (this.SysEnv.SysSettings.IsPickShowItemQtyAvail)
+                if (isAddKey)
                 {
-                    Grid.SetColumn(labelActivityItemPickingQuantityAvailable, 6);
+                    this.ResourceDictionary.Add("dataTemplatePickingItem", dataTemplate);
                 }
-
-                return new ViewCell { View = gridData };
-            });
-
-            // TODO: Change dictionary key to string variable
-            var isAddKey = true;
-            foreach (var item in this.ResourceDictionary)
-            {
-                if (item.Key == "dataTemplatePickingItem")
-                {
-                    isAddKey = false;
-                }
-            }
-
-            if (isAddKey)
-            {
-                this.ResourceDictionary.Add("dataTemplatePickingItem", dataTemplate);
             }
         }
 
@@ -195,7 +250,7 @@ namespace dMobile.Controller.Activity_Item
             if (actItemFoundRefno >= 0)
             {
                 var idx = 0;
-                foreach (PickingItem item in this.ListItems.Cast<PickingItem>())
+                foreach (var item in this.ListItems.Cast<PickingItem>())
                 {
                     if (item.ActivityItemRefno == this.ItemRefno)
                     {
@@ -733,22 +788,32 @@ namespace dMobile.Controller.Activity_Item
         /// <returns>The <see cref="ObservableCollection{object}"/>.</returns>
         public override ObservableCollection<object> DesignGrid(ref Grid gridMainActivity, ref ListView listViewMainActivity)
         {
-            var observableCollection = new ObservableCollection<object>();
+            ////var observableCollection = new ObservableCollection<Object>(this.ListItems);
 
+            // This code is optimized, it iterates over this.ListItems only once.
+            var items = new ObservableCollection<Object>();
+            var positiveRefnoItems = new List<PickingItem>();
+            var negativeRefnoItems = new List<PickingItem>();
             foreach (PickingItem pickingItem in this.ListItems)
             {
                 if (pickingItem.ActivityItemFKRefno >= 0)
                 {
-                    observableCollection.Add(pickingItem);
+                    positiveRefnoItems.Add(pickingItem);
+                }
+                else
+                {
+                    negativeRefnoItems.Add(pickingItem);
                 }
             }
 
-            foreach (PickingItem pickingItem in this.ListItems)
+            foreach (var item in positiveRefnoItems)
             {
-                if (pickingItem.ActivityItemFKRefno < 0)
-                {
-                    observableCollection.Add(pickingItem);
-                }
+                items.Add(item);
+            }
+
+            foreach (var item in negativeRefnoItems)
+            {
+                items.Add(item);
             }
 
             var labelIsActivityItemPickingCommentHeader = new Label { Text = "C", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
@@ -767,8 +832,7 @@ namespace dMobile.Controller.Activity_Item
             this.ColumnWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(labelActivityItemPickingQuantityReceivedHeader.Text);
             this.ColumnWidth6 = DependencyService.Get<IGridService>().CalculateTextWidth(labelActivityItemPickingQuantityAvailableHeader.Text);
 
-            // Header grid
-            var gridHeaderPicking = new Grid
+            var gridItems = new Grid
             {
                 Padding = new Thickness(5),
                 ColumnDefinitions =
@@ -783,18 +847,18 @@ namespace dMobile.Controller.Activity_Item
                 },
             };
 
-            gridHeaderPicking.SetDynamicResource(VisualElement.BackgroundColorProperty, "HeaderColor");
+            gridItems.SetDynamicResource(VisualElement.BackgroundColorProperty, "HeaderColor");
 
-            gridHeaderPicking.Children.Add(labelIsActivityItemPickingCommentHeader);
-            gridHeaderPicking.Children.Add(labelActivityItemPickingProductCodeHeader);
-            gridHeaderPicking.Children.Add(labelActivityItemPickingProductUnitBcHeader);
-            gridHeaderPicking.Children.Add(labelActivityItemPickingUnitCodeHeader);
-            gridHeaderPicking.Children.Add(labelActivityItemPickingQuantityOrderedHeader);
-            gridHeaderPicking.Children.Add(labelActivityItemPickingQuantityReceivedHeader);
+            gridItems.Children.Add(labelIsActivityItemPickingCommentHeader);
+            gridItems.Children.Add(labelActivityItemPickingProductCodeHeader);
+            gridItems.Children.Add(labelActivityItemPickingProductUnitBcHeader);
+            gridItems.Children.Add(labelActivityItemPickingUnitCodeHeader);
+            gridItems.Children.Add(labelActivityItemPickingQuantityOrderedHeader);
+            gridItems.Children.Add(labelActivityItemPickingQuantityReceivedHeader);
 
             if (this.SysEnv.SysSettings.IsPickShowItemQtyAvail)
             {
-                gridHeaderPicking.Children.Add(labelActivityItemPickingQuantityAvailableHeader);
+                gridItems.Children.Add(labelActivityItemPickingQuantityAvailableHeader);
             }
 
             Grid.SetColumn(labelIsActivityItemPickingCommentHeader, 0);
@@ -809,77 +873,101 @@ namespace dMobile.Controller.Activity_Item
                 Grid.SetColumn(labelActivityItemPickingQuantityAvailableHeader, 6);
             }
 
-            Grid.SetRow(gridHeaderPicking, 0);
+            Grid.SetRow(gridItems, 0);
 
-            gridMainActivity.Children.Add(gridHeaderPicking);
+            gridMainActivity.Children.Add(gridItems);
 
-            foreach (PickingItem pickingItem in this.ListItems)
+            var gridService = DependencyService.Get<IGridService>();
+            var columnDefinitions = gridItems.ColumnDefinitions;
+            var isPickShowItemQtyAvail = this.SysEnv.SysSettings.IsPickShowItemQtyAvail;
+            for (var item = 0; item < this.ListItems.Count; item++)
             {
-                var detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(pickingItem.IsActivityItemPickingComment);
-                var detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(pickingItem.ProductCode);
-                var detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(pickingItem.ProductUnitBC);
-                var detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(pickingItem.UnitCode);
-                var detailWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(
-                    $"{pickingItem.ActivityItemPickingQuantityOrdered:F3}");
-                var detailWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(
-                    $"{pickingItem.ActivityItemPickingWeightQuantityShipped:F3}");
-                var detailWidth6 = DependencyService.Get<IGridService>().CalculateTextWidth(
-                    $"{pickingItem.ActivityItemPickingQuantityAvailable:F3}");
-
-                if (detailWidth0 > this.ColumnWidth0)
+                var pickingItem = (PickingItem)this.ListItems[item];
+                var detailWidths = new[]
                 {
-                    this.ColumnWidth0 = detailWidth0;
-                    gridHeaderPicking.ColumnDefinitions[0].Width = this.ColumnWidth0;
+                    gridService.CalculateTextWidth(pickingItem.IsActivityItemPickingComment),
+                    gridService.CalculateTextWidth(pickingItem.ProductCode),
+                    gridService.CalculateTextWidth(pickingItem.ProductUnitBC),
+                    gridService.CalculateTextWidth(pickingItem.UnitCode),
+                    gridService.CalculateTextWidth($"{pickingItem.ActivityItemPickingQuantityOrdered:F3}"),
+                    gridService.CalculateTextWidth($"{pickingItem.ActivityItemPickingWeightQuantityShipped:F3}"),
+                    gridService.CalculateTextWidth($"{pickingItem.ActivityItemPickingQuantityAvailable:F3}")
+                };
+
+                if (detailWidths[0] > this.ColumnWidth0)
+                {
+                    this.ColumnWidth0 = detailWidths[0];
+                    columnDefinitions[0].Width = this.ColumnWidth0;
                 }
 
-                if (detailWidth1 > this.ColumnWidth1)
+                if (detailWidths[1] > this.ColumnWidth1)
                 {
-                    this.ColumnWidth1 = detailWidth1;
-                    gridHeaderPicking.ColumnDefinitions[1].Width = this.ColumnWidth1;
+                    this.ColumnWidth1 = detailWidths[1];
+                    columnDefinitions[1].Width = this.ColumnWidth1;
                 }
 
-                if (detailWidth2 > this.ColumnWidth2)
+                if (detailWidths[2] > this.ColumnWidth2)
                 {
-                    this.ColumnWidth2 = detailWidth2;
-                    gridHeaderPicking.ColumnDefinitions[2].Width = this.ColumnWidth2;
+                    this.ColumnWidth2 = detailWidths[2];
+                    columnDefinitions[2].Width = this.ColumnWidth2;
                 }
 
-                if (detailWidth3 > this.ColumnWidth3)
+                if (detailWidths[3] > this.ColumnWidth3)
                 {
-                    this.ColumnWidth3 = detailWidth3;
-                    gridHeaderPicking.ColumnDefinitions[3].Width = this.ColumnWidth3;
+                    this.ColumnWidth3 = detailWidths[3];
+                    columnDefinitions[3].Width = this.ColumnWidth3;
                 }
 
-                if (detailWidth4 > this.ColumnWidth4)
+                if (detailWidths[4] > this.ColumnWidth4)
                 {
-                    this.ColumnWidth4 = detailWidth4;
-                    gridHeaderPicking.ColumnDefinitions[4].Width = this.ColumnWidth4;
+                    this.ColumnWidth4 = detailWidths[4];
+                    columnDefinitions[4].Width = this.ColumnWidth4;
                 }
 
-                if (detailWidth5 > this.ColumnWidth5)
+                if (detailWidths[5] > this.ColumnWidth5)
                 {
-                    this.ColumnWidth5 = detailWidth5;
-                    gridHeaderPicking.ColumnDefinitions[5].Width = this.ColumnWidth5;
+                    this.ColumnWidth5 = detailWidths[5];
+                    columnDefinitions[5].Width = this.ColumnWidth5;
                 }
 
-                if (this.SysEnv.SysSettings.IsPickShowItemQtyAvail)
+                if (isPickShowItemQtyAvail)
                 {
-                    if (detailWidth6 > this.ColumnWidth6)
+                    if (detailWidths[6] > this.ColumnWidth6)
                     {
-                        this.ColumnWidth6 = detailWidth6;
-                        gridHeaderPicking.ColumnDefinitions[6].Width = this.ColumnWidth6;
+                        this.ColumnWidth6 = detailWidths[6];
+                        columnDefinitions[6].Width = this.ColumnWidth6;
                     }
                 }
                 else
                 {
                     this.ColumnWidth6 = 0;
-                    gridHeaderPicking.ColumnDefinitions[6].Width = this.ColumnWidth6;
+                    columnDefinitions[6].Width = this.ColumnWidth6;
                 }
             }
 
             listViewMainActivity.ItemTemplate = (DataTemplate)this.ResourceDictionary["dataTemplatePickingItem"];
 
-            return observableCollection;
+            return items;
+        }
+
+        public override Grid DesignGrid()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void FillDataTemplate(Grid gridMainActivity)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override DataTemplate GetDataTemplate()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override ObservableCollection<object> GetActivityItemList()
+        {
+            throw new NotImplementedException();
         }
 
         /// <summary>

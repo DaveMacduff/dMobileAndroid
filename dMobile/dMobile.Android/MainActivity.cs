@@ -16,6 +16,7 @@ namespace dMobile.Droid
     using Bedrock;
     using dMobile.Resources.Enums;
     using dMobile.View;
+    using dMobile.View.CustomPages;
     using Java.Util;
     using View.Helpers;
     using Xamarin.Forms;

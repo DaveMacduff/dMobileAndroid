@@ -4,15 +4,17 @@
 
 namespace dMobile.View.CustomPages
 {
+    using dMobile.GroundWork;
     using System;
     using System.Threading.Tasks;
     using Xamarin.Forms;
+    using static dMobile.GroundWork.TableBase;
     using Resource = dMobile.Resources.Properties.Resources;
 
     /// <summary>
     /// Defines the <see cref="DMobileContentPage" />.
     /// </summary>
-    public class DMobileContentPage : ContentPage
+    public class DMobileContentPage : ContentPage, IPageShownPublisher
     {
         /// <summary>
         /// Defines the loading.
@@ -37,7 +39,14 @@ namespace dMobile.View.CustomPages
             this.BindingContext = this;
             this.IsIndicatorRunning = false;
             this.OptionsIconSource = Convert.ToString(Application.Current.Resources["OptionsIcon"]);
+
+            // Subscribe to the LayoutChanged event
+            this.LayoutChanged += OnLayoutChanged;
         }
+
+        public delegate void PageShownEventHandler(IPageShownPublisher publisher, PageShownEventArgs args);
+
+        public event PageShownEventHandler OnPageShown;
 
         /// <summary>
         /// Gets or sets a value indicating whether the activity indicator should run.
@@ -61,6 +70,23 @@ namespace dMobile.View.CustomPages
             {
                 this.optionsIconSource = value;
                 this.OnPropertyChanged();
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void OnLayoutChanged(object sender, EventArgs e)
+        {
+            // This event is called whenever the layout of the page changes
+            // You can put logic here that runs when the layout is updated
+            // Typically, this would indicate that the drawing is complete
+            this.LayoutChanged -= OnLayoutChanged; // Unsubscribe if you only need it once
+            if (OnPageShown != null)
+            {
+                OnPageShown(this, new PageShownEventArgs());
             }
         }
 
@@ -115,6 +141,18 @@ namespace dMobile.View.CustomPages
             {
                 await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(Resource.Error, ex.Message, Resource.OK));
             }
+        }
+
+        public void RegisterPageShownListener(IPageShownListener pageShownListener)
+        {
+            this.OnPageShown += new PageShownEventHandler(
+                pageShownListener.OnPageShown);
+        }
+
+        public void UnregisterPageShownListener(IPageShownListener pageShownListener)
+        {
+            this.OnPageShown -= new PageShownEventHandler(
+                pageShownListener.OnPageShown);
         }
     }
 }

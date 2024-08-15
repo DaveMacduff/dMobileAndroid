@@ -1334,6 +1334,7 @@ namespace dMobile.View.Activity
                                         this.ActDetail.ActItem.ProdInfo.UnitBc + "  " +
                                         this.ActDetail.ActItem.ProdInfo.Desc);
                 this.ExtraInfoItems.Add("SIZE: " + this.ActDetail.ActItem.ProdInfo.UnitSizeDesc);
+                this.ListViewDisplayExtraInfo.ItemsSource = this.ExtraInfoItems;
             }
 
             //////////////////////////////////////////////////////////////////////////

@@ -441,7 +441,7 @@ namespace dMobile.Controller.Activity_Item
 
             var labelPhysicalCountCode = new Label { Text = "Code", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
             var labelPhysicalCountBc = new Label { Text = "BC", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            var labelPhysicalCountUnit = new Label { Text = string.Empty, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelPhysicalCountUnit = new Label { Text = "Unit", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
             var labelPhysicalCountOnHand = new Label { Text = "On Hand", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
             var labelPhysicalCountCounted = new Label { Text = "Counted", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
             var labelPhysicalCountWtOn = new Label { Text = "Wt On", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
@@ -547,6 +547,31 @@ namespace dMobile.Controller.Activity_Item
             }
 
             return observableCollection;
+        }
+
+        public override Grid DesignGrid()
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        ///     Create and fill the data template.
+        /// </summary>
+        /// <param name="gridMainActivity"><see cref="Grid"/> Main activity grid.</param>
+        public override void FillDataTemplate(Grid gridMainActivity)
+        {
+            throw new NotImplementedException();
+        }
+
+
+        public override DataTemplate GetDataTemplate()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override ObservableCollection<object> GetActivityItemList()
+        {
+            throw new NotImplementedException();
         }
 
         /// <summary>

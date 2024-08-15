@@ -17,10 +17,9 @@
                   AbsoluteLayout.LayoutBounds="0,0,1,1">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="65*"/>
-                    <RowDefinition Height="20*"/>
-                    <RowDefinition Height="15*"/>
-                    <RowDefinition Height="3*"/>
+                    <RowDefinition Height="70*"/>
+                    <RowDefinition Height="21*"/>
+                    <RowDefinition Height="12*"/>
                 </Grid.RowDefinitions>
 
                 <Label x:Name="lblSkidNumber" Grid.Row="0" FontAttributes="Bold"/>
@@ -74,10 +73,6 @@
                             Text="Add Detail"
                             Clicked="CmdAddDetail_Click"
                             IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}"/>
-                </Grid>
-
-                <Grid Grid.Row="4">
-                    <ProgressBar x:Name="progBarMain" Grid.Row="0" Grid.Column="0" Visual="Default"></ProgressBar>
                 </Grid>
                 
                 <!--<Grid x:Name="gridButtonContainer" Grid.Row="3" Grid.ColumnSpan="2" IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}">-->

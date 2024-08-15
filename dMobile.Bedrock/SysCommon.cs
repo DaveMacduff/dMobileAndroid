@@ -11,7 +11,6 @@ namespace dMobile.Bedrock
     using System.IO;
     using System.Net.Sockets;
     using System.Reflection;
-    using System.Runtime.CompilerServices;
     using System.Text;
     using System.Threading.Tasks;
     using System.Xml;
@@ -1339,9 +1338,9 @@ namespace dMobile.Bedrock
             maxAttempts = (maxAttempts > 1) ? maxAttempts - 1 : 1;
             for (var attempt = 1; attempt <= maxAttempts; attempt++)
             {
-                var tryNewPort = false;
                 try
                 {
+                    var tryNewPort = false;
                     sysEnv.SysSock.Connect(ref sysSock, port, ref tryNewPort);
                     if (tryNewPort)
                     {
@@ -1505,7 +1504,7 @@ namespace dMobile.Bedrock
             // Determine Class and Assembly
             // TODO: Rework / reimplement this method.
             var aClass = fullClassName.Split('.');
-            var assembly = aClass[0];
+            //var assembly = aClass[0];
 
             // Dim strClassName As New System.Text.StringBuilder
             // For Each s As String In aClass

@@ -68,8 +68,9 @@ namespace dMobile.View.Activity
             this.ActHdr.XmlDataCriteria = xmlDataCriteria;
             ((PickingActivity)this.ActHdr).PickingLocationMapFilter = pickingLocMapFilter;
             this.Timer = new SysTimer(this.TimerTickCallback, 1000);
-            this.LoadAndBindData().FireAndForgetSafeAsync();
-            this.ScannerEnable().FireAndForgetSafeAsync();
+            ////this.LoadAndBindData().FireAndForgetSafeAsync();
+            ////this.ScannerEnable().FireAndForgetSafeAsync();
+            this.IsFirstAppearance = true;
         }
 
         /// <summary>
@@ -102,8 +103,9 @@ namespace dMobile.View.Activity
                 "<sect_refno>0</sect_refno>" +
                 "</params>");
             this.Timer = new SysTimer(this.TimerTickCallback, 1000);
-            this.LoadAndBindData().FireAndForgetSafeAsync();
-            this.ScannerEnable().FireAndForgetSafeAsync();
+            ////this.LoadAndBindData().FireAndForgetSafeAsync();
+            ////this.ScannerEnable().FireAndForgetSafeAsync();
+            this.IsFirstAppearance = true;
         }
 
         /// <summary>
@@ -222,6 +224,11 @@ namespace dMobile.View.Activity
         private string SearchTextOrig { get; set; } = string.Empty;
 
         /// <summary>
+        ///     Gets or sets a value indicating whether this is the first appearance of the form.
+        /// </summary>
+        private bool IsFirstAppearance { get; set; }
+
+        /// <summary>
         ///     Timer tick call back.
         /// </summary>
         public void TimerTickCallback()
@@ -230,7 +237,8 @@ namespace dMobile.View.Activity
             if (this.IsSearchEntryFocused && this.txtSearchHdr.Text != this.SearchTextOrig)
             {
                 this.SearchTextOrig = this.txtSearchHdr.Text;
-                this.LoadAndBindData().FireAndForgetSafeAsync();
+                ////this.LoadAndBindData().FireAndForgetSafeAsync();
+                this.DesignGrid().FireAndForgetSafeAsync();
             }
 
             // Did not start the timer again here because the timer is started in the OnTextChange event.
@@ -512,6 +520,14 @@ namespace dMobile.View.Activity
             this.NumTaps = 0;
             this.Timer.Start();
             this.SubscribeKeyUpHandlers();
+
+            if (this.IsFirstAppearance)
+            {
+                this.IsFirstAppearance = false;
+                await this.LoadAndBindData();
+                await this.ScannerEnable();
+            }
+
             this.ListViewMainActivity.ItemTapped += this.ListViewMainActivity_ItemTapped;
             if (!this.IsSearchEntryFocused)
             {

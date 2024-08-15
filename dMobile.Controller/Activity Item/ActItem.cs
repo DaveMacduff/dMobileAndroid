@@ -221,6 +221,30 @@ namespace dMobile.Controller.Activity_Item
         public abstract ObservableCollection<object> DesignGrid(ref Grid gridMainActivity, ref ListView listViewMainActivity);
 
         /// <summary>
+        ///     Design the list view grid.
+        /// </summary>
+        /// <returns>Activity item grid.</returns>
+        public abstract Grid DesignGrid();
+
+        /// <summary>
+        ///     Create and fill the data template.
+        /// </summary>
+        /// <param name="gridMainActivity"><see cref="Grid"/> Main activity grid.</param>
+        public abstract void FillDataTemplate(Grid gridMainActivity);
+
+        /// <summary>
+        ///     Get the filled data template.
+        /// </summary>
+        /// <returns>Filled data template.</returns>
+        public abstract DataTemplate GetDataTemplate();
+
+        /// <summary>
+        ///     Get the activity item list.
+        /// </summary>
+        /// <returns></returns>
+        public abstract ObservableCollection<object> GetActivityItemList();
+
+        /// <summary>
         /// Get the activity item reference number from the product unit reference number and current location warehouse.
         /// </summary>
         /// <param name="prodUnitRefno"><see cref="int"/> Product unit reference number.</param>

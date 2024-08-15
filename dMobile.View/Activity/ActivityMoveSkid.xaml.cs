@@ -56,7 +56,7 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        ///     Gets the activity sub type.
+        ///     Gets the activity subtype.
         /// </summary>
         private SysCommon.ActSubTypes ActSubType { get; }
 
@@ -674,11 +674,24 @@ namespace dMobile.View.Activity
         {
             try
             {
-                this.SkidInfo = await SysSkidInfo.GetSkidInfoFromBarCodeOrCode(this.txtSkidCode.Text);
-                if (this.SkidInfo.CurrSkid.SkidFkRefno != 0)
+                if (string.IsNullOrEmpty(this.txtSkidCode.Text))
                 {
-                    this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
-                        this.SkidInfo.CurrSkid.LocMapRefno);
+                    this.SkidInfo = new SysSkidInfo();
+
+                    // this.LocMap.CurrLocMap will remain the last skid location.
+                }
+                else
+                {
+                    this.SkidInfo = await SysSkidInfo.GetSkidInfoFromBarCodeOrCode(this.txtSkidCode.Text);
+                    if (this.SkidInfo.CurrSkid.SkidFkRefno == 0)
+                    {
+                        // this.LocMap.CurrLocMap will remain the last skid location.
+                    }
+                    else
+                    {
+                        this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
+                            this.SkidInfo.CurrSkid.LocMapRefno);
+                    }
                 }
 
                 await Device.InvokeOnMainThreadAsync(this.DisplaySkidInfo);

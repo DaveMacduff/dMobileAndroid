@@ -178,6 +178,31 @@ namespace dMobile.Controller.Activity_Item
             throw new NotImplementedException();
         }
 
+        public override Grid DesignGrid()
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        ///     Create and fill the data template.
+        /// </summary>
+        /// <param name="gridMainActivity"><see cref="Grid"/> Main activity grid.</param>
+        public override void FillDataTemplate(Grid gridMainActivity)
+        {
+            throw new NotImplementedException();
+        }
+
+
+        public override DataTemplate GetDataTemplate()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override ObservableCollection<object> GetActivityItemList()
+        {
+            throw new NotImplementedException();
+        }
+
         /// <summary>
         /// Get activity item list.
         /// </summary>
