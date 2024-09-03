@@ -950,7 +950,7 @@ namespace dMobile.View.Activity
             var prodInfo = new ProductInfo();
 
             prodInfo = await ProductInfoTasks.GetInfoFromUnitRefno(Convert.ToInt32(this.ActDetail.ListDetails[idx]
-                .GetType().GetProperty("GetType")?.GetValue(this.ActDetail.ListDetails[idx])));
+                .GetType().GetProperty("ProductUnitRefno")?.GetValue(this.ActDetail.ListDetails[idx])));
             prodInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(prodInfo.Refno);
 
             if (prodInfo.Scheme.IsBestBeforeDateTracked)

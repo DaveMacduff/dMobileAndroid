@@ -134,7 +134,7 @@ namespace dMobile.View.Activity
 
             ParseAndSeedBarCodeModifier();
             this.Title = this.ActItem.GetControlDescription();
-            this.Timer = new SysTimer(this.TimerTickCallback, 1000);
+            this.Timer = new SysTimer(this.TimerTickCallback);
             this.IsFirstAppearance = true;
             return;
 
@@ -848,7 +848,7 @@ namespace dMobile.View.Activity
         /// <summary>
         ///     Fires just before the page disappears.
         /// </summary>
-        protected override async void OnDisappearing()
+        protected override void OnDisappearing()
         {
             base.OnDisappearing();
             this.ListViewMainActivity.ItemTapped -= this.ListViewMainActivity_ItemTapped;
@@ -2787,7 +2787,7 @@ namespace dMobile.View.Activity
         /// <param name="sender"><see cref="object" /> Object that generated the event.</param>
         /// <param name="e"><see cref="TextChangedEventArgs" /> Sender object text changed event arguments.</param>
         /// <remarks>Code lens reports no references yet this event does fire.</remarks>
-        private async void TxtSearchItem_TextChanged(object sender, TextChangedEventArgs e)
+        private void TxtSearchItem_TextChanged(object sender, TextChangedEventArgs e)
         {
             // Timer was started in the focused event handler.
             // Timer was stopped in the unfocused event handler.
@@ -3855,10 +3855,6 @@ namespace dMobile.View.Activity
                     }
 
                     await this.LoadAndBindData();
-                }
-                catch
-                {
-                    throw;
                 }
                 finally
                 {

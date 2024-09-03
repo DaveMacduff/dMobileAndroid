@@ -333,11 +333,6 @@ namespace dMobile.View.Activity
         /// <param name="dataLayerEventArgs">The dataLayerEventArgs<see cref="DataLayerEventArgs" />.</param>
         public void OnLayerProgressOut(IDataLayerEventPublisher publisher, DataLayerEventArgs dataLayerEventArgs)
         {
-            if (dataLayerEventArgs.CurrentValue > 0 && dataLayerEventArgs.MaxValue > 0)
-            {
-                double percent = 100 * dataLayerEventArgs.CurrentValue / dataLayerEventArgs.MaxValue;
-                this.ProgBarMain.Progress = percent / 100;
-            }
         }
 
         /// <summary>

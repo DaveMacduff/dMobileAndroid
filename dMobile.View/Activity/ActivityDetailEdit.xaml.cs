@@ -710,7 +710,7 @@ namespace dMobile.View.Activity
                             else
                             {
                                 var expectedBaseQty = Math.Round(
-                                    this.ActDetailEdit.AltQuantity / productInfo.Unit2BaseUnitFactor, 3);
+                                    this.ActDetailEdit.AltQuantity * productInfo.Unit2BaseUnitFactor, 3);
                                 if (this.ActDetailEdit.BaseQuantity != expectedBaseQty)
                                 {
                                     throw new MessageOnlyException($"Base quantity {this.ActDetailEdit.BaseQuantity}" +

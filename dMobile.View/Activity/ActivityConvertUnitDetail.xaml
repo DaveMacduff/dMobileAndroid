@@ -17,7 +17,6 @@
                     <RowDefinition Height="65*"/>
                     <RowDefinition Height="20*"/>
                     <RowDefinition Height="15*"/>
-                    <RowDefinition Height="3*"/>
                 </Grid.RowDefinitions>
 
                 <Label x:Name="LblSkidNumber" Grid.Row="0" FontAttributes="Bold"/>
@@ -66,10 +65,6 @@
                             Text="Add Detail"
                             Clicked="CmdAddDetail_Click"
                             IsEnabled="{Binding IsIndicatorRunning, Converter={helpers:BoolConverter}}"/>
-                </Grid>
-
-                <Grid Grid.Row="4">
-                    <ProgressBar x:Name="ProgBarMain" Grid.Row="0" Grid.Column="0" Visual="Default"></ProgressBar>
                 </Grid>
             </Grid>
 
