@@ -21,25 +21,25 @@ namespace dMobile.Bedrock
     public class PrinterSettings : ISysSocketEventListener, IPrnSettingsPublisher
     {
         /// <summary>
-        /// Contains full printer settings class name..
+        /// Contains full printer settings class name.
         /// </summary>
         [NonSerialized]
         private string fullClassName = "dMobile.Bedrock.PrinterSettings";
 
         /// <summary>
-        /// Contains printer settings path name..
+        /// Contains printer settings path name.
         /// </summary>
         [NonSerialized]
         private string filePath = string.Empty;
 
         /// <summary>
-        /// Contains printer settings drive letter, path and file name..
+        /// Contains printer settings drive letter, path and file name.
         /// </summary>
         [NonSerialized]
         private string fileASCIIZ = string.Empty;
 
         /// <summary>
-        /// Contains printer settings file name..
+        /// Contains printer settings file name.
         /// </summary>
         [NonSerialized]
         private string fileName = "dMobilePrinterSettings.xml";
@@ -57,12 +57,12 @@ namespace dMobile.Bedrock
         private readonly object readLockObject = new object();
 
         /// <summary>
-        /// Enables shipping label printer..
+        /// Enables shipping label printer.
         /// </summary>
         private bool isEnabledShippingLabelPrinter = false;
 
         /// <summary>
-        /// Contains a list of shipping label printer names..
+        /// Contains a list of shipping label printer names.
         /// </summary>
         private string shippingLabelPrinterName = string.Empty;
 
@@ -72,7 +72,7 @@ namespace dMobile.Bedrock
         private bool isEnabledShelfLabelPrinter = false;
 
         /// <summary>
-        /// Contains a list of shelf label printer names..
+        /// Contains a list of shelf label printer names.
         /// </summary>
         private string shelfLabelPrinterName = string.Empty;
 
@@ -87,7 +87,7 @@ namespace dMobile.Bedrock
         private string productLabelPrinterName = string.Empty;
 
         /// <summary>
-        /// arraylist of printer definitions of type printerInfo..
+        /// arraylist of printer definitions of type printerInfo.
         /// </summary>
         private ArrayList allPrinters = new ArrayList();
 
@@ -126,7 +126,7 @@ namespace dMobile.Bedrock
 
         /// <summary>
         /// Gets or sets the AllPrinters
-        /// Gets or sets an arraylist of printer definitions of type printerInfo..
+        /// Gets or sets an arraylist of printer definitions of type printerInfo.
         /// </summary>
         public ArrayList AllPrinters
         {
@@ -145,7 +145,7 @@ namespace dMobile.Bedrock
 
         /// <summary>
         /// Gets or sets a value indicating whether IsEnabledShippingLabelPrinter
-        /// Enables the shipping label printer..
+        /// Enables the shipping label printer.
         /// </summary>
         public bool IsEnabledShippingLabelPrinter
         {
@@ -155,7 +155,7 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// Gets or sets the current shipping label printer name..
+        /// Gets or sets the current shipping label printer name.
         /// </summary>
         public string ShippingLabelPrinterName
         {
@@ -166,7 +166,7 @@ namespace dMobile.Bedrock
 
         /// <summary>
         /// Gets or sets a value indicating whether IsEnabledShelfLabelPrinter
-        /// Enables the shelf label printer..
+        /// Enables the shelf label printer.
         /// </summary>
         public bool IsEnabledShelfLabelPrinter
         {
@@ -176,7 +176,7 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// Gets or sets the current shelf label printer name..
+        /// Gets or sets the current shelf label printer name.
         /// </summary>
         public string ShelfLabelPrinterName
         {
@@ -187,7 +187,7 @@ namespace dMobile.Bedrock
 
         /// <summary>
         /// Gets or sets a value indicating whether IsEnabledProductLabelPrinter
-        /// Enables the product label printer..
+        /// Enables the product label printer.
         /// </summary>
         public bool IsEnabledProductLabelPrinter
         {
@@ -197,7 +197,7 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// Gets or sets the current product label printer name..
+        /// Gets or sets the current product label printer name.
         /// </summary>
         public string ProductLabelPrinterName
         {
@@ -207,7 +207,7 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// Gets or sets the class name to serialize..
+        /// Gets or sets the class name to serialize.
         /// </summary>
         public string FullClassName
         {
@@ -217,7 +217,7 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// Gets or sets the path name of the xml file..
+        /// Gets or sets the path name of the xml file.
         /// </summary>
         public string FilePath
         {
@@ -227,7 +227,7 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// Gets or sets the full path and file name of the xml file..
+        /// Gets or sets the full path and file name of the xml file.
         /// </summary>
         public string FileASCIIZ
         {
@@ -237,7 +237,7 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// Gets or sets the file name of the xml file..
+        /// Gets or sets the file name of the xml file.
         /// </summary>
         public string FileName
         {

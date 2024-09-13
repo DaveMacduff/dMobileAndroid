@@ -795,14 +795,14 @@ namespace dMobile.View.Activity
                                 this.cmdLocation.Text = "Set Location";
                             }
 
-                            if (this.IsSkidHasQuantity)
-                            {
-                                this.pictureBoxPrintLabel.IsEnabled = true;
-                            }
-                            else
-                            {
-                                this.pictureBoxPrintLabel.IsEnabled = false;
-                            }
+                            ////if (this.IsSkidHasQuantity)
+                            ////{
+                            ////    this.pictureBoxPrintLabel.IsEnabled = true;
+                            ////}
+                            ////else
+                            ////{
+                            ////    this.pictureBoxPrintLabel.IsEnabled = false;
+                            ////}
 
                             this.txtCube.Text = Convert.ToString(
                                 Math.Round(this.SkidInfo.CurrSkid.Cube, 3),
@@ -859,14 +859,14 @@ namespace dMobile.View.Activity
                                 this.cmdLocation.Text = "Set Location";
                             }
 
-                            if (this.SkidInfo.CurrSkid.Quantity > 0)
-                            {
-                                this.pictureBoxPrintLabel.IsEnabled = true;
-                            }
-                            else
-                            {
-                                this.pictureBoxPrintLabel.IsEnabled = false;
-                            }
+                            ////if (this.SkidInfo.CurrSkid.Quantity > 0)
+                            ////{
+                            ////    this.pictureBoxPrintLabel.IsEnabled = true;
+                            ////}
+                            ////else
+                            ////{
+                            ////    this.pictureBoxPrintLabel.IsEnabled = false;
+                            ////}
 
                             this.txtCube.Text = Convert.ToString(
                                 Math.Round(this.SkidInfo.CurrSkid.Cube, 3),
@@ -895,7 +895,7 @@ namespace dMobile.View.Activity
                         () =>
                         {
                             this.txtSkidCode.IsEnabled = true;
-                            this.txtSkidCode.Text = string.Empty;
+                            this.txtSkidCode.Text = this.SkidInfo.CurrSkid.SkidCode;
                             this.cmdSaveSkid.IsEnabled = true;
                             if (this.ProdInfo.Refno > 0)
                             {
@@ -922,14 +922,14 @@ namespace dMobile.View.Activity
                                 this.cmdLocation.Text = "Set Location";
                             }
 
-                            if (this.SkidInfo.CurrSkid.Quantity > 0)
-                            {
-                                this.pictureBoxPrintLabel.IsEnabled = true;
-                            }
-                            else
-                            {
-                                this.pictureBoxPrintLabel.IsEnabled = false;
-                            }
+                            ////if (this.SkidInfo.CurrSkid.Quantity > 0)
+                            ////{
+                            ////    this.pictureBoxPrintLabel.IsEnabled = true;
+                            ////}
+                            ////else
+                            ////{
+                            ////    this.pictureBoxPrintLabel.IsEnabled = false;
+                            ////}
 
                             this.txtCube.Text = Convert.ToString(
                                 Math.Round(this.SkidInfo.CurrSkid.Cube, 3),
