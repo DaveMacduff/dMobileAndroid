@@ -472,9 +472,9 @@ namespace dMobile.Controller.Activity_Detail
                 await tableCountDet.PurgeData();
                 this.DataLayerProgressOutHandler(this, EventArgs.Empty, 5);
 
-                tableCountDet.RegisterDataAccessListenerProgressOut((PhysicalCountActDetail)this);
-                await tableCountDet.RequestDetailData(this.ActItem.ItemRefno);
-                tableCountDet.UnregisterDataAccessListenerProgressOut((PhysicalCountActDetail)this);
+                tableCountDet.RegisterDataAccessListenerProgressOut(this);
+                await tableCountDet.RequestDetailData(this.ActItem.ItemFkRefno, this.ActItem.ItemRefno);
+                tableCountDet.UnregisterDataAccessListenerProgressOut(this);
             }
         }
 
@@ -860,7 +860,7 @@ namespace dMobile.Controller.Activity_Detail
         {
             var observableCollection = new ObservableCollection<object>();
 
-            foreach (CountDetail countDetail in this.ListDetails)
+            foreach (var countDetail in this.ListDetails.Cast<CountDetail>())
             {
                 observableCollection.Add(countDetail);
             }
@@ -906,7 +906,7 @@ namespace dMobile.Controller.Activity_Detail
 
             gridMain.Children.Add(gridHeader);
 
-            foreach (CountDetail countDetail in observableCollection)
+            foreach (var countDetail in observableCollection.Cast<CountDetail>())
             {
                 var detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(
                     $"{countDetail.ActivityDetailQuantity:F3}");
@@ -957,7 +957,7 @@ namespace dMobile.Controller.Activity_Detail
             this.ListDetails = this.ListCountDetails.Where(adjDetail =>
                 adjDetail.ActivityDetailSchemeID.ToUpper().Contains(searchText.ToUpper().Trim())).Cast<object>().ToList();
 
-            foreach (CountDetail countDetail in this.ListDetails)
+            foreach (var countDetail in this.ListDetails.Cast<CountDetail>())
             {
                 observableCollection.Add(countDetail);
             }

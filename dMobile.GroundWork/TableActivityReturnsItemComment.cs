@@ -7,7 +7,7 @@ namespace dMobile.GroundWork
     using System;
     using System.Threading.Tasks;
     using System.Xml.Linq;
-    using dMobile.Bedrock;
+    using Bedrock;
     using SQLite;
 
     public class TableActivityReturnsItemComment : TableBase
@@ -16,7 +16,7 @@ namespace dMobile.GroundWork
         /// Initializes a new instance of the <see cref="TableActivityReturnsItemComment"/> class.
         /// </summary>
         public TableActivityReturnsItemComment()
-          : base()
+            : base()
         {
             this.FullClassName = "dMobile.GroundWork.TableActivityReturnsItemComment";
             this.CurrentSubType = SysCommon.ActSubTypes.Returns;
@@ -38,18 +38,37 @@ namespace dMobile.GroundWork
         {
             try
             {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging sales return item comments.", true);
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    "Purging sales return item comments.",
+                    true);
 
-                await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync("DELETE FROM tActivityReturnsItemComment");
+                await DatabaseConnection.GetInstance()
+                    .SqlConn.ExecuteAsync("DELETE FROM tActivityReturnsItemComment");
 
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging sales return item comments complete.", true);
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    "Purging sales return item comments complete.",
+                    true);
             }
             catch (SQLiteException ex)
             {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging sales return item comments failed.", true);
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    "Database exception occurred.",
+                    true);
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    "Purging sales return item comments failed.",
+                    true);
 
-                throw new Exception("Database exception occurred. Purging sales return item comments failed.", ex);
+                throw new Exception(
+                    "Database exception occurred. Purging sales return item comments failed.",
+                    ex);
             }
         }
 
@@ -73,7 +92,7 @@ namespace dMobile.GroundWork
             throw new NotImplementedException();
         }
 
-        protected override Task<string> CreateRequest(XDocument criteria)
+        protected override Task<string> CreateRequest(XDocument criteriaFilter)
         {
             throw new NotImplementedException();
         }
@@ -83,17 +102,17 @@ namespace dMobile.GroundWork
             throw new NotImplementedException();
         }
 
-        protected override Task<string> CreateRequest(int activityItemFkRefno)
+        protected override Task<string> CreateRequest(int activityFkRefno)
         {
             throw new NotImplementedException();
         }
 
-        protected override Task<string> CreateRequest(int activityItemFkRefno, XDocument criteria)
+        protected override Task<string> CreateRequest(int activityFkRefno, XDocument criteria)
         {
             throw new NotImplementedException();
         }
 
-        protected override Task<string> CreateRequest(int prodLocMapType, int whsLocMapFKRefno)
+        protected override Task<string> CreateRequest(int prodLocMapType, int whsLocMapFkRefno)
         {
             throw new NotImplementedException();
         }

@@ -339,7 +339,7 @@ namespace dMobile.Controller.Activity
         {
             var observableCollection = new ObservableCollection<object>();
 
-            foreach (Skid skid in this.ListHeaders)
+            foreach (var skid in this.ListHeaders.Cast<Skid>())
             {
                 observableCollection.Add(skid);
             }
@@ -450,7 +450,7 @@ namespace dMobile.Controller.Activity
 
             gridMainActivity.Children.Add(gridHeader);
 
-            foreach (Skid skid in observableCollection)
+            foreach (var skid in observableCollection.Cast<Skid>())
             {
                 // string.Format("{0:F3}", adjustmentDetail.ActivityDetailQuantity)
                 var detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(skid.SkidCode);

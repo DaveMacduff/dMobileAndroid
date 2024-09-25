@@ -11,8 +11,8 @@ namespace dMobile.GroundWork
     using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
-    using dMobile.Bedrock;
-    using dMobile.Resources.Models;
+    using Bedrock;
+    using Resources.Models;
     using SQLite;
 
     /// <summary>
@@ -24,7 +24,6 @@ namespace dMobile.GroundWork
         /// Initializes a new instance of the <see cref="TableActivityCycleCountDetail"/> class.
         /// </summary>
         public TableActivityCycleCountDetail()
-      : base()
         {
             this.FullClassName = "dMobile.GroundWork.TableActivityCycleCountDetail";
             this.CurrentSubType = SysCommon.ActSubTypes.CycleCounts;
@@ -40,123 +39,147 @@ namespace dMobile.GroundWork
         {
             var conn = DatabaseConnection.GetInstance().SqlConn;
             var subType = Convert.ToInt32(this.CurrentSubType);
-            this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} details.", true);
-            await conn.RunInTransactionAsync(transaction =>
-            {
-                try
+            this.DataAccessStatusOutHandler(
+                this,
+                EventArgs.Empty,
+                $"Purging {this.LowerCaseName} details.",
+                true);
+            await conn.RunInTransactionAsync(
+                transaction =>
                 {
-                    // Corruption recovery cleanup.
-                    var query = @"
+                    try
+                    {
+                        // Corruption recovery cleanup.
+                        var query = @"
                         DELETE FROM tActivityDetailProductSchemeVariantXRef
                             WHERE tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno <= 0
                                 OR tActivityDetailProductSchemeVariantXRef.ProductSchemeVariantRefno <= 0";
-                    transaction.Execute(query);
+                        transaction.Execute(query);
 
-                    query = @"
+                        query = @"
                         DELETE FROM tActivityDetailProductSchemeVariantXRef
                             WHERE tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno
                                 NOT IN (SELECT tActivityDetail.ActivityDetailRefno FROM tActivityDetail)";
-                    transaction.Execute(query);
+                        transaction.Execute(query);
 
-                    query = "DELETE FROM tActivityDetailExtra WHERE tActivityDetailExtra.ActivityDetailRefno <= 0";
-                    transaction.Execute(query);
+                        query =
+                            "DELETE FROM tActivityDetailExtra WHERE tActivityDetailExtra.ActivityDetailRefno <= 0";
+                        transaction.Execute(query);
 
-                    query = @"
+                        query = @"
                         DELETE FROM tActivityDetailExtra
                             WHERE tActivityDetailExtra.ActivityDetailRefno
                                 NOT IN (SELECT tActivityDetail.ActivityDetailRefno FROM tActivityDetail)";
-                    transaction.Execute(query);
+                        transaction.Execute(query);
 
-                    query = @"DELETE FROM tActivityDetailCount
+                        query = @"DELETE FROM tActivityDetailCount
                                 WHERE tActivityDetailCount.ActivityDetailRefno <= 0
                                     OR tActivityDetailCount.ActivityDetailFKRefno <= 0";
-                    transaction.Execute(query);
+                        transaction.Execute(query);
 
-                    query = @"DELETE FROM tActivityDetailCount
+                        query = @"DELETE FROM tActivityDetailCount
                                 WHERE tActivityDetailCount.ActivityDetailRefno
                                 NOT IN (SELECT tActivityDetail.ActivityDetailRefno FROM tActivityDetail)";
-                    transaction.Execute(query);
+                        transaction.Execute(query);
 
-                    query = @"DELETE FROM tActivityDetail
+                        query = @"DELETE FROM tActivityDetail
                                 WHERE tActivityDetail.ActivityDetailSubType = ?
                                     AND tActivityDetail.ActivityDetailRefno <= 0";
-                    transaction.Execute(query, subType);
+                        transaction.Execute(query, subType);
 
-                    query = @"DELETE FROM tActivityDetail
+                        query = @"DELETE FROM tActivityDetail
                                 WHERE tActivityDetail.ActivityItemRefno
                                     NOT IN (SELECT tActivityItem.ActivityItemRefno FROM tActivityItem)";
-                    transaction.Execute(query, subType);
+                        transaction.Execute(query, subType);
 
-                    // Regular purge.
-                    query = @"
+                        // Regular purge.
+                        query = @"
                         DELETE FROM tActivityDetailProductSchemeVariantXRef
                             WHERE tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno IN
                             (SELECT tActivityDetail.ActivityDetailRefno FROM tActivityDetail
                                 WHERE tActivityDetail.ActivityDetailSubType = ?)";
-                    transaction.Execute(query, subType);
+                        transaction.Execute(query, subType);
 
-                    query = @"
+                        query = @"
                         DELETE FROM tActivityDetailCount
                             WHERE tActivityDetailCount.ActivityDetailRefno IN
                                 (SELECT tActivityDetail.ActivityDetailRefno FROM tActivityDetail
                                     WHERE tActivityDetail.ActivityDetailSubType = ?)";
-                    transaction.Execute(query, subType);
+                        transaction.Execute(query, subType);
 
-                    query = @"
+                        query = @"
                         DELETE FROM tActivityDetailExtra
                             WHERE tActivityDetailExtra.ActivityDetailRefno IN
                                 (SELECT tActivityDetail.ActivityDetailRefno FROM tActivityDetail
                                     WHERE tActivityDetail.ActivityDetailSubType = ?)";
-                    transaction.Execute(query, subType);
+                        transaction.Execute(query, subType);
 
-                    query = "DELETE FROM tActivityDetail WHERE tActivityDetail.ActivityDetailSubType = ?";
-                    transaction.Execute(query, subType);
+                        query =
+                            "DELETE FROM tActivityDetail WHERE tActivityDetail.ActivityDetailSubType = ?";
+                        transaction.Execute(query, subType);
 
-                    transaction.Commit();
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} details complete.", true);
-                }
-                catch (SQLiteException sqlEx)
-                {
-                    transaction.Rollback();
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} details failed.", true);
-                    throw new Exception($"Database exception occurred. Purging {this.LowerCaseName} details failed.", sqlEx);
-                }
-                catch (Exception ex)
-                {
-                    transaction.Rollback();
-                    throw new Exception($"Database exception occurred. Purging {this.LowerCaseName} details failed.", ex);
-                }
-            });
+                        transaction.Commit();
+                        this.DataAccessStatusOutHandler(
+                            this,
+                            EventArgs.Empty,
+                            $"Purging {this.LowerCaseName} details complete.",
+                            true);
+                    }
+                    catch (SQLiteException sqlEx)
+                    {
+                        transaction.Rollback();
+                        this.DataAccessStatusOutHandler(
+                            this,
+                            EventArgs.Empty,
+                            "Database exception occurred.",
+                            true);
+                        this.DataAccessStatusOutHandler(
+                            this,
+                            EventArgs.Empty,
+                            $"Purging {this.LowerCaseName} details failed.",
+                            true);
+                        throw new Exception(
+                            $"Database exception occurred. Purging {this.LowerCaseName} details failed.",
+                            sqlEx);
+                    }
+                    catch (Exception ex)
+                    {
+                        transaction.Rollback();
+                        throw new Exception(
+                            $"Database exception occurred. Purging {this.LowerCaseName} details failed.",
+                            ex);
+                    }
+                });
         }
 
-        /// <summary>
-        /// The Send.
-        /// </summary>
-        /// <param name="actItemRefno">The actItemRefno<see cref="int"/>.</param>
-        /// <returns></returns>
-        protected override async Task<string> SendRequest(int actItemRefno)
+        protected override async Task<string> SendRequest(int activityFkRefno)
         {
             try
             {
                 var query = "SELECT * FROM tActivityItemCount WHERE ActivityItemRefno = ?";
-                var results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<tActivityItemCountModel>(query, actItemRefno);
+                var results = await DatabaseConnection.GetInstance()
+                    .SqlConn.QueryAsync<tActivityItemCountModel>(query, activityFkRefno);
 
-                int actItemCountFKRefno;
-                if (results != null && results.Count > 0)
+                int actItemCountFkRefno;
+                if (results != null &&
+                    results.Count > 0)
                 {
-                    actItemCountFKRefno = results[0].ActivityItemFKRefno;
+                    actItemCountFkRefno = results[0].ActivityItemFKRefno;
                 }
                 else
                 {
-                    throw new Exception("No results in tActivityItemCount for ActivityItemRefno " + actItemRefno);
+                    throw new Exception(
+                        "No results in tActivityItemCount for ActivityItemRefno " +
+                        activityFkRefno);
                 }
 
-                return await this.SendComm(await this.CreateRequest(actItemCountFKRefno));
+                return await this.SendComm(await this.CreateRequest(actItemCountFkRefno));
             }
             catch (SQLiteException ex)
             {
-                throw new Exception("Database exception occurred. Send cycle count details failed. ", ex);
+                throw new Exception(
+                    "Database exception occurred. Send cycle count details failed. ",
+                    ex);
             }
         }
 
@@ -169,156 +192,227 @@ namespace dMobile.GroundWork
         {
             var errMsg = string.Empty;
 
-            await DatabaseConnection.GetInstance().SqlConn.RunInTransactionAsync(transaction =>
-            {
-                try
-                {
-                    using (var ds = new DataSet())
+            await DatabaseConnection.GetInstance()
+                .SqlConn.RunInTransactionAsync(
+                    transaction =>
                     {
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
-
-                        ds.ReadXml(SysCommon.GetXmlReader(ref responseData), XmlReadMode.Auto);
-
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving cycle count details.", false);
-
-                        // Receiving schema but no data results in no table being created in the dataset.
-                        if (ds.Tables.Count != 0)
+                        try
                         {
-                            var progMax = Convert.ToInt32(ds.Tables["tActivityDetailCount"].Rows.Count);
-
-                            this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Records {progMax}.", false);
-
-                            var actDetailRefno = 0;
-                            var progValue = 0;
-                            var actDetailCycleFKRefno = 0;
-
-                            this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
-
-                            var countItems = transaction.Query<tActivityItemCountModel>("SELECT * FROM tActivityItemCount WHERE ActivityItemRefno = ?", actItemCountRefno);
-
-                            if (countItems == null || (countItems != null && countItems.Count == 0))
+                            using (var ds = new DataSet())
                             {
-                                throw new Exception("drItemCount.Read() failed.");
-                            }
+                                this.DataAccessStatusOutHandler(
+                                    this,
+                                    EventArgs.Empty,
+                                    "Reading received data.",
+                                    false);
 
-                            foreach (DataRow drow in ds.Tables["tActivityDetailCount"].Rows)
-                            {
-                                errMsg = "Arguments:";
+                                ds.ReadXml(
+                                    SysCommon.GetXmlReader(ref responseData),
+                                    XmlReadMode.Auto);
 
-                                var detailParameterList = new List<object>();
-                                var queryInsertDetail = "INSERT INTO tActivityDetail " +
-                                                        "(" +
-                                                        "ActivityDetailSubType, " +
-                                                        "ActivityDetailStatus, " +
-                                                        "ActivityItemRefno, " +
-                                                        "LocationMapRefno, " +
-                                                        "ProductUnitRefno, " +
-                                                        "ActivityDetailUniqueSchemeID, " +
-                                                        "ActivityDetailSchemeID, " +
-                                                        "ActivityDetailQuantity, " +
-                                                        "ActivityDetailBaseQuantity, " +
-                                                        "ActivityDetailWeightQuantity, " +
-                                                        "ActivityDetailSingleTradeItemSerialNumber, " +
-                                                        "ActivityDetailLogisticUnitBatchLotNumber, " +
-                                                        "ActivityDetailLogisticUnitBestBeforeSellByDate, " +
-                                                        "ActivityDetailLogisticUnitExpiryUseByDate, " +
-                                                        "ActivityDetailLogisticUnitProductionDate, " +
-                                                        "ActivityDetailLogisticUnitDueDate, " +
-                                                        "ActivityDetailLogisticUnitPackagingDate, " +
-                                                        "ActivityDetailLogisticUnitSkidNumber" +
-                                                        ") " +
-                                                        "VALUES" +
-                                                        "(" +
-                                                        "?, " +
-                                                        "?, " +
-                                                        "?, " +
-                                                        "?, " +
-                                                        "?, " +
-                                                        "?, " +
-                                                        "?, " +
-                                                        "?, " +
-                                                        "?, " +
-                                                        "?, " +
-                                                        "?, " +
-                                                        "?, " +
-                                                        "?, " +
-                                                        "?, " +
-                                                        "?, " +
-                                                        "?, " +
-                                                        "?, " +
-                                                        "?" +
-                                                        ")";
+                                this.DataAccessStatusOutHandler(
+                                    this,
+                                    EventArgs.Empty,
+                                    "Saving cycle count details.",
+                                    false);
 
-                                detailParameterList.Add(Convert.ToInt32(SysCommon.ActSubTypes.CycleCounts));
-                                detailParameterList.Add(Convert.ToInt32(SysCommon.ActStatus.NoChange));
-                                detailParameterList.Add(actItemCountRefno);
-                                detailParameterList.Add(this.GetDetailLocation(drow, transaction, true));
-                                detailParameterList.Add(countItems[0].ProductUnitRefno);
-                                detailParameterList.AddRange(this.SaveDetail(drow, transaction, true));
-
-                                transaction.Execute(queryInsertDetail, detailParameterList.ToArray());
-
-                                actDetailRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivityDetail"));
-                                actDetailCycleFKRefno = Convert.ToInt32(drow["f01"]);
-
-                                errMsg += Environment.NewLine + "Detail fk refno" + actDetailCycleFKRefno;
-
-                                transaction.Execute("INSERT INTO tActivityDetailCount (ActivityDetailRefno, ActivityDetailFKRefno) VALUES (?, ?)", actDetailRefno, actDetailCycleFKRefno);
-
-                                this.SaveCommonDetailVariant(drow, transaction, actDetailRefno, true);
-                                this.SaveDetailExtra(drow, transaction, actDetailRefno, true);
-
-                                progValue++;
-                                if (progValue % 10 == 0)
+                                // Receiving schema but no data results in no table being created in the dataset.
+                                if (ds.Tables.Count != 0)
                                 {
-                                    this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue, 0, progMax);
+                                    var progMax = Convert.ToInt32(
+                                        ds.Tables["tActivityDetailCount"].Rows.Count);
+
+                                    this.DataAccessStatusOutHandler(
+                                        this,
+                                        EventArgs.Empty,
+                                        $"Records {progMax}.",
+                                        false);
+
+                                    var progValue = 0;
+
+                                    this.DataAccessProgressOutHandler(
+                                        this,
+                                        EventArgs.Empty,
+                                        0,
+                                        0,
+                                        progMax);
+
+                                    var countItems = transaction.Query<tActivityItemCountModel>(
+                                        "SELECT * FROM tActivityItemCount WHERE ActivityItemRefno = ?",
+                                        actItemCountRefno);
+
+                                    if (countItems == null ||
+                                        (countItems != null && countItems.Count == 0))
+                                    {
+                                        throw new Exception("drItemCount.Read() failed.");
+                                    }
+
+                                    foreach (DataRow drow in ds.Tables["tActivityDetailCount"].Rows)
+                                    {
+                                        errMsg = "Arguments:";
+                                        var detailParameterList = new List<object>();
+                                        const string queryInsertDetail = "INSERT INTO tActivityDetail " +
+                                            "(" +
+                                            "ActivityDetailSubType, " +
+                                            "ActivityDetailStatus, " +
+                                            "ActivityItemRefno, " +
+                                            "LocationMapRefno, " +
+                                            "ProductUnitRefno, " +
+                                            "ActivityDetailUniqueSchemeID, " +
+                                            "ActivityDetailSchemeID, " +
+                                            "ActivityDetailQuantity, " +
+                                            "ActivityDetailBaseQuantity, " +
+                                            "ActivityDetailWeightQuantity, " +
+                                            "ActivityDetailSingleTradeItemSerialNumber, " +
+                                            "ActivityDetailLogisticUnitBatchLotNumber, " +
+                                            "ActivityDetailLogisticUnitBestBeforeSellByDate, " +
+                                            "ActivityDetailLogisticUnitExpiryUseByDate, " +
+                                            "ActivityDetailLogisticUnitProductionDate, " +
+                                            "ActivityDetailLogisticUnitDueDate, " +
+                                            "ActivityDetailLogisticUnitPackagingDate, " +
+                                            "ActivityDetailLogisticUnitSkidNumber" +
+                                            ") " +
+                                            "VALUES" +
+                                            "(" +
+                                            "?, " +
+                                            "?, " +
+                                            "?, " +
+                                            "?, " +
+                                            "?, " +
+                                            "?, " +
+                                            "?, " +
+                                            "?, " +
+                                            "?, " +
+                                            "?, " +
+                                            "?, " +
+                                            "?, " +
+                                            "?, " +
+                                            "?, " +
+                                            "?, " +
+                                            "?, " +
+                                            "?, " +
+                                            "?" +
+                                            ")";
+
+                                        detailParameterList.Add(
+                                            Convert.ToInt32(SysCommon.ActSubTypes.CycleCounts));
+                                        detailParameterList.Add(
+                                            Convert.ToInt32(SysCommon.ActStatus.NoChange));
+                                        detailParameterList.Add(actItemCountRefno);
+                                        detailParameterList.Add(
+                                            this.GetDetailLocation(drow, transaction, true));
+                                        detailParameterList.Add(countItems[0].ProductUnitRefno);
+                                        detailParameterList.AddRange(
+                                            this.SaveDetail(drow, transaction, true));
+
+                                        transaction.Execute(
+                                            queryInsertDetail,
+                                            detailParameterList.ToArray());
+
+                                        var actDetailRefno = Convert.ToInt32(
+                                            transaction.ExecuteScalar<int>(
+                                                "SELECT last_insert_rowid() FROM tActivityDetail"));
+                                        var actDetailCycleFkRefno = Convert.ToInt32(drow["f01"]);
+
+                                        errMsg += Environment.NewLine +
+                                                  "Detail fk refno" +
+                                                  actDetailCycleFkRefno;
+
+                                        transaction.Execute(
+                                            "INSERT INTO tActivityDetailCount (ActivityDetailRefno, ActivityDetailFKRefno) VALUES (?, ?)",
+                                            actDetailRefno,
+                                            actDetailCycleFkRefno);
+
+                                        this.SaveCommonDetailVariant(
+                                            drow,
+                                            transaction,
+                                            actDetailRefno,
+                                            true);
+                                        this.SaveDetailExtra(
+                                            drow,
+                                            transaction,
+                                            actDetailRefno,
+                                            true);
+
+                                        progValue++;
+                                        if (progValue % 10 == 0)
+                                        {
+                                            this.DataAccessProgressOutHandler(
+                                                this,
+                                                EventArgs.Empty,
+                                                progValue,
+                                                0,
+                                                progMax);
+                                        }
+                                    }
+
+                                    this.DataAccessProgressOutHandler(
+                                        this,
+                                        EventArgs.Empty,
+                                        progMax,
+                                        0,
+                                        progMax);
                                 }
                             }
 
-                            this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
+                            transaction.Commit();
+
+                            this.DataAccessStatusOutHandler(
+                                this,
+                                EventArgs.Empty,
+                                "Saving cycle count details complete.",
+                                false);
                         }
-                    }
+                        catch (SQLiteException ex)
+                        {
+                            transaction.Rollback();
 
-                    transaction.Commit();
+                            this.DataAccessStatusOutHandler(
+                                this,
+                                EventArgs.Empty,
+                                "Database exception occurred.",
+                                true);
+                            this.DataAccessStatusOutHandler(
+                                this,
+                                EventArgs.Empty,
+                                "Saving cycle count details failed.",
+                                true);
 
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving cycle count details complete.", false);
-                }
-                catch (SQLiteException ex)
-                {
-                    transaction.Rollback();
-
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving cycle count details failed.", true);
-
-                    throw new Exception("Database exception occurred. Saving cycle count details failed." + Environment.NewLine + errMsg, ex);
-                }
-            });
+                            throw new Exception(
+                                "Database exception occurred. Saving cycle count details failed." +
+                                Environment.NewLine +
+                                errMsg,
+                                ex);
+                        }
+                    });
         }
 
         /// <summary>
         /// The Create.
         /// </summary>
-        /// <param name="activityItemFkRefno">The activityItemFkRefno<see cref="int"/>.</param>
+        /// <param name="activityFkRefno">The activityFkRefno<see cref="int"/>.</param>
         /// <returns></returns>
-        protected override async Task<string> CreateRequest(int activityItemFkRefno)
+        protected override async Task<string> CreateRequest(int activityFkRefno)
         {
             var xmlString = new StringBuilder();
             var settings = new XmlWriterSettings
             {
                 Async = true,
-                Indent = false,
+                Indent = false
             };
             var xml = XmlWriter.Create(xmlString, settings);
 
             var request = XDocument.Parse(
-                "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>"
-                + "<imclient>"
-                + "<command>"
-                + "<action>REQUEST CYCLE COUNT DETAILS</action>"
-                + await SysCommon.GetRequestDefaults(false)
-                + "<itm_refno>" + activityItemFkRefno.ToString() + "</itm_refno>"
-                + "</command>"
-                + "</imclient>");
+                "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>" +
+                "<imclient>" +
+                "<command>" +
+                "<action>REQUEST CYCLE COUNT DETAILS</action>" +
+                await SysCommon.GetRequestDefaults(false) +
+                "<itm_refno>" +
+                activityFkRefno.ToString() +
+                "</itm_refno>" +
+                "</command>" +
+                "</imclient>");
 
             request.Save(xml);
             await xml.FlushAsync();
@@ -332,7 +426,7 @@ namespace dMobile.GroundWork
             throw new NotImplementedException();
         }
 
-        protected override Task<string> CreateRequest(XDocument criteria)
+        protected override Task<string> CreateRequest(XDocument criteriaFilter)
         {
             throw new NotImplementedException();
         }
@@ -367,12 +461,12 @@ namespace dMobile.GroundWork
             throw new NotImplementedException();
         }
 
-        protected override Task<string> CreateRequest(int activityItemFkRefno, XDocument criteria)
+        protected override Task<string> CreateRequest(int activityFkRefno, XDocument criteria)
         {
             throw new NotImplementedException();
         }
 
-        protected override Task<string> CreateRequest(int prodLocMapType, int whsLocMapFKRefno)
+        protected override Task<string> CreateRequest(int prodLocMapType, int whsLocMapFkRefno)
         {
             throw new NotImplementedException();
         }

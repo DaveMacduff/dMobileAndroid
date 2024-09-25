@@ -1166,39 +1166,36 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        ///     Call refresh data, unique to the activity sub type.
+        ///     Call refresh data, unique to the activity subtype.
         /// </summary>
         /// <returns><see cref="Task" /> Task operation.</returns>
         private async Task RefreshDataBySubType()
         {
-            // NOTE: So far all sub types will be refreshed.
-            switch (this.ActSubType)
+            try
             {
-                default:
-                    // Performing a refresh data will remove and partially added new items or quantity.
-                    await RefreshData();
-                    break;
-            }
-
-            return;
-
-            //////////////////////////////////////////////////////////////////////////
-            async Task RefreshData()
-            {
-                // NOTE: So far all subtypes will be refreshed.
-                try
+                this.ActHdr.RegLayerListenerStatOut(this);
+                this.ActHdr.RegLayerListenerProgOut(this);
+                if (!this.SysEnv.SysSettings.IsDisconnectedMode)
                 {
-                    this.ActHdr.RegLayerListenerStatOut(this);
-                    this.ActHdr.RegLayerListenerProgOut(this);
                     await this.ActHdr.Refresh(this.ActHdr.XmlDataCriteria);
-                    this.ActHdr.ListHeaders = await this.ActHdr.GetActivityList(false);
-                    await this.DesignGrid();
                 }
-                finally
-                {
-                    this.ActHdr.UnregLayerListenerStatOut(this);
-                    this.ActHdr.UnregLayerListenerProgOut(this);
-                }
+
+                this.ActHdr.ListHeaders = await this.ActHdr.GetActivityList(false);
+                await this.DesignGrid();
+            }
+            catch (Exception ex)
+            {
+                var errRpt = new FormErrorReport(
+                    this.ActSubType,
+                    ex,
+                    this.ActHdr.GetControlDescription(),
+                    "Refresh");
+                _ = await errRpt.ShowDialog();
+            }
+            finally
+            {
+                this.ActHdr.UnregLayerListenerStatOut(this);
+                this.ActHdr.UnregLayerListenerProgOut(this);
             }
         }
 

@@ -131,11 +131,11 @@ namespace dMobile.GroundWork
         /// <summary>
         /// The Send.
         /// </summary>
-        /// <param name="actItemRefno"></param>
+        /// <param name="activityFkRefno</param>
         /// <returns></returns>
-        protected override async Task<string> SendRequest(int actItemRefno)
+        protected override async Task<string> SendRequest(int activityFkRefno)
         {
-            return await this.SendComm(await this.CreateRequest(actItemRefno));
+            return await this.SendComm(await this.CreateRequest(activityFkRefno));
         }
 
         /// <summary>
@@ -264,9 +264,9 @@ namespace dMobile.GroundWork
         /// <summary>
         /// The Create.
         /// </summary>
-        /// <param name="activityItemFkRefno"></param>
+        /// <param name="activityFkRefno"></param>
         /// <returns></returns>
-        protected override async Task<string> CreateRequest(int activityItemFkRefno)
+        protected override async Task<string> CreateRequest(int activityFkRefno)
         {
             var xmlString = new StringBuilder();
             var settings = new XmlWriterSettings
@@ -280,9 +280,9 @@ namespace dMobile.GroundWork
             var locMapWhsFKRefno = 0;
 
             // lookup and verify warehouse
-            if (activityItemFkRefno > 0)
+            if (activityFkRefno > 0)
             {
-                locMapWhsFKRefno = await locMapWhs.GetLocMapWhsFKRefnoFromLocMapWhsRefno(activityItemFkRefno);
+                locMapWhsFKRefno = await locMapWhs.GetLocMapWhsFKRefnoFromLocMapWhsRefno(activityFkRefno);
             }
 
             var request = XDocument.Parse(
@@ -322,7 +322,7 @@ namespace dMobile.GroundWork
             throw new NotImplementedException();
         }
 
-        protected override Task<string> CreateRequest(XDocument criteria)
+        protected override Task<string> CreateRequest(XDocument criteriaFilter)
         {
             throw new NotImplementedException();
         }
@@ -332,12 +332,12 @@ namespace dMobile.GroundWork
             throw new NotImplementedException();
         }
 
-        protected override Task<string> CreateRequest(int activityItemFkRefno, XDocument criteria)
+        protected override Task<string> CreateRequest(int activityFkRefno, XDocument criteria)
         {
             throw new NotImplementedException();
         }
 
-        protected override Task<string> CreateRequest(int prodLocMapType, int whsLocMapFKRefno)
+        protected override Task<string> CreateRequest(int prodLocMapType, int whsLocMapFkRefno)
         {
             throw new NotImplementedException();
         }

@@ -149,7 +149,7 @@ namespace dMobile.Controller.Activity_Item
             if (actItemFoundRefno >= 0)
             {
                 var idx = 0;
-                foreach (TransferItem item in this.ListItems)
+                foreach (var item in this.ListItems.Cast<TransferItem>())
                 {
                     if (item.ActivityItemRefno == this.ItemRefno)
                     {
@@ -497,9 +497,9 @@ namespace dMobile.Controller.Activity_Item
 
                     this.DataLayerProgressOutHandler(this, EventArgs.Empty, 5);
 
-                    tableActTransferItem.RegisterDataAccessListenerProgressOut((TransferActItem)this);
-                    await tableActTransferItem.RequestItemData(this.ActHdr.HdrRefno);
-                    tableActTransferItem.UnregisterDataAccessListenerProgressOut((TransferActItem)this);
+                    tableActTransferItem.RegisterDataAccessListenerProgressOut(this);
+                    await tableActTransferItem.RequestItemData(this.ActHdr.HdrFkRefno, this.ActHdr.HdrRefno);
+                    tableActTransferItem.UnregisterDataAccessListenerProgressOut(this);
                 }
                 else
                 {
@@ -510,9 +510,9 @@ namespace dMobile.Controller.Activity_Item
 
                     this.DataLayerProgressOutHandler(this, EventArgs.Empty, 5);
 
-                    tableActTransferItem.RegisterDataAccessListenerProgressOut((TransferActItem)this);
-                    await tableActTransferItem.RequestItemData(this.ActHdr.HdrRefno);
-                    tableActTransferItem.UnregisterDataAccessListenerProgressOut((TransferActItem)this);
+                    tableActTransferItem.RegisterDataAccessListenerProgressOut(this);
+                    await tableActTransferItem.RequestItemData(this.ActHdr.HdrFkRefno, this.ActHdr.HdrRefno);
+                    tableActTransferItem.UnregisterDataAccessListenerProgressOut(this);
                 }
             }
         }
@@ -576,7 +576,7 @@ namespace dMobile.Controller.Activity_Item
 
             gridMainActivity.Children.Add(gridHeader);
 
-            foreach (TransferItem transferItem in this.ListItems)
+            foreach (var transferItem in this.ListItems.Cast<TransferItem>())
             {
                 observableCollection.Add(transferItem);
 
@@ -779,7 +779,7 @@ namespace dMobile.Controller.Activity_Item
             this.ListItems = this.listTransferItems.Where(transferItem => transferItem.ProductCode.ToLower()
                 .Contains(searchText.ToLower().Trim())).Cast<object>().ToList();
 
-            foreach (TransferItem transferItem in this.ListItems)
+            foreach (var transferItem in this.ListItems.Cast<TransferItem>())
             {
                 observableCollection.Add(transferItem);
             }

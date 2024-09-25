@@ -42,86 +42,100 @@ namespace dMobile.GroundWork
                 $"Purging existing {this.LowerCaseName} items.",
                 true);
             var conn = DatabaseConnection.GetInstance().SqlConn;
-            await conn.RunInTransactionAsync(transaction =>
-            {
-                try
+            await conn.RunInTransactionAsync(
+                transaction =>
                 {
-                    // Corruption recovery cleanup.
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName}.", true);
-                    var query = @"
+                    try
+                    {
+                        // Corruption recovery cleanup.
+                        this.DataAccessStatusOutHandler(
+                            this,
+                            EventArgs.Empty,
+                            $"Purging {this.LowerCaseName}.",
+                            true);
+                        var query = @"
                         DELETE FROM tActivityItemBarCodeAssociationXRef
                             WHERE tActivityItemBarCodeAssociationXRef.ActivityItemRefno <= 0";
-                    transaction.Execute(query);
+                        transaction.Execute(query);
 
-                    query = @"
+                        query = @"
                         DELETE FROM tActivityItemBarCodeAssociationXRef
                             WHERE tActivityItemBarCodeAssociationXRef.ActivityItemRefno
                                 NOT IN (SELECT tActivityItem.ActivityItemRefno FROM tActivityItem)";
-                    transaction.Execute(query);
+                        transaction.Execute(query);
 
-                    query = @"
+                        query = @"
                         DELETE FROM tActivityItemCount
                             WHERE tActivityItemCount.ActivityItemRefno <= 0
                                 OR tActivityItemCount.ActivityItemFKRefno <= 0";
-                    transaction.Execute(query);
+                        transaction.Execute(query);
 
-                    query = @"
+                        query = @"
                         DELETE FROM tActivityItemCount
                             WHERE tActivityItemCount.ActivityItemRefno
                                 NOT IN (SELECT tActivityItem.ActivityItemRefno FROM tActivityItem)";
-                    transaction.Execute(query);
+                        transaction.Execute(query);
 
-                    query = "DELETE FROM tActivityItem WHERE tActivityItem.ActivityRefno <= 0";
-                    transaction.Execute(query);
+                        query = "DELETE FROM tActivityItem WHERE tActivityItem.ActivityRefno <= 0";
+                        transaction.Execute(query);
 
-                    query = @"
+                        query = @"
                         DELETE FROM tActivityItem
                             WHERE tActivityItem.ActivityRefno
                                 NOT IN (SELECT tActivity.ActivityRefno FROM tActivity)";
-                    transaction.Execute(query);
+                        transaction.Execute(query);
 
-                    // Regular purge.
-                    query = @"
+                        // Regular purge.
+                        query = @"
                         DELETE FROM tActivityItemBarCodeAssociationXRef
                             WHERE tActivityItemBarCodeAssociationXRef.ActivityItemRefno IN
                                 (SELECT tActivityItem.ActivityItemRefno FROM tActivityItem
                                     WHERE tActivityItem.ActivityItemSubType = ?)";
-                    transaction.Execute(query, this.CurrentSubType);
+                        transaction.Execute(query, this.CurrentSubType);
 
-                    query = "DELETE FROM tActivityItemCount WHERE tActivityItemCount.ActivityItemSubType = ?";
-                    transaction.Execute(query, this.CurrentSubType);
+                        query =
+                            "DELETE FROM tActivityItemCount WHERE tActivityItemCount.ActivityItemSubType = ?";
+                        transaction.Execute(query, this.CurrentSubType);
 
-                    query = "DELETE FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = ?";
-                    transaction.Execute(query, this.CurrentSubType);
+                        query =
+                            "DELETE FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = ?";
+                        transaction.Execute(query, this.CurrentSubType);
 
-                    transaction.Commit();
-                    this.DataAccessStatusOutHandler(
-                        this,
-                        EventArgs.Empty,
-                        $"Purging {this.LowerCaseName} items complete.",
-                        true);
-                }
-                catch (SQLiteException ex)
-                {
-                    transaction.Rollback();
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
-                    this.DataAccessStatusOutHandler(
-                        this,
-                        EventArgs.Empty, $"Purging {this.LowerCaseName} items failed.",
-                        true);
-                    throw new Exception($"Database exception occurred.Purging {this.LowerCaseName} items failed.", ex);
-                }
-                catch
-                {
-                    transaction.Rollback();
-                    this.DataAccessStatusOutHandler(
-                        this,
-                        EventArgs.Empty,
-                        $"Purging {this.LowerCaseName} items failed.",
-                        true);
-                    throw;
-                }
-            });
+                        transaction.Commit();
+                        this.DataAccessStatusOutHandler(
+                            this,
+                            EventArgs.Empty,
+                            $"Purging {this.LowerCaseName} items complete.",
+                            true);
+                    }
+                    catch (SQLiteException ex)
+                    {
+                        transaction.Rollback();
+                        this.DataAccessStatusOutHandler(
+                            this,
+                            EventArgs.Empty,
+                            "Database exception occurred.",
+                            true);
+                        this.DataAccessStatusOutHandler(
+                            this,
+                            EventArgs.Empty,
+                            $"Purging {this.LowerCaseName} items failed.",
+                            true);
+                        throw new Exception(
+                            $"Database exception occurred.Purging {this.LowerCaseName} items failed.",
+                            ex);
+                    }
+                    catch
+                    {
+                        transaction.Rollback();
+                        this.DataAccessStatusOutHandler(
+                            this,
+                            EventArgs.Empty,
+                            $"Purging {this.LowerCaseName} items failed.",
+                            true);
+                        throw;
+                    }
+                });
         }
 
         /// <inheritdoc/>
@@ -148,17 +162,11 @@ namespace dMobile.GroundWork
             throw new NotImplementedException();
         }
 
-        /// <summary>
-        /// The Send.
-        /// </summary>
-        /// <param name="actRefno">The actRefno<see cref="int"/>.</param>
-        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-        protected override async Task<string> SendRequest(int actRefno)
+        protected override async Task<string> SendRequest(int activityFkRefno)
         {
-            var activityFkRefno = 0;
-
-            const string query = "SELECT * FROM tActivityCount WHERE ActivityRefno = ?";
-            var results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<ActivityCountModel>(query, actRefno);
+            const string query = "SELECT * FROM tActivityCount WHERE ActivityFKRefno = ?";
+            var results = await DatabaseConnection.GetInstance()
+                .SqlConn.QueryAsync<ActivityCountModel>(query, activityFkRefno);
 
             if (results?.Count > 0)
             {
@@ -176,95 +184,127 @@ namespace dMobile.GroundWork
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         protected override async Task Save(string responseData, int actRefno)
         {
-            await DatabaseConnection.GetInstance().SqlConn.RunInTransactionAsync(transaction =>
-            {
-                try
-                {
-                    using var ds = new DataSet();
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
-
-                    ds.ReadXml(SysCommon.GetXmlReader(ref responseData), XmlReadMode.Auto);
-
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving physical count items.", false);
-
-                    if (ds.Tables.Count != 0)
+            await DatabaseConnection.GetInstance()
+                .SqlConn.RunInTransactionAsync(
+                    transaction =>
                     {
-                        var totalCounts = Convert.ToInt32(ds.Tables["tActivityItemCount"].Rows.Count);
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Records {totalCounts}", false);
-                        var progValue = 0;
-                        var locMapWhsFkRefno = 0;
-                        var locMapSectFkRefno = 0;
-
-                        this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, totalCounts);
-
-                        foreach (DataRow drow in ds.Tables["tActivityItemCount"].Rows)
+                        try
                         {
-                            transaction.Execute(
-                                @"INSERT INTO tActivityItem
+                            using var ds = new DataSet();
+                            this.DataAccessStatusOutHandler(
+                                this,
+                                EventArgs.Empty,
+                                "Reading received data.",
+                                false);
+
+                            ds.ReadXml(SysCommon.GetXmlReader(ref responseData), XmlReadMode.Auto);
+
+                            this.DataAccessStatusOutHandler(
+                                this,
+                                EventArgs.Empty,
+                                "Saving physical count items.",
+                                false);
+
+                            if (ds.Tables.Count != 0)
+                            {
+                                var totalCounts = Convert.ToInt32(
+                                    ds.Tables["tActivityItemCount"].Rows.Count);
+                                this.DataAccessStatusOutHandler(
+                                    this,
+                                    EventArgs.Empty,
+                                    $"Records {totalCounts}",
+                                    false);
+                                var progValue = 0;
+                                var locMapWhsFkRefno = 0;
+                                var locMapSectFkRefno = 0;
+
+                                this.DataAccessProgressOutHandler(
+                                    this,
+                                    EventArgs.Empty,
+                                    0,
+                                    0,
+                                    totalCounts);
+
+                                foreach (DataRow drow in ds.Tables["tActivityItemCount"].Rows)
+                                {
+                                    transaction.Execute(
+                                        @"INSERT INTO tActivityItem
                                     (ActivityItemSubType, ActivityItemStatus, ActivityRefno, ActivityItemIsAdded)
                                     VALUES (?, ?, ?, ?)",
-                                Convert.ToInt32(SysCommon.ActSubTypes.PhysicalCounts),
-                                Convert.ToInt32(SysCommon.ActStatus.NoChange),
-                                actRefno,
-                                0);
+                                        Convert.ToInt32(SysCommon.ActSubTypes.PhysicalCounts),
+                                        Convert.ToInt32(SysCommon.ActStatus.NoChange),
+                                        actRefno,
+                                        0);
 
-                            var actItemRefno = Convert.ToInt32(transaction.ExecuteScalar<int>(
-                                "SELECT last_insert_rowid() FROM tActivityItem"));
-                            var prodUnitRefno = this.GetProductUnitRefnoFromDataRow(drow, transaction, true);
+                                    var actItemRefno = Convert.ToInt32(
+                                        transaction.ExecuteScalar<int>(
+                                            "SELECT last_insert_rowid() FROM tActivityItem"));
+                                    var prodUnitRefno = this.GetProductUnitRefnoFromDataRow(
+                                        drow,
+                                        transaction,
+                                        true);
 
-                            // Cannot use this.SaveDetailLocation() f00 tags are not the same.
-                            var locMapRefno = 0;
-                            var locMapSlotFkRefno = Convert.ToInt32(drow["f08"]);
+                                    // Cannot use this.SaveDetailLocation() f00 tags are not the same.
+                                    var locMapRefno = 0;
+                                    var locMapSlotFkRefno = Convert.ToInt32(drow["f08"]);
 
-                            var locationMapSlotResults = transaction.Query<tLocationMapSlotModel>(
-                                "SELECT * FROM tLocationMapSlot WHERE LocationMapSlotFKRefno = ?",
-                                locMapSlotFkRefno);
+                                    var locationMapSlotResults =
+                                        transaction.Query<tLocationMapSlotModel>(
+                                            "SELECT * FROM tLocationMapSlot WHERE LocationMapSlotFKRefno = ?",
+                                            locMapSlotFkRefno);
 
-                            if (locationMapSlotResults != null && locationMapSlotResults.Count > 0)
-                            {
-                                locMapRefno = locationMapSlotResults[0].LocationMapRefno;
-                            }
+                                    if (locationMapSlotResults != null &&
+                                        locationMapSlotResults.Count > 0)
+                                    {
+                                        locMapRefno = locationMapSlotResults[0].LocationMapRefno;
+                                    }
 
-                            if (locMapRefno == 0)
-                            {
-                                locMapSectFkRefno = Convert.ToInt32(drow["f07"]);
+                                    if (locMapRefno == 0)
+                                    {
+                                        locMapSectFkRefno = Convert.ToInt32(drow["f07"]);
 
-                                var locationMapSectionResults = transaction.Query<tLocationMapSectionModel>(
-                                    "SELECT * FROM tLocationMapSection WHERE LocationMapSectionFKRefno = ?",
-                                    locMapSectFkRefno);
+                                        var locationMapSectionResults =
+                                            transaction.Query<tLocationMapSectionModel>(
+                                                "SELECT * FROM tLocationMapSection WHERE LocationMapSectionFKRefno = ?",
+                                                locMapSectFkRefno);
 
-                                if (locationMapSectionResults != null && locationMapSectionResults.Count > 0)
-                                {
-                                    locMapRefno = locationMapSectionResults[0].LocationMapRefno;
-                                }
-                            }
+                                        if (locationMapSectionResults != null &&
+                                            locationMapSectionResults.Count > 0)
+                                        {
+                                            locMapRefno = locationMapSectionResults[0]
+                                                .LocationMapRefno;
+                                        }
+                                    }
 
-                            if (locMapRefno == 0)
-                            {
-                                locMapWhsFkRefno = Convert.ToInt32(drow["f06"]);
+                                    if (locMapRefno == 0)
+                                    {
+                                        locMapWhsFkRefno = Convert.ToInt32(drow["f06"]);
 
-                                var locationMapWarehouseResults = transaction.Query<tLocationMapWarehouseModel>(
-                                    "SELECT * FROM tLocationMapWarehouse WHERE LocationMapWarehouseFKRefno = ?",
-                                    locMapWhsFkRefno);
+                                        var locationMapWarehouseResults =
+                                            transaction.Query<tLocationMapWarehouseModel>(
+                                                "SELECT * FROM tLocationMapWarehouse WHERE LocationMapWarehouseFKRefno = ?",
+                                                locMapWhsFkRefno);
 
-                                if (locationMapWarehouseResults != null && locationMapWarehouseResults.Count > 0)
-                                {
-                                    locMapRefno = locationMapWarehouseResults[0].LocationMapRefno;
-                                }
-                            }
+                                        if (locationMapWarehouseResults != null &&
+                                            locationMapWarehouseResults.Count > 0)
+                                        {
+                                            locMapRefno = locationMapWarehouseResults[0]
+                                                .LocationMapRefno;
+                                        }
+                                    }
 
-                            if (locMapRefno == 0)
-                            {
-                                throw new Exception(
-                                    $"Unable to identify the location map reference number.{Environment.NewLine}" +
-                                    $" Whs FK Refno {locMapWhsFkRefno}{Environment.NewLine} Section FK Refno" +
-                                    $" {locMapSectFkRefno}{Environment.NewLine} Slot FK Refno {locMapSlotFkRefno}");
-                            }
+                                    if (locMapRefno == 0)
+                                    {
+                                        throw new Exception(
+                                            $"Unable to identify the location map reference number.{Environment.NewLine}" +
+                                            $" Whs FK Refno {locMapWhsFkRefno}{Environment.NewLine} Section FK Refno" +
+                                            $" {locMapSectFkRefno}{Environment.NewLine} Slot FK Refno {locMapSlotFkRefno}");
+                                    }
 
-                            var countItemFkRefno = Convert.ToInt32(drow["f02"]);
+                                    var countItemFkRefno = Convert.ToInt32(drow["f02"]);
 
-                            transaction.Execute(
-                                @"INSERT INTO tActivityItemCount (
+                                    transaction.Execute(
+                                        @"INSERT INTO tActivityItemCount (
                                 ActivityItemRefno, 
                                 ActivityItemSubType, 
                                 ActivityItemFKRefno, 
@@ -280,66 +320,91 @@ namespace dMobile.GroundWork
                                 ) VALUES (
                                 ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
                                 )",
-                                actItemRefno,
-                                Convert.ToInt32(SysCommon.ActSubTypes.PhysicalCounts),
-                                countItemFkRefno,
-                                Convert.ToString(countItemFkRefno),
-                                prodUnitRefno,
-                                locMapRefno,
-                                Convert.ToDecimal(drow["f09"]),
-                                Convert.ToDecimal(drow["f10"]),
-                                Convert.ToDecimal(drow["f11"]),
-                                Convert.ToDecimal(drow["f12"]),
-                                Convert.ToDecimal(drow["f13"]),
-                                Convert.ToDecimal(drow["f14"]));
+                                        actItemRefno,
+                                        Convert.ToInt32(SysCommon.ActSubTypes.PhysicalCounts),
+                                        countItemFkRefno,
+                                        Convert.ToString(countItemFkRefno),
+                                        prodUnitRefno,
+                                        locMapRefno,
+                                        Convert.ToDecimal(drow["f09"]),
+                                        Convert.ToDecimal(drow["f10"]),
+                                        Convert.ToDecimal(drow["f11"]),
+                                        Convert.ToDecimal(drow["f12"]),
+                                        Convert.ToDecimal(drow["f13"]),
+                                        Convert.ToDecimal(drow["f14"]));
 
-                            progValue++;
-                            if (progValue % 10 == 0)
-                            {
-                                this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue, 0, totalCounts);
+                                    progValue++;
+                                    if (progValue % 10 == 0)
+                                    {
+                                        this.DataAccessProgressOutHandler(
+                                            this,
+                                            EventArgs.Empty,
+                                            progValue,
+                                            0,
+                                            totalCounts);
+                                    }
+                                }
+
+                                this.DataAccessProgressOutHandler(
+                                    this,
+                                    EventArgs.Empty,
+                                    totalCounts,
+                                    0,
+                                    totalCounts);
                             }
+
+                            transaction.Commit();
+
+                            this.DataAccessStatusOutHandler(
+                                this,
+                                EventArgs.Empty,
+                                "Request physical count items complete.",
+                                false);
                         }
+                        catch (SQLiteException ex)
+                        {
+                            transaction.Rollback();
 
-                        this.DataAccessProgressOutHandler(this, EventArgs.Empty, totalCounts, 0, totalCounts);
-                    }
+                            this.DataAccessStatusOutHandler(
+                                this,
+                                EventArgs.Empty,
+                                "Database exception occurred.",
+                                true);
+                            this.DataAccessStatusOutHandler(
+                                this,
+                                EventArgs.Empty,
+                                "Request physical count items failed.",
+                                true);
 
-                    transaction.Commit();
-
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Request physical count items complete.", false);
-                }
-                catch (SQLiteException ex)
-                {
-                    transaction.Rollback();
-
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Request physical count items failed.", true);
-
-                    throw new Exception("Database exception occurred. Saving physical count items failed.", ex);
-                }
-            });
+                            throw new Exception(
+                                "Database exception occurred. Saving physical count items failed.",
+                                ex);
+                        }
+                    });
         }
 
         /// <summary>
         ///     Create a request for physical count items.
         /// </summary>
-        /// <param name="activityItemFkRefno"><see cref="int"/> Activity item foreign key reference number.</param>
+        /// <param name="activityFkRefno"><see cref="int"/> Activity item foreign key reference number.</param>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-        protected override async Task<string> CreateRequest(int activityItemFkRefno)
+        protected override async Task<string> CreateRequest(int activityFkRefno)
         {
             var xmlString = new StringBuilder();
             var settings = new XmlWriterSettings
             {
                 Async = true,
-                Indent = false,
+                Indent = false
             };
             var xml = XmlWriter.Create(xmlString, settings);
 
-            var request = XDocument.Parse($@"<?xml version=""1.0"" encoding=""utf-8"" standalone=""yes""?>
+            var request = XDocument.Parse(
+                $@"<?xml version=""1.0"" encoding=""utf-8"" standalone=""yes""?>
                 <imclient>
                 <command>
                 <action>REQUEST PHYSICAL COUNT ITEMS</action>
                 {await SysCommon.GetRequestDefaults(false)}
-                <refno>{activityItemFkRefno}</refno>
+                <refno>{activityFkRefno}</refno>
                 </command>
                 </imclient>");
 
@@ -357,7 +422,7 @@ namespace dMobile.GroundWork
         }
 
         /// <inheritdoc/>
-        protected override Task<string> CreateRequest(XDocument criteria)
+        protected override Task<string> CreateRequest(XDocument criteriaFilter)
         {
             throw new NotImplementedException();
         }
@@ -375,7 +440,7 @@ namespace dMobile.GroundWork
         }
 
         /// <inheritdoc/>
-        protected override Task<string> CreateRequest(int activityItemFkRefno, XDocument criteria)
+        protected override Task<string> CreateRequest(int activityFkRefno, XDocument criteria)
         {
             throw new NotImplementedException();
         }

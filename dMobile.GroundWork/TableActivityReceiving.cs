@@ -11,7 +11,7 @@ namespace dMobile.GroundWork
     using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
-    using dMobile.Bedrock;
+    using Bedrock;
     using SQLite;
 
     /// <summary>
@@ -23,7 +23,7 @@ namespace dMobile.GroundWork
         /// Initializes a new instance of the <see cref="TableActivityReceiving"/> class.
         /// </summary>
         public TableActivityReceiving()
-      : base()
+            : base()
         {
             this.FullClassName = "dMobile.GroundWork.TableActivityReceiving";
             this.CurrentSubType = SysCommon.ActSubTypes.Receiving;
@@ -36,54 +36,80 @@ namespace dMobile.GroundWork
         /// </summary>
         public override async Task PurgeData()
         {
-            this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName}.", true);
+            this.DataAccessStatusOutHandler(
+                this,
+                EventArgs.Empty,
+                $"Purging {this.LowerCaseName}.",
+                true);
             var conn = DatabaseConnection.GetInstance().SqlConn;
             var subType = Convert.ToInt32(this.CurrentSubType);
-            await conn.RunInTransactionAsync(transaction =>
-            {
-                try
+            await conn.RunInTransactionAsync(
+                transaction =>
                 {
-                    // Corruption recovery cleanup.
-                    var query = @"
+                    try
+                    {
+                        // Corruption recovery cleanup.
+                        var query = @"
                         DELETE FROM tActivityReceiving
                             WHERE tActivityReceiving.ActivityRefno <= 0
                                 OR tActivityReceiving.ActivityFKRefno <= 0";
-                    transaction.Execute(query);
+                        transaction.Execute(query);
 
-                    query = @"
+                        query = @"
                         DELETE FROM tActivityReceiving
                             WHERE tActivityReceiving.ActivityRefno
                                 NOT IN (SELECT tActivity.ActivityRefno FROM tActivity)";
-                    transaction.Execute(query);
+                        transaction.Execute(query);
 
-                    query = "DELETE FROM tActivity WHERE tActivity.ActivityRefno <= 0";
-                    transaction.Execute(query);
+                        query = "DELETE FROM tActivity WHERE tActivity.ActivityRefno <= 0";
+                        transaction.Execute(query);
 
-                    // REGULAR PURGE
-                    query = "DELETE FROM tActivityReceiving WHERE tActivityReceiving.ActivitySubType = ?";
-                    transaction.Execute(query, subType);
+                        // REGULAR PURGE
+                        query =
+                            "DELETE FROM tActivityReceiving WHERE tActivityReceiving.ActivitySubType = ?";
+                        transaction.Execute(query, subType);
 
-                    query = "DELETE FROM tActivity WHERE tActivity.ActivitySubType = ?";
-                    transaction.Execute(query, subType);
+                        query = "DELETE FROM tActivity WHERE tActivity.ActivitySubType = ?";
+                        transaction.Execute(query, subType);
 
-                    transaction.Commit();
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} complete.", true);
-                }
-                catch (SQLiteException sqlEx)
-                {
-                    transaction.Rollback();
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"{sqlEx.Message}", true);
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} failed.", true);
-                    throw;
-                }
-                catch
-                {
-                    transaction.Rollback();
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} failed.", true);
-                    throw;
-                }
-            });
+                        transaction.Commit();
+                        this.DataAccessStatusOutHandler(
+                            this,
+                            EventArgs.Empty,
+                            $"Purging {this.LowerCaseName} complete.",
+                            true);
+                    }
+                    catch (SQLiteException sqlEx)
+                    {
+                        transaction.Rollback();
+                        this.DataAccessStatusOutHandler(
+                            this,
+                            EventArgs.Empty,
+                            "Database exception occurred.",
+                            true);
+                        this.DataAccessStatusOutHandler(
+                            this,
+                            EventArgs.Empty,
+                            $"{sqlEx.Message}",
+                            true);
+                        this.DataAccessStatusOutHandler(
+                            this,
+                            EventArgs.Empty,
+                            $"Purging {this.LowerCaseName} failed.",
+                            true);
+                        throw;
+                    }
+                    catch
+                    {
+                        transaction.Rollback();
+                        this.DataAccessStatusOutHandler(
+                            this,
+                            EventArgs.Empty,
+                            $"Purging {this.LowerCaseName} failed.",
+                            true);
+                        throw;
+                    }
+                });
         }
 
         /// <summary>
@@ -92,104 +118,158 @@ namespace dMobile.GroundWork
         /// <param name="responseData"></param>
         protected override async Task Save(string responseData)
         {
-            await DatabaseConnection.GetInstance().SqlConn.RunInTransactionAsync(transaction =>
-            {
-                try
-                {
-                    using var ds = new DataSet();
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received responseData.", false);
-
-                    ds.ReadXml(SysCommon.GetXmlReader(ref responseData), XmlReadMode.Auto);
-
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving receiving.", false);
-
-                    if (ds.Tables.Count != 0)
+            await DatabaseConnection.GetInstance()
+                .SqlConn.RunInTransactionAsync(
+                    transaction =>
                     {
-                        var progMax = Convert.ToInt32(ds.Tables["tActivityPurchaseOrder"].Rows.Count);
-
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Records {progMax}", false);
-
-                        var actRefno = 0;
-                        var progValue = 0;
-                        var whsLocMapRefno = 0;
-                        var recvFKRefno = 0;
-                        var recvPONumber = string.Empty;
-
-                        this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
-
-                        foreach (DataRow drow in ds.Tables["tActivityPurchaseOrder"].Rows)
+                        try
                         {
-                            transaction.Execute("INSERT INTO tActivity (ActivityStatus, ActivitySubType) VALUES (?, ?)", 0, Convert.ToInt32(SysCommon.ActSubTypes.Receiving));
-                            actRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivity"));
-                            recvFKRefno = Convert.ToInt32(drow["ActivityFKRefno"]);
-                            recvPONumber = drow["ActivityPurchaseOrderPONumber"].ToString();
-                            whsLocMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, transaction);
+                            using var ds = new DataSet();
+                            this.DataAccessStatusOutHandler(
+                                this,
+                                EventArgs.Empty,
+                                "Reading received responseData.",
+                                false);
 
-                            var query = "INSERT INTO tActivityReceiving (" +
-                                        "ActivityRefno, " +
-                                        "ActivitySubType, " +
-                                        "ActivityFKRefno, " +
-                                        "ActivityStringFKRefno, " +
-                                        "ActivityReceivingPONumber, " +
-                                        "WarehouseLocationMapRefno, " +
-                                        "ActivityReceivingIssuedDateTime, " +
-                                        "ActivityReceivingArrivalDateTime, " +
-                                        "ActivityReceivingVendorContactName, " +
-                                        "ActivityReceivingVendorSupplierContactName, " +
-                                        "ActivityReceivingVendorSupplierGTINCompanyPrefix" +
-                                        ") VALUES (" +
-                                        "?, " +
-                                        "?, " +
-                                        "?, " +
-                                        "?, " +
-                                        "?, " +
-                                        "?, " +
-                                        "?, " +
-                                        "?, " +
-                                        "?, " +
-                                        "?, " +
-                                        "?" +
-                                        ")";
-                            var parameters = new object[]
+                            ds.ReadXml(SysCommon.GetXmlReader(ref responseData), XmlReadMode.Auto);
+
+                            this.DataAccessStatusOutHandler(
+                                this,
+                                EventArgs.Empty,
+                                "Saving receiving.",
+                                false);
+
+                            if (ds.Tables.Count != 0)
                             {
-                                    actRefno,
-                                    Convert.ToInt32(SysCommon.ActSubTypes.Receiving),
-                                    recvFKRefno,
-                                    Convert.ToString(recvFKRefno),
-                                    recvPONumber,
-                                    whsLocMapRefno,
-                                    Convert.ToDateTime(drow["ActivityPurchaseOrderIssuedDateTime"]),
-                                    Convert.ToDateTime(drow["ActivityPurchaseOrderArrivalDateTime"]),
-                                    drow["ActivityPurchaseOrderVendorContactName"].ToString(),
-                                    drow["ActivityPurchaseOrderVendorSupplierContactName"].ToString(),
-                                    drow["ActivityPurchaseOrderVendorSupplierGTINCompanyPrefix"].ToString(),
-                            };
+                                var progMax = Convert.ToInt32(
+                                    ds.Tables["tActivityPurchaseOrder"].Rows.Count);
 
-                            transaction.Execute(query, parameters);
+                                this.DataAccessStatusOutHandler(
+                                    this,
+                                    EventArgs.Empty,
+                                    $"Records {progMax}",
+                                    false);
 
-                            progValue++;
-                            if (progValue % 10 == 0)
-                            {
-                                this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue, 0, progMax);
+                                var actRefno = 0;
+                                var progValue = 0;
+                                var whsLocMapRefno = 0;
+                                var recvFKRefno = 0;
+                                var recvPONumber = string.Empty;
+
+                                this.DataAccessProgressOutHandler(
+                                    this,
+                                    EventArgs.Empty,
+                                    0,
+                                    0,
+                                    progMax);
+
+                                foreach (DataRow drow in ds.Tables["tActivityPurchaseOrder"].Rows)
+                                {
+                                    transaction.Execute(
+                                        "INSERT INTO tActivity (ActivityStatus, ActivitySubType) VALUES (?, ?)",
+                                        0,
+                                        Convert.ToInt32(SysCommon.ActSubTypes.Receiving));
+                                    actRefno = Convert.ToInt32(
+                                        transaction.ExecuteScalar<int>(
+                                            "SELECT last_insert_rowid() FROM tActivity"));
+                                    recvFKRefno = Convert.ToInt32(drow["ActivityFKRefno"]);
+                                    recvPONumber = drow["ActivityPurchaseOrderPONumber"].ToString();
+                                    whsLocMapRefno =
+                                        this.GetWhsLocMapRefnoFromDataRow(drow, transaction);
+
+                                    var query = "INSERT INTO tActivityReceiving (" +
+                                                "ActivityRefno, " +
+                                                "ActivitySubType, " +
+                                                "ActivityFKRefno, " +
+                                                "ActivityStringFKRefno, " +
+                                                "ActivityReceivingPONumber, " +
+                                                "WarehouseLocationMapRefno, " +
+                                                "ActivityReceivingIssuedDateTime, " +
+                                                "ActivityReceivingArrivalDateTime, " +
+                                                "ActivityReceivingVendorContactName, " +
+                                                "ActivityReceivingVendorSupplierContactName, " +
+                                                "ActivityReceivingVendorSupplierGTINCompanyPrefix" +
+                                                ") VALUES (" +
+                                                "?, " +
+                                                "?, " +
+                                                "?, " +
+                                                "?, " +
+                                                "?, " +
+                                                "?, " +
+                                                "?, " +
+                                                "?, " +
+                                                "?, " +
+                                                "?, " +
+                                                "?" +
+                                                ")";
+                                    var parameters = new object[]
+                                    {
+                                        actRefno,
+                                        Convert.ToInt32(SysCommon.ActSubTypes.Receiving),
+                                        recvFKRefno,
+                                        Convert.ToString(recvFKRefno),
+                                        recvPONumber,
+                                        whsLocMapRefno,
+                                        Convert.ToDateTime(
+                                            drow["ActivityPurchaseOrderIssuedDateTime"]),
+                                        Convert.ToDateTime(
+                                            drow["ActivityPurchaseOrderArrivalDateTime"]),
+                                        drow["ActivityPurchaseOrderVendorContactName"].ToString(),
+                                        drow["ActivityPurchaseOrderVendorSupplierContactName"]
+                                            .ToString(),
+                                        drow["ActivityPurchaseOrderVendorSupplierGTINCompanyPrefix"]
+                                            .ToString()
+                                    };
+
+                                    transaction.Execute(query, parameters);
+
+                                    progValue++;
+                                    if (progValue % 10 == 0)
+                                    {
+                                        this.DataAccessProgressOutHandler(
+                                            this,
+                                            EventArgs.Empty,
+                                            progValue,
+                                            0,
+                                            progMax);
+                                    }
+                                }
+
+                                this.DataAccessProgressOutHandler(
+                                    this,
+                                    EventArgs.Empty,
+                                    progMax,
+                                    0,
+                                    progMax);
                             }
+
+                            transaction.Commit();
+
+                            this.DataAccessStatusOutHandler(
+                                this,
+                                EventArgs.Empty,
+                                "Saving receiving complete.",
+                                false);
                         }
+                        catch (SQLiteException ex)
+                        {
+                            transaction.Rollback();
 
-                        this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
-                    }
-
-                    transaction.Commit();
-
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving receiving complete.", false);
-                }
-                catch (SQLiteException ex)
-                {
-                    transaction.Rollback();
-
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving receiving failed.", false);
-                    throw new Exception("Database exception occurred. Saving receiving failed.", ex);
-                }
-            });
+                            this.DataAccessStatusOutHandler(
+                                this,
+                                EventArgs.Empty,
+                                "Database exception occurred.",
+                                false);
+                            this.DataAccessStatusOutHandler(
+                                this,
+                                EventArgs.Empty,
+                                "Saving receiving failed.",
+                                false);
+                            throw new Exception(
+                                "Database exception occurred. Saving receiving failed.",
+                                ex);
+                        }
+                    });
         }
 
         /// <summary>
@@ -202,18 +282,18 @@ namespace dMobile.GroundWork
             var settings = new XmlWriterSettings
             {
                 Async = true,
-                Indent = false,
+                Indent = false
             };
             var xml = XmlWriter.Create(xmlString, settings);
 
             var request = XDocument.Parse(
-                  "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>"
-                  + "<imclient>"
-                  + "<command>"
-                  + "<action>REQUEST PURCHASE ORDERS</action>"
-                  + await SysCommon.GetRequestDefaults(false)
-                  + "</command>"
-                  + "</imclient>");
+                "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>" +
+                "<imclient>" +
+                "<command>" +
+                "<action>REQUEST PURCHASE ORDERS</action>" +
+                await SysCommon.GetRequestDefaults(false) +
+                "</command>" +
+                "</imclient>");
 
             request.Save(xml);
             await xml.FlushAsync();
@@ -222,7 +302,7 @@ namespace dMobile.GroundWork
             return xmlString.ToString();
         }
 
-        protected override Task<string> CreateRequest(XDocument criteria)
+        protected override Task<string> CreateRequest(XDocument criteriaFilter)
         {
             throw new NotImplementedException();
         }
@@ -232,7 +312,7 @@ namespace dMobile.GroundWork
             throw new NotImplementedException();
         }
 
-        protected override Task<string> CreateRequest(int activityItemFkRefno)
+        protected override Task<string> CreateRequest(int activityFkRefno)
         {
             throw new NotImplementedException();
         }
@@ -262,12 +342,12 @@ namespace dMobile.GroundWork
             throw new NotImplementedException();
         }
 
-        protected override Task<string> CreateRequest(int activityItemFkRefno, XDocument criteria)
+        protected override Task<string> CreateRequest(int activityFkRefno, XDocument criteria)
         {
             throw new NotImplementedException();
         }
 
-        protected override Task<string> CreateRequest(int prodLocMapType, int whsLocMapFKRefno)
+        protected override Task<string> CreateRequest(int prodLocMapType, int whsLocMapFkRefno)
         {
             throw new NotImplementedException();
         }

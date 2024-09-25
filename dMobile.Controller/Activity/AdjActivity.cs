@@ -8,7 +8,6 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Xml;
 using System.Xml.Linq;
 using dMobile.Bedrock;
 using dMobile.GroundWork;
@@ -199,7 +198,7 @@ namespace dMobile.Controller.Activity
 
             gridMainActivity.Children.Add(gridHeader);
 
-            foreach (Adjustment adjustment in this.ListHeaders)
+            foreach (var adjustment in this.ListHeaders.Cast<Adjustment>())
             {
                 headersList.Add(adjustment);
 
@@ -461,9 +460,9 @@ namespace dMobile.Controller.Activity
                 this.DataLayerProgressOutHandler(this, EventArgs.Empty, 5);
 
                 var adj = new TableActivityAdjustment();
-                adj.RegisterDataAccessListenerProgressOut((IDataAccessEventListener)this);
+                adj.RegisterDataAccessListenerProgressOut(this);
                 await adj.RequestHeaderData();
-                adj.UnregisterDataAccessListenerProgressOut((IDataAccessEventListener)this);
+                adj.UnregisterDataAccessListenerProgressOut(this);
             }
         }
 

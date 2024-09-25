@@ -8,10 +8,14 @@ namespace dMobile.View.Options
     using System.Collections.ObjectModel;
     using System.IO;
     using System.Linq;
+    using System.Threading;
     using System.Threading.Tasks;
     using System.Xml.Linq;
     using Android.Views;
     using Bedrock;
+    using Controller.Activity_Detail;
+    using dMobile.Controller.Activity;
+    using dMobile.Controller.Activity_Item;
     using Forms;
     using GroundWork;
     using Resources.Enums;
@@ -1597,27 +1601,51 @@ namespace dMobile.View.Options
                 {
                     this.Adjustment.RegisterDataAccessListenerProgressOut(this);
                     this.Adjustment.RegisterDataAccessListenerStatusOut(this);
-                    await this.Adjustment.RequestHeaderData();
-                    this.Adjustment.UnregisterDataAccessListenerStatusOut(this);
-                    this.Adjustment.UnregisterDataAccessListenerProgressOut(this);
-                    this.StatusOut(string.Empty);
-
                     this.AdjustmentItem.RegisterDataAccessListenerProgressOut(this);
                     this.AdjustmentItem.RegisterDataAccessListenerStatusOut(this);
-                    await this.AdjustmentItem.RequestItemData(0);
-                    this.AdjustmentItem.UnregisterDataAccessListenerStatusOut(this);
-                    this.AdjustmentItem.UnregisterDataAccessListenerProgressOut(this);
-                    this.StatusOut(string.Empty);
+                    this.AdjustmentDetail.RegisterDataAccessListenerProgressOut(this);
+                    this.AdjustmentDetail.RegisterDataAccessListenerStatusOut(this);
 
-                    if (this.SysEnv.SysSettings.IsDisconnectedModeLoadDetail)
+                    var activity = ActivityFacade.GetActivity(SysCommon.ActSubTypes.Adjustment);
+                    var activityItem = ActItemFacade.GetActItem(activity, SysCommon.ActSubTypes.Adjustment);
+                    activityItem.ActHdr = activity;
+                    var activityDetail = ActDetailFacade.GetActDetail(activityItem, SysCommon.ActSubTypes.Adjustment);
+                    activityDetail.ActItem = activityItem;
+
+                    await this.Adjustment.RequestHeaderData();
+                    var headers = await activity.GetActivityList(isSubmitBatch: false);
+                    foreach (var header in headers)
                     {
-                        this.AdjustmentDetail.RegisterDataAccessListenerProgressOut(this);
-                        this.AdjustmentDetail.RegisterDataAccessListenerStatusOut(this);
-                        await this.AdjustmentDetail.RequestDetailData(0);
-                        this.AdjustmentDetail.UnregisterDataAccessListenerStatusOut(this);
-                        this.AdjustmentDetail.UnregisterDataAccessListenerProgressOut(this);
-                        this.StatusOut(string.Empty);
+                        if (header is Count countHeader)
+                        {
+                            await this.AdjustmentItem.RequestItemData(
+                                countHeader.ActivityFKRefno,
+                                countHeader.ActivityRefno);
+                            if (this.SysEnv.SysSettings.IsDisconnectedModeLoadDetail)
+                            {
+                                activityItem.ActHdr.HdrRefno = countHeader.ActivityRefno;
+                                var items = await activityItem.GetActivityItemList(isSubmitBatch: false);
+                                foreach (var item in items)
+                                {
+                                    if (item is CountItem countItem)
+                                    {
+                                        activityDetail.ActItem.ItemRefno = countItem.ActivityItemRefno;
+                                        await this.AdjustmentDetail.RequestDetailData(
+                                            countItem.ActivityItemFKRefno,
+                                            countItem.ActivityItemRefno);
+                                    }
+                                }
+                            }
+                        }
                     }
+
+                    this.AdjustmentDetail.UnregisterDataAccessListenerProgressOut(this);
+                    this.AdjustmentDetail.UnregisterDataAccessListenerStatusOut(this);
+                    this.AdjustmentItem.UnregisterDataAccessListenerProgressOut(this);
+                    this.AdjustmentItem.UnregisterDataAccessListenerStatusOut(this);
+                    this.Adjustment.UnregisterDataAccessListenerProgressOut(this);
+                    this.Adjustment.UnregisterDataAccessListenerStatusOut(this);
+                    this.StatusOut(string.Empty);
                 }
             }
         }
@@ -1644,27 +1672,51 @@ namespace dMobile.View.Options
                 {
                     this.PhysicalCount.RegisterDataAccessListenerProgressOut(this);
                     this.PhysicalCount.RegisterDataAccessListenerStatusOut(this);
-                    await this.PhysicalCount.RequestHeaderData();
-                    this.PhysicalCount.UnregisterDataAccessListenerStatusOut(this);
-                    this.PhysicalCount.UnregisterDataAccessListenerProgressOut(this);
-                    this.StatusOut(string.Empty);
-
                     this.PhysicalCountItem.RegisterDataAccessListenerProgressOut(this);
                     this.PhysicalCountItem.RegisterDataAccessListenerStatusOut(this);
-                    await this.PhysicalCountItem.RequestItemData(0);
-                    this.PhysicalCountItem.UnregisterDataAccessListenerStatusOut(this);
-                    this.PhysicalCountItem.UnregisterDataAccessListenerProgressOut(this);
-                    this.StatusOut(string.Empty);
+                    this.PhysicalCountDetail.RegisterDataAccessListenerProgressOut(this);
+                    this.PhysicalCountDetail.RegisterDataAccessListenerStatusOut(this);
 
-                    if (this.SysEnv.SysSettings.IsDisconnectedModeLoadDetail)
+                    var activity = ActivityFacade.GetActivity(SysCommon.ActSubTypes.PhysicalCounts);
+                    var activityItem = ActItemFacade.GetActItem(activity, SysCommon.ActSubTypes.PhysicalCounts);
+                    activityItem.ActHdr = activity;
+                    var activityDetail = ActDetailFacade.GetActDetail(activityItem, SysCommon.ActSubTypes.PhysicalCounts);
+                    activityDetail.ActItem = activityItem;
+
+                    await this.PhysicalCount.RequestHeaderData();
+                    var headers = await activity.GetActivityList(isSubmitBatch: false);
+                    foreach (var header in headers)
                     {
-                        this.PhysicalCountDetail.RegisterDataAccessListenerProgressOut(this);
-                        this.PhysicalCountDetail.RegisterDataAccessListenerStatusOut(this);
-                        await this.PhysicalCountDetail.RequestDetailData(0);
-                        this.PhysicalCountDetail.UnregisterDataAccessListenerStatusOut(this);
-                        this.PhysicalCountDetail.UnregisterDataAccessListenerProgressOut(this);
-                        this.StatusOut(string.Empty);
+                        if (header is Count countHeader)
+                        {
+                            await this.PhysicalCountItem.RequestItemData(
+                                countHeader.ActivityFKRefno,
+                                countHeader.ActivityRefno);
+                            if (this.SysEnv.SysSettings.IsDisconnectedModeLoadDetail)
+                            {
+                                activityItem.ActHdr.HdrRefno = countHeader.ActivityRefno;
+                                var items = await activityItem.GetActivityItemList(isSubmitBatch: false);
+                                foreach (var item in items)
+                                {
+                                    if (item is CountItem countItem)
+                                    {
+                                        activityDetail.ActItem.ItemRefno = countItem.ActivityItemRefno;
+                                        await this.PhysicalCountDetail.RequestDetailData(
+                                            countItem.ActivityItemFKRefno,
+                                            countItem.ActivityItemRefno);
+                                    }
+                                }
+                            }
+                        }
                     }
+
+                    this.PhysicalCountDetail.UnregisterDataAccessListenerProgressOut(this);
+                    this.PhysicalCountDetail.UnregisterDataAccessListenerStatusOut(this);
+                    this.PhysicalCountItem.UnregisterDataAccessListenerProgressOut(this);
+                    this.PhysicalCountItem.UnregisterDataAccessListenerStatusOut(this);
+                    this.PhysicalCount.UnregisterDataAccessListenerProgressOut(this);
+                    this.PhysicalCount.UnregisterDataAccessListenerStatusOut(this);
+                    this.StatusOut(string.Empty);
                 }
 
                 this.CycleCountDetail.RegisterDataAccessListenerStatusOut(this);
@@ -1683,27 +1735,51 @@ namespace dMobile.View.Options
                 {
                     this.CycleCount.RegisterDataAccessListenerProgressOut(this);
                     this.CycleCount.RegisterDataAccessListenerStatusOut(this);
-                    await this.CycleCount.RequestHeaderData();
-                    this.CycleCount.UnregisterDataAccessListenerStatusOut(this);
-                    this.CycleCount.UnregisterDataAccessListenerProgressOut(this);
-                    this.StatusOut(string.Empty);
-
                     this.CycleCountItem.RegisterDataAccessListenerProgressOut(this);
                     this.CycleCountItem.RegisterDataAccessListenerStatusOut(this);
-                    await this.CycleCountItem.RequestItemData(0);
-                    this.CycleCountItem.UnregisterDataAccessListenerStatusOut(this);
-                    this.CycleCountItem.UnregisterDataAccessListenerProgressOut(this);
-                    this.StatusOut(string.Empty);
+                    this.CycleCountDetail.RegisterDataAccessListenerProgressOut(this);
+                    this.CycleCountDetail.RegisterDataAccessListenerStatusOut(this);
 
-                    if (this.SysEnv.SysSettings.IsDisconnectedModeLoadDetail)
+                    var activity = ActivityFacade.GetActivity(SysCommon.ActSubTypes.CycleCounts);
+                    var activityItem = ActItemFacade.GetActItem(activity, SysCommon.ActSubTypes.CycleCounts);
+                    activityItem.ActHdr = activity;
+                    var activityDetail = ActDetailFacade.GetActDetail(activityItem, SysCommon.ActSubTypes.CycleCounts);
+                    activityDetail.ActItem = activityItem;
+
+                    await this.CycleCount.RequestHeaderData();
+                    var headers = await activity.GetActivityList(isSubmitBatch: false);
+                    foreach (var header in headers)
                     {
-                        this.CycleCountDetail.RegisterDataAccessListenerProgressOut(this);
-                        this.CycleCountDetail.RegisterDataAccessListenerStatusOut(this);
-                        await this.CycleCountDetail.RequestDetailData(0);
-                        this.CycleCountDetail.UnregisterDataAccessListenerStatusOut(this);
-                        this.CycleCountDetail.UnregisterDataAccessListenerProgressOut(this);
-                        this.StatusOut(string.Empty);
+                        if (header is Count countHeader)
+                        {
+                            await this.CycleCountItem.RequestItemData(
+                                countHeader.ActivityFKRefno,
+                                countHeader.ActivityRefno);
+                            if (this.SysEnv.SysSettings.IsDisconnectedModeLoadDetail)
+                            {
+                                activityItem.ActHdr.HdrRefno = countHeader.ActivityRefno;
+                                var items = await activityItem.GetActivityItemList(isSubmitBatch: false);
+                                foreach (var item in items)
+                                {
+                                    if (item is CountItem countItem)
+                                    {
+                                        activityDetail.ActItem.ItemRefno = countItem.ActivityItemRefno;
+                                        await this.CycleCountDetail.RequestDetailData(
+                                            countItem.ActivityItemFKRefno,
+                                            countItem.ActivityItemRefno);
+                                    }
+                                }
+                            }
+                        }
                     }
+
+                    this.CycleCountDetail.UnregisterDataAccessListenerProgressOut(this);
+                    this.CycleCountDetail.UnregisterDataAccessListenerStatusOut(this);
+                    this.CycleCountItem.UnregisterDataAccessListenerProgressOut(this);
+                    this.CycleCountItem.UnregisterDataAccessListenerStatusOut(this);
+                    this.CycleCount.UnregisterDataAccessListenerProgressOut(this);
+                    this.CycleCount.UnregisterDataAccessListenerStatusOut(this);
+                    this.StatusOut(string.Empty);
                 }
             }
         }
@@ -1714,110 +1790,149 @@ namespace dMobile.View.Options
         {
             if (this.SysEnv.RefreshOpt.ProductionTickets || this.ActSubType == SysCommon.ActSubTypes.PurgeActivityData)
             {
-                this.TicketFinishedDetail.RegisterDataAccessListenerStatusOut(this);
-                await this.TicketFinishedDetail.PurgeData();
-                this.TicketFinishedDetail.UnregisterDataAccessListenerStatusOut(this);
-
-                this.TicketMaterialDetail.RegisterDataAccessListenerStatusOut(this);
-                await this.TicketMaterialDetail.PurgeData();
-                this.TicketMaterialDetail.UnregisterDataAccessListenerStatusOut(this);
-
-                this.TicketByProductDetail.RegisterDataAccessListenerStatusOut(this);
-                await this.TicketByProductDetail.PurgeData();
-                this.TicketByProductDetail.UnregisterDataAccessListenerStatusOut(this);
-
-                this.TicketFinishedItem.RegisterDataAccessListenerStatusOut(this);
-                await this.TicketFinishedItem.PurgeData();
-                this.TicketFinishedItem.UnregisterDataAccessListenerStatusOut(this);
-
-                this.TicketMaterialItem.RegisterDataAccessListenerStatusOut(this);
-                await this.TicketMaterialItem.PurgeData();
-                this.TicketMaterialItem.UnregisterDataAccessListenerStatusOut(this);
-
-                this.TicketByProductItem.RegisterDataAccessListenerStatusOut(this);
-                await this.TicketByProductItem.PurgeData();
-                this.TicketByProductItem.UnregisterDataAccessListenerStatusOut(this);
-
+                this.TicketFinished.RegisterDataAccessListenerProgressOut(this);
                 this.TicketFinished.RegisterDataAccessListenerStatusOut(this);
-                await this.TicketFinished.PurgeData();
-                this.TicketFinished.UnregisterDataAccessListenerStatusOut(this);
+                this.TicketFinishedItem.RegisterDataAccessListenerProgressOut(this);
+                this.TicketFinishedItem.RegisterDataAccessListenerStatusOut(this);
+                this.TicketFinishedDetail.RegisterDataAccessListenerProgressOut(this);
+                this.TicketFinishedDetail.RegisterDataAccessListenerStatusOut(this);
 
-                this.TicketMaterial.RegisterDataAccessListenerStatusOut(this);
-                await this.TicketMaterial.PurgeData();
-                this.TicketMaterial.UnregisterDataAccessListenerStatusOut(this);
+                var activity = ActivityFacade.GetActivity(SysCommon.ActSubTypes.TicketFinished);
+                var activityItem = ActItemFacade.GetActItem(activity, SysCommon.ActSubTypes.TicketFinished);
+                activityItem.ActHdr = activity;
+                var activityDetail = ActDetailFacade.GetActDetail(activityItem, SysCommon.ActSubTypes.TicketFinished);
+                activityDetail.ActItem = activityItem;
 
-                this.TicketByProduct.RegisterDataAccessListenerStatusOut(this);
-                await this.TicketByProduct.PurgeData();
-                this.TicketByProduct.UnregisterDataAccessListenerStatusOut(this);
-
-                if (this.ActSubType != SysCommon.ActSubTypes.PurgeActivityData)
+                await this.TicketFinished.RequestHeaderData();
+                var headers = await activity.GetActivityList(isSubmitBatch: false);
+                foreach (var header in headers)
                 {
-                    this.TicketFinished.RegisterDataAccessListenerProgressOut(this);
-                    this.TicketFinished.RegisterDataAccessListenerStatusOut(this);
-                    await this.TicketFinished.RequestHeaderData();
-                    this.TicketFinished.UnregisterDataAccessListenerStatusOut(this);
-                    this.TicketFinished.UnregisterDataAccessListenerProgressOut(this);
-                    this.StatusOut(string.Empty);
-
-                    this.TicketMaterial.RegisterDataAccessListenerProgressOut(this);
-                    this.TicketMaterial.RegisterDataAccessListenerStatusOut(this);
-                    await this.TicketMaterial.RequestHeaderData();
-                    this.TicketMaterial.UnregisterDataAccessListenerStatusOut(this);
-                    this.TicketMaterial.UnregisterDataAccessListenerProgressOut(this);
-                    this.StatusOut(string.Empty);
-
-                    this.TicketByProduct.RegisterDataAccessListenerProgressOut(this);
-                    this.TicketByProduct.RegisterDataAccessListenerStatusOut(this);
-                    await this.TicketByProduct.RequestHeaderData();
-                    this.TicketByProduct.UnregisterDataAccessListenerStatusOut(this);
-                    this.TicketByProduct.UnregisterDataAccessListenerProgressOut(this);
-                    this.StatusOut(string.Empty);
-
-                    this.TicketFinishedItem.RegisterDataAccessListenerProgressOut(this);
-                    this.TicketFinishedItem.RegisterDataAccessListenerStatusOut(this);
-                    await this.TicketFinishedItem.RequestItemData(0);
-                    this.TicketFinishedItem.UnregisterDataAccessListenerStatusOut(this);
-                    this.TicketFinishedItem.UnregisterDataAccessListenerProgressOut(this);
-                    this.StatusOut(string.Empty);
-
-                    this.TicketMaterialItem.RegisterDataAccessListenerProgressOut(this);
-                    this.TicketMaterialItem.RegisterDataAccessListenerStatusOut(this);
-                    await this.TicketMaterialItem.RequestItemData(0);
-                    this.TicketMaterialItem.UnregisterDataAccessListenerStatusOut(this);
-                    this.TicketMaterialItem.UnregisterDataAccessListenerProgressOut(this);
-                    this.StatusOut(string.Empty);
-
-                    this.TicketByProductItem.RegisterDataAccessListenerProgressOut(this);
-                    this.TicketByProductItem.RegisterDataAccessListenerStatusOut(this);
-                    await this.TicketByProductItem.RequestItemData(0);
-                    this.TicketByProductItem.UnregisterDataAccessListenerStatusOut(this);
-                    this.TicketByProductItem.UnregisterDataAccessListenerProgressOut(this);
-                    this.StatusOut(string.Empty);
-
-                    if (this.SysEnv.SysSettings.IsDisconnectedModeLoadDetail)
+                    if (header is Count countHeader)
                     {
-                        this.TicketFinishedDetail.RegisterDataAccessListenerProgressOut(this);
-                        this.TicketFinishedDetail.RegisterDataAccessListenerStatusOut(this);
-                        await this.TicketFinishedDetail.RequestDetailData(0);
-                        this.TicketFinishedDetail.UnregisterDataAccessListenerStatusOut(this);
-                        this.TicketFinishedDetail.UnregisterDataAccessListenerProgressOut(this);
-                        this.StatusOut(string.Empty);
-
-                        this.TicketMaterialDetail.RegisterDataAccessListenerProgressOut(this);
-                        this.TicketMaterialDetail.RegisterDataAccessListenerStatusOut(this);
-                        await this.TicketMaterialDetail.RequestDetailData(0);
-                        this.TicketMaterialDetail.UnregisterDataAccessListenerStatusOut(this);
-                        this.TicketMaterialDetail.UnregisterDataAccessListenerProgressOut(this);
-                        this.StatusOut(string.Empty);
-
-                        this.TicketByProductDetail.RegisterDataAccessListenerProgressOut(this);
-                        this.TicketByProductDetail.RegisterDataAccessListenerStatusOut(this);
-                        await this.TicketByProductDetail.RequestDetailData(0);
-                        this.TicketByProductDetail.UnregisterDataAccessListenerStatusOut(this);
-                        this.TicketByProductDetail.UnregisterDataAccessListenerProgressOut(this);
-                        this.StatusOut(string.Empty);
+                        await this.TicketFinishedItem.RequestItemData(
+                            countHeader.ActivityFKRefno,
+                            countHeader.ActivityRefno);
+                        if (this.SysEnv.SysSettings.IsDisconnectedModeLoadDetail)
+                        {
+                            activityItem.ActHdr.HdrRefno = countHeader.ActivityRefno;
+                            var items = await activityItem.GetActivityItemList(isSubmitBatch: false);
+                            foreach (var item in items)
+                            {
+                                if (item is CountItem countItem)
+                                {
+                                    activityDetail.ActItem.ItemRefno = countItem.ActivityItemRefno;
+                                    await this.TicketFinishedDetail.RequestDetailData(
+                                        countItem.ActivityItemFKRefno,
+                                        countItem.ActivityItemRefno);
+                                }
+                            }
+                        }
                     }
                 }
+
+                this.TicketFinishedDetail.UnregisterDataAccessListenerProgressOut(this);
+                this.TicketFinishedDetail.UnregisterDataAccessListenerStatusOut(this);
+                this.TicketFinishedItem.UnregisterDataAccessListenerProgressOut(this);
+                this.TicketFinishedItem.UnregisterDataAccessListenerStatusOut(this);
+                this.TicketFinished.UnregisterDataAccessListenerProgressOut(this);
+                this.TicketFinished.UnregisterDataAccessListenerStatusOut(this);
+                this.StatusOut(string.Empty);
+
+                this.TicketMaterial.RegisterDataAccessListenerProgressOut(this);
+                this.TicketMaterial.RegisterDataAccessListenerStatusOut(this);
+                this.TicketMaterialItem.RegisterDataAccessListenerProgressOut(this);
+                this.TicketMaterialItem.RegisterDataAccessListenerStatusOut(this);
+                this.TicketMaterialDetail.RegisterDataAccessListenerProgressOut(this);
+                this.TicketMaterialDetail.RegisterDataAccessListenerStatusOut(this);
+
+                activity = ActivityFacade.GetActivity(SysCommon.ActSubTypes.TicketMaterial);
+                activityItem = ActItemFacade.GetActItem(activity, SysCommon.ActSubTypes.TicketMaterial);
+                activityItem.ActHdr = activity;
+                activityDetail = ActDetailFacade.GetActDetail(activityItem, SysCommon.ActSubTypes.TicketMaterial);
+                activityDetail.ActItem = activityItem;
+
+                await this.TicketMaterial.RequestHeaderData();
+                headers = await activity.GetActivityList(isSubmitBatch: false);
+                foreach (var header in headers)
+                {
+                    if (header is Count countHeader)
+                    {
+                        await this.TicketMaterialItem.RequestItemData(
+                            countHeader.ActivityFKRefno,
+                            countHeader.ActivityRefno);
+                        if (this.SysEnv.SysSettings.IsDisconnectedModeLoadDetail)
+                        {
+                            activityItem.ActHdr.HdrRefno = countHeader.ActivityRefno;
+                            var items = await activityItem.GetActivityItemList(isSubmitBatch: false);
+                            foreach (var item in items)
+                            {
+                                if (item is CountItem countItem)
+                                {
+                                    activityDetail.ActItem.ItemRefno = countItem.ActivityItemRefno;
+                                    await this.TicketMaterialDetail.RequestDetailData(
+                                        countItem.ActivityItemFKRefno,
+                                        countItem.ActivityItemRefno);
+                                }
+                            }
+                        }
+                    }
+                }
+
+                this.TicketMaterialDetail.UnregisterDataAccessListenerProgressOut(this);
+                this.TicketMaterialDetail.UnregisterDataAccessListenerStatusOut(this);
+                this.TicketMaterialItem.UnregisterDataAccessListenerProgressOut(this);
+                this.TicketMaterialItem.UnregisterDataAccessListenerStatusOut(this);
+                this.TicketMaterial.UnregisterDataAccessListenerProgressOut(this);
+                this.TicketMaterial.UnregisterDataAccessListenerStatusOut(this);
+                this.StatusOut(string.Empty);
+
+                this.TicketByProduct.RegisterDataAccessListenerProgressOut(this);
+                this.TicketByProduct.RegisterDataAccessListenerStatusOut(this);
+                this.TicketByProductItem.RegisterDataAccessListenerProgressOut(this);
+                this.TicketByProductItem.RegisterDataAccessListenerStatusOut(this);
+                this.TicketByProductDetail.RegisterDataAccessListenerProgressOut(this);
+                this.TicketByProductDetail.RegisterDataAccessListenerStatusOut(this);
+
+                activity = ActivityFacade.GetActivity(SysCommon.ActSubTypes.TicketAddProduct);
+                activityItem = ActItemFacade.GetActItem(activity, SysCommon.ActSubTypes.TicketAddProduct);
+                activityItem.ActHdr = activity;
+                activityDetail = ActDetailFacade.GetActDetail(activityItem, SysCommon.ActSubTypes.TicketAddProduct);
+                activityDetail.ActItem = activityItem;
+
+                await this.TicketByProduct.RequestHeaderData();
+                headers = await activity.GetActivityList(isSubmitBatch: false);
+                foreach (var header in headers)
+                {
+                    if (header is Count countHeader)
+                    {
+                        await this.TicketByProductItem.RequestItemData(
+                            countHeader.ActivityFKRefno,
+                            countHeader.ActivityRefno);
+                        if (this.SysEnv.SysSettings.IsDisconnectedModeLoadDetail)
+                        {
+                            activityItem.ActHdr.HdrRefno = countHeader.ActivityRefno;
+                            var items = await activityItem.GetActivityItemList(isSubmitBatch: false);
+                            foreach (var item in items)
+                            {
+                                if (item is CountItem countItem)
+                                {
+                                    activityDetail.ActItem.ItemRefno = countItem.ActivityItemRefno;
+                                    await this.TicketByProductDetail.RequestDetailData(
+                                        countItem.ActivityItemFKRefno,
+                                        countItem.ActivityItemRefno);
+                                }
+                            }
+                        }
+                    }
+                }
+
+                this.TicketByProductDetail.UnregisterDataAccessListenerProgressOut(this);
+                this.TicketByProductDetail.UnregisterDataAccessListenerStatusOut(this);
+                this.TicketByProductItem.UnregisterDataAccessListenerProgressOut(this);
+                this.TicketByProductItem.UnregisterDataAccessListenerStatusOut(this);
+                this.TicketByProduct.UnregisterDataAccessListenerProgressOut(this);
+                this.TicketByProduct.UnregisterDataAccessListenerStatusOut(this);
+                this.StatusOut(string.Empty);
             }
         }
 
@@ -1827,48 +1942,53 @@ namespace dMobile.View.Options
         {
             if (this.SysEnv.RefreshOpt.PurchaseOrders || this.ActSubType == SysCommon.ActSubTypes.PurgeActivityData)
             {
-                this.ReceivingDetail.RegisterDataAccessListenerStatusOut(this);
-                await this.ReceivingDetail.PurgeData();
-                this.ReceivingDetail.UnregisterDataAccessListenerStatusOut(this);
-
-                this.ReceivingItemComment.RegisterDataAccessListenerStatusOut(this);
-                await this.ReceivingItemComment.PurgeData();
-                this.ReceivingItemComment.UnregisterDataAccessListenerStatusOut(this);
-
-                this.ReceivingItem.RegisterDataAccessListenerStatusOut(this);
-                await this.ReceivingItem.PurgeData();
-                this.ReceivingItem.UnregisterDataAccessListenerStatusOut(this);
-
+                this.Receiving.RegisterDataAccessListenerProgressOut(this);
                 this.Receiving.RegisterDataAccessListenerStatusOut(this);
-                await this.Receiving.PurgeData();
-                this.Receiving.UnregisterDataAccessListenerStatusOut(this);
+                this.ReceivingItem.RegisterDataAccessListenerProgressOut(this);
+                this.ReceivingItem.RegisterDataAccessListenerStatusOut(this);
+                this.ReceivingDetail.RegisterDataAccessListenerProgressOut(this);
+                this.ReceivingDetail.RegisterDataAccessListenerStatusOut(this);
 
-                if (this.ActSubType != SysCommon.ActSubTypes.PurgeActivityData)
+                var activity = ActivityFacade.GetActivity(SysCommon.ActSubTypes.Receiving);
+                var activityItem = ActItemFacade.GetActItem(activity, SysCommon.ActSubTypes.Receiving);
+                activityItem.ActHdr = activity;
+                var activityDetail = ActDetailFacade.GetActDetail(activityItem, SysCommon.ActSubTypes.Receiving);
+                activityDetail.ActItem = activityItem;
+
+                await this.Receiving.RequestHeaderData();
+                var headers = await activity.GetActivityList(isSubmitBatch: false);
+                foreach (var header in headers)
                 {
-                    this.Receiving.RegisterDataAccessListenerProgressOut(this);
-                    this.Receiving.RegisterDataAccessListenerStatusOut(this);
-                    await this.Receiving.RequestHeaderData();
-                    this.Receiving.UnregisterDataAccessListenerStatusOut(this);
-                    this.Receiving.UnregisterDataAccessListenerProgressOut(this);
-                    this.StatusOut(string.Empty);
-
-                    this.ReceivingItem.RegisterDataAccessListenerProgressOut(this);
-                    this.ReceivingItem.RegisterDataAccessListenerStatusOut(this);
-                    await this.ReceivingItem.RequestItemData(0);
-                    this.ReceivingItem.UnregisterDataAccessListenerStatusOut(this);
-                    this.ReceivingItem.UnregisterDataAccessListenerProgressOut(this);
-                    this.StatusOut(string.Empty);
-
-                    if (this.SysEnv.SysSettings.IsDisconnectedModeLoadDetail)
+                    if (header is Count countHeader)
                     {
-                        this.ReceivingDetail.RegisterDataAccessListenerProgressOut(this);
-                        this.ReceivingDetail.RegisterDataAccessListenerStatusOut(this);
-                        await this.ReceivingDetail.RequestDetailData(0);
-                        this.ReceivingDetail.UnregisterDataAccessListenerStatusOut(this);
-                        this.ReceivingDetail.UnregisterDataAccessListenerProgressOut(this);
-                        this.StatusOut(string.Empty);
+                        await this.ReceivingItem.RequestItemData(
+                            countHeader.ActivityFKRefno,
+                            countHeader.ActivityRefno);
+                        if (this.SysEnv.SysSettings.IsDisconnectedModeLoadDetail)
+                        {
+                            activityItem.ActHdr.HdrRefno = countHeader.ActivityRefno;
+                            var items = await activityItem.GetActivityItemList(isSubmitBatch: false);
+                            foreach (var item in items)
+                            {
+                                if (item is CountItem countItem)
+                                {
+                                    activityDetail.ActItem.ItemRefno = countItem.ActivityItemRefno;
+                                    await this.ReceivingDetail.RequestDetailData(
+                                        countItem.ActivityItemFKRefno,
+                                        countItem.ActivityItemRefno);
+                                }
+                            }
+                        }
                     }
                 }
+
+                this.ReceivingDetail.UnregisterDataAccessListenerProgressOut(this);
+                this.ReceivingDetail.UnregisterDataAccessListenerStatusOut(this);
+                this.ReceivingItem.UnregisterDataAccessListenerProgressOut(this);
+                this.ReceivingItem.UnregisterDataAccessListenerStatusOut(this);
+                this.Receiving.UnregisterDataAccessListenerProgressOut(this);
+                this.Receiving.UnregisterDataAccessListenerStatusOut(this);
+                this.StatusOut(string.Empty);
             }
         }
 
@@ -1885,12 +2005,12 @@ namespace dMobile.View.Options
 
                 if (this.ActSubType != SysCommon.ActSubTypes.PurgeActivityData)
                 {
-                    this.PurchaseOrderWorkSheetItem.RegisterDataAccessListenerProgressOut(this);
-                    this.PurchaseOrderWorkSheetItem.RegisterDataAccessListenerStatusOut(this);
-                    await this.PurchaseOrderWorkSheetItem.RequestItemData(0);
-                    this.PurchaseOrderWorkSheetItem.UnregisterDataAccessListenerStatusOut(this);
-                    this.PurchaseOrderWorkSheetItem.UnregisterDataAccessListenerProgressOut(this);
-                    this.StatusOut(string.Empty);
+                    ////this.PurchaseOrderWorkSheetItem.RegisterDataAccessListenerProgressOut(this);
+                    ////this.PurchaseOrderWorkSheetItem.RegisterDataAccessListenerStatusOut(this);
+                    ////await this.PurchaseOrderWorkSheetItem.RequestItemData(0);
+                    ////this.PurchaseOrderWorkSheetItem.UnregisterDataAccessListenerStatusOut(this);
+                    ////this.PurchaseOrderWorkSheetItem.UnregisterDataAccessListenerProgressOut(this);
+                    ////this.StatusOut(string.Empty);
                 }
             }
         }
@@ -1899,7 +2019,8 @@ namespace dMobile.View.Options
         /// </summary>
         private async Task RefreshDataPicking()
         {
-            if (this.SysEnv.RefreshOpt.SalesOrders || this.ActSubType == SysCommon.ActSubTypes.PurgeActivityData)
+            if (this.SysEnv.RefreshOpt.SalesOrders ||
+                this.ActSubType == SysCommon.ActSubTypes.PurgeActivityData)
             {
                 this.PickingDetail.RegisterDataAccessListenerStatusOut(this);
                 await this.PickingDetail.PurgeData();
@@ -1925,27 +2046,59 @@ namespace dMobile.View.Options
                 {
                     this.Picking.RegisterDataAccessListenerProgressOut(this);
                     this.Picking.RegisterDataAccessListenerStatusOut(this);
-                    await this.Picking.RequestHeaderData();
-                    this.Picking.UnregisterDataAccessListenerStatusOut(this);
-                    this.Picking.UnregisterDataAccessListenerProgressOut(this);
-                    this.StatusOut(string.Empty);
-
                     this.PickingItem.RegisterDataAccessListenerProgressOut(this);
                     this.PickingItem.RegisterDataAccessListenerStatusOut(this);
-                    await this.PickingItem.RequestItemData(0);
-                    this.PickingItem.UnregisterDataAccessListenerStatusOut(this);
-                    this.PickingItem.UnregisterDataAccessListenerProgressOut(this);
-                    this.StatusOut(string.Empty);
+                    this.PickingDetail.RegisterDataAccessListenerProgressOut(this);
+                    this.PickingDetail.RegisterDataAccessListenerStatusOut(this);
 
-                    if (this.SysEnv.SysSettings.IsDisconnectedModeLoadDetail)
+                    var activity = ActivityFacade.GetActivity(SysCommon.ActSubTypes.Picking);
+                    await this.Picking.RequestHeaderData();
+                    var headers = await activity.GetActivityList(isSubmitBatch: false);
+                    foreach (var header in headers)
                     {
-                        this.PickingDetail.RegisterDataAccessListenerProgressOut(this);
-                        this.PickingDetail.RegisterDataAccessListenerStatusOut(this);
-                        await this.PickingDetail.RequestDetailData(0);
-                        this.PickingDetail.UnregisterDataAccessListenerStatusOut(this);
-                        this.PickingDetail.UnregisterDataAccessListenerProgressOut(this);
-                        this.StatusOut(string.Empty);
+                        await Task.Run(async () =>
+                        {
+                            if (header is Picking pickingHeader)
+                            {
+                                await this.PickingItem.RequestItemData(
+                                    pickingHeader.ActivityFKRefno,
+                                    pickingHeader.ActivityRefno);
+
+                                if (this.SysEnv.SysSettings.IsDisconnectedModeLoadDetail)
+                                {
+                                    var activityItem = ActItemFacade.GetActItem(
+                                        activity,
+                                        SysCommon.ActSubTypes.Picking);
+                                    activityItem.ActHdr.HdrRefno = pickingHeader.ActivityRefno;
+                                    var items = await activityItem.GetActivityItemList(isSubmitBatch: false);
+                                    foreach (var item in items)
+                                    {
+                                        if (item is PickingItem pickingItem)
+                                        {
+                                            var activityDetail = ActDetailFacade.GetActDetail(
+                                                activityItem,
+                                                SysCommon.ActSubTypes.Picking);
+                                            activityDetail.ActItem.ItemRefno = pickingItem.ActivityItemRefno;
+                                            await this.PickingDetail.RequestDetailData(
+                                                pickingItem.ActivityItemFKRefno,
+                                                pickingItem.ActivityItemRefno);
+                                        }
+                                    }
+                                }
+                            }
+                        });
+
+                        GC.Collect();
+                        GC.WaitForPendingFinalizers();
                     }
+
+                    this.PickingDetail.UnregisterDataAccessListenerProgressOut(this);
+                    this.PickingDetail.UnregisterDataAccessListenerStatusOut(this);
+                    this.PickingItem.UnregisterDataAccessListenerProgressOut(this);
+                    this.PickingItem.UnregisterDataAccessListenerStatusOut(this);
+                    this.Picking.UnregisterDataAccessListenerProgressOut(this);
+                    this.Picking.UnregisterDataAccessListenerStatusOut(this);
+                    this.StatusOut(string.Empty);
                 }
             }
         }
@@ -1984,48 +2137,99 @@ namespace dMobile.View.Options
                 {
                     this.TransferFrom.RegisterDataAccessListenerProgressOut(this);
                     this.TransferFrom.RegisterDataAccessListenerStatusOut(this);
-                    await this.TransferFrom.RequestHeaderData();
-                    this.TransferFrom.UnregisterDataAccessListenerStatusOut(this);
-                    this.TransferFrom.UnregisterDataAccessListenerProgressOut(this);
-                    this.StatusOut(string.Empty);
-
                     this.TransferFromItem.RegisterDataAccessListenerProgressOut(this);
                     this.TransferFromItem.RegisterDataAccessListenerStatusOut(this);
-                    await this.TransferFromItem.RequestItemData(0);
-                    this.TransferFromItem.UnregisterDataAccessListenerStatusOut(this);
-                    this.TransferFromItem.UnregisterDataAccessListenerProgressOut(this);
+                    this.TransferFromDetail.RegisterDataAccessListenerProgressOut(this);
+                    this.TransferFromDetail.RegisterDataAccessListenerStatusOut(this);
+
+                    var activity = ActivityFacade.GetActivity(SysCommon.ActSubTypes.TransferFrom);
+                    var activityItem = ActItemFacade.GetActItem(activity, SysCommon.ActSubTypes.TransferFrom);
+                    activityItem.ActHdr = activity;
+                    var activityDetail = ActDetailFacade.GetActDetail(activityItem, SysCommon.ActSubTypes.TransferFrom);
+                    activityDetail.ActItem = activityItem;
+
+                    await this.TransferFrom.RequestHeaderData();
+                    var headers = await activity.GetActivityList(isSubmitBatch: false);
+                    foreach (var header in headers)
+                    {
+                        if (header is Count countHeader)
+                        {
+                            await this.TransferFromItem.RequestItemData(
+                                countHeader.ActivityFKRefno,
+                                countHeader.ActivityRefno);
+                            if (this.SysEnv.SysSettings.IsDisconnectedModeLoadDetail)
+                            {
+                                activityItem.ActHdr.HdrRefno = countHeader.ActivityRefno;
+                                var items = await activityItem.GetActivityItemList(isSubmitBatch: false);
+                                foreach (var item in items)
+                                {
+                                    if (item is CountItem countItem)
+                                    {
+                                        activityDetail.ActItem.ItemRefno = countItem.ActivityItemRefno;
+                                        await this.TransferFromDetail.RequestDetailData(
+                                            countItem.ActivityItemFKRefno,
+                                            countItem.ActivityItemRefno);
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    this.TransferToDetail.UnregisterDataAccessListenerProgressOut(this);
+                    this.TransferToDetail.UnregisterDataAccessListenerStatusOut(this);
+                    this.TransferToItem.UnregisterDataAccessListenerProgressOut(this);
+                    this.TransferToItem.UnregisterDataAccessListenerStatusOut(this);
+                    this.TransferTo.UnregisterDataAccessListenerProgressOut(this);
+                    this.TransferTo.UnregisterDataAccessListenerStatusOut(this);
                     this.StatusOut(string.Empty);
 
                     this.TransferTo.RegisterDataAccessListenerProgressOut(this);
                     this.TransferTo.RegisterDataAccessListenerStatusOut(this);
-                    await this.TransferTo.RequestHeaderData();
-                    this.TransferTo.UnregisterDataAccessListenerStatusOut(this);
-                    this.TransferTo.UnregisterDataAccessListenerProgressOut(this);
-                    this.StatusOut(string.Empty);
-
                     this.TransferToItem.RegisterDataAccessListenerProgressOut(this);
                     this.TransferToItem.RegisterDataAccessListenerStatusOut(this);
-                    await this.TransferToItem.RequestItemData(0);
-                    this.TransferToItem.UnregisterDataAccessListenerStatusOut(this);
-                    this.TransferToItem.UnregisterDataAccessListenerProgressOut(this);
-                    this.StatusOut(string.Empty);
+                    this.TransferToDetail.RegisterDataAccessListenerProgressOut(this);
+                    this.TransferToDetail.RegisterDataAccessListenerStatusOut(this);
 
-                    if (this.SysEnv.SysSettings.IsDisconnectedModeLoadDetail)
+                    activity = ActivityFacade.GetActivity(SysCommon.ActSubTypes.TransferTo);
+                    activityItem = ActItemFacade.GetActItem(activity, SysCommon.ActSubTypes.TransferTo);
+                    activityItem.ActHdr = activity;
+                    activityDetail = ActDetailFacade.GetActDetail(activityItem, SysCommon.ActSubTypes.TransferTo);
+                    activityDetail.ActItem = activityItem;
+
+                    await this.TransferTo.RequestHeaderData();
+                    headers = await activity.GetActivityList(isSubmitBatch: false);
+                    foreach (var header in headers)
                     {
-                        this.TransferFromDetail.RegisterDataAccessListenerProgressOut(this);
-                        this.TransferFromDetail.RegisterDataAccessListenerStatusOut(this);
-                        await this.TransferFromDetail.RequestDetailData(0);
-                        this.TransferFromDetail.UnregisterDataAccessListenerStatusOut(this);
-                        this.TransferFromDetail.UnregisterDataAccessListenerProgressOut(this);
-                        this.StatusOut(string.Empty);
-
-                        this.TransferToDetail.RegisterDataAccessListenerProgressOut(this);
-                        this.TransferToDetail.RegisterDataAccessListenerStatusOut(this);
-                        await this.TransferToDetail.RequestDetailData(0);
-                        this.TransferToDetail.UnregisterDataAccessListenerStatusOut(this);
-                        this.TransferToDetail.UnregisterDataAccessListenerProgressOut(this);
-                        this.StatusOut(string.Empty);
+                        if (header is Count countHeader)
+                        {
+                            await this.TransferToItem.RequestItemData(
+                                countHeader.ActivityFKRefno,
+                                countHeader.ActivityRefno);
+                            if (this.SysEnv.SysSettings.IsDisconnectedModeLoadDetail)
+                            {
+                                activityItem.ActHdr.HdrRefno = countHeader.ActivityRefno;
+                                var items = await activityItem.GetActivityItemList(isSubmitBatch: false);
+                                foreach (var item in items)
+                                {
+                                    if (item is CountItem countItem)
+                                    {
+                                        activityDetail.ActItem.ItemRefno = countItem.ActivityItemRefno;
+                                        await this.TransferToDetail.RequestDetailData(
+                                            countItem.ActivityItemFKRefno,
+                                            countItem.ActivityItemRefno);
+                                    }
+                                }
+                            }
+                        }
                     }
+
+                    this.TransferToDetail.UnregisterDataAccessListenerProgressOut(this);
+                    this.TransferToDetail.UnregisterDataAccessListenerStatusOut(this);
+                    this.TransferToItem.UnregisterDataAccessListenerProgressOut(this);
+                    this.TransferToItem.UnregisterDataAccessListenerStatusOut(this);
+                    this.TransferTo.UnregisterDataAccessListenerProgressOut(this);
+                    this.TransferTo.UnregisterDataAccessListenerStatusOut(this);
+                    this.StatusOut(string.Empty);
                 }
             }
         }

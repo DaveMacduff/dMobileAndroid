@@ -23,7 +23,6 @@ namespace dMobile.GroundWork
         /// Initializes a new instance of the <see cref="TableActivityProductionTicketFinished"/> class.
         /// </summary>
         public TableActivityProductionTicketFinished()
-      : base()
         {
             this.FullClassName = "dMobile.GroundWork.TableActivityProductionTicketFinished";
             this.CurrentSubType = SysCommon.ActSubTypes.TicketFinished;
@@ -238,7 +237,7 @@ namespace dMobile.GroundWork
             return xmlString.ToString();
         }
 
-        protected override Task<string> CreateRequest(XDocument criteria)
+        protected override Task<string> CreateRequest(XDocument criteriaFilter)
         {
             throw new NotImplementedException();
         }
@@ -248,7 +247,7 @@ namespace dMobile.GroundWork
             throw new NotImplementedException();
         }
 
-        protected override Task<string> CreateRequest(int activityItemFkRefno)
+        protected override Task<string> CreateRequest(int activityFkRefno)
         {
             throw new NotImplementedException();
         }
@@ -278,12 +277,12 @@ namespace dMobile.GroundWork
             throw new NotImplementedException();
         }
 
-        protected override Task<string> CreateRequest(int activityItemFkRefno, XDocument criteria)
+        protected override Task<string> CreateRequest(int activityFkRefno, XDocument criteria)
         {
             throw new NotImplementedException();
         }
 
-        protected override Task<string> CreateRequest(int prodLocMapType, int whsLocMapFKRefno)
+        protected override Task<string> CreateRequest(int prodLocMapType, int whsLocMapFkRefno)
         {
             throw new NotImplementedException();
         }

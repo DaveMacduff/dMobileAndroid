@@ -13,7 +13,9 @@ using SQLite;
 using Xamarin.Forms;
 using static dMobile.Bedrock.SysCommon;
 
+#pragma warning disable SA1300
 namespace dMobile.Controller.Activity_Item
+#pragma warning restore SA1300
 {
     /// <summary>
     /// Activity item base class.
@@ -40,14 +42,18 @@ namespace dMobile.Controller.Activity_Item
         /// </summary>
         /// <param name="publisher">The publisher<see cref="IDataLayerEventPublisher"/>.</param>
         /// <param name="args">The dataLayerEventArgs<see cref="DataLayerEventArgs"/>.</param>
-        public delegate void DataLayerStatusOutEventHandler(IDataLayerEventPublisher publisher, DataLayerEventArgs args);
+        public delegate void DataLayerStatusOutEventHandler(
+            IDataLayerEventPublisher publisher,
+            DataLayerEventArgs args);
 
         /// <summary>
         /// The data layer progress out event handler.
         /// </summary>
         /// <param name="publisher">The publisher<see cref="IDataLayerEventPublisher"/>.</param>
         /// <param name="args">The dataLayerEventArgs<see cref="DataLayerEventArgs"/>.</param>
-        public delegate void DataLayerProgressOutEventHandler(IDataLayerEventPublisher publisher, DataLayerEventArgs args);
+        public delegate void DataLayerProgressOutEventHandler(
+            IDataLayerEventPublisher publisher,
+            DataLayerEventArgs args);
 
         /// <summary>
         /// Data layer status out event handler.
@@ -60,22 +66,22 @@ namespace dMobile.Controller.Activity_Item
         public event DataLayerProgressOutEventHandler OnDataLayerProgressOut;
 
         /// <summary>
-        /// Gets or sets a value indicating whether to ask to create a new item..
+        /// Gets or sets a value indicating whether to ask to create a new item.
         /// </summary>
         public bool IsAskCreateNewItem { get; protected set; } = true;
 
         /// <summary>
-        /// Gets or sets the full class name..
+        /// Gets or sets the full class name.
         /// </summary>
         public string FullClassName { get; set; } = string.Empty;
 
         /// <summary>
-        /// Gets or sets a value indicating whether allowed to add an item..
+        /// Gets or sets a value indicating whether allowed to add an item.
         /// </summary>
         public bool IsAllowAddItem { get; protected set; }
 
         /// <summary>
-        /// Gets or sets the current selected line item location map..
+        /// Gets or sets the current selected line item location map.
         /// </summary>
         public SLocMap LocMap { get; set; } = new SLocMap();
 
@@ -106,22 +112,22 @@ namespace dMobile.Controller.Activity_Item
         }
 
         /// <summary>
-        /// Gets or sets the Product information..
+        /// Gets or sets the Product information.
         /// </summary>
         public ProductInfo ProdInfo { get; set; }
 
         /// <summary>
-        /// Gets or sets the system environment..
+        /// Gets or sets the system environment.
         /// </summary>
         public SysEnvironment SysEnv { get; set; } = SysEnvironment.GetInstance();
 
         /// <summary>
-        /// Gets or sets the list items..
+        /// Gets or sets the list items.
         /// </summary>
         public List<object> ListItems { get; set; } = new List<object>();
 
         /// <summary>
-        /// Gets or sets the activity item sub type..
+        /// Gets or sets the activity item subtype.
         /// </summary>
         public ActSubTypes ActSubType { get; set; }
 
@@ -131,22 +137,22 @@ namespace dMobile.Controller.Activity_Item
         public ActStatus ActStatus { get; set; } = ActStatus.NoChange;
 
         /// <summary>
-        /// Gets or sets the activity item reference number..
+        /// Gets or sets the activity item reference number.
         /// </summary>
         public int ItemRefno { get; set; }
 
         /// <summary>
-        /// Gets or sets the activity item foreign key reference number..
+        /// Gets or sets the activity item foreign key reference number.
         /// </summary>
         public int ItemFkRefno { get; set; }
 
         /// <summary>
-        /// Gets or sets the activity header..
+        /// Gets or sets the activity header.
         /// </summary>
         public Activity.Activity ActHdr { get; set; }
 
         /// <summary>
-        /// Gets or sets the selected activity item..
+        /// Gets or sets the selected activity item.
         /// </summary>
         public object SelectedItem { get; set; }
 
@@ -156,7 +162,7 @@ namespace dMobile.Controller.Activity_Item
         public int SelectedListIdx { get; set; } = -1;
 
         /// <summary>
-        /// Gets or sets the data event arguments..
+        /// Gets or sets the data event arguments.
         /// </summary>
         private DataLayerEventArgs DataEventArgs { get; set; } = new DataLayerEventArgs();
 
@@ -218,7 +224,9 @@ namespace dMobile.Controller.Activity_Item
         /// <param name="gridMainActivity"><see cref="Grid"/> Main activity grid.</param>
         /// <param name="listViewMainActivity"><see cref="ListView"/> Main activity list view.</param>
         /// <returns>The <see cref="ObservableCollection{T}"/>.</returns>
-        public abstract ObservableCollection<object> DesignGrid(ref Grid gridMainActivity, ref ListView listViewMainActivity);
+        public abstract ObservableCollection<object> DesignGrid(
+            ref Grid gridMainActivity,
+            ref ListView listViewMainActivity);
 
         /// <summary>
         ///     Design the list view grid.
@@ -241,7 +249,7 @@ namespace dMobile.Controller.Activity_Item
         /// <summary>
         ///     Get the activity item list.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Observable collection.</returns>
         public abstract ObservableCollection<object> GetActivityItemList();
 
         /// <summary>
@@ -252,7 +260,7 @@ namespace dMobile.Controller.Activity_Item
         /// <returns><see cref="int"/> Found activity item reference number else 0.</returns>
         /// <remarks>
         /// The location map parameter most of the time will be the warehouse location map reference number, however for
-        /// cycle count line items for it could be any location map sub type; slot, section or warehouse.
+        /// cycle count line items for it could be any location map subtype; slot, section or warehouse.
         /// </remarks>
         public abstract Task<int> GetActivityItemRefno(int prodUnitRefno, SLocMap locMap);
 
@@ -327,7 +335,8 @@ namespace dMobile.Controller.Activity_Item
         /// </summary>
         /// <param name="actDetailFkRefno"><see cref="int"/> Activity detail foreign key reference number.</param>
         /// <returns><see cref="Task{SActItemSchemeData}"/> Activity item scheme data.</returns>
-        public abstract Task<ActItemSchemeData> GetProdSchemeDataFromDetailFkRefno(int actDetailFkRefno);
+        public abstract Task<ActItemSchemeData> GetProdSchemeDataFromDetailFkRefno(
+            int actDetailFkRefno);
 
         /// <summary>
         /// Get activity item comment.
@@ -419,47 +428,24 @@ namespace dMobile.Controller.Activity_Item
         public abstract int FindActivityItemIndex(int activityItemFkRefno);
 
         /// <summary>
-        /// Determine what the selected location map should be when an activity line item or detail is selected.
+        /// Determine what the selected location map should be when an activity line item or
+        /// detail is selected.
         /// </summary>
         /// <param name="itemLocMapRefno"><see cref="int"/> Activity item location map reference number.</param>
         /// <returns><see cref="Task{SLocMap}"/> Selected item location or null. Only complete locations are returned.</returns>
         public virtual async Task<SLocMap> GetSelectedItemLocation(int itemLocMapRefno)
         {
             SLocMap selectedLocMap = null;
-
-            if (itemLocMapRefno <= 0)
-            {
-                // Current location should not be considered because the warehouse may not match the line item
-                // location warehouse.
-                // We can't use an activity header warehouse location because an activity header does not always have
-                // a location. Line items already where filtered by a header location possibly upon refreshing data.
-                itemLocMapRefno = LocationMap.GetInstance().LoginWhsLocMapRefno;
-            }
-
-            var itemLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(itemLocMapRefno);
-
-            if (await LocationMapTasks.IsCompleteLocMap(itemLocMap.LocMapRefno))
-            {
-                selectedLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(itemLocMap.LocMapRefno);
-            }
-
+            itemLocMapRefno = IfNoItemLocationDefaultToLoginWarehouse();
+            var itemLocMap = await AssignLocationIfItemLocationIsComplete();
             var isGetDefault = false;
             if (this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc)
             {
-                if ((this.ActSubType == ActSubTypes.PhysicalCounts &&
-                    this.SysEnv.SysSettings.IsPhysicalDoNotDefaultProductLocation)
-                    ||
-                    (this.ActSubType == ActSubTypes.CycleCounts &&
-                        this.SysEnv.SysSettings.IsCycleDoNotDefaultProductLocation))
-                {
-                }
-                else
-                {
-                    isGetDefault = true;
-                }
+                isGetDefault = CheckIfTheActivityShouldGetTheDefaultLocation();
             }
             else
             {
+                // Update the current location if one has been selected and defaulting is off.
                 if (selectedLocMap != null)
                 {
                     this.LocMap = selectedLocMap.Clone();
@@ -469,44 +455,111 @@ namespace dMobile.Controller.Activity_Item
             // Even if the line item selected location is complete, default location will override.
             if (isGetDefault)
             {
-                // Note: A selected skid location is not considered as a default, rather the skid location will be
-                // assigned and updated in the calling method.
-                // Default location however will be based on any activity item warehouse or header warehouse.
-                var defaultLocMapRefno = await this.GetDefaultLocMapRefno(itemLocMap.WhsLocMapRefno, this.ProdInfo.Refno);
+                // Note: A selected skid location is not considered as a default, rather the skid
+                // location will be assigned and updated in the calling method.
+                // Default location however will be based on any activity item warehouse or
+                // header warehouse.
+                var defaultLocMapRefno = await this.GetDefaultLocMapRefno(
+                    itemLocMap.WhsLocMapRefno,
+                    this.ProdInfo.Refno);
                 if (await LocationMapTasks.IsCompleteLocMap(defaultLocMapRefno))
                 {
-                    selectedLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(defaultLocMapRefno);
+                    selectedLocMap =
+                        await LocationMapTasks.GetSLocMapFromLocMapRefno(defaultLocMapRefno);
                 }
             }
             else
             {
-                // Verify product location is almost the same as defaulting, except the user can set the location,
-                // but it must match the default warehouse product location.
+                // Verify product location is almost the same as defaulting, except the user can
+                // set the location, but it must match the default warehouse product location.
                 // So we might as well get the default location from the skid.
                 if (this.SysEnv.SysSettings.IsVerifyProductLocation)
                 {
-                    var skidInfo = this.ActHdr.SkidInfo.CurrSkid;
-                    if (skidInfo.SkidFkRefno > 0 && skidInfo.ProdInfo.Refno == this.ProdInfo.Refno &&
-                        skidInfo.LocMap.WhsLocMapRefno == itemLocMap.WhsLocMapRefno)
+                    await DefaultToCompleteSkidLocation();
+                }
+            }
+
+            await IfNothingSelectedAssignTheChosenLocation();
+            return selectedLocMap;
+
+            ///////////////////////////////////////////////////////////
+            bool CheckIfTheActivityShouldGetTheDefaultLocation()
+            {
+                if ((this.ActSubType == ActSubTypes.PhysicalCounts &&
+                     this.SysEnv.SysSettings.IsPhysicalDoNotDefaultProductLocation)
+                    ||
+                    (this.ActSubType == ActSubTypes.CycleCounts &&
+                     this.SysEnv.SysSettings.IsCycleDoNotDefaultProductLocation))
+                {
+                }
+                else
+                {
+                    isGetDefault = true;
+                }
+
+                return isGetDefault;
+            }
+
+            ///////////////////////////////////////////////////////////
+            async Task IfNothingSelectedAssignTheChosenLocation()
+            {
+                // Current location is not considered because it is a result of the default rather
+                // than a source location.
+                if (selectedLocMap == null || selectedLocMap.WhsLocMapRefno == 0)
+                {
+                    if (await LocationMapTasks.IsCompleteLocMap(
+                        LocationMap.GetInstance().ChosenLocMap))
                     {
-                        if (await LocationMapTasks.IsCompleteLocMap(skidInfo.LocMap))
-                        {
-                            selectedLocMap = this.ActHdr.SkidInfo.CurrSkid.LocMap;
-                        }
+                        selectedLocMap = LocationMap.GetInstance().ChosenLocMap;
                     }
                 }
             }
 
-            // Current location is not considered because it is a result of the default rather than a source location.
-            if (selectedLocMap == null || selectedLocMap.WhsLocMapRefno == 0)
+            ///////////////////////////////////////////////////////////
+            async Task DefaultToCompleteSkidLocation()
             {
-                if (await LocationMapTasks.IsCompleteLocMap(LocationMap.GetInstance().ChosenLocMap))
+                var skidInfo = this.ActHdr.SkidInfo.CurrSkid;
+                if (skidInfo.SkidFkRefno > 0 &&
+                    skidInfo.ProdInfo.Refno == this.ProdInfo.Refno &&
+                    skidInfo.LocMap.WhsLocMapRefno == itemLocMap.WhsLocMapRefno)
                 {
-                    selectedLocMap = LocationMap.GetInstance().ChosenLocMap;
+                    if (await LocationMapTasks.IsCompleteLocMap(skidInfo.LocMap))
+                    {
+                        selectedLocMap = this.ActHdr.SkidInfo.CurrSkid.LocMap;
+                    }
                 }
             }
 
-            return selectedLocMap;
+            ///////////////////////////////////////////////////////////
+            int IfNoItemLocationDefaultToLoginWarehouse()
+            {
+                // No location map reference number, so we will default to the login warehouse location.
+                if (itemLocMapRefno <= 0)
+                {
+                    // Current location should not be considered because the warehouse may not match
+                    // the line item location warehouse.
+                    // We can't use an activity header warehouse location because an activity header
+                    // does not always have a location. Line items already where filtered by a
+                    // header location possibly upon refreshing data.
+                    itemLocMapRefno = LocationMap.GetInstance().LoginWhsLocMapRefno;
+                }
+
+                return itemLocMapRefno;
+            }
+
+            ///////////////////////////////////////////////////////////
+            async Task<SLocMap> AssignLocationIfItemLocationIsComplete()
+            {
+                var sLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(itemLocMapRefno);
+                if (await LocationMapTasks.IsCompleteLocMap(sLocMap.LocMapRefno))
+                {
+                    // If the item location is complete, then we will use it.
+                    selectedLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
+                        sLocMap.LocMapRefno);
+                }
+
+                return sLocMap;
+            }
         }
 
         /// <summary>
@@ -519,8 +572,9 @@ namespace dMobile.Controller.Activity_Item
         {
             var currLoc = LocationMap.GetInstance().CurrLocMap;
             var whs = $"{currLoc.WhsFkRefno} - {currLoc.WhsName}";
-            var message = $"Item not found for {Environment.NewLine}Warehouse {whs}{Environment.NewLine}" +
-                      $"Product {prodInfo.Code} BC {prodInfo.UnitBc} Unit {prodInfo.UnitCode}";
+            var message = $"Item not found for {Environment.NewLine}Warehouse {whs}" +
+                $"{Environment.NewLine}Product {prodInfo.Code} BC {prodInfo.UnitBc}" +
+                $" Unit {prodInfo.UnitCode}";
             return message;
         }
 
@@ -534,21 +588,32 @@ namespace dMobile.Controller.Activity_Item
             data = data ?? throw new ArgumentNullException(nameof(data));
             _ = data.Root ?? throw new ArgumentNullException(nameof(data.Root));
 
-            // Check for duplicate
-            if (this.SysEnv.SysSettings.IsDisconnectedMode)
+            await IfDisconnectedCheckForDuplicate();
+            return;
+
+            ///////////////////////////////////////////////////////////
+            async Task IfDisconnectedCheckForDuplicate()
             {
-                var actDetailUniqSchemeId = data.Root.Element("ActivityDetailUniqueSchemeID") !.Value;
-                if (string.Compare(actDetailUniqSchemeId, string.Empty, StringComparison.CurrentCulture) > 0)
+                if (this.SysEnv.SysSettings.IsDisconnectedMode)
                 {
-                    var isDupSchemeId = await ProductInfoTasks.IsDuplicateUniqueSchemeId(
-                        actDetailUniqSchemeId);
-                    if (isDupSchemeId)
+                    var actDetailUniqSchemeId =
+                        data.Root!.Element("ActivityDetailUniqueSchemeID") !.Value;
+                    if (string.Compare(
+                            actDetailUniqSchemeId,
+                            string.Empty,
+                            StringComparison.CurrentCulture) >
+                        0)
                     {
-                        throw new IsReadyToApplyException(
-                            "Duplicate scheme id!" +
-                            Environment.NewLine + actDetailUniqSchemeId,
-                            false,
-                            false);
+                        var isDupSchemeId = await ProductInfoTasks.IsDuplicateUniqueSchemeId(
+                            actDetailUniqSchemeId);
+                        if (isDupSchemeId)
+                        {
+                            throw new IsReadyToApplyException(
+                                "Duplicate scheme id!" +
+                                Environment.NewLine + actDetailUniqSchemeId,
+                                false,
+                                false);
+                        }
                     }
                 }
             }
@@ -717,7 +782,7 @@ namespace dMobile.Controller.Activity_Item
                 await conn.ExecuteAsync(
                     query,
                     Convert.ToInt32(actSubTypes),
-                    Convert.ToInt32(SysCommon.ActStatus.Inserted),
+                    Convert.ToInt32(ActStatus.Inserted),
                     Convert.ToInt32(this.ActHdr.HdrRefno),
                     0);
 
@@ -727,10 +792,6 @@ namespace dMobile.Controller.Activity_Item
             catch (SQLiteException ex)
             {
                 throw new Exception("Database exception occurred.", ex);
-            }
-            catch
-            {
-                throw;
             }
         }
     }

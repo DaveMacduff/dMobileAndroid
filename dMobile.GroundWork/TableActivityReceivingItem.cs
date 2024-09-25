@@ -11,8 +11,8 @@ namespace dMobile.GroundWork
     using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
-    using dMobile.Bedrock;
-    using dMobile.Resources.Models;
+    using Bedrock;
+    using Resources.Models;
     using SQLite;
 
     /// <summary>
@@ -24,7 +24,7 @@ namespace dMobile.GroundWork
         /// Initializes a new instance of the <see cref="TableActivityReceivingItem"/> class.
         /// </summary>
         public TableActivityReceivingItem()
-          : base()
+            : base()
         {
             this.FullClassName = "dMobile.GroundWork.TableActivityReceivingItem";
             this.CurrentSubType = SysCommon.ActSubTypes.Receiving;
@@ -37,106 +37,132 @@ namespace dMobile.GroundWork
         /// </summary>
         public override async Task PurgeData()
         {
-            this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging existing {this.LowerCaseName} items.", true);
+            this.DataAccessStatusOutHandler(
+                this,
+                EventArgs.Empty,
+                $"Purging existing {this.LowerCaseName} items.",
+                true);
             var conn = DatabaseConnection.GetInstance().SqlConn;
-            await conn.RunInTransactionAsync(transaction =>
-            {
-                try
+            await conn.RunInTransactionAsync(
+                transaction =>
                 {
-                    // Corruption recovery cleanup.
-                    var query = @"
+                    try
+                    {
+                        // Corruption recovery cleanup.
+                        var query = @"
                         DELETE FROM tActivityItemBarCodeAssociationXRef
                             WHERE tActivityItemBarCodeAssociationXRef.ActivityItemRefno <= 0";
-                    transaction.Execute(query);
+                        transaction.Execute(query);
 
-                    query = @"
+                        query = @"
                         DELETE FROM tActivityItemBarCodeAssociationXRef
                             WHERE tActivityItemBarCodeAssociationXRef.ActivityItemRefno
                                 NOT IN (SELECT tActivityItem.ActivityItemRefno FROM tActivityItem)";
-                    transaction.Execute(query);
+                        transaction.Execute(query);
 
-                    query = @"
+                        query = @"
                         DELETE FROM tActivityItemReceivingComment
                             WHERE tActivityItemReceivingComment.ActivityItemRefno <= 0";
-                    transaction.Execute(query);
+                        transaction.Execute(query);
 
-                    query = @"
+                        query = @"
                         DELETE FROM tActivityItemReceivingComment
                             WHERE tActivityItemReceivingComment.ActivityItemRefno
                                 NOT IN (SELECT tActivityItem.ActivityItemRefno FROM tActivityItem)";
-                    transaction.Execute(query);
+                        transaction.Execute(query);
 
-                    query = @"
+                        query = @"
                         DELETE FROM tActivityItemReceiving
                             WHERE tActivityItemReceiving.ActivityItemRefno <= 0
                                 OR tActivityItemReceiving.ActivityItemFKRefno <= 0";
-                    transaction.Execute(query);
+                        transaction.Execute(query);
 
-                    query = @"
+                        query = @"
                         DELETE FROM tActivityItemReceiving
                             WHERE tActivityItemReceiving.ActivityItemRefno
                                 NOT IN (SELECT tActivityItem.ActivityItemRefno FROM tActivityItem)";
-                    transaction.Execute(query);
+                        transaction.Execute(query);
 
-                    query = @"
+                        query = @"
                         DELETE FROM tActivityItem
                             WHERE tActivityItem.ActivityRefno
                                 NOT IN (SELECT tActivity.ActivityRefno FROM tActivity)";
-                    transaction.Execute(query);
+                        transaction.Execute(query);
 
-                    query = "DELETE FROM tActivityItem WHERE tActivityItem.ActivityRefno <= 0";
-                    transaction.Execute(query);
+                        query = "DELETE FROM tActivityItem WHERE tActivityItem.ActivityRefno <= 0";
+                        transaction.Execute(query);
 
-                    // Regular purge.
-                    query = @"
+                        // Regular purge.
+                        query = @"
                         DELETE FROM tActivityItemBarCodeAssociationXRef
                             WHERE tActivityItemBarCodeAssociationXRef.ActivityItemRefno IN
                                 (SELECT tActivityItem.ActivityItemRefno
                                     FROM tActivityItem
                                     WHERE tActivityItem.ActivityItemSubType = ?)";
-                    transaction.Execute(query, this.CurrentSubType);
+                        transaction.Execute(query, this.CurrentSubType);
 
-                    query = @"
+                        query = @"
                         DELETE FROM tActivityItemReceivingComment
                             WHERE tActivityItemReceivingComment.ActivityItemRefno IN
                                 (SELECT tActivityItem.ActivityItemRefno
                                     FROM tActivityItem
                                     WHERE tActivityItem.ActivityItemSubType = ?)";
-                    transaction.Execute(query, this.CurrentSubType);
+                        transaction.Execute(query, this.CurrentSubType);
 
-                    query = "DELETE FROM tActivityItemReceiving WHERE ActivityItemSubType = ?";
-                    transaction.Execute(query, this.CurrentSubType);
+                        query = "DELETE FROM tActivityItemReceiving WHERE ActivityItemSubType = ?";
+                        transaction.Execute(query, this.CurrentSubType);
 
-                    query = "DELETE FROM tActivityItem WHERE ActivityItemSubType = ?";
-                    transaction.Execute(query, this.CurrentSubType);
+                        query = "DELETE FROM tActivityItem WHERE ActivityItemSubType = ?";
+                        transaction.Execute(query, this.CurrentSubType);
 
-                    transaction.Commit();
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} items complete.", true);
-                }
-                catch (SQLiteException ex)
-                {
-                    transaction.Rollback();
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} items failed.", true);
-                    throw new Exception($"Database exception occurred. Purging {this.LowerCaseName} items failed.", ex);
-                }
-                catch
-                {
-                    transaction.Rollback();
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} items failed.", true);
-                    throw;
-                }
-            });
+                        transaction.Commit();
+                        this.DataAccessStatusOutHandler(
+                            this,
+                            EventArgs.Empty,
+                            $"Purging {this.LowerCaseName} items complete.",
+                            true);
+                    }
+                    catch (SQLiteException ex)
+                    {
+                        transaction.Rollback();
+                        this.DataAccessStatusOutHandler(
+                            this,
+                            EventArgs.Empty,
+                            "Database exception occurred.",
+                            true);
+                        this.DataAccessStatusOutHandler(
+                            this,
+                            EventArgs.Empty,
+                            $"Purging {this.LowerCaseName} items failed.",
+                            true);
+                        throw new Exception(
+                            $"Database exception occurred. Purging {this.LowerCaseName} items failed.",
+                            ex);
+                    }
+                    catch
+                    {
+                        transaction.Rollback();
+                        this.DataAccessStatusOutHandler(
+                            this,
+                            EventArgs.Empty,
+                            $"Purging {this.LowerCaseName} items failed.",
+                            true);
+                        throw;
+                    }
+                });
         }
 
         /// <summary>
         /// The Send.
         /// </summary>
-        /// <param name="actItemRefno">The actItemRefno<see cref="int"/>.</param>
+        /// <param name="activityFkRefnoThe activityFkRefno<see cref="int"/>.</param>
         /// <returns></returns>
-        protected override async Task<string> SendRequest(int actItemRefno)
+        protected override async Task<string> SendRequest(int activityFkRefno)
         {
-            var results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<tActivityReceivingModel>("SELECT * FROM tActivityReceiving WHERE ActivityRefno = ?", actItemRefno);
+            var results = await DatabaseConnection.GetInstance()
+                .SqlConn.QueryAsync<tActivityReceivingModel>(
+                    "SELECT * FROM tActivityReceiving WHERE ActivityFKRefno = ?",
+                    activityFkRefno);
 
             int recvFKRefno;
             if (results?.Count > 0)
@@ -158,169 +184,252 @@ namespace dMobile.GroundWork
         /// <param name="actRefno">The actItemRefno<see cref="int"/>.</param>
         protected override async Task Save(string responseData, int actRefno)
         {
-            await DatabaseConnection.GetInstance().SqlConn.RunInTransactionAsync(transaction =>
-            {
-                try
-                {
-                    using var ds = new DataSet();
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
-
-                    ds.ReadXml(SysCommon.GetXmlReader(ref responseData), XmlReadMode.Auto);
-
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving receiving items.", false);
-
-                    if (ds.Tables.Count != 0)
+            await DatabaseConnection.GetInstance()
+                .SqlConn.RunInTransactionAsync(
+                    transaction =>
                     {
-                        var progMax = Convert.ToInt32(ds.Tables["tActivityItemPurchaseOrder"].Rows.Count);
-
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Records {progMax}", false);
-
-                        var actItemRefno = 0;
-                        var progValue = 0;
-                        var prodUnitRefno = 0;
-                        var locMapRefno = 0;
-                        var recvItemComment = string.Empty;
-                        var recvItemFKRefno = 0;
-
-                        this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
-
-                        foreach (DataRow drow in ds.Tables["tActivityItemPurchaseOrder"].Rows)
+                        try
                         {
-                            transaction.Execute(
-                                "INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus, ActivityRefno," +
-                                " ActivityItemIsAdded) VALUES (?, ?, ?, ?)",
-                                Convert.ToInt32(SysCommon.ActSubTypes.Receiving),
-                                Convert.ToInt32(SysCommon.ActStatus.NoChange),
-                                Convert.ToInt32(actRefno),
-                                0);
+                            using var ds = new DataSet();
+                            this.DataAccessStatusOutHandler(
+                                this,
+                                EventArgs.Empty,
+                                "Reading received data.",
+                                false);
 
-                            actItemRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivityItem"));
-                            prodUnitRefno = this.GetProductUnitRefnoFromDataRow(drow, transaction, false);
-                            locMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, transaction);
-                            recvItemFKRefno = Convert.ToInt32(drow["ActivityItemFKRefno"]);
+                            ds.ReadXml(SysCommon.GetXmlReader(ref responseData), XmlReadMode.Auto);
 
-                            var queryInsertActivityItemReceiving = "INSERT INTO tActivityItemReceiving (" +
-                                                                   "ActivityItemRefno, " +
-                                                                   "ActivityItemSubType, " +
-                                                                   "ActivityItemFKRefno, " +
-                                                                   "ActivityItemStringFKRefno, " +
-                                                                   "ProductUnitRefno, " +
-                                                                   "WarehouseLocationMapRefno, " +
-                                                                   "ActivityItemReceivingQuantityOrdered, " +
-                                                                   "ActivityItemReceivingBaseQuantityOrdered, " +
-                                                                   "ActivityItemReceivingWeightQuantityOrdered, " +
-                                                                   "ActivityItemReceivingQuantityReceived, " +
-                                                                   "ActivityItemReceivingBaseQuantityReceived, " +
-                                                                   "ActivityItemReceivingWeightQuantityReceived, " +
-                                                                   "ActivityItemReceivingVendorProductUnitCode, " +
-                                                                   "ActivityItemReceivingDescription, " +
-                                                                   "ActivityItemReceivingQuantityReceivedToDate, " +
-                                                                   "ActivityItemReceivingBaseQuantityReceivedToDate, " +
-                                                                   "ActivityItemReceivingWeightQuantityReceivedToDate" +
-                                                                   ") VALUES (" +
-                                                                   "?, " +
-                                                                   "?, " +
-                                                                   "?, " +
-                                                                   "?, " +
-                                                                   "?, " +
-                                                                   "?, " +
-                                                                   "?, " +
-                                                                   "?, " +
-                                                                   "?, " +
-                                                                   "?, " +
-                                                                   "?, " +
-                                                                   "?, " +
-                                                                   "?, " +
-                                                                   "?, " +
-                                                                   "?, " +
-                                                                   "?, " +
-                                                                   "?" +
-                                                                   ")";
-                            var parametersActivityItemReceiving = new object[]
+                            this.DataAccessStatusOutHandler(
+                                this,
+                                EventArgs.Empty,
+                                "Saving receiving items.",
+                                false);
+
+                            if (ds.Tables.Count != 0)
                             {
-                                    Convert.ToInt32(actItemRefno),
-                                    Convert.ToInt32(SysCommon.ActSubTypes.Receiving),
-                                    Convert.ToInt32(recvItemFKRefno),
-                                    Convert.ToString(recvItemFKRefno),
-                                    Convert.ToInt32(prodUnitRefno),
-                                    Convert.ToInt32(locMapRefno),
-                                    Convert.ToDecimal(drow["ActivityItemPurchaseOrderQuantityOrdered"]),
-                                    Convert.ToDecimal(drow["ActivityItemPurchaseOrderBaseQuantityOrdered"]),
-                                    Convert.ToDecimal(drow["ActivityItemPurchaseOrderWeightQuantityOrdered"]),
-                                    Convert.ToDecimal(drow["ActivityItemPurchaseOrderQuantityReceived"]),
-                                    Convert.ToDecimal(drow["ActivityItemPurchaseOrderBaseQuantityReceived"]),
-                                    Convert.ToDecimal(drow["ActivityItemPurchaseOrderWeightQuantityReceived"]),
-                                    Convert.ToString(drow["ActivityItemPurchaseOrderVendorProductUnitCode"]),
-                                    Convert.ToString(drow["ActivityItemPurchaseOrderDescription"]),
-                                    Convert.ToDecimal(drow["ActivityItemPurchaseOrderQuantityReceivedToDate"]),
-                                    Convert.ToDecimal(drow["ActivityItemPurchaseOrderBaseQuantityReceivedToDate"]),
-                                    Convert.ToDecimal(drow["ActivityItemPurchaseOrderWeightQuantityReceivedToDate"]),
-                            };
+                                var progMax = Convert.ToInt32(
+                                    ds.Tables["tActivityItemPurchaseOrder"].Rows.Count);
 
-                            transaction.Execute(queryInsertActivityItemReceiving, parametersActivityItemReceiving);
+                                this.DataAccessStatusOutHandler(
+                                    this,
+                                    EventArgs.Empty,
+                                    $"Records {progMax}",
+                                    false);
 
-                            recvItemComment = Convert.ToString(drow["ActivityItemPurchaseOrderComment"]);
+                                var actItemRefno = 0;
+                                var progValue = 0;
+                                var prodUnitRefno = 0;
+                                var locMapRefno = 0;
+                                var recvItemComment = string.Empty;
+                                var recvItemFKRefno = 0;
 
-                            if (!string.IsNullOrEmpty(recvItemComment))
-                            {
-                                transaction.Execute("INSERT INTO tActivityItemReceivingComment (ActivityItemRefno, ActivityItemReceivingCommentComment) VALUES (?, ?)", actItemRefno, recvItemComment);
+                                this.DataAccessProgressOutHandler(
+                                    this,
+                                    EventArgs.Empty,
+                                    0,
+                                    0,
+                                    progMax);
+
+                                foreach (DataRow drow in ds.Tables["tActivityItemPurchaseOrder"]
+                                             .Rows)
+                                {
+                                    transaction.Execute(
+                                        "INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus, ActivityRefno," +
+                                        " ActivityItemIsAdded) VALUES (?, ?, ?, ?)",
+                                        Convert.ToInt32(SysCommon.ActSubTypes.Receiving),
+                                        Convert.ToInt32(SysCommon.ActStatus.NoChange),
+                                        Convert.ToInt32(actRefno),
+                                        0);
+
+                                    actItemRefno = Convert.ToInt32(
+                                        transaction.ExecuteScalar<int>(
+                                            "SELECT last_insert_rowid() FROM tActivityItem"));
+                                    prodUnitRefno = this.GetProductUnitRefnoFromDataRow(
+                                        drow,
+                                        transaction,
+                                        false);
+                                    locMapRefno = this.GetWhsLocMapRefnoFromDataRow(
+                                        drow,
+                                        transaction);
+                                    recvItemFKRefno = Convert.ToInt32(drow["ActivityItemFKRefno"]);
+
+                                    var queryInsertActivityItemReceiving =
+                                        "INSERT INTO tActivityItemReceiving (" +
+                                        "ActivityItemRefno, " +
+                                        "ActivityItemSubType, " +
+                                        "ActivityItemFKRefno, " +
+                                        "ActivityItemStringFKRefno, " +
+                                        "ProductUnitRefno, " +
+                                        "WarehouseLocationMapRefno, " +
+                                        "ActivityItemReceivingQuantityOrdered, " +
+                                        "ActivityItemReceivingBaseQuantityOrdered, " +
+                                        "ActivityItemReceivingWeightQuantityOrdered, " +
+                                        "ActivityItemReceivingQuantityReceived, " +
+                                        "ActivityItemReceivingBaseQuantityReceived, " +
+                                        "ActivityItemReceivingWeightQuantityReceived, " +
+                                        "ActivityItemReceivingVendorProductUnitCode, " +
+                                        "ActivityItemReceivingDescription, " +
+                                        "ActivityItemReceivingQuantityReceivedToDate, " +
+                                        "ActivityItemReceivingBaseQuantityReceivedToDate, " +
+                                        "ActivityItemReceivingWeightQuantityReceivedToDate" +
+                                        ") VALUES (" +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?" +
+                                        ")";
+                                    var parametersActivityItemReceiving = new object[]
+                                    {
+                                        Convert.ToInt32(actItemRefno),
+                                        Convert.ToInt32(SysCommon.ActSubTypes.Receiving),
+                                        Convert.ToInt32(recvItemFKRefno),
+                                        Convert.ToString(recvItemFKRefno),
+                                        Convert.ToInt32(prodUnitRefno),
+                                        Convert.ToInt32(locMapRefno),
+                                        Convert.ToDecimal(
+                                            drow["ActivityItemPurchaseOrderQuantityOrdered"]),
+                                        Convert.ToDecimal(
+                                            drow["ActivityItemPurchaseOrderBaseQuantityOrdered"]),
+                                        Convert.ToDecimal(
+                                            drow["ActivityItemPurchaseOrderWeightQuantityOrdered"]),
+                                        Convert.ToDecimal(
+                                            drow["ActivityItemPurchaseOrderQuantityReceived"]),
+                                        Convert.ToDecimal(
+                                            drow["ActivityItemPurchaseOrderBaseQuantityReceived"]),
+                                        Convert.ToDecimal(
+                                            drow[
+                                                "ActivityItemPurchaseOrderWeightQuantityReceived"]),
+                                        Convert.ToString(
+                                            drow["ActivityItemPurchaseOrderVendorProductUnitCode"]),
+                                        Convert.ToString(
+                                            drow["ActivityItemPurchaseOrderDescription"]),
+                                        Convert.ToDecimal(
+                                            drow[
+                                                "ActivityItemPurchaseOrderQuantityReceivedToDate"]),
+                                        Convert.ToDecimal(
+                                            drow[
+                                                "ActivityItemPurchaseOrderBaseQuantityReceivedToDate"]),
+                                        Convert.ToDecimal(
+                                            drow[
+                                                "ActivityItemPurchaseOrderWeightQuantityReceivedToDate"])
+                                    };
+
+                                    transaction.Execute(
+                                        queryInsertActivityItemReceiving,
+                                        parametersActivityItemReceiving);
+
+                                    recvItemComment = Convert.ToString(
+                                        drow["ActivityItemPurchaseOrderComment"]);
+
+                                    if (!string.IsNullOrEmpty(recvItemComment))
+                                    {
+                                        transaction.Execute(
+                                            "INSERT INTO tActivityItemReceivingComment (ActivityItemRefno, ActivityItemReceivingCommentComment) VALUES (?, ?)",
+                                            actItemRefno,
+                                            recvItemComment);
+                                    }
+
+                                    progValue++;
+                                    if (progValue % 100 == 0)
+                                    {
+                                        this.DataAccessProgressOutHandler(
+                                            this,
+                                            EventArgs.Empty,
+                                            progValue,
+                                            0,
+                                            progMax);
+                                    }
+                                }
+
+                                this.DataAccessProgressOutHandler(
+                                    this,
+                                    EventArgs.Empty,
+                                    progMax,
+                                    0,
+                                    progMax);
                             }
 
-                            progValue++;
-                            if (progValue % 100 == 0)
-                            {
-                                this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue, 0, progMax);
-                            }
+                            transaction.Commit();
+
+                            this.DataAccessStatusOutHandler(
+                                this,
+                                EventArgs.Empty,
+                                "Saving receiving items complete.",
+                                false);
                         }
+                        catch (SQLiteException ex)
+                        {
+                            transaction.Rollback();
 
-                        this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
-                    }
-
-                    transaction.Commit();
-
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving receiving items complete.", false);
-                }
-                catch (SQLiteException ex)
-                {
-                    transaction.Rollback();
-
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving receiving items failed.", false);
-                    throw new Exception("Database exception occurred. Saving receiving items failed.", ex);
-                }
-            });
+                            this.DataAccessStatusOutHandler(
+                                this,
+                                EventArgs.Empty,
+                                "Database exception occurred.",
+                                true);
+                            this.DataAccessStatusOutHandler(
+                                this,
+                                EventArgs.Empty,
+                                "Saving receiving items failed.",
+                                false);
+                            throw new Exception(
+                                "Database exception occurred. Saving receiving items failed.",
+                                ex);
+                        }
+                    });
         }
 
         /// <summary>
         /// The Create.
         /// </summary>
-        /// <param name="activityItemFkRefno"></param>
+        /// <param name="activityFkRefno"></param>
         /// <returns></returns>
-        protected override Task<string> CreateRequest(int activityItemFkRefno)
+        protected override Task<string> CreateRequest(int activityFkRefno)
         {
             var xmlString = new StringBuilder();
             var settings = new XmlWriterSettings
             {
                 Async = true,
-                Indent = false,
+                Indent = false
             };
             var xml = XmlWriter.Create(xmlString, settings);
 
             var deviceID = SysDeviceId.GetDeviceId();
-            var revision = new DateTime(1900, 1, 1).ToString("yyyy\'-\'MM\'-\'dd\'T\'HH\':\'mm\':\'ss");
+            var revision =
+                new DateTime(1900, 1, 1).ToString("yyyy\'-\'MM\'-\'dd\'T\'HH\':\'mm\':\'ss");
             var loginID = this.SysEnv.ContactLog.LoginID.ToString();
 
             var request = XDocument.Parse(
-                "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>"
-                + "<imclient>"
-                + "<command>"
-                + "<action>REQUEST PURCHASE ORDER ITEMS</action>"
-                + "<device_id>" + deviceID + "</device_id>"
-                + "<login_id>" + loginID + "</login_id>"
-                + "<revision_datetime>" + revision + "</revision_datetime>"
-                + "<refno>" + activityItemFkRefno.ToString() + "</refno>"
-                + "</command>"
-                + "</imclient>");
+                "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>" +
+                "<imclient>" +
+                "<command>" +
+                "<action>REQUEST PURCHASE ORDER ITEMS</action>" +
+                "<device_id>" +
+                deviceID +
+                "</device_id>" +
+                "<login_id>" +
+                loginID +
+                "</login_id>" +
+                "<revision_datetime>" +
+                revision +
+                "</revision_datetime>" +
+                "<refno>" +
+                activityFkRefno.ToString() +
+                "</refno>" +
+                "</command>" +
+                "</imclient>");
 
             request.Save(xml);
             xml.Flush();
@@ -334,7 +443,7 @@ namespace dMobile.GroundWork
             throw new NotImplementedException();
         }
 
-        protected override Task<string> CreateRequest(XDocument criteria)
+        protected override Task<string> CreateRequest(XDocument criteriaFilter)
         {
             throw new NotImplementedException();
         }
@@ -369,12 +478,12 @@ namespace dMobile.GroundWork
             throw new NotImplementedException();
         }
 
-        protected override Task<string> CreateRequest(int activityItemFkRefno, XDocument criteria)
+        protected override Task<string> CreateRequest(int activityFkRefno, XDocument criteria)
         {
             throw new NotImplementedException();
         }
 
-        protected override Task<string> CreateRequest(int prodLocMapType, int whsLocMapFKRefno)
+        protected override Task<string> CreateRequest(int prodLocMapType, int whsLocMapFkRefno)
         {
             throw new NotImplementedException();
         }

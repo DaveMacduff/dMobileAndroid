@@ -7,7 +7,7 @@ namespace dMobile.GroundWork
     using System;
     using System.Threading.Tasks;
     using System.Xml.Linq;
-    using dMobile.Bedrock;
+    using Bedrock;
     using SQLite;
 
     public class TableActivityReceivingItemComment : TableBase
@@ -16,7 +16,7 @@ namespace dMobile.GroundWork
         /// Initializes a new instance of the <see cref="TableActivityReceivingItemComment"/> class.
         /// </summary>
         public TableActivityReceivingItemComment()
-          : base()
+            : base()
         {
             this.FullClassName = "dMobile.GroundWork.TableActivityReceivingItemComment";
             this.CurrentSubType = SysCommon.ActSubTypes.Receiving;
@@ -36,50 +36,73 @@ namespace dMobile.GroundWork
         /// <inheritdoc/>
         public override async Task PurgeData()
         {
-            this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging existing {this.LowerCaseName} items.", true);
+            this.DataAccessStatusOutHandler(
+                this,
+                EventArgs.Empty,
+                $"Purging existing {this.LowerCaseName} items.",
+                true);
             var conn = DatabaseConnection.GetInstance().SqlConn;
-            await conn.RunInTransactionAsync(transaction =>
-            {
-                try
+            await conn.RunInTransactionAsync(
+                transaction =>
                 {
-                    // Corruption recovery cleanup.
-                    var query = @"
+                    try
+                    {
+                        // Corruption recovery cleanup.
+                        var query = @"
                         DELETE FROM tActivityItemReceivingComment
                             WHERE tActivityItemReceivingComment.ActivityItemRefno <= 0";
-                    transaction.Execute(query);
+                        transaction.Execute(query);
 
-                    query = @"
+                        query = @"
                         DELETE FROM tActivityItemReceivingComment
                             WHERE tActivityItemReceivingComment.ActivityItemRefno
                                 NOT IN (SELECT tActivityItem.ActivityItemRefno FROM tActivityItem)";
-                    transaction.Execute(query);
+                        transaction.Execute(query);
 
-                    // Regular purge.
-                    query = @"
+                        // Regular purge.
+                        query = @"
                         DELETE FROM tActivityItemReceivingComment
                             WHERE tActivityItemReceivingComment.ActivityItemRefno IN
                                 (SELECT tActivityItem.ActivityItemRefno
                                     FROM tActivityItem
                                     WHERE tActivityItem.ActivityItemSubType = ?)";
-                    transaction.Execute(query, this.CurrentSubType);
+                        transaction.Execute(query, this.CurrentSubType);
 
-                    transaction.Commit();
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} items complete.", true);
-                }
-                catch (SQLiteException ex)
-                {
-                    transaction.Rollback();
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} items failed.", true);
-                    throw new Exception($"Database exception occurred. Purging {this.LowerCaseName} items failed.", ex);
-                }
-                catch
-                {
-                    transaction.Rollback();
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} items failed.", true);
-                    throw;
-                }
-            });
+                        transaction.Commit();
+                        this.DataAccessStatusOutHandler(
+                            this,
+                            EventArgs.Empty,
+                            $"Purging {this.LowerCaseName} items complete.",
+                            true);
+                    }
+                    catch (SQLiteException ex)
+                    {
+                        transaction.Rollback();
+                        this.DataAccessStatusOutHandler(
+                            this,
+                            EventArgs.Empty,
+                            "Database exception occurred.",
+                            true);
+                        this.DataAccessStatusOutHandler(
+                            this,
+                            EventArgs.Empty,
+                            $"Purging {this.LowerCaseName} items failed.",
+                            true);
+                        throw new Exception(
+                            $"Database exception occurred. Purging {this.LowerCaseName} items failed.",
+                            ex);
+                    }
+                    catch
+                    {
+                        transaction.Rollback();
+                        this.DataAccessStatusOutHandler(
+                            this,
+                            EventArgs.Empty,
+                            $"Purging {this.LowerCaseName} items failed.",
+                            true);
+                        throw;
+                    }
+                });
         }
 
         public override Task PurgeData(int sectLocMapRefno)
@@ -102,7 +125,7 @@ namespace dMobile.GroundWork
             throw new NotImplementedException();
         }
 
-        protected override Task<string> CreateRequest(XDocument criteria)
+        protected override Task<string> CreateRequest(XDocument criteriaFilter)
         {
             throw new NotImplementedException();
         }
@@ -112,17 +135,17 @@ namespace dMobile.GroundWork
             throw new NotImplementedException();
         }
 
-        protected override Task<string> CreateRequest(int activityItemFkRefno)
+        protected override Task<string> CreateRequest(int activityFkRefno)
         {
             throw new NotImplementedException();
         }
 
-        protected override Task<string> CreateRequest(int activityItemFkRefno, XDocument criteria)
+        protected override Task<string> CreateRequest(int activityFkRefno, XDocument criteria)
         {
             throw new NotImplementedException();
         }
 
-        protected override Task<string> CreateRequest(int prodLocMapType, int whsLocMapFKRefno)
+        protected override Task<string> CreateRequest(int prodLocMapType, int whsLocMapFkRefno)
         {
             throw new NotImplementedException();
         }

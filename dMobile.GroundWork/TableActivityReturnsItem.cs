@@ -11,8 +11,8 @@ namespace dMobile.GroundWork
     using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
-    using dMobile.Bedrock;
-    using dMobile.Resources.Models;
+    using Bedrock;
+    using Resources.Models;
     using SQLite;
 
     public class TableActivityReturnsItem : TableBase
@@ -21,7 +21,7 @@ namespace dMobile.GroundWork
         /// Initializes a new instance of the <see cref="TableActivityReturnsItem"/> class.
         /// </summary>
         public TableActivityReturnsItem()
-          : base()
+            : base()
         {
             this.FullClassName = "dMobile.GroundWork.TableActivityReturnsItem";
             this.CurrentSubType = SysCommon.ActSubTypes.Returns;
@@ -36,107 +36,132 @@ namespace dMobile.GroundWork
         /// <inheritdoc/>
         public override async Task PurgeData()
         {
-            this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName}.", true);
+            this.DataAccessStatusOutHandler(
+                this,
+                EventArgs.Empty,
+                $"Purging {this.LowerCaseName}.",
+                true);
             var conn = DatabaseConnection.GetInstance().SqlConn;
             var subType = Convert.ToInt32(this.CurrentSubType);
-            await conn.RunInTransactionAsync(transaction =>
-            {
-                try
+            await conn.RunInTransactionAsync(
+                transaction =>
                 {
-                    // Corruption recovery cleanup.
-                    var query = @"
+                    try
+                    {
+                        // Corruption recovery cleanup.
+                        var query = @"
                         DELETE FROM tActivityItemBarCodeAssociationXRef
                             WHERE tActivityItemBarCodeAssociationXRef.ActivityItemRefno <= 0";
-                    transaction.Execute(query);
+                        transaction.Execute(query);
 
-                    query = @"
+                        query = @"
                         DELETE FROM tActivityItemBarCodeAssociationXRef
                             WHERE tActivityItemBarCodeAssociationXRef.ActivityItemRefno
                                 NOT IN (SELECT tActivityItem.ActivityItemRefno FROM tActivityItem)";
-                    transaction.Execute(query);
+                        transaction.Execute(query);
 
-                    query = @"
+                        query = @"
                         DELETE FROM tActivityItemReasonCodeXRef
                             WHERE tActivityItemReasonCodeXRef.ActivityItemRefno <= 0";
-                    transaction.Execute(query);
+                        transaction.Execute(query);
 
-                    query = @"
+                        query = @"
                         DELETE FROM tActivityItemReasonCodeXRef
                             WHERE tActivityItemReasonCodeXRef.ActivityItemRefno
                                 NOT IN (SELECT tActivityItem.ActivityItemRefno FROM tActivityItem)";
-                    transaction.Execute(query);
+                        transaction.Execute(query);
 
-                    query = @"
+                        query = @"
                         DELETE FROM tActivityItemReturnsComment
                             WHERE tActivityItemReturnsComment.ActivityItemRefno <= 0";
-                    transaction.Execute(query);
+                        transaction.Execute(query);
 
-                    query = @"
+                        query = @"
                         DELETE FROM tActivityItemReturnsComment
                             WHERE tActivityItemReturnsComment.ActivityItemRefno
                                 NOT IN (SELECT tActivityItem.ActivityItemRefno FROM tActivityItem)";
-                    transaction.Execute(query);
+                        transaction.Execute(query);
 
-                    query = @"
+                        query = @"
                         DELETE FROM tActivityItemReturns
                             WHERE tActivityItemReturns.ActivityItemRefno <= 0
                                 OR tActivityItemReturns.ActivityItemFKRefno <= 0";
-                    transaction.Execute(query);
+                        transaction.Execute(query);
 
-                    query = @"
+                        query = @"
                         DELETE FROM tActivityItemReturns
                             WHERE tActivityItemReturns.ActivityItemRefno
                                 NOT IN (SELECT tActivityItem.ActivityItemRefno FROM tActivityItem)";
-                    transaction.Execute(query);
+                        transaction.Execute(query);
 
-                    query = @"
+                        query = @"
                         DELETE FROM tActivityItem
                             WHERE tActivityItem.ActivityRefno
                                 NOT IN (SELECT tActivity.ActivityRefno FROM tActivity)";
-                    transaction.Execute(query);
+                        transaction.Execute(query);
 
-                    query = "DELETE FROM tActivityItem WHERE tActivityItem.ActivityRefno <= 0";
-                    transaction.Execute(query);
+                        query = "DELETE FROM tActivityItem WHERE tActivityItem.ActivityRefno <= 0";
+                        transaction.Execute(query);
 
-                    // Regular purge.
-                    query = "DELETE FROM tActivityItemBarCodeAssociationXRef "
-                                + "WHERE tActivityItemBarCodeAssociationXRef.ActivityItemRefno IN "
-                                + "(SELECT tActivityItem.ActivityItemRefno FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = ?)";
-                    transaction.Execute(query, this.CurrentSubType);
+                        // Regular purge.
+                        query = "DELETE FROM tActivityItemBarCodeAssociationXRef " +
+                                "WHERE tActivityItemBarCodeAssociationXRef.ActivityItemRefno IN " +
+                                "(SELECT tActivityItem.ActivityItemRefno FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = ?)";
+                        transaction.Execute(query, this.CurrentSubType);
 
-                    query = @"DELETE FROM tActivityItemReasonCodeXRef
+                        query = @"DELETE FROM tActivityItemReasonCodeXRef
                                 WHERE tActivityItemReasonCodeXRef.ActivityItemRefno IN
                                 (SELECT tActivityItem.ActivityItemRefno FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = ?)";
-                    transaction.Execute(query, this.CurrentSubType);
+                        transaction.Execute(query, this.CurrentSubType);
 
-                    query = @"DELETE FROM tActivityItemReturnsComment
+                        query = @"DELETE FROM tActivityItemReturnsComment
                                 WHERE tActivityItemReturnsComment.ActivityItemRefno IN
                                 (SELECT tActivityItem.ActivityItemRefno FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = ?)";
-                    transaction.Execute(query, this.CurrentSubType);
+                        transaction.Execute(query, this.CurrentSubType);
 
-                    query = "DELETE FROM tActivityItemReturns WHERE tActivityItemReturns.ActivityItemSubType = ?";
-                    transaction.Execute(query, this.CurrentSubType);
+                        query =
+                            "DELETE FROM tActivityItemReturns WHERE tActivityItemReturns.ActivityItemSubType = ?";
+                        transaction.Execute(query, this.CurrentSubType);
 
-                    query = "DELETE FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = ?";
-                    transaction.Execute(query, this.CurrentSubType);
+                        query =
+                            "DELETE FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = ?";
+                        transaction.Execute(query, this.CurrentSubType);
 
-                    transaction.Commit();
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} completed.", true);
-                }
-                catch (SQLiteException ex)
-                {
-                    transaction.Rollback();
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} failed.", true);
-                    throw new Exception($"Database exception occurred. Purging {this.LowerCaseName} failed.", ex);
-                }
-                catch
-                {
-                    transaction.Rollback();
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} failed.", true);
-                    throw;
-                }
-            });
+                        transaction.Commit();
+                        this.DataAccessStatusOutHandler(
+                            this,
+                            EventArgs.Empty,
+                            $"Purging {this.LowerCaseName} completed.",
+                            true);
+                    }
+                    catch (SQLiteException ex)
+                    {
+                        transaction.Rollback();
+                        this.DataAccessStatusOutHandler(
+                            this,
+                            EventArgs.Empty,
+                            "Database exception occurred.",
+                            true);
+                        this.DataAccessStatusOutHandler(
+                            this,
+                            EventArgs.Empty,
+                            $"Purging {this.LowerCaseName} failed.",
+                            true);
+                        throw new Exception(
+                            $"Database exception occurred. Purging {this.LowerCaseName} failed.",
+                            ex);
+                    }
+                    catch
+                    {
+                        transaction.Rollback();
+                        this.DataAccessStatusOutHandler(
+                            this,
+                            EventArgs.Empty,
+                            $"Purging {this.LowerCaseName} failed.",
+                            true);
+                        throw;
+                    }
+                });
         }
 
         /// <summary>
@@ -145,9 +170,12 @@ namespace dMobile.GroundWork
         /// <returns></returns>
         /// <remarks></remarks>
         /// <inheritdoc/>
-        protected override async Task<string> SendRequest(int actItemRefno)
+        protected override async Task<string> SendRequest(int activityFkRefno)
         {
-            var results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<tActivityReturnsModel>("SELECT * FROM tActivityReturns WHERE ActivityRefno = ?", Convert.ToInt32(actItemRefno));
+            var results = await DatabaseConnection.GetInstance()
+                .SqlConn.QueryAsync<tActivityReturnsModel>(
+                    "SELECT * FROM tActivityReturns WHERE ActivityFKRefno = ?",
+                    Convert.ToInt32(activityFkRefno));
 
             int returnsFKRefno;
             if (results?.Count > 0)
@@ -170,149 +198,213 @@ namespace dMobile.GroundWork
         /// <inheritdoc/>
         protected override async Task Save(string responseData, int actRefno)
         {
-            await DatabaseConnection.GetInstance().SqlConn.RunInTransactionAsync(transaction =>
-            {
-                try
-                {
-                    using (var ds = new DataSet())
+            await DatabaseConnection.GetInstance()
+                .SqlConn.RunInTransactionAsync(
+                    transaction =>
                     {
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
-
-                        ds.ReadXml(SysCommon.GetXmlReader(ref responseData), XmlReadMode.Auto);
-
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving sales return items.", false);
-
-                        if (ds.Tables.Count != 0)
+                        try
                         {
-                            var progMax = Convert.ToInt32(ds.Tables["tActivityItemReturns"].Rows.Count);
-
-                            this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Records {progMax}", false);
-
-                            var actItemRefno = 0;
-                            var progValue = 0;
-                            var prodUnitRefno = 0;
-                            var locMapRefno = 0;
-                            var actItemReturnsFKRefno = 0;
-
-                            var actItemRetComment = string.Empty;
-
-                            this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
-
-                            foreach (DataRow drow in ds.Tables["tActivityItemReturns"].Rows)
+                            using (var ds = new DataSet())
                             {
-                                transaction.Execute(
-                                    "INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus," +
-                                    " ActivityRefno, ActivityItemIsAdded) VALUES (?, ?, ?, ?)",
-                                    Convert.ToInt32(this.CurrentSubType),
-                                    Convert.ToInt32(SysCommon.ActStatus.NoChange),
-                                    actRefno,
-                                    0);
+                                this.DataAccessStatusOutHandler(
+                                    this,
+                                    EventArgs.Empty,
+                                    "Reading received data.",
+                                    false);
 
-                                actItemRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivityItem"));
-                                prodUnitRefno = this.GetProductUnitRefnoFromDataRow(drow, transaction, false);
-                                locMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, transaction);
-                                actItemReturnsFKRefno = Convert.ToInt32(drow["ActivityItemFKRefno"]);
-                                var queryInsertItem = "INSERT INTO tActivityItemReturns (" +
-                                                      "ActivityItemRefno, " +
-                                                      "ActivityItemSubType, " +
-                                                      "ActivityItemFKRefno, " +
-                                                      "ActivityItemStringFKRefno, " +
-                                                      "ProductUnitRefno, " +
-                                                      "WarehouseLocationMapRefno, " +
-                                                      "ActivityItemReturnsQuantityReturned, " +
-                                                      "ActivityItemReturnsBaseQuantityReturned, " +
-                                                      "ActivityItemReturnsWeightQuantityReturned, " +
-                                                      "ActivityItemReturnsCustomerProductUnitCode, " +
-                                                      "ActivityItemReturnsDescription" +
-                                                      ") VALUES (" +
-                                                      "?, " +
-                                                      "?, " +
-                                                      "?, " +
-                                                      "?, " +
-                                                      "?, " +
-                                                      "?, " +
-                                                      "?, " +
-                                                      "?, " +
-                                                      "?, " +
-                                                      "?, " +
-                                                      "?" +
-                                                      ")";
-                                var parametersInsertItem = new object[]
+                                ds.ReadXml(
+                                    SysCommon.GetXmlReader(ref responseData),
+                                    XmlReadMode.Auto);
+
+                                this.DataAccessStatusOutHandler(
+                                    this,
+                                    EventArgs.Empty,
+                                    "Saving sales return items.",
+                                    false);
+
+                                if (ds.Tables.Count != 0)
                                 {
-                                    Convert.ToInt32(actItemRefno),
-                                    Convert.ToInt32(this.CurrentSubType),
-                                    Convert.ToInt32(actItemReturnsFKRefno),
-                                    Convert.ToString(actItemReturnsFKRefno),
-                                    Convert.ToInt32(prodUnitRefno),
-                                    Convert.ToInt32(locMapRefno),
-                                    Convert.ToDecimal(drow["ActivityItemReturnsQuantityReturned"]),
-                                    Convert.ToDecimal(drow["ActivityItemReturnsBaseQuantityReturned"]),
-                                    Convert.ToDecimal(drow["ActivityItemReturnsWeightQuantityReturned"]),
-                                    Convert.ToString(drow["ActivityItemReturnsCustomerProductUnitCode"]),
-                                    Convert.ToString(drow["ActivityItemReturnsDescription"]),
-                                };
+                                    var progMax = Convert.ToInt32(
+                                        ds.Tables["tActivityItemReturns"].Rows.Count);
 
-                                transaction.Execute(queryInsertItem, parametersInsertItem);
+                                    this.DataAccessStatusOutHandler(
+                                        this,
+                                        EventArgs.Empty,
+                                        $"Records {progMax}",
+                                        false);
 
-                                actItemRetComment = Convert.ToString(drow["ActivityItemReturnsComment"]);
+                                    var actItemRefno = 0;
+                                    var progValue = 0;
+                                    var prodUnitRefno = 0;
+                                    var locMapRefno = 0;
+                                    var actItemReturnsFKRefno = 0;
 
-                                if (!string.IsNullOrEmpty(actItemRetComment))
-                                {
-                                    transaction.Execute("INSERT INTO tActivityItemReturnsComment (ActivityItemRefno, ActivityItemReturnsCommentComment) VALUES (?, ?)", Convert.ToInt32(actItemRefno), Convert.ToString(actItemRetComment));
-                                }
+                                    var actItemRetComment = string.Empty;
 
-                                progValue++;
-                                if (progValue % 100 == 0)
-                                {
-                                    this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue, 0, progMax);
+                                    this.DataAccessProgressOutHandler(
+                                        this,
+                                        EventArgs.Empty,
+                                        0,
+                                        0,
+                                        progMax);
+
+                                    foreach (DataRow drow in ds.Tables["tActivityItemReturns"].Rows)
+                                    {
+                                        transaction.Execute(
+                                            "INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus," +
+                                            " ActivityRefno, ActivityItemIsAdded) VALUES (?, ?, ?, ?)",
+                                            Convert.ToInt32(this.CurrentSubType),
+                                            Convert.ToInt32(SysCommon.ActStatus.NoChange),
+                                            actRefno,
+                                            0);
+
+                                        actItemRefno = Convert.ToInt32(
+                                            transaction.ExecuteScalar<int>(
+                                                "SELECT last_insert_rowid() FROM tActivityItem"));
+                                        prodUnitRefno = this.GetProductUnitRefnoFromDataRow(
+                                            drow,
+                                            transaction,
+                                            false);
+                                        locMapRefno = this.GetWhsLocMapRefnoFromDataRow(
+                                            drow,
+                                            transaction);
+                                        actItemReturnsFKRefno =
+                                            Convert.ToInt32(drow["ActivityItemFKRefno"]);
+                                        var queryInsertItem = "INSERT INTO tActivityItemReturns (" +
+                                                              "ActivityItemRefno, " +
+                                                              "ActivityItemSubType, " +
+                                                              "ActivityItemFKRefno, " +
+                                                              "ActivityItemStringFKRefno, " +
+                                                              "ProductUnitRefno, " +
+                                                              "WarehouseLocationMapRefno, " +
+                                                              "ActivityItemReturnsQuantityReturned, " +
+                                                              "ActivityItemReturnsBaseQuantityReturned, " +
+                                                              "ActivityItemReturnsWeightQuantityReturned, " +
+                                                              "ActivityItemReturnsCustomerProductUnitCode, " +
+                                                              "ActivityItemReturnsDescription" +
+                                                              ") VALUES (" +
+                                                              "?, " +
+                                                              "?, " +
+                                                              "?, " +
+                                                              "?, " +
+                                                              "?, " +
+                                                              "?, " +
+                                                              "?, " +
+                                                              "?, " +
+                                                              "?, " +
+                                                              "?, " +
+                                                              "?" +
+                                                              ")";
+                                        var parametersInsertItem = new object[]
+                                        {
+                                            Convert.ToInt32(actItemRefno),
+                                            Convert.ToInt32(this.CurrentSubType),
+                                            Convert.ToInt32(actItemReturnsFKRefno),
+                                            Convert.ToString(actItemReturnsFKRefno),
+                                            Convert.ToInt32(prodUnitRefno),
+                                            Convert.ToInt32(locMapRefno),
+                                            Convert.ToDecimal(
+                                                drow["ActivityItemReturnsQuantityReturned"]),
+                                            Convert.ToDecimal(
+                                                drow["ActivityItemReturnsBaseQuantityReturned"]),
+                                            Convert.ToDecimal(
+                                                drow["ActivityItemReturnsWeightQuantityReturned"]),
+                                            Convert.ToString(
+                                                drow["ActivityItemReturnsCustomerProductUnitCode"]),
+                                            Convert.ToString(drow["ActivityItemReturnsDescription"])
+                                        };
+
+                                        transaction.Execute(queryInsertItem, parametersInsertItem);
+
+                                        actItemRetComment = Convert.ToString(
+                                            drow["ActivityItemReturnsComment"]);
+
+                                        if (!string.IsNullOrEmpty(actItemRetComment))
+                                        {
+                                            transaction.Execute(
+                                                "INSERT INTO tActivityItemReturnsComment (ActivityItemRefno, ActivityItemReturnsCommentComment) VALUES (?, ?)",
+                                                Convert.ToInt32(actItemRefno),
+                                                Convert.ToString(actItemRetComment));
+                                        }
+
+                                        progValue++;
+                                        if (progValue % 100 == 0)
+                                        {
+                                            this.DataAccessProgressOutHandler(
+                                                this,
+                                                EventArgs.Empty,
+                                                progValue,
+                                                0,
+                                                progMax);
+                                        }
+                                    }
+
+                                    this.DataAccessProgressOutHandler(
+                                        this,
+                                        EventArgs.Empty,
+                                        progMax,
+                                        0,
+                                        progMax);
                                 }
                             }
 
-                            this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
+                            transaction.Commit();
+
+                            this.DataAccessStatusOutHandler(
+                                this,
+                                EventArgs.Empty,
+                                "Saving sales return items complete.",
+                                false);
                         }
-                    }
+                        catch (SQLiteException ex)
+                        {
+                            transaction.Rollback();
 
-                    transaction.Commit();
+                            this.DataAccessStatusOutHandler(
+                                this,
+                                EventArgs.Empty,
+                                "Database exception occurred.",
+                                true);
+                            this.DataAccessStatusOutHandler(
+                                this,
+                                EventArgs.Empty,
+                                "Saving sales return items failed.",
+                                false);
 
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving sales return items complete.", false);
-                }
-                catch (SQLiteException ex)
-                {
-                    transaction.Rollback();
-
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving sales return items failed.", false);
-
-                    throw new Exception("Database exception occurred. Saving sales return items failed.", ex);
-                }
-            });
+                            throw new Exception(
+                                "Database exception occurred. Saving sales return items failed.",
+                                ex);
+                        }
+                    });
         }
 
         /// <summary>
         ///
         /// </summary>
-        /// <param name="activityItemFkRefno"></param>
+        /// <param name="activityFkRefno"></param>
         /// <returns></returns>
         /// <inheritdoc/>
-        protected override async Task<string> CreateRequest(int activityItemFkRefno)
+        protected override async Task<string> CreateRequest(int activityFkRefno)
         {
             var xmlString = new StringBuilder();
             var settings = new XmlWriterSettings
             {
                 Async = true,
-                Indent = false,
+                Indent = false
             };
             var xml = XmlWriter.Create(xmlString, settings);
 
             var request = XDocument.Parse(
-                "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>"
-                + "<imclient>"
-                + "<command>"
-                + "<action>REQUEST SALES RETURN ITEMS</action>"
-                + await SysCommon.GetRequestDefaults(false)
-                + "<refno>" + activityItemFkRefno + "</refno>"
-                + "</command>"
-                + "</imclient>");
+                "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>" +
+                "<imclient>" +
+                "<command>" +
+                "<action>REQUEST SALES RETURN ITEMS</action>" +
+                await SysCommon.GetRequestDefaults(false) +
+                "<refno>" +
+                activityFkRefno +
+                "</refno>" +
+                "</command>" +
+                "</imclient>");
 
             request.Save(xml);
             await xml.FlushAsync();
@@ -351,7 +443,7 @@ namespace dMobile.GroundWork
             throw new NotImplementedException();
         }
 
-        protected override Task<string> CreateRequest(XDocument criteria)
+        protected override Task<string> CreateRequest(XDocument criteriaFilter)
         {
             throw new NotImplementedException();
         }
@@ -361,12 +453,12 @@ namespace dMobile.GroundWork
             throw new NotImplementedException();
         }
 
-        protected override Task<string> CreateRequest(int activityItemFkRefno, XDocument criteria)
+        protected override Task<string> CreateRequest(int activityFkRefno, XDocument criteria)
         {
             throw new NotImplementedException();
         }
 
-        protected override Task<string> CreateRequest(int prodLocMapType, int whsLocMapFKRefno)
+        protected override Task<string> CreateRequest(int prodLocMapType, int whsLocMapFkRefno)
         {
             throw new NotImplementedException();
         }

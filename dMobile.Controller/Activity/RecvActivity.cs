@@ -205,12 +205,12 @@ namespace dMobile.Controller.Activity
             gridMainActivity.Children.Add(gridHeader);
 
             var observableCollection = new ObservableCollection<object>();
-            foreach (Receive receive in this.ListHeaders)
+            foreach (var receive in this.ListHeaders.Cast<Receive>())
             {
                 observableCollection.Add(receive);
             }
 
-            foreach (Receive receive in observableCollection)
+            foreach (var receive in observableCollection.Cast<Receive>())
             {
                 var detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(
                     receive.ActivityReceivingPONumber);
@@ -397,7 +397,7 @@ namespace dMobile.Controller.Activity
 
             this.ListHeaders = this.listReceives.Where(receive => receive.ActivityReceivingPONumber.ToLower().Contains(
                 searchText.ToLower().Trim())).Cast<object>().ToList();
-            foreach (Receive receive in this.ListHeaders)
+            foreach (var receive in this.ListHeaders.Cast<Receive>())
             {
                 observableCollection.Add(receive);
             }
@@ -481,9 +481,9 @@ namespace dMobile.Controller.Activity
 
                 var tableActReceiving = new TableActivityReceiving();
 
-                tableActReceiving.RegisterDataAccessListenerProgressOut((RecvActivity)this);
+                tableActReceiving.RegisterDataAccessListenerProgressOut(this);
                 await tableActReceiving.RequestHeaderData();
-                tableActReceiving.UnregisterDataAccessListenerProgressOut((RecvActivity)this);
+                tableActReceiving.UnregisterDataAccessListenerProgressOut(this);
             }
         }
 

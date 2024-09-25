@@ -141,7 +141,7 @@ namespace dMobile.Controller.Activity_Item
             if (actItemFoundRefno >= 0)
             {
                 var idx = 0;
-                foreach (ReturnItem item in this.ListItems)
+                foreach (var item in this.ListItems.Cast<ReturnItem>())
                 {
                     if (item.ActivityItemRefno == this.ItemRefno)
                     {
@@ -350,9 +350,9 @@ namespace dMobile.Controller.Activity_Item
 
                 this.DataLayerProgressOutHandler(this, EventArgs.Empty, 5);
 
-                tableActReturnsItem.RegisterDataAccessListenerProgressOut((ReturnsActItem)this);
-                await tableActReturnsItem.RequestItemData(this.ActHdr.HdrRefno);
-                tableActReturnsItem.UnregisterDataAccessListenerProgressOut((ReturnsActItem)this);
+                tableActReturnsItem.RegisterDataAccessListenerProgressOut(this);
+                await tableActReturnsItem.RequestItemData(this.ActHdr.HdrFkRefno, this.ActHdr.HdrRefno);
+                tableActReturnsItem.UnregisterDataAccessListenerProgressOut(this);
             }
         }
 
@@ -408,7 +408,7 @@ namespace dMobile.Controller.Activity_Item
 
             gridMainActivity.Children.Add(gridHeaderReturns);
 
-            foreach (ReturnItem returnItem in this.ListItems)
+            foreach (var returnItem in this.ListItems.Cast<ReturnItem>())
             {
                 observableCollection.Add(returnItem);
 
@@ -639,7 +639,7 @@ namespace dMobile.Controller.Activity_Item
             // TODO: Fix filtering
             // this.DataViewItems.RowFilter = this.ActItemFilter + " AND ProductCode LIKE \'" + searchText.Trim() + "%\'";
             // }
-            foreach (ReturnItem returnItem in this.ListItems)
+            foreach (var returnItem in this.ListItems.Cast<ReturnItem>())
             {
                 observableCollection.Add(returnItem);
             }

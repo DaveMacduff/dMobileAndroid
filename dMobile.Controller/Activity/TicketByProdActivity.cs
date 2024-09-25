@@ -131,7 +131,7 @@ namespace dMobile.Controller.Activity
         {
             var observableCollection = new ObservableCollection<object>();
 
-            foreach (ProductionTicketByProduct productionTicketByProduct in this.ListHeaders)
+            foreach (var productionTicketByProduct in this.ListHeaders.Cast<ProductionTicketByProduct>())
             {
                 // ProductionTicketByProduct productionTicket = new ProductionTicketByProduct
                 // {
@@ -182,7 +182,7 @@ namespace dMobile.Controller.Activity
 
             gridMainActivity.Children.Add(gridHeader);
 
-            foreach (ProductionTicketByProduct productionTicket in observableCollection)
+            foreach (var productionTicket in observableCollection.Cast<ProductionTicketByProduct>())
             {
                 var dataColumnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(productionTicket.ActivityStringFKRefno);
                 var dataColumnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(Convert.ToString(productionTicket.ActivityProductionDateTime.ToString("MM/dd/yyyy")));
@@ -344,7 +344,7 @@ namespace dMobile.Controller.Activity
 
             this.ListHeaders = this.listProductionTicketByProducts.Where(prodTicket => prodTicket.ActivityStringFKRefno.ToLower().Contains(searchText.ToLower().Trim())).Cast<object>().ToList();
 
-            foreach (ProductionTicketByProduct productionTicketByProduct in this.ListHeaders)
+            foreach (var productionTicketByProduct in this.ListHeaders.Cast<ProductionTicketByProduct>())
             {
                 // ProductionTicketByProduct productionTicket = new ProductionTicketByProduct
                 // {
@@ -440,9 +440,9 @@ namespace dMobile.Controller.Activity
 
                 var tableActTicketByProduct = new TableActivityProductionTicketByProduct();
 
-                tableActTicketByProduct.RegisterDataAccessListenerProgressOut((TicketByProdActivity)this);
+                tableActTicketByProduct.RegisterDataAccessListenerProgressOut(this);
                 await tableActTicketByProduct.RequestHeaderData();
-                tableActTicketByProduct.UnregisterDataAccessListenerProgressOut((TicketByProdActivity)this);
+                tableActTicketByProduct.UnregisterDataAccessListenerProgressOut(this);
             }
         }
 

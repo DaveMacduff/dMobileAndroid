@@ -166,7 +166,7 @@ namespace dMobile.Controller.Activity_Item
             if (actItemFoundRefno >= 0)
             {
                 var idx = 0;
-                foreach (PickingItem item in this.ListItems)
+                foreach (var item in this.ListItems.Cast<PickingItem>())
                 {
                     if (item.ActivityItemRefno == this.ItemRefno)
                     {
@@ -605,9 +605,9 @@ namespace dMobile.Controller.Activity_Item
 
                 this.DataLayerProgressOutHandler(this, EventArgs.Empty, 5);
 
-                tableActPickItem.RegisterDataAccessListenerProgressOut((PickSingleActItem)this);
-                await tableActPickItem.RequestItemData(this.ActHdr.HdrRefno, data);
-                tableActPickItem.UnregisterDataAccessListenerProgressOut((PickSingleActItem)this);
+                tableActPickItem.RegisterDataAccessListenerProgressOut(this);
+                await tableActPickItem.RequestItemData(this.ActHdr.HdrFkRefno, data, this.ActHdr.HdrRefno);
+                tableActPickItem.UnregisterDataAccessListenerProgressOut(this);
             }
         }
 
@@ -725,7 +725,7 @@ namespace dMobile.Controller.Activity_Item
 
             gridMainActivity.Children.Add(gridHeaderPicking);
 
-            foreach (PickingItem pickingItem in this.ListItems)
+            foreach (var pickingItem in this.ListItems.Cast<PickingItem>())
             {
                 // PickingItem pickingItem = new PickingItem
                 // {
@@ -1031,7 +1031,7 @@ namespace dMobile.Controller.Activity_Item
             // TODO: Fix filtering
             // this.DataViewItems.RowFilter = this.ActItemFilter + " AND ProductCode LIKE \'%" + searchText.Trim() + "%\'";
             // }
-            foreach (PickingItem pickingItem in this.ListItems)
+            foreach (var pickingItem in this.ListItems.Cast<PickingItem>())
             {
                 // PickingItem pickingItem = new PickingItem
                 // {

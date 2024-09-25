@@ -148,7 +148,7 @@ namespace dMobile.Controller.Activity_Item
             if (actItemFoundRefno >= 0)
             {
                 var idx = 0;
-                foreach (AdjustmentItem item in this.ListItems)
+                foreach (var item in this.ListItems.Cast<AdjustmentItem>())
                 {
                     if (item.ActivityItemRefno == this.ItemRefno)
                     {
@@ -399,7 +399,7 @@ namespace dMobile.Controller.Activity_Item
                 this.DataLayerProgressOutHandler(this, EventArgs.Empty, 5);
 
                 adjItem.RegisterDataAccessListenerProgressOut(this);
-                await adjItem.RequestItemData(this.ActHdr.HdrRefno);
+                await adjItem.RequestItemData(this.ActHdr.HdrFkRefno, this.ActHdr.HdrRefno);
                 adjItem.UnregisterDataAccessListenerProgressOut(this);
             }
         }
@@ -507,7 +507,7 @@ namespace dMobile.Controller.Activity_Item
 
             gridMainActivity.Children.Add(gridHeader);
 
-            foreach (AdjustmentItem adjustmentItem in observableCollection)
+            foreach (var adjustmentItem in observableCollection.Cast<AdjustmentItem>())
             {
                 var detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(adjustmentItem.ProductCode);
                 var detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(adjustmentItem.ProductUnitBC);

@@ -342,7 +342,7 @@ namespace dMobile.Controller.Activity_Detail
         public override ObservableCollection<object> DesignGrid(ref Grid gridMain, ref ListView listViewMain)
         {
             var observableCollection = new ObservableCollection<object>();
-            foreach (ConvertUnitDetail convertUnitDetail in this.ListDetails)
+            foreach (var convertUnitDetail in this.ListDetails.Cast<ConvertUnitDetail>())
             {
                 observableCollection.Add(convertUnitDetail);
             }
@@ -399,7 +399,7 @@ namespace dMobile.Controller.Activity_Detail
 
             gridMain.Children.Add(gridHeader);
 
-            foreach (ConvertUnitDetail convertUnitDetail in observableCollection)
+            foreach (var convertUnitDetail in observableCollection.Cast<ConvertUnitDetail>())
             {
                 var detailWidth0 = DependencyService.Get<IGridService>()
                     .CalculateTextWidth(Convert.ToString(convertUnitDetail.CountNumber));

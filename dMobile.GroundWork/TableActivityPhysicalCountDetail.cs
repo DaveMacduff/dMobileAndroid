@@ -132,14 +132,14 @@ namespace dMobile.GroundWork
         /// <summary>
         ///     Send the request to the comm server.
         /// </summary>
-        /// <param name="actItemRefno">Activity item reference number.</param>
+        /// <param name="activityFkRefnoActivity item reference number.</param>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-        protected override async Task<string> SendRequest(int actItemRefno)
+        protected override async Task<string> SendRequest(int activityFkRefno)
         {
             const string query = "SELECT * FROM tActivityItemCount WHERE ActivityItemRefno = ?";
             var results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<tActivityItemCountModel>(
                 query,
-                actItemRefno);
+                activityFkRefno);
 
             int actItemCountFkRefno;
             if (results != null && results.Count > 0)
@@ -148,7 +148,7 @@ namespace dMobile.GroundWork
             }
             else
             {
-                throw new Exception("No results in tActivityItemCount for ActivityItemRefno " + actItemRefno);
+                throw new Exception("No results in tActivityItemCount for ActivityItemRefno " + activityFkRefno);
             }
 
             return await this.SendComm(await this.CreateRequest(actItemCountFkRefno));
@@ -275,9 +275,9 @@ namespace dMobile.GroundWork
         /// <summary>
         /// The Create.
         /// </summary>
-        /// <param name="activityItemFkRefno"></param>
+        /// <param name="activityFkRefno"></param>
         /// <returns></returns>
-        protected override async Task<string> CreateRequest(int activityItemFkRefno)
+        protected override async Task<string> CreateRequest(int activityFkRefno)
         {
             var xmlString = new StringBuilder();
             var settings = new XmlWriterSettings
@@ -292,7 +292,7 @@ namespace dMobile.GroundWork
                 <command>
                 <action>REQUEST PHYSICAL COUNT DETAILS</action>
                 {await SysCommon.GetRequestDefaults(false)}
-                <itm_refno>{activityItemFkRefno}</itm_refno>
+                <itm_refno>{activityFkRefno}</itm_refno>
                 </command>
                 </imclient>");
 
@@ -308,7 +308,7 @@ namespace dMobile.GroundWork
             throw new NotImplementedException();
         }
 
-        protected override Task<string> CreateRequest(XDocument criteria)
+        protected override Task<string> CreateRequest(XDocument criteriaFilter)
         {
             throw new NotImplementedException();
         }
@@ -343,12 +343,12 @@ namespace dMobile.GroundWork
             throw new NotImplementedException();
         }
 
-        protected override Task<string> CreateRequest(int activityItemFkRefno, XDocument criteria)
+        protected override Task<string> CreateRequest(int activityFkRefno, XDocument criteria)
         {
             throw new NotImplementedException();
         }
 
-        protected override Task<string> CreateRequest(int prodLocMapType, int whsLocMapFKRefno)
+        protected override Task<string> CreateRequest(int prodLocMapType, int whsLocMapFkRefno)
         {
             throw new NotImplementedException();
         }

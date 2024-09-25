@@ -539,9 +539,9 @@ namespace dMobile.Controller.Activity_Detail
 
                 this.DataLayerProgressOutHandler(this, EventArgs.Empty, 5);
 
-                tableActRecvDetail.RegisterDataAccessListenerProgressOut((RecvActDetail)this);
-                await tableActRecvDetail.RequestDetailData(this.ActItem.ItemRefno);
-                tableActRecvDetail.UnregisterDataAccessListenerProgressOut((RecvActDetail)this);
+                tableActRecvDetail.RegisterDataAccessListenerProgressOut(this);
+                await tableActRecvDetail.RequestDetailData(this.ActItem.ItemFkRefno, this.ActItem.ItemRefno);
+                tableActRecvDetail.UnregisterDataAccessListenerProgressOut(this);
             }
         }
 
@@ -937,7 +937,7 @@ namespace dMobile.Controller.Activity_Detail
         {
             var observableCollection = new ObservableCollection<object>();
 
-            foreach (ReceiveDetail receiveDetail in this.ListDetails)
+            foreach (var receiveDetail in this.ListDetails.Cast<ReceiveDetail>())
             {
                 observableCollection.Add(receiveDetail);
             }
@@ -1012,7 +1012,7 @@ namespace dMobile.Controller.Activity_Detail
 
             gridMain.Children.Add(gridHeader);
 
-            foreach (ReceiveDetail receiveDetail in observableCollection)
+            foreach (var receiveDetail in observableCollection.Cast<ReceiveDetail>())
             {
                 var detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(
                     $"{receiveDetail.ActivityDetailQuantity:F3}");
@@ -1063,7 +1063,7 @@ namespace dMobile.Controller.Activity_Detail
             this.ListDetails = this.ListReceiveDetails.Where(adjDetail =>
                 adjDetail.ActivityDetailSchemeID.ToUpper().Contains(searchText.ToUpper().Trim())).Cast<object>().ToList();
 
-            foreach (ReceiveDetail receiveDetail in this.ListDetails)
+            foreach (var receiveDetail in this.ListDetails.Cast<ReceiveDetail>())
             {
                 observableCollection.Add(receiveDetail);
             }

@@ -759,25 +759,19 @@ namespace dMobile.Controller.Activity_Item
         /// <returns>The <see cref="Task"/>.</returns>
         public override async Task Refresh(XDocument data)
         {
-            if (this.SysEnv.SysSettings.IsDisconnectedMode)
+            var tableActPickingItem = new TableActivityPickingItem();
+            var tableActPickingDetail = new TableActivityPickingDetail();
+            tableActPickingItem.RegisterDataAccessListenerProgressOut(this);
+            this.DataLayerProgressOutHandler(this, EventArgs.Empty, 1);
+            if (!this.SysEnv.SysSettings.IsDisconnectedMode)
             {
-                this.DataLayerProgressOutHandler(this, EventArgs.Empty, 5);
-            }
-            else
-            {
-                this.DataLayerProgressOutHandler(this, EventArgs.Empty, 2);
-
-                var tableActPickingItem = new TableActivityPickingItem();
-                var tableActPickingDetail = new TableActivityPickingDetail();
                 await tableActPickingDetail.PurgeData();
                 await tableActPickingItem.PurgeData();
-
-                this.DataLayerProgressOutHandler(this, EventArgs.Empty, 5);
-
-                tableActPickingItem.RegisterDataAccessListenerProgressOut((PickingActItem)this);
-                await tableActPickingItem.RequestItemData(this.ActHdr.HdrRefno, data);
-                tableActPickingItem.UnregisterDataAccessListenerProgressOut((PickingActItem)this);
             }
+            this.DataLayerProgressOutHandler(this, EventArgs.Empty, 3);
+            await tableActPickingItem.RequestItemData(this.ActHdr.HdrFkRefno, data, this.ActHdr.HdrRefno);
+            this.DataLayerProgressOutHandler(this, EventArgs.Empty, 5);
+            tableActPickingItem.UnregisterDataAccessListenerProgressOut(this);
         }
 
         /// <summary>
@@ -794,7 +788,7 @@ namespace dMobile.Controller.Activity_Item
             var items = new ObservableCollection<Object>();
             var positiveRefnoItems = new List<PickingItem>();
             var negativeRefnoItems = new List<PickingItem>();
-            foreach (PickingItem pickingItem in this.ListItems)
+            foreach (var pickingItem in this.ListItems.Cast<PickingItem>())
             {
                 if (pickingItem.ActivityItemFKRefno >= 0)
                 {
@@ -806,12 +800,12 @@ namespace dMobile.Controller.Activity_Item
                 }
             }
 
-            foreach (var item in positiveRefnoItems)
+            foreach (var item in positiveRefnoItems.Cast<PickingItem>())
             {
                 items.Add(item);
             }
 
-            foreach (var item in negativeRefnoItems)
+            foreach (var item in negativeRefnoItems.Cast<PickingItem>())
             {
                 items.Add(item);
             }
@@ -1137,7 +1131,7 @@ namespace dMobile.Controller.Activity_Item
             this.ListItems = this.ListPickingItems.Where(pickingItem => pickingItem.ProductCode.ToString().ToLower()
                 .Contains(searchText.ToLower().Trim())).Cast<object>().ToList();
 
-            foreach (PickingItem pickingItem in this.ListItems)
+            foreach (var pickingItem in this.ListItems.Cast<PickingItem>())
             {
                 observableCollection.Add(pickingItem);
             }
@@ -1575,7 +1569,7 @@ namespace dMobile.Controller.Activity_Item
 
                 if (results != null)
                 {
-                    foreach (dynamic pickingItem in results)
+                    foreach (dynamic pickingItem in results.Cast<PickingDetail>())
                     {
                         // Because an aggregate sum function is used in a query. There will always be a result record.
                         // This causes problems detecting if there is nothing to sum, resulting in null.

@@ -151,7 +151,7 @@ namespace dMobile.Controller.Activity_Item
             if (actItemFoundRefno >= 0)
             {
                 var idx = 0;
-                foreach (CountItem item in this.ListItems)
+                foreach (var item in this.ListItems.Cast<CountItem>())
                 {
                     if (item.ActivityItemRefno == this.ItemRefno)
                     {
@@ -417,9 +417,9 @@ namespace dMobile.Controller.Activity_Item
 
                 this.DataLayerProgressOutHandler(this, EventArgs.Empty, 5);
 
-                tableItem.RegisterDataAccessListenerProgressOut((PhysicalActItem)this);
-                await tableItem.RequestItemData(this.ActHdr.HdrRefno);
-                tableItem.UnregisterDataAccessListenerProgressOut((PhysicalActItem)this);
+                tableItem.RegisterDataAccessListenerProgressOut(this);
+                await tableItem.RequestItemData(this.ActHdr.HdrRefno, this.ActHdr.HdrFkRefno);
+                tableItem.UnregisterDataAccessListenerProgressOut(this);
             }
         }
 
@@ -434,7 +434,7 @@ namespace dMobile.Controller.Activity_Item
             var observableCollection = new ObservableCollection<object>();
 
             // Add all items in data view to observable collection for display
-            foreach (CountItem countItem in this.ListItems)
+            foreach (var countItem in this.ListItems.Cast<CountItem>())
             {
                 observableCollection.Add(countItem);
             }
@@ -489,7 +489,7 @@ namespace dMobile.Controller.Activity_Item
 
             gridMainActivity.Children.Add(gridHeaderPhysicalCount);
 
-            foreach (CountItem countItem in observableCollection)
+            foreach (var countItem in observableCollection.Cast<CountItem>())
             {
                 var detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(Convert.ToString(countItem.ProductCode));
                 var detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(countItem.ProductUnitBC);
@@ -906,7 +906,7 @@ namespace dMobile.Controller.Activity_Item
             this.ListItems = this.ListCountItems.Where(countItem => countItem.ProductCode.ToString().ToLower()
                 .Contains(searchText.ToLower().Trim())).Cast<object>().ToList();
 
-            foreach (CountItem countItem in this.ListItems)
+            foreach (var countItem in this.ListItems.Cast<CountItem>())
             {
                 observableCollection.Add(countItem);
             }

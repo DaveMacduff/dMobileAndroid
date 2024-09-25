@@ -457,7 +457,7 @@ namespace dMobile.Controller.Activity_Detail
                 this.DataLayerProgressOutHandler(this, EventArgs.Empty, 5);
 
                 adjDetail.RegisterDataAccessListenerProgressOut(this);
-                await adjDetail.RequestDetailData(this.ActItem.ItemRefno);
+                await adjDetail.RequestDetailData(this.ActItem.ItemFkRefno, this.ActItem.ItemRefno);
                 adjDetail.UnregisterDataAccessListenerProgressOut(this);
             }
         }

@@ -929,42 +929,35 @@ namespace dMobile.View.Activity
             //////////////////////////////////////////////////////////////////////////
             async Task RefreshDataBySubType()
             {
-                await RefreshData();
-                return;
-
-                //////////////////////////////////////////////////////////////////////////
-                async Task RefreshData()
+                try
                 {
-                    try
+                    this.ActItem.RegLayerListenerProgOut(this);
+                    this.ActItem.RegLayerListenerStatOut(this);
+                    if (!this.SysEnv.SysSettings.IsDisconnectedMode)
                     {
-                        this.ActItem.RegLayerListenerProgOut(this);
-                        this.ActItem.RegLayerListenerStatOut(this);
-                        await Device.InvokeOnMainThreadAsync(async () =>
-                        {
-                            await this.ActItem.Refresh(this.ActItem.ActHdr.XmlDataCriteria);
-                            await Device.InvokeOnMainThreadAsync(() => this.ActItem.ListItems.Clear());
-                            this.ActItem.ListItems = await this.ActItem.GetActivityItemList(false);
-                            return Task.CompletedTask;
-                        });
+                        await this.ActItem.Refresh(this.ActItem.ActHdr.XmlDataCriteria);
                     }
-                    catch (Exception ex)
+
+                    this.ActItem.ListItems.Clear();
+                    this.ActItem.ListItems = await this.ActItem.GetActivityItemList(false);
+                }
+                catch (Exception ex)
+                {
+                    await Device.InvokeOnMainThreadAsync(async () =>
                     {
-                        await Device.InvokeOnMainThreadAsync(async () =>
-                        {
-                            var errRpt = new FormErrorReport(
-                                this.ActSubType,
-                                ex,
-                                this.ActItem.GetControlDescription(),
-                                "Refresh");
-                            _ = await errRpt.ShowDialog();
-                            return Task.CompletedTask;
-                        });
-                    }
-                    finally
-                    {
-                        this.ActItem.UnregLayerListenerProgOut(this);
-                        this.ActItem.UnregLayerListenerStatOut(this);
-                    }
+                        var errRpt = new FormErrorReport(
+                            this.ActSubType,
+                            ex,
+                            this.ActItem.GetControlDescription(),
+                            "Refresh");
+                        _ = await errRpt.ShowDialog();
+                        return Task.CompletedTask;
+                    });
+                }
+                finally
+                {
+                    this.ActItem.UnregLayerListenerProgOut(this);
+                    this.ActItem.UnregLayerListenerStatOut(this);
                 }
             }
         }

@@ -131,7 +131,7 @@ namespace dMobile.Controller.Activity
         {
             var observableCollection = new ObservableCollection<object>();
 
-            foreach (ProductionTicketMaterial productionTicket in this.ListHeaders)
+            foreach (var productionTicket in this.ListHeaders.Cast<ProductionTicketMaterial>())
             {
                 // ProductionTicketMaterial productionTicket = new ProductionTicketMaterial
                 // {
@@ -182,7 +182,7 @@ namespace dMobile.Controller.Activity
 
             gridMainActivity.Children.Add(gridHeader);
 
-            foreach (ProductionTicketMaterial productionTicket in observableCollection)
+            foreach (var productionTicket in observableCollection.Cast<ProductionTicketMaterial>())
             {
                 var dataColumnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(productionTicket.ActivityStringFKRefno);
                 var dataColumnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(Convert.ToString(productionTicket.ActivityProductionDateTime.ToString("MM/dd/yyyy")));
@@ -354,7 +354,7 @@ namespace dMobile.Controller.Activity
             // TODO: Fix filtering
             // this.DataViewHdrs.RowFilter = this.ActFilter + " AND ActivityStringFKRefno LIKE \'%" + searchText.Trim() + "%\'";
             // }
-            foreach (ProductionTicketMaterial productionTicket in this.ListHeaders)
+            foreach (var productionTicket in this.ListHeaders.Cast<ProductionTicketMaterial>())
             {
                 // ProductionTicketMaterial productionTicket = new ProductionTicketMaterial
                 // {
@@ -450,9 +450,9 @@ namespace dMobile.Controller.Activity
 
                 var tableTicketMaterial = new TableActivityProductionTicketMaterial();
 
-                tableTicketMaterial.RegisterDataAccessListenerProgressOut((TicketMaterialActivity)this);
+                tableTicketMaterial.RegisterDataAccessListenerProgressOut(this);
                 await tableTicketMaterial.RequestHeaderData();
-                tableTicketMaterial.UnregisterDataAccessListenerProgressOut((TicketMaterialActivity)this);
+                tableTicketMaterial.UnregisterDataAccessListenerProgressOut(this);
             }
         }
 

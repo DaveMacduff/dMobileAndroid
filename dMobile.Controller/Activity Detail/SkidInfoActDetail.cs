@@ -450,7 +450,7 @@ namespace dMobile.Controller.Activity_Detail
         {
             var observableCollection = new ObservableCollection<object>();
 
-            foreach (SkidInfoDetail skidInfoDetail in this.ListDetails)
+            foreach (var skidInfoDetail in this.ListDetails.Cast<SkidInfoDetail>())
             {
                 observableCollection.Add(skidInfoDetail);
             }
@@ -521,7 +521,7 @@ namespace dMobile.Controller.Activity_Detail
 
             gridMain.Children.Add(gridHeader);
 
-            foreach (SkidInfoDetail skidInfoDetail in observableCollection)
+            foreach (var skidInfoDetail in observableCollection.Cast<SkidInfoDetail>())
             {
                 var detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(
                     $"{skidInfoDetail.ActivityDetailQuantity:F3}");

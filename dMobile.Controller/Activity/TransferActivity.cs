@@ -147,7 +147,7 @@ namespace dMobile.Controller.Activity
         {
             var observableCollection = new ObservableCollection<object>();
 
-            foreach (Transfer transfer in this.ListHeaders)
+            foreach (var transfer in this.ListHeaders.Cast<Transfer>())
             {
                 // Transfer transfer = new Transfer
                 // {
@@ -204,7 +204,7 @@ namespace dMobile.Controller.Activity
 
             gridMainActivity.Children.Add(gridHeader);
 
-            foreach (Transfer transfer in observableCollection)
+            foreach (var transfer in observableCollection.Cast<Transfer>())
             {
                 var detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(transfer.ActivityStringFKRefno);
                 var detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(Convert.ToString(transfer.LocationMapWarehouseFKRefno));
@@ -362,7 +362,7 @@ namespace dMobile.Controller.Activity
 
             this.ListHeaders = this.listTransfers.Where(transfer => transfer.ActivityStringFKRefno.ToLower().Contains(searchText.ToLower().Trim())).Cast<object>().ToList();
 
-            foreach (Transfer transfer in this.ListHeaders)
+            foreach (var transfer in this.ListHeaders.Cast<Transfer>())
             {
                 // Transfer transfer = new Transfer
                 // {
@@ -461,16 +461,16 @@ namespace dMobile.Controller.Activity
                 if (this.ActSubType == SysCommon.ActSubTypes.TransferFrom)
                 {
                     var tableActTransfer = new TableActivityTransferFrom();
-                    tableActTransfer.RegisterDataAccessListenerProgressOut((TransferActivity)this);
+                    tableActTransfer.RegisterDataAccessListenerProgressOut(this);
                     await tableActTransfer.RequestHeaderData();
-                    tableActTransfer.UnregisterDataAccessListenerProgressOut((TransferActivity)this);
+                    tableActTransfer.UnregisterDataAccessListenerProgressOut(this);
                 }
                 else
                 {
                     var tableActTransfer = new TableActivityTransferTo();
-                    tableActTransfer.RegisterDataAccessListenerProgressOut((TransferActivity)this);
+                    tableActTransfer.RegisterDataAccessListenerProgressOut(this);
                     await tableActTransfer.RequestHeaderData();
-                    tableActTransfer.UnregisterDataAccessListenerProgressOut((TransferActivity)this);
+                    tableActTransfer.UnregisterDataAccessListenerProgressOut(this);
                 }
             }
         }

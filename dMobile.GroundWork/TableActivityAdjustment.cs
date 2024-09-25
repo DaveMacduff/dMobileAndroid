@@ -5,26 +5,24 @@
 namespace dMobile.GroundWork
 {
     using System;
-    using System.Collections.Generic;
     using System.Data;
     using System.Text;
     using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
-    using dMobile.Bedrock;
-    using dMobile.Resources.Models;
+    using Bedrock;
+    using Resources.Models;
     using SQLite;
 
     /// <summary>
-    /// Defines the <see cref="TableActivityAdjustment" />.
+    ///     Defines the <see cref="TableActivityAdjustment" />.
     /// </summary>
     public class TableActivityAdjustment : TableBase
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="TableActivityAdjustment"/> class.
+        ///     Initializes a new instance of the <see cref="TableActivityAdjustment" /> class.
         /// </summary>
         public TableActivityAdjustment()
-          : base()
         {
             this.FullClassName = "dMobile.GroundWork.TableActivityAdjustment";
             this.CurrentSubType = SysCommon.ActSubTypes.Adjustment;
@@ -33,196 +31,262 @@ namespace dMobile.GroundWork
         }
 
         /// <summary>
-        /// Purge the activity header data.
+        ///     Purge the activity header data.
         /// </summary>
-        /// <returns><see cref="Task"/> Task complete.</returns>
+        /// <returns><see cref="Task" /> Task complete.</returns>
         public override async Task PurgeData()
         {
-            this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName}.", true);
+            this.DataAccessStatusOutHandler(
+                this,
+                EventArgs.Empty,
+                $"Purging {this.LowerCaseName}.",
+                true);
             var conn = DatabaseConnection.GetInstance().SqlConn;
             var subType = Convert.ToInt32(this.CurrentSubType);
-            await conn.RunInTransactionAsync(transaction =>
-            {
-                try
+            await conn.RunInTransactionAsync(
+                transaction =>
                 {
-                    // Corruption recovery cleanup.
-                    var query = @"
-                        DELETE FROM tActivityAdjustment
-                            WHERE tActivityAdjustment.ActivityRefno <= 0
-                                OR tActivityAdjustment.ActivityFKRefno <= 0";
-                    transaction.Execute(query);
+                    try
+                    {
+                        // Corruption recovery cleanup.
+                        var query = @"
+                            DELETE FROM tActivityAdjustment
+                                WHERE tActivityAdjustment.ActivityRefno <= 0
+                                    OR tActivityAdjustment.ActivityFKRefno <= 0";
+                        transaction.Execute(query);
 
-                    query = @"
-                        DELETE FROM tActivityAdjustment
-                            WHERE tActivityAdjustment.ActivityRefno
-                                NOT IN (SELECT tActivity.ActivityRefno FROM tActivity)";
-                    transaction.Execute(query);
+                        query = @"
+                            DELETE FROM tActivityAdjustment
+                                WHERE tActivityAdjustment.ActivityRefno
+                                    NOT IN (SELECT tActivity.ActivityRefno FROM tActivity)";
+                        transaction.Execute(query);
 
-                    query = "DELETE FROM tActivity WHERE tActivity.ActivityRefno <= 0";
-                    transaction.Execute(query);
+                        query = "DELETE FROM tActivity WHERE tActivity.ActivityRefno <= 0";
+                        transaction.Execute(query);
 
-                    // REGULAR PURGE
-                    query = "DELETE FROM tActivityAdjustment WHERE tActivityAdjustment.ActivitySubType = ?";
-                    transaction.Execute(query, subType);
+                        // REGULAR PURGE
+                        query =
+                            "DELETE FROM tActivityAdjustment WHERE tActivityAdjustment.ActivitySubType = ?";
+                        transaction.Execute(query, subType);
 
-                    query = "DELETE FROM tActivity WHERE tActivity.ActivitySubType = ?";
-                    transaction.Execute(query, subType);
+                        query = "DELETE FROM tActivity WHERE tActivity.ActivitySubType = ?";
+                        transaction.Execute(query, subType);
 
-                    transaction.Commit();
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} complete.", true);
-                }
-                catch (SQLiteException sqlEx)
-                {
-                    transaction.Rollback();
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"{sqlEx.Message}", true);
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} failed.", true);
-                    throw;
-                }
-                catch
-                {
-                    transaction.Rollback();
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} failed.", true);
-                    throw;
-                }
-            });
+                        transaction.Commit();
+                        this.DataAccessStatusOutHandler(
+                            this,
+                            EventArgs.Empty,
+                            $"Purging {this.LowerCaseName} complete.",
+                            true);
+                    }
+                    catch (SQLiteException sqlEx)
+                    {
+                        transaction.Rollback();
+                        this.DataAccessStatusOutHandler(
+                            this,
+                            EventArgs.Empty,
+                            "Database exception occurred.",
+                            true);
+                        this.DataAccessStatusOutHandler(
+                            this,
+                            EventArgs.Empty,
+                            $"{sqlEx.Message}",
+                            true);
+                        this.DataAccessStatusOutHandler(
+                            this,
+                            EventArgs.Empty,
+                            $"Purging {this.LowerCaseName} failed.",
+                            true);
+                        throw;
+                    }
+                    catch
+                    {
+                        transaction.Rollback();
+                        this.DataAccessStatusOutHandler(
+                            this,
+                            EventArgs.Empty,
+                            $"Purging {this.LowerCaseName} failed.",
+                            true);
+                        throw;
+                    }
+                });
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="responseData"></param>
-        /// <remarks></remarks>
-        /// <inheritdoc/>
         protected override async Task Save(string responseData)
         {
             var errMsg = string.Empty;
 
-            await DatabaseConnection.GetInstance().SqlConn.RunInTransactionAsync(transaction =>
-            {
-                try
-                {
-                    using var ds = new DataSet();
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received responseData.", false);
-
-                    ds.ReadXml(SysCommon.GetXmlReader(ref responseData), XmlReadMode.Auto);
-
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving adjustments.", false);
-
-                    // Receiving schema but no responseData results in no table being created in the dataset.
-                    if (ds.Tables.Count != 0)
+            await DatabaseConnection.GetInstance()
+                .SqlConn.RunInTransactionAsync(
+                    transaction =>
                     {
-                        var progMax = Convert.ToInt32(ds.Tables["tActivityAdjustment"].Rows.Count);
-
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Records {progMax}", false);
-
-                        var actRefno = 0;
-                        var progValue = 0;
-                        var whsLocMapRefno = 0;
-                        var actAdjTypeDesc = string.Empty;
-                        var adjFKRefno = 0;
-
-                        this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
-
-                        foreach (DataRow drow in ds.Tables["tActivityAdjustment"].Rows)
+                        try
                         {
-                            actRefno = 0;
-                            actAdjTypeDesc = string.Empty;
-                            adjFKRefno = 0;
-                            whsLocMapRefno = 0;
+                            using var ds = new DataSet();
+                            this.DataAccessStatusOutHandler(
+                                this,
+                                EventArgs.Empty,
+                                "Reading received responseData.",
+                                false);
 
-                            var warehouseResults = transaction.Query<tLocationMapWarehouseModel>(
-                                "SELECT * FROM tLocationMapWarehouse WHERE LocationMapWarehouseFKRefno = ?",
-                                Convert.ToInt32(drow["LocationMapWarehouseFKRefno"]));
+                            ds.ReadXml(SysCommon.GetXmlReader(ref responseData), XmlReadMode.Auto);
 
-                            if (warehouseResults != null && warehouseResults.Count > 0)
+                            this.DataAccessStatusOutHandler(
+                                this,
+                                EventArgs.Empty,
+                                "Saving adjustments.",
+                                false);
+
+                            // Receiving schema but no responseData results in no table being created in the dataset.
+                            if (ds.Tables.Count != 0)
                             {
-                                whsLocMapRefno = warehouseResults[0].LocationMapRefno;
+                                var progMax = Convert.ToInt32(
+                                    ds.Tables["tActivityAdjustment"].Rows.Count);
+
+                                this.DataAccessStatusOutHandler(
+                                    this,
+                                    EventArgs.Empty,
+                                    $"Records {progMax}",
+                                    false);
+
+                                var progValue = 0;
+                                this.DataAccessProgressOutHandler(
+                                    this,
+                                    EventArgs.Empty,
+                                    0,
+                                    0,
+                                    progMax);
+
+                                foreach (DataRow drow in ds.Tables["tActivityAdjustment"].Rows)
+                                {
+                                    var warehouseResults =
+                                        transaction.Query<tLocationMapWarehouseModel>(
+                                            "SELECT * FROM tLocationMapWarehouse WHERE LocationMapWarehouseFKRefno = ?",
+                                            Convert.ToInt32(drow["LocationMapWarehouseFKRefno"]));
+
+                                    int whsLocMapRefno;
+                                    if (warehouseResults != null &&
+                                        warehouseResults.Count > 0)
+                                    {
+                                        whsLocMapRefno = warehouseResults[0].LocationMapRefno;
+                                    }
+                                    else
+                                    {
+                                        throw new Exception(
+                                            "drWhs.Read() failed." + Environment.NewLine + errMsg);
+                                    }
+
+                                    errMsg = "Arguments:";
+
+                                    transaction.Execute(
+                                        "INSERT INTO tActivity(ActivityStatus, ActivitySubType) VALUES(?, ?)",
+                                        0,
+                                        Convert.ToInt32(SysCommon.ActSubTypes.Adjustment));
+                                    var actAdjTypeDesc = GetAdjustmentTypeDescription(drow);
+                                    var actRefno = Convert.ToInt32(
+                                        transaction.ExecuteScalar<int>(
+                                            "SELECT last_insert_rowid() FROM tActivity"));
+
+                                    var adjFkRefno = Convert.ToInt32(drow["ActivityFKRefno"]);
+                                    var dt = Convert.ToDateTime(drow["ActivityAdjustmentDateTime"]);
+
+                                    errMsg += Environment.NewLine + "FK refno " + adjFkRefno;
+                                    errMsg += Environment.NewLine +
+                                              "Adj type \'" +
+                                              actAdjTypeDesc +
+                                              "\'";
+
+                                    const string sql =
+                                        "INSERT INTO tActivityAdjustment (" +
+                                        "ActivityRefno, " +
+                                        "ActivitySubType, " +
+                                        "ActivityFKRefno, " +
+                                        "ActivityStringFKRefno, " +
+                                        "ActivityAdjustmentType, " +
+                                        "WarehouseLocationMapRefno, " +
+                                        "ActivityAdjustmentDateTime, " +
+                                        "ActivityAdjustmentDescription, " +
+                                        "ActivityAdjustmentTypeDescription) " +
+                                        "VALUES " +
+                                        "(?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?)";
+
+                                    var parameters = new object[]
+                                    {
+                                        actRefno,
+                                        Convert.ToInt32(SysCommon.ActSubTypes.Adjustment),
+                                        adjFkRefno,
+                                        adjFkRefno.ToString(),
+                                        Convert.ToInt32(drow["ActivityAdjustmentType"]),
+                                        whsLocMapRefno,
+                                        DateTime.Parse(dt.ToShortDateString()),
+                                        Convert.ToString(drow["ActivityAdjustmentDescription"]),
+                                        actAdjTypeDesc
+                                    };
+
+                                    transaction.Execute(sql, parameters);
+
+                                    progValue++;
+                                    if (progValue % 10 == 0)
+                                    {
+                                        this.DataAccessProgressOutHandler(
+                                            this,
+                                            EventArgs.Empty,
+                                            progValue,
+                                            0,
+                                            progMax);
+                                    }
+                                }
+
+                                this.DataAccessProgressOutHandler(
+                                    this,
+                                    EventArgs.Empty,
+                                    progMax,
+                                    0,
+                                    progMax);
                             }
-                            else
-                            {
-                                throw new Exception("drWhs.Read() failed." + Environment.NewLine + errMsg);
-                            }
 
-                            errMsg = "Arguments:";
-
-                            transaction.Execute(
-                                "INSERT INTO tActivity(ActivityStatus, ActivitySubType) VALUES(?, ?)",
-                                0,
-                                Convert.ToInt32(SysCommon.ActSubTypes.Adjustment));
-                            actAdjTypeDesc = GetAdjustmentTypeDescription(drow);
-                            actRefno = Convert.ToInt32(transaction.ExecuteScalar<int>(
-                                "SELECT last_insert_rowid() FROM tActivity"));
-
-                            adjFKRefno = Convert.ToInt32(drow["ActivityFKRefno"]);
-                            var dt = Convert.ToDateTime(drow["ActivityAdjustmentDateTime"]);
-
-                            errMsg += Environment.NewLine + "FK refno " + adjFKRefno;
-                            errMsg += Environment.NewLine + "Adj type \'" + actAdjTypeDesc + "\'";
-
-                            var sql = "INSERT INTO tActivityAdjustment (ActivityRefno, " +
-                                      "ActivitySubType, " +
-                                      "ActivityFKRefno, " +
-                                      "ActivityStringFKRefno, " +
-                                      "ActivityAdjustmentType, " +
-                                      "WarehouseLocationMapRefno, " +
-                                      "ActivityAdjustmentDateTime, " +
-                                      "ActivityAdjustmentDescription, " +
-                                      "ActivityAdjustmentTypeDescription) " +
-                                      "VALUES " +
-                                      "(?, " +
-                                      "?, " +
-                                      "?, " +
-                                      "?, " +
-                                      "?, " +
-                                      "?, " +
-                                      "?, " +
-                                      "?, " +
-                                      "?)";
-
-                            var parameters = new object[]
-                            {
-                                    actRefno,
-                                    Convert.ToInt32(SysCommon.ActSubTypes.Adjustment),
-                                    adjFKRefno,
-                                    adjFKRefno.ToString(),
-                                    Convert.ToInt32(drow["ActivityAdjustmentType"]),
-                                    whsLocMapRefno,
-                                    DateTime.Parse(dt.ToShortDateString()),
-                                    Convert.ToString(drow["ActivityAdjustmentDescription"]),
-                                    actAdjTypeDesc,
-                            };
-
-                            transaction.Execute(sql, parameters);
-
-                            progValue++;
-                            if (progValue % 10 == 0)
-                            {
-                                this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue, 0, progMax);
-                            }
+                            transaction.Commit();
+                            this.DataAccessStatusOutHandler(
+                                this,
+                                EventArgs.Empty,
+                                "Saving adjustments complete.",
+                                true);
                         }
-
-                        this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
-                    }
-
-                    transaction.Commit();
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving adjustments complete.", true);
-                }
-                catch (SQLiteException sqlEx)
-                {
-                    transaction.Rollback();
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"{sqlEx.Message}", true);
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving adjustments failed.", true);
-                    throw;
-                }
-            });
+                        catch (SQLiteException sqlEx)
+                        {
+                            transaction.Rollback();
+                            this.DataAccessStatusOutHandler(
+                                this,
+                                EventArgs.Empty,
+                                "Database exception occurred.",
+                                true);
+                            this.DataAccessStatusOutHandler(
+                                this,
+                                EventArgs.Empty,
+                                $"{sqlEx.Message}",
+                                true);
+                            this.DataAccessStatusOutHandler(
+                                this,
+                                EventArgs.Empty,
+                                "Saving adjustments failed.",
+                                true);
+                            throw;
+                        }
+                    });
             return;
 
             //////////////////////////////////////////////////////////////////////////
             static string GetAdjustmentTypeDescription(DataRow drow)
             {
-                string actAdjTypeDesc = string.Empty;
+                var actAdjTypeDesc = string.Empty;
                 switch (Convert.ToInt32(drow["ActivityAdjustmentType"]))
                 {
                     case (int)SysCommon.AdjTypes.Inventory:
@@ -310,30 +374,24 @@ namespace dMobile.GroundWork
             }
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
-        /// <inheritdoc/>
         protected override async Task<string> CreateRequest()
         {
             var xmlString = new StringBuilder();
             var settings = new XmlWriterSettings
             {
                 Async = true,
-                Indent = false,
+                Indent = false
             };
             var xml = XmlWriter.Create(xmlString, settings);
 
             var request = XDocument.Parse(
-                "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>"
-                + "<imclient>"
-                + "<command>"
-                + "<action>REQUEST ADJUSTMENTS</action>"
-                + await SysCommon.GetRequestDefaults(false)
-                + "</command>"
-                + "</imclient>");
+                "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>" +
+                "<imclient>" +
+                "<command>" +
+                "<action>REQUEST ADJUSTMENTS</action>" +
+                await SysCommon.GetRequestDefaults(false) +
+                "</command>" +
+                "</imclient>");
 
             request.Save(xml);
             await xml.FlushAsync();
@@ -342,31 +400,37 @@ namespace dMobile.GroundWork
             return xmlString.ToString();
         }
 
-        protected override Task<string> CreateRequest(XDocument criteria)
+        /// <inheritdoc/>
+        protected override Task<string> CreateRequest(XDocument criteriaFilter)
         {
             throw new NotImplementedException();
         }
 
+        /// <inheritdoc/>
         protected override Task<string> CreateRequest(string familyCode)
         {
             throw new NotImplementedException();
         }
 
-        protected override Task<string> CreateRequest(int activityItemFkRefno)
+        /// <inheritdoc/>
+        protected override Task<string> CreateRequest(int activityFkRefno)
         {
             throw new NotImplementedException();
         }
 
+        /// <inheritdoc/>
         public override Task RequestData(int actRefno)
         {
             throw new NotImplementedException();
         }
 
+        /// <inheritdoc/>
         public override Task PurgeData(int sectLocMapRefno)
         {
             throw new NotImplementedException();
         }
 
+        /// <inheritdoc/>
         public override Task PurgeData(SysCommon.ActSubTypes actSubType)
         {
             throw new NotImplementedException();
@@ -377,17 +441,18 @@ namespace dMobile.GroundWork
             throw new NotImplementedException();
         }
 
+        /// <inheritdoc/>
         protected override Task Save(string responseData, int refno)
         {
             throw new NotImplementedException();
         }
 
-        protected override Task<string> CreateRequest(int activityItemFkRefno, XDocument criteria)
+        protected override Task<string> CreateRequest(int activityFkRefno, XDocument criteria)
         {
             throw new NotImplementedException();
         }
 
-        protected override Task<string> CreateRequest(int prodLocMapType, int whsLocMapFKRefno)
+        protected override Task<string> CreateRequest(int prodLocMapType, int whsLocMapFkRefno)
         {
             throw new NotImplementedException();
         }

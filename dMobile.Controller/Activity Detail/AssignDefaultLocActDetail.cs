@@ -416,7 +416,7 @@ namespace dMobile.Controller.Activity_Detail
 
             gridMain.Children.Add(gridHeader);
 
-            foreach (MoveDetail moveDetail in this.ListDetails)
+            foreach (var moveDetail in this.ListDetails.Cast<MoveDetail>())
             {
                 observableCollection.Add(moveDetail);
 

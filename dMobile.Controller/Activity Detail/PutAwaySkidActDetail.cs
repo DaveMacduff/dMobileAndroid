@@ -380,7 +380,7 @@ namespace dMobile.Controller.Activity_Detail
         {
             var observableCollection = new ObservableCollection<object>();
 
-            foreach (SkidPutAwayDetail skidPutAwayDetail in this.ListDetails)
+            foreach (var skidPutAwayDetail in this.ListDetails.Cast<SkidPutAwayDetail>())
             {
                 observableCollection.Add(skidPutAwayDetail);
             }
@@ -424,7 +424,7 @@ namespace dMobile.Controller.Activity_Detail
 
             gridMain.Children.Add(gridHeader);
 
-            foreach (SkidPutAwayDetail skidPutAwayDetail in observableCollection)
+            foreach (var skidPutAwayDetail in observableCollection.Cast<SkidPutAwayDetail>())
             {
                 var detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(
                     $"{skidPutAwayDetail.ActivityDetailQuantity:F3}");

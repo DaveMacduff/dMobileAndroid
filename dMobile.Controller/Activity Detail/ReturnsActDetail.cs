@@ -447,9 +447,9 @@ namespace dMobile.Controller.Activity_Detail
 
                 this.DataLayerProgressOutHandler(this, EventArgs.Empty, 5);
 
-                tableActReturnsDetail.RegisterDataAccessListenerProgressOut((ReturnsActDetail)this);
-                await tableActReturnsDetail.RequestDetailData(this.ActItem.ItemRefno);
-                tableActReturnsDetail.UnregisterDataAccessListenerProgressOut((ReturnsActDetail)this);
+                tableActReturnsDetail.RegisterDataAccessListenerProgressOut(this);
+                await tableActReturnsDetail.RequestDetailData(this.ActItem.ItemFkRefno, this.ActItem.ItemRefno);
+                tableActReturnsDetail.UnregisterDataAccessListenerProgressOut(this);
             }
         }
 
@@ -855,7 +855,7 @@ namespace dMobile.Controller.Activity_Detail
         {
             var observableCollection = new ObservableCollection<object>();
 
-            foreach (ReturnDetail returnDetail in this.ListDetails)
+            foreach (var returnDetail in this.ListDetails.Cast<ReturnDetail>())
             {
                 observableCollection.Add(returnDetail);
             }
@@ -946,7 +946,7 @@ namespace dMobile.Controller.Activity_Detail
 
             gridMain.Children.Add(gridHeader);
 
-            foreach (ReturnDetail returnDetail in observableCollection)
+            foreach (var returnDetail in observableCollection.Cast<ReturnDetail>())
             {
                 var detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(
                     returnDetail.ActivityDetailIsConfirmedString);
@@ -1013,7 +1013,7 @@ namespace dMobile.Controller.Activity_Detail
             this.ListDetails = this.ListReturnDetails.Where(adjDetail =>
                 adjDetail.ActivityDetailSchemeID.ToUpper().Contains(searchText.ToUpper().Trim())).Cast<object>().ToList();
 
-            foreach (ReturnDetail returnDetail in this.ListDetails)
+            foreach (var returnDetail in this.ListDetails.Cast<ReturnDetail>())
             {
                 observableCollection.Add(returnDetail);
             }
@@ -1254,7 +1254,7 @@ namespace dMobile.Controller.Activity_Detail
 
             if (this.ListDetails != null && this.ListDetails.Count > 0)
             {
-                foreach (ReturnDetail returnDetail in this.ListDetails)
+                foreach (var returnDetail in this.ListDetails.Cast<ReturnDetail>())
                 {
                     if (this.SysEnv.SysSettings.IsPickConfirmDet)
                     {

@@ -545,7 +545,7 @@ namespace dMobile.Controller.Activity_Item
                 this.DataLayerProgressOutHandler(this, EventArgs.Empty, 5);
 
                 tableActPoWorkSheetItem.RegisterDataAccessListenerProgressOut(this);
-                await tableActPoWorkSheetItem.RequestItemData(this.ActHdr.HdrRefno);
+                await tableActPoWorkSheetItem.RequestItemData(this.ActHdr.HdrFkRefno, this.ActHdr.HdrRefno);
                 tableActPoWorkSheetItem.UnregisterDataAccessListenerProgressOut(this);
             }
         }
@@ -561,7 +561,7 @@ namespace dMobile.Controller.Activity_Item
         {
             var observableCollection = new ObservableCollection<object>();
 
-            foreach (PurchaseOrderWorkSheetItem purchaseOrderWorkSheetItem in this.ListItems)
+            foreach (var purchaseOrderWorkSheetItem in this.ListItems.Cast<PurchaseOrderWorkSheetItem>())
             {
                 observableCollection.Add(purchaseOrderWorkSheetItem);
             }
@@ -612,7 +612,7 @@ namespace dMobile.Controller.Activity_Item
 
             gridMainActivity.Children.Add(gridHeader);
 
-            foreach (PurchaseOrderWorkSheetItem purchaseOrderWorkSheetItem in observableCollection)
+            foreach (var purchaseOrderWorkSheetItem in observableCollection.Cast<PurchaseOrderWorkSheetItem>())
             {
                 var detailWidth0 = DependencyService.Get<IGridService>()
                     .CalculateTextWidth(purchaseOrderWorkSheetItem.ProductCode);
@@ -774,7 +774,7 @@ namespace dMobile.Controller.Activity_Item
             // TODO: Fix filtering
             // this.DataViewItems.RowFilter = this.ActItemFilter + " AND ProductCode LIKE \'%" + searchText.Trim() + "%\'";
             // }
-            foreach (PurchaseOrderWorkSheetItem purchaseOrderWorkSheetItem in this.ListItems)
+            foreach (var purchaseOrderWorkSheetItem in this.ListItems.Cast<PurchaseOrderWorkSheetItem>())
             {
                 observableCollection.Add(purchaseOrderWorkSheetItem);
             }

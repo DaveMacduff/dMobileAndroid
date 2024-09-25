@@ -426,9 +426,9 @@ namespace dMobile.Controller.Activity_Detail
 
                 this.DataLayerProgressOutHandler(this, EventArgs.Empty, 5);
 
-                tableActTicketDetail.RegisterDataAccessListenerProgressOut((TicketFinishedActDetail)this);
-                await tableActTicketDetail.RequestDetailData(this.ActItem.ItemRefno);
-                tableActTicketDetail.UnregisterDataAccessListenerProgressOut((TicketFinishedActDetail)this);
+                tableActTicketDetail.RegisterDataAccessListenerProgressOut(this);
+                await tableActTicketDetail.RequestDetailData(this.ActItem.ItemFkRefno, this.ActItem.ItemRefno);
+                tableActTicketDetail.UnregisterDataAccessListenerProgressOut(this);
             }
         }
 
@@ -810,7 +810,7 @@ namespace dMobile.Controller.Activity_Detail
         {
             var observableCollection = new ObservableCollection<object>();
 
-            foreach (ProductionTicketFinishedDetail productionTicketFinishedDetail in this.ListDetails)
+            foreach (var productionTicketFinishedDetail in this.ListDetails.Cast<ProductionTicketFinishedDetail>())
             {
                 observableCollection.Add(productionTicketFinishedDetail);
             }
@@ -854,7 +854,7 @@ namespace dMobile.Controller.Activity_Detail
 
             gridMain.Children.Add(gridHeader);
 
-            foreach (ProductionTicketFinishedDetail productionTicketFinishedDetail in observableCollection)
+            foreach (var productionTicketFinishedDetail in observableCollection.Cast<ProductionTicketFinishedDetail>())
             {
                 var detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(
                     $"{productionTicketFinishedDetail.ActivityDetailQuantity:F3}");
@@ -904,7 +904,7 @@ namespace dMobile.Controller.Activity_Detail
             this.ListDetails = this.ListProductionTicketFinishedDetail.Where(adjDetail =>
                 adjDetail.ActivityDetailSchemeID.ToUpper().Contains(searchText.ToUpper().Trim())).Cast<object>().ToList();
 
-            foreach (ProductionTicketFinishedDetail productionTicketFinishedDetail in this.ListDetails)
+            foreach (var productionTicketFinishedDetail in this.ListDetails.Cast<ProductionTicketFinishedDetail>())
             {
                 observableCollection.Add(productionTicketFinishedDetail);
             }

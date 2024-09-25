@@ -163,7 +163,7 @@ namespace dMobile.Controller.Activity
 
             gridMainActivity.Children.Add(gridHeaderPhysicalCount);
 
-            foreach (Count count in this.ListHeaders)
+            foreach (var count in this.ListHeaders.Cast<Count>())
             {
                 var description = string.Empty;
                 var descriptionSubstring = Convert.ToString(count.ActivityCountTypeDescription).Split();
@@ -340,7 +340,7 @@ namespace dMobile.Controller.Activity
 
             this.ListHeaders = this.listCounts.Where(count => count.ActivityStringFKRefno.ToLower().Contains(searchText.ToLower().Trim())).Cast<object>().ToList();
 
-            foreach (Count count in this.ListHeaders)
+            foreach (var count in this.ListHeaders.Cast<Count>())
             {
                 // string description = string.Empty;
                 // string[] descriptionSubstring = Convert.ToString(count.ActivityCountTypeDescription).Split();
@@ -430,9 +430,9 @@ namespace dMobile.Controller.Activity
                 this.DataLayerProgressOutHandler(this, EventArgs.Empty, 5);
                 var tableActPhysicalCount = new TableActivityPhysicalCount();
 
-                tableActPhysicalCount.RegisterDataAccessListenerProgressOut((IDataAccessEventListener)this);
+                tableActPhysicalCount.RegisterDataAccessListenerProgressOut(this);
                 await tableActPhysicalCount.RequestHeaderData();
-                tableActPhysicalCount.UnregisterDataAccessListenerProgressOut((IDataAccessEventListener)this);
+                tableActPhysicalCount.UnregisterDataAccessListenerProgressOut(this);
             }
         }
 

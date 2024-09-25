@@ -727,7 +727,7 @@ namespace dMobile.Controller.Activity
 
             gridMainActivity.Children.Add(gridHeader);
 
-            foreach (Picking picking in this.ListHeaders)
+            foreach (var picking in this.ListHeaders.Cast<Picking>())
             {
                 observableCollection.Add(picking);
 
@@ -923,7 +923,7 @@ namespace dMobile.Controller.Activity
 
             this.ListHeaders = this.listPicking.Where(picking => picking.ActivityStringFKRefno.ToLower().Contains(searchText.ToLower().Trim())).Cast<object>().ToList();
 
-            foreach (Picking picking in this.ListHeaders)
+            foreach (var picking in this.ListHeaders.Cast<Picking>())
             {
                 observableCollection.Add(picking);
             }
@@ -994,32 +994,18 @@ namespace dMobile.Controller.Activity
         /// <returns>The <see cref="Task"/>.</returns>
         public override async Task Refresh(XDocument data)
         {
-            if (this.SysEnv.SysSettings.IsDisconnectedMode)
+            var actPicking = new TableActivityPicking();
+            actPicking.RegisterDataAccessListenerProgressOut(this);
+            this.DataLayerProgressOutHandler(this, EventArgs.Empty, 1);
+            if (!this.SysEnv.SysSettings.IsDisconnectedMode)
             {
-                this.DataLayerProgressOutHandler(this, EventArgs.Empty, 5);
-            }
-            else
-            {
-                this.DataLayerProgressOutHandler(this, EventArgs.Empty, 2);
                 await this.Purge();
-
-                this.DataLayerProgressOutHandler(this, EventArgs.Empty, 5);
-
-                var actPicking = new TableActivityPicking();
-                try
-                {
-                    actPicking.RegisterDataAccessListenerProgressOut((IDataAccessEventListener)this);
-                    await actPicking.RequestHeaderData(data);
-                }
-                catch (Exception ex)
-                {
-                    throw ex;
-                }
-                finally
-                {
-                    actPicking.UnregisterDataAccessListenerProgressOut((IDataAccessEventListener)this);
-                }
             }
+
+            this.DataLayerProgressOutHandler(this, EventArgs.Empty, 3);
+            await actPicking.RequestHeaderData(data);
+            this.DataLayerProgressOutHandler(this, EventArgs.Empty, 5);
+            actPicking.UnregisterDataAccessListenerProgressOut(this);
         }
 
         /// <summary>

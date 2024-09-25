@@ -2,7 +2,9 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
+#pragma warning disable SA1300
 namespace dMobile.GroundWork
+#pragma warning restore SA1300
 {
     using System;
     using System.Collections.Generic;
@@ -10,8 +12,8 @@ namespace dMobile.GroundWork
     using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
-    using dMobile.Bedrock;
-    using dMobile.Resources.Models;
+    using Bedrock;
+    using Resources.Models;
     using SQLite;
 
     /// <summary>
@@ -30,7 +32,7 @@ namespace dMobile.GroundWork
         /// <summary>
         /// Initializes a new instance of the <see cref="TableBase"/> class.
         /// </summary>
-        /// <param name="subType"> Current activity sub type.</param>
+        /// <param name="subType"> Current activity subtype.</param>
         protected TableBase(SysCommon.ActSubTypes subType)
         {
             this.SysEnv = SysEnvironment.GetInstance();
@@ -90,435 +92,15 @@ namespace dMobile.GroundWork
         protected SysEnvironment SysEnv { get; set; }
 
         /// <summary>
-        /// Gets or sets the table base current activity sub type.
+        /// Gets or sets the table base current activity subtype.
         /// </summary>
-        protected SysCommon.ActSubTypes CurrentSubType { get; set; } = SysCommon.ActSubTypes.NotApplicable;
+        protected SysCommon.ActSubTypes CurrentSubType { get; set; } =
+            SysCommon.ActSubTypes.NotApplicable;
 
         /// <summary>
         /// Gets or sets the data access event arguments.
         /// </summary>
         private DataAccessEventArgs DataEventArgs { get; set; } = new DataAccessEventArgs();
-
-        /// <summary>
-        /// The Request Header Data.
-        /// </summary>
-        /// <returns><see cref="Task"/> Task completed.</returns>
-        public virtual async Task RequestHeaderData()
-        {
-            try
-            {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Seeding {this.LowerCaseName}.", true);
-                var responseData = await this.SendComm(await this.CreateRequest());
-                await this.Save(responseData);
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Seeding {this.LowerCaseName} complete.", true);
-            }
-            catch (SQLiteException ex)
-            {
-                this.DataAccessStatusOutHandler(
-                    sender: this,
-                    EventArgs.Empty,
-                    "Database exception occurred.",
-                    overrideDisconnectedMode: true);
-                this.DataAccessStatusOutHandler(
-                    sender: this,
-                    EventArgs.Empty,
-                    $"Seeding {this.LowerCaseName} failed.",
-                    overrideDisconnectedMode: true);
-
-                string msg = $"Save {this.LowerCaseName} to database failed.{Environment.NewLine}Reason: {ex.Message}.";
-                throw;
-            }
-            catch (CommunicationException)
-            {
-                this.DataAccessStatusOutHandler(
-                    sender: this,
-                    EventArgs.Empty,
-                    "Communication exception occurred.",
-                    overrideDisconnectedMode: true);
-                this.DataAccessStatusOutHandler(
-                    sender: this,
-                    EventArgs.Empty,
-                    $"Seeding {this.LowerCaseName} failed.",
-                    overrideDisconnectedMode: true);
-                throw;
-            }
-            catch (Exception)
-            {
-                this.DataAccessStatusOutHandler(
-                    sender: this,
-                    EventArgs.Empty,
-                    "Unhandled general exception caught.",
-                    overrideDisconnectedMode: true);
-                this.DataAccessStatusOutHandler(
-                    sender: this,
-                    EventArgs.Empty,
-                    $"Seeding {this.LowerCaseName} failed.",
-                    overrideDisconnectedMode: true);
-                throw;
-            }
-        }
-
-        /// <summary>
-        /// The Request Header Data.
-        /// </summary>
-        /// <param name="criteria"> Filter criteria.</param>
-        /// <returns><see cref="Task"/> Task completed.</returns>
-        public virtual async Task RequestHeaderData(XDocument criteria)
-        {
-            try
-            {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Seeding {this.LowerCaseName}.", true);
-                var responseData = await this.SendComm(await this.CreateRequest(criteria));
-                await this.Save(responseData);
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Seeding {this.LowerCaseName} complete.", true);
-            }
-            catch (SQLiteException ex)
-            {
-                this.DataAccessStatusOutHandler(
-                    sender: this,
-                    EventArgs.Empty,
-                    "Database exception occurred.",
-                    overrideDisconnectedMode: true);
-                this.DataAccessStatusOutHandler(
-                    sender: this,
-                    EventArgs.Empty,
-                    $"Seeding {this.LowerCaseName} failed.",
-                    overrideDisconnectedMode: true);
-
-                var msg = $"Save {this.LowerCaseName} to database failed.{Environment.NewLine}Reason: {ex.Message}.";
-                throw;
-            }
-            catch (CommunicationException)
-            {
-                this.DataAccessStatusOutHandler(
-                    sender: this,
-                    EventArgs.Empty,
-                    "Communication exception occurred.",
-                    overrideDisconnectedMode: true);
-                this.DataAccessStatusOutHandler(
-                    sender: this,
-                    EventArgs.Empty,
-                    $"Seeding {this.LowerCaseName} failed.",
-                    overrideDisconnectedMode: true);
-                throw;
-            }
-            catch (Exception)
-            {
-                this.DataAccessStatusOutHandler(
-                    sender: this,
-                    EventArgs.Empty,
-                    "Unhandled general exception caught.",
-                    overrideDisconnectedMode: true);
-                this.DataAccessStatusOutHandler(
-                    sender: this,
-                    EventArgs.Empty,
-                    $"Seeding {this.LowerCaseName} failed.",
-                    overrideDisconnectedMode: true);
-                throw;
-            }
-        }
-
-        /// <summary>
-        /// The Request Item Data.
-        /// </summary>
-        /// <param name="actHdrRefno"> Activity header refno.</param>
-        /// <returns><see cref="Task"/> Task completed.</returns>
-        public virtual async Task RequestItemData(int actHdrRefno)
-        {
-            try
-            {
-                this.DataAccessStatusOutHandler(
-                    this,
-                    EventArgs.Empty,
-                    $"Seeding {this.LowerCaseName} items.",
-                    true);
-
-                var responseData = await this.SendRequest(actHdrRefno);
-                await this.Save(responseData, actHdrRefno);
-
-                this.DataAccessStatusOutHandler(
-                    sender: this,
-                    EventArgs.Empty,
-                    $"Seeding {this.LowerCaseName} items complete.",
-                    true);
-            }
-            catch (SQLiteException ex)
-            {
-                this.DataAccessStatusOutHandler(
-                    sender: this,
-                    EventArgs.Empty,
-                    "Database exception occurred.",
-                    overrideDisconnectedMode: true);
-                this.DataAccessStatusOutHandler(
-                    sender: this,
-                    EventArgs.Empty,
-                    $"Seeding {this.LowerCaseName} items failed.",
-                    overrideDisconnectedMode: true);
-
-                var msg = $"Save {this.LowerCaseName} to database failed.{Environment.NewLine}Reason: {ex.Message}.";
-                throw;
-            }
-            catch (CommunicationException)
-            {
-                this.DataAccessStatusOutHandler(
-                    sender: this,
-                    EventArgs.Empty,
-                    "Communication exception occurred.",
-                    overrideDisconnectedMode: true);
-                this.DataAccessStatusOutHandler(
-                    sender: this,
-                    EventArgs.Empty,
-                    $"Seeding {this.LowerCaseName} items failed.",
-                    overrideDisconnectedMode: true);
-                throw;
-            }
-            catch (Exception)
-            {
-                this.DataAccessStatusOutHandler(
-                    sender: this,
-                    EventArgs.Empty,
-                    "Unhandled general exception caught.",
-                    overrideDisconnectedMode: true);
-                this.DataAccessStatusOutHandler(
-                    sender: this,
-                    EventArgs.Empty,
-                    $"Seeding {this.LowerCaseName} items failed.",
-                    overrideDisconnectedMode: true);
-                throw;
-            }
-        }
-
-        /// <summary>
-        /// The Request Item Data.
-        /// </summary>
-        /// <param name="actHdrRefno"> Activity header reference number.</param>
-        /// <param name="criteria"> Item data filter.</param>
-        /// <returns><see cref="Task"/> Task completed.</returns>
-        public virtual async Task RequestItemData(int actHdrRefno, XDocument criteria)
-        {
-            try
-            {
-                this.DataAccessStatusOutHandler(
-                    this,
-                    EventArgs.Empty,
-                    $"Seeding {this.LowerCaseName} items.",
-                    true);
-
-                string responseData;
-                if (actHdrRefno == 0)
-                {
-                    var query = "SELECT * FROM tActivity WHERE ActivitySubType = ?";
-                    var conn = DatabaseConnection.GetInstance().SqlConn;
-                    var queryResult = await conn.QueryAsync<ActivityModel>(query, (int)this.CurrentSubType);
-                    if (queryResult != null && queryResult.Count > 0)
-                    {
-                        foreach (ActivityModel model in queryResult)
-                        {
-                            responseData = await this.SendRequest(model.ActivityRefno, criteria);
-                            await this.Save(responseData, model.ActivityRefno);
-                        }
-                    }
-                }
-                else
-                {
-                    responseData = await this.SendRequest(actHdrRefno, criteria);
-                    await this.Save(responseData, actHdrRefno);
-                }
-
-                this.DataAccessStatusOutHandler(
-                    sender: this,
-                    EventArgs.Empty,
-                    $"Seeding {this.LowerCaseName} items complete.",
-                    true);
-            }
-            catch (SQLiteException ex)
-            {
-                this.DataAccessStatusOutHandler(
-                    sender: this,
-                    EventArgs.Empty,
-                    "Database exception occurred.",
-                    overrideDisconnectedMode: true);
-                this.DataAccessStatusOutHandler(
-                    sender: this,
-                    EventArgs.Empty,
-                    $"Seeding {this.LowerCaseName} items failed.",
-                    overrideDisconnectedMode: true);
-
-                var msg = $"Save {this.LowerCaseName} to database failed.{Environment.NewLine}" +
-                    $"Reason: {ex.Message}.";
-                throw;
-            }
-            catch (CommunicationException)
-            {
-                this.DataAccessStatusOutHandler(
-                    sender: this,
-                    EventArgs.Empty,
-                    "Communication exception occurred.",
-                    overrideDisconnectedMode: true);
-                this.DataAccessStatusOutHandler(
-                    sender: this,
-                    EventArgs.Empty,
-                    $"Seeding {this.LowerCaseName} items failed.",
-                    overrideDisconnectedMode: true);
-                throw;
-            }
-            catch (Exception)
-            {
-                this.DataAccessStatusOutHandler(
-                    sender: this,
-                    EventArgs.Empty,
-                    "Unhandled general exception caught.",
-                    overrideDisconnectedMode: true);
-                this.DataAccessStatusOutHandler(
-                    sender: this,
-                    EventArgs.Empty,
-                    $"Seeding {this.LowerCaseName} items failed.",
-                    overrideDisconnectedMode: true);
-                throw;
-            }
-        }
-
-        /// <summary>
-        /// The Request Detail Data.
-        /// </summary>
-        /// <param name="actItemRefno"> Activity header refno.</param>
-        /// <returns><see cref="Task"/> Task completed.</returns>
-        public virtual async Task RequestDetailData(int actItemRefno)
-        {
-            try
-            {
-                this.DataAccessStatusOutHandler(
-                    sender: this,
-                    EventArgs.Empty,
-                    $"Seeding {this.LowerCaseName} details.",
-                    overrideDisconnectedMode: true);
-                if (actItemRefno == 0)
-                {
-                    await RequestDataAll();
-                }
-                else
-                {
-                    await RequestDataSingeLineItem();
-                }
-
-                this.DataAccessStatusOutHandler(
-                    sender: this,
-                    EventArgs.Empty,
-                    $"Seeding {this.LowerCaseName} details complete.",
-                    overrideDisconnectedMode: true);
-            }
-            catch (SQLiteException ex)
-            {
-                this.DataAccessStatusOutHandler(
-                    sender: this,
-                    EventArgs.Empty,
-                    "Database exception occurred.",
-                    overrideDisconnectedMode: true);
-                this.DataAccessStatusOutHandler(
-                    sender: this,
-                    EventArgs.Empty,
-                    $"Seeding {this.LowerCaseName} details failed.",
-                    overrideDisconnectedMode: true);
-
-                var msg = $"Save {this.LowerCaseName} to database failed.{Environment.NewLine}" +
-                    $"Reason: {ex.Message}.";
-                throw;
-            }
-            catch (CommunicationException)
-            {
-                this.DataAccessStatusOutHandler(
-                    sender: this,
-                    EventArgs.Empty,
-                    "Communication exception occurred.",
-                    overrideDisconnectedMode: true);
-                this.DataAccessStatusOutHandler(
-                    sender: this,
-                    EventArgs.Empty,
-                    $"Seeding {this.LowerCaseName} details failed.",
-                    overrideDisconnectedMode: true);
-                throw;
-            }
-            catch (Exception)
-            {
-                this.DataAccessStatusOutHandler(
-                    sender: this,
-                    EventArgs.Empty,
-                    "Unhandled general exception caught.",
-                    overrideDisconnectedMode: true);
-                this.DataAccessStatusOutHandler(
-                    sender: this,
-                    EventArgs.Empty,
-                    $"Seeding {this.LowerCaseName} details failed.",
-                    overrideDisconnectedMode: true);
-                throw;
-            }
-
-            return;
-
-            //////////////////////////////////////////////////////////////////////////
-            async Task RequestDataAll()
-            {
-                // Get all activity detail for all activity items, used in disconnected mode.
-                var query = "SELECT ActivityItemRefno FROM tActivityItem WHERE ActivityItemSubType = ?";
-                var queryResult = await DatabaseConnection.GetInstance().SqlConn
-                    .QueryAsync<tActivityItemModel>(
-                        query,
-                        Convert.ToInt32(this.CurrentSubType));
-                if (queryResult?.Count > 0)
-                {
-                    foreach (var model in queryResult)
-                    {
-                        var response = await this.SendRequest(model.ActivityItemRefno);
-                        await this.Save(response, model.ActivityItemRefno);
-                    }
-                }
-                else
-                {
-                    var msg = $"No activity items could be found for the sub type" +
-                        $" {Common.SubTypeEnum2String(this.CurrentSubType)}";
-                    throw new Exception(msg);
-                }
-            }
-
-            //////////////////////////////////////////////////////////////////////////
-            async Task RequestDataSingeLineItem()
-            {
-                var response = await this.SendRequest(actItemRefno);
-                await this.Save(response, actItemRefno);
-            }
-        }
-
-        /// <summary>
-        /// Perform a request for data.
-        /// </summary>
-        /// <returns>The <see cref="Task"/> Task operation.</returns>
-        public virtual async Task RequestData()
-        {
-            try
-            {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Seeding {this.LowerCaseName}.", true);
-                var reqData = await this.SendRequest();
-                if (reqData.Length > 0)
-                {
-                    if (reqData.Contains("<message>ERROR</message>"))
-                    {
-                        var reqErr = new XmlDocument();
-                        reqErr.LoadXml(reqData);
-                        throw new Exception(reqErr.DocumentElement["detail"].InnerText);
-                    }
-
-                    await this.Save(reqData);
-                }
-
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Seeding {this.LowerCaseName} complete.", true);
-            }
-            catch (Exception ex)
-            {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Seeding {this.LowerCaseName} failed.", true);
-
-                throw new Exception($"Seeding {this.LowerCaseName} failed.", ex);
-            }
-        }
 
         /// <summary>
         /// Perform a request for data.
@@ -554,6 +136,391 @@ namespace dMobile.GroundWork
         public abstract Task<int> DataStatus();
 
         /// <summary>
+        /// Request header data.
+        /// </summary>
+        /// <returns><see cref="Task"/> Task completed.</returns>
+        /// <remarks>
+        ///     Send the comm request to the server and save the response to the local database.
+        /// </remarks>
+        public virtual async Task RequestHeaderData()
+        {
+            try
+            {
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    $"Seeding {this.LowerCaseName}.",
+                    true);
+                var responseData = await this.SendComm(await this.CreateRequest());
+                await this.Save(responseData);
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    $"Seeding {this.LowerCaseName} complete.",
+                    true);
+            }
+            catch (SQLiteException)
+            {
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    "Database exception occurred.",
+                    true);
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    $"Seeding {this.LowerCaseName} failed.",
+                    true);
+                throw;
+            }
+            catch (CommunicationException)
+            {
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    "Communication exception occurred.",
+                    true);
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    $"Seeding {this.LowerCaseName} failed.",
+                    true);
+                throw;
+            }
+            catch (Exception)
+            {
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    "Unhandled general exception caught.",
+                    true);
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    $"Seeding {this.LowerCaseName} failed.",
+                    true);
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Request header detail data using a filter criteria.
+        /// </summary>
+        /// <param name="criteria"> Filter criteria.</param>
+        /// <returns><see cref="Task"/> Task completed.</returns>
+        /// <remarks>
+        /// Send the comm request to the server and save the response to the local database.
+        /// </remarks>
+        public virtual async Task RequestHeaderData(XDocument criteria)
+        {
+            try
+            {
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    $"Seeding {this.LowerCaseName}.",
+                    true);
+                var responseData = await this.SendComm(await this.CreateRequest(criteria));
+                await this.Save(responseData);
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    $"Seeding {this.LowerCaseName} complete.",
+                    true);
+            }
+            catch (SQLiteException)
+            {
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    "Database exception occurred.",
+                    true);
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    $"Seeding {this.LowerCaseName} failed.",
+                    true);
+                throw;
+            }
+            catch (CommunicationException)
+            {
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    "Communication exception occurred.",
+                    true);
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    $"Seeding {this.LowerCaseName} failed.",
+                    true);
+                throw;
+            }
+            catch (Exception)
+            {
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    "Unhandled general exception caught.",
+                    true);
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    $"Seeding {this.LowerCaseName} failed.",
+                    true);
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// The Request Item Data.
+        /// </summary>
+        /// <param name="actHdrFkRefno"> Activity header foreign key refno.</param>
+        /// <param name="actHdrRefno"> Activity header refno.</param>
+        /// <returns><see cref="Task"/> Task completed.</returns>
+        public virtual async Task RequestItemData(int actHdrFkRefno, int actHdrRefno)
+        {
+            try
+            {
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    $"Seeding {this.LowerCaseName} items.",
+                    true);
+                var responseData = await this.SendRequest(actHdrFkRefno);
+                await this.Save(responseData, actHdrRefno);
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    $"Seeding {this.LowerCaseName} items complete.",
+                    true);
+            }
+            catch (SQLiteException)
+            {
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    "Database exception occurred.",
+                    true);
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    $"Seeding {this.LowerCaseName} items failed.",
+                    true);
+                throw;
+            }
+            catch (CommunicationException)
+            {
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    "Communication exception occurred.",
+                    true);
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    $"Seeding {this.LowerCaseName} items failed.",
+                    true);
+                throw;
+            }
+            catch (Exception)
+            {
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    "Unhandled general exception caught.",
+                    true);
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    $"Seeding {this.LowerCaseName} items failed.",
+                    true);
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// The Request Item Data.
+        /// </summary>
+        /// <param name="actHdrFkRefno"> Activity header foreign key reference number.</param>
+        /// <param name="criteria"> Item data filter.</param>
+        /// <param name="actHdrRefno"> Activity header reference number.</param>
+        /// <returns><see cref="Task"/> Task completed.</returns>
+        public virtual async Task RequestItemData(
+            int actHdrFkRefno,
+            XDocument criteria,
+            int actHdrRefno)
+        {
+            try
+            {
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    $"Seeding {this.LowerCaseName} items.",
+                    true);
+                var responseData = await this.SendRequest(actHdrFkRefno, criteria);
+                await this.Save(responseData, actHdrRefno);
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    $"Seeding {this.LowerCaseName} items complete.",
+                    true);
+            }
+            catch (SQLiteException)
+            {
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    "Database exception occurred.",
+                    true);
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    $"Seeding {this.LowerCaseName} items failed.",
+                    true);
+                throw;
+            }
+            catch (CommunicationException)
+            {
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    "Communication exception occurred.",
+                    true);
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    $"Seeding {this.LowerCaseName} items failed.",
+                    true);
+                throw;
+            }
+            catch (Exception)
+            {
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    "Unhandled general exception caught.",
+                    true);
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    $"Seeding {this.LowerCaseName} items failed.",
+                    true);
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// The Request Detail Data.
+        /// </summary>
+        /// <param name="actItemFkRefno">Activity item foreign key refno.</param>
+        /// <param name="actItemRefno">Activity item refno.</param>
+        /// <returns><see cref="Task"/> Task completed.</returns>
+        public virtual async Task RequestDetailData(int actItemFkRefno, int actItemRefno)
+        {
+            try
+            {
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    $"Seeding {this.LowerCaseName} details.",
+                    true);
+                var response = await this.SendRequest(actItemFkRefno);
+                await this.Save(response, actItemRefno);
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    $"Seeding {this.LowerCaseName} details complete.",
+                    true);
+            }
+            catch (SQLiteException)
+            {
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    "Database exception occurred.",
+                    true);
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    $"Seeding {this.LowerCaseName} details failed.",
+                    true);
+                throw;
+            }
+            catch (CommunicationException)
+            {
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    "Communication exception occurred.",
+                    true);
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    $"Seeding {this.LowerCaseName} details failed.",
+                    true);
+                throw;
+            }
+            catch (Exception)
+            {
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    "Unhandled general exception caught.",
+                    true);
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    $"Seeding {this.LowerCaseName} details failed.",
+                    true);
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Perform a request for data.
+        /// </summary>
+        /// <returns>The <see cref="Task"/> Task operation.</returns>
+        public virtual async Task RequestData()
+        {
+            try
+            {
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    $"Seeding {this.LowerCaseName}.",
+                    true);
+                var reqData = await this.SendRequest();
+                if (reqData.Length > 0)
+                {
+                    if (reqData.Contains("<message>ERROR</message>"))
+                    {
+                        var reqErr = new XmlDocument();
+                        reqErr.LoadXml(reqData);
+                        throw new Exception(reqErr.DocumentElement?["detail"] !.InnerText);
+                    }
+
+                    await this.Save(reqData);
+                }
+
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    $"Seeding {this.LowerCaseName} complete.",
+                    true);
+            }
+            catch (Exception ex)
+            {
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    $"Seeding {this.LowerCaseName} failed.",
+                    true);
+                throw new Exception($"Seeding {this.LowerCaseName} failed.", ex);
+            }
+        }
+
+        /// <summary>
         /// Get the data header status.
         /// </summary>
         /// <returns><see cref="int"/> Row count.</returns>
@@ -562,16 +529,22 @@ namespace dMobile.GroundWork
             int rowsAffected;
             try
             {
-                var query = "SELECT COUNT(tActivity.ActivityRefno)"
-                            + " FROM tActivity"
-                            + " WHERE tActivity.ActivitySubType = ?";
+                const string query = "SELECT COUNT(tActivity.ActivityRefno)" +
+                                     " FROM tActivity" +
+                                     " WHERE tActivity.ActivitySubType = ?";
                 var conn = DatabaseConnection.GetInstance().SqlConn;
                 rowsAffected = await conn.ExecuteScalarAsync<int>(query, (int)this.CurrentSubType);
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"{rowsAffected} {this.LowerCaseName}(s)", true);
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    $"{rowsAffected} {this.LowerCaseName}(s)",
+                    true);
             }
             catch (SQLiteException ex)
             {
-                throw new Exception($"Database exception occurred. {this.ProperCaseName} status failed.", ex);
+                throw new Exception(
+                    $"Database exception occurred. {this.ProperCaseName} status failed.",
+                    ex);
             }
             catch
             {
@@ -595,11 +568,13 @@ namespace dMobile.GroundWork
             int rowsAffected;
             try
             {
-                var query = "SELECT COUNT(tActivityItem.ActivityItemRefno) FROM tActivityItem WHERE" +
-                    " tActivityItem.ActivityItemSubType = ?";
-                rowsAffected = await DatabaseConnection.GetInstance().SqlConn.ExecuteScalarAsync<int>(
-                    query,
-                    (int)this.CurrentSubType);
+                const string query = "SELECT COUNT(tActivityItem.ActivityItemRefno)" +
+                                     " FROM tActivityItem" +
+                                     " WHERE tActivityItem.ActivityItemSubType = ?";
+                rowsAffected = await DatabaseConnection.GetInstance()
+                    .SqlConn.ExecuteScalarAsync<int>(
+                        query,
+                        (int)this.CurrentSubType);
                 this.DataAccessStatusOutHandler(
                     this,
                     EventArgs.Empty,
@@ -613,7 +588,9 @@ namespace dMobile.GroundWork
                     EventArgs.Empty,
                     $"Data status {this.LowerCaseName} items failed.",
                     true);
-                throw new Exception($"Database exception occurred. {this.ProperCaseName} items status failed.", ex);
+                throw new Exception(
+                    $"Database exception occurred. {this.ProperCaseName} items status failed.",
+                    ex);
             }
             catch (Exception)
             {
@@ -637,20 +614,24 @@ namespace dMobile.GroundWork
             int rowsAffected;
             try
             {
-                var query = "SELECT COUNT(tActivityDetail.ActivityDetailRefno) FROM tActivityDetail WHERE" +
-                    " tActivityDetail.ActivityDetailSubType = ?";
-                rowsAffected = await DatabaseConnection.GetInstance().SqlConn.ExecuteScalarAsync<int>(
-                    query,
-                    Convert.ToInt32(this.CurrentSubType));
+                const string query = "SELECT COUNT(tActivityDetail.ActivityDetailRefno)" +
+                                     " FROM tActivityDetail WHERE" +
+                                     " tActivityDetail.ActivityDetailSubType = ?";
+                rowsAffected = await DatabaseConnection.GetInstance()
+                    .SqlConn.ExecuteScalarAsync<int>(
+                        query,
+                        Convert.ToInt32(this.CurrentSubType));
                 this.DataAccessStatusOutHandler(
-                    sender: this,
+                    this,
                     EventArgs.Empty,
                     $"{rowsAffected} {this.LowerCaseName} details.",
-                    overrideDisconnectedMode: true);
+                    true);
             }
             catch (SQLiteException ex)
             {
-                throw new Exception($"Database exception occurred. {this.ProperCaseName} details status failed.", ex);
+                throw new Exception(
+                    $"Database exception occurred. {this.ProperCaseName} details status failed.",
+                    ex);
             }
             catch (Exception)
             {
@@ -678,9 +659,6 @@ namespace dMobile.GroundWork
             string statMessage,
             bool overrideDisconnectedMode)
         {
-            sender = sender ?? throw new ArgumentNullException(nameof(sender));
-            e = e ?? throw new ArgumentNullException(nameof(e));
-
             if (!this.SysEnv.SysSettings.IsDisconnectedMode || overrideDisconnectedMode)
             {
                 if (this.OnDataAccessStatusOut != null)
@@ -707,9 +685,6 @@ namespace dMobile.GroundWork
             int minValue,
             int maxValue)
         {
-            sender = sender ?? throw new ArgumentNullException(nameof(sender));
-            e = e ?? throw new ArgumentNullException(nameof(e));
-
             if (this.OnDataAccessProgressOut != null)
             {
                 this.DataEventArgs.CurrentValue = currentValue;
@@ -728,9 +703,6 @@ namespace dMobile.GroundWork
         /// <param name="currentValue"><see cref="int"/> Current progress index value.</param>
         public void DataAccessProgressOutHandler(object sender, EventArgs e, int currentValue)
         {
-            sender = sender ?? throw new ArgumentNullException(nameof(sender));
-            e = e ?? throw new ArgumentNullException(nameof(e));
-
             if (this.OnDataAccessProgressOut != null)
             {
                 this.DataEventArgs.CurrentValue = currentValue;
@@ -745,8 +717,7 @@ namespace dMobile.GroundWork
         /// <param name="listener"><see cref="IDataAccessEventListener"/> Data access event listener.</param>
         public void RegisterDataAccessListenerStatusOut(IDataAccessEventListener listener)
         {
-            this.OnDataAccessStatusOut += new DataAccessStatusOutEventHandler(
-                listener.OnDataAccessStatusOut);
+            this.OnDataAccessStatusOut += listener.OnDataAccessStatusOut;
         }
 
         /// <summary>
@@ -755,8 +726,7 @@ namespace dMobile.GroundWork
         /// <param name="listener"><see cref="IDataAccessEventListener"/> Data access event listener.</param>
         public void UnregisterDataAccessListenerStatusOut(IDataAccessEventListener listener)
         {
-            this.OnDataAccessStatusOut -= new DataAccessStatusOutEventHandler(
-                listener.OnDataAccessStatusOut);
+            this.OnDataAccessStatusOut -= listener.OnDataAccessStatusOut;
         }
 
         /// <summary>
@@ -765,8 +735,7 @@ namespace dMobile.GroundWork
         /// <param name="listener"><see cref="IDataAccessEventListener"/> Data access event listener.</param>
         public void RegisterDataAccessListenerProgressOut(IDataAccessEventListener listener)
         {
-            this.OnDataAccessProgressOut += new DataAccessProgressOutEventHandler(
-                listener.OnDataAccessProgressOut);
+            this.OnDataAccessProgressOut += listener.OnDataAccessProgressOut;
         }
 
         /// <summary>
@@ -775,8 +744,7 @@ namespace dMobile.GroundWork
         /// <param name="listener"><see cref="IDataAccessEventListener"/> Data access event listener.</param>
         public void UnregisterDataAccessListenerProgressOut(IDataAccessEventListener listener)
         {
-            this.OnDataAccessProgressOut -= new DataAccessProgressOutEventHandler(
-                listener.OnDataAccessProgressOut);
+            this.OnDataAccessProgressOut -= listener.OnDataAccessProgressOut;
         }
 
         /// <summary>
@@ -784,7 +752,7 @@ namespace dMobile.GroundWork
         /// </summary>
         /// <param name="familyCode"><see cref="string"/> Family code filter.</param>
         /// <returns><see cref="string"/> Send result information.</returns>
-        protected async virtual Task<string> SendRequest(string familyCode)
+        protected virtual async Task<string> SendRequest(string familyCode)
         {
             return await this.SendComm(await this.CreateRequest(familyCode));
         }
@@ -792,22 +760,22 @@ namespace dMobile.GroundWork
         /// <summary>
         /// Send a data request.
         /// </summary>
-        /// <param name="actItemRefno"><see cref="int"/> Activity reference number.</param>
+        /// <param name="activityFkRefno"><see cref="int"/> Activity foreign key reference number.</param>
         /// <returns><see cref="string"/> Send result information.</returns>
-        protected virtual async Task<string> SendRequest(int actItemRefno)
+        protected virtual async Task<string> SendRequest(int activityFkRefno)
         {
-            return await this.SendComm(await this.CreateRequest(actItemRefno));
+            return await this.SendComm(await this.CreateRequest(activityFkRefno));
         }
 
         /// <summary>
         /// Send a data request.
         /// </summary>
         /// <param name="prodLocMapType"><see cref="int"/> Product location map type.</param>
-        /// <param name="locMapFKRefno"><see cref="int"/> Location map foreign key reference.</param>
+        /// <param name="locMapFkRefno"><see cref="int"/> Location map foreign key reference.</param>
         /// <returns><see cref="string"/> Send result information.</returns>
-        protected virtual async Task<string> SendRequest(int prodLocMapType, int locMapFKRefno)
+        protected virtual async Task<string> SendRequest(int prodLocMapType, int locMapFkRefno)
         {
-            return await this.SendComm(await this.CreateRequest(prodLocMapType, locMapFKRefno));
+            return await this.SendComm(await this.CreateRequest(prodLocMapType, locMapFkRefno));
         }
 
         /// <summary>
@@ -832,12 +800,16 @@ namespace dMobile.GroundWork
         /// <summary>
         /// Send a data request.
         /// </summary>
-        /// <param name="actItemRefno"><see cref="int"/> Activity reference number.</param>
+        /// <param name="activityFkRefno"><see cref="int"/> Activity foreign key reference number.</param>
         /// <param name="criteria"><see cref="XDocument"/> Data filter request.</param>
         /// <returns><see cref="string"/> Send result information.</returns>
-        protected virtual async Task<string> SendRequest(int actItemRefno, XDocument criteria)
+        /// <remarks>
+        ///     The activity reference number may be an activity header, item or detail reference number.
+        ///     The criteria are used to filter the data request.
+        /// </remarks>
+        protected virtual async Task<string> SendRequest(int activityFkRefno, XDocument criteria)
         {
-            return await this.SendComm(await this.CreateRequest(actItemRefno, criteria));
+            return await this.SendComm(await this.CreateRequest(activityFkRefno, criteria));
         }
 
         /// <summary>
@@ -864,9 +836,9 @@ namespace dMobile.GroundWork
         /// <summary>
         /// Create the request.
         /// </summary>
-        /// <param name="criteria"><see cref="XDocument"/> Data filter request.</param>
+        /// <param name="criteriaFilter"><see cref="XDocument"/> Data filter request.</param>
         /// <returns><see cref="string"/> Created request.</returns>
-        protected abstract Task<string> CreateRequest(XDocument criteria);
+        protected abstract Task<string> CreateRequest(XDocument criteriaFilter);
 
         /// <summary>
         /// Create the request.
@@ -878,25 +850,31 @@ namespace dMobile.GroundWork
         /// <summary>
         /// Create the request.
         /// </summary>
-        /// <param name="activityItemFkRefno"><see cref="int"/> Activity foreign key reference number.</param>
+        /// <param name="activityFkRefno"><see cref="int"/> Activity foreign key reference number.</param>
         /// <returns><see cref="string"/> Created request.</returns>
-        protected abstract Task<string> CreateRequest(int activityItemFkRefno);
+        /// <remarks>
+        ///     The activity reference number may be an activity header, item or detail reference number.
+        /// </remarks>
+        protected abstract Task<string> CreateRequest(int activityFkRefno);
 
         /// <summary>
         /// Create the request.
         /// </summary>
-        /// <param name="activityItemFkRefno"><see cref="int"/> Activity foreign key reference number.</param>
+        /// <param name="activityFkRefno"><see cref="int"/> Activity foreign key reference number.</param>
         /// <param name="criteria"><see cref="XDocument"/> Data filter request.</param>
         /// <returns><see cref="string"/> Created request.</returns>
-        protected abstract Task<string> CreateRequest(int activityItemFkRefno, XDocument criteria);
+        /// <remarks>
+        ///     The activity reference number may be an activity header, item or detail reference number.
+        /// </remarks>
+        protected abstract Task<string> CreateRequest(int activityFkRefno, XDocument criteria);
 
         /// <summary>
         /// Create the request.
         /// </summary>
         /// <param name="prodLocMapType"><see cref="int"/> Product location map type.</param>
-        /// <param name="whsLocMapFKRefno"><see cref="int"/> Warehouse location map foreign key reference number.</param>
+        /// <param name="whsLocMapFkRefno"><see cref="int"/> Warehouse location map foreign key reference number.</param>
         /// <returns><see cref="string"/> Created request.</returns>
-        protected abstract Task<string> CreateRequest(int prodLocMapType, int whsLocMapFKRefno);
+        protected abstract Task<string> CreateRequest(int prodLocMapType, int whsLocMapFkRefno);
 
         /// <summary>
         /// Create the request.
@@ -919,7 +897,7 @@ namespace dMobile.GroundWork
             int actDetailRefno,
             bool useFNumberElements)
         {
-            int schemeVariantNo = useFNumberElements
+            var schemeVariantNo = useFNumberElements
                 ? Convert.ToInt32(drow["f17"])
                 : Convert.ToInt32(drow["ProductSchemeVariantNo"]);
             if (schemeVariantNo > 0)
@@ -928,16 +906,18 @@ namespace dMobile.GroundWork
                     "SELECT * FROM tProductSchemeVariant WHERE ProductSchemeVariantNo = ?",
                     Convert.ToInt32(schemeVariantNo));
 
-                if (results != null && results.Count > 0)
+                if (results != null &&
+                    results.Count > 0)
                 {
-                    int rowsAffected = conn.Execute(
+                    var rowsAffected = conn.Execute(
                         "INSERT INTO tActivityDetailProductSchemeVariantXRef (" +
                         "ActivityDetailRefno, ProductSchemeVariantRefno) VALUES (?, ?)",
                         Convert.ToInt32(actDetailRefno),
                         results[0].ProductSchemeVariantRefno);
                     if (rowsAffected <= 0)
                     {
-                        throw new Exception("Insert into activity detail product scheme variant xref returned rows" +
+                        throw new Exception(
+                            "Insert into activity detail product scheme variant xref returned rows" +
                             " affected <= 0.");
                     }
                 }
@@ -963,26 +943,26 @@ namespace dMobile.GroundWork
             int actDetailRefno,
             bool useFNumberElements)
         {
-            var emptyDate = "01-01-1900";
+            const string emptyDate = "01-01-1900";
             var parameters = new List<object>();
 
-            var query = "INSERT INTO tActivityDetailExtra (" +
-                        "ActivityDetailRefno, " +
-                        "ActivityDetailSubType, " +
-                        "ActivityDetailExtra1Text, " +
-                        "ActivityDetailExtra2Text, " +
-                        "ActivityDetailExtra3Text, " +
-                        "ActivityDetailExtra4Text, " +
-                        "ActivityDetailExtra5Date" +
-                        ") VALUES (" +
-                        "?, " +
-                        "?, " +
-                        "?, " +
-                        "?, " +
-                        "?, " +
-                        "?, " +
-                        "?" +
-                        ")";
+            const string query = "INSERT INTO tActivityDetailExtra (" +
+                                 "ActivityDetailRefno, " +
+                                 "ActivityDetailSubType, " +
+                                 "ActivityDetailExtra1Text, " +
+                                 "ActivityDetailExtra2Text, " +
+                                 "ActivityDetailExtra3Text, " +
+                                 "ActivityDetailExtra4Text, " +
+                                 "ActivityDetailExtra5Date" +
+                                 ") VALUES (" +
+                                 "?, " +
+                                 "?, " +
+                                 "?, " +
+                                 "?, " +
+                                 "?, " +
+                                 "?, " +
+                                 "?" +
+                                 ")";
 
             parameters.Add(actDetailRefno);
             parameters.Add(Convert.ToInt32(SysCommon.ActSubTypes.CycleCounts));
@@ -994,14 +974,10 @@ namespace dMobile.GroundWork
                 parameters.Add(Convert.ToString(drow["f21"]));
                 parameters.Add(Convert.ToString(drow["f22"]));
 
-                if (string.IsNullOrEmpty(Convert.ToString(drow["f23"])))
-                {
-                    parameters.Add(DateTime.Parse(emptyDate));
-                }
-                else
-                {
-                    parameters.Add(Convert.ToDateTime(drow["f23"]));
-                }
+                parameters.Add(
+                    string.IsNullOrEmpty(Convert.ToString(drow["f23"]))
+                        ? DateTime.Parse(emptyDate)
+                        : Convert.ToDateTime(drow["f23"]));
             }
             else
             {
@@ -1010,17 +986,13 @@ namespace dMobile.GroundWork
                 parameters.Add(Convert.ToString(drow["ActivityDetailExtra3"]));
                 parameters.Add(Convert.ToString(drow["ActivityDetailExtra4"]));
 
-                if (string.IsNullOrEmpty(Convert.ToString(drow["ActivityDetailExtra5"])))
-                {
-                    parameters.Add(DateTime.Parse(emptyDate));
-                }
-                else
-                {
-                    parameters.Add(Convert.ToDateTime(drow["ActivityDetailExtra5"]));
-                }
+                parameters.Add(
+                    string.IsNullOrEmpty(Convert.ToString(drow["ActivityDetailExtra5"]))
+                        ? DateTime.Parse(emptyDate)
+                        : Convert.ToDateTime(drow["ActivityDetailExtra5"]));
             }
 
-            int rowsAffected = conn.Execute(query, parameters.ToArray());
+            var rowsAffected = conn.Execute(query, parameters.ToArray());
             if (rowsAffected <= 0)
             {
                 throw new Exception("Insert into activity detail extra return rows affected <= 0.");
@@ -1041,50 +1013,53 @@ namespace dMobile.GroundWork
             bool useFNumberElements)
         {
             var locMapRefno = 0;
-            int locMapWhsFKRefno;
-            int locMapSectFKRefno;
-            int locMapSlotFKRefno;
+            int locMapWhsFkRefno;
+            int locMapSectFkRefno;
+            int locMapSlotFkRefno;
             if (useFNumberElements)
             {
-                locMapWhsFKRefno = Convert.ToInt32(drow["f07"]);
-                locMapSectFKRefno = Convert.ToInt32(drow["f08"]);
-                locMapSlotFKRefno = Convert.ToInt32(drow["f09"]);
+                locMapWhsFkRefno = Convert.ToInt32(drow["f07"]);
+                locMapSectFkRefno = Convert.ToInt32(drow["f08"]);
+                locMapSlotFkRefno = Convert.ToInt32(drow["f09"]);
             }
             else
             {
-                locMapWhsFKRefno = Convert.ToInt32(drow["LocationMapWarehouseFKRefno"]);
-                locMapSectFKRefno = Convert.ToInt32(drow["LocationMapSectionFKRefno"]);
-                locMapSlotFKRefno = Convert.ToInt32(drow["LocationMapSlotFKRefno"]);
+                locMapWhsFkRefno = Convert.ToInt32(drow["LocationMapWarehouseFKRefno"]);
+                locMapSectFkRefno = Convert.ToInt32(drow["LocationMapSectionFKRefno"]);
+                locMapSlotFkRefno = Convert.ToInt32(drow["LocationMapSlotFKRefno"]);
             }
 
-            if (locMapRefno == 0)
+            if (locMapSlotFkRefno == 0)
             {
                 var results = conn.Query<tLocationMapSlotModel>(
                     "SELECT * FROM tLocationMapSlot WHERE LocationMapSlotFKRefno = ?",
-                    locMapSlotFKRefno);
-                if (results != null && results.Count > 0)
+                    locMapSlotFkRefno);
+                if (results != null &&
+                    results.Count > 0)
                 {
                     locMapRefno = results[0].LocationMapRefno;
                 }
             }
 
-            if (locMapRefno == 0)
+            if (locMapSectFkRefno == 0)
             {
                 var results = conn.Query<tLocationMapSectionModel>(
                     "SELECT * FROM tLocationMapSection WHERE LocationMapSectionFKRefno = ?",
-                    locMapSectFKRefno);
-                if (results != null && results.Count > 0)
+                    locMapSectFkRefno);
+                if (results != null &&
+                    results.Count > 0)
                 {
                     locMapRefno = results[0].LocationMapRefno;
                 }
             }
 
-            if (locMapRefno == 0)
+            if (locMapWhsFkRefno == 0)
             {
                 var results = conn.Query<tLocationMapWarehouseModel>(
                     "SELECT * FROM tLocationMapWarehouse WHERE LocationMapWarehouseFKRefno = ?",
-                    locMapWhsFKRefno);
-                if (results != null && results.Count > 0)
+                    locMapWhsFkRefno);
+                if (results != null &&
+                    results.Count > 0)
                 {
                     locMapRefno = results[0].LocationMapRefno;
                 }
@@ -1092,15 +1067,10 @@ namespace dMobile.GroundWork
 
             if (locMapRefno == 0)
             {
-                throw new Exception(string.Format(
-                    "Unable to identify the location map reference number. {0}Whs FK Refno {1}{2}Section" +
-                        " FK Refno {3}{4} Slot FK Refno {5}{6}",
-                    Environment.NewLine,
-                    locMapWhsFKRefno,
-                    Environment.NewLine,
-                    locMapSectFKRefno,
-                    Environment.NewLine,
-                    locMapSlotFKRefno));
+                throw new Exception(
+                    $"Unable to identify the location map reference number. {Environment.NewLine}" +
+                    $"Whs FK Refno {locMapWhsFkRefno}{Environment.NewLine}Section" +
+                    $" FK Refno {locMapSectFkRefno}{Environment.NewLine} Slot FK Refno {locMapSlotFkRefno}");
             }
 
             return Convert.ToInt32(locMapRefno);
@@ -1113,15 +1083,14 @@ namespace dMobile.GroundWork
         /// <param name="conn"><see cref="SQLiteConnection"/> SQLite connection.</param>
         /// <param name="useFNumberElements"><see cref="bool"/> Flag indicating whether to read
         /// 'F' XML element or a more verbose field name element.</param>
-        /// <returns>The <see cref="List{object}"/> Activity detail information.</returns>
+        /// <returns>The activity detail information.</returns>
         protected virtual List<object> SaveDetail(
             DataRow drow,
             SQLiteConnection conn,
             bool useFNumberElements)
         {
-            var emptyDate = "01-01-1900";
+            const string emptyDate = "01-01-1900";
             var detailParameters = new List<object>();
-
             if (useFNumberElements)
             {
                 detailParameters.Add(Convert.ToString(drow["f05"]));
@@ -1132,50 +1101,30 @@ namespace dMobile.GroundWork
                 detailParameters.Add(Convert.ToString(drow["f10"]));
                 detailParameters.Add(Convert.ToString(drow["f11"]));
 
-                if (string.IsNullOrEmpty(Convert.ToString(drow["f13"])))
-                {
-                    detailParameters.Add(DateTime.Parse(emptyDate));
-                }
-                else
-                {
-                    detailParameters.Add(Convert.ToDateTime(drow["f13"]));
-                }
+                detailParameters.Add(
+                    string.IsNullOrEmpty(Convert.ToString(drow["f13"]))
+                        ? DateTime.Parse(emptyDate)
+                        : Convert.ToDateTime(drow["f13"]));
 
-                if (string.IsNullOrEmpty(Convert.ToString(drow["f14"])))
-                {
-                    detailParameters.Add(DateTime.Parse(emptyDate));
-                }
-                else
-                {
-                    detailParameters.Add(Convert.ToDateTime(drow["f14"]));
-                }
+                detailParameters.Add(
+                    string.IsNullOrEmpty(Convert.ToString(drow["f14"]))
+                        ? DateTime.Parse(emptyDate)
+                        : Convert.ToDateTime(drow["f14"]));
 
-                if (string.IsNullOrEmpty(Convert.ToString(drow["f12"])))
-                {
-                    detailParameters.Add(DateTime.Parse(emptyDate));
-                }
-                else
-                {
-                    detailParameters.Add(Convert.ToDateTime(drow["f12"]));
-                }
+                detailParameters.Add(
+                    string.IsNullOrEmpty(Convert.ToString(drow["f12"]))
+                        ? DateTime.Parse(emptyDate)
+                        : Convert.ToDateTime(drow["f12"]));
 
-                if (string.IsNullOrEmpty(Convert.ToString(drow["f15"])))
-                {
-                    detailParameters.Add(DateTime.Parse(emptyDate));
-                }
-                else
-                {
-                    detailParameters.Add(Convert.ToDateTime(drow["f15"]));
-                }
+                detailParameters.Add(
+                    string.IsNullOrEmpty(Convert.ToString(drow["f15"]))
+                        ? DateTime.Parse(emptyDate)
+                        : Convert.ToDateTime(drow["f15"]));
 
-                if (string.IsNullOrEmpty(Convert.ToString(drow["f16"])))
-                {
-                    detailParameters.Add(DateTime.Parse(emptyDate));
-                }
-                else
-                {
-                    detailParameters.Add(Convert.ToDateTime(drow["f16"]));
-                }
+                detailParameters.Add(
+                    string.IsNullOrEmpty(Convert.ToString(drow["f16"]))
+                        ? DateTime.Parse(emptyDate)
+                        : Convert.ToDateTime(drow["f16"]));
 
                 detailParameters.Add(Convert.ToString(drow["f18"]));
             }
@@ -1186,53 +1135,41 @@ namespace dMobile.GroundWork
                 detailParameters.Add(Convert.ToDecimal(drow["ActivityDetailQuantity"]));
                 detailParameters.Add(Convert.ToDecimal(drow["ActivityDetailBaseQuantity"]));
                 detailParameters.Add(Convert.ToDecimal(drow["ActivityDetailWeightQuantity"]));
-                detailParameters.Add(Convert.ToString(drow["ActivityDetailSingleTradeItemSerialNumber"]));
-                detailParameters.Add(Convert.ToString(drow["ActivityDetailLogisticUnitBatchLotNumber"]));
+                detailParameters.Add(
+                    Convert.ToString(drow["ActivityDetailSingleTradeItemSerialNumber"]));
+                detailParameters.Add(
+                    Convert.ToString(drow["ActivityDetailLogisticUnitBatchLotNumber"]));
 
-                if (string.IsNullOrEmpty(Convert.ToString(drow["ActivityDetailLogisticUnitBestBeforeSellByDate"])))
-                {
-                    detailParameters.Add(DateTime.Parse(emptyDate));
-                }
-                else
-                {
-                    detailParameters.Add(Convert.ToDateTime(drow["ActivityDetailLogisticUnitBestBeforeSellByDate"]));
-                }
+                detailParameters.Add(
+                    string.IsNullOrEmpty(
+                        Convert.ToString(drow["ActivityDetailLogisticUnitBestBeforeSellByDate"]))
+                        ? DateTime.Parse(emptyDate)
+                        : Convert.ToDateTime(
+                            drow["ActivityDetailLogisticUnitBestBeforeSellByDate"]));
 
-                if (string.IsNullOrEmpty(Convert.ToString(drow["ActivityDetailLogisticUnitExpiryUseByDate"])))
-                {
-                    detailParameters.Add(DateTime.Parse(emptyDate));
-                }
-                else
-                {
-                    detailParameters.Add(Convert.ToDateTime(drow["ActivityDetailLogisticUnitExpiryUseByDate"]));
-                }
+                detailParameters.Add(
+                    string.IsNullOrEmpty(
+                        Convert.ToString(drow["ActivityDetailLogisticUnitExpiryUseByDate"]))
+                        ? DateTime.Parse(emptyDate)
+                        : Convert.ToDateTime(drow["ActivityDetailLogisticUnitExpiryUseByDate"]));
 
-                if (string.IsNullOrEmpty(Convert.ToString(drow["ActivityDetailLogisticUnitProductionDate"])))
-                {
-                    detailParameters.Add(DateTime.Parse(emptyDate));
-                }
-                else
-                {
-                    detailParameters.Add(Convert.ToDateTime(drow["ActivityDetailLogisticUnitProductionDate"]));
-                }
+                detailParameters.Add(
+                    string.IsNullOrEmpty(
+                        Convert.ToString(drow["ActivityDetailLogisticUnitProductionDate"]))
+                        ? DateTime.Parse(emptyDate)
+                        : Convert.ToDateTime(drow["ActivityDetailLogisticUnitProductionDate"]));
 
-                if (string.IsNullOrEmpty(Convert.ToString(drow["ActivityDetailLogisticUnitDueDate"])))
-                {
-                    detailParameters.Add(DateTime.Parse(emptyDate));
-                }
-                else
-                {
-                    detailParameters.Add(Convert.ToDateTime(drow["ActivityDetailLogisticUnitDueDate"]));
-                }
+                detailParameters.Add(
+                    string.IsNullOrEmpty(
+                        Convert.ToString(drow["ActivityDetailLogisticUnitDueDate"]))
+                        ? DateTime.Parse(emptyDate)
+                        : Convert.ToDateTime(drow["ActivityDetailLogisticUnitDueDate"]));
 
-                if (string.IsNullOrEmpty(Convert.ToString(drow["ActivityDetailLogisticUnitPackagingDate"])))
-                {
-                    detailParameters.Add(DateTime.Parse(emptyDate));
-                }
-                else
-                {
-                    detailParameters.Add(Convert.ToDateTime(drow["ActivityDetailLogisticUnitPackagingDate"]));
-                }
+                detailParameters.Add(
+                    string.IsNullOrEmpty(
+                        Convert.ToString(drow["ActivityDetailLogisticUnitPackagingDate"]))
+                        ? DateTime.Parse(emptyDate)
+                        : Convert.ToDateTime(drow["ActivityDetailLogisticUnitPackagingDate"]));
 
                 detailParameters.Add(Convert.ToString(drow["ActivityDetailLogisticUnitSkidCode"]));
             }
@@ -1260,14 +1197,14 @@ namespace dMobile.GroundWork
             DataRow drow,
             SQLiteConnection conn)
         {
-            var locMapWhsFKRefno = Convert.ToInt32(drow["LocationMapWarehouseFKRefno"]);
-
+            var locMapWhsFkRefno = Convert.ToInt32(drow["LocationMapWarehouseFKRefno"]);
             var results = conn.Query<tLocationMapWarehouseModel>(
                 "SELECT * FROM tLocationMapWarehouse WHERE LocationMapWarehouseFKRefno = ?",
-                Convert.ToInt32(locMapWhsFKRefno));
+                Convert.ToInt32(locMapWhsFkRefno));
 
             int locMapRefno;
-            if (results != null && results.Count > 0)
+            if (results != null &&
+                results.Count > 0)
             {
                 locMapRefno = results[0].LocationMapRefno;
             }
@@ -1298,26 +1235,28 @@ namespace dMobile.GroundWork
             SQLiteConnection conn,
             bool useFNumberElements)
         {
-            int prodFKRefno;
+            int prodFkRefno;
             string unitCode;
-            bool prodUnitIsBC;
+            bool prodUnitIsBc;
             if (useFNumberElements)
             {
-                prodFKRefno = Convert.ToInt32(drow["f03"]);
+                prodFkRefno = Convert.ToInt32(drow["f03"]);
                 unitCode = Convert.ToString(drow["f05"]);
-                prodUnitIsBC = Convert.ToBoolean(drow["f04"]);
+                prodUnitIsBc = Convert.ToBoolean(drow["f04"]);
             }
             else
             {
-                prodFKRefno = Convert.ToInt32(drow["ProductFKRefno"]);
+                prodFkRefno = Convert.ToInt32(drow["ProductFKRefno"]);
                 unitCode = Convert.ToString(drow["UnitCode"]);
-                prodUnitIsBC = Convert.ToBoolean(drow["ProductUnitIsBC"]);
+                prodUnitIsBc = Convert.ToBoolean(drow["ProductUnitIsBC"]);
             }
 
             var productResults = conn.Query<tProductModel>(
-                "SELECT * FROM tProduct WHERE ProductFKRefno = ?", Convert.ToInt32(prodFKRefno));
+                "SELECT * FROM tProduct WHERE ProductFKRefno = ?",
+                Convert.ToInt32(prodFkRefno));
             int prodRefno;
-            if (productResults != null && productResults.Count > 0)
+            if (productResults != null &&
+                productResults.Count > 0)
             {
                 prodRefno = Convert.ToInt32(productResults[0].ProductRefno);
             }
@@ -1328,9 +1267,12 @@ namespace dMobile.GroundWork
                     " reference number in tProduct.");
             }
 
-            var unitResults = conn.Query<tUnitModel>("SELECT * FROM tUnit WHERE UnitCode = ?", unitCode);
+            var unitResults = conn.Query<tUnitModel>(
+                "SELECT * FROM tUnit WHERE UnitCode = ?",
+                unitCode);
             int unitRefno;
-            if (unitResults != null && unitResults.Count > 0)
+            if (unitResults != null &&
+                unitResults.Count > 0)
             {
                 unitRefno = Convert.ToInt32(unitResults[0].UnitRefno);
             }
@@ -1341,11 +1283,13 @@ namespace dMobile.GroundWork
 
             var productUnitResults = conn.Query<tProductUnitModel>(
                 "SELECT * FROM tProductUnit WHERE ProductRefno = ? AND UnitRefno = ? AND" +
-                    " ProductUnitIsBC = ?", Convert.ToInt32(prodRefno),
+                " ProductUnitIsBC = ?",
+                Convert.ToInt32(prodRefno),
                 Convert.ToInt32(unitRefno),
-                Convert.ToBoolean(prodUnitIsBC));
+                Convert.ToBoolean(prodUnitIsBc));
             int prodUnitRefno;
-            if (productUnitResults != null && productUnitResults.Count > 0)
+            if (productUnitResults != null &&
+                productUnitResults.Count > 0)
             {
                 prodUnitRefno = Convert.ToInt32(productUnitResults[0].ProductUnitRefno);
             }

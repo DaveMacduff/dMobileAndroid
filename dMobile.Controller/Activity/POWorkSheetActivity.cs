@@ -131,7 +131,7 @@ namespace dMobile.Controller.Activity
         {
             var observableCollection = new ObservableCollection<object>();
 
-            foreach (PurchaseOrderWorkSheetItem purchaseOrderWorkSheetItem in this.ListHeaders)
+            foreach (var purchaseOrderWorkSheetItem in this.ListHeaders.Cast<PurchaseOrderWorkSheetItem>())
             {
                 // PurchaseOrderWorkSheetItem purchaseOrderWorkSheetItem = new PurchaseOrderWorkSheetItem
                 // {
@@ -189,7 +189,7 @@ namespace dMobile.Controller.Activity
 
             gridMainActivity.Children.Add(gridHeader);
 
-            foreach (PurchaseOrderWorkSheetItem purchaseOrderWorkSheetItem in observableCollection)
+            foreach (var purchaseOrderWorkSheetItem in observableCollection.Cast<PurchaseOrderWorkSheetItem>())
             {
                 var detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(purchaseOrderWorkSheetItem.ProductCode);
                 var detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(

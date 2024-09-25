@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Data;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
@@ -309,7 +310,7 @@ namespace dMobile.Controller.Activity_Item
             var observableCollection = new ObservableCollection<object>();
 
             // Add all items in data view to observable collection for display
-            foreach (ActivityItem activityItem in this.ListItems)
+            foreach (var activityItem in this.ListItems.Cast<ActivityItem>())
             {
                 observableCollection.Add(activityItem);
             }
@@ -423,7 +424,7 @@ namespace dMobile.Controller.Activity_Item
 
             gridMainActivity.Children.Add(gridHeader);
 
-            foreach (ActivityItem activityItem in observableCollection)
+            foreach (var activityItem in observableCollection.Cast<ActivityItem>())
             {
                 var detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(activityItem.ProductCode);
                 var detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(activityItem.ProductUnitBC);
@@ -691,7 +692,7 @@ namespace dMobile.Controller.Activity_Item
                 // Use a dictionary to only hit the database once per unique section number this call.
                 var names = new Dictionary<int, string>();
 
-                foreach (ActivityItem activityItem in this.ListItems)
+                foreach (var activityItem in this.ListItems.Cast<ActivityItem>())
                 {
                     var sectionFkRefno = Convert.ToInt32(activityItem.LocationMapSectionFKRefno);
                     if (sectionFkRefno > 0)
@@ -721,7 +722,7 @@ namespace dMobile.Controller.Activity_Item
                 // Use a dictionary to only hit the database once per unique slot number this call.
                 var names = new Dictionary<int, string>();
 
-                foreach (ActivityItem activityItem in this.ListItems)
+                foreach (var activityItem in this.ListItems.Cast<ActivityItem>())
                 {
                     var slotFkRefno = Convert.ToInt32(activityItem.LocationMapSlotFKRefno);
                     if (slotFkRefno > 0)

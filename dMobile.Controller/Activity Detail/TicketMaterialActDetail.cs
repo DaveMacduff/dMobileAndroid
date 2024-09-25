@@ -162,7 +162,7 @@ namespace dMobile.Controller.Activity_Detail
         {
             if (!this.SysEnv.SysSettings.IsDisconnectedMode)
             {
-                string xmlDelete = await this.CreateDeleteXml(XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?><params></params>"));
+                var xmlDelete = await this.CreateDeleteXml(XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?><params></params>"));
                 _ = SysCommon.SubmitComm(xmlDelete);
             }
         }
@@ -372,9 +372,9 @@ namespace dMobile.Controller.Activity_Detail
 
                 this.DataLayerProgressOutHandler(this, EventArgs.Empty, 5);
 
-                tableActTicketDetail.RegisterDataAccessListenerProgressOut((TicketMaterialActDetail)this);
-                await tableActTicketDetail.RequestDetailData(this.ActItem.ItemRefno);
-                tableActTicketDetail.UnregisterDataAccessListenerProgressOut((TicketMaterialActDetail)this);
+                tableActTicketDetail.RegisterDataAccessListenerProgressOut(this);
+                await tableActTicketDetail.RequestDetailData(this.ActItem.ItemFkRefno, this.ActItem.ItemRefno);
+                tableActTicketDetail.UnregisterDataAccessListenerProgressOut(this);
             }
         }
 
@@ -756,7 +756,7 @@ namespace dMobile.Controller.Activity_Detail
         {
             var observableCollection = new ObservableCollection<object>();
 
-            foreach (ProductionTicketMaterialDetail productionTicketMaterialDetail in this.ListDetails)
+            foreach (var productionTicketMaterialDetail in this.ListDetails.Cast<ProductionTicketMaterialDetail>())
             {
                 observableCollection.Add(productionTicketMaterialDetail);
             }
@@ -800,7 +800,7 @@ namespace dMobile.Controller.Activity_Detail
 
             gridMain.Children.Add(gridHeader);
 
-            foreach (ProductionTicketMaterialDetail productionTicketMaterialDetail in observableCollection)
+            foreach (var productionTicketMaterialDetail in observableCollection.Cast<ProductionTicketMaterialDetail>())
             {
                 var detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(
                     $"{productionTicketMaterialDetail.ActivityDetailQuantity:F3}");
@@ -850,7 +850,7 @@ namespace dMobile.Controller.Activity_Detail
             this.ListDetails = this.ListProductionTicketMaterialDetail.Where(adjDetail =>
                 adjDetail.ActivityDetailSchemeID.ToUpper().Contains(searchText.ToUpper().Trim())).Cast<object>().ToList();
 
-            foreach (ProductionTicketMaterialDetail productionTicketMaterialDetail in this.ListDetails)
+            foreach (var productionTicketMaterialDetail in this.ListDetails.Cast<ProductionTicketMaterialDetail>())
             {
                 observableCollection.Add(productionTicketMaterialDetail);
             }

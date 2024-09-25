@@ -38,7 +38,7 @@ namespace dMobile.GroundWork
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding product locations.", true);
 
                 var whsLocMapName = string.Empty;
-                var whsLocMapFKRefno = 0;
+                var whsLocMapFkRefno = 0;
                 var whsLocMapRefno = 0;
                 var responseData = string.Empty;
 
@@ -49,22 +49,22 @@ namespace dMobile.GroundWork
                 {
                     foreach (var locationMapWarehouse in resultsLocationMapWarehouse)
                     {
-                        whsLocMapFKRefno = locationMapWarehouse.LocationMapWarehouseFKRefno;
+                        whsLocMapFkRefno = locationMapWarehouse.LocationMapWarehouseFKRefno;
                         whsLocMapName = locationMapWarehouse.LocationMapWarehouseName;
                         whsLocMapRefno = locationMapWarehouse.LocationMapRefno;
 
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"For whs \'{whsLocMapName}\'.", true);
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Default picking locations.", true);
 
-                        responseData = await this.SendRequest((int)SysCommon.ProdLocMapTypes.Floor, whsLocMapFKRefno);
+                        responseData = await this.SendRequest((int)SysCommon.ProdLocMapTypes.Floor, whsLocMapFkRefno);
                         await this.SaveOpt(responseData, whsLocMapRefno);
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Default picking locations.", true);
 
-                        responseData = await this.SendRequest((int)SysCommon.ProdLocMapTypes.Picking, whsLocMapFKRefno);
+                        responseData = await this.SendRequest((int)SysCommon.ProdLocMapTypes.Picking, whsLocMapFkRefno);
                         await this.SaveOpt(responseData, whsLocMapRefno);
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Default receiving locations.", true);
 
-                        responseData = await this.SendRequest((int)SysCommon.ProdLocMapTypes.Receiving, whsLocMapFKRefno);
+                        responseData = await this.SendRequest((int)SysCommon.ProdLocMapTypes.Receiving, whsLocMapFkRefno);
                         await this.SaveOpt(responseData, whsLocMapRefno);
                     }
                 }
@@ -623,7 +623,7 @@ namespace dMobile.GroundWork
         /// <returns></returns>
         /// <remarks></remarks>
         /// <inheritdoc/>
-        protected async override Task<string> CreateRequest(int prodLocMapType, int whsLocMapFKRefno)
+        protected async override Task<string> CreateRequest(int prodLocMapType, int whsLocMapFkRefno)
         {
             var xmlString = new StringBuilder();
             var settings = new XmlWriterSettings
@@ -640,7 +640,7 @@ namespace dMobile.GroundWork
                 + "<action>REQUEST PRODUCT LOCATION MAP TYPES</action>"
                 + await SysCommon.GetRequestDefaults(true)
                 + "<product_location_map_type>" + prodLocMapType + "</product_location_map_type>"
-                + "<whs_id>" + whsLocMapFKRefno + "</whs_id>"
+                + "<whs_id>" + whsLocMapFkRefno + "</whs_id>"
                 + "</command>"
                 + "</imclient>");
 
@@ -676,7 +676,7 @@ namespace dMobile.GroundWork
             throw new NotImplementedException();
         }
 
-        protected override Task<string> CreateRequest(XDocument criteria)
+        protected override Task<string> CreateRequest(XDocument criteriaFilter)
         {
             throw new NotImplementedException();
         }
@@ -686,12 +686,12 @@ namespace dMobile.GroundWork
             throw new NotImplementedException();
         }
 
-        protected override Task<string> CreateRequest(int activityItemFkRefno)
+        protected override Task<string> CreateRequest(int activityFkRefno)
         {
             throw new NotImplementedException();
         }
 
-        protected override Task<string> CreateRequest(int activityItemFkRefno, XDocument criteria)
+        protected override Task<string> CreateRequest(int activityFkRefno, XDocument criteria)
         {
             throw new NotImplementedException();
         }

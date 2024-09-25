@@ -7,6 +7,7 @@ namespace dMobile.Controller.Activity_Detail
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
+    using System.Linq;
     using System.Threading.Tasks;
     using System.Xml.Linq;
     using Activity_Item;
@@ -334,7 +335,7 @@ namespace dMobile.Controller.Activity_Detail
             if (actDetailFoundRefno >= 0)
             {
                 var idx = 0;
-                foreach (ActivityDetail detail in this.ListDetails)
+                foreach (var detail in this.ListDetails.Cast<ActivityDetail>())
                 {
                     if (detail.ActivityDetailRefno == this.DetailRefno)
                     {
@@ -402,7 +403,7 @@ namespace dMobile.Controller.Activity_Detail
             {
                 if (this.ListDetails != null && this.ListDetails.Count > 0)
                 {
-                    foreach (ActivityDetail detail in this.ListDetails)
+                    foreach (var detail in this.ListDetails.Cast<ActivityDetail>())
                     {
                         fillQty.Quantity += Convert.ToDecimal(detail.ActivityDetailQuantity);
                         fillQty.BaseQuantity += Convert.ToDecimal(detail.ActivityDetailBaseQuantity);
@@ -605,7 +606,7 @@ namespace dMobile.Controller.Activity_Detail
         /// <returns><see cref="XDocument" /> Activity detail XML.</returns>
         public XDocument GetXml(ActDetail actDetail)
         {
-            string xml = $@"<?xml version=""1.0"" encoding=""utf-16"" standalone=""yes""?>
+            var xml = $@"<?xml version=""1.0"" encoding=""utf-16"" standalone=""yes""?>
                 <params>
                 <refno></refno>
                 <ser_refno></ser_refno>
@@ -915,7 +916,7 @@ namespace dMobile.Controller.Activity_Detail
             }
 
             var itemFkRefno = this.ActItem.ActStatus == SysCommon.ActStatus.Inserted ? 0 : this.ActItem.ItemFkRefno;
-            string def = $@"
+            var def = $@"
                 <prod_id>{this.ActItem.ProdInfo.Code}</prod_id>
                 <is_bc>{this.ActItem.ProdInfo.UnitIsBc}</is_bc>
                 <whs_id>{this.LocMap.CurrLocMap.WhsFkRefno}</whs_id>

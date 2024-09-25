@@ -258,7 +258,7 @@ namespace dMobile.Controller.Activity
             Grid.SetRow(gridHeader, 0);
             gridMainActivity.Children.Add(gridHeader);
 
-            foreach (Replenishment replen in this.ListHeaders)
+            foreach (var replen in this.ListHeaders.Cast<Replenishment>())
             {
                 headersList.Add(replen);
 
@@ -378,7 +378,7 @@ namespace dMobile.Controller.Activity
             foreach (var item in this.ListReplenishments)
             {
                 item.MoveTypeString = ReplenishmentMoveType.Enum2String(item.MoveType);
-                SLocMap tmpLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(item.LocationMapRefno);
+                var tmpLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(item.LocationMapRefno);
                 item.ReadableLocationMap = LocationMapTasks.GetReadableLocation(tmpLocMap, isSepSlotCoords: false);
 
                 var prodBCUnit = await ProductInfoTasks.GetInfoFromUnitRefno(item.ProductUnitRefno);
@@ -449,9 +449,9 @@ namespace dMobile.Controller.Activity
                 this.DataLayerProgressOutHandler(this, EventArgs.Empty, 5);
 
                 var replen = new TableActivityReplenishment();
-                replen.RegisterDataAccessListenerProgressOut((IDataAccessEventListener)this);
+                replen.RegisterDataAccessListenerProgressOut(this);
                 await replen.RequestHeaderData();
-                replen.UnregisterDataAccessListenerProgressOut((IDataAccessEventListener)this);
+                replen.UnregisterDataAccessListenerProgressOut(this);
             }
         }
 

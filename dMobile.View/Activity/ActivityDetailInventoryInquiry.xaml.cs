@@ -237,7 +237,7 @@ namespace dMobile.View.Activity
         /// </summary>
         protected override async void OnAppearing()
         {
-            if (this.IsIndicatorRunning)
+            if (!this.IsIndicatorRunning)
             {
                 try
                 {

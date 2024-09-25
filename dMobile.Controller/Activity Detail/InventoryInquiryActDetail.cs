@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Data;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
@@ -287,7 +288,7 @@ namespace dMobile.Controller.Activity_Detail
         {
             var observableCollection = new ObservableCollection<object>();
 
-            foreach (InventoryInquiryDetail inquiryDetail in this.ListDetails)
+            foreach (var inquiryDetail in this.ListDetails.Cast<InventoryInquiryDetail>())
             {
                 observableCollection.Add(inquiryDetail);
             }
@@ -331,7 +332,7 @@ namespace dMobile.Controller.Activity_Detail
 
             gridMain.Children.Add(gridHeader);
 
-            foreach (InventoryInquiryDetail inquiryDetail in observableCollection)
+            foreach (var inquiryDetail in observableCollection.Cast<InventoryInquiryDetail>())
             {
                 var detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(
                     $"{inquiryDetail.ActivityDetailQuantity:F3}");

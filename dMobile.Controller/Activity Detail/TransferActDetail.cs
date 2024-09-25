@@ -390,9 +390,9 @@ namespace dMobile.Controller.Activity_Detail
 
                     this.DataLayerProgressOutHandler(this, EventArgs.Empty, 5);
 
-                    tableActTransferDetail.RegisterDataAccessListenerProgressOut((TransferActDetail)this);
-                    await tableActTransferDetail.RequestDetailData(this.ActItem.ItemRefno);
-                    tableActTransferDetail.UnregisterDataAccessListenerProgressOut((TransferActDetail)this);
+                    tableActTransferDetail.RegisterDataAccessListenerProgressOut(this);
+                    await tableActTransferDetail.RequestDetailData(this.ActItem.ItemFkRefno, this.ActItem.ItemRefno);
+                    tableActTransferDetail.UnregisterDataAccessListenerProgressOut(this);
                 }
                 else
                 {
@@ -401,9 +401,9 @@ namespace dMobile.Controller.Activity_Detail
 
                     this.DataLayerProgressOutHandler(this, EventArgs.Empty, 5);
 
-                    tableActTransferDetail.RegisterDataAccessListenerProgressOut((TransferActDetail)this);
-                    await tableActTransferDetail.RequestDetailData(this.ActItem.ItemRefno);
-                    tableActTransferDetail.UnregisterDataAccessListenerProgressOut((TransferActDetail)this);
+                    tableActTransferDetail.RegisterDataAccessListenerProgressOut(this);
+                    await tableActTransferDetail.RequestDetailData(this.ActItem.ItemFkRefno, this.ActItem.ItemRefno);
+                    tableActTransferDetail.UnregisterDataAccessListenerProgressOut(this);
                 }
             }
         }
@@ -805,7 +805,7 @@ namespace dMobile.Controller.Activity_Detail
 
             if (this.ListDetails != null && this.ListDetails.Count > 0)
             {
-                foreach (TransferDetail transferDetail in this.ListDetails)
+                foreach (var transferDetail in this.ListDetails.Cast<TransferDetail>())
                 {
                     fillQty.Quantity += Convert.ToDecimal(transferDetail.ActivityDetailQuantity);
                     fillQty.BaseQuantity += Convert.ToDecimal(transferDetail.ActivityDetailBaseQuantity);
@@ -826,7 +826,7 @@ namespace dMobile.Controller.Activity_Detail
         {
             var observableCollection = new ObservableCollection<object>();
 
-            foreach (TransferDetail transferDetail in this.ListDetails)
+            foreach (var transferDetail in this.ListDetails.Cast<TransferDetail>())
             {
                 observableCollection.Add(transferDetail);
             }
@@ -870,7 +870,7 @@ namespace dMobile.Controller.Activity_Detail
 
             gridMain.Children.Add(gridHeader);
 
-            foreach (TransferDetail transferDetail in observableCollection)
+            foreach (var transferDetail in observableCollection.Cast<TransferDetail>())
             {
                 var detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(
                     $"{transferDetail.ActivityDetailQuantity:F3}");
@@ -920,7 +920,7 @@ namespace dMobile.Controller.Activity_Detail
             this.ListDetails = this.ListTransferDetails.Where(adjDetail =>
                 adjDetail.ActivityDetailSchemeID.ToUpper().Contains(searchText.ToUpper().Trim())).Cast<object>().ToList();
 
-            foreach (TransferDetail transferDetail in this.ListDetails)
+            foreach (var transferDetail in this.ListDetails.Cast<TransferDetail>())
             {
                 observableCollection.Add(transferDetail);
             }

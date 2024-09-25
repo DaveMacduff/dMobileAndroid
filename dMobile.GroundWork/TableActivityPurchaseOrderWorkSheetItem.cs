@@ -107,9 +107,9 @@ namespace dMobile.GroundWork
         /// <summary>
         /// The Send.
         /// </summary>
-        /// <param name="actItemRefno">The actItemRefno<see cref="int"/>.</param>
+        /// <param name="activityFkRefnoThe activityFkRefno<see cref="int"/>.</param>
         /// <returns></returns>
-        protected override async Task<string> SendRequest(int actItemRefno)
+        protected override async Task<string> SendRequest(int activityFkRefno)
         {
             var actWorkSheetFKRefno = 0;
             return await this.SendComm(await this.CreateRequest(actWorkSheetFKRefno));
@@ -228,9 +228,9 @@ namespace dMobile.GroundWork
         /// <summary>
         /// The Create.
         /// </summary>
-        /// <param name="activityItemFkRefno">The activityItemFkRefno<see cref="int"/>.</param>
+        /// <param name="activityFkRefno">The activityFkRefno<see cref="int"/>.</param>
         /// <returns></returns>
-        protected override async Task<string> CreateRequest(int activityItemFkRefno)
+        protected override async Task<string> CreateRequest(int activityFkRefno)
         {
             var xmlString = new StringBuilder();
             var settings = new XmlWriterSettings
@@ -246,7 +246,7 @@ namespace dMobile.GroundWork
                 + "<command>"
                 + "<action>REQUEST PURCHASE ORDER WORK SHEET ITEMS</action>"
                 + await SysCommon.GetRequestDefaults(false)
-                + "<refno>" + activityItemFkRefno + "</refno>"
+                + "<refno>" + activityFkRefno + "</refno>"
                 + "</command>"
                 + "<whs_id>" + LocationMap.GetInstance().CurrLocMap.WhsFkRefno + "</whs_id>"
                 + "</imclient>");
@@ -263,7 +263,7 @@ namespace dMobile.GroundWork
             throw new NotImplementedException();
         }
 
-        protected override Task<string> CreateRequest(XDocument criteria)
+        protected override Task<string> CreateRequest(XDocument criteriaFilter)
         {
             throw new NotImplementedException();
         }
@@ -298,12 +298,12 @@ namespace dMobile.GroundWork
             throw new NotImplementedException();
         }
 
-        protected override Task<string> CreateRequest(int activityItemFkRefno, XDocument criteria)
+        protected override Task<string> CreateRequest(int activityFkRefno, XDocument criteria)
         {
             throw new NotImplementedException();
         }
 
-        protected override Task<string> CreateRequest(int prodLocMapType, int whsLocMapFKRefno)
+        protected override Task<string> CreateRequest(int prodLocMapType, int whsLocMapFkRefno)
         {
             throw new NotImplementedException();
         }

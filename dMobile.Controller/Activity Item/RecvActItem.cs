@@ -148,7 +148,7 @@ namespace dMobile.Controller.Activity_Item
             if (actItemFoundRefno >= 0)
             {
                 var idx = 0;
-                foreach (ReceiveItem item in this.ListItems)
+                foreach (var item in this.ListItems.Cast<ReceiveItem>())
                 {
                     if (item.ActivityItemRefno == this.ItemRefno)
                     {
@@ -439,9 +439,9 @@ namespace dMobile.Controller.Activity_Item
 
                 this.DataLayerProgressOutHandler(this, EventArgs.Empty, 5);
 
-                tableActRecvItem.RegisterDataAccessListenerProgressOut((RecvActItem)this);
-                await tableActRecvItem.RequestItemData(this.ActHdr.HdrRefno);
-                tableActRecvItem.UnregisterDataAccessListenerProgressOut((RecvActItem)this);
+                tableActRecvItem.RegisterDataAccessListenerProgressOut(this);
+                await tableActRecvItem.RequestItemData(this.ActHdr.HdrFkRefno, this.ActHdr.HdrRefno);
+                tableActRecvItem.UnregisterDataAccessListenerProgressOut(this);
             }
         }
 
@@ -455,7 +455,7 @@ namespace dMobile.Controller.Activity_Item
         {
             var receiveItems = new ObservableCollection<object>();
 
-            foreach (ReceiveItem receiveItem in this.ListItems)
+            foreach (var receiveItem in this.ListItems.Cast<ReceiveItem>())
             {
                 if (receiveItem.ActivityItemFKRefno >= 0)
                 {
@@ -464,7 +464,7 @@ namespace dMobile.Controller.Activity_Item
             }
 
             // Add negative new line items to the bottom.
-            foreach (ReceiveItem receiveItem in this.ListItems)
+            foreach (var receiveItem in this.ListItems.Cast<ReceiveItem>())
             {
                 if (receiveItem.ActivityItemFKRefno < 0)
                 {
@@ -561,7 +561,7 @@ namespace dMobile.Controller.Activity_Item
 
             gridMainActivity.Children.Add(gridItems);
 
-            foreach (ReceiveItem receiveItem in receiveItems)
+            foreach (var receiveItem in receiveItems.Cast<ReceiveItem>())
             {
                 var detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(
                     receiveItem.IsActivityItemReceivingComment);
@@ -817,7 +817,7 @@ namespace dMobile.Controller.Activity_Item
             this.ListItems = this.ListReceiveItems.Where(receiveItem => receiveItem.ProductCode.ToLower().Contains(
                 searchText.ToLower().Trim())).Cast<object>().ToList();
 
-            foreach (ReceiveItem receiveItem in this.ListItems)
+            foreach (var receiveItem in this.ListItems.Cast<ReceiveItem>())
             {
                 observableCollection.Add(receiveItem);
             }

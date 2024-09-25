@@ -142,7 +142,7 @@ namespace dMobile.Controller.Activity_Item
             if (actItemFoundRefno >= 0)
             {
                 var idx = 0;
-                foreach (ProductionTicketByProductItem item in this.ListItems)
+                foreach (var item in this.ListItems.Cast<ProductionTicketByProductItem>())
                 {
                     if (item.ActivityItemRefno == this.ItemRefno)
                     {
@@ -455,9 +455,9 @@ namespace dMobile.Controller.Activity_Item
 
                 this.DataLayerProgressOutHandler(this, EventArgs.Empty, 5);
 
-                tableByProdItem.RegisterDataAccessListenerProgressOut((TicketByProdActItem)this);
-                await tableByProdItem.RequestItemData(this.ActHdr.HdrRefno);
-                tableByProdItem.UnregisterDataAccessListenerProgressOut((TicketByProdActItem)this);
+                tableByProdItem.RegisterDataAccessListenerProgressOut(this);
+                await tableByProdItem.RequestItemData(this.ActHdr.HdrFkRefno, this.ActHdr.HdrRefno);
+                tableByProdItem.UnregisterDataAccessListenerProgressOut(this);
             }
         }
 
@@ -471,7 +471,7 @@ namespace dMobile.Controller.Activity_Item
         {
             var observableCollection = new ObservableCollection<object>();
 
-            foreach (ProductionTicketByProductItem productionTicketByProductItem in this.ListItems)
+            foreach (var productionTicketByProductItem in this.ListItems.Cast<ProductionTicketByProductItem>())
             {
                 if (productionTicketByProductItem.ActivityItemFKRefno >= 0)
                 {
@@ -529,7 +529,7 @@ namespace dMobile.Controller.Activity_Item
 
             gridMainActivity.Children.Add(gridHeader);
 
-            foreach (ProductionTicketByProductItem productionTicketByProductItem in observableCollection)
+            foreach (var productionTicketByProductItem in observableCollection.Cast<ProductionTicketByProductItem>())
             {
                 var detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(Convert.ToString(productionTicketByProductItem.ProductCode));
                 var detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(productionTicketByProductItem.ProductUnitBC);
@@ -759,7 +759,7 @@ namespace dMobile.Controller.Activity_Item
             this.ListItems = this.ListProductionTicketByProductItems.Where(prodTicketByProdItem =>
                 prodTicketByProdItem.ProductCode.ToString().ToLower().Contains(searchText.ToLower().
                     Trim())).Cast<object>().ToList();
-            foreach (ProductionTicketByProductItem productionTicketByProductItem in this.ListItems)
+            foreach (var productionTicketByProductItem in this.ListItems.Cast<ProductionTicketByProductItem>())
             {
                 observableCollection.Add(productionTicketByProductItem);
             }

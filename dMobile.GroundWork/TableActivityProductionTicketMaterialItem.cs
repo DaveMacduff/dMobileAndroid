@@ -11,8 +11,8 @@ namespace dMobile.GroundWork
     using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
-    using dMobile.Bedrock;
-    using dMobile.Resources.Models;
+    using Bedrock;
+    using Resources.Models;
     using SQLite;
 
     /// <summary>
@@ -24,7 +24,7 @@ namespace dMobile.GroundWork
         /// Initializes a new instance of the <see cref="TableActivityProductionTicketMaterialItem"/> class.
         /// </summary>
         public TableActivityProductionTicketMaterialItem()
-      : base()
+            : base()
         {
             this.FullClassName = "dMobile.GroundWork.TableActivityProductionTicketMaterialItem";
             this.CurrentSubType = SysCommon.ActSubTypes.TicketMaterial;
@@ -38,93 +38,120 @@ namespace dMobile.GroundWork
         public override async Task PurgeData()
         {
             var conn = DatabaseConnection.GetInstance().SqlConn;
-            this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} items.", true);
-            await conn.RunInTransactionAsync(transaction =>
-            {
-                try
+            this.DataAccessStatusOutHandler(
+                this,
+                EventArgs.Empty,
+                $"Purging {this.LowerCaseName} items.",
+                true);
+            await conn.RunInTransactionAsync(
+                transaction =>
                 {
-                    // Corruption recovery cleanup.
-                    var query = @"
+                    try
+                    {
+                        // Corruption recovery cleanup.
+                        var query = @"
                         DELETE FROM tActivityItemBarCodeAssociationXRef
                             WHERE tActivityItemBarCodeAssociationXRef.ActivityItemRefno <= 0";
-                    transaction.Execute(query);
+                        transaction.Execute(query);
 
-                    query = @"
+                        query = @"
                         DELETE FROM tActivityItemBarCodeAssociationXRef
                             WHERE tActivityItemBarCodeAssociationXRef.ActivityItemRefno
                                 NOT IN (SELECT tActivityItem.ActivityItemRefno FROM tActivityItem)";
-                    transaction.Execute(query);
+                        transaction.Execute(query);
 
-                    query = "DELETE FROM tActivityItemProductionMaterial WHERE tActivityItemProductionMaterial.ActivityItemRefno <= 0" +
+                        query =
+                            "DELETE FROM tActivityItemProductionMaterial WHERE tActivityItemProductionMaterial.ActivityItemRefno <= 0" +
                             " OR tActivityItemProductionMaterial.ActivityItemFKRefno <= 0";
-                    transaction.Execute(query);
+                        transaction.Execute(query);
 
-                    query = "DELETE FROM tActivityItemProductionMaterial WHERE tActivityItemProductionMaterial.ActivityItemRefno " +
+                        query =
+                            "DELETE FROM tActivityItemProductionMaterial WHERE tActivityItemProductionMaterial.ActivityItemRefno " +
                             "NOT IN (SELECT tActivityItem.ActivityItemRefno FROM tActivityItem)";
-                    transaction.Execute(query);
+                        transaction.Execute(query);
 
-                    query = @"DELETE FROM tActivityItemProduction WHERE tActivityItemProduction.ActivityItemRefno <= 0";
-                    transaction.Execute(query);
+                        query =
+                            @"DELETE FROM tActivityItemProduction WHERE tActivityItemProduction.ActivityItemRefno <= 0";
+                        transaction.Execute(query);
 
-                    query = @"
+                        query = @"
                         DELETE FROM tActivityItemProduction
                             WHERE tActivityItemProduction.ActivityItemRefno
                                 NOT IN (SELECT tActivityItem.ActivityItemRefno FROM tActivityItem)";
-                    transaction.Execute(query);
+                        transaction.Execute(query);
 
-                    query = @"
+                        query = @"
                         DELETE FROM tActivityItem
                             WHERE tActivityItem.ActivityRefno
                                 NOT IN (SELECT tActivity.ActivityRefno FROM tActivity)";
-                    transaction.Execute(query);
+                        transaction.Execute(query);
 
-                    query = "DELETE FROM tActivityItem WHERE tActivityItem.ActivityRefno <= 0";
-                    transaction.Execute(query);
+                        query = "DELETE FROM tActivityItem WHERE tActivityItem.ActivityRefno <= 0";
+                        transaction.Execute(query);
 
-                    // Regular purge.
-                    query = @"
+                        // Regular purge.
+                        query = @"
                         DELETE FROM tActivityItemBarCodeAssociationXRef
                             WHERE tActivityItemBarCodeAssociationXRef.ActivityItemRefno IN
                                 (SELECT tActivityItem.ActivityItemRefno
                                     FROM tActivityItem
                                     WHERE tActivityItem.ActivityItemSubType = ?)";
-                    transaction.Execute(query, this.CurrentSubType);
+                        transaction.Execute(query, this.CurrentSubType);
 
-                    query = "DELETE FROM tActivityItemProductionMaterial";
-                    transaction.Execute(query, this.CurrentSubType);
+                        query = "DELETE FROM tActivityItemProductionMaterial";
+                        transaction.Execute(query, this.CurrentSubType);
 
-                    query = "DELETE FROM tActivityItemProduction WHERE ActivityItemSubType = ?";
-                    transaction.Execute(query, this.CurrentSubType);
+                        query = "DELETE FROM tActivityItemProduction WHERE ActivityItemSubType = ?";
+                        transaction.Execute(query, this.CurrentSubType);
 
-                    query = "DELETE FROM tActivityItem WHERE ActivityItemSubType = ?";
-                    transaction.Execute(query, this.CurrentSubType);
+                        query = "DELETE FROM tActivityItem WHERE ActivityItemSubType = ?";
+                        transaction.Execute(query, this.CurrentSubType);
 
-                    transaction.Commit();
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} details complete.", true);
-                }
-                catch (SQLiteException sqlEx)
-                {
-                    transaction.Rollback();
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} details failed.", true);
-                    throw new Exception($"Database exception occurred. Purging {this.LowerCaseName} details failed.", sqlEx);
-                }
-                catch (Exception ex)
-                {
-                    transaction.Rollback();
-                    throw new Exception($"Database exception occurred. Purging {this.LowerCaseName} details failed.", ex);
-                }
-            });
+                        transaction.Commit();
+                        this.DataAccessStatusOutHandler(
+                            this,
+                            EventArgs.Empty,
+                            $"Purging {this.LowerCaseName} details complete.",
+                            true);
+                    }
+                    catch (SQLiteException sqlEx)
+                    {
+                        transaction.Rollback();
+                        this.DataAccessStatusOutHandler(
+                            this,
+                            EventArgs.Empty,
+                            "Database exception occurred.",
+                            true);
+                        this.DataAccessStatusOutHandler(
+                            this,
+                            EventArgs.Empty,
+                            $"Purging {this.LowerCaseName} details failed.",
+                            true);
+                        throw new Exception(
+                            $"Database exception occurred. Purging {this.LowerCaseName} details failed.",
+                            sqlEx);
+                    }
+                    catch (Exception ex)
+                    {
+                        transaction.Rollback();
+                        throw new Exception(
+                            $"Database exception occurred. Purging {this.LowerCaseName} details failed.",
+                            ex);
+                    }
+                });
         }
 
         /// <summary>
         /// The Send.
         /// </summary>
-        /// <param name="actItemRefno">The actItemRefno<see cref="int"/>.</param>
+        /// <param name="activityFkRefnoThe activityFkRefno<see cref="int"/>.</param>
         /// <returns></returns>
-        protected override async Task<string> SendRequest(int actItemRefno)
+        protected override async Task<string> SendRequest(int activityFkRefno)
         {
-            var results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<tActivityProductionMaterialModel>("SELECT * FROM tActivityProductionMaterial WHERE ActivityRefno = ?", actItemRefno);
+            var results = await DatabaseConnection.GetInstance()
+                .SqlConn.QueryAsync<tActivityProductionMaterialModel>(
+                    "SELECT * FROM tActivityProductionMaterial WHERE ActivityFKRefno = ?",
+                    activityFkRefno);
 
             int actProductionFKRefno;
             if (results?.Count > 0)
@@ -133,7 +160,12 @@ namespace dMobile.GroundWork
             }
             else
             {
-                throw new Exception("No results in tActivityProductionMaterial for ActivityRefno " + actItemRefno + Environment.NewLine + this.FullClassName + "Send");
+                throw new Exception(
+                    "No results in tActivityProductionMaterial for ActivityRefno " +
+                    activityFkRefno +
+                    Environment.NewLine +
+                    this.FullClassName +
+                    "Send");
             }
 
             return await this.SendComm(await this.CreateRequest(actProductionFKRefno));
@@ -146,137 +178,203 @@ namespace dMobile.GroundWork
         /// <param name="actRefno">The actItemRefno<see cref="int"/>.</param>
         protected override async Task Save(string responseData, int actRefno)
         {
-            await DatabaseConnection.GetInstance().SqlConn.RunInTransactionAsync(transaction =>
-            {
-                try
-                {
-                    using var ds = new DataSet();
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
-
-                    ds.ReadXml(SysCommon.GetXmlReader(ref responseData), XmlReadMode.Auto);
-
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving ticket material items.", false);
-
-                    if (ds.Tables.Count != 0)
+            await DatabaseConnection.GetInstance()
+                .SqlConn.RunInTransactionAsync(
+                    transaction =>
                     {
-                        var progMax = Convert.ToInt32(ds.Tables["tActivityItemProduction"].Rows.Count);
-
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Records {progMax}", false);
-
-                        var actItemRefno = 0;
-                        var progValue = 0;
-                        var prodUnitRefno = 0;
-                        var locMapRefno = 0;
-                        var actItemProductionFKRefno = 0;
-
-                        this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
-
-                        foreach (DataRow drow in ds.Tables["tActivityItemProduction"].Rows)
+                        try
                         {
-                            transaction.Execute(
-                                "INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus, ActivityRefno," +
-                                " ActivityItemIsAdded) VALUES (?, ?, ?, ?)",
-                                Convert.ToInt32(this.CurrentSubType),
-                                Convert.ToInt32(SysCommon.ActStatus.NoChange),
-                                actRefno,
-                                0);
-                            actItemRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivityItem"));
-                            prodUnitRefno = this.GetProductUnitRefnoFromDataRow(drow, transaction, false);
-                            locMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, transaction);
-                            var queryActivityItemProduction = "INSERT INTO tActivityItemProduction (" +
-                                                              "ActivityItemRefno, " +
-                                                              "ActivityItemSubType, " +
-                                                              "ProductUnitRefno, " +
-                                                              "LocationMapRefno, " +
-                                                              "ActivityItemProductionQuantity, " +
-                                                              "ActivityItemProductionBaseQuantity, " +
-                                                              "ActivityItemProductionWeightQuantity, " +
-                                                              "ActivityItemProductionDescription, " +
-                                                              "ActivityItemProductionQuantityExpected, " +
-                                                              "ActivityItemProductionBaseQuantityExpected, " +
-                                                              "ActivityItemProductionWeightQuantityExpected" +
-                                                              ") VALUES (" +
-                                                              "?, " +
-                                                              "?, " +
-                                                              "?, " +
-                                                              "?, " +
-                                                              "?, " +
-                                                              "?, " +
-                                                              "?, " +
-                                                              "?, " +
-                                                              "?, " +
-                                                              "?, " +
-                                                              "?" +
-                                                              ")";
-                            var parametersActivityItemProduction = new object[]
+                            using var ds = new DataSet();
+                            this.DataAccessStatusOutHandler(
+                                this,
+                                EventArgs.Empty,
+                                "Reading received data.",
+                                false);
+
+                            ds.ReadXml(SysCommon.GetXmlReader(ref responseData), XmlReadMode.Auto);
+
+                            this.DataAccessStatusOutHandler(
+                                this,
+                                EventArgs.Empty,
+                                "Saving ticket material items.",
+                                false);
+
+                            if (ds.Tables.Count != 0)
                             {
-                                    actItemRefno,
-                                    Convert.ToInt32(this.CurrentSubType),
-                                    prodUnitRefno,
-                                    locMapRefno,
-                                    Convert.ToDecimal(drow["ActivityItemProductionQuantity"]),
-                                    Convert.ToDecimal(drow["ActivityItemProductionBaseQuantity"]),
-                                    Convert.ToDecimal(drow["ActivityItemProductionWeightQuantity"]),
-                                    Convert.ToString(drow["ActivityItemProductionDescription"]),
-                                    Convert.ToDecimal(drow["ActivityItemProductionQuantityExpected"]),
-                                    Convert.ToDecimal(drow["ActivityItemProductionBaseQuantityExpected"]),
-                                    Convert.ToDecimal(drow["ActivityItemProductionWeightQuantityExpected"]),
-                            };
+                                var progMax = Convert.ToInt32(
+                                    ds.Tables["tActivityItemProduction"].Rows.Count);
 
-                            transaction.Execute(queryActivityItemProduction, parametersActivityItemProduction);
+                                this.DataAccessStatusOutHandler(
+                                    this,
+                                    EventArgs.Empty,
+                                    $"Records {progMax}",
+                                    false);
 
-                            actItemProductionFKRefno = Convert.ToInt32(drow["ActivityItemProductionFKRefno"]);
-                            transaction.Execute("INSERT INTO tActivityItemProductionMaterial (ActivityItemRefno, ActivityItemFKRefno, ActivityItemStringFKRefno) VALUES (?, ?, ?)", actItemRefno, actItemProductionFKRefno, Convert.ToString(actItemProductionFKRefno));
+                                var actItemRefno = 0;
+                                var progValue = 0;
+                                var prodUnitRefno = 0;
+                                var locMapRefno = 0;
+                                var actItemProductionFKRefno = 0;
 
-                            progValue++;
-                            if (progValue % 100 == 0)
-                            {
-                                this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue, 0, progMax);
+                                this.DataAccessProgressOutHandler(
+                                    this,
+                                    EventArgs.Empty,
+                                    0,
+                                    0,
+                                    progMax);
+
+                                foreach (DataRow drow in ds.Tables["tActivityItemProduction"].Rows)
+                                {
+                                    transaction.Execute(
+                                        "INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus, ActivityRefno," +
+                                        " ActivityItemIsAdded) VALUES (?, ?, ?, ?)",
+                                        Convert.ToInt32(this.CurrentSubType),
+                                        Convert.ToInt32(SysCommon.ActStatus.NoChange),
+                                        actRefno,
+                                        0);
+                                    actItemRefno = Convert.ToInt32(
+                                        transaction.ExecuteScalar<int>(
+                                            "SELECT last_insert_rowid() FROM tActivityItem"));
+                                    prodUnitRefno = this.GetProductUnitRefnoFromDataRow(
+                                        drow,
+                                        transaction,
+                                        false);
+                                    locMapRefno = this.GetWhsLocMapRefnoFromDataRow(
+                                        drow,
+                                        transaction);
+                                    var queryActivityItemProduction =
+                                        "INSERT INTO tActivityItemProduction (" +
+                                        "ActivityItemRefno, " +
+                                        "ActivityItemSubType, " +
+                                        "ProductUnitRefno, " +
+                                        "LocationMapRefno, " +
+                                        "ActivityItemProductionQuantity, " +
+                                        "ActivityItemProductionBaseQuantity, " +
+                                        "ActivityItemProductionWeightQuantity, " +
+                                        "ActivityItemProductionDescription, " +
+                                        "ActivityItemProductionQuantityExpected, " +
+                                        "ActivityItemProductionBaseQuantityExpected, " +
+                                        "ActivityItemProductionWeightQuantityExpected" +
+                                        ") VALUES (" +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?, " +
+                                        "?" +
+                                        ")";
+                                    var parametersActivityItemProduction = new object[]
+                                    {
+                                        actItemRefno,
+                                        Convert.ToInt32(this.CurrentSubType),
+                                        prodUnitRefno,
+                                        locMapRefno,
+                                        Convert.ToDecimal(drow["ActivityItemProductionQuantity"]),
+                                        Convert.ToDecimal(
+                                            drow["ActivityItemProductionBaseQuantity"]),
+                                        Convert.ToDecimal(
+                                            drow["ActivityItemProductionWeightQuantity"]),
+                                        Convert.ToString(drow["ActivityItemProductionDescription"]),
+                                        Convert.ToDecimal(
+                                            drow["ActivityItemProductionQuantityExpected"]),
+                                        Convert.ToDecimal(
+                                            drow["ActivityItemProductionBaseQuantityExpected"]),
+                                        Convert.ToDecimal(
+                                            drow["ActivityItemProductionWeightQuantityExpected"])
+                                    };
+
+                                    transaction.Execute(
+                                        queryActivityItemProduction,
+                                        parametersActivityItemProduction);
+
+                                    actItemProductionFKRefno =
+                                        Convert.ToInt32(drow["ActivityItemProductionFKRefno"]);
+                                    transaction.Execute(
+                                        "INSERT INTO tActivityItemProductionMaterial (ActivityItemRefno, ActivityItemFKRefno, ActivityItemStringFKRefno) VALUES (?, ?, ?)",
+                                        actItemRefno,
+                                        actItemProductionFKRefno,
+                                        Convert.ToString(actItemProductionFKRefno));
+
+                                    progValue++;
+                                    if (progValue % 100 == 0)
+                                    {
+                                        this.DataAccessProgressOutHandler(
+                                            this,
+                                            EventArgs.Empty,
+                                            progValue,
+                                            0,
+                                            progMax);
+                                    }
+                                }
+
+                                this.DataAccessProgressOutHandler(
+                                    this,
+                                    EventArgs.Empty,
+                                    progMax,
+                                    0,
+                                    progMax);
                             }
+
+                            transaction.Commit();
+
+                            this.DataAccessStatusOutHandler(
+                                this,
+                                EventArgs.Empty,
+                                "Saving ticket material items complete.",
+                                false);
                         }
+                        catch (SQLiteException ex)
+                        {
+                            transaction.Rollback();
 
-                        this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
-                    }
-
-                    transaction.Commit();
-
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving ticket material items complete.", false);
-                }
-                catch (SQLiteException ex)
-                {
-                    transaction.Rollback();
-
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving ticket material items failed.", false);
-                    throw new Exception("Database exception occurred. Saving ticket material items failed.", ex);
-                }
-            });
+                            this.DataAccessStatusOutHandler(
+                                this,
+                                EventArgs.Empty,
+                                "Database exception occurred.",
+                                true);
+                            this.DataAccessStatusOutHandler(
+                                this,
+                                EventArgs.Empty,
+                                "Saving ticket material items failed.",
+                                false);
+                            throw new Exception(
+                                "Database exception occurred. Saving ticket material items failed.",
+                                ex);
+                        }
+                    });
         }
 
         /// <summary>
         /// The Create.
         /// </summary>
-        /// <param name="activityItemFkRefno">The activityItemFkRefno<see cref="int"/>.</param>
+        /// <param name="activityFkRefno">The activityFkRefno<see cref="int"/>.</param>
         /// <returns></returns>
-        protected override async Task<string> CreateRequest(int activityItemFkRefno)
+        protected override async Task<string> CreateRequest(int activityFkRefno)
         {
             var xmlString = new StringBuilder();
             var settings = new XmlWriterSettings
             {
                 Async = true,
-                Indent = false,
+                Indent = false
             };
             var xml = XmlWriter.Create(xmlString, settings);
 
             var request = XDocument.Parse(
-                "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>"
-                + "<imclient>"
-                + "<command>"
-                + "<action>REQUEST PRODUCTION TICKET MATERIAL ITEMS</action>"
-                + await SysCommon.GetRequestDefaults(false)
-                + "<refno>" + activityItemFkRefno + "</refno>"
-                + "</command>"
-                + "</imclient>");
+                "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>" +
+                "<imclient>" +
+                "<command>" +
+                "<action>REQUEST PRODUCTION TICKET MATERIAL ITEMS</action>" +
+                await SysCommon.GetRequestDefaults(false) +
+                "<refno>" +
+                activityFkRefno +
+                "</refno>" +
+                "</command>" +
+                "</imclient>");
 
             request.Save(xml);
             await xml.FlushAsync();
@@ -290,7 +388,7 @@ namespace dMobile.GroundWork
             throw new NotImplementedException();
         }
 
-        protected override Task<string> CreateRequest(XDocument criteria)
+        protected override Task<string> CreateRequest(XDocument criteriaFilter)
         {
             throw new NotImplementedException();
         }
@@ -325,12 +423,12 @@ namespace dMobile.GroundWork
             throw new NotImplementedException();
         }
 
-        protected override Task<string> CreateRequest(int activityItemFkRefno, XDocument criteria)
+        protected override Task<string> CreateRequest(int activityFkRefno, XDocument criteria)
         {
             throw new NotImplementedException();
         }
 
-        protected override Task<string> CreateRequest(int prodLocMapType, int whsLocMapFKRefno)
+        protected override Task<string> CreateRequest(int prodLocMapType, int whsLocMapFkRefno)
         {
             throw new NotImplementedException();
         }

@@ -422,7 +422,7 @@ namespace dMobile.Controller.Activity_Detail
 
             gridMain.Children.Add(gridData);
 
-            foreach (MoveDetail moveInventoryDetail in observableCollection)
+            foreach (var moveInventoryDetail in observableCollection.Cast<MoveDetail>())
             {
                 var detailWidth0 = DependencyService.Get<IGridService>()
                     .CalculateTextWidth(moveInventoryDetail.ProductCode);

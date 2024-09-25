@@ -530,23 +530,18 @@ namespace dMobile.Controller.Activity_Detail
         /// <returns>The <see cref="Task"/>.</returns>
         public override async Task Refresh()
         {
-            if (this.SysEnv.SysSettings.IsDisconnectedMode)
+            var tableActPickingDetail = new TableActivityPickingDetail();
+            tableActPickingDetail.RegisterDataAccessListenerProgressOut(this);
+            this.DataLayerProgressOutHandler(this, EventArgs.Empty, 1);
+            if (!this.SysEnv.SysSettings.IsDisconnectedMode)
             {
-                this.DataLayerProgressOutHandler(this, EventArgs.Empty, 5);
-            }
-            else
-            {
-                this.DataLayerProgressOutHandler(this, EventArgs.Empty, 2);
-
-                var tableActPickingDetail = new TableActivityPickingDetail();
                 await tableActPickingDetail.PurgeData();
-
-                this.DataLayerProgressOutHandler(this, EventArgs.Empty, 5);
-
-                tableActPickingDetail.RegisterDataAccessListenerProgressOut((PickingActDetail)this);
-                await tableActPickingDetail.RequestDetailData(this.ActItem.ItemRefno);
-                tableActPickingDetail.UnregisterDataAccessListenerProgressOut((PickingActDetail)this);
             }
+
+            this.DataLayerProgressOutHandler(this, EventArgs.Empty, 3);
+            await tableActPickingDetail.RequestDetailData(this.ActItem.ItemFkRefno, this.ActItem.ItemRefno);
+            this.DataLayerProgressOutHandler(this, EventArgs.Empty, 5);
+            tableActPickingDetail.UnregisterDataAccessListenerProgressOut(this);
         }
 
         /// <summary>
@@ -933,7 +928,7 @@ namespace dMobile.Controller.Activity_Detail
         {
             var observableCollection = new ObservableCollection<object>();
 
-            foreach (PickingDetail pickingDetail in this.ListDetails)
+            foreach (var pickingDetail in this.ListDetails.Cast<PickingDetail>())
             {
                 observableCollection.Add(pickingDetail);
             }
@@ -1024,7 +1019,7 @@ namespace dMobile.Controller.Activity_Detail
 
             gridMain.Children.Add(gridHeader);
 
-            foreach (PickingDetail pickingDetail in observableCollection)
+            foreach (var pickingDetail in observableCollection.Cast<PickingDetail>())
             {
                 var detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(
                     pickingDetail.ActivityDetailIsConfirmedString);
@@ -1285,7 +1280,7 @@ namespace dMobile.Controller.Activity_Detail
             this.ListDetails = this.ListPickingDetails.Where(adjDetail =>
                 adjDetail.ActivityDetailSchemeID.ToUpper().Contains(searchText.ToUpper().Trim())).Cast<object>().ToList();
 
-            foreach (PickingDetail pickingDetail in this.ListDetails)
+            foreach (var pickingDetail in this.ListDetails.Cast<PickingDetail>())
             {
                 observableCollection.Add(pickingDetail);
             }
@@ -1516,7 +1511,7 @@ namespace dMobile.Controller.Activity_Detail
 
             if (this.ListDetails != null && this.ListDetails.Count > 0)
             {
-                foreach (PickingDetail pickingDetail in this.ListDetails)
+                foreach (var pickingDetail in this.ListDetails.Cast<PickingDetail>())
                 {
                     if (this.SysEnv.SysSettings.IsPickConfirmDet)
                     {

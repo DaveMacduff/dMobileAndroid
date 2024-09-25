@@ -23,7 +23,6 @@ namespace dMobile.GroundWork
         /// Initializes a new instance of the <see cref="TableActivityPhysicalCount"/> class.
         /// </summary>
         public TableActivityPhysicalCount()
-      : base()
         {
             this.FullClassName = "dMobile.GroundWork.TableActivityPhysicalCount";
             this.CurrentSubType = SysCommon.ActSubTypes.PhysicalCounts;
@@ -38,54 +37,80 @@ namespace dMobile.GroundWork
         public override async Task PurgeData()
         {
             ////var conn = DatabaseConnection.GetInstance().SQLConn;
-            this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName}.", true);
+            this.DataAccessStatusOutHandler(
+                this,
+                EventArgs.Empty,
+                $"Purging {this.LowerCaseName}.",
+                true);
             var subType = Convert.ToInt32(this.CurrentSubType);
             var conn = DatabaseConnection.GetInstance().SqlConn;
-            await conn.RunInTransactionAsync(transaction =>
-            {
-                try
+            await conn.RunInTransactionAsync(
+                transaction =>
                 {
-                    // Corruption recovery cleanup.
-                    var query = @"
+                    try
+                    {
+                        // Corruption recovery cleanup.
+                        var query = @"
                         DELETE FROM tActivityCount
                             WHERE tActivityCount.ActivityRefno <= ?
                                 OR tActivityCount.ActivityFKRefno <= 0";
-                    transaction.Execute(query);
+                        transaction.Execute(query);
 
-                    query = @"
+                        query = @"
                         DELETE FROM tActivityCount
                             WHERE tActivityCount.ActivityRefno
                                 NOT IN (SELECT tActivity.ActivityRefno FROM tActivity)";
-                    transaction.Execute(query);
+                        transaction.Execute(query);
 
-                    query = "DELETE FROM tActivity WHERE tActivity.ActivityRefno <= 0";
-                    transaction.Execute(query);
+                        query = "DELETE FROM tActivity WHERE tActivity.ActivityRefno <= 0";
+                        transaction.Execute(query);
 
-                    // Regular purge.
-                    query = "DELETE FROM tActivityCount WHERE tActivityCount.ActivitySubType = ?";
-                    transaction.Execute(query, subType);
+                        // Regular purge.
+                        query =
+                            "DELETE FROM tActivityCount WHERE tActivityCount.ActivitySubType = ?";
+                        transaction.Execute(query, subType);
 
-                    query = "DELETE FROM tActivity WHERE tActivity.ActivitySubType = ?";
-                    transaction.Execute(query, subType);
+                        query = "DELETE FROM tActivity WHERE tActivity.ActivitySubType = ?";
+                        transaction.Execute(query, subType);
 
-                    transaction.Commit();
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} complete.", true);
-                }
-                catch (SQLiteException sqlEx)
-                {
-                    transaction.Rollback();
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"{sqlEx.Message}", true);
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} failed.", true);
-                    throw;
-                }
-                catch
-                {
-                    transaction.Rollback();
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} failed.", true);
-                    throw;
-                }
-            });
+                        transaction.Commit();
+                        this.DataAccessStatusOutHandler(
+                            this,
+                            EventArgs.Empty,
+                            $"Purging {this.LowerCaseName} complete.",
+                            true);
+                    }
+                    catch (SQLiteException sqlEx)
+                    {
+                        transaction.Rollback();
+                        this.DataAccessStatusOutHandler(
+                            this,
+                            EventArgs.Empty,
+                            "Database exception occurred.",
+                            true);
+                        this.DataAccessStatusOutHandler(
+                            this,
+                            EventArgs.Empty,
+                            $"{sqlEx.Message}",
+                            true);
+                        this.DataAccessStatusOutHandler(
+                            this,
+                            EventArgs.Empty,
+                            $"Purging {this.LowerCaseName} failed.",
+                            true);
+                        throw;
+                    }
+                    catch
+                    {
+                        transaction.Rollback();
+                        this.DataAccessStatusOutHandler(
+                            this,
+                            EventArgs.Empty,
+                            $"Purging {this.LowerCaseName} failed.",
+                            true);
+                        throw;
+                    }
+                });
         }
 
         /// <summary>
@@ -94,147 +119,200 @@ namespace dMobile.GroundWork
         /// <param name="responseData"></param>
         protected override async Task Save(string responseData)
         {
-            await DatabaseConnection.GetInstance().SqlConn.RunInTransactionAsync(transaction =>
-            {
-                try
-                {
-                    using var ds = new DataSet();
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received responseData.", false);
-                    ds.ReadXml(SysCommon.GetXmlReader(ref responseData), XmlReadMode.Auto);
-
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving physical counts.", false);
-
-                    if (ds.Tables.Count != 0)
+            await DatabaseConnection.GetInstance()
+                .SqlConn.RunInTransactionAsync(
+                    transaction =>
                     {
-                        var progMax = Convert.ToInt32(ds.Tables["tActivityCount"].Rows.Count);
-
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Records {progMax}", false);
-
-                        var actRefno = 0;
-                        var progValue = 0;
-                        var whsLocMapRefno = 0;
-                        var actCountTypeDesc = string.Empty;
-                        var countFKRefno = 0;
-
-                        this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
-
-                        foreach (DataRow drow in ds.Tables["tActivityCount"].Rows)
+                        try
                         {
-                            whsLocMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, transaction);
+                            using var ds = new DataSet();
+                            this.DataAccessStatusOutHandler(
+                                this,
+                                EventArgs.Empty,
+                                "Reading received responseData.",
+                                false);
+                            ds.ReadXml(SysCommon.GetXmlReader(ref responseData), XmlReadMode.Auto);
 
-                            transaction.Execute("INSERT INTO tActivity (ActivityStatus, ActivitySubType) VALUES (?, ?)", 0, Convert.ToInt32(SysCommon.ActSubTypes.PhysicalCounts));
+                            this.DataAccessStatusOutHandler(
+                                this,
+                                EventArgs.Empty,
+                                "Saving physical counts.",
+                                false);
 
-                            actRefno = Convert.ToInt32(transaction.ExecuteScalar<int>(
-                                "SELECT last_insert_rowid() FROM tActivity"));
+                            if (ds.Tables.Count != 0)
+                            {
+                                var progMax = Convert.ToInt32(
+                                    ds.Tables["tActivityCount"].Rows.Count);
 
-                            countFKRefno = Convert.ToInt32(drow["ActivityFKRefno"]);
-                            const string query = @"INSERT INTO tActivityCount (
-                                ActivityRefno, 
-                                ActivitySubType, 
-                                ActivityFKRefno, 
-                                ActivityStringFKRefno, 
-                                WarehouseLocationMapRefno, 
-                                ActivityCountType, 
-                                ActivityCountDateTime, 
-                                ActivityCountTypeDescription, 
-                                ActivityCountDescription
-                                ) VALUES (
-                                ?, 
-                                ?, 
-                                ?, 
-                                ?, 
-                                ?, 
-                                ?, 
-                                ?, 
-                                ?, 
-                                ?)";
-                            var parameters = new List<object>()
+                                this.DataAccessStatusOutHandler(
+                                    this,
+                                    EventArgs.Empty,
+                                    $"Records {progMax}",
+                                    false);
+
+                                var progValue = 0;
+                                var actCountTypeDesc = string.Empty;
+                                this.DataAccessProgressOutHandler(
+                                    this,
+                                    EventArgs.Empty,
+                                    0,
+                                    0,
+                                    progMax);
+
+                                foreach (DataRow drow in ds.Tables["tActivityCount"].Rows)
                                 {
-                                    actRefno,
-                                    Convert.ToInt32(SysCommon.ActSubTypes.PhysicalCounts),
-                                    countFKRefno,
-                                    countFKRefno.ToString(),
-                                    whsLocMapRefno,
-                                    Convert.ToInt32(drow["ActivityCountType"]),
-                                };
+                                    var whsLocMapRefno =
+                                        this.GetWhsLocMapRefnoFromDataRow(drow, transaction);
 
-                            // To remove time - convert twice
-                            var dt = Convert.ToDateTime(drow["ActivityCountDateTime"]);
+                                    transaction.Execute(
+                                        "INSERT INTO tActivity (ActivityStatus, ActivitySubType) VALUES (?, ?)",
+                                        0,
+                                        Convert.ToInt32(SysCommon.ActSubTypes.PhysicalCounts));
 
-                            // rec.SetDateTime((int)SysCommon.ActCountFields.DateTime, DateTime.Parse(dt.ToShortDateString()));
-                            parameters.Add(DateTime.Parse(dt.ToShortDateString()));
+                                    var actRefno = Convert.ToInt32(
+                                        transaction.ExecuteScalar<int>(
+                                            "SELECT last_insert_rowid() FROM tActivity"));
 
-                            switch (Convert.ToInt32(drow["ActivityCountType"]))
-                            {
-                                case (int)SysCommon.ActCountTypeFields.PhysicalCountByWarehouse:
+                                    var countFkRefno = Convert.ToInt32(drow["ActivityFKRefno"]);
+                                    const string query = @"INSERT INTO tActivityCount (
+                                        ActivityRefno, 
+                                        ActivitySubType, 
+                                        ActivityFKRefno, 
+                                        ActivityStringFKRefno, 
+                                        WarehouseLocationMapRefno, 
+                                        ActivityCountType, 
+                                        ActivityCountDateTime, 
+                                        ActivityCountTypeDescription, 
+                                        ActivityCountDescription
+                                        ) VALUES (
+                                        ?, 
+                                        ?, 
+                                        ?, 
+                                        ?, 
+                                        ?, 
+                                        ?, 
+                                        ?, 
+                                        ?, 
+                                        ?)";
+                                    var parameters = new List<object>()
+                                    {
+                                        actRefno,
+                                        Convert.ToInt32(SysCommon.ActSubTypes.PhysicalCounts),
+                                        countFkRefno,
+                                        countFkRefno.ToString(),
+                                        whsLocMapRefno,
+                                        Convert.ToInt32(drow["ActivityCountType"])
+                                    };
 
-                                    actCountTypeDesc = "Standard Physical Count By Warehouse";
-                                    break;
+                                    // To remove time - convert twice
+                                    var dt = Convert.ToDateTime(drow["ActivityCountDateTime"]);
 
-                                case (int)SysCommon.ActCountTypeFields.CycleCountByWarehouse:
+                                    // rec.SetDateTime((int)SysCommon.ActCountFields.DateTime, DateTime.Parse(dt.ToShortDateString()));
+                                    parameters.Add(DateTime.Parse(dt.ToShortDateString()));
+                                    switch (Convert.ToInt32(drow["ActivityCountType"]))
+                                    {
+                                        case (int)SysCommon.ActCountTypeFields
+                                            .PhysicalCountByWarehouse:
 
-                                    actCountTypeDesc = "Cycle Count By Warehouse";
-                                    break;
+                                            actCountTypeDesc =
+                                                "Standard Physical Count By Warehouse";
+                                            break;
 
-                                case (int)SysCommon.ActCountTypeFields.CycleCountBySection:
+                                        case (int)SysCommon.ActCountTypeFields
+                                            .CycleCountByWarehouse:
 
-                                    actCountTypeDesc = "Cycle Count By Section";
-                                    break;
+                                            actCountTypeDesc = "Cycle Count By Warehouse";
+                                            break;
 
-                                case (int)SysCommon.ActCountTypeFields.CycleCountBySlot:
+                                        case (int)SysCommon.ActCountTypeFields.CycleCountBySection:
 
-                                    actCountTypeDesc = "Cycle Count By Slot";
-                                    break;
+                                            actCountTypeDesc = "Cycle Count By Section";
+                                            break;
 
-                                case (int)SysCommon.ActCountTypeFields.BaseCycleCountByWarehouse:
+                                        case (int)SysCommon.ActCountTypeFields.CycleCountBySlot:
 
-                                    actCountTypeDesc = "Base Cycle Count By Warehouse";
-                                    break;
+                                            actCountTypeDesc = "Cycle Count By Slot";
+                                            break;
+
+                                        case (int)SysCommon.ActCountTypeFields
+                                            .BaseCycleCountByWarehouse:
+
+                                            actCountTypeDesc = "Base Cycle Count By Warehouse";
+                                            break;
+                                    }
+
+                                    parameters.Add(actCountTypeDesc);
+
+                                    // <wo="14563" comment="receiving strings up to 75 in length when database wants max 60. This is the viewable description when selecting line item." />
+                                    var incomingDescription = this.ReduceWhitespace(
+                                        drow["ActivityCountDescription"].ToString());
+
+                                    if (incomingDescription.Length > 60)
+                                    {
+                                        incomingDescription =
+                                            incomingDescription.Replace(
+                                                " ",
+                                                string.Empty); // remove all spaces
+                                    }
+
+                                    if (incomingDescription.Length > 60)
+                                    {
+                                        // truncate the end if we need to.
+                                        incomingDescription = incomingDescription[..60];
+                                    }
+
+                                    parameters.Add(incomingDescription);
+
+                                    transaction.Execute(query, parameters.ToArray());
+
+                                    progValue++;
+                                    if (progValue % 10 == 0)
+                                    {
+                                        this.DataAccessProgressOutHandler(
+                                            this,
+                                            EventArgs.Empty,
+                                            progValue,
+                                            0,
+                                            progMax);
+                                    }
+                                }
+
+                                this.DataAccessProgressOutHandler(
+                                    this,
+                                    EventArgs.Empty,
+                                    progMax,
+                                    0,
+                                    progMax);
                             }
 
-                            parameters.Add(actCountTypeDesc);
+                            transaction.Commit();
 
-                            // <wo="14563" comment="receiving strings up to 75 in length when database wants max 60. This is the viewable description when selecting line item." />
-                            var incomingDescription = this.ReduceWhitespace(drow["ActivityCountDescription"].ToString());
-
-                            if (incomingDescription.Length > 60)
-                            {
-                                incomingDescription = incomingDescription.Replace(" ", string.Empty); // remove all spaces
-                            }
-
-                            if (incomingDescription.Length > 60)
-                            {
-                                incomingDescription = incomingDescription.Substring(0, 60); // truncate the end if we need to.
-                            }
-
-                            parameters.Add(incomingDescription);
-
-                            transaction.Execute(query, parameters.ToArray());
-
-                            progValue++;
-                            if (progValue % 10 == 0)
-                            {
-                                this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue, 0, progMax);
-                            }
+                            this.DataAccessStatusOutHandler(
+                                this,
+                                EventArgs.Empty,
+                                "Saving physical counts complete.",
+                                false);
                         }
+                        catch (SQLiteException ex)
+                        {
+                            transaction.Rollback();
 
-                        this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
-                    }
+                            this.DataAccessStatusOutHandler(
+                                this,
+                                EventArgs.Empty,
+                                "Database exception occurred.",
+                                true);
+                            this.DataAccessStatusOutHandler(
+                                this,
+                                EventArgs.Empty,
+                                "Saving physical counts failed.",
+                                true);
 
-                    transaction.Commit();
-
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving physical counts complete.", false);
-                }
-                catch (SQLiteException ex)
-                {
-                    transaction.Rollback();
-
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving physical counts failed.", true);
-
-                    throw new Exception("Database exception occurred. Saving physical counts failed.", ex);
-                }
-            });
+                            throw new Exception(
+                                "Database exception occurred. Saving physical counts failed.",
+                                ex);
+                        }
+                    });
         }
 
         /// <summary>
@@ -284,11 +362,12 @@ namespace dMobile.GroundWork
             var settings = new XmlWriterSettings
             {
                 Async = true,
-                Indent = false,
+                Indent = false
             };
             var xml = XmlWriter.Create(xmlString, settings);
 
-            var request = XDocument.Parse($@"<?xml version=""1.0"" encoding=""utf-8"" standalone=""yes""?>
+            var request = XDocument.Parse(
+                $@"<?xml version=""1.0"" encoding=""utf-8"" standalone=""yes""?>
                 <imclient>
                 <command>
                 <action>REQUEST PHYSICAL COUNTS</action>
@@ -303,7 +382,7 @@ namespace dMobile.GroundWork
             return xmlString.ToString();
         }
 
-        protected override Task<string> CreateRequest(XDocument criteria)
+        protected override Task<string> CreateRequest(XDocument criteriaFilter)
         {
             throw new NotImplementedException();
         }
@@ -313,7 +392,7 @@ namespace dMobile.GroundWork
             throw new NotImplementedException();
         }
 
-        protected override Task<string> CreateRequest(int activityItemFkRefno)
+        protected override Task<string> CreateRequest(int activityFkRefno)
         {
             throw new NotImplementedException();
         }
@@ -343,12 +422,12 @@ namespace dMobile.GroundWork
             throw new NotImplementedException();
         }
 
-        protected override Task<string> CreateRequest(int activityItemFkRefno, XDocument criteria)
+        protected override Task<string> CreateRequest(int activityFkRefno, XDocument criteria)
         {
             throw new NotImplementedException();
         }
 
-        protected override Task<string> CreateRequest(int prodLocMapType, int whsLocMapFKRefno)
+        protected override Task<string> CreateRequest(int prodLocMapType, int whsLocMapFkRefno)
         {
             throw new NotImplementedException();
         }

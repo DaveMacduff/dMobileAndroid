@@ -11,8 +11,8 @@ namespace dMobile.GroundWork
     using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
-    using dMobile.Bedrock;
-    using dMobile.Resources.Models;
+    using Bedrock;
+    using Resources.Models;
     using SQLite;
 
     public class TableActivityTransferFromDetail : TableBase
@@ -38,88 +38,114 @@ namespace dMobile.GroundWork
         {
             var conn = DatabaseConnection.GetInstance().SqlConn;
             var subType = Convert.ToInt32(this.CurrentSubType);
-            this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName}.", true);
+            this.DataAccessStatusOutHandler(
+                this,
+                EventArgs.Empty,
+                $"Purging {this.LowerCaseName}.",
+                true);
 
-            await conn.RunInTransactionAsync(transaction =>
-            {
-                try
+            await conn.RunInTransactionAsync(
+                transaction =>
                 {
-                    // Corruption recovery cleanup.
-                    var query = "DELETE FROM tActivityDetailProductSchemeVariantXRef" +
-                                " WHERE tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno <= 0" +
-                                " OR tActivityDetailProductSchemeVariantXRef.ProductSchemeVariantRefno <= 0";
-                    transaction.Execute(query);
+                    try
+                    {
+                        // Corruption recovery cleanup.
+                        var query = "DELETE FROM tActivityDetailProductSchemeVariantXRef" +
+                                    " WHERE tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno <= 0" +
+                                    " OR tActivityDetailProductSchemeVariantXRef.ProductSchemeVariantRefno <= 0";
+                        transaction.Execute(query);
 
-                    query = "DELETE FROM tActivityDetailProductSchemeVariantXRef "
-                            + "WHERE tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno NOT IN "
-                            + "(SELECT tActivityDetail.ActivityDetailRefno FROM tActivityDetail)";
-                    transaction.Execute(query);
+                        query = "DELETE FROM tActivityDetailProductSchemeVariantXRef " +
+                                "WHERE tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno NOT IN " +
+                                "(SELECT tActivityDetail.ActivityDetailRefno FROM tActivityDetail)";
+                        transaction.Execute(query);
 
-                    query = "DELETE FROM tActivityDetailExtra WHERE tActivityDetailExtra.ActivityDetailRefno <= 0";
-                    transaction.Execute(query);
+                        query =
+                            "DELETE FROM tActivityDetailExtra WHERE tActivityDetailExtra.ActivityDetailRefno <= 0";
+                        transaction.Execute(query);
 
-                    query = "DELETE FROM tActivityDetailExtra "
-                            + "WHERE tActivityDetailExtra.ActivityDetailRefno NOT IN "
-                            + "(SELECT tActivityDetail.ActivityDetailRefno FROM tActivityDetail)";
-                    transaction.Execute(query);
+                        query = "DELETE FROM tActivityDetailExtra " +
+                                "WHERE tActivityDetailExtra.ActivityDetailRefno NOT IN " +
+                                "(SELECT tActivityDetail.ActivityDetailRefno FROM tActivityDetail)";
+                        transaction.Execute(query);
 
-                    query = "DELETE FROM tActivityDetailTransfer WHERE tActivityDetailTransfer.ActivityDetailRefno <= 0" +
+                        query =
+                            "DELETE FROM tActivityDetailTransfer WHERE tActivityDetailTransfer.ActivityDetailRefno <= 0" +
                             " OR tActivityDetailTransfer.ActivityDetailFKRefno <= 0";
-                    transaction.Execute(query);
+                        transaction.Execute(query);
 
-                    query = "DELETE FROM tActivityDetailTransfer "
-                            + "WHERE tActivityDetailTransfer.ActivityDetailRefno NOT IN "
-                            + "(SELECT tActivityDetail.ActivityDetailRefno FROM tActivityDetail)";
-                    transaction.Execute(query);
- 
-                    query = "DELETE FROM tActivityDetail WHERE tActivityDetail.ActivityDetailRefno <= 0";
-                    transaction.Execute(query, subType);
+                        query = "DELETE FROM tActivityDetailTransfer " +
+                                "WHERE tActivityDetailTransfer.ActivityDetailRefno NOT IN " +
+                                "(SELECT tActivityDetail.ActivityDetailRefno FROM tActivityDetail)";
+                        transaction.Execute(query);
 
-                    query = "DELETE FROM tActivityDetail WHERE tActivityDetail.ActivityItemRefno " +
+                        query =
+                            "DELETE FROM tActivityDetail WHERE tActivityDetail.ActivityDetailRefno <= 0";
+                        transaction.Execute(query, subType);
+
+                        query =
+                            "DELETE FROM tActivityDetail WHERE tActivityDetail.ActivityItemRefno " +
                             "NOT IN (SELECT tActivityItem.ActivityItemRefno FROM tActivityItem)";
-                    transaction.Execute(query, subType);
+                        transaction.Execute(query, subType);
 
-                    // REGULAR PURGE.
-                    query = "DELETE FROM tActivityDetailProductSchemeVariantXRef "
-                        + "WHERE tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno IN "
-                        + "(SELECT tActivityDetail.ActivityDetailRefno "
-                        + "FROM tActivityDetail "
-                        + "WHERE tActivityDetail.ActivityDetailSubType = ?)";
-                    transaction.Execute(query, subType);
+                        // REGULAR PURGE.
+                        query = "DELETE FROM tActivityDetailProductSchemeVariantXRef " +
+                                "WHERE tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno IN " +
+                                "(SELECT tActivityDetail.ActivityDetailRefno " +
+                                "FROM tActivityDetail " +
+                                "WHERE tActivityDetail.ActivityDetailSubType = ?)";
+                        transaction.Execute(query, subType);
 
-                    query = "DELETE FROM tActivityDetailTransfer "
-                        + "WHERE tActivityDetailTransfer.ActivityDetailRefno IN "
-                        + "(SELECT tActivityDetail.ActivityDetailRefno "
-                        + "FROM tActivityDetail "
-                        + "WHERE tActivityDetail.ActivityDetailSubType = ?)";
-                    transaction.Execute(query, subType);
+                        query = "DELETE FROM tActivityDetailTransfer " +
+                                "WHERE tActivityDetailTransfer.ActivityDetailRefno IN " +
+                                "(SELECT tActivityDetail.ActivityDetailRefno " +
+                                "FROM tActivityDetail " +
+                                "WHERE tActivityDetail.ActivityDetailSubType = ?)";
+                        transaction.Execute(query, subType);
 
-                    query = "DELETE FROM tActivityDetailExtra "
-                        + "WHERE tActivityDetailExtra.ActivityDetailRefno IN "
-                        + "(SELECT tActivityDetail.ActivityDetailRefno "
-                        + "FROM tActivityDetail "
-                        + "WHERE tActivityDetail.ActivityDetailSubType = ?)";
-                    transaction.Execute(query, subType);
+                        query = "DELETE FROM tActivityDetailExtra " +
+                                "WHERE tActivityDetailExtra.ActivityDetailRefno IN " +
+                                "(SELECT tActivityDetail.ActivityDetailRefno " +
+                                "FROM tActivityDetail " +
+                                "WHERE tActivityDetail.ActivityDetailSubType = ?)";
+                        transaction.Execute(query, subType);
 
-                    query = "DELETE FROM tActivityDetail WHERE tActivityDetail.ActivityDetailSubType = ?";
-                    transaction.Execute(query, subType);
+                        query =
+                            "DELETE FROM tActivityDetail WHERE tActivityDetail.ActivityDetailSubType = ?";
+                        transaction.Execute(query, subType);
 
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging transfer details complete.", true);
-                    transaction.Commit();
-                }
-                catch (SQLiteException sqlEx)
-                {
-                    transaction.Rollback();
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging transfer details failed.", true);
-                    throw new Exception("Database exception occurred. Purging transfer details failed.", sqlEx);
-                }
-                catch (Exception ex)
-                {
-                    transaction.Rollback();
-                    throw new Exception("Database exception occurred. Purging transfer details failed.", ex);
-                }
-            });
+                        this.DataAccessStatusOutHandler(
+                            this,
+                            EventArgs.Empty,
+                            "Purging transfer details complete.",
+                            true);
+                        transaction.Commit();
+                    }
+                    catch (SQLiteException sqlEx)
+                    {
+                        transaction.Rollback();
+                        this.DataAccessStatusOutHandler(
+                            this,
+                            EventArgs.Empty,
+                            "Database exception occurred.",
+                            true);
+                        this.DataAccessStatusOutHandler(
+                            this,
+                            EventArgs.Empty,
+                            "Purging transfer details failed.",
+                            true);
+                        throw new Exception(
+                            "Database exception occurred. Purging transfer details failed.",
+                            sqlEx);
+                    }
+                    catch (Exception ex)
+                    {
+                        transaction.Rollback();
+                        throw new Exception(
+                            "Database exception occurred. Purging transfer details failed.",
+                            ex);
+                    }
+                });
         }
 
         /// <summary>
@@ -128,9 +154,12 @@ namespace dMobile.GroundWork
         /// <returns></returns>
         /// <remarks></remarks>
         /// <inheritdoc/>
-        protected override async Task<string> SendRequest(int actItemRefno)
+        protected override async Task<string> SendRequest(int activityFkRefno)
         {
-            var results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<tActivityItemTransferModel>("SELECT * FROM tActivityItemTransfer WHERE ActivityItemRefno = ?", Convert.ToInt32(actItemRefno));
+            var results = await DatabaseConnection.GetInstance()
+                .SqlConn.QueryAsync<tActivityItemTransferModel>(
+                    "SELECT * FROM tActivityItemTransfer WHERE ActivityItemFKRefno = ?",
+                    Convert.ToInt32(activityFkRefno));
 
             int actItemFKRefno;
             if (results?.Count > 0)
@@ -140,7 +169,7 @@ namespace dMobile.GroundWork
             else
             {
                 throw new Exception(
-                    $"Unable to locate to activity item transfer refno {actItemRefno} in tActivityItemTransfer.");
+                    $"Unable to locate to activity item transfer refno {activityFkRefno} in tActivityItemTransfer.");
             }
 
             return await this.SendComm(await this.CreateRequest(actItemFKRefno));
@@ -156,172 +185,251 @@ namespace dMobile.GroundWork
         {
             var errMsg = string.Empty;
 
-            await DatabaseConnection.GetInstance().SqlConn.RunInTransactionAsync(transaction =>
-            {
-                try
-                {
-                    using (var ds = new DataSet())
+            await DatabaseConnection.GetInstance()
+                .SqlConn.RunInTransactionAsync(
+                    transaction =>
                     {
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received data.", false);
-
-                        ds.ReadXml(SysCommon.GetXmlReader(ref responseData), XmlReadMode.Auto);
-
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving transfer details.", false);
-
-                        if (ds.Tables.Count != 0)
+                        try
                         {
-                            var progMax = Convert.ToInt32(ds.Tables["tActivityDetailTransfer"].Rows.Count);
-
-                            this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Records {progMax}", false);
-
-                            var actDetailRefno = 0;
-                            var progValue = 0;
-                            var actDetailTransferFKRefno = 0;
-
-                            this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
-
-                            var results = transaction.Query<tActivityItemTransferModel>("SELECT * FROM tActivityItemTransfer WHERE ActivityItemRefno = ?", Convert.ToInt32(actItemTransferRefno));
-
-                            if (results == null || results?.Count == 0)
+                            using (var ds = new DataSet())
                             {
-                                throw new Exception(errMsg +
-                                                    $" Unable to locate the activity item transfer refno {actItemTransferRefno} in tActivityItemTransfer.");
-                            }
+                                this.DataAccessStatusOutHandler(
+                                    this,
+                                    EventArgs.Empty,
+                                    "Reading received data.",
+                                    false);
 
-                            foreach (DataRow drow in ds.Tables["tActivityDetailTransfer"].Rows)
-                            {
-                                errMsg = "Arguments:";
+                                ds.ReadXml(
+                                    SysCommon.GetXmlReader(ref responseData),
+                                    XmlReadMode.Auto);
 
-                                var queryInsertDetail = "INSERT INTO tActivityDetail " +
-                                                        "(" +
-                                                        "ActivityDetailSubType, " +
-                                                        "ActivityDetailStatus, " +
-                                                        "ActivityItemRefno, " +
-                                                        "LocationMapRefno, " +
-                                                        "ProductUnitRefno, " +
-                                                        "ActivityDetailUniqueSchemeID, " +
-                                                        "ActivityDetailSchemeID, " +
-                                                        "ActivityDetailQuantity, " +
-                                                        "ActivityDetailBaseQuantity, " +
-                                                        "ActivityDetailWeightQuantity, " +
-                                                        "ActivityDetailSingleTradeItemSerialNumber, " +
-                                                        "ActivityDetailLogisticUnitBatchLotNumber, " +
-                                                        "ActivityDetailLogisticUnitBestBeforeSellByDate, " +
-                                                        "ActivityDetailLogisticUnitExpiryUseByDate, " +
-                                                        "ActivityDetailLogisticUnitProductionDate, " +
-                                                        "ActivityDetailLogisticUnitDueDate, " +
-                                                        "ActivityDetailLogisticUnitPackagingDate, " +
-                                                        "ActivityDetailLogisticUnitSkidNumber" +
-                                                        ") " +
-                                                        "VALUES" +
-                                                        "(" +
-                                                        "?, " +
-                                                        "?, " +
-                                                        "?, " +
-                                                        "?, " +
-                                                        "?, " +
-                                                        "?, " +
-                                                        "?, " +
-                                                        "?, " +
-                                                        "?, " +
-                                                        "?, " +
-                                                        "?, " +
-                                                        "?, " +
-                                                        "?, " +
-                                                        "?, " +
-                                                        "?, " +
-                                                        "?, " +
-                                                        "?, " +
-                                                        "?" +
-                                                        ")";
-                                var parametersInsertDetail = new List<object>();
-                                parametersInsertDetail.Add(Convert.ToInt32(SysCommon.ActSubTypes.TransferFrom));
-                                parametersInsertDetail.Add(SysCommon.ActStatus.NoChange);
-                                parametersInsertDetail.Add(Convert.ToInt32(actItemTransferRefno));
-                                parametersInsertDetail.Add(this.GetDetailLocation(drow, transaction, false));
-                                parametersInsertDetail.Add(results[0].ProductUnitRefno);
-                                parametersInsertDetail.AddRange(this.SaveDetail(drow, transaction, false));
+                                this.DataAccessStatusOutHandler(
+                                    this,
+                                    EventArgs.Empty,
+                                    "Saving transfer details.",
+                                    false);
 
-                                transaction.Execute(queryInsertDetail, parametersInsertDetail.ToArray());
-
-                                actDetailTransferFKRefno = Convert.ToInt32(drow["ActivityDetailFKRefno"]);
-                                errMsg += Environment.NewLine + "Detail fk refno " + actDetailTransferFKRefno;
-                                actDetailRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivityDetail"));
-
-                                var queryInsertTransferDetail = "INSERT INTO tActivityDetailTransfer (ActivityDetailRefno, " +
-                                                                "ActivityDetailFKRefno, " +
-                                                                "ActivityDetailTransferIsConfirmed, " +
-                                                                "ActivityDetailTransferTransModeEnum" +
-                                                                ") VALUES (" +
-                                                                "?, " +
-                                                                "?, " +
-                                                                "?, " +
-                                                                "?)";
-                                var parametersInsertTransferDetail = new object[]
+                                if (ds.Tables.Count != 0)
                                 {
-                                    Convert.ToInt32(actDetailRefno),
-                                    Convert.ToInt32(actDetailTransferFKRefno),
-                                    Convert.ToBoolean(drow["ActivityDetailTransferIsConfirmed"]),
-                                    Convert.ToInt32(drow["ActivityDetailTransferTransModeEnum"]),
-                                };
+                                    var progMax = Convert.ToInt32(
+                                        ds.Tables["tActivityDetailTransfer"].Rows.Count);
 
-                                transaction.Execute(queryInsertTransferDetail, parametersInsertTransferDetail);
+                                    this.DataAccessStatusOutHandler(
+                                        this,
+                                        EventArgs.Empty,
+                                        $"Records {progMax}",
+                                        false);
 
-                                this.SaveCommonDetailVariant(drow, transaction, actDetailRefno, false);
-                                this.SaveDetailExtra(drow, transaction, actDetailRefno, false);
+                                    var actDetailRefno = 0;
+                                    var progValue = 0;
+                                    var actDetailTransferFKRefno = 0;
 
-                                progValue++;
-                                if (progValue % 100 == 0)
-                                {
-                                    this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue, 0, progMax);
+                                    this.DataAccessProgressOutHandler(
+                                        this,
+                                        EventArgs.Empty,
+                                        0,
+                                        0,
+                                        progMax);
+
+                                    var results = transaction.Query<tActivityItemTransferModel>(
+                                        "SELECT * FROM tActivityItemTransfer WHERE ActivityItemRefno = ?",
+                                        Convert.ToInt32(actItemTransferRefno));
+
+                                    if (results == null ||
+                                        results?.Count == 0)
+                                    {
+                                        throw new Exception(
+                                            errMsg +
+                                            $" Unable to locate the activity item transfer refno {actItemTransferRefno} in tActivityItemTransfer.");
+                                    }
+
+                                    foreach (DataRow drow in ds.Tables["tActivityDetailTransfer"]
+                                                 .Rows)
+                                    {
+                                        errMsg = "Arguments:";
+
+                                        var queryInsertDetail = "INSERT INTO tActivityDetail " +
+                                                                "(" +
+                                                                "ActivityDetailSubType, " +
+                                                                "ActivityDetailStatus, " +
+                                                                "ActivityItemRefno, " +
+                                                                "LocationMapRefno, " +
+                                                                "ProductUnitRefno, " +
+                                                                "ActivityDetailUniqueSchemeID, " +
+                                                                "ActivityDetailSchemeID, " +
+                                                                "ActivityDetailQuantity, " +
+                                                                "ActivityDetailBaseQuantity, " +
+                                                                "ActivityDetailWeightQuantity, " +
+                                                                "ActivityDetailSingleTradeItemSerialNumber, " +
+                                                                "ActivityDetailLogisticUnitBatchLotNumber, " +
+                                                                "ActivityDetailLogisticUnitBestBeforeSellByDate, " +
+                                                                "ActivityDetailLogisticUnitExpiryUseByDate, " +
+                                                                "ActivityDetailLogisticUnitProductionDate, " +
+                                                                "ActivityDetailLogisticUnitDueDate, " +
+                                                                "ActivityDetailLogisticUnitPackagingDate, " +
+                                                                "ActivityDetailLogisticUnitSkidNumber" +
+                                                                ") " +
+                                                                "VALUES" +
+                                                                "(" +
+                                                                "?, " +
+                                                                "?, " +
+                                                                "?, " +
+                                                                "?, " +
+                                                                "?, " +
+                                                                "?, " +
+                                                                "?, " +
+                                                                "?, " +
+                                                                "?, " +
+                                                                "?, " +
+                                                                "?, " +
+                                                                "?, " +
+                                                                "?, " +
+                                                                "?, " +
+                                                                "?, " +
+                                                                "?, " +
+                                                                "?, " +
+                                                                "?" +
+                                                                ")";
+                                        var parametersInsertDetail = new List<object>();
+                                        parametersInsertDetail.Add(
+                                            Convert.ToInt32(SysCommon.ActSubTypes.TransferFrom));
+                                        parametersInsertDetail.Add(SysCommon.ActStatus.NoChange);
+                                        parametersInsertDetail.Add(
+                                            Convert.ToInt32(actItemTransferRefno));
+                                        parametersInsertDetail.Add(
+                                            this.GetDetailLocation(drow, transaction, false));
+                                        parametersInsertDetail.Add(results[0].ProductUnitRefno);
+                                        parametersInsertDetail.AddRange(
+                                            this.SaveDetail(drow, transaction, false));
+
+                                        transaction.Execute(
+                                            queryInsertDetail,
+                                            parametersInsertDetail.ToArray());
+
+                                        actDetailTransferFKRefno =
+                                            Convert.ToInt32(drow["ActivityDetailFKRefno"]);
+                                        errMsg += Environment.NewLine +
+                                                  "Detail fk refno " +
+                                                  actDetailTransferFKRefno;
+                                        actDetailRefno = Convert.ToInt32(
+                                            transaction.ExecuteScalar<int>(
+                                                "SELECT last_insert_rowid() FROM tActivityDetail"));
+
+                                        var queryInsertTransferDetail =
+                                            "INSERT INTO tActivityDetailTransfer (ActivityDetailRefno, " +
+                                            "ActivityDetailFKRefno, " +
+                                            "ActivityDetailTransferIsConfirmed, " +
+                                            "ActivityDetailTransferTransModeEnum" +
+                                            ") VALUES (" +
+                                            "?, " +
+                                            "?, " +
+                                            "?, " +
+                                            "?)";
+                                        var parametersInsertTransferDetail = new object[]
+                                        {
+                                            Convert.ToInt32(actDetailRefno),
+                                            Convert.ToInt32(actDetailTransferFKRefno),
+                                            Convert.ToBoolean(
+                                                drow["ActivityDetailTransferIsConfirmed"]),
+                                            Convert.ToInt32(
+                                                drow["ActivityDetailTransferTransModeEnum"])
+                                        };
+
+                                        transaction.Execute(
+                                            queryInsertTransferDetail,
+                                            parametersInsertTransferDetail);
+
+                                        this.SaveCommonDetailVariant(
+                                            drow,
+                                            transaction,
+                                            actDetailRefno,
+                                            false);
+                                        this.SaveDetailExtra(
+                                            drow,
+                                            transaction,
+                                            actDetailRefno,
+                                            false);
+
+                                        progValue++;
+                                        if (progValue % 100 == 0)
+                                        {
+                                            this.DataAccessProgressOutHandler(
+                                                this,
+                                                EventArgs.Empty,
+                                                progValue,
+                                                0,
+                                                progMax);
+                                        }
+                                    }
+
+                                    this.DataAccessProgressOutHandler(
+                                        this,
+                                        EventArgs.Empty,
+                                        progMax,
+                                        0,
+                                        progMax);
                                 }
+
+                                transaction.Commit();
                             }
 
-                            this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
+                            this.DataAccessStatusOutHandler(
+                                this,
+                                EventArgs.Empty,
+                                "Saving transfer details failed.",
+                                false);
                         }
+                        catch (SQLiteException ex)
+                        {
+                            transaction.Rollback();
 
-                        transaction.Commit();
-                    }
+                            this.DataAccessStatusOutHandler(
+                                this,
+                                EventArgs.Empty,
+                                "Database exception occurred.",
+                                false);
+                            this.DataAccessStatusOutHandler(
+                                this,
+                                EventArgs.Empty,
+                                "Saving transfer details failed.",
+                                false);
 
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving transfer details failed.", false);
-                }
-                catch (SQLiteException ex)
-                {
-                    transaction.Rollback();
-
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving transfer details failed.", false);
-
-                    throw new Exception("Database exception occurred. Saving transfer details failed." + Environment.NewLine + errMsg, ex);
-                }
-            });
+                            throw new Exception(
+                                "Database exception occurred. Saving transfer details failed." +
+                                Environment.NewLine +
+                                errMsg,
+                                ex);
+                        }
+                    });
         }
 
         /// <summary>
         ///
         /// </summary>
-        /// <param name="activityItemFkRefno"></param>
+        /// <param name="activityFkRefno"></param>
         /// <returns></returns>
         /// <inheritdoc/>
-        protected override async Task<string> CreateRequest(int activityItemFkRefno)
+        protected override async Task<string> CreateRequest(int activityFkRefno)
         {
             var xmlString = new StringBuilder();
             var settings = new XmlWriterSettings
             {
                 Async = true,
-                Indent = false,
+                Indent = false
             };
             var xml = XmlWriter.Create(xmlString, settings);
 
             var request = XDocument.Parse(
-                "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>"
-                + "<imclient>"
-                + "<command>"
-                + "<action>REQUEST TRANSFER FROM DETAILS</action>"
-                + await SysCommon.GetRequestDefaults(false)
-                + "<itm_refno>" + activityItemFkRefno.ToString() + "</itm_refno>"
-                + "</command>"
-                + "</imclient>");
+                "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>" +
+                "<imclient>" +
+                "<command>" +
+                "<action>REQUEST TRANSFER FROM DETAILS</action>" +
+                await SysCommon.GetRequestDefaults(false) +
+                "<itm_refno>" +
+                activityFkRefno.ToString() +
+                "</itm_refno>" +
+                "</command>" +
+                "</imclient>");
 
             request.Save(xml);
             await xml.FlushAsync();
@@ -335,7 +443,7 @@ namespace dMobile.GroundWork
             throw new NotImplementedException();
         }
 
-        protected override Task<string> CreateRequest(XDocument criteria)
+        protected override Task<string> CreateRequest(XDocument criteriaFilter)
         {
             throw new NotImplementedException();
         }
@@ -370,12 +478,12 @@ namespace dMobile.GroundWork
             throw new NotImplementedException();
         }
 
-        protected override Task<string> CreateRequest(int activityItemFkRefno, XDocument criteria)
+        protected override Task<string> CreateRequest(int activityFkRefno, XDocument criteria)
         {
             throw new NotImplementedException();
         }
 
-        protected override Task<string> CreateRequest(int prodLocMapType, int whsLocMapFKRefno)
+        protected override Task<string> CreateRequest(int prodLocMapType, int whsLocMapFkRefno)
         {
             throw new NotImplementedException();
         }

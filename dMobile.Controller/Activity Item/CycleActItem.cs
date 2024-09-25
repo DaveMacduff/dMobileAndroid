@@ -150,7 +150,7 @@ namespace dMobile.Controller.Activity_Item
             if (actItemFoundRefno >= 0)
             {
                 var idx = 0;
-                foreach (CountItem item in this.ListItems)
+                foreach (var item in this.ListItems.Cast<CountItem>())
                 {
                     if (item.ActivityItemRefno == this.ItemRefno)
                     {
@@ -415,9 +415,9 @@ namespace dMobile.Controller.Activity_Item
 
                 this.DataLayerProgressOutHandler(this, EventArgs.Empty, 5);
 
-                tableActCountItem.RegisterDataAccessListenerProgressOut((CycleActItem)this);
-                await tableActCountItem.RequestItemData(this.ActHdr.HdrRefno);
-                tableActCountItem.UnregisterDataAccessListenerProgressOut((CycleActItem)this);
+                tableActCountItem.RegisterDataAccessListenerProgressOut(this);
+                await tableActCountItem.RequestItemData(this.ActHdr.HdrFkRefno, this.ActHdr.HdrRefno);
+                tableActCountItem.UnregisterDataAccessListenerProgressOut(this);
             }
         }
 
@@ -432,7 +432,7 @@ namespace dMobile.Controller.Activity_Item
             var observableCollection = new ObservableCollection<object>();
 
             // Add all items in data view to observable collection for display
-            foreach (CountItem countItem in this.ListItems)
+            foreach (var countItem in this.ListItems.Cast<CountItem>())
             {
                 if (countItem.ActivityItemFKRefno >= 0)
                 {
@@ -441,7 +441,7 @@ namespace dMobile.Controller.Activity_Item
             }
 
             // Add negative new line items to the bottom.
-            foreach (CountItem countItem in this.ListItems.Cast<CountItem>())
+            foreach (var countItem in this.ListItems.Cast<CountItem>())
             {
                 if (countItem.ActivityItemFKRefno < 0)
                 {
@@ -499,7 +499,7 @@ namespace dMobile.Controller.Activity_Item
 
             gridMainActivity.Children.Add(gridHeader);
 
-            foreach (CountItem countItem in observableCollection)
+            foreach (var countItem in observableCollection.Cast<CountItem>())
             {
                 var detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(countItem.ProductCode);
                 var detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(countItem.ProductUnitBC);
@@ -910,7 +910,7 @@ namespace dMobile.Controller.Activity_Item
             this.ListItems = this.ListCountItems.Where(countItem => countItem.ProductCode.ToString().ToLower()
                 .Contains(searchText.ToLower().Trim())).Cast<object>().ToList();
 
-            foreach (CountItem countItem in this.ListItems)
+            foreach (var countItem in this.ListItems.Cast<CountItem>())
             {
                 observableCollection.Add(countItem);
             }

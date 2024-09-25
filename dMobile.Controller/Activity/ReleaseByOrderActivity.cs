@@ -207,7 +207,7 @@ namespace dMobile.Controller.Activity
         {
             var observableCollection = new ObservableCollection<object>();
 
-            foreach (Picking picking in this.ListHeaders)
+            foreach (var picking in this.ListHeaders.Cast<Picking>())
             {
                 // Picking picking = new Picking
                 // {
@@ -275,7 +275,7 @@ namespace dMobile.Controller.Activity
 
             gridMainActivity.Children.Add(gridHeader);
 
-            foreach (Picking picking in observableCollection)
+            foreach (var picking in observableCollection.Cast<Picking>())
             {
                 var detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(picking.ActivityStringFKRefno);
                 var detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(picking.ActivityPickingOrderedDateTime.ToString("MM/dd/yyyy"));
@@ -472,7 +472,7 @@ namespace dMobile.Controller.Activity
             // TODO: Fix filtering
             // this.DataViewHdrs.RowFilter = ActFilter + " AND ActivityStringFKRefno LIKE \'%" + searchText.Trim() + "%\'";
             // }
-            foreach (Picking picking in this.ListHeaders)
+            foreach (var picking in this.ListHeaders.Cast<Picking>())
             {
                 // Picking picking = new Picking
                 //    {
@@ -572,9 +572,9 @@ namespace dMobile.Controller.Activity
 
                 var tableActPicking = new TableActivityPicking();
 
-                tableActPicking.RegisterDataAccessListenerProgressOut((IDataAccessEventListener)this);
+                tableActPicking.RegisterDataAccessListenerProgressOut(this);
                 await tableActPicking.RequestHeaderData(data);
-                tableActPicking.UnregisterDataAccessListenerProgressOut((IDataAccessEventListener)this);
+                tableActPicking.UnregisterDataAccessListenerProgressOut(this);
             }
         }
 

@@ -131,7 +131,7 @@ namespace dMobile.Controller.Activity
         {
             var orderReturns = new ObservableCollection<object>();
 
-            foreach (Return orderReturn in this.ListHeaders)
+            foreach (var orderReturn in this.ListHeaders.Cast<Return>())
             {
                 orderReturns.Add(orderReturn);
             }
@@ -186,7 +186,7 @@ namespace dMobile.Controller.Activity
 
             gridMainActivity.Children.Add(gridHeader);
 
-            foreach (Return orderReturn in orderReturns)
+            foreach (var orderReturn in orderReturns.Cast<Return>())
             {
                 var detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(
                     orderReturn.ActivityStringFKRefno);
@@ -337,7 +337,7 @@ namespace dMobile.Controller.Activity
             this.ListHeaders = this.ListReturns.Where(returns => returns.ActivityStringFKRefno.ToLower().
                 Contains(searchText.ToLower().Trim())).Cast<object>().ToList();
 
-            foreach (Return returns in this.ListHeaders)
+            foreach (var returns in this.ListHeaders.Cast<Return>())
             {
                 observableCollection.Add(returns);
             }
@@ -420,9 +420,9 @@ namespace dMobile.Controller.Activity
 
                 var tableActReturns = new TableActivityReturns();
 
-                tableActReturns.RegisterDataAccessListenerProgressOut((ReturnsActivity)this);
+                tableActReturns.RegisterDataAccessListenerProgressOut(this);
                 await tableActReturns.RequestHeaderData();
-                tableActReturns.UnregisterDataAccessListenerProgressOut((ReturnsActivity)this);
+                tableActReturns.UnregisterDataAccessListenerProgressOut(this);
             }
         }
 

@@ -512,7 +512,7 @@ namespace dMobile.View.Options
                 // Default Socket Port
                 // if (sender == this.updnDefaultPort)
                 // {
-                var maxPort = (int)(int.Parse(this.updnBasePort.Text) + int.Parse(this.updnMaxPorts.Text) - 1);
+                var maxPort = int.Parse(this.updnBasePort.Text) + int.Parse(this.updnMaxPorts.Text) - 1;
 
                 if ((int.Parse(this.updnDefaultPort.Text) < int.Parse(this.updnBasePort.Text) || int.Parse(this.updnDefaultPort.Text) > this.MaxPort) == true)
                 {
@@ -720,7 +720,7 @@ namespace dMobile.View.Options
 
                 try
                 {
-                    this.SysSock.RegSockListenerStatusOut((ISysSocketEventListener)this);
+                    this.SysSock.RegSockListenerStatusOut(this);
                     this.SysEnv.IsCommunicationTestSuccessful = false;
                     this.SysEnv.SysSock.Connect(ref socket);
                     ////socket = this.SysEnv.SysSock.Connect();
@@ -773,7 +773,7 @@ namespace dMobile.View.Options
                 }
                 finally
                 {
-                    this.SysSock.UnregSockListenerStatusOut((ISysSocketEventListener)this);
+                    this.SysSock.UnregSockListenerStatusOut(this);
                 }
             });
 

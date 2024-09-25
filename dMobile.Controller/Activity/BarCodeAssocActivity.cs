@@ -260,7 +260,7 @@ namespace dMobile.Controller.Activity
 
             this.ListHeaders = this.barcodeAssociations.Where(barcode => barcode.ProductUnitBarCodeCode.ToLower().Contains(searchText.ToLower().Trim())).Cast<object>().ToList();
 
-            foreach (BarcodeAssociation barcodeAssociation in this.ListHeaders)
+            foreach (var barcodeAssociation in this.ListHeaders.Cast<BarcodeAssociation>())
             {
                 // BarcodeAssociation barcodeAssociation = new BarcodeAssociation
                 // {
@@ -333,7 +333,7 @@ namespace dMobile.Controller.Activity
 
             gridMainActivity.Children.Add(gridHeader);
 
-            foreach (BarcodeAssociation barcodeAssociation in this.ListHeaders)
+            foreach (var barcodeAssociation in this.ListHeaders.Cast<BarcodeAssociation>())
             {
                 // BarcodeAssociation barcodeAssociation = new BarcodeAssociation
                 // {

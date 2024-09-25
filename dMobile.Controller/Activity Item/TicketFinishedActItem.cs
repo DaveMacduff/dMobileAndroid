@@ -142,7 +142,7 @@ namespace dMobile.Controller.Activity_Item
             if (actItemFoundRefno >= 0)
             {
                 var idx = 0;
-                foreach (ProductionTicketFinishedItem item in this.ListItems)
+                foreach (var item in this.ListItems.Cast<ProductionTicketFinishedItem>())
                 {
                     if (item.ActivityItemRefno == this.ItemRefno)
                     {
@@ -455,9 +455,9 @@ namespace dMobile.Controller.Activity_Item
 
                 this.DataLayerProgressOutHandler(this, EventArgs.Empty, 5);
 
-                tableFinishedItem.RegisterDataAccessListenerProgressOut((TicketFinishedActItem)this);
-                await tableFinishedItem.RequestItemData(this.ActHdr.HdrRefno);
-                tableFinishedItem.UnregisterDataAccessListenerProgressOut((TicketFinishedActItem)this);
+                tableFinishedItem.RegisterDataAccessListenerProgressOut(this);
+                await tableFinishedItem.RequestItemData(this.ActHdr.HdrFkRefno, this.ActHdr.HdrRefno);
+                tableFinishedItem.UnregisterDataAccessListenerProgressOut(this);
             }
         }
 
@@ -472,7 +472,7 @@ namespace dMobile.Controller.Activity_Item
             var observableCollection = new ObservableCollection<object>();
 
             // Add all items in dataview to observable collection for display
-            foreach (ProductionTicketFinishedItem productionTicketFinishedItem in this.ListItems)
+            foreach (var productionTicketFinishedItem in this.ListItems.Cast<ProductionTicketFinishedItem>())
             {
                 // ProductionTicketFinishedItem productionTicketFinishedItem = new ProductionTicketFinishedItem
                 // {
@@ -545,7 +545,7 @@ namespace dMobile.Controller.Activity_Item
 
             gridMainActivity.Children.Add(gridHeader);
 
-            foreach (ProductionTicketFinishedItem productionTickedFinishedItem in observableCollection)
+            foreach (var productionTickedFinishedItem in observableCollection.Cast<ProductionTicketFinishedItem>())
             {
                 var detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(Convert.ToString(productionTickedFinishedItem.ProductCode));
                 var detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(productionTickedFinishedItem.ProductUnitBC);
@@ -848,7 +848,7 @@ namespace dMobile.Controller.Activity_Item
             // }
 
             // Add all items in dataview to observable collection for display
-            foreach (ProductionTicketFinishedItem productionTicketFinishedItem in this.ListItems)
+            foreach (var productionTicketFinishedItem in this.ListItems.Cast<ProductionTicketFinishedItem>())
             {
                 // ProductionTicketFinishedItem productionTicketFinishedItem = new ProductionTicketFinishedItem
                 // {

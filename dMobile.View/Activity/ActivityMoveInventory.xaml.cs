@@ -1173,7 +1173,7 @@ namespace dMobile.View.Activity
 
                 var prodInfo = await form.GetXml();
                 _ = prodInfo.Root ?? throw new Exception("Unexpected xmlDoc.Root equal to null.");
-                _ = prodInfo.Root.Element((XName)"ProductUnitRefno") ?? throw new Exception(
+                _ = prodInfo.Root.Element("ProductUnitRefno") ?? throw new Exception(
                     "Unexpected xmlDoc.Root.Element((XName)'ProductUnitRefno') equal to null.");
                 return prodInfo;
             }

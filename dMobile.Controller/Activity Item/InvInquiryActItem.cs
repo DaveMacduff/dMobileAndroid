@@ -269,7 +269,7 @@ namespace dMobile.Controller.Activity_Item
 
             gridMainActivity.Children.Add(gridHeader);
 
-            foreach (InventoryInquiryItem inventoryInquiryItem in this.ListItems)
+            foreach (var inventoryInquiryItem in this.ListItems.Cast<InventoryInquiryItem>())
             {
                 // InventoryInquiryItem inventoryInquiryItem = new InventoryInquiryItem
                 // {
