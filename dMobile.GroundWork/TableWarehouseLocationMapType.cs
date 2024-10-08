@@ -29,8 +29,13 @@ namespace dMobile.GroundWork
         {
             this.FullClassName = "dMobile.GroundWork.TableWarehouseLocationMapType";
             this.LowerCaseName = "warehouse location map types";
-            this.ProperCaseName = "Warehouse Locations Map Types";
+            this.ProperCaseName = "Warehouse locations map types";
         }
+
+        /// <summary>
+        ///     Gets or sets the warehouse location map type name.
+        /// </summary>
+        private string WarehouseMapTypeName { get; set; }
 
         /// <summary>
         /// The Request.
@@ -65,6 +70,7 @@ namespace dMobile.GroundWork
             ///////////////////////////////////////////////////////////
             async Task RefreshWhsLocMapTypeFloor()
             {
+                this.WarehouseMapTypeName = "Floor";
                 var responseData = await this.SendComm(
                     await this.CreateRequestProdLoc(
                         Convert.ToInt32(SysCommon.ProdLocMapTypes.Floor)));
@@ -81,6 +87,7 @@ namespace dMobile.GroundWork
             ///////////////////////////////////////////////////////////
             async Task RefreshWhsLocMapTypePicking()
             {
+                this.WarehouseMapTypeName = "Picking";
                 var responseData = await this.SendComm(
                     await this.CreateRequestProdLoc(
                         Convert.ToInt32(SysCommon.ProdLocMapTypes.Picking)));
@@ -97,6 +104,7 @@ namespace dMobile.GroundWork
             ///////////////////////////////////////////////////////////
             async Task RefreshWhsLocMapTypeReceiving()
             {
+                this.WarehouseMapTypeName = "Receiving";
                 var responseData = await this.SendComm(
                     await this.CreateRequestProdLoc(
                         Convert.ToInt32(SysCommon.ProdLocMapTypes.Receiving)));
@@ -280,7 +288,7 @@ namespace dMobile.GroundWork
                     this.DataAccessStatusOutHandler(
                         this,
                     EventArgs.Empty,
-                        $"{whsTypes.Count} warehouse map types.", true);
+                        $"{whsTypes.Count} warehouse map types for {this.WarehouseMapTypeName}.", true);
                 }
             }
             else
@@ -288,7 +296,7 @@ namespace dMobile.GroundWork
                 this.DataAccessStatusOutHandler(
                     this,
                     EventArgs.Empty,
-                    $"No {this.LowerCaseName} to save.",
+                    $"No {this.LowerCaseName} to save for {this.WarehouseMapTypeName}.",
                     true);
             }
         }

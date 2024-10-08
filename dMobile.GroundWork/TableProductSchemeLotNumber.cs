@@ -27,7 +27,7 @@ namespace dMobile.GroundWork
         {
             this.FullClassName = "dMobile.GroundWork.TableProductSchemeLotNumber";
             this.LowerCaseName = "scheme lot numbers";
-            this.ProperCaseName = "Scheme Lot Numbers";
+            this.ProperCaseName = "Scheme lot numbers";
         }
 
         /// <summary>

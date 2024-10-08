@@ -29,7 +29,7 @@ namespace dMobile.GroundWork
         {
             this.FullClassName = "dMobile.GroundWork.TableLocationMapSlotCoordinate";
             this.LowerCaseName = "slot coordinates";
-            this.ProperCaseName = "Slot Coordinates";
+            this.ProperCaseName = "Slot coordinates";
         }
 
         /// <summary>

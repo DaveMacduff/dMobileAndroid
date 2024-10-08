@@ -32,7 +32,7 @@ namespace dMobile.GroundWork
         {
             this.FullClassName = "dMobile.GroundWork.TableContactUsers";
             this.LowerCaseName = "contact users";
-            this.ProperCaseName = "Contact Users";
+            this.ProperCaseName = "Contact users";
         }
 
         /// <summary>
@@ -108,16 +108,8 @@ namespace dMobile.GroundWork
         {
             try
             {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging users.", true);
-
                 await DatabaseConnection.GetInstance()
                     .SqlConn.ExecuteAsync("DELETE FROM tContactUser");
-
-                this.DataAccessStatusOutHandler(
-                    this,
-                    EventArgs.Empty,
-                    "Purging users complete.",
-                    true);
             }
             catch (SQLiteException ex)
             {
@@ -144,15 +136,7 @@ namespace dMobile.GroundWork
         {
             try
             {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging tContact.", true);
-
                 await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync("DELETE FROM tContact");
-
-                this.DataAccessStatusOutHandler(
-                    this,
-                    EventArgs.Empty,
-                    "Purging tContact complete.",
-                    true);
             }
             catch (SQLiteException ex)
             {

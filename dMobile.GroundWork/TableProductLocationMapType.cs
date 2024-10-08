@@ -25,15 +25,11 @@ namespace dMobile.GroundWork
         /// </summary>
         public TableProductLocationMapType()
         {
-            this.FullClassName = "dMobile.GroundWork.TableProductLocationMapType";
+            this.FullClassName = this.GetType().Name;
             this.LowerCaseName = "product locations";
-            this.ProperCaseName = "Product Locations";
+            this.ProperCaseName = "Product locations";
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <remarks></remarks>
         /// <inheritdoc/>
         public override async Task RequestData()
         {
@@ -44,9 +40,9 @@ namespace dMobile.GroundWork
                     EventArgs.Empty,
                     $"Purging {this.LowerCaseName}.",
                     true);
+                var query = "SELECT tLocationMapWarehouse.LocationMapWarehouseFKRefno FROM tLocationMapWarehouse";
                 var resultsLocationMapWarehouse = await DatabaseConnection.GetInstance()
-                    .SqlConn.QueryAsync<LocationMapWarehouseModel>(
-                        "SELECT * FROM tLocationMapWarehouse");
+                    .SqlConn.QueryAsync<LocationMapWarehouseModel>(query);
 
                 if (resultsLocationMapWarehouse?.Count > 0)
                 {
@@ -77,10 +73,6 @@ namespace dMobile.GroundWork
             }
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <remarks></remarks>
         /// <inheritdoc/>
         public override async Task<int> DataStatus()
         {
@@ -108,21 +100,17 @@ namespace dMobile.GroundWork
                 this.DataAccessStatusOutHandler(
                     this,
                     EventArgs.Empty,
-                    "product locations status failed.",
+                    $"{this.ProperCaseName} status failed.",
                     false);
 
                 throw new Exception(
-                    "Database exception occurred. Product location status failed.",
+                    $"Database exception occurred. {this.ProperCaseName} status failed.",
                     ex);
             }
 
             return rowsAffected;
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <remarks></remarks>
         /// <inheritdoc/>
         public override async Task PurgeData()
         {
@@ -149,11 +137,6 @@ namespace dMobile.GroundWork
             }
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="responseData"></param>
-        /// <param name="whsLocMapRefno"></param>
         /// <inheritdoc/>
         protected override async Task Save(string responseData, int whsLocMapRefno)
         {
@@ -164,9 +147,9 @@ namespace dMobile.GroundWork
         ///
         /// </summary>
         /// <param name="responseData"></param>
-        /// <param name="whsLocMapRefno"></param>
+        /// <param name="locMapWhsFKRefno">Location map warehouse foreign key reference number.</param>
         /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
-        protected async Task SaveOpt(string responseData, int whsLocMapRefno)
+        protected async Task SaveOpt(string responseData, int locMapWhsFKRefno)
         {
             var conn = DatabaseConnection.GetInstance().SqlConn;
             using var dataSet = new DataSet();
@@ -247,7 +230,7 @@ namespace dMobile.GroundWork
                 this.DataAccessStatusOutHandler(
                     this,
                     EventArgs.Empty,
-                    $"{rows.Count} {this.LowerCaseName}.",
+                    $"{rows.Count} {this.LowerCaseName} for warehouse {locMapWhsFKRefno}.",
                     true);
             }
             else
@@ -255,7 +238,7 @@ namespace dMobile.GroundWork
                 this.DataAccessStatusOutHandler(
                     this,
                     EventArgs.Empty,
-                    $"No {this.LowerCaseName} to save.",
+                    $"No {this.LowerCaseName} for warehouse {locMapWhsFKRefno} to save.",
                     true);
             }
         }

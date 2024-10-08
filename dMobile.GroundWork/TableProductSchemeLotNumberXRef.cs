@@ -12,8 +12,6 @@ namespace dMobile.GroundWork
     using System.Xml;
     using System.Xml.Linq;
     using dMobile.Bedrock;
-    using dMobile.Resources.Models;
-    using dMobile.Resources.Types;
     using SQLite;
 
     /// <summary>
@@ -27,8 +25,8 @@ namespace dMobile.GroundWork
         public TableProductSchemeLotNumberXRef()
         {
             this.FullClassName = "dMobile.GroundWork.TableProductSchemeLotNumberXRef";
-            this.LowerCaseName = "scheme lot numbers";
-            this.ProperCaseName = "Scheme Lot Numbers";
+            this.LowerCaseName = "scheme lot numbers link";
+            this.ProperCaseName = "Scheme lot numbers link";
         }
 
         /// <summary>
@@ -63,7 +61,7 @@ namespace dMobile.GroundWork
                 await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync("DELETE FROM tProductSchemeLotNumber");
                 await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync("DELETE FROM tProductSchemeLotNumberXRef");
 
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging product scheme lot number xref failed.", true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging product scheme lot number xref complete.", true);
             }
             catch (SQLiteException ex)
             {
@@ -83,7 +81,8 @@ namespace dMobile.GroundWork
             int rowsAffected;
             try
             {
-                rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SqlConn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tProductSchemeLotNumberXRef"));
+                rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SqlConn.ExecuteScalarAsync<int>(
+                    "SELECT COUNT(*) FROM tProductSchemeLotNumberXRef"));
 
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty,
                     $"{rowsAffected} product scheme lot number xrefs.", true);
@@ -147,11 +146,6 @@ namespace dMobile.GroundWork
                     // Drop the temporary table
                     const string dropTempTableQuery = "DROP TABLE IF EXISTS Seg";
                     await conn.ExecuteAsync(dropTempTableQuery);
-
-                    this.DataAccessStatusOutHandler(
-                        this,
-                        EventArgs.Empty,
-                        $"{schemeLotsXRef.Count} {this.LowerCaseName}.", true);
                 }
 
                 this.DataAccessStatusOutHandler(

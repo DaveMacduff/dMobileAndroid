@@ -30,7 +30,7 @@ namespace dMobile.GroundWork
         {
             this.FullClassName = "dMobile.GroundWork.TableProductUnit";
             this.LowerCaseName = "product units";
-            this.ProperCaseName = "Product Units";
+            this.ProperCaseName = "Product units";
         }
 
         /// <summary>

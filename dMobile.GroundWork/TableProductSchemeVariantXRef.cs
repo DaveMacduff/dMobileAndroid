@@ -29,7 +29,7 @@ namespace dMobile.GroundWork
         {
             this.FullClassName = "dMobile.GroundWork.TableProductSchemeVariantXRef";
             this.LowerCaseName = "scheme variant xrefs";
-            this.ProperCaseName = "Scheme Variant XRefs";
+            this.ProperCaseName = "Scheme variant xrefs";
         }
 
         /// <summary>

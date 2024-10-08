@@ -30,7 +30,7 @@ namespace dMobile.GroundWork
         {
             this.FullClassName = "dMobile.GroundWork.TableLocationMapType";
             this.LowerCaseName = "location map types";
-            this.ProperCaseName = "Location Map Types";
+            this.ProperCaseName = "Location map types";
         }
 
         /// <summary>
