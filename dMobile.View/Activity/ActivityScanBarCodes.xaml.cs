@@ -500,7 +500,7 @@ namespace dMobile.View.Activity
                                 where tProductScheme.ProductSchemeRefno = ?";
 
                         var resultsProductScheme =
-                            await DatabaseConnection.GetInstance().SqlConn.QueryAsync<tProductSchemeModel>(
+                            await DatabaseConnection.GetInstance().SqlConn.QueryAsync<ProductSchemeModel>(
                                 queryProductScheme,
                                 prodSchemeRefno);
 

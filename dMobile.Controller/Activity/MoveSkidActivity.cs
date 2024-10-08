@@ -31,9 +31,9 @@ namespace dMobile.Controller.Activity
         /// </summary>
         /// <param name="selectedActivity">The selectedActivity<see cref="object"/>.</param>
         /// <returns>.</returns>
-        public override async Task<bool> ChangeStatus(object selectedActivity)
+        public override Task<bool> ChangeStatus(object selectedActivity)
         {
-            return true;
+            return Task.FromResult(true);
         }
 
         /// <summary>

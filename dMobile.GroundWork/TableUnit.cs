@@ -13,6 +13,7 @@ namespace dMobile.GroundWork
     using System.Xml.Linq;
     using dMobile.Bedrock;
     using dMobile.Resources.Models;
+    using dMobile.Resources.Types;
     using SQLite;
 
     public class TableUnit : TableBase
@@ -23,6 +24,8 @@ namespace dMobile.GroundWork
         public TableUnit()
         {
             this.FullClassName = "dMobile.GroundWork.TableUnit";
+            this.LowerCaseName = "units of measure";
+            this.ProperCaseName = "Units of Measure";
         }
 
         /// <summary>
@@ -34,88 +37,17 @@ namespace dMobile.GroundWork
         {
             try
             {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding units of measure.", true);
-
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Seeding {this.LowerCaseName}.", true);
                 var responseData = await this.SendRequest();
                 await this.Save(responseData);
-
-                // Require to have units.
-                if (await this.DataStatus() <= 0)
-                {
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "No units of measure where received.", true);
-
-                    throw new Exception("No units of measure where received.");
-                }
-
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding units of measure complete.", true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Seeding {this.LowerCaseName} complete.", true);
             }
             catch (Exception ex)
             {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding units of measure failed.", true);
-
-                throw new Exception("Seeding units of measure failed.", ex);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Seeding {this.LowerCaseName} failed.", true);
+                throw new Exception($"Seeding {this.LowerCaseName} failed.", ex);
             }
         }
-
-        ///// <summary>
-        /////
-        ///// </summary>
-        ///// <param name="unitCode"></param>
-        ///// <returns></returns>
-        // public int GetiUnitRefnoFromUnitCode(string unitCode)
-        // {
-        //  int unitRefno = 0;
-
-        // try
-        //      {
-        //        using (SQLiteCommand cmndUnit = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
-        //        {
-        //          cmndUnit.CommandText = "tUnit";
-        //          //cmndUnit.IndexName = "UQ_UnitOnUnitCode";
-        //          cmndUnit.CommandType = CommandType.TableDirect;
-
-        // using (SQLiteDataReader drUnit = cmndUnit.ExecuteReader())
-        //          {
-        //            if (drUnit.Seek(DbSeekOptions.FirstEqual, new object[] { unitCode }))
-        //            {
-        //              if (drUnit.Read())
-        //              {
-        //                unitRefno = Convert.ToInt32(drUnit.GetValue((int)SysCommon.UnitFields.UnitRefno));
-        //              }
-        //              else
-        //              {
-        // #if MULTILANGUAGE
-        //                throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DrunitreadFailed));
-        // #else
-        //                throw new Exception("drUnit.Read() failed.");
-        // #endif
-        //              }
-        //            }
-        //            else
-        //            {
-        //              throw new Exception(
-        // #if MULTILANGUAGE
-        //                  string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.UnableToLocateTheUnitRefnoFromUnitCodeInTunit), unitCode));
-        // #else
-        //                  string.Format("Unable to locate the unit refno from unit code {0} in tUnit", unitCode));
-        // #endif
-        //            }
-
-        // drUnit.Close();
-        //          }
-        //        }
-        //      }
-        //      catch (SQLiteException ex)
-        //      {
-        // #if MULTILANGUAGE
-        //        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredGetiunitrefnofromunitcodeFailed), ex);
-        // #else
-        //        throw new Exception("Database exception occurred. GetiUnitRefnoFromUnitCode failed.", ex);
-        // #endif
-        //      }
-
-        // return unitRefno;
-        // }
 
         /// <summary>
         ///
@@ -128,12 +60,11 @@ namespace dMobile.GroundWork
             try
             {
                 rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SqlConn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tUnit"));
-
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"{rowsAffected} units of measure.", true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"{rowsAffected} {this.LowerCaseName}.", true);
             }
             catch (SQLiteException ex)
             {
-                throw new Exception("Database exception occurred. Units of measure status failed.", ex);
+                throw new Exception($"Database exception occurred. {this.ProperCaseName} status failed.", ex);
             }
 
             return rowsAffected;
@@ -148,100 +79,62 @@ namespace dMobile.GroundWork
         {
             try
             {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging units of measure.", true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName}.", true);
 
                 await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync("DELETE FROM tUnit");
 
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging units of measure complete.", true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} complete.", true);
             }
             catch (SQLiteException ex)
             {
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging units of measure failed.", true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} failed.", true);
 
-                throw new Exception("Database exception occurred. Purging units of measure failed.", ex);
+                throw new Exception($"Database exception occurred. Purging {this.LowerCaseName} failed.", ex);
             }
         }
 
         /// <summary>
-        ///
+        /// 
         /// </summary>
         /// <param name="responseData"></param>
-        /// <remarks></remarks>
-        /// <inheritdoc/>
+        /// <returns></returns>
         protected override async Task Save(string responseData)
         {
-            var errMsg = string.Empty;
-
-            await DatabaseConnection.GetInstance().SqlConn.RunInTransactionAsync(transaction =>
+            var conn = DatabaseConnection.GetInstance().SqlConn;
+            using var dataSet = new DataSet();
+            dataSet.ReadXml(SysCommon.GetXmlReader(ref responseData), XmlReadMode.Auto);
+            if (dataSet.Tables.Count > 0)
             {
-                try
+                var rows = dataSet.Tables[0].Rows;
+                if (rows.Count > 0)
                 {
-                    using var ds = new DataSet();
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received responseData.", false);
-
-                    ds.ReadXml(SysCommon.GetXmlReader(ref responseData), XmlReadMode.Auto);
-
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving units of measure.", false);
-
-                    if (ds.Tables.Count != 0)
+                    var units = new List<UnitModel>();
+                    foreach (DataRow row in rows)
                     {
-                        var progMax = ds.Tables["tUnit"].Rows.Count;
-
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Records {progMax}", false);
-
-                        var progValue = 0;
-                        var isUnitFound = false;
-                        var unitCode = string.Empty;
-
-                        this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
-
-                        foreach (DataRow drow in ds.Tables["tUnit"].Rows)
+                        var unit = new UnitModel
                         {
-                            unitCode = drow["UnitCode"].ToString();
-                            errMsg = "Unit code \'" + unitCode + "\'";
-                            isUnitFound = false;
-
-                            if (this.SysEnv.RefreshOpt.RefreshDataChangesOnly)
-                            {
-                                var results = transaction.Query<tUnitModel>("SELECT UnitCode FROM tUnit WHERE UnitCode = ?", unitCode);
-
-                                if (results?.Count > 0)
-                                {
-                                    isUnitFound = true;
-                                }
-                            }
-
-                            if (!isUnitFound)
-                            {
-                                transaction.Execute("INSERT INTO tUnit (UnitCode) VALUES (?)", unitCode);
-                            }
-
-                            progValue++;
-
-                            if (progValue % 100 == 0)
-                            {
-                                this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue, 0, progMax);
-                            }
-
-                            this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
-                        }
+                            UnitCode = row["UnitCode"].ToString(),
+                        };
+                        units.Add(unit);
                     }
 
-                    transaction.Commit();
-
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving units of measure complete.", false);
+                    await conn.InsertAllAsync(units);
                 }
-                catch (SQLiteException ex)
-                {
-                    transaction.Rollback();
 
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving units of measure failed.", false);
-
-                    throw new Exception("Database exception occurred. Saving units of measure failed." + Environment.NewLine + errMsg, ex);
-                }
-            });
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    $"{rows.Count} units.", true);
+            }
+            else
+            {
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    $"No {this.LowerCaseName} to save.",
+                    true);
+            }
         }
 
         /// <summary>

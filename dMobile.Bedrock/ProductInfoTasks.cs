@@ -100,7 +100,7 @@ namespace dMobile.Bedrock
                         WHERE tProduct.ProductCode = ?";
 
                 var results = await DatabaseConnection.GetInstance().SqlConn.
-                    QueryAsync<tProductModel>(query, productCode);
+                    QueryAsync<ProductModel>(query, productCode);
 
                 if (results != null && results.Count > 0)
                 {
@@ -397,7 +397,7 @@ namespace dMobile.Bedrock
                     INNER JOIN tProductScheme ON tProductScheme.ProductSchemeRefno = tLocationMapWarehouseProductScheme.ProductSchemeRefno
                     WHERE tProduct.ProductRefno = ?";
 
-            var prodSchemes = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<tProductSchemeModel>(
+            var prodSchemes = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<ProductSchemeModel>(
                 query,
                 Convert.ToInt32(
                 LocationMap.GetInstance().CurrLocMap.WhsLocMapRefno),
@@ -724,7 +724,7 @@ namespace dMobile.Bedrock
                     WHERE ActivityDetailUniqueSchemeID = ?";
 
             var conn = DatabaseConnection.GetInstance().SqlConn;
-            var results = await conn.QueryAsync<tActivityDetailModel>(query, uniqueSchemeId);
+            var results = await conn.QueryAsync<ActivityDetailModel>(query, uniqueSchemeId);
             if (results != null && results.Count > 0)
             {
                 isDuplicate = true;

@@ -206,7 +206,7 @@ namespace dMobile.View.Forms
                 if (!string.IsNullOrEmpty(this.txtLoginID.Text))
                 {
                     var results = await DatabaseConnection.GetInstance().SqlConn.
-                        QueryAsync<tContactUserModel>(
+                        QueryAsync<ContactUserModel>(
                         "SELECT * FROM tContactUser WHERE ContactUserCode = ?",
                         Convert.ToInt32(this.txtLoginID.Text));
 

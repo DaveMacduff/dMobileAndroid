@@ -38,7 +38,7 @@ namespace dMobile.Resources.Models
         public int ActivityAdjustmentType { get; set; }
 
         [NotNull]
-        [ForeignKey(typeof(tLocationMapWarehouseModel))]
+        [ForeignKey(typeof(LocationMapWarehouseModel))]
         [Indexed(Name = "FK_ActivityAdjustmentOnWarehouseLocationMapRefno", Order = 1, Unique = false)]
         public int WarehouseLocationMapRefno { get; set; }
 

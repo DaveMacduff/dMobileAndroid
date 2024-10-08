@@ -325,7 +325,7 @@ namespace dMobile.View.Activity
         /// <returns></returns>
         /// <remarks></remarks>
         /// <inheritdoc />
-        public async Task<XDocument> GetXml()
+        public Task<XDocument> GetXml()
         {
             var locMapRefno = 0;
 
@@ -344,7 +344,7 @@ namespace dMobile.View.Activity
                 + "<LocationMapRefno>" + locMapRefno + "</LocationMapRefno>"
                 + "</params>");
 
-            return request;
+            return Task.FromResult(request);
         }
 
         /// <summary>

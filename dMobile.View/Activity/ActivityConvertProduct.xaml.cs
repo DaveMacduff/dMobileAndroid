@@ -1346,10 +1346,11 @@ namespace dMobile.View.Activity
 
             //////////////////////////////////////////////////////////////////////////
             // Create new detail instance and fill it.
-            async Task CreateAndFillActivityDetail()
+            Task CreateAndFillActivityDetail()
             {
                 this.ActDetail.ClearProperties();
                 this.ActDetail.ActItem = this.ActItem;
+                return Task.CompletedTask;
             }
         }
 

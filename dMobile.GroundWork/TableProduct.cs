@@ -14,6 +14,7 @@ namespace dMobile.GroundWork
     using System.Xml.Linq;
     using dMobile.Bedrock;
     using dMobile.Resources.Models;
+    using dMobile.Resources.Types;
     using SQLite;
 
     /// <summary>
@@ -27,6 +28,8 @@ namespace dMobile.GroundWork
         public TableProduct() : base()
         {
             this.FullClassName = this.GetType().FullName;
+            this.ProperCaseName = "Products";
+            this.LowerCaseName = "products";
         }
 
         /// <summary>
@@ -36,34 +39,36 @@ namespace dMobile.GroundWork
         {
             try
             {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding products.", true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Seeding {this.LowerCaseName}.", true);
+                var responseData = await this.SendRequest(string.Empty);
+                await this.SaveOpt(responseData);
 
-                var resultsFamily = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<tFamilyModel>("SELECT * FROM tFamily");
+                ////var resultsFamily = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<FamilyModel>("SELECT * FROM tFamily");
 
-                if (resultsFamily?.Count > 0)
-                {
-                    foreach (var family in resultsFamily)
-                    {
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"For family {family.FamilyCode}", true);
-                        var responseData = await this.SendRequest(family.FamilyCode);
-                        await this.SaveOpt(responseData);
-                    }
-                }
+                ////if (resultsFamily?.Count > 0)
+                ////{
+                ////    foreach (var family in resultsFamily)
+                ////    {
+                ////        this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"For family {family.FamilyCode}", true);
+                ////        var responseData = await this.SendRequest(family.FamilyCode);
+                ////        await this.SaveOpt(responseData);
+                ////    }
+                ////}
 
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding products complete.", true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Seeding {this.LowerCaseName} complete.", true);
             }
             catch (SQLiteException ex)
             {
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding products failed.", true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Seeding {this.LowerCaseName} failed.", true);
 
-                throw new Exception("Database exception occurred. Seeding products failed.", ex);
+                throw new Exception($"Database exception occurred. Seeding {this.LowerCaseName} failed.", ex);
             }
             catch (Exception ex)
             {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding products failed.", true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Seeding {this.LowerCaseName} failed.", true);
 
-                throw new Exception("Seeding products failed.", ex);
+                throw new Exception($"Seeding {this.LowerCaseName} failed.", ex);
             }
         }
 
@@ -74,18 +79,18 @@ namespace dMobile.GroundWork
         {
             try
             {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging products.", true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName}.", true);
 
                 await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync("DELETE FROM tProduct");
 
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging products complete.", true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} complete.", true);
             }
             catch (SQLiteException ex)
             {
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging products failed.", true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} failed.", true);
 
-                throw new Exception("Database exception occurred. Purging products failed.", ex);
+                throw new Exception($"Database exception occurred. Purging {this.LowerCaseName} failed.", ex);
             }
         }
 
@@ -99,7 +104,7 @@ namespace dMobile.GroundWork
             int prodRefno;
             try
             {
-                var results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<tProductModel>("SELECT * FROM tProduct WHERE ProductFKRefno = ?", Convert.ToInt32(prodFKRefno));
+                var results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<ProductModel>("SELECT * FROM tProduct WHERE ProductFKRefno = ?", Convert.ToInt32(prodFKRefno));
 
                 if (results?.Count > 0)
                 {
@@ -108,7 +113,7 @@ namespace dMobile.GroundWork
                 else
                 {
                     throw new Exception(
-                        $"Unable to locate product Refno from product FK Refno {prodFKRefno} in tProduct");
+                        $"Unable to locate product Refno from {this.LowerCaseName} FK Refno {prodFKRefno} in tProduct");
                 }
             }
             catch (SQLiteException ex)
@@ -134,7 +139,7 @@ namespace dMobile.GroundWork
             }
             catch (SQLiteException ex)
             {
-                throw new Exception("Database exception occurred. Products status failed.", ex);
+                throw new Exception($"Database exception occurred. {this.ProperCaseName} status failed.", ex);
             }
 
             return rowsAffected;
@@ -144,299 +149,115 @@ namespace dMobile.GroundWork
         /// The Save.
         /// </summary>
         /// <param name="responseData"></param>
-        protected override async Task Save(string responseData)
+        protected override Task Save(string responseData)
         {
+            return Task.CompletedTask;
         }
 
         /// <summary>
         /// The SaveOpt.
         /// </summary>
         /// <param name="data"></param>
-        protected async Task SaveOpt(string data)
+        protected async Task SaveOpt(string responseData)
         {
-            var processedCount = 0;
-            var errMsg = string.Empty;
-            var refreshDataChangesOnly = this.SysEnv.RefreshOpt.RefreshDataChangesOnly;
-
-            await DatabaseConnection.GetInstance().SqlConn.RunInTransactionAsync(transaction =>
+            var conn = DatabaseConnection.GetInstance().SqlConn;
+            using var dataSet = new DataSet();
+            dataSet.ReadXml(SysCommon.GetXmlReader(ref responseData), XmlReadMode.Auto);
+            if (dataSet.Tables.Count > 0)
             {
-                try
+                var rows = dataSet.Tables[0].Rows;
+                if (rows.Count > 0)
                 {
-                    var dictionaryFamily = new Dictionary<string, int>();
-
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received responseData.", false);
-
-                    var startIndex = data.IndexOf("<VFPData", StringComparison.Ordinal);
-                    var sett = new XmlReaderSettings();
-                    sett.CheckCharacters = false;
-                    sett.CloseInput = false;
-                    sett.ConformanceLevel = ConformanceLevel.Auto;
-                    sett.IgnoreComments = true;
-                    sett.IgnoreProcessingInstructions = true;
-                    sett.IgnoreWhitespace = false;
-                    sett.ValidationFlags = System.Xml.Schema.XmlSchemaValidationFlags.None;
-                    sett.ValidationType = ValidationType.None;
-
-                    using (var stringReader = new StringReader(data.Substring(startIndex)))
-                    using (var reader = XmlReader.Create(stringReader, sett))
+                    var products = new List<Seg>();
+                    foreach (DataRow row in rows)
                     {
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving products.", false);
-
-                        var resultsFamily = transaction.Query<tFamilyModel>("SELECT * FROM tFamily");
-
-                        if (resultsFamily?.Count > 0)
+                        var product = new Seg
                         {
-                            foreach (var family in resultsFamily)
-                            {
-                                dictionaryFamily.Add(family.FamilyCode, family.FamilyRefno);
-                            }
-                        }
+                            ProductCode = row["ProductCode"].ToString(),
+                            ProductFKRefno = Convert.ToInt32(row["ProductFKRefno"]),
+                            ProductDescription = row["ProductDescription"].ToString(),
+                            ProductIsCatchCount = Convert.ToBoolean(row["ProductIsCatchCount"]),
+                            ProductIsCatchWeight = Convert.ToBoolean(row["ProductIsCatchWeight"]),
+                            ProductIsCatchAsk = Convert.ToBoolean(row["ProductIsCatchAsk"]),
+                            FamilyCode = row["ProductFamily"].ToString(),
+                            ProductBrandDescription = row["ProductBrand"].ToString(),
+                            ProductIsCatchAskZero = Convert.ToBoolean(row["ProductCatchAskZero"]),
+                            ProductAllowConvertProduct = Convert.ToBoolean(row["ProductAllowConvertProduct"]),
+                            ProductAcceptDays = Convert.ToInt32(row["ProductAcceptDays"]),
+                        };
+                        products.Add(product);
+                    }
 
-                        var isProdFound = false;
-                        var progValue = 0;
-                        var familyRefno = 0;
+                    var query = "CREATE TEMP TABLE Seg"
+                                + " ("
+                                + "ProductFKRefno INTEGER NOT NULL"
+                                + ",ProductCode VARCHAR(10) NOT NULL"
+                                + ",ProductDescription VARCHAR(25) NOT NULL"
+                                + ",ProductIsCatchCount BIT NOT NULL"
+                                + ",ProductIsCatchWeight BIT NOT NULL"
+                                + ",ProductIsCatchAsk BIT NOT NULL"
+                                + ",FamilyCode VARCHAR(10) NOT NULL"
+                                + ",ProductBrandDescription VARCHAR(10) NOT NULL"
+                                + ",ProductIsCatchAskZero BIT NOT NULL"
+                                + ",ProductAllowConvertProduct BIT NOT NULL"
+                                + ",ProductAcceptDays INTEGER"
+                                + ")";
 
-                        // Deprecated scheme moved to product warehouse level.
-                        var schemeRefno = 0;
+                    await conn.ExecuteAsync(query);
+                    await conn.InsertAllAsync(products);
 
-                        // f01
-                        var prodCode = string.Empty;
+                    query = @"INSERT INTO tProduct 
+                    (FamilyRefno,
+                    ProductSchemeRefno,
+                    ProductCode, 
+                    ProductFKRefno, 
+                    ProductDescription, 
+                    ProductIsCatchCount, 
+                    ProductIsCatchWeight, 
+                    ProductIsCatchAsk, 
+                    ProductIsCatchAskZero, 
+                    ProductBrandDescription, 
+                    ProductAllowConvertProduct, 
+                    ProductAcceptDays
+                    ) SELECT
+                    tFamily.FamilyRefno, 
+                    0,
+                    Seg.ProductCode, 
+                    Seg.ProductFKRefno, 
+                    Seg.ProductDescription, 
+                    Seg.ProductIsCatchCount, 
+                    Seg.ProductIsCatchWeight, 
+                    Seg.ProductIsCatchAsk, 
+                    Seg.ProductIsCatchAskZero, 
+                    Seg.ProductBrandDescription, 
+                    Seg.ProductAllowConvertProduct, 
+                    Seg.ProductAcceptDays
+                    FROM Seg
+                    INNER JOIN tFamily ON tFamily.FamilyCode = Seg.FamilyCode";
+                    var rowsAffected = await conn.ExecuteAsync(query);
+                    if (products.Count != rowsAffected)
+                    {
+                        throw new Exception("Failed to insert all rows into tProduct");
+                    }
 
-                        // f02
-                        var prodFKRefno = 0;
+                    // Drop the temporary table
+                    const string dropTempTableQuery = "DROP TABLE IF EXISTS Seg";
+                    await conn.ExecuteAsync(dropTempTableQuery);
 
-                        // f03
-                        var description = string.Empty;
-
-                        // f04
-                        var isCatchCount = false;
-
-                        // f05
-                        var isCatchWeight = false;
-
-                        // f06
-                        var isCatchAsk = false;
-
-                        // f07
-                        // Deprecated scheme moved to product warehouse level.
-                        var schemeCode = string.Empty;
-
-                        // f08
-                        var familyCode = string.Empty;
-
-                        // f09
-                        var brandDescription = string.Empty;
-
-                        // f10
-                        var isCatchAskZero = false;
-
-                        // f11
-                        var isAllowConvertProduct = false;
-
-                        // f12
-                        var acceptDays = 0;
-
-                        // SqlCeUpdatableRecord rec = rs.CreateRecord();
-                        this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, 100);
-
-                        while (!reader.EOF)
-                        {
-                            prodCode = string.Empty;
-                            prodFKRefno = 0;
-                            description = string.Empty;
-                            isCatchCount = false;
-                            isCatchWeight = false;
-                            isCatchAsk = false;
-                            schemeCode = string.Empty;
-                            familyCode = string.Empty;
-                            brandDescription = string.Empty;
-                            isCatchAskZero = false;
-                            isAllowConvertProduct = false;
-                            acceptDays = 0;
-
-                            // fill one record
-                            // we do this by looping until an end segment is found
-                            var recordFilled = false;
-                            var elementName = string.Empty;
-                            while (!recordFilled && reader.Read())
-                            {
-                                if (reader.NodeType == XmlNodeType.Element)
-                                {
-                                    elementName = reader.Name;
-                                }
-                                else if (reader.NodeType == XmlNodeType.Text)
-                                {
-                                    switch (elementName)
-                                    {
-                                        case "f01":
-                                            prodCode = reader.Value;
-                                            break;
-                                        case "f02":
-                                            prodFKRefno = reader.ReadContentAsInt();
-                                            break;
-                                        case "f03":
-                                            description = reader.Value;
-                                            break;
-                                        case "f04":
-                                            isCatchCount = reader.ReadContentAsBoolean();
-                                            break;
-                                        case "f05":
-                                            isCatchWeight = reader.ReadContentAsBoolean();
-                                            break;
-                                        case "f06":
-                                            isCatchAsk = reader.ReadContentAsBoolean();
-                                            break;
-                                        case "f07":
-                                            schemeCode = reader.Value;
-                                            break;
-                                        case "f08":
-                                            familyCode = reader.Value;
-                                            break;
-                                        case "f09":
-                                            brandDescription = reader.Value;
-                                            break;
-                                        case "f10":
-                                            isCatchAskZero = reader.ReadContentAsBoolean();
-                                            break;
-                                        case "f11":
-                                            isAllowConvertProduct = reader.ReadContentAsBoolean();
-                                            break;
-
-                                        case "f12":
-                                            acceptDays = reader.ReadContentAsInt();
-                                            break;
-                                    }
-                                }
-                                else if (reader.NodeType == XmlNodeType.EndElement && reader.Name == "seg")
-                                {
-                                    recordFilled = true; // we are full;
-                                }
-                            } // end of fill record
-
-                            if (!recordFilled)
-                            {
-                                continue;
-                            }
-
-                            familyRefno = 0;
-                            dictionaryFamily.TryGetValue(familyCode, out familyRefno);
-                            isProdFound = false;
-
-                            var resultsProduct = transaction.Query<tProductModel>(
-                                "SELECT ProductFKRefno FROM tProduct WHERE ProductFKRefno = ?",
-                                prodFKRefno);
-
-                            if (resultsProduct?.Count > 0)
-                            {
-                                isProdFound = true;
-
-                                if (refreshDataChangesOnly)
-                                {
-                                    var queryUpdate = @"UPDATE tProduct
-                                        SET FamilyRefno = ?,
-                                            ProductCode = ?,
-                                            ProductDescription = ?,
-                                            ProductBrandDescription = ?,
-                                            ProductIsCatchCount = ?,
-                                            ProductIsCatchWeight = ?,
-                                            ProductIsCatchAsk = ?,
-                                            ProductIsCatchAskZero = ?,
-                                            ProductAllowConvertProduct = ?,
-                                            ProductAcceptDays = ?
-                                        WHERE ProductFKRefno = ?";
-                                    var parametersUpdate = new object[]
-                                    {
-                                        familyRefno,
-                                        prodCode,
-                                        description,
-                                        brandDescription,
-                                        isCatchCount,
-                                        isCatchWeight,
-                                        isCatchAsk,
-                                        isCatchAskZero,
-                                        isAllowConvertProduct,
-                                        acceptDays,
-                                        prodFKRefno,
-                                    };
-
-                                    transaction.Execute(queryUpdate, parametersUpdate);
-                                }
-                            }
-
-                            if (!isProdFound)
-                            {
-                                var queryInsert = @"INSERT INTO tProduct 
-                                        (ProductSchemeRefno, 
-                                        FamilyRefno, 
-                                        ProductCode, 
-                                        ProductFKRefno, 
-                                        ProductDescription, 
-                                        ProductIsCatchCount, 
-                                        ProductIsCatchWeight, 
-                                        ProductIsCatchAsk, 
-                                        ProductIsCatchAskZero, 
-                                        ProductBrandDescription, 
-                                        ProductAllowConvertProduct, 
-                                        ProductAcceptDays) 
-                                    VALUES 
-                                        (?, 
-                                        ?, 
-                                        ?, 
-                                        ?, 
-                                        ?, 
-                                        ?, 
-                                        ?, 
-                                        ?, 
-                                        ?, 
-                                        ?, 
-                                        ?, 
-                                        ?)";
-                                    var parametersInsert = new object[]
-                                {
-                                    schemeRefno,
-                                    familyRefno,
-                                    prodCode,
-                                    prodFKRefno,
-                                    description,
-                                    isCatchCount,
-                                    isCatchWeight,
-                                    isCatchAsk,
-                                    isCatchAskZero,
-                                    brandDescription,
-                                    isAllowConvertProduct,
-                                    acceptDays,
-                                };
-
-                                transaction.Execute(queryInsert, parametersInsert);
-                            }
-
-                            ++processedCount;
-                            if (processedCount % 100 == 0)
-                            {
-                                this.DataAccessProgressOutHandler(this, EventArgs.Empty, (processedCount / 10) % 100, 0, 100);
-                            }
-
-                            progValue++;
-                        } // end while loop of reading responseData in
-
-                        this.DataAccessProgressOutHandler(this, EventArgs.Empty, 100, 0, 100); // complete
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Records {processedCount}", false);
-                    } // using xml stream reader
-
-                    transaction.Commit();
-
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving products complete.", false);
+                    this.DataAccessStatusOutHandler(
+                        this,
+                        EventArgs.Empty,
+                        $"{products.Count} products.", true);
                 }
-                catch (SQLiteException ex)
-                {
-                    transaction.Rollback();
-
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving products failed.", false);
-
-                    throw new Exception("Database exception occurred. Saving products failed." + Environment.NewLine + errMsg, ex);
-                }
-            });
+            }
+            else
+            {
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    $"No {this.LowerCaseName} to save.",
+                    true);
+            }
         }
 
         /// <summary>
@@ -519,6 +340,34 @@ namespace dMobile.GroundWork
         protected override Task<string> CreateRequestProdLoc(int prodLocMapType)
         {
             throw new NotImplementedException();
+        }
+
+        /// <summary>
+        ///     Class to hold the data for the temporary table.
+        /// </summary>
+        private class Seg
+        {
+            public string ProductCode { get; set; }
+
+            public int ProductFKRefno { get; set; }
+
+            public string ProductDescription { get; set; }
+
+            public bool ProductIsCatchCount { get; set; }
+
+            public bool ProductIsCatchWeight { get; set; }
+
+            public bool ProductIsCatchAsk { get; set; }
+
+            public string FamilyCode { get; set; }
+
+            public string ProductBrandDescription { get; set; }
+
+            public bool ProductIsCatchAskZero { get; set; }
+
+            public bool ProductAllowConvertProduct { get; set; }
+
+            public int ProductAcceptDays { get; set; }
         }
     }
 }

@@ -133,7 +133,7 @@ namespace dMobile.GroundWork
         protected override async Task<string> SendRequest(int activityFkRefno)
         {
             var results = await DatabaseConnection.GetInstance()
-                .SqlConn.QueryAsync<tActivityTransferModel>(
+                .SqlConn.QueryAsync<ActivityTransferModel>(
                     "SELECT * FROM tActivityTransfer WHERE ActivityFKRefno = ?",
                     Convert.ToInt32(activityFkRefno));
 
@@ -230,7 +230,7 @@ namespace dMobile.GroundWork
                                             drow["TransferFromLocationMapWarehouseFKRefno"]);
 
                                         var resultsLocationMapWarehouse =
-                                            transaction.Query<tLocationMapWarehouseModel>(
+                                            transaction.Query<LocationMapWarehouseModel>(
                                                 "SELECT * FROM tLocationMapWarehouse WHERE LocationMapWarehouseFKRefno = ?",
                                                 Convert.ToInt32(locMapWhsFKRefno));
 

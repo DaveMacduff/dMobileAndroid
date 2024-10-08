@@ -137,7 +137,7 @@ namespace dMobile.GroundWork
         protected override async Task<string> SendRequest(int activityFkRefno)
         {
             const string query = "SELECT * FROM tActivityItemCount WHERE ActivityItemRefno = ?";
-            var results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<tActivityItemCountModel>(
+            var results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<ActivityItemCountModel>(
                 query,
                 activityFkRefno);
 
@@ -186,7 +186,7 @@ namespace dMobile.GroundWork
 
                             this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
 
-                            var resultCountItems = transaction.Query<tActivityItemCountModel>("SELECT * FROM tActivityItemCount WHERE ActivityItemRefno = ?", actItemCountRefno);
+                            var resultCountItems = transaction.Query<ActivityItemCountModel>("SELECT * FROM tActivityItemCount WHERE ActivityItemRefno = ?", actItemCountRefno);
 
                             if (resultCountItems == null || (resultCountItems != null && resultCountItems.Count == 0))
                             {

@@ -149,16 +149,18 @@ namespace dMobile.View.Options
         /// Unregister the bar code scan event handler and disable the scanner.
         /// </summary>
         /// <remarks></remarks>
-        public async Task ScannerDisable()
+        public Task ScannerDisable()
         {
+            return Task.CompletedTask;
         }
 
         /// <summary>
         /// Registers the bar code scan event handler and enables the scanner.
         /// </summary>
         /// <remarks></remarks>
-        public async Task ScannerEnable()
+        public Task ScannerEnable()
         {
+            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -388,38 +390,30 @@ namespace dMobile.View.Options
         }
 
         /// <summary>
-        ///
+        ///     Used to perform saving of data changes.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
-        /// <inheritdoc/>
+        /// <returns>XML document.</returns>
         public async Task<XDocument> GetXml()
         {
             var xmldocParams = XDocument.Parse(
                       "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                       + "<params>"
                       + "</params>");
-
-            return xmldocParams;
+            return await Task.FromResult(xmldocParams);
         }
 
         /// <summary>
-        ///
+        /// 
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        /// <remarks></remarks>
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
+        /// <param name="sender">Object that generated this event.</param>
+        /// <param name="e">Event argument data.</param>
         /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
-        public async Task ucCommunicationSetup_GotFocus(object sender, EventArgs e)
+        public Task ucCommunicationSetup_GotFocus(object sender, EventArgs e)
         {
             this.LoadData();
             this.IsControlLoaded = true;
             _ = this.updnIP1.Focus();
+            return Task.CompletedTask;
         }
 
         /// <summary>

@@ -24,6 +24,8 @@ namespace dMobile.GroundWork
           : base()
         {
             this.FullClassName = "dMobile.GroundWork.TableProductSchemeVariant";
+            this.LowerCaseName = "scheme variants";
+            this.ProperCaseName = "Scheme Variants";
         }
 
         /// <summary>
@@ -35,17 +37,15 @@ namespace dMobile.GroundWork
         {
             try
             {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding product scheme variants.", true);
-
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Seeding {this.LowerCaseName}.", true);
                 var responseData = await this.SendRequest();
                 await this.Save(responseData);
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding product scheme variants complete.", true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Seeding {this.LowerCaseName} complete.", true);
             }
             catch (Exception ex)
             {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding product scheme variants failed.", true);
-
-                throw new Exception("Seeding product scheme variants failed.", ex);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Seeding {this.LowerCaseName} failed.", true);
+                throw new Exception($"Seeding {this.LowerCaseName} failed.", ex);
             }
         }
 
@@ -58,7 +58,7 @@ namespace dMobile.GroundWork
         {
             try
             {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging product scheme variants.", true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName}.", true);
 
                 await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync("DELETE FROM tProductSchemeVariantXRef");
                 await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync("DELETE FROM tProductSchemeVariant");
@@ -68,9 +68,9 @@ namespace dMobile.GroundWork
             catch (SQLiteException ex)
             {
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging product scheme variants failed.", true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} failed.", true);
 
-                throw new Exception("Database exception occurred. Purging product scheme variants failed.", ex);
+                throw new Exception($"Database exception occurred. Purging {this.LowerCaseName} failed.", ex);
             }
         }
 
@@ -165,93 +165,43 @@ namespace dMobile.GroundWork
         /// <inheritdoc/>
         protected override async Task Save(string responseData)
         {
-            var errMsg = string.Empty;
-
-            await DatabaseConnection.GetInstance().SqlConn.RunInTransactionAsync(transaction =>
+            var conn = DatabaseConnection.GetInstance().SqlConn;
+            using var dataSet = new DataSet();
+            dataSet.ReadXml(SysCommon.GetXmlReader(ref responseData), XmlReadMode.Auto);
+            if (dataSet.Tables.Count > 0)
             {
-                try
+                var rows = dataSet.Tables[0].Rows;
+                if (rows.Count > 0)
                 {
-                    using var ds = new DataSet();
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received responseData.", false);
-
-                    ds.ReadXml(SysCommon.GetXmlReader(ref responseData), XmlReadMode.Auto);
-
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving product scheme variants.", false);
-
-                    if (ds.Tables.Count != 0)
+                    var variants = new List<ProductSchemeVariantModel>();
+                    foreach (DataRow row in rows)
                     {
-                        var progMax = Convert.ToInt32(ds.Tables["tProductSchemeVariant"].Rows.Count);
-
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Records {progMax}", false);
-
-                        var progValue = 0;
-                        var isSchemeVarFound = false;
-                        var schemeVarCode = string.Empty;
-                        var schemeVarDesc = string.Empty;
-                        var schemeVarNo = 0;
-                        var schemeVarIsDefault = false;
-
-                        this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
-
-                        foreach (DataRow drow in ds.Tables["tProductSchemeVariant"].Rows)
+                        var variant = new ProductSchemeVariantModel
                         {
-                            schemeVarCode = drow["ProductSchemeVariantCode"].ToString();
-                            errMsg = "Variant code \'" + schemeVarCode + "\'";
-                            schemeVarDesc = drow["ProductSchemeVariantDescription"].ToString();
-                            errMsg += Environment.NewLine + "Variant desc \'" + schemeVarDesc + "\'";
-                            schemeVarNo = Convert.ToInt32(drow["ProductSchemeVariantNo"]);
-                            errMsg += Environment.NewLine + "Variant no " + schemeVarNo;
-                            schemeVarIsDefault = Convert.ToBoolean(drow["ProductSchemeVariantIsDefault"]);
-                            errMsg += Environment.NewLine + "Variant is default " + schemeVarIsDefault;
-                            isSchemeVarFound = false;
-
-                            var resultsProductSchemeVariant = transaction.Query<tProductSchemeVariantModel>("SELECT ProductSchemeVariantNo FROM tProductSchemeVariant WHERE ProductSchemeVariantNo = ?", schemeVarNo);
-
-                            if (resultsProductSchemeVariant?.Count > 0)
-                            {
-                                isSchemeVarFound = true;
-
-                                if (this.SysEnv.RefreshOpt.RefreshDataChangesOnly)
-                                {
-                                    var queryUpdate = "UPDATE tProductSchemeVariant "
-                                                      + "SET ProductSchemeVariantCode = \'" + schemeVarCode + "\', "
-                                                      + "ProductSchemeVariantDescription = \'" + schemeVarDesc + "\', "
-                                                      + "ProductSchemeVariantIsDefault = " + Convert.ToString(schemeVarIsDefault ? 1 : 0)
-                                                      + " WHERE ProductSchemeVariantNo = " + schemeVarNo;
-
-                                    transaction.Execute(queryUpdate);
-                                }
-                            }
-
-                            if (!isSchemeVarFound)
-                            {
-                                var queryInsert = "INSERT INTO tProductSchemeVariant (ProductSchemeVariantCode, ProductSchemeVariantDescription, ProductSchemeVariantNo, ProductSchemeVariantIsDefault) VALUES (?, ?, ?, ?)";
-
-                                transaction.Execute(queryInsert, schemeVarCode, schemeVarDesc, schemeVarNo, schemeVarIsDefault);
-                            }
-
-                            progValue++;
-                            if (progValue % 100 == 0)
-                            {
-                                this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue, 0, progMax);
-                            }
-
-                            this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
-                        }
+                            ProductSchemeVariantCode = row["ProductSchemeVariantCode"].ToString(),
+                            ProductSchemeVariantDescription = row["ProductSchemeVariantDescription"].ToString(),
+                            ProductSchemeVariantNo = Convert.ToInt32(row["ProductSchemeVariantNo"]),
+                            ProductSchemeVariantIsDefault = Convert.ToBoolean(row["ProductSchemeVariantIsDefault"]),
+                        };
+                        variants.Add(variant);
                     }
 
-                    transaction.Commit();
+                    await conn.InsertAllAsync(variants);
 
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving product scheme variants complete.", false);
+                    this.DataAccessStatusOutHandler(
+                        this,
+                        EventArgs.Empty,
+                        $"{variants.Count} {this.LowerCaseName}.", true);
                 }
-                catch (SQLiteException ex)
-                {
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving product scheme variants complete.", false);
-
-                    throw new Exception("Database exception occurred. Saving product scheme variants failed." + Environment.NewLine + errMsg, ex);
-                }
-            });
+            }
+            else
+            {
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    $"No {this.LowerCaseName} to save.",
+                    true);
+            }
         }
 
         /// <summary>

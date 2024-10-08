@@ -272,10 +272,10 @@ namespace dMobile.Controller.Activity_Detail
         /// </summary>
         /// <param name="isSubmitBatch">.</param>
         /// <returns>.</returns>
-        public override async Task<List<object>> GetActivityDetailList(bool isSubmitBatch)
+        public override Task<List<object>> GetActivityDetailList(bool isSubmitBatch)
         {
             this.ListDetails = new List<object>();
-            return this.ListDetails;
+            return Task.FromResult(this.ListDetails);
         }
 
         /// <summary>

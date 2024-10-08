@@ -62,12 +62,12 @@ namespace dMobile.View.Activity
         private BarCodeParse BarParse { get; set; }
 
         /// <summary>
-        ///     Gets or sets the Scanner.
+        ///     Gets the Scanner.
         /// </summary>
         private BarCodeScanner Scanner { get; }
 
         /// <summary>
-        ///     Gets or sets the ActDetail.
+        ///     Gets the ActDetail.
         /// </summary>
         private ActDetail ActDetail { get; }
 
@@ -118,23 +118,23 @@ namespace dMobile.View.Activity
         ///     The GetXml.
         /// </summary>
         /// <returns>.</returns>
-        public async Task<XDocument> GetXml()
+        public Task<XDocument> GetXml()
         {
             var xmldocParams = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                 + "<params>"
                 + "</params>");
 
-            return xmldocParams;
+            return Task.FromResult(xmldocParams);
         }
 
         /// <summary>
         ///     The IsReadyToSave.
         /// </summary>
         /// <returns>.</returns>
-        public async Task<bool> IsReadyToSave()
+        public Task<bool> IsReadyToSave()
         {
-            return this.IsValidData();
+            return Task.FromResult(this.IsValidData());
         }
 
         /// <summary>

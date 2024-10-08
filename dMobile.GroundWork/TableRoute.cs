@@ -24,9 +24,10 @@ namespace dMobile.GroundWork
         /// Initializes a new instance of the <see cref="TableRoute"/> class.
         /// </summary>
         public TableRoute()
-      : base()
         {
             this.FullClassName = "dMobile.GroundWork.TableRoute";
+            this.LowerCaseName = "routes";
+            this.ProperCaseName = "Routes";
         }
 
         /// <summary>
@@ -36,17 +37,16 @@ namespace dMobile.GroundWork
         {
             try
             {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding routes.", true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Seeding {this.LowerCaseName}.", true);
 
                 var responseData = await this.SendRequest();
                 await this.Save(responseData);
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding routes complete.", true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Seeding {this.LowerCaseName} complete.", true);
             }
             catch (Exception ex)
             {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding routes failed.", true);
-
-                throw new Exception("Seeding routes failed.", ex);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Seeding {this.LowerCaseName} failed.", true);
+                throw new Exception($"Seeding {this.LowerCaseName} failed.", ex);
             }
         }
 
@@ -154,88 +154,50 @@ namespace dMobile.GroundWork
         }
 
         /// <summary>
-        /// The Save.
+        ///     The Save.
         /// </summary>
         /// <param name="responseData"></param>
         protected override async Task Save(string responseData)
         {
-            var errMsg = string.Empty;
-
-            await DatabaseConnection.GetInstance().SqlConn.RunInTransactionAsync(transaction =>
+            var conn = DatabaseConnection.GetInstance().SqlConn;
+            using var dataSet = new DataSet();
+            dataSet.ReadXml(SysCommon.GetXmlReader(ref responseData), XmlReadMode.Auto);
+            if (dataSet.Tables.Count > 0)
             {
-                try
+                var rows = dataSet.Tables[0].Rows;
+                if (rows.Count > 0)
                 {
-                    using var ds = new DataSet();
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received responseData.", false);
-
-                    ds.ReadXml(SysCommon.GetXmlReader(ref responseData), XmlReadMode.Auto);
-
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving routes.", false);
-
-                    if (ds.Tables.Count != 0)
+                    var routes = new List<RouteModel>();
+                    var rowsToSave = dataSet.Tables["tRoute"].Rows.Count;
+                    for (var idx = 0; idx < rowsToSave; idx++)
                     {
-                        var progValue = 0;
-                        var isRouteFound = false;
-                        var routeDesc = string.Empty;
-                        var routeDayOfWeek = string.Empty;
-                        var routeCode = string.Empty;
-                        var progMax = Convert.ToInt32(ds.Tables["tRoute"].Rows.Count);
-
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Records {progMax}", false);
-                        this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
-
-                        foreach (DataRow drow in ds.Tables["tRoute"].Rows)
-                        {
-                            routeCode = Convert.ToString(drow["RouteCode"]);
-                            errMsg = "Route code \'" + routeCode + "\'";
-                            routeDayOfWeek = Convert.ToString(drow["RouteDayOfWeek"]);
-                            errMsg += Environment.NewLine + "Route dow \'" + routeDayOfWeek + "\'";
-                            routeDesc = Convert.ToString(drow["RouteDescription"]);
-                            errMsg += Environment.NewLine + "Route desc \'" + routeDesc + "\'";
-
-                            isRouteFound = false;
-
-                            var resultsRoute = transaction.Query<tRouteModel>("SELECT RouteCode FROM tRoute WHERE RouteCode = ?", routeCode);
-
-                            if (resultsRoute?.Count > 0)
+                        var row = dataSet.Tables["tRoute"].Rows[idx];
+                        routes.Add(
+                            new RouteModel
                             {
-                                isRouteFound = true;
-
-                                if (this.SysEnv.RefreshOpt.RefreshDataChangesOnly)
-                                {
-                                    transaction.Execute("UPDATE tRoute SET RouteDescription = ?, RouteDayOfWeek = ? WHERE RouteCode = ?", routeDesc, routeDayOfWeek, routeCode);
-                                }
-                            }
-
-                            if (!isRouteFound)
-                            {
-                                transaction.Execute("INSERT INTO tRoute (RouteCode, RouteDescription, RouteDayOfWeek) VALUES (?, ?, ?)", routeCode, routeDesc, routeDayOfWeek);
-                            }
-
-                            progValue++;
-                            if (progValue % 100 == 0)
-                            {
-                                this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue, 0, progMax);
-                            }
-                        }
-
-                        this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
+                                RouteCode = row["RouteCode"].ToString(),
+                                RouteDescription = row["RouteDescription"].ToString(),
+                                RouteDayOfWeek = row["RouteDayOfWeek"].ToString(),
+                            });
                     }
 
-                    transaction.Commit();
-
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving routes complete.", false);
+                    await conn.InsertAllAsync(routes);
                 }
-                catch (SQLiteException ex)
-                {
-                    transaction.Rollback();
 
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving routes failed.", false);
-
-                    throw new Exception("Database exception occurred. Saving routes failed." + Environment.NewLine + errMsg, ex);
-                }
-            });
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    $"{rows.Count} routes.",
+                    true);
+            }
+            else
+            {
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    $"No {this.LowerCaseName} to save.",
+                    true);
+            }
         }
 
         /// <summary>

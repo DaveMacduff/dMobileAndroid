@@ -30,7 +30,7 @@ namespace dMobile.Resources.Models
 
         [NotNull]
         [Indexed(Name = "FK_ActivityCountOnWarehouseLocationMapRefno", Order = 1, Unique = false)]
-        [ForeignKey(typeof(tLocationMapWarehouseModel))]
+        [ForeignKey(typeof(LocationMapWarehouseModel))]
         public int WarehouseLocationMapRefno { get; set; }
 
         [NotNull]

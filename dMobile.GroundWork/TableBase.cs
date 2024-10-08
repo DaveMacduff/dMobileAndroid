@@ -902,7 +902,7 @@ namespace dMobile.GroundWork
                 : Convert.ToInt32(drow["ProductSchemeVariantNo"]);
             if (schemeVariantNo > 0)
             {
-                var results = conn.Query<tProductSchemeVariantModel>(
+                var results = conn.Query<ProductSchemeVariantModel>(
                     "SELECT * FROM tProductSchemeVariant WHERE ProductSchemeVariantNo = ?",
                     Convert.ToInt32(schemeVariantNo));
 
@@ -1031,7 +1031,7 @@ namespace dMobile.GroundWork
 
             if (locMapSlotFkRefno == 0)
             {
-                var results = conn.Query<tLocationMapSlotModel>(
+                var results = conn.Query<LocationMapSlotModel>(
                     "SELECT * FROM tLocationMapSlot WHERE LocationMapSlotFKRefno = ?",
                     locMapSlotFkRefno);
                 if (results != null &&
@@ -1043,7 +1043,7 @@ namespace dMobile.GroundWork
 
             if (locMapSectFkRefno == 0)
             {
-                var results = conn.Query<tLocationMapSectionModel>(
+                var results = conn.Query<LocationMapSectionModel>(
                     "SELECT * FROM tLocationMapSection WHERE LocationMapSectionFKRefno = ?",
                     locMapSectFkRefno);
                 if (results != null &&
@@ -1055,7 +1055,7 @@ namespace dMobile.GroundWork
 
             if (locMapWhsFkRefno == 0)
             {
-                var results = conn.Query<tLocationMapWarehouseModel>(
+                var results = conn.Query<LocationMapWarehouseModel>(
                     "SELECT * FROM tLocationMapWarehouse WHERE LocationMapWarehouseFKRefno = ?",
                     locMapWhsFkRefno);
                 if (results != null &&
@@ -1198,7 +1198,7 @@ namespace dMobile.GroundWork
             SQLiteConnection conn)
         {
             var locMapWhsFkRefno = Convert.ToInt32(drow["LocationMapWarehouseFKRefno"]);
-            var results = conn.Query<tLocationMapWarehouseModel>(
+            var results = conn.Query<LocationMapWarehouseModel>(
                 "SELECT * FROM tLocationMapWarehouse WHERE LocationMapWarehouseFKRefno = ?",
                 Convert.ToInt32(locMapWhsFkRefno));
 
@@ -1251,7 +1251,7 @@ namespace dMobile.GroundWork
                 prodUnitIsBc = Convert.ToBoolean(drow["ProductUnitIsBC"]);
             }
 
-            var productResults = conn.Query<tProductModel>(
+            var productResults = conn.Query<ProductModel>(
                 "SELECT * FROM tProduct WHERE ProductFKRefno = ?",
                 Convert.ToInt32(prodFkRefno));
             int prodRefno;
@@ -1267,7 +1267,7 @@ namespace dMobile.GroundWork
                     " reference number in tProduct.");
             }
 
-            var unitResults = conn.Query<tUnitModel>(
+            var unitResults = conn.Query<UnitModel>(
                 "SELECT * FROM tUnit WHERE UnitCode = ?",
                 unitCode);
             int unitRefno;
@@ -1281,7 +1281,7 @@ namespace dMobile.GroundWork
                 throw new Exception("drUnit.Read() failed.");
             }
 
-            var productUnitResults = conn.Query<tProductUnitModel>(
+            var productUnitResults = conn.Query<ProductUnitModel>(
                 "SELECT * FROM tProductUnit WHERE ProductRefno = ? AND UnitRefno = ? AND" +
                 " ProductUnitIsBC = ?",
                 Convert.ToInt32(prodRefno),

@@ -30,7 +30,7 @@ namespace dMobile.Controller.Activity
         /// The Purge.
         /// </summary>
         /// <returns>The <see cref="Task"/>.</returns>
-        public override async Task Purge()
+        public override Task Purge()
         {
             throw new NotImplementedException();
         }
@@ -58,11 +58,12 @@ namespace dMobile.Controller.Activity
         /// </summary>
         /// <param name="selectedActivity">The selectedActivity<see cref="object"/>.</param>
         /// <returns>The <see cref="Task"/>.</returns>
-        public override async Task SelectActivity(object selectedActivity)
+        public override Task SelectActivity(object selectedActivity)
         {
             this.SelectedActivity = selectedActivity;
             this.HdrFkRefno = Convert.ToInt32((selectedActivity as dynamic).ActivityRefno);
             this.HdrRefno = Convert.ToInt32((selectedActivity as dynamic).ActivityRefno);
+            return Task.CompletedTask;
         }
 
         /// <summary>

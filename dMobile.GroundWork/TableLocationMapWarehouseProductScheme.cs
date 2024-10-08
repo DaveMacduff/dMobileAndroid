@@ -7,13 +7,16 @@ namespace dMobile.GroundWork
     using System;
     using System.Collections.Generic;
     using System.Data;
+    using System.Linq;
     using System.Text;
     using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
     using dMobile.Bedrock;
     using dMobile.Resources.Models;
+    using dMobile.Resources.Types;
     using SQLite;
+    using static Xamarin.Forms.Markup.GridRowsColumns;
 
     public class TableLocationMapWarehouseProductScheme : TableBase
     {
@@ -36,18 +39,20 @@ namespace dMobile.GroundWork
             try
             {
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding warehouse product schemes.", true);
+                var responseData = await this.SendRequest(string.Empty);
+                await this.Save(responseData);
 
-                var resultsFamily = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<tFamilyModel>("SELECT * FROM tFamily");
-
-                if (resultsFamily?.Count > 0)
-                {
-                    foreach (var family in resultsFamily)
-                    {
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"For family {family.FamilyCode}", true);
-                        var responseData = await this.SendRequest(family.FamilyCode);
-                        await this.Save(responseData);
-                    }
-                }
+                ////this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"For family {family.FamilyCode}", true);
+                ////var resultsFamily = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<tFamilyModel>("SELECT * FROM tFamily");
+                ////if (resultsFamily?.Count > 0)
+                ////{
+                ////    foreach (var family in resultsFamily)
+                ////    {
+                ////        this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"For family {family.FamilyCode}", true);
+                ////        var responseData = await this.SendRequest(family.FamilyCode);
+                ////        await this.Save(responseData);
+                ////    }
+                ////}
 
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding warehouse product schemes complete.", true);
             }
@@ -110,137 +115,65 @@ namespace dMobile.GroundWork
         }
 
         /// <summary>
-        ///
+        /// The Save.
         /// </summary>
         /// <param name="responseData"></param>
-        /// <remarks></remarks>
-        /// <inheritdoc/>
         protected override async Task Save(string responseData)
         {
-            var errMsg = string.Empty;
-
-            await DatabaseConnection.GetInstance().SqlConn.RunInTransactionAsync(transaction =>
+            var conn = DatabaseConnection.GetInstance().SqlConn;
+            using var dataSet = new DataSet();
+            dataSet.ReadXml(SysCommon.GetXmlReader(ref responseData), XmlReadMode.Auto);
+            if (dataSet.Tables.Count > 0)
             {
-                try
+                var rows = dataSet.Tables[0].Rows;
+                if (rows.Count > 0)
                 {
-                    using (var ds = new DataSet())
+                    var whsProdSchemes = rows.Cast<DataRow>().Select(row => new Seg
                     {
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received responseData.", false);
+                        ProductSchemeCode = Convert.ToString(row["SchemeCode"]),
+                        ProductFKRefno = Convert.ToInt32(row["ProductFKRefno"]),
+                        LocationMapWarehouseFKRefno = Convert.ToInt32(row["LocationMapWarehouseFKRefno"]),
+                    }).ToList();
 
-                        ds.ReadXml(SysCommon.GetXmlReader(ref responseData), XmlReadMode.Auto);
+                    var query = "CREATE TEMP TABLE Seg"
+                                + "("
+                                + "ProductSchemeCode VARCHAR(10) NOT NULL,"
+                                + "ProductFKRefno INTEGER NOT NULL,"
+                                + "LocationMapWarehouseFKRefno INTEGER NOT NULL"
+                                + ")";
+                    await conn.ExecuteAsync(query);
+                    await conn.InsertAllAsync(whsProdSchemes);
 
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving warehouse product schemes.", false);
+                    query = "INSERT INTO tLocationMapWarehouseProductScheme (" +
+                            "WarehouseLocationMapRefno" +
+                            ",ProductRefno" +
+                            ",ProductSchemeRefno" +
+                            ") SELECT tLocationMapWarehouse.LocationMapRefno as WarehouseLocationMapRefno" +
+                            ",tProduct.ProductRefno" +
+                            ",tProductScheme.ProductSchemeRefno" +
+                            " FROM Seg" +
+                            " INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapWarehouseFKRefno = Seg.LocationMapWarehouseFKRefno" +
+                            " INNER JOIN tProduct ON tProduct.ProductFKRefno = Seg.ProductFKRefno" +
+                            " INNER JOIN tProductScheme ON tProductScheme.ProductSchemeCode = Seg.ProductSchemeCode";
+                    await conn.ExecuteAsync(query);
 
-                        if (ds.Tables.Count != 0)
-                        {
-                            var progMax = Convert.ToInt32(ds.Tables["tLocationMapWarehouseProductScheme"].Rows.Count);
+                    // Drop the temporary table
+                    const string dropTempTableQuery = "DROP TABLE IF EXISTS Seg";
+                    await conn.ExecuteAsync(dropTempTableQuery);
 
-                            this.DataAccessStatusOutHandler(this, EventArgs.Empty,
-                                $"Records {ds.Tables["tLocationMapWarehouseProductScheme"].Rows.Count}", false);
-
-                            var progValue = 0;
-                            var productFKRefno = 0;
-                            var locMapWhsFKRefno = 0;
-                            var schemeRefno = 0;
-                            var locMapWhsRefno = 0;
-                            var productRefno = 0;
-                            var schemeCode = string.Empty;
-                            var isWhsProdSchemeFound = false;
-
-                            this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
-
-                            foreach (DataRow drow in ds.Tables["tLocationMapWarehouseProductScheme"].Rows)
-                            {
-                                schemeCode = drow["F2"].ToString();
-                                errMsg = "Scheme code \'" + schemeCode + "\'";
-
-                                locMapWhsFKRefno = Convert.ToInt32(drow["F3"]);
-                                errMsg = "Warehouse FK Refno \'" + locMapWhsFKRefno.ToString() + "\'";
-
-                                productFKRefno = Convert.ToInt32(drow["F1"]);
-                                errMsg = "Product FK Refno \'" + productFKRefno.ToString() + "\'";
-
-                                // Find the scheme
-                                var resultsProductScheme = transaction.Query<tProductSchemeModel>("SELECT * FROM tProductScheme WHERE ProductSchemeCode = ?", schemeCode);
-
-                                if (resultsProductScheme?.Count > 0)
-                                {
-                                    schemeRefno = resultsProductScheme[0].ProductSchemeRefno;
-                                }
-                                else
-                                {
-                                    throw new Exception("Unable to locate the scheme refno using the scheme code in tProductScheme." + Environment.NewLine + errMsg);
-                                }
-
-                                // Find the product
-                                var resultsProduct = transaction.Query<tProductModel>("SELECT * FROM tProduct WHERE ProductFKRefno = ?", Convert.ToInt32(productFKRefno));
-
-                                if (resultsProduct?.Count > 0)
-                                {
-                                    productRefno = resultsProduct[0].ProductRefno;
-                                }
-                                else
-                                {
-                                    throw new Exception(
-                                        $"Unable to locate the product refno using the product FkRefno {productFKRefno} in tProduct." + Environment.NewLine + errMsg);
-                                }
-
-                                // Find the warehouse
-                                var resultsLocationMapWarehouse = transaction.Query<tLocationMapWarehouseModel>("SELECT * FROM tLocationMapWarehouse WHERE LocationMapWarehouseFKRefno = ?", Convert.ToInt32(locMapWhsFKRefno));
-
-                                if (resultsLocationMapWarehouse?.Count > 0)
-                                {
-                                    locMapWhsRefno = resultsLocationMapWarehouse[0].LocationMapRefno;
-                                }
-                                else
-                                {
-                                    throw new Exception(
-                                        $"Unable to locate the locationMapWarehouse location map refno using the locMapWhsFKRefno {locMapWhsFKRefno} in tLocationMapWarehouse." + Environment.NewLine + errMsg);
-                                }
-
-                                isWhsProdSchemeFound = false;
-
-                                if (this.SysEnv.RefreshOpt.RefreshDataChangesOnly)
-                                {
-                                    var query = "SELECT * FROM tLocationMapWarehouseProductScheme WHERE WarehouseLocationMapRefno = ? AND ProductRefno = ? AND ProductSchemeRefno = ?";
-                                    var resultsLocationMapWarehouseProductScheme = transaction.Query<tLocationMapWarehouseProductSchemeModel>(query, Convert.ToInt32(locMapWhsRefno), Convert.ToInt32(productRefno), Convert.ToInt32(schemeRefno));
-
-                                    if (resultsLocationMapWarehouseProductScheme?.Count > 0)
-                                    {
-                                        isWhsProdSchemeFound = true;
-                                    }
-                                }
-
-                                if (!isWhsProdSchemeFound)
-                                {
-                                    transaction.Execute("INSERT INTO tLocationMapWarehouseProductScheme (WarehouseLocationMapRefno, ProductRefno, ProductSchemeRefno) VALUES (?, ?, ?)", Convert.ToInt32(locMapWhsRefno), Convert.ToInt32(productRefno), Convert.ToInt32(schemeRefno));
-                                }
-
-                                progValue++;
-                                if (progValue % 100 == 0)
-                                {
-                                    this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue, 0, progMax);
-                                }
-                            }
-
-                            this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
-                        }
-
-                        transaction.Commit();
-                    }
-
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving warehouse product schemes complete.", false);
+                    this.DataAccessStatusOutHandler(
+                        this,
+                        EventArgs.Empty,
+                        $"{whsProdSchemes.Count} warehouse product schemes.", true);
                 }
-                catch (SQLiteException ex)
+                else
                 {
-                    transaction.Rollback();
-
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving warehouse product schemes failed.", false);
-
-                    throw new Exception("Database exception occurred. Saving warehouse product schemes failed." + Environment.NewLine + errMsg, ex);
+                    this.DataAccessStatusOutHandler(
+                        this,
+                        EventArgs.Empty,
+                        $"{rows.Count} warehouse product schemes.", true);
                 }
-            });
+            }
         }
 
         /// <summary>
@@ -325,5 +258,18 @@ namespace dMobile.GroundWork
         {
             throw new NotImplementedException();
         }
+
+        /// <summary>
+        ///     Class to hold the data for the temporary table.
+        /// </summary>
+        private class Seg
+        {
+            public string ProductSchemeCode { get; set; }
+
+            public int ProductFKRefno { get; set; }
+
+            public int LocationMapWarehouseFKRefno { get; set; }
+        }
+
     }
 }

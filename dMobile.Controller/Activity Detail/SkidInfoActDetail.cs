@@ -186,7 +186,7 @@ namespace dMobile.Controller.Activity_Detail
         /// </summary>
         /// <param name="skidInfo"><see cref="SysSkidInfo"/> Skid information to insert.</param>
         /// <returns><see cref="Task"/> Task operation.</returns>
-        public override async Task InsertSkid(SysSkidInfo skidInfo)
+        public override Task InsertSkid(SysSkidInfo skidInfo)
         {
             throw new NotSupportedException("Inserting a skid from within a skid detail is not supported.");
         }
@@ -196,7 +196,7 @@ namespace dMobile.Controller.Activity_Detail
         /// </summary>
         /// <param name="skidInfo"><see cref="SysSkidInfo"/> Skid information to delete.</param>
         /// <returns><see cref="Task"/> Task operation.</returns>
-        public override async Task DeleteSkid(SysSkidInfo skidInfo)
+        public override Task DeleteSkid(SysSkidInfo skidInfo)
         {
             throw new NotSupportedException("Deleting a skid from within a skid detail is not supported.");
         }
@@ -315,7 +315,7 @@ namespace dMobile.Controller.Activity_Detail
                     tempSchemeData.VariantNumber = Convert.ToInt32(drow["ProductSchemeVariantNo"]);
 
                     var results = await DatabaseConnection.GetInstance().SqlConn.
-                        QueryAsync<tProductSchemeVariantModel>(
+                        QueryAsync<ProductSchemeVariantModel>(
                         "SELECT * FROM tProductSchemeVariant WHERE ProductSchemeVariantNo = ?",
                         tempSchemeData.VariantNumber);
 
@@ -407,7 +407,7 @@ namespace dMobile.Controller.Activity_Detail
         /// </summary>
         /// <param name="isSubmitBatch"><see cref="bool"/> Are we in batch submission mode.</param>
         /// <returns><see cref="List{object}"/> List of skid details.</returns>
-        public override async Task<List<object>> GetActivityDetailList(bool isSubmitBatch)
+        public override Task<List<object>> GetActivityDetailList(bool isSubmitBatch)
         {
             var table = new DataTable("ActivitySkidDetail");
 
@@ -437,7 +437,7 @@ namespace dMobile.Controller.Activity_Detail
 
             var details = table.Rows.Cast<SkidInfoDetail>().ToList();
             this.ListDetails = details.Cast<object>().ToList();
-            return this.ListDetails;
+            return Task.FromResult(this.ListDetails);
         }
 
         /// <summary>

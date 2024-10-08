@@ -446,7 +446,7 @@ namespace dMobile.View.Views
         ///     Assemble a XML string of activity data to return to the calling parent form.
         /// </summary>
         /// <returns><see cref="Task" /> Task operation containing an XDocument.</returns>
-        public async Task<XDocument> GetXml()
+        public Task<XDocument> GetXml()
         {
             var request = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
@@ -455,7 +455,7 @@ namespace dMobile.View.Views
                 "</LocationMapRefno>"
                 + "</params>");
 
-            return request;
+            return Task.FromResult(request);
         }
 
         /// <summary>

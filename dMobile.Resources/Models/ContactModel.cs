@@ -9,9 +9,8 @@ namespace dMobile.Resources.Models
     [Table("tContact")]
     public class ContactModel
     {
-        [PrimaryKey]
+        [PrimaryKey, AutoIncrement, NotNull]
         [Indexed(Name = "UQ_ContactOnContactRefnoAndContactSubType", Order = 1, Unique = true)]
-        [NotNull]
         public int ContactRefno { get; set; }
 
         [Indexed(Name = "UQ_ContactOnContactRefnoAndContactSubType", Order = 2, Unique = true)]

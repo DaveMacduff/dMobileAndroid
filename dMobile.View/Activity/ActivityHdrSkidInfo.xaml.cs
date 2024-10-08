@@ -759,7 +759,7 @@ namespace dMobile.View.Activity
         ///     Display skid information.
         /// </summary>
         /// <returns><see cref="Task" /> Task complete.</returns>
-        private async Task DisplaySkidInfo()
+        private Task DisplaySkidInfo()
         {
             switch (this.ActivityType)
             {
@@ -966,6 +966,8 @@ namespace dMobile.View.Activity
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+
+            return Task.CompletedTask;
         }
 
         /// <summary>

@@ -158,7 +158,7 @@ namespace dMobile.GroundWork
             {
                 var query = "SELECT * FROM tActivityItemCount WHERE ActivityItemRefno = ?";
                 var results = await DatabaseConnection.GetInstance()
-                    .SqlConn.QueryAsync<tActivityItemCountModel>(query, activityFkRefno);
+                    .SqlConn.QueryAsync<ActivityItemCountModel>(query, activityFkRefno);
 
                 int actItemCountFkRefno;
                 if (results != null &&
@@ -237,7 +237,7 @@ namespace dMobile.GroundWork
                                         0,
                                         progMax);
 
-                                    var countItems = transaction.Query<tActivityItemCountModel>(
+                                    var countItems = transaction.Query<ActivityItemCountModel>(
                                         "SELECT * FROM tActivityItemCount WHERE ActivityItemRefno = ?",
                                         actItemCountRefno);
 

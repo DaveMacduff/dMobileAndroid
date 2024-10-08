@@ -76,34 +76,36 @@ namespace dMobile.View.Options
         /// <summary>
         /// Unregister the bar code scan event handler and disable the scanner.
         /// </summary>
-        public async Task ScannerDisable()
+        public Task ScannerDisable()
         {
+            return Task.CompletedTask;
         }
 
         /// <summary>
         /// Registers the bar code scan event handler and enables the scanner.
         /// </summary>
         /// <remarks></remarks>
-        public async Task ScannerEnable()
+        public Task ScannerEnable()
         {
+            return Task.CompletedTask;
         }
 
         /// <summary>
         /// Is ready to save.
         /// </summary>
         /// <returns><see cref="int"/> True if ready to save.</returns>
-        public async Task<bool> IsReadyToSave()
+        public Task<bool> IsReadyToSave()
         {
-            return true;
+            return Task.FromResult(true);
         }
 
         /// <summary>
         /// Is ready to close.
         /// </summary>
         /// <returns><see cref="int"/> True if ready to close.</returns>
-        public async Task<bool> IsReadyToClose()
+        public Task<bool> IsReadyToClose()
         {
-            return true;
+            return Task.FromResult(true);
         }
 
         /// <summary>
@@ -121,9 +123,9 @@ namespace dMobile.View.Options
         /// <returns></returns>
         /// <remarks></remarks>
         /// <inheritdoc/>
-        public async Task<bool> SaveChanges()
+        public Task<bool> SaveChanges()
         {
-            return true;
+            return Task.FromResult(true);
         }
 
         /// <summary>
@@ -132,9 +134,9 @@ namespace dMobile.View.Options
         /// <returns></returns>
         /// <remarks></remarks>
         /// <inheritdoc/>
-        public async Task<bool> CancelChanges()
+        public Task<bool> CancelChanges()
         {
-            return true;
+            return Task.FromResult(true);
         }
 
         /// <summary>
@@ -143,14 +145,14 @@ namespace dMobile.View.Options
         /// <returns></returns>
         /// <remarks></remarks>
         /// <inheritdoc/>
-        public async Task<XDocument> GetXml()
+        public Task<XDocument> GetXml()
         {
             var xmldocParams = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                 + "<params>"
                 + "</params>");
 
-            return xmldocParams;
+            return Task.FromResult(xmldocParams);
         }
 
         /// <summary>

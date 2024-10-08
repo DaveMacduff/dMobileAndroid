@@ -394,14 +394,14 @@ namespace dMobile.View.Utilities
         ///     The GetXml.
         /// </summary>
         /// <returns>.</returns>
-        public async Task<XDocument> GetXml()
+        public Task<XDocument> GetXml()
         {
             var xmldocParams = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                 + "<params>"
                 + "</params>");
 
-            return xmldocParams;
+            return Task.FromResult(xmldocParams);
         }
 
         /// <summary>

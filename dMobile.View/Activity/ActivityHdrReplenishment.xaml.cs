@@ -395,20 +395,20 @@ namespace dMobile.View.Activity
         ///     Check if the activity header data is ready to be saved.
         /// </summary>
         /// <returns><see cref="bool" /> True if the data is ready to be saved else false.</returns>
-        public async Task<bool> IsReadyToSave()
+        public Task<bool> IsReadyToSave()
         {
             var isReadyToSave = !this.IsChangesMade;
-            return isReadyToSave;
+            return Task.FromResult(isReadyToSave);
         }
 
         /// <summary>
         ///     Check if this form is ready to close, that is can be closed.
         /// </summary>
         /// <returns><see cref="Task{bool}" /> True if the form is ready to close else false.</returns>
-        public async Task<bool> IsReadyToClose()
+        public Task<bool> IsReadyToClose()
         {
             var isReadyToClose = !this.IsChangesMade;
-            return isReadyToClose;
+            return Task.FromResult(isReadyToClose);
         }
 
         /// <summary>

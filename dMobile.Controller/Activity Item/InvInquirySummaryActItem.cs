@@ -574,7 +574,7 @@ namespace dMobile.Controller.Activity_Item
         /// </summary>
         /// <param name="isSubmitBatch">.</param>
         /// <returns>.</returns>
-        public override async Task<List<object>> GetActivityItemList(bool isSubmitBatch)
+        public override Task<List<object>> GetActivityItemList(bool isSubmitBatch)
         {
             // DataTable dataTableItems = new DataTable("tActivityItem");
 
@@ -592,7 +592,7 @@ namespace dMobile.Controller.Activity_Item
             // dataTableItems.Columns.Add("activityitemweightquantity", Type.GetType("System.Decimal"));
             // this.listInventoryInquiryItems = dataTableItems.Rows.Cast<InventoryInquiryItem>().ToList();
             this.ListItems = new List<object>();
-            return this.ListItems;
+            return Task.FromResult(this.ListItems);
         }
 
         /// <summary>
@@ -847,7 +847,7 @@ namespace dMobile.Controller.Activity_Item
         /// The Delete.
         /// </summary>
         /// <returns>The <see cref="int"/>.</returns>
-        public override async Task<int> Delete()
+        public override Task<int> Delete()
         {
             throw new NotImplementedException();
         }

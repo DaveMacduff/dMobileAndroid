@@ -7,8 +7,10 @@ namespace dMobile.GroundWork
     using System;
     using System.Collections.Generic;
     using System.Data;
+    using System.Data.Common;
     using System.Text;
     using System.Threading.Tasks;
+    using System.Transactions;
     using System.Xml;
     using System.Xml.Linq;
     using dMobile.Bedrock;
@@ -27,6 +29,8 @@ namespace dMobile.GroundWork
       : base()
         {
             this.FullClassName = "dMobile.GroundWork.TableLocationMapType";
+            this.LowerCaseName = "location map types";
+            this.ProperCaseName = "Location Map Types";
         }
 
         /// <summary>
@@ -36,18 +40,28 @@ namespace dMobile.GroundWork
         {
             try
             {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding location map types.", true);
-                var responseData = string.Empty;
-                var whsLocMapRefno = 0;
-                responseData = await this.SendRequest(whsLocMapRefno);
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    $"Seeding {this.LowerCaseName}.",
+                    true);
+                const int whsLocMapRefno = 0;
+                var responseData = await this.SendRequest(whsLocMapRefno);
                 await this.Save(responseData);
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding location map types complete.", true);
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    $"Seeding {this.LowerCaseName} complete.",
+                    true);
             }
             catch (Exception ex)
             {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding location map types failed.", true);
-
-                throw new Exception("Seeding location map types failed.", ex);
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    $"Seeding {this.LowerCaseName} failed.",
+                    true);
+                throw new Exception($"Seeding {this.LowerCaseName} failed.", ex);
             }
         }
 
@@ -110,173 +124,127 @@ namespace dMobile.GroundWork
         /// <param name="responseData"></param>
         protected override async Task Save(string responseData)
         {
-            var errMsg = string.Empty;
-
-            await DatabaseConnection.GetInstance().SqlConn.RunInTransactionAsync(transaction =>
+            var conn = DatabaseConnection.GetInstance().SqlConn;
+            using var dataSet = new DataSet();
+            dataSet.ReadXml(SysCommon.GetXmlReader(ref responseData), XmlReadMode.Auto);
+            if (dataSet.Tables.Count > 0)
             {
-                try
+                var locTypes = new List<LocationMapTypeModel>();
+                var rowsToSave = dataSet.Tables["tLocationMapType"].Rows.Count;
+                for (var i = 0; i < rowsToSave; i++)
                 {
-                    using var ds = new DataSet();
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received responseData.", false);
+                    var row = dataSet.Tables["tLocationMapType"].Rows[i];
+                    var locMapType = (SysCommon.LocMapTypes)Convert.ToInt32(row["LocationMapTypeEnum"]);
 
-                    ds.ReadXml(SysCommon.GetXmlReader(ref responseData), XmlReadMode.Auto);
+                    // Removed validation because of try to make save faster.
+                    ////switch (locMapType)
+                    ////{
+                    ////    case SysCommon.LocMapTypes.IsFreezer:
+                    ////        break;
+                    ////    case SysCommon.LocMapTypes.IsGroundLevel:
+                    ////        break;
+                    ////    case SysCommon.LocMapTypes.IsHandStack:
+                    ////        break;
+                    ////    case SysCommon.LocMapTypes.IsProcessing:
+                    ////        break;
+                    ////    case SysCommon.LocMapTypes.IsReserved:
+                    ////        break;
+                    ////    case SysCommon.LocMapTypes.IsStaging:
+                    ////        break;
+                    ////    case SysCommon.LocMapTypes.IsToBeOrdered:
+                    ////        break;
+                    ////    case SysCommon.LocMapTypes.IsTracked:
+                    ////        break;
+                    ////    default:
+                    ////        throw new Exception($"Undefined location map type {locMapType}");
+                    ////}
 
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving location map types.", false);
-
-                    if (ds.Tables.Count != 0)
+                    var locMapFkRefno = Convert.ToInt32(row["LocationMapFKRefno"]);
+                    var locMapSubType = (SysCommon.LocMapSubTypes)Convert.ToInt32(
+                        row["LocationMapSubType"]);
+                    var locMapRefno = locMapSubType switch
                     {
-                        var progMax = Convert.ToInt32(ds.Tables["seg"].Rows.Count);
+                        SysCommon.LocMapSubTypes.None => throw new ArgumentOutOfRangeException(),
+                        SysCommon.LocMapSubTypes.Warehouse => await GetWarehouseLocMapRefno(
+                            locMapFkRefno),
+                        SysCommon.LocMapSubTypes.Section => await GetSectionLocMapRefno(
+                            locMapFkRefno),
+                        SysCommon.LocMapSubTypes.Slot => await GetSlotLocMapRefno(locMapFkRefno),
+                        _ => throw new ArgumentOutOfRangeException()
+                    };
 
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Records {progMax}", false);
-
-                        var locMapRefno = 0;
-                        var locMapSubType = 0;
-                        var locMapFKRefno = 0;
-                        var progValue = 0;
-                        var isLocMapTypeFound = false;
-                        var locMapTypeEnum = 0;
-
-                        this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
-
-                        foreach (DataRow drow in ds.Tables["seg"].Rows)
-                        {
-                            locMapFKRefno = Convert.ToInt32(drow["f03"]);
-                            errMsg = "Whs fk refno " + locMapFKRefno;
-
-                            locMapTypeEnum = Convert.ToInt32(drow["f01"]);
-                            switch (locMapTypeEnum)
-                            {
-                                case (int)SysCommon.LocMapTypes.IsFreezer:
-                                    errMsg += Environment.NewLine + "Map type \'Freezer\'";
-                                    break;
-
-                                case (int)SysCommon.LocMapTypes.IsGroundLevel:
-                                    errMsg += Environment.NewLine + "Map type \'Ground Level\'";
-                                    break;
-
-                                case (int)SysCommon.LocMapTypes.IsHandStack:
-                                    errMsg += Environment.NewLine + "Map type \'Hand Stack\'";
-                                    break;
-
-                                case (int)SysCommon.LocMapTypes.IsProcessing:
-                                    errMsg += Environment.NewLine + "Map type \'Processing\'";
-                                    break;
-
-                                case (int)SysCommon.LocMapTypes.IsReserved:
-                                    errMsg += Environment.NewLine + "Map type \'Reserved\'";
-                                    break;
-
-                                case (int)SysCommon.LocMapTypes.IsStaging:
-                                    errMsg += Environment.NewLine + "Map type \'Staging\'";
-                                    break;
-
-                                case (int)SysCommon.LocMapTypes.IsToBeOrdered:
-                                    errMsg += Environment.NewLine + "Map type \'To Be Ordered\'";
-                                    break;
-
-                                case (int)SysCommon.LocMapTypes.IsTracked:
-                                    errMsg += Environment.NewLine + "Map type \'Tracked\'";
-                                    break;
-
-                                default:
-                                    throw new Exception($"Undefined location map type {locMapTypeEnum}");
-                            }
-
-                            locMapSubType = Convert.ToInt32(drow["f02"]);
-
-                            switch (locMapSubType)
-                            {
-                                case (int)SysCommon.LocMapSubTypes.Warehouse:
-                                    errMsg += Environment.NewLine + "Map sub type \'Warehouse\'";
-                                    var resultsLocationMapWarehouse = transaction.Query<tLocationMapWarehouseModel>("SELECT * FROM tLocationMapWarehouse WHERE LocationMapWarehouseFKRefno = ?", locMapFKRefno);
-
-                                    if (resultsLocationMapWarehouse?.Count > 0)
-                                    {
-                                        locMapRefno = resultsLocationMapWarehouse[0].LocationMapRefno;
-                                    }
-                                    else
-                                    {
-                                        throw new Exception("No results in tLocationMapWarehouse for LocationMapWarehouseFKRefno " + locMapFKRefno + Environment.NewLine + this.FullClassName + " Save" + Environment.NewLine + errMsg);
-                                    }
-
-                                    break;
-
-                                case (int)SysCommon.LocMapSubTypes.Section:
-                                    errMsg += Environment.NewLine + "Map sub type \'Section\'";
-                                    var resultsLocationMapSection = transaction.Query<tLocationMapSectionModel>("SELECT * FROM tLocationMapSection WHERE LocationMapSectionFKRefno = ?", locMapFKRefno);
-
-                                    if (resultsLocationMapSection?.Count > 0)
-                                    {
-                                        locMapRefno = resultsLocationMapSection[0].LocationMapRefno;
-                                    }
-                                    else
-                                    {
-                                        throw new Exception("No results in tLocationMapSection for LocationMapSectionFKRefno " + locMapFKRefno + Environment.NewLine + this.FullClassName + " Save" + Environment.NewLine + errMsg);
-                                    }
-
-                                    break;
-
-                                case (int)SysCommon.LocMapSubTypes.Slot:
-                                    errMsg += Environment.NewLine + "Map sub type \'Slot\'";
-                                    var resultsLocationMapSlot = transaction.Query<tLocationMapSlotModel>("SELECT * FROM tLocationMapSlot WHERE LocationMapSlotFKRefno = ?", locMapFKRefno);
-
-                                    if (resultsLocationMapSlot?.Count > 0)
-                                    {
-                                        locMapRefno = resultsLocationMapSlot[0].LocationMapRefno;
-                                    }
-                                    else
-                                    {
-                                        throw new Exception("No results in tLocationMapSlot for LocationMapSlotFKRefno " + locMapFKRefno + Environment.NewLine + this.FullClassName + " Save" + Environment.NewLine + errMsg);
-                                    }
-
-                                    break;
-
-                                default:
-
-                                    throw new Exception($"Undefined Location Map SubType {locMapSubType}");
-                            }
-
-                            isLocMapTypeFound = false;
-
-                            if (this.SysEnv.RefreshOpt.RefreshDataChangesOnly)
-                            {
-                                var resultsLocationMapType = transaction.Query<tLocationMapTypeModel>("SELECT * FROM tLocationMapType WHERE LocationMapRefno = ? AND LocationMapTypeEnum = ?", locMapRefno, locMapTypeEnum);
-
-                                if (resultsLocationMapType?.Count > 0)
-                                {
-                                    isLocMapTypeFound = true;
-                                }
-                            }
-
-                            if (!isLocMapTypeFound)
-                            {
-                                transaction.Execute("INSERT INTO tLocationMapType (LocationMapRefno, LocationMapTypeEnum) VALUES (?, ?)", locMapRefno, locMapTypeEnum);
-                            }
-
-                            progValue++;
-                            if (progValue % 100 == 0)
-                            {
-                                this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue, 0, progMax);
-                            }
-                        }
-
-                        this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
-                    }
-
-                    transaction.Commit();
-
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving location map types complete.", false);
+                    var locType = new LocationMapTypeModel
+                    {
+                        LocationMapRefno = locMapRefno,
+                        LocationMapTypeEnum = (int)locMapType,
+                    };
+                    locTypes.Add(locType);
                 }
-                catch (SQLiteException ex)
+
+                await conn.InsertAllAsync(locTypes);
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    $"{locTypes.Count} {this.LowerCaseName}.", true);
+            }
+            else
+            {
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    $"No {this.LowerCaseName} to save.",
+                    true);
+            }
+
+            return;
+
+            ///////////////////////////////////////////////////////////
+            async Task<int> GetWarehouseLocMapRefno(int locMapFkRefno)
+            {
+                const string query = "SELECT LocationMapRefno FROM tLocationMapWarehouse" +
+                                     " WHERE LocationMapWarehouseFKRefno = ?";
+                var result = await conn.FindWithQueryAsync<LocationMapWarehouseModel>(
+                    query, locMapFkRefno);
+                if (result == null)
                 {
-                    transaction.Rollback();
-
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving location map types failed.", false);
-
-                    throw new Exception("Database exception occurred. Saving location map types failed." + Environment.NewLine + errMsg, ex);
+                    var msg = $"Unable to find foreign key {locMapFkRefno} in warehouses.";
+                    throw new Exception(msg);
                 }
-            });
+
+                return result.LocationMapRefno;
+            }
+
+            ///////////////////////////////////////////////////////////
+            async Task<int> GetSectionLocMapRefno(int locMapFkRefno)
+            {
+                const string query = "SELECT LocationMapRefno FROM tLocationMapSection" +
+                    " WHERE LocationMapSectionFKRefno = ?";
+                var result = await conn.FindWithQueryAsync<LocationMapSectionModel>(
+                    query, locMapFkRefno);
+                if (result == null)
+                {
+                    var msg = $"Unable to find foreign key {locMapFkRefno} in sections.";
+                    throw new Exception(msg);
+                }
+
+                return result.LocationMapRefno;
+            }
+
+            ///////////////////////////////////////////////////////////
+            async Task<int> GetSlotLocMapRefno(int locMapFkRefno)
+            {
+                const string query = "SELECT LocationMapRefno FROM tLocationMapSlot" +
+                    " WHERE LocationMapSlotFKRefno = ?";
+                var result = await conn.FindWithQueryAsync<LocationMapSlotModel>(
+                    query, locMapFkRefno);
+                if (result == null)
+                {
+                    var msg = $"Unable to find foreign key {locMapFkRefno} in slots.";
+                    throw new Exception(msg);
+                }
+
+                return result.LocationMapRefno;
+            }
         }
 
         /// <summary>

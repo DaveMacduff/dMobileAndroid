@@ -278,7 +278,7 @@ namespace dMobile.Controller.Activity_Detail
         /// </summary>
         /// <param name="data">.</param>
         /// <returns>The <see cref="Task"/>.</returns>
-        public override async Task Insert(XDocument data)
+        public override Task Insert(XDocument data)
         {
             if (this.ListDetails != null)
             {
@@ -323,20 +323,21 @@ namespace dMobile.Controller.Activity_Detail
             // KLUDGE: Save the new detail reference number's to be restored.
             this.SysEnv.InsertedDetailRefno = this.DetailRefno;
             this.SysEnv.InsertedDetailFkRefno = this.DetailFkRefno;
+            return Task.CompletedTask;
         }
 
         /// <summary>
         /// The Delete.
         /// </summary>
         /// <returns>The <see cref="int"/>.</returns>
-        public override async Task<int> Delete()
+        public override Task<int> Delete()
         {
             if (this.ListDetails != null)
             {
                 this.ListDetails.Clear();
             }
 
-            return 0;
+            return Task.FromResult(0);
         }
 
         /// <summary>
@@ -384,7 +385,7 @@ namespace dMobile.Controller.Activity_Detail
         /// </summary>
         /// <param name="isSubmitBatch">.</param>
         /// <returns>.</returns>
-        public override async Task<List<object>> GetActivityDetailList(bool isSubmitBatch)
+        public override Task<List<object>> GetActivityDetailList(bool isSubmitBatch)
         {
             var table = new DataTable("ActivityConvertProductItem");
 
@@ -404,7 +405,7 @@ namespace dMobile.Controller.Activity_Detail
 
             this.ListConvertProductDetails = table.Rows.Cast<ConvertProductDetail>().ToList();
             this.ListDetails = this.ListConvertProductDetails.Cast<object>().ToList();
-            return this.ListDetails;
+            return Task.FromResult(this.ListDetails);
         }
 
         /// <summary>

@@ -1215,7 +1215,7 @@ namespace dMobile.View.Activity
                 return;
 
                 //////////////////////////////////////////////////////////////////////////
-                async Task MarkDetailAsConfirmed()
+                Task MarkDetailAsConfirmed()
                 {
                     if (this.ListViewMainActivity.SelectedItem is PickingDetail pickDetail)
                     {
@@ -1284,6 +1284,8 @@ namespace dMobile.View.Activity
                             ////transferDetail.ActivityDetailIsConfirmedString = "C";
                         }
                     }
+
+                    return Task.CompletedTask;
                 }
 
                 //////////////////////////////////////////////////////////////////////////
@@ -1833,7 +1835,7 @@ namespace dMobile.View.Activity
         /// <summary>
         ///     Find the selected item in the data list using the SelectedActivityDetailFkRefno.
         /// </summary>
-        private async Task FindSelectedItemAsync()
+        private Task FindSelectedItemAsync()
         {
             if (this.ActDetail.ListDetails.Count > 0 &&
                 this.MainActivityItems.Count > 0)
@@ -1922,6 +1924,8 @@ namespace dMobile.View.Activity
                 Device.BeginInvokeOnMainThread(
                     () => { this.ListViewMainActivity.SelectedItem = null; });
             }
+
+            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -2633,6 +2637,7 @@ namespace dMobile.View.Activity
 
             try
             {
+                await this.ScannerDisable();
                 this.IsIndicatorRunning = true;
                 if (await CheckAllowedToAddDetail())
                 {

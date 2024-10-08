@@ -149,7 +149,7 @@ namespace dMobile.GroundWork
         protected override async Task<string> SendRequest(int activityFkRefno)
         {
             var results = await DatabaseConnection.GetInstance()
-                .SqlConn.QueryAsync<tActivityProductionMaterialModel>(
+                .SqlConn.QueryAsync<ActivityProductionMaterialModel>(
                     "SELECT * FROM tActivityProductionMaterial WHERE ActivityFKRefno = ?",
                     activityFkRefno);
 

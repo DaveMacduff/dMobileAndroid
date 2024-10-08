@@ -7,13 +7,17 @@ namespace dMobile.GroundWork
     using System;
     using System.Collections.Generic;
     using System.Data;
+    using System.Data.Common;
+    using System.Linq;
     using System.Text;
     using System.Threading.Tasks;
+    using System.Transactions;
     using System.Xml;
     using System.Xml.Linq;
     using dMobile.Bedrock;
     using dMobile.Resources.Models;
     using SQLite;
+    using static Xamarin.Forms.Markup.GridRowsColumns;
 
     /// <summary>
     /// Defines the <see cref="TableLocationMapSection" />.
@@ -27,6 +31,8 @@ namespace dMobile.GroundWork
       : base()
         {
             this.FullClassName = "dMobile.GroundWork.TableLocationMapSection";
+            this.LowerCaseName = "sections";
+            this.ProperCaseName = "Sections";
         }
 
         /// <summary>
@@ -37,42 +43,15 @@ namespace dMobile.GroundWork
         {
             try
             {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding sections.", true);
-
-                var responseData = string.Empty;
-
-                if (whsLocMapRefno > 0)
-                {
-                    var results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<tLocationMapWarehouseModel>("SELECT * FROM tLocationMapWarehouse WHERE LocationMapRefno = ?", whsLocMapRefno);
-
-                    if (results?.Count > 0)
-                    {
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty,
-                            $"For whs \'{results[0].LocationMapWarehouseName}\'.", true);
-                    }
-                    else
-                    {
-                        throw new Exception(
-                            $"Unable to locate the warehouse name using the warehouse refno {whsLocMapRefno} in tLocationMapWarehouse.");
-                    }
-                }
-
-                responseData = await this.SendRequest(whsLocMapRefno);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Seeding {this.LowerCaseName}.", true);
+                var responseData = await this.SendRequest(whsLocMapRefno);
                 await this.Save(responseData);
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding sections complete.", true);
-            }
-            catch (SQLiteException ex)
-            {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding sections failed.", true);
-
-                throw new Exception("Database exception occurred. Seeding sections failed.", ex);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Seeding {this.LowerCaseName} complete.", true);
             }
             catch (Exception ex)
             {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding sections failed.", true);
-
-                throw new Exception("Seeding sections failed.", ex);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Seeding {this.LowerCaseName} failed.", true);
+                throw new Exception($"Seeding {this.LowerCaseName} failed.", ex);
             }
         }
 
@@ -144,121 +123,92 @@ namespace dMobile.GroundWork
         /// <param name="responseData"></param>
         protected override async Task Save(string responseData)
         {
-            await DatabaseConnection.GetInstance().SqlConn.RunInTransactionAsync(transaction =>
+            var conn = DatabaseConnection.GetInstance().SqlConn;
+            using var dataSet = new DataSet();
+            dataSet.ReadXml(SysCommon.GetXmlReader(ref responseData), XmlReadMode.Auto);
+            if (dataSet.Tables.Count > 0)
             {
-                try
+                var rows = dataSet.Tables[0].Rows;
+                if (rows.Count > 0)
                 {
-                    using var ds = new DataSet();
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received responseData.", false);
-
-                    ds.ReadXml(SysCommon.GetXmlReader(ref responseData), XmlReadMode.Auto);
-
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving sections.", false);
-
-                    if (ds.Tables.Count != 0)
+                    var sections = new List<Seg>();
+                    foreach (DataRow row in rows)
                     {
-                        var progMax = Convert.ToInt32(ds.Tables["tLocationMapSection"].Rows.Count);
-
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Records {progMax}", false);
-
-                        var locMapRefno = 0;
-                        var whsLocMapRefno = 0;
-                        var progValue = 0;
-                        var isSectFound = false;
-                        var sectFKRefno = 0;
-                        var sectCode = 0;
-                        var sectName = string.Empty;
-                        var sectBarCode = string.Empty;
-
-                        this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
-
-                        foreach (DataRow drowSection in ds.Tables["tLocationMapSection"].Rows)
+                        var refno = await GetLocationMapRefno();
+                        sections.Add(new Seg
                         {
-                            sectFKRefno = Convert.ToInt32(drowSection["LocationMapSectionFKRefno"]);
-                            sectCode = Convert.ToInt32(drowSection["LocationMapSectionCode"]);
-                            sectName = Convert.ToString(drowSection["LocationMapSectionName"]);
-                            sectBarCode = Convert.ToString(drowSection["LocationMapSectionBarCode"]);
-                            whsLocMapRefno = this.GetWhsLocMapRefnoFromDataRow(drowSection, transaction);
-                            isSectFound = false;
-
-                            var resultsLocationMapSection = transaction.Query<tLocationMapSectionModel>("SELECT LocationMapSectionFKRefno FROM tLocationMapSection WHERE LocationMapSectionFKRefno = ?", Convert.ToString(sectFKRefno));
-
-                            if (resultsLocationMapSection?.Count > 0)
-                            {
-                                isSectFound = true;
-
-                                if (this.SysEnv.RefreshOpt.RefreshDataChangesOnly)
-                                {
-                                    var queryUpdate = "UPDATE tLocationMapSection "
-                                                      + "SET WarehouseLocationMapRefno = " + whsLocMapRefno + ","
-                                                      + "LocationMapSectionCode = " + sectCode + ","
-                                                      + "LocationMapSectionName = \'" + sectName + "\',"
-                                                      + "LocationMapSectionBarCode = \'" + sectBarCode + "\' "
-                                                      + "WHERE LocationMapSectionFKRefno = " + sectFKRefno;
-
-                                    transaction.Execute(queryUpdate);
-                                }
-                            }
-
-                            if (!isSectFound)
-                            {
-                                transaction.Execute("INSERT INTO tLocationMap (LocationMapSubType) VALUES (?)", Convert.ToInt32(SysCommon.LocMapSubTypes.Section));
-
-                                locMapRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tLocationMap"));
-
-                                var queryInsert = "INSERT INTO tLocationMapSection " +
-                                                  "(LocationMapRefno, " +
-                                                  "LocationMapSubType, " +
-                                                  "WarehouseLocationMapRefno, " +
-                                                  "LocationMapSectionCode, " +
-                                                  "LocationMapSectionName, " +
-                                                  "LocationMapSectionFKRefno, " +
-                                                  "LocationMapSectionBarCode " +
-                                                  ") " +
-                                                  "VALUES " +
-                                                  "(?, " +
-                                                  "?, " +
-                                                  "?, " +
-                                                  "?, " +
-                                                  "?, " +
-                                                  "?, " +
-                                                  "?" +
-                                                  ")";
-                                var parametersInsert = new object[]
-                                {
-                                        locMapRefno,
-                                        Convert.ToInt32(SysCommon.LocMapSubTypes.Section),
-                                        whsLocMapRefno,
-                                        sectCode,
-                                        sectName,
-                                        sectFKRefno,
-                                        sectBarCode,
-                                };
-
-                                transaction.Execute(queryInsert, parametersInsert);
-                            }
-
-                            progValue++;
-                            if (progValue % 100 == 0)
-                            {
-                                this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue, 0, progMax);
-                            }
-
-                            this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
-                        }
+                            LocationMapRefno = refno,
+                            LocationMapSubType = Convert.ToInt32(row["LocationMapSubType"]),
+                            LocationMapWarehouseFKRefno = Convert.ToInt32(row["LocationMapWarehouseFKRefno"]),
+                            LocationMapSectionCode = Convert.ToInt32(row["LocationMapSectionCode"]),
+                            LocationMapSectionName = Convert.ToString(row["LocationMapSectionName"]),
+                            LocationMapSectionFKRefno = Convert.ToInt32(row["LocationMapSectionFKRefno"]),
+                            LocationMapSectionBarCode = Convert.ToString(row["LocationMapSectionBarCode"]),
+                        });
                     }
 
-                    transaction.Commit();
+                    var query = "CREATE TEMP TABLE Seg"
+                                + "("
+                                + "LocationMapRefno INTEGER NOT NULL,"
+                                + "LocationMapSubType INTEGER NOT NULL,"
+                                + "LocationMapWarehouseFKRefno INTEGER NOT NULL,"
+                                + "LocationMapSectionFKRefno INTEGER NOT NULL,"
+                                + "LocationMapSectionCode INTEGER NOT NULL,"
+                                + "LocationMapSectionName VARCHAR(10) NOT NULL,"
+                                + "LocationMapSectionBarCode VARCHAR(13) NOT NULL"
+                                + ")";
+                    await conn.ExecuteAsync(query);
+                    await conn.InsertAllAsync(sections);
 
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving sections complete.", false);
+                    query = "INSERT INTO tLocationMapSection (" +
+                            "LocationMapRefno" +
+                            ",LocationMapSubType" +
+                            ",WarehouseLocationMapRefno" +
+                            ",LocationMapSectionCode" +
+                            ",LocationMapSectionName" +
+                            ",LocationMapSectionFKRefno" +
+                            ",LocationMapSectionBarCode" +
+                            ") SELECT Seg.LocationMapRefno" +
+                            ",Seg.LocationMapSubType" +
+                            ",tLocationMapWarehouse.LocationMapRefno as WarehouseLocationMapRefno" +
+                            ",Seg.LocationMapSectionCode" +
+                            ",Seg.LocationMapSectionName" +
+                            ",Seg.LocationMapSectionFKRefno" +
+                            ",Seg.LocationMapSectionBarCode" +
+                            " FROM Seg" +
+                            " INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapWarehouseFKRefno = Seg.LocationMapWarehouseFKRefno";
+                    await conn.ExecuteAsync(query);
+
+                    // Drop the temporary table
+                    const string dropTempTableQuery = "DROP TABLE IF EXISTS Seg";
+                    await conn.ExecuteAsync(dropTempTableQuery);
+
+                    this.DataAccessStatusOutHandler(
+                        this,
+                        EventArgs.Empty,
+                        $"{sections.Count} sections.", true);
                 }
-                catch (SQLiteException ex)
-                {
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving sections failed.", false);
-                    throw new Exception("Database exception occurred. Saving sections failed.", ex);
-                }
-            });
+            }
+            else
+            {
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    $"No {this.LowerCaseName} to save.",
+                    true);
+            }
+
+            return;
+
+            ///////////////////////////////////////////////////////////
+            async Task<int> GetLocationMapRefno()
+            {
+                var query = "INSERT INTO tLocationMap (LocationMapSubType) VALUES (?)";
+                await conn.ExecuteAsync(query, Convert.ToInt32(SysCommon.LocMapSubTypes.Section));
+                query = "SELECT tLocationMap.LocationMapRefno FROM tLocationMap ORDER BY LocationMapRefno DESC LIMIT 1";
+                var locMapRefno = Convert.ToInt32(await conn.ExecuteScalarAsync<int>(query));
+                return locMapRefno;
+            }
         }
 
         /// <summary>
@@ -345,6 +295,26 @@ namespace dMobile.GroundWork
         protected override Task<string> CreateRequestProdLoc(int prodLocMapType)
         {
             throw new NotImplementedException();
+        }
+
+        /// <summary>
+        ///     Class to hold the data for the temporary table.
+        /// </summary>
+        private class Seg
+        {
+            public int LocationMapRefno { get; set; }
+
+            public int LocationMapSubType { get; set; }
+
+            public int LocationMapWarehouseFKRefno { get; set; }
+
+            public int LocationMapSectionFKRefno { get; set; }
+
+            public int LocationMapSectionCode { get; set; }
+
+            public string LocationMapSectionName { get; set; }
+
+            public string LocationMapSectionBarCode { get; set; }
         }
     }
 }

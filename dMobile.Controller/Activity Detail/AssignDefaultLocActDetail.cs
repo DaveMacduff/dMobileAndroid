@@ -259,7 +259,7 @@ namespace dMobile.Controller.Activity_Detail
         /// The Delete.
         /// </summary>
         /// <returns>The <see cref="int"/>.</returns>
-        public override async Task<int> Delete()
+        public override Task<int> Delete()
         {
             throw new NotImplementedException();
         }
@@ -326,7 +326,7 @@ namespace dMobile.Controller.Activity_Detail
         /// </summary>
         /// <param name="isSubmitBatch">.</param>
         /// <returns>Filled main grid data view.</returns>
-        public override async Task<List<object>> GetActivityDetailList(bool isSubmitBatch)
+        public override Task<List<object>> GetActivityDetailList(bool isSubmitBatch)
         {
             var table = new DataTable("ActivityMoveDetail");
 
@@ -354,7 +354,7 @@ namespace dMobile.Controller.Activity_Detail
 
             this.ListMoveDetails = table.Rows.Cast<MoveDetail>().ToList();
             this.ListDetails = this.ListMoveDetails.Cast<object>().ToList();
-            return this.ListDetails;
+            return Task.FromResult(this.ListDetails);
         }
 
         /// <summary>

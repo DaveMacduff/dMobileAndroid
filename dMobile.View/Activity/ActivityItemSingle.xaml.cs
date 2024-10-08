@@ -750,14 +750,14 @@ namespace dMobile.View.Activity
         /// The GetXml.
         /// </summary>
         /// <returns>.</returns>
-        public async Task<XDocument> GetXml()
+        public Task<XDocument> GetXml()
         {
             var xmldocParams = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                 + "<params>"
                 + "</params>");
 
-            return xmldocParams;
+            return Task.FromResult(xmldocParams);
         }
 
         /// <summary>
@@ -2040,7 +2040,7 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// The cmdLocation_Click.
+        /// The CmdLocation_Click.
         /// </summary>
         /// <param name="sender">.</param>
         /// <param name="e">.</param>

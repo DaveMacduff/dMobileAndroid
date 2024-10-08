@@ -83,16 +83,18 @@ namespace dMobile.View.Activity
         ///     Unregister the bar code scan event handler and disable the scanner.
         /// </summary>
         /// <remarks></remarks>
-        public async Task ScannerDisable()
+        public Task ScannerDisable()
         {
+            return Task.CompletedTask;
         }
 
         /// <summary>
         ///     Registers the bar code scan event handler and enables the scanner.
         /// </summary>
         /// <remarks></remarks>
-        public async Task ScannerEnable()
+        public Task ScannerEnable()
         {
+            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -267,7 +269,7 @@ namespace dMobile.View.Activity
         /// <returns></returns>
         /// <remarks></remarks>
         /// <inheritdoc />
-        public async Task<XDocument> GetXml()
+        public Task<XDocument> GetXml()
         {
             var unqScheme = ProductInfoTasks.GetUniqueSchemeIdFromSProdSchemeData(
                 this.ActDetail.ActItem.ProdInfo.Code,
@@ -297,7 +299,7 @@ namespace dMobile.View.Activity
                                           + "<split>" + this.ChkSplitToSingles.IsToggled + "</split>"
                                           + "</params>");
 
-            return request;
+            return Task.FromResult(request);
         }
 
         /// <summary>

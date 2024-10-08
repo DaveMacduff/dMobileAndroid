@@ -238,7 +238,7 @@ namespace dMobile.Controller.Activity_Item
                     Convert.ToInt32(SysCommon.ProdLocMapTypes.Picking),
                 };
 
-                var results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<tProductLocationMapTypeModel>(query, parameters);
+                var results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<ProductLocationMapTypeModel>(query, parameters);
 
                 if (results != null && results.Count > 0)
                 {
@@ -279,7 +279,7 @@ namespace dMobile.Controller.Activity_Item
                     Convert.ToInt32(SysCommon.ProdLocMapTypes.Receiving),
                 };
 
-                var results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<tProductLocationMapTypeModel>(query, parameters);
+                var results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<ProductLocationMapTypeModel>(query, parameters);
 
                 if (results != null && results.Count > 0)
                 {
@@ -334,7 +334,7 @@ namespace dMobile.Controller.Activity_Item
         /// The Delete.
         /// </summary>
         /// <returns>The <see cref="int"/>.</returns>
-        public override async Task<int> Delete()
+        public override Task<int> Delete()
         {
             throw new NotImplementedException();
         }

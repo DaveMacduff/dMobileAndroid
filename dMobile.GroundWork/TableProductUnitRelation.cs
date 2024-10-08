@@ -14,6 +14,7 @@ namespace dMobile.GroundWork
     using System.Xml.Linq;
     using dMobile.Bedrock;
     using dMobile.Resources.Models;
+    using dMobile.Resources.Types;
     using SQLite;
 
     /// <summary>
@@ -28,6 +29,8 @@ namespace dMobile.GroundWork
             : base()
         {
             this.FullClassName = "dMobile.GroundWork.TableProductUnitRelation";
+            this.LowerCaseName = "product unit relations";
+            this.ProperCaseName = "Product Unit Relations";
         }
 
         /// <summary>
@@ -37,43 +40,39 @@ namespace dMobile.GroundWork
         {
             try
             {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding product uom relations.", true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Seeding {this.LowerCaseName}.", true);
+                var responseData = await this.SendRequest(string.Empty);
+                await this.SaveOpt(responseData);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Seeding {this.LowerCaseName} complete.", true);
 
-                var results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<tFamilyModel>("SELECT * FROM tFamily");
+                ////var results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<FamilyModel>("SELECT * FROM tFamily");
 
-                if (results?.Count > 0)
-                {
-                    foreach (var family in results)
-                    {
-                        var responseData = await this.SendRequest(family.FamilyCode);
+                ////if (results?.Count > 0)
+                ////{
+                ////    foreach (var family in results)
+                ////    {
+                ////        var responseData = await this.SendRequest(family.FamilyCode);
 
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"For family {family.FamilyCode}", true);
-                        await this.SaveOpt(responseData);
-                    }
+                ////        this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"For family {family.FamilyCode}", true);
+                ////        await this.SaveOpt(responseData);
+                ////    }
 
-                    // Require to have product uom relations.
-                    if (await this.DataStatus() <= 0)
-                    {
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "No product uom relations where received.", true);
+                ////    // Require to have product uom relations.
+                ////    if (await this.DataStatus() <= 0)
+                ////    {
+                ////        this.DataAccessStatusOutHandler(this, EventArgs.Empty, "No product uom relations where received.", true);
 
-                        throw new Exception("No product uom relations where received.");
-                    }
+                ////        throw new Exception("No product uom relations where received.");
+                ////    }
 
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding product uom relations complete.", true);
-                }
-            }
-            catch (SQLiteException ex)
-            {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding product uom relations failed.", true);
-
-                throw new Exception("Database exception occurred. Seeding product uom relations failed.", ex);
+                ////    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding product uom relations complete.", true);
+                ////}
             }
             catch (Exception ex)
             {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding product uom relations failed.", true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Seeding {this.LowerCaseName} failed.", true);
 
-                throw new Exception("Seeding product uom relations failed.", ex);
+                throw new Exception($"Seeding {this.LowerCaseName} failed.", ex);
             }
         }
 
@@ -134,8 +133,9 @@ namespace dMobile.GroundWork
         /// The Save.
         /// </summary>
         /// <param name="responseData"></param>
-        protected override async Task Save(string responseData)
+        protected override Task Save(string responseData)
         {
+            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -144,226 +144,76 @@ namespace dMobile.GroundWork
         /// <param name="responseData"></param>
         protected async Task SaveOpt(string responseData)
         {
-            var errMsg = string.Empty;
-            var recordCount = 0;
-
-            await DatabaseConnection.GetInstance().SqlConn.RunInTransactionAsync(transaction =>
+            var conn = DatabaseConnection.GetInstance().SqlConn;
+            using var dataSet = new DataSet();
+            dataSet.ReadXml(SysCommon.GetXmlReader(ref responseData), XmlReadMode.Auto);
+            if (dataSet.Tables.Count > 0)
             {
-                try
+                var rows = dataSet.Tables[0].Rows;
+                if (rows.Count > 0)
                 {
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received responseData.", false);
-
-                    var startIndex = responseData.IndexOf("<VFPData", StringComparison.Ordinal);
-                    var sett = new XmlReaderSettings();
-                    sett.CheckCharacters = false;
-                    sett.CloseInput = false;
-                    sett.ConformanceLevel = ConformanceLevel.Auto;
-                    sett.IgnoreComments = true;
-                    sett.IgnoreProcessingInstructions = true;
-                    sett.IgnoreWhitespace = false;
-                    sett.ValidationFlags = System.Xml.Schema.XmlSchemaValidationFlags.None;
-                    sett.ValidationType = ValidationType.None;
-
-                    using var stringReader = new StringReader(responseData.Substring(startIndex));
-                    using var reader = XmlReader.Create(stringReader, sett);
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving product uom relations.", false);
-
-                    var unitLookup = new Dictionary<string, int>();
-                    var lastFKRefno = 0;
-                    var refreshOnly = this.SysEnv.RefreshOpt.RefreshDataChangesOnly;
-                    var prodRefno = 0;
-                    var unitCode1Refno = 0;
-                    var unitCode2Refno = 0;
-                    var isProdUnitRelationFound = false;
-                    var prodUnit1Refno = 0;
-                    var prodUnit2Refno = 0;
-
-                    // f01
-                    var prodUnitIsBC = false;
-
-                    // f02
-                    decimal relationFactor = 0;
-
-                    // f03
-                    var prodFKRefno = 0;
-
-                    // f04
-                    var unitCode1 = string.Empty;
-
-                    // f05
-                    var unitCode2 = string.Empty;
-
-                    this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, 100);
-
-                    while (!reader.EOF)
+                    var prodUnitRelations = new List<Seg>();
+                    foreach (DataRow row in rows)
                     {
-                        // fill one record
-                        // we do this by looping until an end segment is found
-                        var recordFilled = false;
-                        var elementName = string.Empty;
-                        while (!recordFilled && reader.Read())
+                        prodUnitRelations.Add(new Seg
                         {
-                            if (reader.NodeType == XmlNodeType.Element)
-                            {
-                                elementName = reader.Name;
-                            }
-                            else if (reader.NodeType == XmlNodeType.Text)
-                            {
-                                switch (elementName)
-                                {
-                                    case "f01":
-                                        prodUnitIsBC = reader.ReadContentAsBoolean();
-                                        break;
-                                    case "f02":
-                                        relationFactor = reader.ReadContentAsDecimal();
-                                        break;
-                                    case "f03":
-                                        prodFKRefno = reader.ReadContentAsInt();
-                                        break;
-                                    case "f04":
-                                        unitCode1 = reader.Value;
-                                        break;
-                                    case "f05":
-                                        unitCode2 = reader.Value;
-                                        break;
-                                }
-                            }
-                            else if (reader.NodeType == XmlNodeType.EndElement && reader.Name == "seg")
-                            {
-                                recordFilled = true; // we are full;
-                            }
-                        } // end of fill record
-
-                        if (!recordFilled)
-                        {
-                            continue;
-                        }
-
-                        errMsg = "FK refno " + prodFKRefno;
-
-                        if (prodFKRefno == lastFKRefno)
-                        {
-                            // no op because prodRefno already set to last prodRefno.
-                            // this is a last object cache.
-                            // curr prod refno == last prod refno
-                        }
-                        else
-                        {
-                            lastFKRefno = prodFKRefno;
-                            var resultsProduct = transaction.Query<tProductModel>("SELECT * FROM tProduct WHERE ProductFKRefno = ?", prodFKRefno);
-
-                            if (resultsProduct?.Count > 0)
-                            {
-                                prodRefno = resultsProduct[0].ProductRefno;
-                            }
-                            else
-                            {
-                                throw new Exception("drProd.Read() failed." + Environment.NewLine + errMsg);
-                            }
-                        }
-
-                        errMsg += Environment.NewLine + "Unit code 1 " + unitCode1;
-
-                        if (!unitLookup.TryGetValue(unitCode1, out unitCode1Refno))
-                        {
-                            var resultsUnit = transaction.Query<tUnitModel>("SELECT * FROM tUnit WHERE UnitCode = ?", unitCode1);
-
-                            if (resultsUnit?.Count > 0)
-                            {
-                                unitCode1Refno = resultsUnit[0].UnitRefno;
-                                unitLookup.Add(unitCode1, unitCode1Refno);
-                            }
-                            else
-                            {
-                                throw new Exception("drUnit.Read() failed." + Environment.NewLine + errMsg);
-                            }
-                        }
-
-                        errMsg += Environment.NewLine + "Is bc " + prodUnitIsBC;
-
-                        var resultsProductUnit = transaction.Query<tProductUnitModel>("SELECT * FROM tProductUnit WHERE ProductRefno = ? AND UnitRefno = ? AND ProductUnitIsBC = ?", prodRefno, unitCode1Refno, prodUnitIsBC);
-
-                        if (resultsProductUnit?.Count > 0)
-                        {
-                            prodUnit1Refno = resultsProductUnit[0].ProductUnitRefno;
-                        }
-                        else
-                        {
-                            throw new Exception("drProdUnit.Read() failed." + Environment.NewLine + errMsg);
-                        }
-
-                        errMsg += Environment.NewLine + "Unit code 2 " + unitCode2;
-
-                        if (!unitLookup.TryGetValue(unitCode2, out unitCode2Refno))
-                        {
-                            var resultsUnit = transaction.Query<tUnitModel>("SELECT * FROM tUnit WHERE UnitCode = ?", unitCode2);
-
-                            if (resultsUnit?.Count > 0)
-                            {
-                                unitCode2Refno = resultsUnit[0].UnitRefno;
-                                unitLookup.Add(unitCode2, unitCode2Refno);
-                            }
-                            else
-                            {
-                                throw new Exception("drProdUnit.Read() failed." + Environment.NewLine + errMsg);
-                            }
-                        }
-
-                        var resultsProductUnit2 = transaction.Query<tProductUnitModel>("SELECT * FROM tProductUnit WHERE ProductRefno = ? AND UnitRefno = ? AND ProductUnitIsBC = ?", prodRefno, unitCode2Refno, prodUnitIsBC);
-
-                        if (resultsProductUnit?.Count > 0)
-                        {
-                            prodUnit2Refno = resultsProductUnit2[0].ProductUnitRefno;
-                        }
-                        else
-                        {
-                            throw new Exception("drProdUnit.Read() failed." + Environment.NewLine + errMsg);
-                        }
-
-                        isProdUnitRelationFound = false;
-
-                        var resultsProductUnitRelation = transaction.Query<tProductUnitRelationModel>("SELECT * FROM tProductUnitRelation WHERE ProductUnit1Refno = ? AND ProductUnit2Refno = ?", prodUnit1Refno, prodUnit2Refno);
-
-                        if (resultsProductUnitRelation?.Count > 0)
-                        {
-                            isProdUnitRelationFound = true;
-
-                            if (refreshOnly)
-                            {
-                                transaction.Execute("UPDATE tProductUnitRelation SET ProductUnitRelationFactor = ? WHERE ProductUnit1Refno = ? AND ProductUnit2Refno = ?", relationFactor, prodUnit1Refno, prodUnit2Refno);
-                            }
-                        }
-
-                        if (!isProdUnitRelationFound)
-                        {
-                            transaction.Execute("INSERT INTO tProductUnitRelation (ProductUnit1Refno, ProductUnit2Refno, ProductUnitRelationFactor) VALUES (?, ?, ?)", prodUnit1Refno, prodUnit2Refno, relationFactor);
-                        }
-
-                        ++recordCount;
-                        if (recordCount % 100 == 0)
-                        {
-                            this.DataAccessProgressOutHandler(this, EventArgs.Empty, recordCount / 10 % 100, 0, 100);
-                        }
+                            ProductUnitIsBC = Convert.ToBoolean(row["ProductUnitIsBC"]),
+                            SellToBaseFactor = Convert.ToDecimal(row["SellToBaseFactor"]),
+                            ProductFKRefno = Convert.ToInt32(row["ProductFKRefno"]),
+                            ProductUnitCode = row["ProductUnitCode"].ToString(),
+                            ProductBaseUnitCode = row["ProductBaseUnitCode"].ToString(),
+                        });
                     }
 
-                    this.DataAccessProgressOutHandler(this, EventArgs.Empty, 100, 0, 100);
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Records {recordCount}", false);
+                    var query = "CREATE TEMP TABLE Seg (" +
+                        "ProductUnitIsBC BIT NOT NULL" +
+                        ",SellToBaseFactor DECIMAL NOT NULL" +
+                        ",ProductFKRefno INTEGER NOT NULL" +
+                        ",ProductUnitCode VARCHAR(2) NOT NULL" +
+                        ",ProductBaseUnitCode VARCHAR(2) NOT NULL)";
+                    await conn.ExecuteAsync(query);
+                    await conn.InsertAllAsync(prodUnitRelations);
 
-                    unitLookup = null;
-                    transaction.Commit();
+                    query = "INSERT INTO tProductUnitRelation (" +
+                        "ProductUnit1Refno" +
+                        ",ProductUnit2Refno" +
+                        ",ProductUnitRelationFactor" +
+                        ") SELECT " +
+                        "pu1.ProductUnitRefno" +
+                        ",pu2.ProductUnitRefno" +
+                        ",Seg.SellToBaseFactor " +
+                        "FROM Seg" +
+                        " INNER JOIN tProduct prod ON prod.ProductFKRefno = Seg.ProductFKRefno" +
+                        " INNER JOIN tProductUnit pu1 ON pu1.ProductRefno = prod.ProductRefno" +
+                            " AND pu1.UnitRefno = (SELECT UnitRefno FROM tUnit WHERE UnitCode = Seg.ProductUnitCode)" +
+                            " AND pu1.ProductUnitIsBC = Seg.ProductUnitIsBC" +
+                        " INNER JOIN tProductUnit pu2 ON pu2.ProductRefno = prod.ProductRefno" +
+                            " AND pu2.UnitRefno = (SELECT UnitRefno FROM tUnit WHERE UnitCode = Seg.ProductBaseUnitCode)" +
+                            " AND pu2.ProductUnitIsBC = Seg.ProductUnitIsBC";
+                    var rowsAffected = await conn.ExecuteAsync(query);
+                    if (prodUnitRelations.Count != rowsAffected)
+                    {
+                        throw new Exception("Failed to insert all rows into tProductUnitRelation");
+                    }
 
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving product uom relations complete.", false);
+                    // Drop the temporary table
+                    const string dropTempTableQuery = "DROP TABLE IF EXISTS Seg";
+                    await conn.ExecuteAsync(dropTempTableQuery);
                 }
-                catch (SQLiteException ex)
-                {
-                    transaction.Rollback();
 
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving product uom relations failed.", false);
-
-                    throw new Exception("Database exception occurred. Saving product uom relations failed." + errMsg, ex);
-                }
-            });
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    $"{rows.Count} {this.LowerCaseName}.", true);
+            }
+            else
+            {
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    $"No {this.LowerCaseName} to save.",
+                    true);
+            }
         }
 
         /// <summary>
@@ -446,6 +296,22 @@ namespace dMobile.GroundWork
         protected override Task<string> CreateRequestProdLoc(int prodLocMapType)
         {
             throw new NotImplementedException();
+        }
+
+        /// <summary>
+        ///     Class to hold the data for the temporary table.
+        /// </summary>
+        private class Seg
+        {
+            public bool ProductUnitIsBC { get; set; }
+
+            public decimal SellToBaseFactor { get; set; }
+
+            public int ProductFKRefno { get; set; }
+
+            public string ProductUnitCode { get; set; }
+
+            public string ProductBaseUnitCode { get; set; }
         }
     }
 }

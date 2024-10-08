@@ -13,7 +13,7 @@ namespace dMobile.Resources.Models
     {
         [PrimaryKey]
         [NotNull]
-        [ForeignKey(typeof(tActivityDetailModel))]
+        [ForeignKey(typeof(ActivityDetailModel))]
         public int ActivityDetailRefno { get; set; }
 
         [Indexed(Name = "UQ_ActivityDetailCountOnActivityDetailFKRefno", Order = 1, Unique = true)]

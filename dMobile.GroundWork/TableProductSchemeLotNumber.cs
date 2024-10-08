@@ -24,9 +24,10 @@ namespace dMobile.GroundWork
         /// Initializes a new instance of the <see cref="TableProductSchemeLotNumber"/> class.
         /// </summary>
         public TableProductSchemeLotNumber()
-      : base()
         {
             this.FullClassName = "dMobile.GroundWork.TableProductSchemeLotNumber";
+            this.LowerCaseName = "scheme lot numbers";
+            this.ProperCaseName = "Scheme Lot Numbers";
         }
 
         /// <summary>
@@ -36,16 +37,16 @@ namespace dMobile.GroundWork
         {
             try
             {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding product scheme lot numbers.", true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Seeding {this.LowerCaseName}.", true);
                 var responseData = await this.SendRequest();
                 await this.Save(responseData);
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding product scheme lot numbers complete.", true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Seeding {this.LowerCaseName} complete.", true);
             }
             catch (Exception ex)
             {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding product scheme lot numbers failed.", true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Seeding {this.LowerCaseName} failed.", true);
 
-                throw new Exception("Seeding product scheme lot numbers failed.", ex);
+                throw new Exception($"Seeding {this.LowerCaseName} failed.", ex);
             }
         }
 
@@ -56,19 +57,19 @@ namespace dMobile.GroundWork
         {
             try
             {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging product scheme lot mumbers.", true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName}.", true);
 
                 await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync("DELETE FROM tProductSchemeLotNumberXRef");
                 await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync("DELETE FROM tProductSchemeLotNumber");
 
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging product scheme lot mumbers complete.", true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} complete.", true);
             }
             catch (SQLiteException ex)
             {
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging product scheme lot numbers failed.", true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} failed.", true);
 
-                throw new Exception("Database exception occurred. Purging product scheme lot numbers failed.", ex);
+                throw new Exception($"Database exception occurred. Purging {this.LowerCaseName} failed.", ex);
             }
         }
 
@@ -83,14 +84,14 @@ namespace dMobile.GroundWork
             {
                 rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SqlConn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tProductSchemeLotNumber"));
 
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"{rowsAffected} product scheme lot numbers.", true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"{rowsAffected} {this.LowerCaseName}.", true);
             }
             catch (SQLiteException ex)
             {
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Product scheme lot numbers status failed.", true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"{this.ProperCaseName} status failed.", true);
 
-                throw new Exception("Database exception occurred. Product scheme lot numbers status failed.", ex);
+                throw new Exception($"Database exception occurred. {this.ProperCaseName} status failed.", ex);
             }
 
             return rowsAffected;
@@ -102,78 +103,41 @@ namespace dMobile.GroundWork
         /// <param name="responseData">The responseData<see cref="string"/>.</param>
         protected override async Task Save(string responseData)
         {
-            var errMsg = string.Empty;
-
-            await DatabaseConnection.GetInstance().SqlConn.RunInTransactionAsync(transaction =>
+            var conn = DatabaseConnection.GetInstance().SqlConn;
+            using var dataSet = new DataSet();
+            dataSet.ReadXml(SysCommon.GetXmlReader(ref responseData), XmlReadMode.Auto);
+            if (dataSet.Tables.Count > 0)
             {
-                try
+                var rows = dataSet.Tables[0].Rows;
+                if (rows.Count > 0)
                 {
-                    using var ds = new DataSet();
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received responseData.", false);
-
-                    ds.ReadXml(SysCommon.GetXmlReader(ref responseData), XmlReadMode.Auto);
-
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving product scheme lot numbers.", false);
-
-                    if (ds.Tables.Count != 0)
+                    var schemeLots = new List<ProductSchemeLotNumberModel>();
+                    foreach (DataRow row in rows)
                     {
-                        var progMax = Convert.ToInt32(ds.Tables["tProductSchemeLotNumber"].Rows.Count);
-
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Records {progMax}", false);
-
-                        var progValue = 0;
-                        var isSchemeLotFound = false;
-                        var schemeLotCode = string.Empty;
-                        var schemeLotCodeDefault = string.Empty;
-
-                        this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
-
-                        foreach (DataRow drow in ds.Tables["tProductSchemeLotNumber"].Rows)
+                        schemeLots.Add(new ProductSchemeLotNumberModel
                         {
-                            schemeLotCode = Convert.ToString(drow["ProductSchemeLotNumberCode"]);
-                            errMsg = "Scheme lot code \'" + schemeLotCode + "\'";
-                            schemeLotCodeDefault = Convert.ToString(drow["ProductSchemeLotNumberCodeDefault"]);
-                            errMsg += Environment.NewLine + "Scheme lot code default " + schemeLotCodeDefault;
-
-                            isSchemeLotFound = false;
-
-                            if (this.SysEnv.RefreshOpt.RefreshDataChangesOnly)
-                            {
-                                var results = transaction.Query<tProductSchemeLotNumberModel>("SELECT ProductSchemeLotNumberCode FROM tProductSchemeLotNumber WHERE ProductSchemeLotNumberCode = ?", schemeLotCode);
-
-                                if (results?.Count > 0)
-                                {
-                                    isSchemeLotFound = true;
-                                }
-                            }
-
-                            if (!isSchemeLotFound)
-                            {
-                                transaction.Execute("INSERT INTO tProductSchemeLotNumber (ProductSchemeLotNumberCode, ProductSchemeLotNumberCodeDefault) VALUES (?, ?)", schemeLotCode, schemeLotCodeDefault);
-                            }
-
-                            progValue++;
-                            if (progValue % 100 == 0)
-                            {
-                                this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue, 0, progMax);
-                            }
-                        }
-
-                        this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
+                            ProductSchemeLotNumberCode = Convert.ToString(row["ProductSchemeLotNumberCode"]),
+                            ProductSchemeLotNumberCodeDefault = Convert.ToString(row["ProductSchemeLotNumberCodeDefault"]),
+                        });
                     }
 
-                    transaction.Commit();
-
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving product scheme lot numbers complete.", false);
+                    await conn.InsertAllAsync(schemeLots);
                 }
-                catch (SQLiteException ex)
-                {
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving product scheme lot numbers failed.", false);
 
-                    throw new Exception("Saving product scheme lot numbers failed." + Environment.NewLine + errMsg, ex);
-                }
-            });
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    $"{rows.Count} {this.LowerCaseName}.",
+                    true);
+            }
+            else
+            {
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    $"No {this.LowerCaseName} to save.",
+                    true);
+            }
         }
 
         /// <summary>

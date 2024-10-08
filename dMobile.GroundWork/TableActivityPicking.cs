@@ -249,7 +249,7 @@ namespace dMobile.GroundWork
                                         Convert.ToString(drow["ActivityPickingRouteCode"]);
                                     if (!string.IsNullOrEmpty(pickRouteCode))
                                     {
-                                        var resultRoutes = transaction.Query<tRouteModel>(
+                                        var resultRoutes = transaction.Query<RouteModel>(
                                             "SELECT * FROM tRoute WHERE RouteCode = ?",
                                             pickRouteCode);
 

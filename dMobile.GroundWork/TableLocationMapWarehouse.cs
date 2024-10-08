@@ -27,6 +27,8 @@ namespace dMobile.GroundWork
       : base()
         {
             this.FullClassName = "dMobile.GroundWork.TableLocationMapWarehouse";
+            this.LowerCaseName = "warehouses";
+            this.ProperCaseName = "Warehouses";
         }
 
         /// <summary>
@@ -61,7 +63,7 @@ namespace dMobile.GroundWork
             int whsLocMapRefno;
             try
             {
-                var results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<tLocationMapWarehouseModel>("SELECT * FROM tLocationMapWarehouse WHERE LocationMapWarehouseFKRefno = ?", Convert.ToInt32(locMapWhsFKRefno));
+                var results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<LocationMapWarehouseModel>("SELECT * FROM tLocationMapWarehouse WHERE LocationMapWarehouseFKRefno = ?", Convert.ToInt32(locMapWhsFKRefno));
 
                 if (results?.Count > 0)
                 {
@@ -91,7 +93,7 @@ namespace dMobile.GroundWork
             int locMapWhsFKRefno;
             try
             {
-                var results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<tLocationMapWarehouseModel>("SELECT * FROM tLocationMapWarehouse WHERE LocationMapRefno = ?", locMapWhsRefno);
+                var results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<LocationMapWarehouseModel>("SELECT * FROM tLocationMapWarehouse WHERE LocationMapRefno = ?", locMapWhsRefno);
 
                 if (results?.Count > 0)
                 {
@@ -147,216 +149,69 @@ namespace dMobile.GroundWork
         /// <param name="responseData"></param>
         protected override async Task Save(string responseData)
         {
-            var errMsg = string.Empty;
-
-            await DatabaseConnection.GetInstance().SqlConn.RunInTransactionAsync(transaction =>
+            var conn = DatabaseConnection.GetInstance().SqlConn;
+            using var dataSet = new DataSet();
+            dataSet.ReadXml(SysCommon.GetXmlReader(ref responseData), XmlReadMode.Auto);
+            if (dataSet.Tables.Count > 0)
             {
-                try
+                var warehouses = new List<LocationMapWarehouseModel>();
+                var rowsToSave = dataSet.Tables["tLocationMapWarehouse"].Rows.Count;
+                for (var i = 0; i < rowsToSave; i++)
                 {
-                    using var ds = new DataSet();
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received responseData.", false);
-
-                    ds.ReadXml(SysCommon.GetXmlReader(ref responseData), XmlReadMode.Auto);
-
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving warehouses.", false);
-
-                    if (ds.Tables.Count != 0)
+                    var locMapRefno = await GetLocationMapRefno();
+                    var row = dataSet.Tables["tLocationMapWarehouse"].Rows[i];
+                    var warehouse = new LocationMapWarehouseModel
                     {
-                        var progMax = Convert.ToInt32(ds.Tables["tLocationMapWarehouse"].Rows.Count);
+                        LocationMapRefno = locMapRefno,
+                        LocationMapSubType = Convert.ToInt32(SysCommon.LocMapSubTypes.Warehouse),
+                        LocationMapWarehouseCode = Convert.ToInt32(row["LocationMapWarehouseCode"]),
+                        LocationMapWarehouseName = row["LocationMapWarehouseName"].ToString(),
+                        LocationMapWarehouseFKRefno = Convert.ToInt32(row["LocationMapWarehouseFKRefno"]),
+                        LocationMapWarehouseBarCode = row["LocationMapWarehouseBarCode"].ToString(),
+                        LocationMapWarehouseIsWMS = Convert.ToBoolean(row["LocationMapWarehouseIsWMS"]),
+                        LocationMapWarehouseMask = row["LocationMapWarehouseMask"].ToString(),
+                        LocationMapWarehouseSectionMask = row["LocationMapSectionMask"].ToString(),
+                        LocationMapWarehouseSlotMask = row["LocationMapSlotMask"].ToString(),
+                        LocationMapWarehouseSlotCoordinate1Mask = row["LocationMapSlotCoord1Mask"].ToString(),
+                        LocationMapWarehouseSlotCoordinate2Mask = row["LocationMapSlotCoord2Mask"].ToString(),
+                        LocationMapWarehouseSlotCoordinate3Mask = row["LocationMapSlotCoord3Mask"].ToString(),
+                        LocationMapWarehouseSlotCoordinate1Name = row["LocationMapSlotCoord1Name"].ToString(),
+                        LocationMapWarehouseSlotCoordinate2Name = row["LocationMapSlotCoord2Name"].ToString(),
+                        LocationMapWarehouseSlotCoordinate3Name = row["LocationMapSlotCoord3Name"].ToString(),
+                        LocationMapWarehouseIsSectionTracked = Convert.ToBoolean(row["LocationMapIsSectionTracked"]),
+                        LocationMapWarehouseIsSlotTracked = Convert.ToBoolean(row["LocationMapIsSlotTracked"]),
+                        LocationMapWarehouseAdhocEnabled = Convert.ToBoolean(row["LocationMapIsAdhocEnabled"]),
+                    };
 
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Records {progMax}", false);
-
-                        var locMapRefno = 0;
-                        var progValue = 0;
-                        var isLocMapWhsFound = false;
-                        var locMapWhsFKRefno = 0;
-                        var locMapWhsCode = 0;
-                        var locMapWhsName = string.Empty;
-                        var locMapWhsBarCode = string.Empty;
-                        var isLocMapWhsIsWMS = false;
-                        var locMapWhsMask = string.Empty;
-                        var locMapSectionMask = string.Empty;
-                        var locMapSlotMask = string.Empty;
-                        var locMapSlotCoord1Mask = string.Empty;
-                        var locMapSlotCoord1Name = string.Empty;
-                        var locMapSlotCoord2Mask = string.Empty;
-                        var locMapSlotCoord2Name = string.Empty;
-                        var locMapSlotCoord3Mask = string.Empty;
-                        var locMapSlotCoord3Name = string.Empty;
-                        var isLocMapSectionTracked = false;
-                        var isLocMapSlotTracked = false;
-                        var isLocMapAdhocEnabled = false;
-
-                        this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
-
-                        foreach (DataRow drow in ds.Tables["tLocationMapWarehouse"].Rows)
-                        {
-                            locMapWhsFKRefno = Convert.ToInt32(drow["LocationMapWarehouseFKRefno"]);
-
-                            errMsg = "Whs fk refno " + locMapWhsFKRefno;
-                            locMapWhsCode = Convert.ToInt32(drow["LocationMapWarehouseCode"]);
-                            errMsg += Environment.NewLine + "Whs code " + locMapWhsCode;
-                            locMapWhsName = drow["LocationMapWarehouseName"].ToString();
-                            errMsg += Environment.NewLine + "Whs name \'" + locMapWhsCode + "\'";
-                            locMapWhsBarCode = drow["LocationMapWarehouseBarCode"].ToString();
-                            errMsg += Environment.NewLine + "Whs bar code \'" + locMapWhsBarCode + "\'";
-                            isLocMapWhsIsWMS = Convert.ToBoolean(drow["LocationMapWarehouseIsWMS"]);
-                            errMsg += Environment.NewLine + "Whs is wms " + isLocMapWhsIsWMS.ToString();
-                            locMapWhsMask = drow["LocationMapWarehouseMask"].ToString();
-                            errMsg += Environment.NewLine + "Whs mask \'" + locMapWhsMask + "\'";
-                            locMapSectionMask = drow["LocationMapSectionMask"].ToString();
-                            errMsg += Environment.NewLine + "Whs section mask \'" + locMapSectionMask + "\'";
-                            locMapSlotMask = drow["LocationMapSlotMask"].ToString();
-                            errMsg += Environment.NewLine + "Whs slot mask \'" + locMapSlotMask + "\'";
-                            locMapSlotCoord1Mask = drow["LocationMapSlotCoord1Mask"].ToString();
-                            errMsg += Environment.NewLine + "Whs slot coord1 mask \'" + locMapSlotCoord1Mask + "\'";
-                            locMapSlotCoord1Name = drow["LocationMapSlotCoord1Name"].ToString();
-                            errMsg += Environment.NewLine + "Whs slot coord1 name \'" + locMapSlotCoord1Name + "\'";
-                            locMapSlotCoord2Mask = drow["LocationMapSlotCoord2Mask"].ToString();
-                            errMsg += Environment.NewLine + "Whs slot coord2 mask \'" + locMapSlotCoord2Mask + "\'";
-                            locMapSlotCoord2Name = drow["LocationMapSlotCoord2Name"].ToString();
-                            errMsg += Environment.NewLine + "Whs slot coord2 name \'" + locMapSlotCoord2Name + "\'";
-                            locMapSlotCoord3Name = drow["LocationMapSlotCoord3Mask"].ToString();
-                            errMsg += Environment.NewLine + "Whs slot coord3 mask \'" + locMapSlotCoord3Mask + "\'";
-                            locMapSlotCoord3Mask = drow["LocationMapSlotCoord3Mask"].ToString();
-                            errMsg += Environment.NewLine + "Whs slot coord3 name \'" + locMapSlotCoord3Name + "\'";
-                            isLocMapSectionTracked = Convert.ToBoolean(drow["LocationMapIsSectionTracked"]);
-                            errMsg += Environment.NewLine + "Whs is section tracked " + isLocMapSectionTracked.ToString();
-                            isLocMapSlotTracked = Convert.ToBoolean(drow["LocationMapIsSlotTracked"]);
-                            errMsg += Environment.NewLine + "Whs is slot tracked " + isLocMapSlotTracked.ToString();
-                            isLocMapAdhocEnabled = Convert.ToBoolean(drow["LocationMapIsAdhocEnabled"]);
-                            errMsg += Environment.NewLine + "Whs is adhoc enabled " + isLocMapAdhocEnabled.ToString();
-
-                            isLocMapWhsFound = false;
-
-                            var results = transaction.Query<tLocationMapWarehouseModel>("SELECT LocationMapWarehouseFKRefno FROM tLocationMapWarehouse WHERE LocationMapWarehouseFKRefno = ?", locMapWhsFKRefno);
-
-                            if (results?.Count > 0)
-                            {
-                                isLocMapWhsFound = true;
-
-                                if (this.SysEnv.RefreshOpt.RefreshDataChangesOnly)
-                                {
-                                    var queryUpdate = "UPDATE tLocationMapWarehouse " +
-                                                      "SET LocationMapWarehouseCode = " + locMapWhsCode.ToString() + ", " +
-                                                      "LocationMapWarehouseName = \'" + locMapWhsName + "\', " +
-                                                      "LocationMapWarehouseBarCode = \'" + locMapWhsBarCode + "\', " +
-                                                      "LocationMapWarehouseIsWMS = " + (isLocMapWhsIsWMS ? 1 : 0).ToString() +
-                                                      "LocationMapWarehouseMask = \'" + locMapWhsMask + "\', " +
-                                                      "LocationMapWarehouseSectionMask = \'" + locMapSectionMask + "\', " +
-                                                      "LocationMapWarehouseSlotMask = \'" + locMapSlotMask + "\', " +
-                                                      "LocationMapWarehouseSlotCoordinate1Mask = \'" + locMapSlotCoord1Mask + "\', " +
-                                                      "LocationMapWarehouseSlotCoordinate2Mask = \'" + locMapSlotCoord2Mask + "\', " +
-                                                      "LocationMapWarehouseSlotCoordinate3Mask = \'" + locMapSlotCoord3Mask + "\', " +
-                                                      "LocationMapWarehouseSlotCoordinate1Name = \'" + locMapSlotCoord1Name + "\', " +
-                                                      "LocationMapWarehouseSlotCoordinate2Name = \'" + locMapSlotCoord2Name + "\', " +
-                                                      "LocationMapWarehouseSlotCoordinate3Name = \'" + locMapSlotCoord3Name + "\', " +
-                                                      "LocationMapWarehouseIsSectionTracked = " + (isLocMapSectionTracked ? 1 : 0).ToString() +
-                                                      "LocationMapWarehouseIsSlotTracked = " + (isLocMapSlotTracked ? 1 : 0).ToString() +
-                                                      "LocationMapWarehouseAdhocEnabled = " + (isLocMapAdhocEnabled ? 1 : 0).ToString() +
-                                                      "WHERE LocationMapWarehouseFKRefno = " + locMapWhsFKRefno.ToString();
-
-                                    transaction.Execute(queryUpdate);
-                                }
-                            }
-
-                            if (!isLocMapWhsFound)
-                            {
-                                transaction.Execute("INSERT INTO tLocationMap (LocationMapSubType) VALUES (?)", Convert.ToInt32(SysCommon.LocMapSubTypes.Warehouse));
-
-                                locMapRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tLocationMap"));
-
-                                var queryInsert = "INSERT INTO tLocationMapWarehouse (" +
-                                                  "LocationMapRefno, " +
-                                                  "LocationMapSubType, " +
-                                                  "LocationMapWarehouseName, " +
-                                                  "LocationMapWarehouseCode, " +
-                                                  "LocationMapWarehouseFKRefno, " +
-                                                  "LocationMapWarehouseBarCode, " +
-                                                  "LocationMapWarehouseIsWMS, " +
-                                                  "LocationMapWarehouseMask, " +
-                                                  "LocationMapWarehouseSectionMask, " +
-                                                  "LocationMapWarehouseSlotMask, " +
-                                                  "LocationMapWarehouseSlotCoordinate1Mask, " +
-                                                  "LocationMapWarehouseSlotCoordinate2Mask, " +
-                                                  "LocationMapWarehouseSlotCoordinate3Mask, " +
-                                                  "LocationMapWarehouseSlotCoordinate1Name, " +
-                                                  "LocationMapWarehouseSlotCoordinate2Name, " +
-                                                  "LocationMapWarehouseSlotCoordinate3Name, " +
-                                                  "LocationMapWarehouseIsSectionTracked, " +
-                                                  "LocationMapWarehouseIsSlotTracked, " +
-                                                  "LocationMapWarehouseAdhocEnabled" +
-                                                  ") VALUES (" +
-                                                  "?, " +
-                                                  "?, " +
-                                                  "?, " +
-                                                  "?, " +
-                                                  "?, " +
-                                                  "?, " +
-                                                  "?, " +
-                                                  "?, " +
-                                                  "?, " +
-                                                  "?, " +
-                                                  "?, " +
-                                                  "?, " +
-                                                  "?, " +
-                                                  "?, " +
-                                                  "?, " +
-                                                  "?, " +
-                                                  "?, " +
-                                                  "?, " +
-                                                  "?" +
-                                                  ")";
-                                var parametersInsert = new object[]
-                                {
-                                        locMapRefno,
-                                        Convert.ToInt32(SysCommon.LocMapSubTypes.Warehouse),
-                                        locMapWhsName,
-                                        locMapWhsCode,
-                                        locMapWhsFKRefno,
-                                        locMapWhsBarCode,
-                                        Convert.ToInt32(isLocMapWhsIsWMS),
-                                        locMapWhsMask,
-                                        locMapSectionMask,
-                                        locMapSlotMask,
-                                        locMapSlotCoord1Mask,
-                                        locMapSlotCoord2Mask,
-                                        locMapSlotCoord3Mask,
-                                        locMapSlotCoord1Name,
-                                        locMapSlotCoord2Name,
-                                        locMapSlotCoord3Name,
-                                        Convert.ToInt32(isLocMapSectionTracked),
-                                        Convert.ToInt32(isLocMapSlotTracked),
-                                        Convert.ToInt32(isLocMapAdhocEnabled),
-                                };
-
-                                transaction.Execute(queryInsert, parametersInsert);
-                            }
-
-                            progValue++;
-                            if (progValue % 100 == 0)
-                            {
-                                this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue, 0, progMax);
-                            }
-                        }
-
-                        this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
-                    }
-
-                    transaction.Commit();
-
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving warehouses complete.", false);
+                    warehouses.Add(warehouse);
                 }
-                catch (SQLiteException ex)
-                {
-                    transaction.Rollback();
 
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving warehouses failed.", false);
+                await conn.InsertAllAsync(warehouses);
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    $"{warehouses.Count} {this.LowerCaseName}.", true);
+            }
+            else
+            {
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    $"No {this.LowerCaseName} to save.",
+                    true);
+            }
 
-                    throw new Exception("Database exception occurred. Saving warehouses failed." + Environment.NewLine + errMsg, ex);
-                }
-            });
+            return;
+
+            ///////////////////////////////////////////////////////////
+            async Task<int> GetLocationMapRefno()
+            {
+                var query = "INSERT INTO tLocationMap (LocationMapSubType) VALUES (?)";
+                await conn.ExecuteAsync(query, Convert.ToInt32(SysCommon.LocMapSubTypes.Warehouse));
+                query = "SELECT last_insert_rowid() FROM tLocationMap";
+                var locMapRefno = Convert.ToInt32(await conn.ExecuteScalarAsync<int>(query));
+                return locMapRefno;
+            }
         }
 
         /// <summary>

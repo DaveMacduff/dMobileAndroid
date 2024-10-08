@@ -1135,11 +1135,11 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
+        ///     Set location click event handler.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        /// <remarks></remarks>
-        private async void cmdLocation_Click(object sender, EventArgs e)
+        /// <param name="sender">Object that generated this event.</param>
+        /// <param name="e">Event argument data.</param>
+        private async void CmdLocation_Click(object sender, EventArgs e)
         {
             await this.ScannerDisable();
             var form = new FormDialogContainer(EDialogTypes.SelectLocationMap, SysCommon.ActSubTypes.NotApplicable);
@@ -1162,11 +1162,11 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
+        ///     Select from unit click event handler.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        /// <remarks></remarks>
-        private async void cmdSelectFromUnit_Click(object sender, EventArgs e)
+        /// <param name="sender">Object that generated this event.</param>
+        /// <param name="e">Event argument data.</param>
+        private async void CmdSelectFromUnit_Click(object sender, EventArgs e)
         {
             try
             {
@@ -1591,7 +1591,7 @@ namespace dMobile.View.Activity
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks></remarks>
-        private async Task ucActivityConvertUnit_GotFocus(object sender, EventArgs e)
+        private Task ucActivityConvertUnit_GotFocus(object sender, EventArgs e)
         {
             if (!this.IsControlLoaded)
             {
@@ -1608,6 +1608,8 @@ namespace dMobile.View.Activity
 
                 this.IsControlLoaded = true;
             }
+
+            return Task.CompletedTask;
         }
 
         /// <summary>

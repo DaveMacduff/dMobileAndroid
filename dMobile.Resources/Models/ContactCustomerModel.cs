@@ -11,8 +11,7 @@ namespace dMobile.Resources.Models
     [Table("tContactCustomer")]
     public class ContactCustomerModel
     {
-        [PrimaryKey]
-        [NotNull]
+        [PrimaryKey, NotNull]
         [ForeignKey(typeof(ContactModel))]
         [Indexed(Name = "UQ_ContactCustomerOnContactRefnoAndContactSubType", Order = 1, Unique = true)]
         public int ContactRefno { get; set; }

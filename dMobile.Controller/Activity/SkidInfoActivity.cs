@@ -213,12 +213,14 @@ namespace dMobile.Controller.Activity
         /// The Delete.
         /// </summary>
         /// <returns>The <see cref="Task"/>.</returns>
-        public override async Task Delete()
+        public override Task Delete()
         {
             if (this.ListHeaders != null && this.ListHeaders.Count > 1)
             {
                 this.ListHeaders.RemoveRange(1, this.ListHeaders.Count - 1);
             }
+
+            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -280,7 +282,7 @@ namespace dMobile.Controller.Activity
         /// </summary>
         /// <param name="isSubmitBatch">.</param>
         /// <returns>.</returns>
-        public override async Task<List<object>> GetActivityList(bool isSubmitBatch)
+        public override Task<List<object>> GetActivityList(bool isSubmitBatch)
         {
             var table = new DataTable("ActivitySkid");
 
@@ -316,7 +318,7 @@ namespace dMobile.Controller.Activity
             // this.DataViewHdrs.Table.TableName = this.MainGridMappingName;
             this.listSkids = table.Rows.Cast<Skid>().ToList();
             this.ListHeaders = this.listSkids.Cast<object>().ToList();
-            return this.ListHeaders;
+            return Task.FromResult(this.ListHeaders);
         }
 
         /// <summary>

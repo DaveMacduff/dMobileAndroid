@@ -77,16 +77,18 @@ namespace dMobile.View.Activity
         ///     Unregister the bar code scan event handler and disable the scanner.
         /// </summary>
         /// <remarks></remarks>
-        public async Task ScannerDisable()
+        public Task ScannerDisable()
         {
+            return Task.CompletedTask;
         }
 
         /// <summary>
         ///     Registers the bar code scan event handler and enables the scanner.
         /// </summary>
         /// <remarks></remarks>
-        public async Task ScannerEnable()
+        public Task ScannerEnable()
         {
+            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -318,7 +320,7 @@ namespace dMobile.View.Activity
         /// <returns></returns>
         /// <remarks></remarks>
         /// <inheritdoc />
-        public async Task<XDocument> GetXml()
+        public Task<XDocument> GetXml()
         {
             var request = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
@@ -340,7 +342,7 @@ namespace dMobile.View.Activity
                 + "<total_alt_qty>" + this.GetTotalQty() + "</total_alt_qty>"
                 + "</params>");
 
-            return request;
+            return Task.FromResult(request);
         }
 
         /// <summary>

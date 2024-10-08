@@ -153,7 +153,7 @@ namespace dMobile.View
                         AND ProductUnitBarCodeModifier1 = ?";
 
                 var results =
-                    await DatabaseConnection.GetInstance().SqlConn.QueryAsync<tProductUnitBarCodeModel>(
+                    await DatabaseConnection.GetInstance().SqlConn.QueryAsync<ProductUnitBarCodeModel>(
                         query, barCodeParse.ProductIdentifier, sysEnv.CurrentBarCodeModifier1);
 
                 if (results?.Count > 0)
@@ -625,7 +625,7 @@ namespace dMobile.View
                                         where tProductSchemeLotNumberXRef.ProductSchemeRefno = ?
                                     order by ProductSchemeLotNumberCode DESC";
                             var results =
-                                await DatabaseConnection.GetInstance().SqlConn.QueryAsync<tProductSchemeLotNumberModel>(
+                                await DatabaseConnection.GetInstance().SqlConn.QueryAsync<ProductSchemeLotNumberModel>(
                                     query,
                                     schemeReferenceNumber);
 

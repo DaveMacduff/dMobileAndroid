@@ -40,13 +40,13 @@
                         <ColumnDefinition Width="30*"/>
                     </Grid.ColumnDefinitions>
 
-                    <Button x:Name="cmdLocation" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Clicked="cmdLocation_Click" IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}"/>
+                    <Button x:Name="cmdLocation" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Clicked="CmdLocation_Click" IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}"/>
 
-                    <Button x:Name="cmdSelectProduct" Grid.Row="1" Grid.Column="0" Clicked="cmdSelectProduct_Click" IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}"/>
+                    <Button x:Name="cmdSelectProduct" Grid.Row="1" Grid.Column="0" Clicked="CmdSelectProduct_Click" IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}"/>
                     <customcontrols:CustomPicker x:Name="BarCodeModifier1Picker" Grid.Row="1" Grid.Column="1" Image="arrow_drop_down" SelectedIndexChanged="BarCodeModifier1Picker_SelectedIndexChanged" IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}"/>
 
-                    <Button x:Name="cmdDisplayDefault" Grid.Row="2" Grid.Column="0" Clicked="cmdDisplayDefault_Click" IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}"/>
-                    <Button x:Name="cmdView" Grid.Row="2" Grid.Column="1" Clicked="cmdView_Clicked" IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}"/>
+                    <Button x:Name="cmdDisplayDefault" Grid.Row="2" Grid.Column="0" Clicked="CmdDisplayDefault_Click" IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}"/>
+                    <Button x:Name="cmdView" Grid.Row="2" Grid.Column="1" Clicked="CmdView_Clicked" IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}"/>
                 </Grid>
             </Grid>
 

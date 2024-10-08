@@ -233,7 +233,7 @@ namespace dMobile.Controller.Activity_Item
         /// </summary>
         /// <param name="selectedActivityItem">The selectedActivityItem<see cref="object"/>.</param>
         /// <returns><see cref="Task{T}"/> Activity item foreign key reference number.</returns>
-        public override async Task<int> AssignActivityItem(object activityItem)
+        public override Task<int> AssignActivityItem(object activityItem)
         {
             throw new NotImplementedException();
         }
@@ -279,7 +279,7 @@ namespace dMobile.Controller.Activity_Item
         /// </summary>
         /// <param name="activityItem"><see cref="object"/> Activity item.</param>
         /// <returns>The <see cref="Task"/> Task operation.</returns>
-        public override async Task UpdateItemTableQuantity(object activityItem)
+        public override Task UpdateItemTableQuantity(object activityItem)
         {
             throw new NotImplementedException();
         }
@@ -307,7 +307,7 @@ namespace dMobile.Controller.Activity_Item
         /// The Delete.
         /// </summary>
         /// <returns>The <see cref="int"/>.</returns>
-        public override async Task<int> Delete()
+        public override Task<int> Delete()
         {
             throw new NotImplementedException();
         }

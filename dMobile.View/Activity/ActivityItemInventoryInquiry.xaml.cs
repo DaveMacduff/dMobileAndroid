@@ -229,14 +229,14 @@ namespace dMobile.View.Activity
         /// <returns></returns>
         /// <remarks></remarks>
         /// <inheritdoc/>
-        public async Task<XDocument> GetXml()
+        public Task<XDocument> GetXml()
         {
             var xmldocParams = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                 + "<params>"
                 + "</params>");
 
-            return xmldocParams;
+            return Task.FromResult(xmldocParams);
         }
 
         /// <summary>
@@ -245,9 +245,9 @@ namespace dMobile.View.Activity
         /// <returns></returns>
         /// <remarks></remarks>
         /// <inheritdoc/>
-        public async Task<bool> IsReadyToSave()
+        public Task<bool> IsReadyToSave()
         {
-            return this.IsValidData();
+            return Task.FromResult(this.IsValidData());
         }
 
         /// <summary>

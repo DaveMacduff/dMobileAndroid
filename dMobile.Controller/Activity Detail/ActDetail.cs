@@ -723,7 +723,7 @@ namespace dMobile.Controller.Activity_Detail
             if (prodSchemeData.VariantNumber > 0)
             {
                 var conn = DatabaseConnection.GetInstance().SqlConn;
-                var results = await conn.QueryAsync<tProductSchemeVariantModel>(
+                var results = await conn.QueryAsync<ProductSchemeVariantModel>(
                     "SELECT * FROM tProductSchemeVariant WHERE ProductSchemeVariantNo = ?",
                     Convert.ToInt32(prodSchemeData.VariantNumber));
 
@@ -1124,7 +1124,7 @@ namespace dMobile.Controller.Activity_Detail
 
                 if (this.SchemeData.VariantNumber > 0)
                 {
-                    var results = await conn.QueryAsync<tProductSchemeVariantModel>(
+                    var results = await conn.QueryAsync<ProductSchemeVariantModel>(
                         "SELECT * FROM tProductSchemeVariant WHERE ProductSchemeVariantNo = ?",
                         Convert.ToInt32(this.SchemeData.VariantNumber));
 

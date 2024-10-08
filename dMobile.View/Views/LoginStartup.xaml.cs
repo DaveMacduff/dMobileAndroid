@@ -92,16 +92,18 @@ namespace dMobile.View.Views
         ///     Unregister the bar code scan event handler and disable the scanner.
         /// </summary>
         /// <returns>The <see cref="Task" />.</returns>
-        public async Task ScannerDisable()
+        public Task ScannerDisable()
         {
+            return Task.CompletedTask;
         }
 
         /// <summary>
         ///     Registers the bar code scan event handler and enables the scanner.
         /// </summary>
         /// <returns>The <see cref="Task" />.</returns>
-        public async Task ScannerEnable()
+        public Task ScannerEnable()
         {
+            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -126,7 +128,7 @@ namespace dMobile.View.Views
                 }
 
                 // Check if user exists.
-                var results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<tContactUserModel>(
+                var results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<ContactUserModel>(
                     "SELECT * FROM tContactUser WHERE ContactUserCode = ?",
                     Convert.ToInt32(this.txtLoginID.Text));
 
@@ -339,14 +341,14 @@ namespace dMobile.View.Views
         ///     Assemble a XML string of activity data to return to the calling parent form.
         /// </summary>
         /// <returns><see cref="Task" /> Task operation containing an XDocument.</returns>
-        public async Task<XDocument> GetXml()
+        public Task<XDocument> GetXml()
         {
             var xmldocParams = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                 + "<params>"
                 + "</params>");
 
-            return xmldocParams;
+            return Task.FromResult(xmldocParams);
         }
 
         /// <summary>
@@ -465,10 +467,8 @@ namespace dMobile.View.Views
 
                 this.lstWarehouse.ItemsSource = resultsWarehouse;
                 this.lstWarehouse.ItemDisplayBinding = new Binding("DisplayName");
-                var selectedWarehouse = resultsWarehouse.Where(warehouse => warehouse.LocationMapRefno ==
-                                                                            this.SysEnv.ContactLog
-                                                                                .WarehouseLocationMapRefno)
-                    .FirstOrDefault();
+                var selectedWarehouse = resultsWarehouse.FirstOrDefault(
+                    warehouse => warehouse.LocationMapRefno == this.SysEnv.ContactLog.WarehouseLocationMapRefno);
 
                 if (selectedWarehouse != null)
                 {
@@ -530,7 +530,7 @@ namespace dMobile.View.Views
 
             try
             {
-                var results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<tContactUserModel>(
+                var results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<ContactUserModel>(
                     "SELECT * FROM tContactUser WHERE ContactUserCode = ?",
                     Convert.ToInt32(this.txtLoginID.Text));
 

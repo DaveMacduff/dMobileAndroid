@@ -104,16 +104,18 @@ namespace dMobile.View.Activity
         ///     Unregister the bar code scan event handler and disable the scanner.
         /// </summary>
         /// <remarks></remarks>
-        public async Task ScannerDisable()
+        public Task ScannerDisable()
         {
+            return Task.CompletedTask;
         }
 
         /// <summary>
         ///     Registers the bar code scan event handler and enables the scanner.
         /// </summary>
         /// <remarks></remarks>
-        public async Task ScannerEnable()
+        public Task ScannerEnable()
         {
+            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -121,7 +123,7 @@ namespace dMobile.View.Activity
         /// <returns></returns>
         /// <remarks></remarks>
         /// <inheritdoc />
-        public async Task<bool> IsReadyToSave()
+        public Task<bool> IsReadyToSave()
         {
             var IsReadyToSave = true;
 
@@ -139,7 +141,7 @@ namespace dMobile.View.Activity
                 IsReadyToSave = false;
             }
 
-            return IsReadyToSave;
+            return Task.FromResult(IsReadyToSave);
         }
 
         /// <summary>
@@ -147,9 +149,9 @@ namespace dMobile.View.Activity
         /// <returns></returns>
         /// <remarks></remarks>
         /// <inheritdoc />
-        public async Task<bool> IsReadyToClose()
+        public Task<bool> IsReadyToClose()
         {
-            return !this.IsChangesMade;
+            return Task.FromResult(!this.IsChangesMade);
         }
 
         /// <summary>
@@ -241,7 +243,7 @@ namespace dMobile.View.Activity
         /// <returns></returns>
         /// <remarks></remarks>
         /// <inheritdoc />
-        public async Task<XDocument> GetXml()
+        public Task<XDocument> GetXml()
         {
             var request = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" +
@@ -250,7 +252,7 @@ namespace dMobile.View.Activity
                 "<wt_qty>" + this.actDetailEdit.WeightQuantity + "</wt_qty>" +
                 "<base_qty>" + this.actDetailEdit.BaseQuantity + "</base_qty>" +
                 "</params>");
-            return request;
+            return Task.FromResult(request);
         }
 
         /// <summary>
@@ -393,7 +395,7 @@ namespace dMobile.View.Activity
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <returns>A <see cref="Task" /> representing the result of the asynchronous operation.</returns>
-        public async Task ucActivityDetailEdit_GotFocus(object sender, EventArgs e)
+        public Task ucActivityDetailEdit_GotFocus(object sender, EventArgs e)
         {
             if (!this.IsControlLoaded)
             {
@@ -404,6 +406,8 @@ namespace dMobile.View.Activity
                 this.ShowProductInfo();
                 _ = this.txtAltQty.Focus();
             }
+
+            return Task.CompletedTask;
         }
 
         /// <summary>

@@ -87,9 +87,9 @@ namespace dMobile.View.Pages
         /// <returns></returns>
         /// <remarks></remarks>
         /// <inheritdoc />
-        public async Task<bool> IsReadyToClose()
+        public Task<bool> IsReadyToClose()
         {
-            return true;
+            return Task.FromResult(true);
         }
 
         /// <summary>
@@ -97,9 +97,9 @@ namespace dMobile.View.Pages
         /// <returns></returns>
         /// <remarks></remarks>
         /// <inheritdoc />
-        public async Task<bool> SaveChanges()
+        public Task<bool> SaveChanges()
         {
-            return true;
+            return Task.FromResult(true);
         }
 
         /// <summary>
@@ -107,9 +107,9 @@ namespace dMobile.View.Pages
         /// <returns></returns>
         /// <remarks></remarks>
         /// <inheritdoc />
-        public async Task<bool> CancelChanges()
+        public Task<bool> CancelChanges()
         {
-            return true;
+            return Task.FromResult(true);
         }
 
         /// <summary>
@@ -117,14 +117,14 @@ namespace dMobile.View.Pages
         /// <returns></returns>
         /// <remarks></remarks>
         /// <inheritdoc />
-        public async Task<XDocument> GetXml()
+        public Task<XDocument> GetXml()
         {
             var doc = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                 + "<params>"
                 + "</params>");
 
-            return doc;
+            return Task.FromResult(doc);
         }
 
         /// <inheritdoc />

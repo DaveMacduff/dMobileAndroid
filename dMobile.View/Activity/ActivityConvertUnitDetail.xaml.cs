@@ -1094,7 +1094,12 @@ namespace dMobile.View.Activity
         /// <returns>The <see cref="Task" />.</returns>
         private async Task DisplayDataItem()
         {
-            await Device.InvokeOnMainThreadAsync(async () => this.ExtraInfoItems.Clear());
+            await Device.InvokeOnMainThreadAsync(
+                () =>
+            {
+                this.ExtraInfoItems.Clear();
+                return Task.CompletedTask;
+            });
         }
 
         /// <summary>

@@ -254,8 +254,9 @@ namespace dMobile.View.Activity
         ///     Registers the bar code scan event handler and enables the scanner.
         /// </summary>
         /// <returns><see cref="Task" /> Task operation.</returns>
-        public async Task ScannerEnable()
+        public Task ScannerEnable()
         {
+            return Task.CompletedTask;
             ////if (!this.Scanner.IsBarCodeScanEventHandlerAdded())
             ////{
             ////    this.Scanner.BarCodeScan += this.BarCodeHandler;

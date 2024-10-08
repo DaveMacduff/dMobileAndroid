@@ -14,6 +14,7 @@ namespace dMobile.GroundWork
     using System.Xml.Linq;
     using dMobile.Bedrock;
     using dMobile.Resources.Models;
+    using dMobile.Resources.Types;
     using SQLite;
 
     /// <summary>
@@ -28,6 +29,8 @@ namespace dMobile.GroundWork
             : base()
         {
             this.FullClassName = "dMobile.GroundWork.TableProductUnit";
+            this.LowerCaseName = "product units";
+            this.ProperCaseName = "Product Units";
         }
 
         /// <summary>
@@ -37,35 +40,37 @@ namespace dMobile.GroundWork
         {
             try
             {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding product uom.", true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Seeding {this.LowerCaseName}.", true);
+                var responseData = await this.SendRequest(string.Empty);
+                await this.SaveOpt(responseData);
 
-                var responseData = string.Empty;
-                var resultsFamily = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<tFamilyModel>("SELECT * FROM tFamily");
+                ////await this.SaveOpt(responseData);
+                ////var responseData = string.Empty;
+                ////var resultsFamily = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<FamilyModel>("SELECT * FROM tFamily");
 
-                if (resultsFamily?.Count > 0)
-                {
-                    foreach (var family in resultsFamily)
-                    {
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"For family {family.FamilyCode}", true);
-                        responseData = await this.SendRequest(family.FamilyCode);
-                        await this.SaveOpt(responseData);
-                    }
-                }
+                ////if (resultsFamily?.Count > 0)
+                ////{
+                ////    foreach (var family in resultsFamily)
+                ////    {
+                ////        this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"For family {family.FamilyCode}", true);
+                ////        responseData = await this.SendRequest(family.FamilyCode);
+                ////        await this.SaveOpt(responseData);
+                ////    }
+                ////}
 
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding product uom complete.", true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Seeding {this.LowerCaseName} complete.", true);
             }
             catch (SQLiteException ex)
             {
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding product uom failed.", true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Seeding {this.LowerCaseName} failed.", true);
 
-                throw new Exception("Database exception occurred. Seeding product uom failed.", ex);
+                throw new Exception($"Database exception occurred. Seeding {this.LowerCaseName} failed.", ex);
             }
             catch (Exception ex)
             {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding product uom failed.", true);
-
-                throw new Exception("Seeding product uom failed.", ex);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Seeding {this.LowerCaseName} failed.", true);
+                throw new Exception($"Seeding {this.LowerCaseName} failed.", ex);
             }
         }
 
@@ -76,18 +81,17 @@ namespace dMobile.GroundWork
         {
             try
             {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging product uom.", true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName}.", true);
 
                 await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync("DELETE FROM tProductUnit");
 
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging product uom complete.", true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} complete.", true);
             }
             catch (SQLiteException ex)
             {
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging product uom failed.", true);
-
-                throw new Exception("Database exception occurred. Purging product uom failed.", ex);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} failed.", true);
+                throw new Exception($"Database exception occurred. Purging {this.LowerCaseName} failed.", ex);
             }
         }
 
@@ -181,7 +185,7 @@ namespace dMobile.GroundWork
             }
             catch (SQLiteException ex)
             {
-                throw new Exception("Database exception occurred. Product uom status failed.", ex);
+                throw new Exception($"Database exception occurred. {this.ProperCaseName} status failed.", ex);
             }
 
             return rowsAffected;
@@ -201,8 +205,9 @@ namespace dMobile.GroundWork
         /// The Save.
         /// </summary>
         /// <param name="responseData"></param>
-        protected override async Task Save(string responseData)
+        protected override Task Save(string responseData)
         {
+            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -211,305 +216,94 @@ namespace dMobile.GroundWork
         /// <param name="responseData"></param>
         protected async Task SaveOpt(string responseData)
         {
-            var errMsg = new StringBuilder();
-            var recordCount = 0;
-            var unitLookup = new Dictionary<string, int>();
-
-            await DatabaseConnection.GetInstance().SqlConn.RunInTransactionAsync(transaction =>
+            var conn = DatabaseConnection.GetInstance().SqlConn;
+            using var dataSet = new DataSet();
+            dataSet.ReadXml(SysCommon.GetXmlReader(ref responseData), XmlReadMode.Auto);
+            if (dataSet.Tables.Count > 0)
             {
-                try
+                var rows = dataSet.Tables[0].Rows;
+                if (rows.Count > 0)
                 {
-                    var startIndex = responseData.IndexOf("<VFPData", StringComparison.Ordinal);
-
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received responseData.", false);
-
-                    using var stringReader = new StringReader(responseData.Substring(startIndex));
-                    using var reader = XmlReader.Create(stringReader);
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving product uom.", false);
-
-                    var resultsUnit = transaction.Query<tUnitModel>("SELECT * FROM tUnit");
-
-                    if (resultsUnit?.Count > 0)
+                    var prodUnits = new List<Seg>();
+                    foreach (DataRow row in rows)
                     {
-                        foreach (var unit in resultsUnit)
+                        prodUnits.Add(new Seg
                         {
-                            unitLookup.Add(unit.UnitCode, unit.UnitRefno);
-                        }
+                            IsBCUnit = Convert.ToBoolean(row["IsBCUnit"]),
+                            BaseWeight = Convert.ToDecimal(row["BaseWeight"]),
+                            UnitSize = Convert.ToString(row["UnitSize"]),
+                            ProductFKRefno = Convert.ToInt32(row["ProductFKRefno"]),
+                            UnitCode = Convert.ToString(row["UnitCode"]),
+                            BaseUnitCode = Convert.ToString(row["BaseUnitCode"]),
+                            WeightUnitCode = Convert.ToString(row["WeightUnitCode"]),
+                            IsSellUnit = Convert.ToBoolean(row["IsSellUnit"]),
+                            IsDefault = Convert.ToBoolean(row["IsDefault"]),
+                            BoxCount = Convert.ToDecimal(row["BoxCount"]),
+                            WeightTolerance = Convert.ToDecimal(row["WeightTolerance"]),
+                        });
                     }
 
-                    var prodRefno = 0;
-                    var unitRefno = 0;
-                    var baseUnitRefno = 0;
-                    var wtUnitRefno = 0;
-                    var isProdUnitFound = false;
-                    var prodCode = string.Empty;
+                    var query = "CREATE TEMP TABLE Seg ("
+                                + "IsBCUnit BIT, "
+                                + "BaseWeight NUMERIC(11, 3), "
+                                + "UnitSize VARCHAR(15), "
+                                + "ProductFKRefno INTEGER, "
+                                + "UnitCode VARCHAR(2), "
+                                + "BaseUnitCode VARCHAR(2), "
+                                + "WeightUnitCode VARCHAR(2), "
+                                + "IsSellUnit BIT, "
+                                + "IsDefault BIT, "
+                                + "BoxCount NUMERIC(10, 4), "
+                                + "WeightTolerance NUMERIC(6, 3))";
+                    await conn.ExecuteAsync(query);
+                    await conn.InsertAllAsync(prodUnits);
 
-                    // f01
-                    var isProdUnitBC = false;
-
-                    // f02
-                    decimal prodUnitWeight = 0;
-
-                    // f03
-                    var description = string.Empty;
-
-                    // f04
-                    var prodFKRefno = 0;
-
-                    // f05
-                    var unitCode = string.Empty;
-
-                    // f06
-                    var baseUnitCode = string.Empty;
-
-                    // f07
-                    var wtUnitCode = string.Empty;
-
-                    // f08
-                    var isProdUnitSellUnit = false;
-
-                    // f09
-                    var isProdUnitDefault = false;
-
-                    // f10
-                    decimal boxCount = 0;
-
-                    // f11
-                    var weightTolerance = 0.00M;
-
-                    this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, 100);
-
-                    while (!reader.EOF)
+                    query = "INSERT INTO tProductUnit (" +
+                        "ProductRefno" +
+                        ",UnitRefno" +
+                        ",BaseUnitRefno" +
+                        ",WtUnitRefno" +
+                        ",ProductUnitIsBC" +
+                        ",ProductUnitBC" +
+                        ",ProductUnitWeight" +
+                        ",ProductUnitSizeDescription" +
+                        ",ProductUnitIsSellUnit" +
+                        ",ProductUnitIsDefault" +
+                        ",ProductUnitBoxCount" +
+                        ",ProductUnitWeightTolerance)" +
+                        " SELECT tProduct.ProductRefno" +
+                        ",SellUnit.UnitRefno" +
+                        ",BaseUnit.UnitRefno as BaseUnitRefno" +
+                        ",WeightUnit.UnitRefno as WtUnitRefno" +
+                        ",Seg.IsBCUnit" +
+                        ",CASE WHEN Seg.IsBCUnit = 1 THEN 'X' ELSE '' END as ProductUnitBC" +
+                        ",Seg.BaseWeight as ProductUnitWeight" +
+                        ",Seg.UnitSize as ProductUnitSizeDescription" +
+                        ",Seg.IsSellUnit" +
+                        ",Seg.IsDefault" +
+                        ",Seg.BoxCount" +
+                        ",Seg.WeightTolerance" +
+                        " FROM Seg " +
+                        " INNER JOIN tProduct ON tProduct.ProductFKRefno = Seg.ProductFKRefno" +
+                        " INNER JOIN tUnit SellUnit ON SellUnit.UnitCode = Seg.UnitCode" +
+                        " INNER JOIN tUnit BaseUnit ON BaseUnit.UnitCode = Seg.UnitCode" +
+                        " INNER JOIN tUnit WeightUnit ON WeightUnit.UnitCode = Seg.UnitCode";
+                    var rowsAffected = await conn.ExecuteAsync(query);
+                    if (prodUnits.Count != rowsAffected)
                     {
-                        prodRefno = 0;
-                        unitRefno = 0;
-                        baseUnitRefno = 0;
-                        wtUnitRefno = 0;
-                        isProdUnitFound = false;
-                        prodCode = string.Empty;
-                        isProdUnitBC = false;
-                        prodUnitWeight = 0;
-                        description = string.Empty;
-                        prodFKRefno = 0;
-                        unitCode = string.Empty;
-                        baseUnitCode = string.Empty;
-                        wtUnitCode = string.Empty;
-                        isProdUnitSellUnit = false;
-                        isProdUnitDefault = false;
-                        boxCount = 0;
-                        weightTolerance = 0.00M;
+                        throw new Exception("Failed to insert all rows into tProductUnit");
+                    }
 
-                        var recordFilled = false;
-                        var elementName = string.Empty;
-
-                        while (!recordFilled && reader.Read())
-                        {
-                            // fill one record
-                            if (reader.NodeType == XmlNodeType.Element)
-                            {
-                                elementName = reader.Name;
-                            }
-                            else if (reader.NodeType == XmlNodeType.Text)
-                            {
-                                switch (elementName)
-                                {
-                                    case "f01":
-                                        isProdUnitBC = reader.ReadContentAsBoolean();
-                                        break;
-                                    case "f02":
-                                        prodUnitWeight = reader.ReadContentAsDecimal();
-                                        break;
-                                    case "f03":
-                                        description = reader.Value;
-                                        break;
-                                    case "f04":
-                                        prodFKRefno = reader.ReadContentAsInt();
-                                        break;
-                                    case "f05":
-                                        unitCode = reader.Value;
-                                        break;
-                                    case "f06":
-                                        baseUnitCode = reader.Value;
-                                        break;
-                                    case "f07":
-                                        wtUnitCode = reader.Value;
-                                        break;
-                                    case "f08":
-                                        isProdUnitSellUnit = reader.ReadContentAsBoolean();
-                                        break;
-                                    case "f09":
-                                        isProdUnitDefault = reader.ReadContentAsBoolean();
-                                        break;
-                                    case "f10":
-                                        boxCount = reader.ReadContentAsDecimal();
-                                        break;
-                                    case "f11":
-                                        weightTolerance = reader.ReadContentAsDecimal();
-                                        break;
-                                }
-                            }
-                            else if (reader.NodeType == XmlNodeType.EndElement && reader.Name == "seg")
-                            {
-                                recordFilled = true; // we are full;
-                            }
-                        } // end of fill record
-
-                        if (!recordFilled)
-                        {
-                            continue; // prevent the last record (empty) from being used (set to last due to no overwriting)
-                        }
-
-                        prodCode = string.Empty;
-
-                        errMsg.Length = 0;
-                        errMsg.Append("FK refno: ").Append(prodFKRefno);
-
-                        errMsg.Append(Environment.NewLine).Append("Is sell unit: ").Append(isProdUnitSellUnit);
-                        errMsg.Append(Environment.NewLine).Append("Is bc: ").Append(isProdUnitBC);
-                        errMsg.Append(Environment.NewLine).Append("Is default: ").Append(isProdUnitDefault);
-                        errMsg.Append(Environment.NewLine).Append("Box count: ").Append(boxCount);
-
-                        var resultsProduct = transaction.Query<tProductModel>("SELECT * FROM tProduct WHERE ProductFKRefno = ?", prodFKRefno);
-
-                        if (resultsProduct?.Count > 0)
-                        {
-                            prodRefno = resultsProduct[0].ProductRefno;
-                            prodCode = resultsProduct[0].ProductCode;
-                        }
-                        else
-                        {
-                            throw new Exception("drProd.Read() failed." + Environment.NewLine + errMsg.ToString());
-                        }
-
-                        errMsg.Append(Environment.NewLine).Append("Refno: \'").Append(prodRefno).Append("\'");
-                        errMsg.Append(Environment.NewLine).Append("Code: \'").Append(prodCode).Append("\'");
-                        errMsg.Append(Environment.NewLine).Append("Unit: \'").Append(unitCode).Append("\'");
-
-                        unitLookup.TryGetValue(unitCode, out unitRefno);
-
-                        errMsg.Append(Environment.NewLine).Append("Base unit: \'").Append(baseUnitCode).Append("\'");
-                        unitLookup.TryGetValue(baseUnitCode, out baseUnitRefno);
-
-                        errMsg.Append(Environment.NewLine).Append("Weight unit: \'").Append(wtUnitCode).Append("\'");
-                        unitLookup.TryGetValue(wtUnitCode, out wtUnitRefno);
-
-                        isProdUnitFound = false;
-
-                        var resultsUnitProductUnit = transaction.Query<tProductUnitModel>("SELECT * FROM tProductUnit WHERE ProductRefno = ? AND UnitRefno = ? AND ProductUnitIsBC = ?", prodRefno, unitRefno, isProdUnitBC);
-
-                        if (resultsUnitProductUnit?.Count > 0)
-                        {
-                            isProdUnitFound = true;
-
-                            if (this.SysEnv.RefreshOpt.RefreshDataChangesOnly)
-                            {
-                                var queryUpdate = @"UPDATE tProductUnit
-                                            SET BaseUnitRefno =  ?,
-                                            WtUnitRefno = ?,
-                                            ProductUnitWeight = ?,
-                                            ProductUnitSizeDescription = ?,
-                                            ProductUnitIsSellUnit = ?,
-                                            ProductUnitIsDefault = ?,
-                                            ProductUnitBoxCount = ?
-                                             WHERE ProductRefno = ?
-                                             AND UnitRefno = ?
-                                             AND ProductUnitIsBC = ?";
-                                var parametersUpdate = new object[]
-                                {
-                                        Convert.ToInt32(baseUnitRefno),
-                                        Convert.ToInt32(wtUnitRefno),
-                                        Convert.ToDecimal(prodUnitWeight),
-                                        Convert.ToString(description),
-                                        Convert.ToInt32(isProdUnitSellUnit),
-                                        Convert.ToInt32(isProdUnitDefault),
-                                        Convert.ToDecimal(boxCount),
-                                        Convert.ToInt32(prodRefno),
-                                        Convert.ToInt32(unitRefno),
-                                        Convert.ToInt32(isProdUnitBC),
-                                };
-
-                                transaction.Execute(queryUpdate, parametersUpdate);
-                            }
-                        }
-
-                        if (!isProdUnitFound)
-                        {
-                            var queryInsert = "INSERT INTO tProductUnit " +
-                                              "(ProductRefno, " +
-                                              "UnitRefno, " +
-                                              "BaseUnitRefno, " +
-                                              "WtUnitRefno, " +
-                                              "ProductUnitIsBC, " +
-                                              "ProductUnitBC, " +
-                                              "ProductUnitWeight, " +
-                                              "ProductUnitSizeDescription, " +
-                                              "ProductUnitIsSellUnit, " +
-                                              "ProductUnitIsDefault, " +
-                                              "ProductUnitBoxCount," +
-                                              "ProductUnitWeightTolerance) " +
-                                              "VALUES " +
-                                              "(?, " +
-                                              "?, " +
-                                              "?, " +
-                                              "?, " +
-                                              "?, " +
-                                              "?, " +
-                                              "?, " +
-                                              "?, " +
-                                              "?, " +
-                                              "?, " +
-                                              "?," +
-                                              "?)";
-                            var parametersInsert = new object[]
-                            {
-                                    Convert.ToInt32(prodRefno),
-                                    Convert.ToInt32(unitRefno),
-                                    Convert.ToInt32(baseUnitRefno),
-                                    Convert.ToInt32(wtUnitRefno),
-                                    Convert.ToInt32(isProdUnitBC),
-                                    Convert.ToString(isProdUnitBC ? "X" : string.Empty),
-                                    Convert.ToDecimal(prodUnitWeight),
-                                    Convert.ToString(description),
-                                    Convert.ToInt32(isProdUnitSellUnit),
-                                    Convert.ToInt32(isProdUnitDefault),
-                                    Convert.ToDecimal(boxCount),
-                                    Convert.ToDecimal(weightTolerance),
-                            };
-
-                            transaction.Execute(queryInsert, parametersInsert);
-                        }
-
-                        ++recordCount;
-                        if (recordCount % 100 == 0)
-                        {
-                            this.DataAccessProgressOutHandler(this, EventArgs.Empty, recordCount / 10 % 100, 0, 100);
-                        }
-                    } // end of responseData
-
-                    this.DataAccessProgressOutHandler(this, EventArgs.Empty, 100, 0, 100);
-
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Records {recordCount}", false);
-
-                    transaction.Commit();
-
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving product uom complete.", false);
+                    // Drop the temporary table
+                    const string dropTempTableQuery = "DROP TABLE IF EXISTS Seg";
+                    await conn.ExecuteAsync(dropTempTableQuery);
                 }
-                catch (SQLiteException ex)
-                {
-                    transaction.Rollback();
 
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving product uom failed.", false);
-
-                    throw new Exception("Database exception occurred. Saving product uom failed." + Environment.NewLine + errMsg.ToString(), ex);
-                }
-                catch (Exception e)
-                {
-                    // MessageBox.Show(e.Message);
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, e.Message, true);
-                    throw;
-                }
-            });
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    $"{rows.Count} {this.LowerCaseName}.", true);
+            }
         }
 
         /// <summary>
@@ -592,6 +386,34 @@ namespace dMobile.GroundWork
         protected override Task<string> CreateRequestProdLoc(int prodLocMapType)
         {
             throw new NotImplementedException();
+        }
+
+        /// <summary>
+        ///     Class to hold the data for the temporary table.
+        /// </summary>
+        private class Seg
+        {
+            public bool IsBCUnit { get; set; }
+
+            public decimal BaseWeight { get; set; }
+
+            public string UnitSize { get; set; }
+
+            public int ProductFKRefno { get; set; }
+
+            public string UnitCode { get; set; }
+
+            public string BaseUnitCode { get; set; }
+
+            public string WeightUnitCode { get; set; }
+
+            public bool IsSellUnit { get; set; }
+
+            public bool IsDefault { get; set; }
+
+            public decimal BoxCount { get; set; }
+
+            public decimal WeightTolerance { get; set; }
         }
     }
 }

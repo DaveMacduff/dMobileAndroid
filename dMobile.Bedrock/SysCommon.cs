@@ -1204,6 +1204,7 @@ namespace dMobile.Bedrock
             var loginLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(loginWhs);
             var def = $@"
                 <device_id>{sysEnv.DeviceId}</device_id>
+                <platform>Android</platform>
                 <login_id>{sysEnv.ContactLog.LoginID}</login_id>
                 <login_whs_id>{loginLocMap.WhsFkRefno}</login_whs_id>
                 <revision_datetime>{revision}</revision_datetime>

@@ -186,7 +186,7 @@ namespace dMobile.Controller.Activity_Detail
         /// </summary>
         /// <param name="data">.</param>
         /// <returns>The <see cref="Task"/>.</returns>
-        public override async Task Insert(XDocument data)
+        public override Task Insert(XDocument data)
         {
             throw new NotImplementedException();
         }

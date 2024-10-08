@@ -104,7 +104,7 @@ namespace dMobile.Controller.Activity_Detail
         /// The Delete.
         /// </summary>
         /// <returns>The <see cref="int"/>.</returns>
-        public override async Task<int> Delete()
+        public override Task<int> Delete()
         {
             throw new NotImplementedException();
         }

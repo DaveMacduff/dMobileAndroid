@@ -55,34 +55,36 @@ namespace dMobile.View.Menus
         /// Unregister the bar code scan event handler and disable the scanner.
         /// </summary>
         /// <returns><see cref="Task"/> Task operation.</returns>
-        public async Task ScannerDisable()
+        public Task ScannerDisable()
         {
+            return Task.CompletedTask;
         }
 
         /// <summary>
         /// Registers the bar code scan event handler and enables the scanner.
         /// </summary>
         /// <returns><see cref="Task"/> Task operation.</returns>
-        public async Task ScannerEnable()
+        public Task ScannerEnable()
         {
+            return Task.CompletedTask;
         }
 
         /// <summary>
         /// Is ready to save.
         /// </summary>
         /// <returns><see cref="Task"/> Task operation.</returns>
-        public async Task<bool> IsReadyToSave()
+        public Task<bool> IsReadyToSave()
         {
-            return true;
+            return Task.FromResult(true);
         }
 
         /// <summary>
         /// Is ready to close.
         /// </summary>
         /// <returns><see cref="Task"/> Task operation.</returns>
-        public async Task<bool> IsReadyToClose()
+        public Task<bool> IsReadyToClose()
         {
-            return true;
+            return Task.FromResult(true);
         }
 
         /// <summary>
@@ -98,32 +100,32 @@ namespace dMobile.View.Menus
         /// Save changes.
         /// </summary>
         /// <returns><see cref="bool"/> True.</returns>
-        public async Task<bool> SaveChanges()
+        public Task<bool> SaveChanges()
         {
-            return true;
+            return Task.FromResult(true);
         }
 
         /// <summary>
         /// Cancel changes.
         /// </summary>
         /// <returns><see cref="bool"/> True.</returns>
-        public async Task<bool> CancelChanges()
+        public Task<bool> CancelChanges()
         {
-            return true;
+            return Task.FromResult(true);
         }
 
         /// <summary>
         /// Gets the return xml data.
         /// </summary>
         /// <returns><see cref="XDocument"/> Xml data.</returns>
-        public async Task<XDocument> GetXml()
+        public Task<XDocument> GetXml()
         {
             var xmldocParams = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                 + "<params>"
                 + "</params>");
 
-            return xmldocParams;
+            return Task.FromResult(xmldocParams);
         }
 
         /// <summary>

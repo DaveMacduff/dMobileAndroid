@@ -405,7 +405,7 @@ namespace dMobile.Controller.Activity
         /// </summary>
         /// <param name="selectedActivity"><see cref="object"/> Activity header to select.</param>
         /// <returns><see cref="Task"/> Task operation.</returns>
-        public override async Task SelectActivity(object selectedActivity)
+        public override Task SelectActivity(object selectedActivity)
         {
             if (selectedActivity is Replenishment header)
             {
@@ -415,6 +415,8 @@ namespace dMobile.Controller.Activity
                 this.LocationMapRefno = header.LocationMapRefno;
                 ////this.ReplenSettings = this.ReplenSettings.LoadData();
             }
+
+            return Task.CompletedTask;
         }
 
         /// <summary>

@@ -9,10 +9,12 @@ namespace dMobile.GroundWork
     using System.Data;
     using System.Text;
     using System.Threading.Tasks;
+    using System.Transactions;
     using System.Xml;
     using System.Xml.Linq;
     using dMobile.Bedrock;
     using dMobile.Resources.Models;
+    using dMobile.Resources.Types;
     using SQLite;
 
     /// <summary>
@@ -24,9 +26,10 @@ namespace dMobile.GroundWork
         /// Initializes a new instance of the <see cref="TableLocationMapSlotCoordinate"/> class.
         /// </summary>
         public TableLocationMapSlotCoordinate()
-          : base()
         {
             this.FullClassName = "dMobile.GroundWork.TableLocationMapSlotCoordinate";
+            this.LowerCaseName = "slot coordinates";
+            this.ProperCaseName = "Slot Coordinates";
         }
 
         /// <summary>
@@ -36,18 +39,18 @@ namespace dMobile.GroundWork
         {
             try
             {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging slot coordinates.", true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName}.", true);
 
                 await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync("DELETE FROM tLocationMapSlotCoordinate");
 
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging slot coordinates complete.", true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} complete.", true);
             }
             catch (SQLiteException ex)
             {
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging slot coordinates failed.", true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} failed.", true);
 
-                throw new Exception("Database exception occurred. Purging slot coordinates failed.", ex);
+                throw new Exception($"Database exception occurred. Purging {this.LowerCaseName} failed.", ex);
             }
         }
 
@@ -66,7 +69,7 @@ namespace dMobile.GroundWork
             }
             catch (SQLiteException ex)
             {
-                throw new Exception("Database exception occurred. Slot coordinates status failed.", ex);
+                throw new Exception($"Database exception occurred. {this.ProperCaseName} status failed.", ex);
             }
 
             return rowsAffected;
@@ -78,99 +81,54 @@ namespace dMobile.GroundWork
         /// <param name="responseData"></param>
         protected override async Task Save(string responseData)
         {
-            await DatabaseConnection.GetInstance().SqlConn.RunInTransactionAsync(transaction =>
+            var conn = DatabaseConnection.GetInstance().SqlConn;
+            using var dataSet = new DataSet();
+            dataSet.ReadXml(SysCommon.GetXmlReader(ref responseData), XmlReadMode.Auto);
+            if (dataSet.Tables.Count > 0)
             {
-                try
+                var coords = new List<LocationMapSlotCoordinateModel>();
+                var rowsToSave = dataSet.Tables["tLocationMapSlotCoordinate"].Rows.Count;
+                for (var i = 0; i < rowsToSave; i++)
                 {
-                    using var ds = new DataSet();
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received responseData.", false);
-
-                    ds.ReadXml(SysCommon.GetXmlReader(ref responseData), XmlReadMode.Auto);
-
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving slot coordinates.", false);
-
-                    if (ds.Tables.Count != 0)
+                    var row = dataSet.Tables["tLocationMapSlotCoordinate"].Rows[i];
+                    var coord = new LocationMapSlotCoordinateModel
                     {
-                        var progMax = Convert.ToInt32(ds.Tables["tLocationMapSlotCoordinate"].Rows.Count);
-
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Records {progMax}", false);
-
-                        var progValue = 0;
-                        var isSlotCoordFound = false;
-                        var slotCoordType = Convert.ToInt32(SysCommon.LocMapSlotCoordTypes.Coord1);
-                        var slotCoordCode = string.Empty;
-                        var whsLocMapRefno = 0;
-
-                        this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
-
-                        foreach (DataRow drow in ds.Tables["tLocationMapSlotCoordinate"].Rows)
-                        {
-                            slotCoordCode = drow["LocationMapSlotCoordinateCode"].ToString();
-                            slotCoordType = Convert.ToInt32(drow["LocationMapSlotCoordinateEnum"]);
-
-                            switch (slotCoordType)
-                            {
-                                case (int)SysCommon.LocMapSlotCoordTypes.Coord1:
-                                    break;
-
-                                case (int)SysCommon.LocMapSlotCoordTypes.Coord2:
-                                    break;
-
-                                case (int)SysCommon.LocMapSlotCoordTypes.Coord3:
-                                    break;
-
-                                default:
-
-                                    throw new Exception("Unidentified slot coordinate enum type " + slotCoordType);
-                            }
-
-                            whsLocMapRefno = this.GetWhsLocMapRefnoFromDataRow(drow, transaction);
-                            isSlotCoordFound = false;
-
-                            if (this.SysEnv.RefreshOpt.RefreshDataChangesOnly)
-                            {
-                                var results = transaction.Query<tLocationMapSlotCoordinateModel>("SELECT * FROM tLocationMapSlotCoordinate WHERE LocationMapSlotCoordinateEnum = ? AND LocationMapSlotCoordinateCode = ? AND WarehouseLocationMapRefno = ?",
-                                    slotCoordType,
-                                    slotCoordCode,
-                                    whsLocMapRefno);
-
-                                if (results?.Count > 0)
-                                {
-                                    isSlotCoordFound = true;
-                                }
-                            }
-
-                            if (!isSlotCoordFound)
-                            {
-                                transaction.Execute("INSERT INTO tLocationMapSlotCoordinate (LocationMapSlotCoordinateEnum, WarehouseLocationMapRefno, LocationMapSlotCoordinateCode) VALUES (?, ?, ?)",
-                                    Convert.ToInt32(drow["LocationMapSlotCoordinateEnum"]),
-                                    whsLocMapRefno,
-                                    Convert.ToString(drow["LocationMapSlotCoordinateCode"]));
-                            }
-
-                            progValue++;
-                            if (progValue % 100 == 0)
-                            {
-                                this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue, 0, progMax);
-                            }
-                        }
-
-                        this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
-                    }
-
-                    transaction.Commit();
-
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving slot coordinates complete.", false);
+                        LocationMapSlotCoordinateEnum = Convert.ToInt32(
+                            row["LocationMapSlotCoordinateEnum"]),
+                        WarehouseLocationMapRefno = await GetWarehouseLocMapRefno(row),
+                        LocationMapSlotCoordinateCode = Convert.ToString(
+                            row["LocationMapSlotCoordinateCode"]),
+                    };
+                    coords.Add(coord);
                 }
-                catch (SQLiteException ex)
-                {
-                    transaction.Rollback();
 
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving slot coordinates failed.", false);
-                    throw new Exception("Database exception occurred. Saving slot coordinates failed.", ex);
-                }
-            });
+                await conn.InsertAllAsync(coords);
+                this.DataAccessStatusOutHandler(
+                    this,
+                EventArgs.Empty,
+                    $"{coords.Count} slot coordinates.", true);
+            }
+            else
+            {
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    $"No {this.LowerCaseName} to save.",
+                    true);
+            }
+
+            return;
+
+            ///////////////////////////////////////////////////////////
+            async Task<int> GetWarehouseLocMapRefno(DataRow drow)
+            {
+                var whsFkRefno = Convert.ToInt32(drow["LocationMapWarehouseFKRefno"]);
+                const string query = "SELECT LocationMapRefno FROM tLocationMapWarehouse" +
+                                     " WHERE LocationMapWarehouseFKRefno = ?";
+                var whsLocMapRefno = Convert.ToInt32(
+                    await conn.ExecuteScalarAsync<int>(query, whsFkRefno));
+                return whsLocMapRefno;
+            }
         }
 
         /// <summary>

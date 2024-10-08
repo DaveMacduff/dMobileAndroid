@@ -161,16 +161,18 @@ namespace dMobile.View.Menus
         /// Unregister the bar code scan event handler and disable the scanner.
         /// </summary>
         /// <remarks></remarks>
-        public async Task ScannerDisable()
+        public Task ScannerDisable()
         {
+            return Task.CompletedTask;
         }
 
         /// <summary>
         /// Registers the bar code scan event handler and enables the scanner.
         /// </summary>
         /// <remarks></remarks>
-        public async Task ScannerEnable()
+        public Task ScannerEnable()
         {
+            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -179,9 +181,9 @@ namespace dMobile.View.Menus
         /// <returns></returns>
         /// <remarks></remarks>
         /// <inheritdoc/>
-        public async Task<bool> IsReadyToSave()
+        public Task<bool> IsReadyToSave()
         {
-            return true;
+            return Task.FromResult(true);
         }
 
         /// <summary>
@@ -190,9 +192,9 @@ namespace dMobile.View.Menus
         /// <returns></returns>
         /// <remarks></remarks>
         /// <inheritdoc/>
-        public async Task<bool> IsReadyToClose()
+        public Task<bool> IsReadyToClose()
         {
-            return true;
+            return Task.FromResult(true);
         }
 
         /// <summary>
@@ -211,9 +213,9 @@ namespace dMobile.View.Menus
         /// <returns></returns>
         /// <remarks></remarks>
         /// <inheritdoc/>
-        public async Task<bool> SaveChanges()
+        public Task<bool> SaveChanges()
         {
-            return true;
+            return Task.FromResult(true);
         }
 
         /// <summary>
@@ -222,9 +224,9 @@ namespace dMobile.View.Menus
         /// <returns></returns>
         /// <remarks></remarks>
         /// <inheritdoc/>
-        public async Task<bool> CancelChanges()
+        public Task<bool> CancelChanges()
         {
-            return true;
+            return Task.FromResult(true);
         }
 
         /// <summary>
@@ -233,14 +235,14 @@ namespace dMobile.View.Menus
         /// <returns></returns>
         /// <remarks></remarks>
         /// <inheritdoc/>
-        public async Task<XDocument> GetXml()
+        public Task<XDocument> GetXml()
         {
             var xmldocParams = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                 + "<params>"
                 + "</params>");
 
-            return xmldocParams;
+            return Task.FromResult(xmldocParams);
         }
 
         /// <summary>

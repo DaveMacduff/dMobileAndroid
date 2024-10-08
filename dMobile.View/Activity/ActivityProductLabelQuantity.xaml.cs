@@ -45,19 +45,21 @@ namespace dMobile.View.Activity
         public int Quantity { get; set; }
 
         /// <inheritdoc/>
-        public async Task ScannerDisable()
+        public Task ScannerDisable()
         {
+            return Task.CompletedTask;
         }
 
         /// <inheritdoc/>
-        public async Task ScannerEnable()
+        public Task ScannerEnable()
         {
+            return Task.CompletedTask;
         }
 
         /// <inheritdoc/>
-        public async Task<bool> IsReadyToClose()
+        public Task<bool> IsReadyToClose()
         {
-            return true;
+            return Task.FromResult(true);
         }
 
         /// <inheritdoc/>
@@ -90,20 +92,20 @@ namespace dMobile.View.Activity
         }
 
         /// <inheritdoc/>
-        public async Task<bool> IsReadyToSave()
+        public Task<bool> IsReadyToSave()
         {
-            return true;
+            return Task.FromResult(true);
         }
 
         /// <inheritdoc/>
-        public async Task<XDocument> GetXml()
+        public Task<XDocument> GetXml()
         {
             var result = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                     + "<quantity>"
                     + this.Quantity
                     + "</quantity>");
-            return result;
+            return Task.FromResult(result);
         }
     }
 }

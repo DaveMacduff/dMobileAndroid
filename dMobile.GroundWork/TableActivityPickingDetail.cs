@@ -160,7 +160,7 @@ namespace dMobile.GroundWork
         protected override async Task<string> SendRequest(int activityFkRefno)
         {
             var results = await DatabaseConnection.GetInstance()
-                .SqlConn.QueryAsync<tActivityItemPickingModel>(
+                .SqlConn.QueryAsync<ActivityItemPickingModel>(
                     "SELECT * FROM tActivityItemPicking WHERE ActivityItemRefno = ?",
                     activityFkRefno);
 
@@ -227,7 +227,7 @@ namespace dMobile.GroundWork
                                     progMax);
 
                                 var resultPickingItems =
-                                    transaction.Query<tActivityItemPickingModel>(
+                                    transaction.Query<ActivityItemPickingModel>(
                                         "SELECT * FROM tActivityItemPicking WHERE ActivityItemRefno = ?",
                                         actItemPickRefno);
 

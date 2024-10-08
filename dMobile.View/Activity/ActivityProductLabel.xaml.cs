@@ -170,16 +170,18 @@ namespace dMobile.View.Activity
         ///     Unregister the bar code scan event handler and disable the scanner.
         /// </summary>
         /// <returns>The <see cref="Task" />.</returns>
-        public async Task ScannerDisable()
+        public Task ScannerDisable()
         {
+            return Task.CompletedTask;
         }
 
         /// <summary>
         ///     Registers the bar code scan event handler and enables the scanner.
         /// </summary>
         /// <returns>The <see cref="Task" />.</returns>
-        public async Task ScannerEnable()
+        public Task ScannerEnable()
         {
+            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -966,7 +968,7 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        ///     The cmdSelectProduct_Click.
+        ///     The CmdSelectProduct_Click.
         /// </summary>
         /// <param name="sender">.</param>
         /// <param name="e">.</param>

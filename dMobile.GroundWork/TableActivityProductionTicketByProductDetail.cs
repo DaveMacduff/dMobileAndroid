@@ -174,7 +174,7 @@ namespace dMobile.GroundWork
                 var query =
                     "SELECT * FROM tActivityItemProductionByProduct WHERE ActivityItemFKRefno = ?";
                 var results = await DatabaseConnection.GetInstance()
-                    .SqlConn.QueryAsync<tActivityItemProductionByProductModel>(
+                    .SqlConn.QueryAsync<ActivityItemProductionByProductModel>(
                         query,
                         activityFkRefno);
 
@@ -193,7 +193,7 @@ namespace dMobile.GroundWork
             catch (SQLiteException ex)
             {
                 throw new Exception(
-                    "Database Exception occurred. tActivityItemProductionByProductModel Send. ",
+                    "Database Exception occurred. ActivityItemProductionByProductModel Send. ",
                     ex);
             }
         }
@@ -249,7 +249,7 @@ namespace dMobile.GroundWork
                                     0,
                                     progMax);
 
-                                var results = transaction.Query<tActivityItemProductionModel>(
+                                var results = transaction.Query<ActivityItemProductionModel>(
                                     "SELECT * FROM tActivityItemProduction WHERE ActivityItemRefno = ?",
                                     actItemProductionRefno);
 

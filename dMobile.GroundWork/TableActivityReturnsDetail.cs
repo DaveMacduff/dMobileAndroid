@@ -168,7 +168,7 @@ namespace dMobile.GroundWork
         protected override async Task<string> SendRequest(int activityFkRefno)
         {
             var results = await DatabaseConnection.GetInstance()
-                .SqlConn.QueryAsync<tActivityItemReturnsModel>(
+                .SqlConn.QueryAsync<ActivityItemReturnsModel>(
                     "SELECT * FROM tActivityItemReturns WHERE ActivityItemFKRefno = ?",
                     Convert.ToInt32(activityFkRefno));
 
@@ -238,7 +238,7 @@ namespace dMobile.GroundWork
                                     0,
                                     progMax);
 
-                                var results = transaction.Query<tActivityItemReturnsModel>(
+                                var results = transaction.Query<ActivityItemReturnsModel>(
                                     "SELECT * FROM tActivityItemReturns WHERE ActivityItemRefno = ?",
                                     Convert.ToInt32(actItemReturnsRefno));
 

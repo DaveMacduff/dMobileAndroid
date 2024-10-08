@@ -143,7 +143,7 @@ namespace dMobile.Controller.Activity_Item
         /// </summary>
         /// <param name="data"><see cref="XDocument"/> Adjustment activity information to insert.</param>
         /// <returns><see cref="Task"/> Task operation.</returns>
-        public override async Task Insert(XDocument data)
+        public override Task Insert(XDocument data)
         {
             if (this.ListItems != null)
             {
@@ -181,6 +181,8 @@ namespace dMobile.Controller.Activity_Item
                 this.SelectedListIdx = this.ListItems.Count - 1;
                 _ = this.AssignActivityItem(item);
             }
+
+            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -224,7 +226,7 @@ namespace dMobile.Controller.Activity_Item
         /// </summary>
         /// <param name="isSubmitBatch">.</param>
         /// <returns>.</returns>
-        public override async Task<List<object>> GetActivityItemList(bool isSubmitBatch)
+        public override Task<List<object>> GetActivityItemList(bool isSubmitBatch)
         {
             var moveTable = new DataTable("ActivityConvertUnitItem");
 
@@ -251,7 +253,7 @@ namespace dMobile.Controller.Activity_Item
 
             this.listConvertUnitItems = moveTable.Rows.Cast<ConvertUnitItem>().ToList();
             this.ListItems = this.listConvertUnitItems.Cast<object>().ToList();
-            return this.ListItems;
+            return Task.FromResult(this.ListItems);
         }
 
         /// <summary>
@@ -454,14 +456,14 @@ namespace dMobile.Controller.Activity_Item
         /// The Delete.
         /// </summary>
         /// <returns>The <see cref="int"/>.</returns>
-        public override async Task<int> Delete()
+        public override Task<int> Delete()
         {
             if (this.ListItems != null)
             {
                 this.ListItems.Clear();
             }
 
-            return 0;
+            return Task.FromResult(0);
         }
 
         /// <summary>

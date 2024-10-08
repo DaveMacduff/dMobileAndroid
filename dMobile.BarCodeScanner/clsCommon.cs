@@ -234,7 +234,7 @@ namespace dMobile.BarCodeScanner
                         "/VFPData/ProductUnitCode").FirstChild.Value;
 
                     var productList = await DatabaseConnection.GetInstance().
-                        SqlConn.QueryAsync<tProductModel>(
+                        SqlConn.QueryAsync<ProductModel>(
                         "SELECT * FROM tProduct WHERE ProductFKRefno = ?",
                         Convert.ToInt32(unitRefnoFromBarCode.ProdInfo.FkRefno));
 
@@ -243,7 +243,7 @@ namespace dMobile.BarCodeScanner
                         unitRefnoFromBarCode.ProdInfo.Refno = productList[0].ProductRefno;
 
                         var unitList = await DatabaseConnection.GetInstance().
-                            SqlConn.QueryAsync<tUnitModel>(
+                            SqlConn.QueryAsync<UnitModel>(
                             "SELECT * FROM tUnit WHERE UnitCode = ?",
                             Convert.ToString(unitRefnoFromBarCode.ProdInfo.UnitCode));
 
@@ -252,7 +252,7 @@ namespace dMobile.BarCodeScanner
                             var unitRefno = unitList[0].UnitRefno;
 
                             var productUnitList = await DatabaseConnection.
-                                GetInstance().SqlConn.QueryAsync<tProductUnitModel>(
+                                GetInstance().SqlConn.QueryAsync<ProductUnitModel>(
                                 "SELECT * FROM tProductUnit WHERE ProductRefno = ?" +
                                     " AND UnitRefno = ? AND ProductUnitIsBC = ?",
                                 unitRefnoFromBarCode.ProdInfo.Refno,

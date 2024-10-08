@@ -177,7 +177,7 @@ namespace dMobile.GroundWork
             const string query =
                 "SELECT * FROM tActivityItemAdjustment WHERE ActivityItemFKRefno = ?";
             var conn = DatabaseConnection.GetInstance().SqlConn;
-            var results = await conn.QueryAsync<tActivityItemAdjustmentModel>(
+            var results = await conn.QueryAsync<ActivityItemAdjustmentModel>(
                 query,
                 activityFkRefno);
             if (results.Count <= 0)
@@ -237,7 +237,7 @@ namespace dMobile.GroundWork
                             var query =
                                 "SELECT * FROM tActivityItemAdjustment WHERE ActivityItemRefno = ?";
                             var actItemModel =
-                                transaction.Query<tActivityItemAdjustmentModel>(
+                                transaction.Query<ActivityItemAdjustmentModel>(
                                     query,
                                     actItemRefno);
                             if (actItemModel == null ||
@@ -389,7 +389,7 @@ namespace dMobile.GroundWork
                     var query =
                         "SELECT * FROM tProductSchemeVariant WHERE ProductSchemeVariantNo = ?";
                     var resultsProductSchemeVariant =
-                        transaction.Query<tProductSchemeVariantModel>(
+                        transaction.Query<ProductSchemeVariantModel>(
                             query,
                             DateTime.Parse(emptyDate));
 
@@ -438,7 +438,7 @@ namespace dMobile.GroundWork
             static void InsertActivityDetail(
                 int actItemAdjRefno,
                 SQLiteConnection transaction,
-                List<tActivityItemAdjustmentModel> adjustmentItemResults,
+                List<ActivityItemAdjustmentModel> adjustmentItemResults,
                 DataRow row)
             {
                 var query = "INSERT INTO tActivityDetail " +
@@ -502,7 +502,7 @@ namespace dMobile.GroundWork
                 var locMapWhsFkRefno = Convert.ToInt32(drow["LocationMapWarehouseFKRefno"]);
                 var locMapSectFkRefno = Convert.ToInt32(drow["LocationMapSectionFKRefno"]);
                 var locMapSlotFkRefno = Convert.ToInt32(drow["LocationMapSlotFKRefno"]);
-                var resultSlots = transaction.Query<tLocationMapSlotModel>(
+                var resultSlots = transaction.Query<LocationMapSlotModel>(
                     "SELECT * FROM tLocationMapSlot WHERE LocationMapSlotFKRefno = ?",
                     locMapSlotFkRefno);
                 if (resultSlots?.Count > 0)
@@ -512,7 +512,7 @@ namespace dMobile.GroundWork
 
                 if (locMapRefno == 0)
                 {
-                    var resultSections = transaction.Query<tLocationMapSectionModel>(
+                    var resultSections = transaction.Query<LocationMapSectionModel>(
                         "SELECT * FROM tLocationMapSection WHERE LocationMapSectionFKRefno = ?",
                         locMapSectFkRefno);
                     if (resultSections?.Count > 0)
@@ -523,7 +523,7 @@ namespace dMobile.GroundWork
 
                 if (locMapRefno == 0)
                 {
-                    var resultWarehouses = transaction.Query<tLocationMapWarehouseModel>(
+                    var resultWarehouses = transaction.Query<LocationMapWarehouseModel>(
                         "SELECT * FROM tLocationMapWarehouse WHERE LocationMapWarehouseFKRefno = ?",
                         locMapWhsFkRefno);
                     if (resultWarehouses?.Count > 0)

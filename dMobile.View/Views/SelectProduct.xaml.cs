@@ -230,16 +230,18 @@ namespace dMobile.View.Views
         /// Unregister the bar code scan event handler and disable the scanner.
         /// </summary>
         /// <returns>The <see cref="Task"/>.</returns>
-        public async Task ScannerDisable()
+        public Task ScannerDisable()
         {
+            return Task.CompletedTask;
         }
 
         /// <summary>
         /// Registers the bar code scan event handler and enables the scanner.
         /// </summary>
         /// <returns>The <see cref="Task"/>.</returns>
-        public async Task ScannerEnable()
+        public Task ScannerEnable()
         {
+            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -438,7 +440,7 @@ namespace dMobile.View.Views
         /// The GetXml.
         /// </summary>
         /// <returns>.</returns>
-        public async Task<XDocument> GetXml()
+        public Task<XDocument> GetXml()
         {
             var request = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" +
@@ -448,7 +450,7 @@ namespace dMobile.View.Views
                 "<ProductDescription>" + SysCommon.AddXmlReservedChars(this.ProdDesc) + "</ProductDescription>" +
                 "</params>");
 
-            return request;
+            return Task.FromResult(request);
         }
 
         /// <summary>

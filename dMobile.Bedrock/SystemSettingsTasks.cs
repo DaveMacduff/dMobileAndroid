@@ -545,7 +545,7 @@ namespace dMobile.Bedrock
                 {
                     var docError = new XmlDocument();
                     docError.LoadXml(responseData);
-                    throw new Exception(docError.DocumentElement["detail"].InnerText);
+                    throw new Exception(docError.DocumentElement!["detail"] !.InnerText);
                 }
 
                 Save(responseData, 1, ref settings);
@@ -556,7 +556,7 @@ namespace dMobile.Bedrock
                 {
                     var docError = new XmlDocument();
                     docError.LoadXml(responseData);
-                    throw new Exception(docError.DocumentElement["detail"].InnerText);
+                    throw new Exception(docError.DocumentElement!["detail"] !.InnerText);
                 }
 
                 Save(responseData, 2, ref settings);
@@ -606,94 +606,31 @@ namespace dMobile.Bedrock
         private static void Save(string responseData, int sysSettingsNumber, ref SystemSettings settings)
         {
             var msgEventArg = new SysSettingsEventArgs();
-
-            try
+            using var ds = new DataSet();
+            _ = ds.ReadXml(SysCommon.GetXmlReader(ref responseData), XmlReadMode.Auto);
+            if (ds.Tables.Count != 0)
             {
-                using var ds = new DataSet();
-                if (OnSysSettingsStatusOut != null)
+                foreach (DataRow drow in ds.Tables["tSystemSettings"].Rows)
                 {
-                    msgEventArg.StatusOutMsg = "Reading received data.";
-                    OnSysSettingsStatusOut(settings, msgEventArg);
-                }
-
-                _ = ds.ReadXml(SysCommon.GetXmlReader(ref responseData), XmlReadMode.Auto);
-
-                if (OnSysSettingsStatusOut != null)
-                {
-                    msgEventArg.StatusOutMsg = $"Saving system settings {sysSettingsNumber}.";
-                    OnSysSettingsStatusOut(settings, msgEventArg);
-                }
-
-                if (ds.Tables.Count != 0)
-                {
-                    var progMax = ds.Tables["tSystemSettings"].Rows.Count;
-
-                    if (OnSysSettingsStatusOut != null)
+                    if (sysSettingsNumber == 1)
                     {
-                        msgEventArg.StatusOutMsg = $"Records {progMax}.";
-                        OnSysSettingsStatusOut(settings, msgEventArg);
+                        SystemSettingsTasks.AssignPropertiesFromDataRow(drow, ref settings);
+
+                        // Set aggregate flags that are dependent upon a set of other flags
+                        settings.IsMoveSkidModule = settings.IsAddToSkidModule | settings.IsBreakSkidModule |
+                            settings.IsCreateSkidModule | settings.IsRemoveFromSkidModule;
                     }
-
-                    var progValue = 0;
-
-                    if (OnSysSettingsProgressOut != null)
+                    else if (sysSettingsNumber == 2)
                     {
-                        msgEventArg.CurrentValue = 0;
-                        msgEventArg.MinValue = 0;
-                        msgEventArg.MaxValue = progMax;
-                        OnSysSettingsProgressOut(settings, msgEventArg);
+                        AssignPropertiesFromDataRow2(drow, ref settings);
                     }
-
-                    foreach (DataRow drow in ds.Tables["tSystemSettings"].Rows)
-                    {
-                        if (sysSettingsNumber == 1)
-                        {
-                            SystemSettingsTasks.AssignPropertiesFromDataRow(drow, ref settings);
-
-                            // Set aggregate flags that are dependent upon a set of other flags
-                            settings.IsMoveSkidModule = settings.IsAddToSkidModule | settings.IsBreakSkidModule |
-                                settings.IsCreateSkidModule | settings.IsRemoveFromSkidModule;
-                        }
-                        else if (sysSettingsNumber == 2)
-                        {
-                            AssignPropertiesFromDataRow2(drow, ref settings);
-                        }
-
-                        progValue += 1;
-
-                        if (OnSysSettingsProgressOut != null)
-                        {
-                            msgEventArg.CurrentValue = progValue;
-                            msgEventArg.MinValue = 0;
-                            msgEventArg.MaxValue = progMax;
-                            OnSysSettingsProgressOut(settings, msgEventArg);
-                        }
-                    }
-
-                    if (OnSysSettingsProgressOut != null)
-                    {
-                        msgEventArg.CurrentValue = progMax;
-                        msgEventArg.MinValue = 0;
-                        msgEventArg.MaxValue = progMax;
-                        OnSysSettingsProgressOut(settings, msgEventArg);
-                    }
-                }
-
-                if (OnSysSettingsStatusOut != null)
-                {
-                    msgEventArg.StatusOutMsg = $"Saving system settings {sysSettingsNumber} complete.";
-                    OnSysSettingsStatusOut(settings, msgEventArg);
                 }
             }
-            catch (Exception ex)
-            {
-                if (OnSysSettingsStatusOut != null)
-                {
-                    msgEventArg.StatusOutMsg = "Saving system settings failed.";
-                    OnSysSettingsStatusOut(settings, msgEventArg);
-                }
 
-                throw new Exception("Saving system settings failed.", ex);
+            if (OnSysSettingsStatusOut != null)
+            {
+                msgEventArg.StatusOutMsg = $"Saving system settings {sysSettingsNumber} complete.";
+                OnSysSettingsStatusOut(settings, msgEventArg);
             }
         }
     }

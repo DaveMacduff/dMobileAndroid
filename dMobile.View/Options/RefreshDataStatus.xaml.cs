@@ -15,7 +15,7 @@ namespace dMobile.View.Options
     using Bedrock;
     using Controller.Activity_Detail;
     using dMobile.Controller.Activity;
-    using dMobile.Controller.Activity_Item;
+    using Controller.Activity_Item;
     using Forms;
     using GroundWork;
     using Resources.Enums;
@@ -77,7 +77,8 @@ namespace dMobile.View.Options
         /// <summary>
         ///     Gets the product location map type table.
         /// </summary>
-        private TableProductLocationMapType ProdLocMapType { get; } = new TableProductLocationMapType();
+        private TableProductLocationMapType ProdLocMapType { get; } =
+            new TableProductLocationMapType();
 
         /// <summary>
         ///     Gets the unit of measure table.
@@ -97,22 +98,26 @@ namespace dMobile.View.Options
         /// <summary>
         ///     Gets the product scheme variant table.
         /// </summary>
-        private TableProductSchemeVariant ProdSchemeVariant { get; } = new TableProductSchemeVariant();
+        private TableProductSchemeVariant ProdSchemeVariant { get; } =
+            new TableProductSchemeVariant();
 
         /// <summary>
         ///     Gets the product scheme variant xref table.
         /// </summary>
-        private TableProductSchemeVariantXRef ProdSchemeVariantXRef { get; } = new TableProductSchemeVariantXRef();
+        private TableProductSchemeVariantXRef ProdSchemeVariantXRef { get; } =
+            new TableProductSchemeVariantXRef();
 
         /// <summary>
         ///     Gets the product scheme lot number table.
         /// </summary>
-        private TableProductSchemeLotNumber ProdSchemeLot { get; } = new TableProductSchemeLotNumber();
+        private TableProductSchemeLotNumber ProdSchemeLot { get; } =
+            new TableProductSchemeLotNumber();
 
         /// <summary>
         ///     Gets the product scheme lot number xref table.
         /// </summary>
-        private TableProductSchemeLotNumberXRef ProdSchemeLotXRef { get; } = new TableProductSchemeLotNumberXRef();
+        private TableProductSchemeLotNumberXRef ProdSchemeLotXRef { get; } =
+            new TableProductSchemeLotNumberXRef();
 
         /// <summary>
         ///     Gets the products table.
@@ -142,7 +147,8 @@ namespace dMobile.View.Options
         /// <summary>
         ///     Gets the location mpa warehouses table.
         /// </summary>
-        private TableLocationMapWarehouse LocMapWarehouse { get; } = new TableLocationMapWarehouse();
+        private TableLocationMapWarehouse LocMapWarehouse { get; } =
+            new TableLocationMapWarehouse();
 
         /// <summary>
         ///     Gets the location map sections table.
@@ -157,7 +163,8 @@ namespace dMobile.View.Options
         /// <summary>
         ///     Gets the location map slot coordinates table.
         /// </summary>
-        private TableLocationMapSlotCoordinate LocMapSlotCoordinate { get; } = new TableLocationMapSlotCoordinate();
+        private TableLocationMapSlotCoordinate LocMapSlotCoordinate { get; } =
+            new TableLocationMapSlotCoordinate();
 
         /// <summary>
         ///     Gets the location map slots table.
@@ -167,7 +174,8 @@ namespace dMobile.View.Options
         /// <summary>
         ///     Gets the warehouse location map types table.
         /// </summary>
-        private TableWarehouseLocationMapType WhsLocMapType { get; } = new TableWarehouseLocationMapType();
+        private TableWarehouseLocationMapType WhsLocMapType { get; } =
+            new TableWarehouseLocationMapType();
 
         /// <summary>
         ///     Gets the contact users table.
@@ -177,17 +185,20 @@ namespace dMobile.View.Options
         /// <summary>
         ///     Gets the table activity physical count.
         /// </summary>
-        private TableActivityPhysicalCount PhysicalCount { get; } = new TableActivityPhysicalCount();
+        private TableActivityPhysicalCount PhysicalCount { get; } =
+            new TableActivityPhysicalCount();
 
         /// <summary>
         ///     Gets the table activity physical count item.
         /// </summary>
-        private TableActivityPhysicalCountItem PhysicalCountItem { get; } = new TableActivityPhysicalCountItem();
+        private TableActivityPhysicalCountItem PhysicalCountItem { get; } =
+            new TableActivityPhysicalCountItem();
 
         /// <summary>
         ///     Gets the table activity physical count detail.
         /// </summary>
-        private TableActivityPhysicalCountDetail PhysicalCountDetail { get; } = new TableActivityPhysicalCountDetail();
+        private TableActivityPhysicalCountDetail PhysicalCountDetail { get; } =
+            new TableActivityPhysicalCountDetail();
 
         /// <summary>
         ///     Gets the table activity cycle count.
@@ -197,17 +208,23 @@ namespace dMobile.View.Options
         /// <summary>
         ///     Gets the table activity cycle count item.
         /// </summary>
-        private TableActivityCycleCountItem CycleCountItem { get; } = new TableActivityCycleCountItem();
+        private TableActivityCycleCountItem CycleCountItem { get; } =
+            new TableActivityCycleCountItem();
 
         /// <summary>
         ///     Gets the table activity cycle count detail.
         /// </summary>
-        private TableActivityCycleCountDetail CycleCountDetail { get; } = new TableActivityCycleCountDetail();
+        private TableActivityCycleCountDetail CycleCountDetail { get; } =
+            new TableActivityCycleCountDetail();
 
         /// <summary>
         ///     Gets or sets the table activity detail product scheme variant xref.
         /// </summary>
-        private TableActivityDetailProductSchemeVariantXRef ActDetailProdSchemeVariantXRef { get; set; } =
+        private TableActivityDetailProductSchemeVariantXRef ActDetailProdSchemeVariantXRef
+        {
+            get;
+            set;
+        } =
             new TableActivityDetailProductSchemeVariantXRef();
 
         /// <summary>
@@ -229,12 +246,14 @@ namespace dMobile.View.Options
         /// <summary>
         ///     Gets the table activity picking item comment.
         /// </summary>
-        private TableActivityPickingItemComment PickingItemComment { get; } = new TableActivityPickingItemComment();
+        private TableActivityPickingItemComment PickingItemComment { get; } =
+            new TableActivityPickingItemComment();
 
         /// <summary>
         ///     Gets the table activity picking detail.
         /// </summary>
-        private TableActivityPickingDetail PickingDetail { get; } = new TableActivityPickingDetail();
+        private TableActivityPickingDetail PickingDetail { get; } =
+            new TableActivityPickingDetail();
 
         /// <summary>
         ///     Gets the table activity picking route.
@@ -249,7 +268,8 @@ namespace dMobile.View.Options
         /// <summary>
         ///     Gets the table activity receiving item.
         /// </summary>
-        private TableActivityReceivingItem ReceivingItem { get; } = new TableActivityReceivingItem();
+        private TableActivityReceivingItem ReceivingItem { get; } =
+            new TableActivityReceivingItem();
 
         /// <summary>
         ///     Gets the table activity receiving item comment.
@@ -260,7 +280,8 @@ namespace dMobile.View.Options
         /// <summary>
         ///     Gets the table activity receiving detail.
         /// </summary>
-        private TableActivityReceivingDetail ReceivingDetail { get; } = new TableActivityReceivingDetail();
+        private TableActivityReceivingDetail ReceivingDetail { get; } =
+            new TableActivityReceivingDetail();
 
         /// <summary>
         ///     Gets the table activity transfer from.
@@ -270,12 +291,14 @@ namespace dMobile.View.Options
         /// <summary>
         ///     Gets the table activity transfer from item.
         /// </summary>
-        private TableActivityTransferFromItem TransferFromItem { get; } = new TableActivityTransferFromItem();
+        private TableActivityTransferFromItem TransferFromItem { get; } =
+            new TableActivityTransferFromItem();
 
         /// <summary>
         ///     Gets the table activity transfer from detail.
         /// </summary>
-        private TableActivityTransferFromDetail TransferFromDetail { get; } = new TableActivityTransferFromDetail();
+        private TableActivityTransferFromDetail TransferFromDetail { get; } =
+            new TableActivityTransferFromDetail();
 
         /// <summary>
         ///     Gets the table activity transfer to.
@@ -285,12 +308,14 @@ namespace dMobile.View.Options
         /// <summary>
         ///     Gets the table activity transfer to item.
         /// </summary>
-        private TableActivityTransferToItem TransferToItem { get; } = new TableActivityTransferToItem();
+        private TableActivityTransferToItem TransferToItem { get; } =
+            new TableActivityTransferToItem();
 
         /// <summary>
         ///     Gets the table activity transfer to detail.
         /// </summary>
-        private TableActivityTransferToDetail TransferToDetail { get; } = new TableActivityTransferToDetail();
+        private TableActivityTransferToDetail TransferToDetail { get; } =
+            new TableActivityTransferToDetail();
 
         /// <summary>
         ///     Gets the table activity returns.
@@ -311,7 +336,8 @@ namespace dMobile.View.Options
         /// <summary>
         ///     Gets the table activity returns detail.
         /// </summary>
-        private TableActivityReturnsDetail ReturnsDetail { get; } = new TableActivityReturnsDetail();
+        private TableActivityReturnsDetail ReturnsDetail { get; } =
+            new TableActivityReturnsDetail();
 
         /// <summary>
         ///     Gets the table activity adjustments.
@@ -321,12 +347,14 @@ namespace dMobile.View.Options
         /// <summary>
         ///     Gets the table activity adjustment item.
         /// </summary>
-        private TableActivityAdjustmentItem AdjustmentItem { get; } = new TableActivityAdjustmentItem();
+        private TableActivityAdjustmentItem AdjustmentItem { get; } =
+            new TableActivityAdjustmentItem();
 
         /// <summary>
         ///     Gets the table activity adjustment detail.
         /// </summary>
-        private TableActivityAdjustmentDetail AdjustmentDetail { get; } = new TableActivityAdjustmentDetail();
+        private TableActivityAdjustmentDetail AdjustmentDetail { get; } =
+            new TableActivityAdjustmentDetail();
 
         /// <summary>
         ///     Gets the table activity.
@@ -406,7 +434,8 @@ namespace dMobile.View.Options
         /// <summary>
         ///     Gets or sets the product scheme label settings.
         /// </summary>
-        private ProdSchemeLabelSettings SchemeLabelSettings { get; set; } = new ProdSchemeLabelSettings();
+        private ProdSchemeLabelSettings SchemeLabelSettings { get; set; } =
+            new ProdSchemeLabelSettings();
 
         /// <summary>
         ///     Gets the location map warehouse product scheme.
@@ -418,28 +447,31 @@ namespace dMobile.View.Options
         ///     Gets or sets the extra information items.
         /// </summary>
         /// <returns></returns>
-        public ObservableCollection<Message> ExtraInfoItems { get; set; } = new ObservableCollection<Message>();
+        public ObservableCollection<Message> ExtraInfoItems { get; set; } =
+            new ObservableCollection<Message>();
 
         /// <summary>
         ///     Unregister the bar code scan event handler and disable the scanner.
         /// </summary>
         /// <returns></returns>
-        public async Task ScannerDisable()
+        public Task ScannerDisable()
         {
+            return Task.CompletedTask;
         }
 
         /// <summary>
         ///     Registers the bar code scan event handler and enables the scanner.
         /// </summary>
         /// <returns></returns>
-        public async Task ScannerEnable()
+        public Task ScannerEnable()
         {
+            return Task.CompletedTask;
         }
 
         /// <summary>
         /// </summary>
         /// <returns></returns>
-        public async Task<bool> IsReadyToSave()
+        public Task<bool> IsReadyToSave()
         {
             var isReadyToSave = true;
 
@@ -448,7 +480,11 @@ namespace dMobile.View.Options
             }
             catch (Exception ex)
             {
-                if (SysCommon.ErrorReportAndRequestContinue(this.FullClassName, Resource.IsReadyToSave, ex) == false)
+                if (SysCommon.ErrorReportAndRequestContinue(
+                        this.FullClassName,
+                        Resource.IsReadyToSave,
+                        ex) ==
+                    false)
                 {
                     // Application.Exit();
                 }
@@ -456,45 +492,47 @@ namespace dMobile.View.Options
                 isReadyToSave = false;
             }
 
-            return isReadyToSave;
+            return Task.FromResult(isReadyToSave);
         }
 
         /// <summary>
         /// </summary>
         /// <returns></returns>
-        public async Task<bool> IsReadyToClose()
+        public Task<bool> IsReadyToClose()
         {
-            return true;
+            return Task.FromResult(true);
         }
 
         /// <summary>
         /// </summary>
         /// <returns></returns>
-        public async Task<bool> SaveChanges()
+        public Task<bool> SaveChanges()
         {
-            return true;
+            return Task.FromResult(true);
         }
 
         /// <summary>
         /// </summary>
         /// <returns></returns>
-        public async Task<bool> CancelChanges()
+        public Task<bool> CancelChanges()
         {
-            return true;
+            return Task.FromResult(true);
         }
 
         /// <summary>
         /// </summary>
         /// <returns></returns>
-        public async Task<XDocument> GetXml()
+        public Task<XDocument> GetXml()
         {
             var xmldocParams = XDocument.Parse(
-                "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
-                + "<params>"
-                + "<IsRefreshComplete>" + this.IsRefreshComplete + "</IsRefreshComplete>"
-                + "</params>");
+                "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" +
+                "<params>" +
+                "<IsRefreshComplete>" +
+                this.IsRefreshComplete +
+                "</IsRefreshComplete>" +
+                "</params>");
 
-            return xmldocParams;
+            return Task.FromResult(xmldocParams);
         }
 
         /// <summary>
@@ -560,7 +598,9 @@ namespace dMobile.View.Options
         /// <param name="databaseNubEventPublisher"></param>
         /// <param name="databaseNubEventArgs"></param>
         /// <inheritdoc />
-        public void OnNubStatOut(IDataNubPublisher databaseNubEventPublisher, DataNubEventArgs databaseNubEventArgs)
+        public void OnNubStatOut(
+            IDataNubPublisher databaseNubEventPublisher,
+            DataNubEventArgs databaseNubEventArgs)
         {
             this.StatusOut(databaseNubEventArgs.StatusOutMsg);
         }
@@ -668,7 +708,9 @@ namespace dMobile.View.Options
 
                 this.lstStatus.ItemsSource = this.ExtraInfoItems;
 
-                MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(),
+                MessagingCenter.Subscribe<string>(
+                    this,
+                    EventTypes.OnKeyUp.ToString(),
                     keyPressed => { _ = Enum.TryParse(keyPressed, out Keycode keycode); });
 
                 if (this.isFirstAppearance)
@@ -754,113 +796,128 @@ namespace dMobile.View.Options
 
             this.IsIndicatorRunning = true;
 
-            await Task.Run(async () =>
-            {
-                if (this.ActSubType == SysCommon.ActSubTypes.DataStatus)
+            await Task.Run(
+                async () =>
                 {
-                    try
+                    if (this.ActSubType == SysCommon.ActSubTypes.DataStatus)
                     {
-                        await this.DataStatus();
-                    }
-                    catch (Exception ex)
-                    {
-                        this.StatusOut(Resource.DataStatusFailed);
-
-                        var errRpt = new FormErrorReport(this.ActSubType, ex, this.FullClassName,
-                            "tmrRefreshData_Tick");
-                        _ = await Device.InvokeOnMainThreadAsync(async () => await errRpt.ShowDialog());
-                    }
-                }
-                else
-                {
-                    try
-                    {
-                        this.IsRefreshComplete = true;
-                        this.SysEnv.RefreshOpt.IsRefreshDataFailed = false;
-                        this.SysEnv.RefreshOpt = this.SysEnv.RefreshOpt.LoadData();
-
-                        // if there is no data or we are purging reset the last refresh date
-                        if (!await Common.IsDataBaseDataExist())
+                        try
                         {
-                            this.SysEnv.RefreshOpt.RefreshedDataLast = new DateTime(1900, 1, 1);
-                            var tempRefreshOpt1 = this.SysEnv.RefreshOpt;
-                            _ = this.SysEnv.RefreshOpt.SaveData(ref tempRefreshOpt1);
+                            await this.DataStatus();
                         }
-
-                        // Store the last refresh date
-                        refreshLast = this.SysEnv.RefreshOpt.RefreshedDataLast;
-
-                        if (this.SysEnv.RefreshOpt.SystemData && !this.SysEnv.RefreshOpt.RefreshDataChangesOnly &&
-                            this.ActSubType != SysCommon.ActSubTypes.PurgeActivityData)
+                        catch (Exception ex)
                         {
-                            await this.CreateDatabase();
-                            this.SysEnv.RefreshOpt.IsDataCreatedInStartUp = false;
-                            this.SysEnv.RefreshOpt.RefreshedDataLast = new DateTime(1900, 1, 1);
-                            var tempRefreshOpt2 = this.SysEnv.RefreshOpt;
-                            _ = this.SysEnv.RefreshOpt.SaveData(ref tempRefreshOpt2);
+                            this.StatusOut(Resource.DataStatusFailed);
 
-                            // Assign the last refresh date to DateSerial(1900, 1, 1) because after the database is recreated
-                            // we want everything
+                            var errRpt = new FormErrorReport(
+                                this.ActSubType,
+                                ex,
+                                this.FullClassName,
+                                "tmrRefreshData_Tick");
+                            _ = await Device.InvokeOnMainThreadAsync(
+                                async () => await errRpt.ShowDialog());
+                        }
+                    }
+                    else
+                    {
+                        try
+                        {
+                            this.IsRefreshComplete = true;
+                            this.SysEnv.RefreshOpt.IsRefreshDataFailed = false;
+                            this.SysEnv.RefreshOpt = this.SysEnv.RefreshOpt.LoadData();
+
+                            // if there is no data or we are purging reset the last refresh date
+                            if (!await Common.IsDataBaseDataExist())
+                            {
+                                this.SysEnv.RefreshOpt.RefreshedDataLast = new DateTime(1900, 1, 1);
+                                var tempRefreshOpt1 = this.SysEnv.RefreshOpt;
+                                _ = this.SysEnv.RefreshOpt.SaveData(ref tempRefreshOpt1);
+                            }
+
+                            // Store the last refresh date
                             refreshLast = this.SysEnv.RefreshOpt.RefreshedDataLast;
-                            await this.RefreshSystemData();
+
+                            if (this.SysEnv.RefreshOpt.SystemData &&
+                                !this.SysEnv.RefreshOpt.RefreshDataChangesOnly &&
+                                this.ActSubType != SysCommon.ActSubTypes.PurgeActivityData)
+                            {
+                                await this.CreateDatabase();
+                                this.SysEnv.RefreshOpt.IsDataCreatedInStartUp = false;
+                                this.SysEnv.RefreshOpt.RefreshedDataLast = new DateTime(1900, 1, 1);
+                                var tempRefreshOpt2 = this.SysEnv.RefreshOpt;
+                                _ = this.SysEnv.RefreshOpt.SaveData(ref tempRefreshOpt2);
+
+                                // Assign the last refresh date to DateSerial(1900, 1, 1) because after the database is recreated
+                                // we want everything
+                                refreshLast = this.SysEnv.RefreshOpt.RefreshedDataLast;
+                                await this.RefreshSystemData();
+                            }
+                            else if (this.SysEnv.RefreshOpt.RefreshDataChangesOnly &&
+                                     this.ActSubType != SysCommon.ActSubTypes.PurgeActivityData)
+                            {
+                                DatabaseConnection.Open();
+                                await this.RefreshSystemData();
+                            }
+
+                            await this.RefreshActivityData();
+
+                            if (this.ActSubType == SysCommon.ActSubTypes.PurgeActivityData)
+                            {
+                                this.StatusOut(Resource.PurgeDataCompleted);
+                            }
+                            else
+                            {
+                                this.StatusOut(Resource.RefreshDataCompleted);
+                                var span = DateTime.Now - this.RefreshTotal;
+                                this.StatusOut(
+                                    string.Format(Resource.RefreshMinutes0, span.TotalMinutes));
+                            }
+
+                            this.IsRefreshComplete = true;
+                            this.SysEnv.RefreshOpt.RefreshedDataLast = DateTime.Now;
+                            this.SysEnv.RefreshOpt.IsRefreshDataFailed = false;
                         }
-                        else if (this.SysEnv.RefreshOpt.RefreshDataChangesOnly &&
-                                 this.ActSubType != SysCommon.ActSubTypes.PurgeActivityData)
+                        catch (SQLiteException ex)
                         {
-                            DatabaseConnection.Open();
-                            await this.RefreshSystemData();
+                            this.SysEnv.RefreshOpt.RefreshedDataLast = refreshLast;
+                            this.SysEnv.RefreshOpt.IsRefreshDataFailed = true;
+
+                            this.StatusOut(Resource.RefreshDataFailed);
+
+                            var errRpt = new FormErrorReport(
+                                this.ActSubType, /*this,*/
+                                ex,
+                                this.FullClassName,
+                                "tmrRefreshData_Tick");
+                            _ = await Device.InvokeOnMainThreadAsync(
+                                async () => await errRpt.ShowDialog());
                         }
-
-                        await this.RefreshData();
-
-                        if (this.ActSubType == SysCommon.ActSubTypes.PurgeActivityData)
+                        catch (Exception ex)
                         {
-                            this.StatusOut(Resource.PurgeDataCompleted);
+                            this.SysEnv.RefreshOpt.RefreshedDataLast = refreshLast;
+                            this.SysEnv.RefreshOpt.IsRefreshDataFailed = true;
+
+                            this.StatusOut(Resource.RefreshDataFailed);
+
+                            var errRpt = new FormErrorReport(
+                                this.ActSubType, /*this,*/
+                                ex,
+                                this.FullClassName,
+                                "tmrRefreshData_Tick");
+                            _ = await Device.InvokeOnMainThreadAsync(
+                                async () => await errRpt.ShowDialog());
                         }
-                        else
+                        finally
                         {
-                            this.StatusOut(Resource.RefreshDataCompleted);
-                            var span = DateTime.Now - this.RefreshTotal;
-                            this.StatusOut(string.Format(Resource.RefreshMinutes0, span.TotalMinutes));
+                            this.SysEnv.RefreshOpt.IsRefreshedLastDataChangesOnly =
+                                this.SysEnv.RefreshOpt.RefreshDataChangesOnly;
+                            var tempRefreshOpt3 = this.SysEnv.RefreshOpt;
+                            _ = this.SysEnv.RefreshOpt.SaveData(ref tempRefreshOpt3);
                         }
-
-                        this.IsRefreshComplete = true;
-                        this.SysEnv.RefreshOpt.RefreshedDataLast = DateTime.Now;
-                        this.SysEnv.RefreshOpt.IsRefreshDataFailed = false;
                     }
-                    catch (SQLiteException ex)
-                    {
-                        this.SysEnv.RefreshOpt.RefreshedDataLast = refreshLast;
-                        this.SysEnv.RefreshOpt.IsRefreshDataFailed = true;
 
-                        this.StatusOut(Resource.RefreshDataFailed);
-
-                        var errRpt = new FormErrorReport(this.ActSubType, /*this,*/ ex, this.FullClassName,
-                            "tmrRefreshData_Tick");
-                        _ = await Device.InvokeOnMainThreadAsync(async () => await errRpt.ShowDialog());
-                    }
-                    catch (Exception ex)
-                    {
-                        this.SysEnv.RefreshOpt.RefreshedDataLast = refreshLast;
-                        this.SysEnv.RefreshOpt.IsRefreshDataFailed = true;
-
-                        this.StatusOut(Resource.RefreshDataFailed);
-
-                        var errRpt = new FormErrorReport(this.ActSubType, /*this,*/ ex, this.FullClassName,
-                            "tmrRefreshData_Tick");
-                        _ = await Device.InvokeOnMainThreadAsync(async () => await errRpt.ShowDialog());
-                    }
-                    finally
-                    {
-                        this.SysEnv.RefreshOpt.IsRefreshedLastDataChangesOnly =
-                            this.SysEnv.RefreshOpt.RefreshDataChangesOnly;
-                        var tempRefreshOpt3 = this.SysEnv.RefreshOpt;
-                        _ = this.SysEnv.RefreshOpt.SaveData(ref tempRefreshOpt3);
-                    }
-                }
-
-                // }
-            });
+                    // }
+                });
 
             this.IsIndicatorRunning = false;
         }
@@ -882,7 +939,8 @@ namespace dMobile.View.Options
 
                 if (File.Exists(DatabaseConnection.GetInstance().DatabaseFullPath))
                 {
-                    this.StatusOut(Resource.Found + DatabaseConnection.GetInstance().DatabaseFullPath);
+                    this.StatusOut(
+                        Resource.Found + DatabaseConnection.GetInstance().DatabaseFullPath);
 
                     if (this.SysEnv.RefreshOpt.IsDataCreatedInStartUp)
                     {
@@ -921,9 +979,9 @@ namespace dMobile.View.Options
         }
 
         /// <summary>
+        ///     Refresh the activities data.
         /// </summary>
-        /// <remarks></remarks>
-        private async Task RefreshData()
+        private async Task RefreshActivityData()
         {
             await this.RefreshDataBarCodeAssociation();
             await this.RefreshDataAdjustments();
@@ -936,75 +994,318 @@ namespace dMobile.View.Options
         }
 
         /// <summary>
+        ///     Refresh the system data.
         /// </summary>
-        /// <remarks></remarks>
         private async Task RefreshSystemData()
         {
-            this.SysEnv.SysSettings.RegisterSysSettingsListenerStatusOut(this);
-            this.SysEnv.SysSettings.RegisterSysSettingsListenerProgressOut(this);
-            var settings = this.SysEnv.SysSettings;
-            SystemSettingsTasks.RequestSystemSettings(ref settings);
-            this.SysEnv.SysSettings = settings;
+            RefreshSystemSettings();
+            RefreshBarCodeSettings();
+            RefreshPrinterSettings();
+            await RefreshContactUsers();
+            await RefreshWarehouses();
+            await RefreshSections();
+            await RefreshSlotCoordinates();
+            await RefreshSlots();
+            await RefreshLocationMapTypes();
+            await RefreshWarehouseLocationMapTypes();
+            await RefreshRoutes();
+            await RefreshFamilies();
+            await RefreshUnits();
+            await RefreshSchemes();
+            await RefreshSchemeVariants();
+            await RefreshSchemeVariantXRef();
 
-            var tempSystemSettings = this.SysEnv.SysSettings;
-            _ = SystemSettingsTasks.SaveData(ref tempSystemSettings);
+            // The label settings need to be called here, not called from the refresh system data method,
+            // because scheme codes must exist in the table. This routine seeks the scheme code.
+            await RefreshProductLabelSettings();
 
-            this.SysEnv.SysSettings.UnregisterSysSettingsListenerStatusOut(this);
-            this.SysEnv.SysSettings.UnregisterSysSettingsListenerProgressOut(this);
-            this.StatusOut(string.Empty);
+            if (this.SysEnv.SysSettings.IsEnableDefaultDetailValues ||
+                this.ActSubType == SysCommon.ActSubTypes.PurgeActivityData)
+            {
+                await RefreshDefaultSchemeLots();
+                await RefreshDefaultSchemeLotXRef();
+            }
 
-            this.SysEnv.BarCodeSettings.RegisterBarCodeSettingsListenerStatusOut(this);
-            this.SysEnv.BarCodeSettings.RegisterBarCodeSettingsListenerProgressOut(this);
-            this.SysEnv.BarCodeSettings.RequestBarCodeSettings();
-            var tempBarCodeSettings = this.SysEnv.BarCodeSettings;
-            _ = this.SysEnv.BarCodeSettings.SaveData(ref tempBarCodeSettings);
-            this.SysEnv.BarCodeSettings.UnregisterBarCodeSettingsListenerStatusOut(this);
-            this.SysEnv.BarCodeSettings.UnregisterBarCodeSettingsListenerProgressOut(this);
-            this.StatusOut(string.Empty);
-
-            this.PrinterSettings.RegPrnSettingsListenerStatusOut(this);
-            this.PrinterSettings.RegPrnSettingsListenerProgressOut(this);
-            this.PrinterSettings.RequestPrinterSettings();
-            var tempPrinterSettings = this.PrinterSettings;
-            _ = this.PrinterSettings.SaveData(ref tempPrinterSettings);
-            this.PrinterSettings = tempPrinterSettings;
-            this.PrinterSettings.UnregPrnSettingsListenerStatusOut(this);
-            this.PrinterSettings.UnregPrnSettingsListenerProgressOut(this);
-            this.StatusOut(string.Empty);
-
-            this.ContactUsers.RegisterDataAccessListenerProgressOut(this);
-            this.ContactUsers.RegisterDataAccessListenerStatusOut(this);
-            await this.ContactUsers.PurgeTContact();
-            await this.ContactUsers.PurgeData();
-            await this.ContactUsers.RequestData();
-            this.ContactUsers.UnregisterDataAccessListenerStatusOut(this);
-            this.ContactUsers.UnregisterDataAccessListenerProgressOut(this);
-            this.StatusOut(string.Empty);
-
-            await this.RefreshSystemDataLocationMap();
-
-            this.Route.RegisterDataAccessListenerProgressOut(this);
-            this.Route.RegisterDataAccessListenerStatusOut(this);
-            await this.Route.RequestData();
-            this.Route.UnregisterDataAccessListenerStatusOut(this);
-            this.Route.UnregisterDataAccessListenerProgressOut(this);
-            this.StatusOut(string.Empty);
-
-            this.Family.RegisterDataAccessListenerProgressOut(this);
-            this.Family.RegisterDataAccessListenerStatusOut(this);
-            await this.Family.RequestData();
-            this.Family.UnregisterDataAccessListenerStatusOut(this);
-            this.Family.UnregisterDataAccessListenerProgressOut(this);
-            this.StatusOut(string.Empty);
-
-            await this.RefreshSystemDataProducts();
+            await RefreshProducts();
+            await RefreshProductUnits();
+            await RefreshProductUnitRelations();
+            await RefreshProductUnitBarCodes();
+            await RefreshWarehouseProductSchemes();
+            await RefreshProductLocMapTypes();
 
             if (!await Common.IsDataBaseDataExist())
             {
-                await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(
-                    this.GetControlDescription(),
-                    Resource.SomeExpectedDataWasNotRefreshedRecommendRefreshingDataAgain,
-                    Resource.OK));
+                await Device.InvokeOnMainThreadAsync(
+                    async () => await this.DisplayAlert(
+                        this.GetControlDescription(),
+                        Resource.SomeExpectedDataWasNotRefreshedRecommendRefreshingDataAgain,
+                        Resource.OK));
+            }
+
+            return;
+
+            ///////////////////////////////////////////////////////////
+            void RefreshSystemSettings()
+            {
+                this.SysEnv.SysSettings.RegisterSysSettingsListenerStatusOut(this);
+                this.SysEnv.SysSettings.RegisterSysSettingsListenerProgressOut(this);
+                var settings = this.SysEnv.SysSettings;
+                SystemSettingsTasks.RequestSystemSettings(ref settings);
+                this.SysEnv.SysSettings = settings;
+                var tempSystemSettings = this.SysEnv.SysSettings;
+                _ = SystemSettingsTasks.SaveData(ref tempSystemSettings);
+                this.SysEnv.SysSettings.UnregisterSysSettingsListenerStatusOut(this);
+                this.SysEnv.SysSettings.UnregisterSysSettingsListenerProgressOut(this);
+            }
+
+            ///////////////////////////////////////////////////////////
+            void RefreshBarCodeSettings()
+            {
+                this.SysEnv.BarCodeSettings.RegisterBarCodeSettingsListenerStatusOut(this);
+                this.SysEnv.BarCodeSettings.RegisterBarCodeSettingsListenerProgressOut(this);
+                this.SysEnv.BarCodeSettings.RequestBarCodeSettings();
+                var tempBarCodeSettings = this.SysEnv.BarCodeSettings;
+                _ = this.SysEnv.BarCodeSettings.SaveData(ref tempBarCodeSettings);
+                this.SysEnv.BarCodeSettings.UnregisterBarCodeSettingsListenerStatusOut(this);
+                this.SysEnv.BarCodeSettings.UnregisterBarCodeSettingsListenerProgressOut(this);
+            }
+
+            ///////////////////////////////////////////////////////////
+            void RefreshPrinterSettings()
+            {
+                this.PrinterSettings.RegPrnSettingsListenerStatusOut(this);
+                this.PrinterSettings.RegPrnSettingsListenerProgressOut(this);
+                this.PrinterSettings.RequestPrinterSettings();
+                var tempPrinterSettings = this.PrinterSettings;
+                _ = this.PrinterSettings.SaveData(ref tempPrinterSettings);
+                this.PrinterSettings = tempPrinterSettings;
+                this.PrinterSettings.UnregPrnSettingsListenerStatusOut(this);
+                this.PrinterSettings.UnregPrnSettingsListenerProgressOut(this);
+            }
+
+            ///////////////////////////////////////////////////////////
+            async Task RefreshContactUsers()
+            {
+                this.ContactUsers.RegisterDataAccessListenerProgressOut(this);
+                this.ContactUsers.RegisterDataAccessListenerStatusOut(this);
+                await this.ContactUsers.PurgeTContact();
+                await this.ContactUsers.PurgeData();
+                await this.ContactUsers.RequestData();
+                this.ContactUsers.UnregisterDataAccessListenerStatusOut(this);
+                this.ContactUsers.UnregisterDataAccessListenerProgressOut(this);
+            }
+
+            ///////////////////////////////////////////////////////////
+            async Task RefreshRoutes()
+            {
+                this.Route.RegisterDataAccessListenerProgressOut(this);
+                this.Route.RegisterDataAccessListenerStatusOut(this);
+                await this.Route.RequestData();
+                this.Route.UnregisterDataAccessListenerStatusOut(this);
+                this.Route.UnregisterDataAccessListenerProgressOut(this);
+            }
+
+            ///////////////////////////////////////////////////////////
+            async Task RefreshFamilies()
+            {
+                this.Family.RegisterDataAccessListenerProgressOut(this);
+                this.Family.RegisterDataAccessListenerStatusOut(this);
+                await this.Family.RequestData();
+                this.Family.UnregisterDataAccessListenerStatusOut(this);
+                this.Family.UnregisterDataAccessListenerProgressOut(this);
+            }
+
+            ///////////////////////////////////////////////////////////
+            async Task RefreshWarehouses()
+            {
+                this.LocMapWarehouse.RegisterDataAccessListenerProgressOut(this);
+                this.LocMapWarehouse.RegisterDataAccessListenerStatusOut(this);
+                await this.LocMapWarehouse.RequestData();
+                this.LocMapWarehouse.UnregisterDataAccessListenerStatusOut(this);
+                this.LocMapWarehouse.UnregisterDataAccessListenerProgressOut(this);
+            }
+
+            ///////////////////////////////////////////////////////////
+            async Task RefreshSections()
+            {
+                this.LocMapSection.RegisterDataAccessListenerProgressOut(this);
+                this.LocMapSection.RegisterDataAccessListenerStatusOut(this);
+                await this.LocMapSection.RequestData(0);
+                this.LocMapSection.UnregisterDataAccessListenerStatusOut(this);
+                this.LocMapSection.UnregisterDataAccessListenerProgressOut(this);
+            }
+
+            ///////////////////////////////////////////////////////////
+            async Task RefreshSlotCoordinates()
+            {
+                this.LocMapSlotCoordinate.RegisterDataAccessListenerProgressOut(this);
+                this.LocMapSlotCoordinate.RegisterDataAccessListenerStatusOut(this);
+                await this.LocMapSlotCoordinate.RequestData();
+                this.LocMapSlotCoordinate.UnregisterDataAccessListenerStatusOut(this);
+                this.LocMapSlotCoordinate.UnregisterDataAccessListenerProgressOut(this);
+            }
+
+            ///////////////////////////////////////////////////////////
+            async Task RefreshSlots()
+            {
+                this.LocMapSlot.RegisterDataAccessListenerProgressOut(this);
+                this.LocMapSlot.RegisterDataAccessListenerStatusOut(this);
+                await this.LocMapSlot.RequestData(0);
+                this.LocMapSlot.UnregisterDataAccessListenerStatusOut(this);
+                this.LocMapSlot.UnregisterDataAccessListenerProgressOut(this);
+            }
+
+            ///////////////////////////////////////////////////////////
+            async Task RefreshLocationMapTypes()
+            {
+                this.LocMapType.RegisterDataAccessListenerProgressOut(this);
+                this.LocMapType.RegisterDataAccessListenerStatusOut(this);
+                await this.LocMapType.RequestData();
+                this.LocMapType.UnregisterDataAccessListenerStatusOut(this);
+                this.LocMapType.UnregisterDataAccessListenerProgressOut(this);
+            }
+
+            ///////////////////////////////////////////////////////////
+            async Task RefreshWarehouseLocationMapTypes()
+            {
+                this.WhsLocMapType.RegisterDataAccessListenerProgressOut(this);
+                this.WhsLocMapType.RegisterDataAccessListenerStatusOut(this);
+                await this.WhsLocMapType.RequestData();
+                this.WhsLocMapType.UnregisterDataAccessListenerStatusOut(this);
+                this.WhsLocMapType.UnregisterDataAccessListenerProgressOut(this);
+            }
+
+            ///////////////////////////////////////////////////////////
+            async Task RefreshUnits()
+            {
+                this.Unit.RegisterDataAccessListenerProgressOut(this);
+                this.Unit.RegisterDataAccessListenerStatusOut(this);
+                await this.Unit.RequestData();
+                this.Unit.UnregisterDataAccessListenerStatusOut(this);
+                this.Unit.UnregisterDataAccessListenerProgressOut(this);
+            }
+
+            ///////////////////////////////////////////////////////////
+            async Task RefreshSchemes()
+            {
+                this.ProdScheme.RegisterDataAccessListenerProgressOut(this);
+                this.ProdScheme.RegisterDataAccessListenerStatusOut(this);
+                await this.ProdScheme.RequestData();
+                this.ProdScheme.UnregisterDataAccessListenerStatusOut(this);
+                this.ProdScheme.UnregisterDataAccessListenerProgressOut(this);
+            }
+
+            ///////////////////////////////////////////////////////////
+            async Task RefreshSchemeVariants()
+            {
+                this.ProdSchemeVariant.RegisterDataAccessListenerProgressOut(this);
+                this.ProdSchemeVariant.RegisterDataAccessListenerStatusOut(this);
+                await this.ProdSchemeVariant.RequestData();
+                this.ProdSchemeVariant.UnregisterDataAccessListenerStatusOut(this);
+                this.ProdSchemeVariant.UnregisterDataAccessListenerProgressOut(this);
+            }
+
+            ///////////////////////////////////////////////////////////
+            async Task RefreshSchemeVariantXRef()
+            {
+                this.ProdSchemeVariantXRef.RegisterDataAccessListenerProgressOut(this);
+                this.ProdSchemeVariantXRef.RegisterDataAccessListenerStatusOut(this);
+                await this.ProdSchemeVariantXRef.RequestData();
+                this.ProdSchemeVariantXRef.UnregisterDataAccessListenerStatusOut(this);
+                this.ProdSchemeVariantXRef.UnregisterDataAccessListenerProgressOut(this);
+            }
+
+            ///////////////////////////////////////////////////////////
+            async Task RefreshProductLabelSettings()
+            {
+                this.SchemeLabelSettings.RegProdSchemeLabelSettingsListenerStatusOut(this);
+                this.SchemeLabelSettings.RegProdSchemeLabelSettingsListenerProgressOut(this);
+                await this.SchemeLabelSettings.RequestProductSchemeLabelSettings();
+                var tempSchemeLblSettings = this.SchemeLabelSettings;
+                _ = this.SchemeLabelSettings.SaveData(ref tempSchemeLblSettings);
+                this.SchemeLabelSettings = tempSchemeLblSettings;
+                this.SchemeLabelSettings.UnregProdSchemeLabelSettingsListenerStatusOut(this);
+                this.SchemeLabelSettings.UnregProdSchemeLabelSettingsListenerProgressOut(this);
+            }
+
+            ///////////////////////////////////////////////////////////
+            async Task RefreshDefaultSchemeLots()
+            {
+                this.ProdSchemeLot.RegisterDataAccessListenerProgressOut(this);
+                this.ProdSchemeLot.RegisterDataAccessListenerStatusOut(this);
+                await this.ProdSchemeLot.RequestData();
+                this.ProdSchemeLot.UnregisterDataAccessListenerStatusOut(this);
+                this.ProdSchemeLot.UnregisterDataAccessListenerProgressOut(this);
+            }
+
+            ///////////////////////////////////////////////////////////
+            async Task RefreshDefaultSchemeLotXRef()
+            {
+                this.ProdSchemeLotXRef.RegisterDataAccessListenerProgressOut(this);
+                this.ProdSchemeLotXRef.RegisterDataAccessListenerStatusOut(this);
+                await this.ProdSchemeLotXRef.RequestData();
+                this.ProdSchemeLotXRef.UnregisterDataAccessListenerStatusOut(this);
+                this.ProdSchemeLotXRef.UnregisterDataAccessListenerProgressOut(this);
+            }
+
+            ///////////////////////////////////////////////////////////
+            async Task RefreshProducts()
+            {
+                this.Product.RegisterDataAccessListenerProgressOut(this);
+                this.Product.RegisterDataAccessListenerStatusOut(this);
+                await this.Product.RequestData();
+                this.Product.UnregisterDataAccessListenerStatusOut(this);
+                this.Product.UnregisterDataAccessListenerProgressOut(this);
+            }
+
+            ///////////////////////////////////////////////////////////
+            async Task RefreshProductUnits()
+            {
+                this.ProdUnit.RegisterDataAccessListenerProgressOut(this);
+                this.ProdUnit.RegisterDataAccessListenerStatusOut(this);
+                await this.ProdUnit.RequestData();
+                this.ProdUnit.UnregisterDataAccessListenerStatusOut(this);
+                this.ProdUnit.UnregisterDataAccessListenerProgressOut(this);
+            }
+
+            ///////////////////////////////////////////////////////////
+            async Task RefreshProductUnitRelations()
+            {
+                this.ProdUnitRelation.RegisterDataAccessListenerProgressOut(this);
+                this.ProdUnitRelation.RegisterDataAccessListenerStatusOut(this);
+                await this.ProdUnitRelation.RequestData();
+                this.ProdUnitRelation.UnregisterDataAccessListenerStatusOut(this);
+                this.ProdUnitRelation.UnregisterDataAccessListenerProgressOut(this);
+            }
+
+            ///////////////////////////////////////////////////////////
+            async Task RefreshProductUnitBarCodes()
+            {
+                this.ProdUnitBarCode.RegisterDataAccessListenerProgressOut(this);
+                this.ProdUnitBarCode.RegisterDataAccessListenerStatusOut(this);
+                await this.ProdUnitBarCode.RequestData();
+                this.ProdUnitBarCode.UnregisterDataAccessListenerStatusOut(this);
+                this.ProdUnitBarCode.UnregisterDataAccessListenerProgressOut(this);
+            }
+
+            ///////////////////////////////////////////////////////////
+            async Task RefreshWarehouseProductSchemes()
+            {
+                this.ProdLocMapWhsProdScheme.RegisterDataAccessListenerProgressOut(this);
+                this.ProdLocMapWhsProdScheme.RegisterDataAccessListenerStatusOut(this);
+                await this.ProdLocMapWhsProdScheme.RequestData();
+                this.ProdLocMapWhsProdScheme.UnregisterDataAccessListenerStatusOut(this);
+                this.ProdLocMapWhsProdScheme.UnregisterDataAccessListenerProgressOut(this);
+            }
+
+            ///////////////////////////////////////////////////////////
+            async Task RefreshProductLocMapTypes()
+            {
+                this.ProdLocMapType.RegisterDataAccessListenerProgressOut(this);
+                this.ProdLocMapType.RegisterDataAccessListenerStatusOut(this);
+                await this.ProdLocMapType.RequestData();
+                this.ProdLocMapType.UnregisterDataAccessListenerStatusOut(this);
+                this.ProdLocMapType.UnregisterDataAccessListenerProgressOut(this);
             }
         }
 
@@ -1015,20 +1316,26 @@ namespace dMobile.View.Options
         {
             this.SysEnv.RefreshOpt = this.SysEnv.RefreshOpt.LoadData();
 
-            await Device.InvokeOnMainThreadAsync(() =>
-            {
-                this.ExtraInfoItems.Add(new Message
+            await Device.InvokeOnMainThreadAsync(
+                () =>
                 {
-                    MessageIndex = this.messageIndex++,
-                    MessageValue = Resource.LastRefresh + " " + this.SysEnv.RefreshOpt.RefreshedDataLast
+                    this.ExtraInfoItems.Add(
+                        new Message
+                        {
+                            MessageIndex = this.messageIndex++,
+                            MessageValue = Resource.LastRefresh +
+                                           " " +
+                                           this.SysEnv.RefreshOpt.RefreshedDataLast
+                        });
+                    this.ExtraInfoItems.Add(
+                        new Message
+                        {
+                            MessageIndex = this.messageIndex++,
+                            MessageValue = Resource.RefreshChangesOnly +
+                                           " " +
+                                           this.SysEnv.RefreshOpt.IsRefreshedLastDataChangesOnly
+                        });
                 });
-                this.ExtraInfoItems.Add(new Message
-                {
-                    MessageIndex = this.messageIndex++,
-                    MessageValue = Resource.RefreshChangesOnly + " " +
-                                   this.SysEnv.RefreshOpt.IsRefreshedLastDataChangesOnly
-                });
-            });
 
             this.ContactUsers.RegisterDataAccessListenerProgressOut(this);
             this.ContactUsers.RegisterDataAccessListenerStatusOut(this);
@@ -1075,11 +1382,16 @@ namespace dMobile.View.Options
         /// <param name="message"></param>
         private void StatusOut(string message)
         {
-            Device.BeginInvokeOnMainThread(() =>
-            {
-                this.ExtraInfoItems.Add(new Message { MessageIndex = this.messageIndex++, MessageValue = message });
-                this.lstStatus.ScrollTo(this.ExtraInfoItems.LastOrDefault(), ScrollToPosition.MakeVisible, false);
-            });
+            Device.BeginInvokeOnMainThread(
+                () =>
+                {
+                    this.ExtraInfoItems.Add(
+                        new Message { MessageIndex = this.messageIndex++, MessageValue = message });
+                    this.lstStatus.ScrollTo(
+                        this.ExtraInfoItems.LastOrDefault(),
+                        ScrollToPosition.MakeVisible,
+                        false);
+                });
         }
 
         /// <summary>
@@ -1094,158 +1406,6 @@ namespace dMobile.View.Options
             // this.pbarStatus.Maximum = maxValue;
             // this.pbarStatus.Minimum = minValue;
             // this.pbarStatus.Value = value;
-        }
-
-        /// <summary>
-        /// </summary>
-        private async Task RefreshSystemDataLocationMap()
-        {
-            this.LocMapWarehouse.RegisterDataAccessListenerProgressOut(this);
-            this.LocMapWarehouse.RegisterDataAccessListenerStatusOut(this);
-            await this.LocMapWarehouse.RequestData();
-            this.LocMapWarehouse.UnregisterDataAccessListenerStatusOut(this);
-            this.LocMapWarehouse.UnregisterDataAccessListenerProgressOut(this);
-            this.StatusOut(string.Empty);
-
-            this.LocMapSection.RegisterDataAccessListenerProgressOut(this);
-            this.LocMapSection.RegisterDataAccessListenerStatusOut(this);
-            await this.LocMapSection.RequestData(0);
-            this.LocMapSection.UnregisterDataAccessListenerStatusOut(this);
-            this.LocMapSection.UnregisterDataAccessListenerProgressOut(this);
-            this.StatusOut(string.Empty);
-
-            this.LocMapSlotCoordinate.RegisterDataAccessListenerProgressOut(this);
-            this.LocMapSlotCoordinate.RegisterDataAccessListenerStatusOut(this);
-            await this.LocMapSlotCoordinate.RequestData();
-            this.LocMapSlotCoordinate.UnregisterDataAccessListenerStatusOut(this);
-            this.LocMapSlotCoordinate.UnregisterDataAccessListenerProgressOut(this);
-            this.StatusOut(string.Empty);
-
-            this.LocMapSlot.RegisterDataAccessListenerProgressOut(this);
-            this.LocMapSlot.RegisterDataAccessListenerStatusOut(this);
-            await this.LocMapSlot.RequestData(0);
-            this.LocMapSlot.UnregisterDataAccessListenerStatusOut(this);
-            this.LocMapSlot.UnregisterDataAccessListenerProgressOut(this);
-            this.StatusOut(string.Empty);
-
-            this.LocMapType.RegisterDataAccessListenerProgressOut(this);
-            this.LocMapType.RegisterDataAccessListenerStatusOut(this);
-            await this.LocMapType.RequestData();
-            this.LocMapType.UnregisterDataAccessListenerStatusOut(this);
-            this.LocMapType.UnregisterDataAccessListenerProgressOut(this);
-            this.StatusOut(string.Empty);
-
-            this.WhsLocMapType.RegisterDataAccessListenerProgressOut(this);
-            this.WhsLocMapType.RegisterDataAccessListenerStatusOut(this);
-            await this.WhsLocMapType.RequestData();
-            this.WhsLocMapType.UnregisterDataAccessListenerStatusOut(this);
-            this.WhsLocMapType.UnregisterDataAccessListenerProgressOut(this);
-            this.StatusOut(string.Empty);
-        }
-
-        /// <summary>
-        /// </summary>
-        private async Task RefreshSystemDataProducts()
-        {
-            this.Unit.RegisterDataAccessListenerProgressOut(this);
-            this.Unit.RegisterDataAccessListenerStatusOut(this);
-            await this.Unit.RequestData();
-            this.Unit.UnregisterDataAccessListenerStatusOut(this);
-            this.Unit.UnregisterDataAccessListenerProgressOut(this);
-            this.StatusOut(string.Empty);
-
-            this.ProdScheme.RegisterDataAccessListenerProgressOut(this);
-            this.ProdScheme.RegisterDataAccessListenerStatusOut(this);
-            await this.ProdScheme.RequestData();
-            this.ProdScheme.UnregisterDataAccessListenerStatusOut(this);
-            this.ProdScheme.UnregisterDataAccessListenerProgressOut(this);
-            this.StatusOut(string.Empty);
-
-            this.ProdSchemeVariant.RegisterDataAccessListenerProgressOut(this);
-            this.ProdSchemeVariant.RegisterDataAccessListenerStatusOut(this);
-            await this.ProdSchemeVariant.RequestData();
-            this.ProdSchemeVariant.UnregisterDataAccessListenerStatusOut(this);
-            this.ProdSchemeVariant.UnregisterDataAccessListenerProgressOut(this);
-            this.StatusOut(string.Empty);
-
-            this.ProdSchemeVariantXRef.RegisterDataAccessListenerProgressOut(this);
-            this.ProdSchemeVariantXRef.RegisterDataAccessListenerStatusOut(this);
-            await this.ProdSchemeVariantXRef.RequestData();
-            this.ProdSchemeVariantXRef.UnregisterDataAccessListenerStatusOut(this);
-            this.ProdSchemeVariantXRef.UnregisterDataAccessListenerProgressOut(this);
-            this.StatusOut(string.Empty);
-
-            // This xml settings file need to be called hear not called from the refresh system data method,
-            // because scheme codes must exist in there table. This routine seeks the scheme code.
-            this.SchemeLabelSettings.RegProdSchemeLabelSettingsListenerStatusOut(this);
-            this.SchemeLabelSettings.RegProdSchemeLabelSettingsListenerProgressOut(this);
-            await this.SchemeLabelSettings.RequestProductSchemeLabelSettings();
-            var tempSchemeLblSettings = this.SchemeLabelSettings;
-            _ = this.SchemeLabelSettings.SaveData(ref tempSchemeLblSettings);
-            this.SchemeLabelSettings = tempSchemeLblSettings;
-            this.SchemeLabelSettings.UnregProdSchemeLabelSettingsListenerStatusOut(this);
-            this.SchemeLabelSettings.UnregProdSchemeLabelSettingsListenerProgressOut(this);
-            this.StatusOut(string.Empty);
-
-            if (this.SysEnv.SysSettings.IsEnableDefaultDetailValues ||
-                this.ActSubType == SysCommon.ActSubTypes.PurgeActivityData)
-            {
-                this.ProdSchemeLot.RegisterDataAccessListenerProgressOut(this);
-                this.ProdSchemeLot.RegisterDataAccessListenerStatusOut(this);
-                await this.ProdSchemeLot.RequestData();
-                this.ProdSchemeLot.UnregisterDataAccessListenerStatusOut(this);
-                this.ProdSchemeLot.UnregisterDataAccessListenerProgressOut(this);
-                this.StatusOut(string.Empty);
-
-                this.ProdSchemeLotXRef.RegisterDataAccessListenerProgressOut(this);
-                this.ProdSchemeLotXRef.RegisterDataAccessListenerStatusOut(this);
-                await this.ProdSchemeLotXRef.RequestData();
-                this.ProdSchemeLotXRef.UnregisterDataAccessListenerStatusOut(this);
-                this.ProdSchemeLotXRef.UnregisterDataAccessListenerProgressOut(this);
-                this.StatusOut(string.Empty);
-            }
-
-            this.Product.RegisterDataAccessListenerProgressOut(this);
-            this.Product.RegisterDataAccessListenerStatusOut(this);
-            await this.Product.RequestData();
-            this.Product.UnregisterDataAccessListenerStatusOut(this);
-            this.Product.UnregisterDataAccessListenerProgressOut(this);
-            this.StatusOut(string.Empty);
-
-            this.ProdUnit.RegisterDataAccessListenerProgressOut(this);
-            this.ProdUnit.RegisterDataAccessListenerStatusOut(this);
-            await this.ProdUnit.RequestData();
-            this.ProdUnit.UnregisterDataAccessListenerStatusOut(this);
-            this.ProdUnit.UnregisterDataAccessListenerProgressOut(this);
-            this.StatusOut(string.Empty);
-
-            this.ProdUnitRelation.RegisterDataAccessListenerProgressOut(this);
-            this.ProdUnitRelation.RegisterDataAccessListenerStatusOut(this);
-            await this.ProdUnitRelation.RequestData();
-            this.ProdUnitRelation.UnregisterDataAccessListenerStatusOut(this);
-            this.ProdUnitRelation.UnregisterDataAccessListenerProgressOut(this);
-            this.StatusOut(string.Empty);
-
-            this.ProdUnitBarCode.RegisterDataAccessListenerProgressOut(this);
-            this.ProdUnitBarCode.RegisterDataAccessListenerStatusOut(this);
-            await this.ProdUnitBarCode.RequestData();
-            this.ProdUnitBarCode.UnregisterDataAccessListenerStatusOut(this);
-            this.ProdUnitBarCode.UnregisterDataAccessListenerProgressOut(this);
-            this.StatusOut(string.Empty);
-
-            this.ProdLocMapWhsProdScheme.RegisterDataAccessListenerProgressOut(this);
-            this.ProdLocMapWhsProdScheme.RegisterDataAccessListenerStatusOut(this);
-            await this.ProdLocMapWhsProdScheme.RequestData();
-            this.ProdLocMapWhsProdScheme.UnregisterDataAccessListenerStatusOut(this);
-            this.ProdLocMapWhsProdScheme.UnregisterDataAccessListenerProgressOut(this);
-            this.StatusOut(string.Empty);
-
-            this.ProdLocMapType.RegisterDataAccessListenerProgressOut(this);
-            this.ProdLocMapType.RegisterDataAccessListenerStatusOut(this);
-            await this.ProdLocMapType.RequestData();
-            this.ProdLocMapType.UnregisterDataAccessListenerStatusOut(this);
-            this.ProdLocMapType.UnregisterDataAccessListenerProgressOut(this);
-            this.StatusOut(string.Empty);
         }
 
         /// <summary>
@@ -1583,7 +1743,8 @@ namespace dMobile.View.Options
         /// </summary>
         private async Task RefreshDataAdjustments()
         {
-            if (this.SysEnv.RefreshOpt.Adjustments || this.ActSubType == SysCommon.ActSubTypes.PurgeActivityData)
+            if (this.SysEnv.RefreshOpt.Adjustments ||
+                this.ActSubType == SysCommon.ActSubTypes.PurgeActivityData)
             {
                 this.AdjustmentDetail.RegisterDataAccessListenerStatusOut(this);
                 await this.AdjustmentDetail.PurgeData();
@@ -1607,13 +1768,17 @@ namespace dMobile.View.Options
                     this.AdjustmentDetail.RegisterDataAccessListenerStatusOut(this);
 
                     var activity = ActivityFacade.GetActivity(SysCommon.ActSubTypes.Adjustment);
-                    var activityItem = ActItemFacade.GetActItem(activity, SysCommon.ActSubTypes.Adjustment);
+                    var activityItem = ActItemFacade.GetActItem(
+                        activity,
+                        SysCommon.ActSubTypes.Adjustment);
                     activityItem.ActHdr = activity;
-                    var activityDetail = ActDetailFacade.GetActDetail(activityItem, SysCommon.ActSubTypes.Adjustment);
+                    var activityDetail = ActDetailFacade.GetActDetail(
+                        activityItem,
+                        SysCommon.ActSubTypes.Adjustment);
                     activityDetail.ActItem = activityItem;
 
                     await this.Adjustment.RequestHeaderData();
-                    var headers = await activity.GetActivityList(isSubmitBatch: false);
+                    var headers = await activity.GetActivityList(false);
                     foreach (var header in headers)
                     {
                         if (header is Count countHeader)
@@ -1624,12 +1789,13 @@ namespace dMobile.View.Options
                             if (this.SysEnv.SysSettings.IsDisconnectedModeLoadDetail)
                             {
                                 activityItem.ActHdr.HdrRefno = countHeader.ActivityRefno;
-                                var items = await activityItem.GetActivityItemList(isSubmitBatch: false);
+                                var items = await activityItem.GetActivityItemList(false);
                                 foreach (var item in items)
                                 {
                                     if (item is CountItem countItem)
                                     {
-                                        activityDetail.ActItem.ItemRefno = countItem.ActivityItemRefno;
+                                        activityDetail.ActItem.ItemRefno =
+                                            countItem.ActivityItemRefno;
                                         await this.AdjustmentDetail.RequestDetailData(
                                             countItem.ActivityItemFKRefno,
                                             countItem.ActivityItemRefno);
@@ -1654,7 +1820,8 @@ namespace dMobile.View.Options
         /// </summary>
         private async Task RefreshDataCounts()
         {
-            if (this.SysEnv.RefreshOpt.Counts || this.ActSubType == SysCommon.ActSubTypes.PurgeActivityData)
+            if (this.SysEnv.RefreshOpt.Counts ||
+                this.ActSubType == SysCommon.ActSubTypes.PurgeActivityData)
             {
                 this.PhysicalCountDetail.RegisterDataAccessListenerStatusOut(this);
                 await this.PhysicalCountDetail.PurgeData();
@@ -1678,13 +1845,17 @@ namespace dMobile.View.Options
                     this.PhysicalCountDetail.RegisterDataAccessListenerStatusOut(this);
 
                     var activity = ActivityFacade.GetActivity(SysCommon.ActSubTypes.PhysicalCounts);
-                    var activityItem = ActItemFacade.GetActItem(activity, SysCommon.ActSubTypes.PhysicalCounts);
+                    var activityItem = ActItemFacade.GetActItem(
+                        activity,
+                        SysCommon.ActSubTypes.PhysicalCounts);
                     activityItem.ActHdr = activity;
-                    var activityDetail = ActDetailFacade.GetActDetail(activityItem, SysCommon.ActSubTypes.PhysicalCounts);
+                    var activityDetail = ActDetailFacade.GetActDetail(
+                        activityItem,
+                        SysCommon.ActSubTypes.PhysicalCounts);
                     activityDetail.ActItem = activityItem;
 
                     await this.PhysicalCount.RequestHeaderData();
-                    var headers = await activity.GetActivityList(isSubmitBatch: false);
+                    var headers = await activity.GetActivityList(false);
                     foreach (var header in headers)
                     {
                         if (header is Count countHeader)
@@ -1695,12 +1866,13 @@ namespace dMobile.View.Options
                             if (this.SysEnv.SysSettings.IsDisconnectedModeLoadDetail)
                             {
                                 activityItem.ActHdr.HdrRefno = countHeader.ActivityRefno;
-                                var items = await activityItem.GetActivityItemList(isSubmitBatch: false);
+                                var items = await activityItem.GetActivityItemList(false);
                                 foreach (var item in items)
                                 {
                                     if (item is CountItem countItem)
                                     {
-                                        activityDetail.ActItem.ItemRefno = countItem.ActivityItemRefno;
+                                        activityDetail.ActItem.ItemRefno =
+                                            countItem.ActivityItemRefno;
                                         await this.PhysicalCountDetail.RequestDetailData(
                                             countItem.ActivityItemFKRefno,
                                             countItem.ActivityItemRefno);
@@ -1741,13 +1913,17 @@ namespace dMobile.View.Options
                     this.CycleCountDetail.RegisterDataAccessListenerStatusOut(this);
 
                     var activity = ActivityFacade.GetActivity(SysCommon.ActSubTypes.CycleCounts);
-                    var activityItem = ActItemFacade.GetActItem(activity, SysCommon.ActSubTypes.CycleCounts);
+                    var activityItem = ActItemFacade.GetActItem(
+                        activity,
+                        SysCommon.ActSubTypes.CycleCounts);
                     activityItem.ActHdr = activity;
-                    var activityDetail = ActDetailFacade.GetActDetail(activityItem, SysCommon.ActSubTypes.CycleCounts);
+                    var activityDetail = ActDetailFacade.GetActDetail(
+                        activityItem,
+                        SysCommon.ActSubTypes.CycleCounts);
                     activityDetail.ActItem = activityItem;
 
                     await this.CycleCount.RequestHeaderData();
-                    var headers = await activity.GetActivityList(isSubmitBatch: false);
+                    var headers = await activity.GetActivityList(false);
                     foreach (var header in headers)
                     {
                         if (header is Count countHeader)
@@ -1758,12 +1934,13 @@ namespace dMobile.View.Options
                             if (this.SysEnv.SysSettings.IsDisconnectedModeLoadDetail)
                             {
                                 activityItem.ActHdr.HdrRefno = countHeader.ActivityRefno;
-                                var items = await activityItem.GetActivityItemList(isSubmitBatch: false);
+                                var items = await activityItem.GetActivityItemList(false);
                                 foreach (var item in items)
                                 {
                                     if (item is CountItem countItem)
                                     {
-                                        activityDetail.ActItem.ItemRefno = countItem.ActivityItemRefno;
+                                        activityDetail.ActItem.ItemRefno =
+                                            countItem.ActivityItemRefno;
                                         await this.CycleCountDetail.RequestDetailData(
                                             countItem.ActivityItemFKRefno,
                                             countItem.ActivityItemRefno);
@@ -1788,7 +1965,8 @@ namespace dMobile.View.Options
         /// </summary>
         private async Task RefreshDataProduction()
         {
-            if (this.SysEnv.RefreshOpt.ProductionTickets || this.ActSubType == SysCommon.ActSubTypes.PurgeActivityData)
+            if (this.SysEnv.RefreshOpt.ProductionTickets ||
+                this.ActSubType == SysCommon.ActSubTypes.PurgeActivityData)
             {
                 this.TicketFinished.RegisterDataAccessListenerProgressOut(this);
                 this.TicketFinished.RegisterDataAccessListenerStatusOut(this);
@@ -1798,13 +1976,17 @@ namespace dMobile.View.Options
                 this.TicketFinishedDetail.RegisterDataAccessListenerStatusOut(this);
 
                 var activity = ActivityFacade.GetActivity(SysCommon.ActSubTypes.TicketFinished);
-                var activityItem = ActItemFacade.GetActItem(activity, SysCommon.ActSubTypes.TicketFinished);
+                var activityItem = ActItemFacade.GetActItem(
+                    activity,
+                    SysCommon.ActSubTypes.TicketFinished);
                 activityItem.ActHdr = activity;
-                var activityDetail = ActDetailFacade.GetActDetail(activityItem, SysCommon.ActSubTypes.TicketFinished);
+                var activityDetail = ActDetailFacade.GetActDetail(
+                    activityItem,
+                    SysCommon.ActSubTypes.TicketFinished);
                 activityDetail.ActItem = activityItem;
 
                 await this.TicketFinished.RequestHeaderData();
-                var headers = await activity.GetActivityList(isSubmitBatch: false);
+                var headers = await activity.GetActivityList(false);
                 foreach (var header in headers)
                 {
                     if (header is Count countHeader)
@@ -1815,7 +1997,7 @@ namespace dMobile.View.Options
                         if (this.SysEnv.SysSettings.IsDisconnectedModeLoadDetail)
                         {
                             activityItem.ActHdr.HdrRefno = countHeader.ActivityRefno;
-                            var items = await activityItem.GetActivityItemList(isSubmitBatch: false);
+                            var items = await activityItem.GetActivityItemList(false);
                             foreach (var item in items)
                             {
                                 if (item is CountItem countItem)
@@ -1846,13 +2028,17 @@ namespace dMobile.View.Options
                 this.TicketMaterialDetail.RegisterDataAccessListenerStatusOut(this);
 
                 activity = ActivityFacade.GetActivity(SysCommon.ActSubTypes.TicketMaterial);
-                activityItem = ActItemFacade.GetActItem(activity, SysCommon.ActSubTypes.TicketMaterial);
+                activityItem = ActItemFacade.GetActItem(
+                    activity,
+                    SysCommon.ActSubTypes.TicketMaterial);
                 activityItem.ActHdr = activity;
-                activityDetail = ActDetailFacade.GetActDetail(activityItem, SysCommon.ActSubTypes.TicketMaterial);
+                activityDetail = ActDetailFacade.GetActDetail(
+                    activityItem,
+                    SysCommon.ActSubTypes.TicketMaterial);
                 activityDetail.ActItem = activityItem;
 
                 await this.TicketMaterial.RequestHeaderData();
-                headers = await activity.GetActivityList(isSubmitBatch: false);
+                headers = await activity.GetActivityList(false);
                 foreach (var header in headers)
                 {
                     if (header is Count countHeader)
@@ -1863,7 +2049,7 @@ namespace dMobile.View.Options
                         if (this.SysEnv.SysSettings.IsDisconnectedModeLoadDetail)
                         {
                             activityItem.ActHdr.HdrRefno = countHeader.ActivityRefno;
-                            var items = await activityItem.GetActivityItemList(isSubmitBatch: false);
+                            var items = await activityItem.GetActivityItemList(false);
                             foreach (var item in items)
                             {
                                 if (item is CountItem countItem)
@@ -1894,13 +2080,17 @@ namespace dMobile.View.Options
                 this.TicketByProductDetail.RegisterDataAccessListenerStatusOut(this);
 
                 activity = ActivityFacade.GetActivity(SysCommon.ActSubTypes.TicketAddProduct);
-                activityItem = ActItemFacade.GetActItem(activity, SysCommon.ActSubTypes.TicketAddProduct);
+                activityItem = ActItemFacade.GetActItem(
+                    activity,
+                    SysCommon.ActSubTypes.TicketAddProduct);
                 activityItem.ActHdr = activity;
-                activityDetail = ActDetailFacade.GetActDetail(activityItem, SysCommon.ActSubTypes.TicketAddProduct);
+                activityDetail = ActDetailFacade.GetActDetail(
+                    activityItem,
+                    SysCommon.ActSubTypes.TicketAddProduct);
                 activityDetail.ActItem = activityItem;
 
                 await this.TicketByProduct.RequestHeaderData();
-                headers = await activity.GetActivityList(isSubmitBatch: false);
+                headers = await activity.GetActivityList(false);
                 foreach (var header in headers)
                 {
                     if (header is Count countHeader)
@@ -1911,7 +2101,7 @@ namespace dMobile.View.Options
                         if (this.SysEnv.SysSettings.IsDisconnectedModeLoadDetail)
                         {
                             activityItem.ActHdr.HdrRefno = countHeader.ActivityRefno;
-                            var items = await activityItem.GetActivityItemList(isSubmitBatch: false);
+                            var items = await activityItem.GetActivityItemList(false);
                             foreach (var item in items)
                             {
                                 if (item is CountItem countItem)
@@ -1940,7 +2130,8 @@ namespace dMobile.View.Options
         /// </summary>
         private async Task RefreshDataReceiving()
         {
-            if (this.SysEnv.RefreshOpt.PurchaseOrders || this.ActSubType == SysCommon.ActSubTypes.PurgeActivityData)
+            if (this.SysEnv.RefreshOpt.PurchaseOrders ||
+                this.ActSubType == SysCommon.ActSubTypes.PurgeActivityData)
             {
                 this.Receiving.RegisterDataAccessListenerProgressOut(this);
                 this.Receiving.RegisterDataAccessListenerStatusOut(this);
@@ -1950,13 +2141,17 @@ namespace dMobile.View.Options
                 this.ReceivingDetail.RegisterDataAccessListenerStatusOut(this);
 
                 var activity = ActivityFacade.GetActivity(SysCommon.ActSubTypes.Receiving);
-                var activityItem = ActItemFacade.GetActItem(activity, SysCommon.ActSubTypes.Receiving);
+                var activityItem = ActItemFacade.GetActItem(
+                    activity,
+                    SysCommon.ActSubTypes.Receiving);
                 activityItem.ActHdr = activity;
-                var activityDetail = ActDetailFacade.GetActDetail(activityItem, SysCommon.ActSubTypes.Receiving);
+                var activityDetail = ActDetailFacade.GetActDetail(
+                    activityItem,
+                    SysCommon.ActSubTypes.Receiving);
                 activityDetail.ActItem = activityItem;
 
                 await this.Receiving.RequestHeaderData();
-                var headers = await activity.GetActivityList(isSubmitBatch: false);
+                var headers = await activity.GetActivityList(false);
                 foreach (var header in headers)
                 {
                     if (header is Count countHeader)
@@ -1967,7 +2162,7 @@ namespace dMobile.View.Options
                         if (this.SysEnv.SysSettings.IsDisconnectedModeLoadDetail)
                         {
                             activityItem.ActHdr.HdrRefno = countHeader.ActivityRefno;
-                            var items = await activityItem.GetActivityItemList(isSubmitBatch: false);
+                            var items = await activityItem.GetActivityItemList(false);
                             foreach (var item in items)
                             {
                                 if (item is CountItem countItem)
@@ -2053,40 +2248,42 @@ namespace dMobile.View.Options
 
                     var activity = ActivityFacade.GetActivity(SysCommon.ActSubTypes.Picking);
                     await this.Picking.RequestHeaderData();
-                    var headers = await activity.GetActivityList(isSubmitBatch: false);
+                    var headers = await activity.GetActivityList(false);
                     foreach (var header in headers)
                     {
-                        await Task.Run(async () =>
-                        {
-                            if (header is Picking pickingHeader)
+                        await Task.Run(
+                            async () =>
                             {
-                                await this.PickingItem.RequestItemData(
-                                    pickingHeader.ActivityFKRefno,
-                                    pickingHeader.ActivityRefno);
-
-                                if (this.SysEnv.SysSettings.IsDisconnectedModeLoadDetail)
+                                if (header is Picking pickingHeader)
                                 {
-                                    var activityItem = ActItemFacade.GetActItem(
-                                        activity,
-                                        SysCommon.ActSubTypes.Picking);
-                                    activityItem.ActHdr.HdrRefno = pickingHeader.ActivityRefno;
-                                    var items = await activityItem.GetActivityItemList(isSubmitBatch: false);
-                                    foreach (var item in items)
+                                    await this.PickingItem.RequestItemData(
+                                        pickingHeader.ActivityFKRefno,
+                                        pickingHeader.ActivityRefno);
+
+                                    if (this.SysEnv.SysSettings.IsDisconnectedModeLoadDetail)
                                     {
-                                        if (item is PickingItem pickingItem)
+                                        var activityItem = ActItemFacade.GetActItem(
+                                            activity,
+                                            SysCommon.ActSubTypes.Picking);
+                                        activityItem.ActHdr.HdrRefno = pickingHeader.ActivityRefno;
+                                        var items = await activityItem.GetActivityItemList(false);
+                                        foreach (var item in items)
                                         {
-                                            var activityDetail = ActDetailFacade.GetActDetail(
-                                                activityItem,
-                                                SysCommon.ActSubTypes.Picking);
-                                            activityDetail.ActItem.ItemRefno = pickingItem.ActivityItemRefno;
-                                            await this.PickingDetail.RequestDetailData(
-                                                pickingItem.ActivityItemFKRefno,
-                                                pickingItem.ActivityItemRefno);
+                                            if (item is PickingItem pickingItem)
+                                            {
+                                                var activityDetail = ActDetailFacade.GetActDetail(
+                                                    activityItem,
+                                                    SysCommon.ActSubTypes.Picking);
+                                                activityDetail.ActItem.ItemRefno =
+                                                    pickingItem.ActivityItemRefno;
+                                                await this.PickingDetail.RequestDetailData(
+                                                    pickingItem.ActivityItemFKRefno,
+                                                    pickingItem.ActivityItemRefno);
+                                            }
                                         }
                                     }
                                 }
-                            }
-                        });
+                            });
 
                         GC.Collect();
                         GC.WaitForPendingFinalizers();
@@ -2107,7 +2304,8 @@ namespace dMobile.View.Options
         /// </summary>
         private async Task RefreshDataTransfers()
         {
-            if (this.SysEnv.RefreshOpt.Transfers || this.ActSubType == SysCommon.ActSubTypes.PurgeActivityData)
+            if (this.SysEnv.RefreshOpt.Transfers ||
+                this.ActSubType == SysCommon.ActSubTypes.PurgeActivityData)
             {
                 this.TransferFromDetail.RegisterDataAccessListenerStatusOut(this);
                 await this.TransferFromDetail.PurgeData();
@@ -2143,13 +2341,17 @@ namespace dMobile.View.Options
                     this.TransferFromDetail.RegisterDataAccessListenerStatusOut(this);
 
                     var activity = ActivityFacade.GetActivity(SysCommon.ActSubTypes.TransferFrom);
-                    var activityItem = ActItemFacade.GetActItem(activity, SysCommon.ActSubTypes.TransferFrom);
+                    var activityItem = ActItemFacade.GetActItem(
+                        activity,
+                        SysCommon.ActSubTypes.TransferFrom);
                     activityItem.ActHdr = activity;
-                    var activityDetail = ActDetailFacade.GetActDetail(activityItem, SysCommon.ActSubTypes.TransferFrom);
+                    var activityDetail = ActDetailFacade.GetActDetail(
+                        activityItem,
+                        SysCommon.ActSubTypes.TransferFrom);
                     activityDetail.ActItem = activityItem;
 
                     await this.TransferFrom.RequestHeaderData();
-                    var headers = await activity.GetActivityList(isSubmitBatch: false);
+                    var headers = await activity.GetActivityList(false);
                     foreach (var header in headers)
                     {
                         if (header is Count countHeader)
@@ -2160,12 +2362,13 @@ namespace dMobile.View.Options
                             if (this.SysEnv.SysSettings.IsDisconnectedModeLoadDetail)
                             {
                                 activityItem.ActHdr.HdrRefno = countHeader.ActivityRefno;
-                                var items = await activityItem.GetActivityItemList(isSubmitBatch: false);
+                                var items = await activityItem.GetActivityItemList(false);
                                 foreach (var item in items)
                                 {
                                     if (item is CountItem countItem)
                                     {
-                                        activityDetail.ActItem.ItemRefno = countItem.ActivityItemRefno;
+                                        activityDetail.ActItem.ItemRefno =
+                                            countItem.ActivityItemRefno;
                                         await this.TransferFromDetail.RequestDetailData(
                                             countItem.ActivityItemFKRefno,
                                             countItem.ActivityItemRefno);
@@ -2191,13 +2394,17 @@ namespace dMobile.View.Options
                     this.TransferToDetail.RegisterDataAccessListenerStatusOut(this);
 
                     activity = ActivityFacade.GetActivity(SysCommon.ActSubTypes.TransferTo);
-                    activityItem = ActItemFacade.GetActItem(activity, SysCommon.ActSubTypes.TransferTo);
+                    activityItem = ActItemFacade.GetActItem(
+                        activity,
+                        SysCommon.ActSubTypes.TransferTo);
                     activityItem.ActHdr = activity;
-                    activityDetail = ActDetailFacade.GetActDetail(activityItem, SysCommon.ActSubTypes.TransferTo);
+                    activityDetail = ActDetailFacade.GetActDetail(
+                        activityItem,
+                        SysCommon.ActSubTypes.TransferTo);
                     activityDetail.ActItem = activityItem;
 
                     await this.TransferTo.RequestHeaderData();
-                    headers = await activity.GetActivityList(isSubmitBatch: false);
+                    headers = await activity.GetActivityList(false);
                     foreach (var header in headers)
                     {
                         if (header is Count countHeader)
@@ -2208,12 +2415,13 @@ namespace dMobile.View.Options
                             if (this.SysEnv.SysSettings.IsDisconnectedModeLoadDetail)
                             {
                                 activityItem.ActHdr.HdrRefno = countHeader.ActivityRefno;
-                                var items = await activityItem.GetActivityItemList(isSubmitBatch: false);
+                                var items = await activityItem.GetActivityItemList(false);
                                 foreach (var item in items)
                                 {
                                     if (item is CountItem countItem)
                                     {
-                                        activityDetail.ActItem.ItemRefno = countItem.ActivityItemRefno;
+                                        activityDetail.ActItem.ItemRefno =
+                                            countItem.ActivityItemRefno;
                                         await this.TransferToDetail.RequestDetailData(
                                             countItem.ActivityItemFKRefno,
                                             countItem.ActivityItemRefno);

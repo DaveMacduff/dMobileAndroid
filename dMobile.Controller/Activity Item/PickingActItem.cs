@@ -550,7 +550,7 @@ namespace dMobile.Controller.Activity_Item
             if (selectedActivityItem is PickingItem pickingItem)
             {
                 var results = await DatabaseConnection.GetInstance().
-                SqlConn.QueryAsync<tActivityItemPickingCommentModel>(
+                SqlConn.QueryAsync<ActivityItemPickingCommentModel>(
                     "SELECT * FROM tActivityItemPickingComment WHERE ActivityItemRefno = ?",
                     Convert.ToInt32(pickingItem.ActivityItemRefno));
                 if (results != null && results.Count > 0)

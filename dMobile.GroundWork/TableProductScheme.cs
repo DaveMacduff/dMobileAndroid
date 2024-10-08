@@ -13,6 +13,7 @@ namespace dMobile.GroundWork
     using System.Xml.Linq;
     using dMobile.Bedrock;
     using dMobile.Resources.Models;
+    using dMobile.Resources.Types;
     using SQLite;
 
     public class TableProductScheme : TableBase
@@ -24,27 +25,23 @@ namespace dMobile.GroundWork
           : base()
         {
             this.FullClassName = "dMobile.GroundWork.TableProductScheme";
+            this.LowerCaseName = "schemes";
+            this.ProperCaseName = "Schemes";
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <remarks></remarks>
-        /// <inheritdoc/>
         public override async Task RequestData()
         {
             try
             {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding product schemes.", true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Seeding {this.LowerCaseName}.", true);
                 var responseData = await this.SendRequest();
                 await this.Save(responseData);
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding product schemes complete.", true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Seeding {this.LowerCaseName} complete.", true);
             }
             catch (Exception ex)
             {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding product schemes failed.", true);
-
-                throw new Exception("Seeding product schemes failed.", ex);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Seeding {this.LowerCaseName} failed.", true);
+                throw new Exception($"Seeding {this.LowerCaseName} failed.", ex);
             }
         }
 
@@ -123,11 +120,11 @@ namespace dMobile.GroundWork
             {
                 rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SqlConn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tProductScheme"));
 
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"{rowsAffected} product schemes.", true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"{rowsAffected} {this.LowerCaseName}.", true);
             }
             catch (SQLiteException ex)
             {
-                throw new Exception("Database exception occurred. Product schemes status failed.", ex);
+                throw new Exception($"Database exception occurred. {this.ProperCaseName} status failed.", ex);
             }
 
             return rowsAffected;
@@ -142,275 +139,87 @@ namespace dMobile.GroundWork
         {
             try
             {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging product schemes.", true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName}.", true);
 
                 await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync("DELETE FROM tProductScheme");
 
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging product schemes failed.", true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} failed.", true);
             }
             catch (SQLiteException ex)
             {
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging product schemes failed.", true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} failed.", true);
 
-                throw new Exception("Database exception occurred. Purge product schemes failed.", ex);
+                throw new Exception($"Database exception occurred. Purge {this.LowerCaseName} failed.", ex);
             }
         }
 
-        // /// <summary>
-        //    ///
-        //    /// </summary>
-        //    /// <param name="responseData"></param>
-        //    /// <remarks></remarks>
-        /// <inheritdoc/>
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="responseData"></param>
+        /// <returns></returns>
         protected override async Task Save(string responseData)
         {
-            var errMsg = string.Empty;
-
-            await DatabaseConnection.GetInstance().SqlConn.RunInTransactionAsync(transaction =>
+            var conn = DatabaseConnection.GetInstance().SqlConn;
+            using var dataSet = new DataSet();
+            dataSet.ReadXml(SysCommon.GetXmlReader(ref responseData), XmlReadMode.Auto);
+            if (dataSet.Tables.Count > 0)
             {
-                try
+                var rows = dataSet.Tables[0].Rows;
+                if (rows.Count > 0)
                 {
-                    using var ds = new DataSet();
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received responseData.", false);
-                    ds.ReadXml(SysCommon.GetXmlReader(ref responseData), XmlReadMode.Auto);
-
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving product schemes.", false);
-
-                    if (ds.Tables.Count != 0)
+                    var schemes = new List<ProductSchemeModel>();
+                    foreach (DataRow row in rows)
                     {
-                        var progMax = Convert.ToInt32(ds.Tables["tProductScheme"].Rows.Count);
-
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty,
-                            $"Records {ds.Tables["tProductScheme"].Rows.Count}", false);
-
-                        var progValue = 0;
-                        var schemeCode = string.Empty;
-                        var isSchemeFound = false;
-
-                        this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
-
-                        foreach (DataRow drow in ds.Tables["tProductScheme"].Rows)
+                        schemes.Add(new ProductSchemeModel
                         {
-                            schemeCode = drow["ProductSchemeCode"].ToString();
-                            errMsg = "Scheme code \'" + schemeCode + "\'";
-                            isSchemeFound = false;
-                            var resultsProductScheme = transaction.Query<tProductSchemeModel>("SELECT ProductSchemeCode FROM tProductScheme WHERE ProductSchemeCode = ?", schemeCode);
-
-                            if (resultsProductScheme?.Count > 0)
-                            {
-                                isSchemeFound = true;
-
-                                if (this.SysEnv.RefreshOpt.RefreshDataChangesOnly)
-                                {
-                                    var s = new StringBuilder();
-                                    s.Append("UPDATE tProductScheme ");
-                                    s.AppendFormat(
-                                        "SET ProductSchemeIsSerialTracked = {0},",
-                                        Convert.ToBoolean(drow["ProductSchemeIsSerialTracked"]) ? 1 : 0);
-                                    s.AppendFormat(
-                                        "ProductSchemeIsProductionDateTracked = {0},",
-                                        Convert.ToBoolean(drow["ProductSchemeIsProductionDateTracked"]) ? 1 : 0);
-                                    s.AppendFormat(
-                                        "ProductSchemeIsLotTracked = {0},",
-                                        Convert.ToBoolean(drow["ProductSchemeIsLotTracked"]) ? 1 : 0);
-                                    s.AppendFormat(
-                                        "ProductSchemeIsBestBeforeDateTracked = {0},",
-                                        Convert.ToBoolean(drow["ProductSchemeIsBestBeforeDateTracked"]) ? 1 : 0);
-                                    s.AppendFormat(
-                                        "ProductSchemeIsVariantTracked = {0},",
-                                        Convert.ToBoolean(drow["ProductSchemeIsVariantTracked"]) ? 1 : 0);
-                                    s.AppendFormat(
-                                        "ProductSchemeIsLotUniqueComponent = {0},",
-                                        Convert.ToBoolean(drow["ProductSchemeIsLotUniqueComponent"]) ? 1 : 0);
-                                    s.AppendFormat(
-                                        "ProductSchemeIsProductionDateUniqueComponent = {0},",
-                                        Convert.ToBoolean(drow["ProductSchemeIsProductionDateUniqueComponent"]) ? 1 : 0);
-                                    s.AppendFormat(
-                                        "ProductSchemeIsBestBeforeDateUniqueComponent = {0},",
-                                        Convert.ToBoolean(drow["ProductSchemeIsBestBeforeDateUniqueComponent"]) ? 1 : 0);
-                                    s.AppendFormat(
-                                        "ProductSchemeIsVariantUniqueComponent = {0},",
-                                        Convert.ToBoolean(drow["ProductSchemeIsVariantUniqueComponent"]) ? 1 : 0);
-                                    s.AppendFormat(
-                                        "ProductSchemeExtra1Type = {0},",
-                                        Convert.ToInt32(drow["ProductSchemeExtra1Type"]));
-                                    s.AppendFormat(
-                                        "ProductSchemeExtra2Type = {0},",
-                                        Convert.ToInt32(drow["ProductSchemeExtra2Type"]));
-                                    s.AppendFormat(
-                                        "ProductSchemeExtra3Type = {0},",
-                                        Convert.ToInt32(drow["ProductSchemeExtra3Type"]));
-                                    s.AppendFormat(
-                                        "ProductSchemeExtra4Type = {0},",
-                                        Convert.ToInt32(drow["ProductSchemeExtra4Type"]));
-                                    s.AppendFormat(
-                                        "ProductSchemeExtra5Type = {0},",
-                                        Convert.ToInt32(drow["ProductSchemeExtra5Type"]));
-                                    s.AppendFormat(
-                                        "ProductSchemeExtra1Caption = \'{0}\',",
-                                        Convert.ToString(drow["ProductSchemeExtra1Caption"]));
-                                    s.AppendFormat(
-                                        "ProductSchemeExtra2Caption = \'{0}\',",
-                                        Convert.ToString(drow["ProductSchemeExtra2Caption"]));
-                                    s.AppendFormat(
-                                        "ProductSchemeExtra3Caption = \'{0}\',",
-                                        Convert.ToString(drow["ProductSchemeExtra3Caption"]));
-                                    s.AppendFormat(
-                                        "ProductSchemeExtra4Caption = \'{0}\',",
-                                        Convert.ToString(drow["ProductSchemeExtra4Caption"]));
-                                    s.AppendFormat(
-                                        "ProductSchemeExtra5Caption = \'{0}\',",
-                                        Convert.ToString(drow["ProductSchemeExtra5Caption"]));
-                                    s.AppendFormat(
-                                        "ProductSchemeExtra1IsRequired = {0},",
-                                        Convert.ToBoolean(drow["ProductSchemeExtra1IsRequired"]) ? 1 : 0);
-                                    s.AppendFormat(
-                                        "ProductSchemeExtra2IsRequired = {0},",
-                                        Convert.ToBoolean(drow["ProductSchemeExtra2IsRequired"]) ? 1 : 0);
-                                    s.AppendFormat(
-                                        "ProductSchemeExtra3IsRequired = {0},",
-                                        Convert.ToBoolean(drow["ProductSchemeExtra3IsRequired"]) ? 1 : 0);
-                                    s.AppendFormat(
-                                        "ProductSchemeExtra4IsRequired = {0},",
-                                        Convert.ToBoolean(drow["ProductSchemeExtra4IsRequired"]) ? 1 : 0);
-                                    s.AppendFormat(
-                                        "ProductSchemeExtra5IsRequired = {0},",
-                                        Convert.ToBoolean(drow["ProductSchemeExtra5IsRequired"]) ? 1 : 0);
-                                    s.AppendFormat(
-                                        "ProductSchemeIsLotTrackedDefault = {0},",
-                                        Convert.ToBoolean(drow["ProductSchemeIsLotTrackedDefault"]) ? 1 : 0);
-                                    s.AppendFormat(
-                                        "ProductSchemeIsProductionDateTrackedDefault = {0},",
-                                        Convert.ToBoolean(drow["ProductSchemeIsProductionDateTrackedDefault"]) ? 1 : 0);
-                                    s.AppendFormat(
-                                        "ProductSchemeIsBestBeforeDateTrackedDefault = {0} ",
-                                        Convert.ToBoolean(drow["ProductSchemeIsBestBeforeDateTrackedDefault"]) ? 1 : 0);
-                                    s.AppendFormat("WHERE ProductSchemeCode = \'{0}\'", schemeCode);
-
-                                    transaction.Execute(s.ToString());
-                                }
-                            }
-
-                            if (!isSchemeFound)
-                            {
-                                var queryInsert = "INSERT INTO tProductScheme " +
-                                                  "(ProductSchemeCode, " +
-                                                  "ProductSchemeIsSerialTracked, " +
-                                                  "ProductSchemeIsProductionDateTracked, " +
-                                                  "ProductSchemeIsLotTracked, " +
-                                                  "ProductSchemeIsBestBeforeDateTracked, " +
-                                                  "ProductSchemeIsVariantTracked, " +
-                                                  "ProductSchemeIsLotUniqueComponent, " +
-                                                  "ProductSchemeIsProductionDateUniqueComponent, " +
-                                                  "ProductSchemeIsBestBeforeDateUniqueComponent, " +
-                                                  "ProductSchemeIsVariantUniqueComponent, " +
-                                                  "ProductSchemeExtra1Type, " +
-                                                  "ProductSchemeExtra2Type, " +
-                                                  "ProductSchemeExtra3Type, " +
-                                                  "ProductSchemeExtra4Type, " +
-                                                  "ProductSchemeExtra5Type, " +
-                                                  "ProductSchemeExtra1Caption, " +
-                                                  "ProductSchemeExtra2Caption, " +
-                                                  "ProductSchemeExtra3Caption, " +
-                                                  "ProductSchemeExtra4Caption, " +
-                                                  "ProductSchemeExtra5Caption, " +
-                                                  "ProductSchemeExtra1IsRequired, " +
-                                                  "ProductSchemeExtra2IsRequired, " +
-                                                  "ProductSchemeExtra3IsRequired, " +
-                                                  "ProductSchemeExtra4IsRequired, " +
-                                                  "ProductSchemeExtra5IsRequired," +
-                                                  "ProductSchemeIsLotTrackedDefault, " +
-                                                  "ProductSchemeIsProductionDateTrackedDefault, " +
-                                                  "ProductSchemeIsBestBeforeDateTrackedDefault) " +
-                                                  "VALUES " +
-                                                  "(?, " +
-                                                  "?, " +
-                                                  "?, " +
-                                                  "?, " +
-                                                  "?, " +
-                                                  "?, " +
-                                                  "?, " +
-                                                  "?, " +
-                                                  "?, " +
-                                                  "?, " +
-                                                  "?, " +
-                                                  "?, " +
-                                                  "?, " +
-                                                  "?, " +
-                                                  "?, " +
-                                                  "?, " +
-                                                  "?, " +
-                                                  "?, " +
-                                                  "?, " +
-                                                  "?, " +
-                                                  "?, " +
-                                                  "?, " +
-                                                  "?, " +
-                                                  "?, " +
-                                                  "?, " +
-                                                  "?, " +
-                                                  "?, " +
-                                                  "?)";
-                                var parametersInsert = new object[]
-                                {
-                                        schemeCode,
-                                        Convert.ToBoolean(drow["ProductSchemeIsSerialTracked"]),
-                                        Convert.ToBoolean(drow["ProductSchemeIsProductionDateTracked"]),
-                                        Convert.ToBoolean(drow["ProductSchemeIsLotTracked"]),
-                                        Convert.ToBoolean(drow["ProductSchemeIsBestBeforeDateTracked"]),
-                                        Convert.ToBoolean(drow["ProductSchemeIsVariantTracked"]),
-                                        Convert.ToBoolean(drow["ProductSchemeIsLotUniqueComponent"]),
-                                        Convert.ToBoolean(drow["ProductSchemeIsProductionDateUniqueComponent"]),
-                                        Convert.ToBoolean(drow["ProductSchemeIsBestBeforeDateUniqueComponent"]),
-                                        Convert.ToBoolean(drow["ProductSchemeIsVariantUniqueComponent"]),
-                                        Convert.ToInt32(drow["ProductSchemeExtra1Type"]),
-                                        Convert.ToInt32(drow["ProductSchemeExtra2Type"]),
-                                        Convert.ToInt32(drow["ProductSchemeExtra3Type"]),
-                                        Convert.ToInt32(drow["ProductSchemeExtra4Type"]),
-                                        Convert.ToInt32(drow["ProductSchemeExtra5Type"]),
-                                        Convert.ToString(drow["ProductSchemeExtra1Caption"]),
-                                        Convert.ToString(drow["ProductSchemeExtra2Caption"]),
-                                        Convert.ToString(drow["ProductSchemeExtra3Caption"]),
-                                        Convert.ToString(drow["ProductSchemeExtra4Caption"]),
-                                        Convert.ToString(drow["ProductSchemeExtra5Caption"]),
-                                        Convert.ToBoolean(drow["ProductSchemeExtra1IsRequired"]),
-                                        Convert.ToBoolean(drow["ProductSchemeExtra2IsRequired"]),
-                                        Convert.ToBoolean(drow["ProductSchemeExtra3IsRequired"]),
-                                        Convert.ToBoolean(drow["ProductSchemeExtra4IsRequired"]),
-                                        Convert.ToBoolean(drow["ProductSchemeExtra5IsRequired"]),
-                                        Convert.ToBoolean(drow["ProductSchemeIsLotTrackedDefault"]),
-                                        Convert.ToBoolean(drow["ProductSchemeIsProductionDateTrackedDefault"]),
-                                        Convert.ToBoolean(drow["ProductSchemeIsBestBeforeDateTrackedDefault"]),
-                                };
-
-                                transaction.Execute(queryInsert, parametersInsert);
-                            }
-
-                            progValue++;
-                            if (progValue % 100 == 0)
-                            {
-                                this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue, 0, progMax);
-                            }
-
-                            this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
-                        }
+                            ProductSchemeCode = row["ProductSchemeCode"].ToString(),
+                            ProductSchemeIsSerialTracked = Convert.ToBoolean(row["ProductSchemeIsSerialTracked"]),
+                            ProductSchemeIsProductionDateTracked = Convert.ToBoolean(row["ProductSchemeIsProductionDateTracked"]),
+                            ProductSchemeIsLotTracked = Convert.ToBoolean(row["ProductSchemeIsLotTracked"]),
+                            ProductSchemeIsBestBeforeDateTracked = Convert.ToBoolean(row["ProductSchemeIsBestBeforeDateTracked"]),
+                            ProductSchemeIsVariantTracked = Convert.ToBoolean(row["ProductSchemeIsVariantTracked"]),
+                            ProductSchemeIsLotUniqueComponent = Convert.ToBoolean(row["ProductSchemeIsLotUniqueComponent"]),
+                            ProductSchemeIsProductionDateUniqueComponent = Convert.ToBoolean(row["ProductSchemeIsProductionDateUniqueComponent"]),
+                            ProductSchemeIsBestBeforeDateUniqueComponent = Convert.ToBoolean(row["ProductSchemeIsBestBeforeDateUniqueComponent"]),
+                            ProductSchemeIsVariantUniqueComponent = Convert.ToBoolean(row["ProductSchemeIsVariantUniqueComponent"]),
+                            ProductSchemeExtra1Type = Convert.ToInt32(row["ProductSchemeExtra1Type"]),
+                            ProductSchemeExtra2Type = Convert.ToInt32(row["ProductSchemeExtra2Type"]),
+                            ProductSchemeExtra3Type = Convert.ToInt32(row["ProductSchemeExtra3Type"]),
+                            ProductSchemeExtra4Type = Convert.ToInt32(row["ProductSchemeExtra4Type"]),
+                            ProductSchemeExtra5Type = Convert.ToInt32(row["ProductSchemeExtra5Type"]),
+                            ProductSchemeExtra1Caption = row["ProductSchemeExtra1Caption"].ToString(),
+                            ProductSchemeExtra2Caption = row["ProductSchemeExtra2Caption"].ToString(),
+                            ProductSchemeExtra3Caption = row["ProductSchemeExtra3Caption"].ToString(),
+                            ProductSchemeExtra4Caption = row["ProductSchemeExtra4Caption"].ToString(),
+                            ProductSchemeExtra5Caption = row["ProductSchemeExtra5Caption"].ToString(),
+                            ProductSchemeExtra1IsRequired = Convert.ToBoolean(row["ProductSchemeExtra1IsRequired"]),
+                            ProductSchemeExtra2IsRequired = Convert.ToBoolean(row["ProductSchemeExtra2IsRequired"]),
+                            ProductSchemeExtra3IsRequired = Convert.ToBoolean(row["ProductSchemeExtra3IsRequired"]),
+                            ProductSchemeExtra4IsRequired = Convert.ToBoolean(row["ProductSchemeExtra4IsRequired"]),
+                            ProductSchemeExtra5IsRequired = Convert.ToBoolean(row["ProductSchemeExtra5IsRequired"]),
+                            ProductSchemeIsLotTrackedDefault = Convert.ToBoolean(row["ProductSchemeIsLotTrackedDefault"]),
+                            ProductSchemeIsProductionDateTrackedDefault = Convert.ToBoolean(row["ProductSchemeIsProductionDateTrackedDefault"]),
+                            ProductSchemeIsBestBeforeDateTrackedDefault = Convert.ToBoolean(row["ProductSchemeIsBestBeforeDateTrackedDefault"])
+                        });
                     }
 
-                    transaction.Commit();
-
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving product schemes complete.", false);
+                    await conn.InsertAllAsync(schemes);
+                    this.DataAccessStatusOutHandler(
+                        this,
+                        EventArgs.Empty,
+                        $"{schemes.Count} {this.LowerCaseName}.", true);
                 }
-                catch (SQLiteException ex)
-                {
-                    transaction.Rollback();
-
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving product schemes failed.", false);
-
-                    throw new Exception("Database exception occurred. Saving product schemes failed." + Environment.NewLine + errMsg, ex);
-                }
-            });
+            }
+            else
+            {
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    $"No {this.LowerCaseName} to save.",
+                    true);
+            }
         }
 
         /// <summary>

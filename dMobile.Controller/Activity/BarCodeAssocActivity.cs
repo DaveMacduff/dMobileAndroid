@@ -168,7 +168,7 @@ namespace dMobile.Controller.Activity
         /// </summary>
         /// <param name="selectedActivity">The selectedActivity<see cref="object"/>.</param>
         /// <returns>The <see cref="Task"/>.</returns>
-        public override async Task SelectActivity(object selectedActivity)
+        public override Task SelectActivity(object selectedActivity)
         {
             if (selectedActivity is BarcodeAssociation barcodeAssociation)
             {
@@ -176,6 +176,8 @@ namespace dMobile.Controller.Activity
                 this.HdrFkRefno = barcodeAssociation.ActivityRefno;
                 this.HdrRefno = barcodeAssociation.ActivityRefno;
             }
+
+            return Task.CompletedTask;
         }
 
         /// <summary>

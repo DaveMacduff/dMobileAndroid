@@ -163,9 +163,9 @@ namespace dMobile.View.Activity
         ///     Check if the activity item is ready to close.
         /// </summary>
         /// <returns><see cref="bool" /> True if the activity item is ready to close, else false.</returns>
-        public async Task<bool> IsReadyToClose()
+        public Task<bool> IsReadyToClose()
         {
-            return true;
+            return Task.FromResult(true);
         }
 
         /// <summary>
@@ -210,7 +210,7 @@ namespace dMobile.View.Activity
         ///     Get the activity item return XDocument information.
         /// </summary>
         /// <returns><see cref="XDocument" /> Activity item return information.</returns>
-        public async Task<XDocument> GetXml()
+        public Task<XDocument> GetXml()
         {
             XDocument xmlDoc;
             if (this.SkidInfo.CurrSkid.SkidFkRefno == 0)
@@ -261,7 +261,7 @@ namespace dMobile.View.Activity
                     + "</params>");
             }
 
-            return xmlDoc;
+            return Task.FromResult(xmlDoc);
         }
 
         /// <summary>

@@ -13,7 +13,7 @@ namespace dMobile.Resources.Models
     {
         [PrimaryKey]
         [NotNull]
-        [ForeignKey(typeof(tActivityDetailModel))]
+        [ForeignKey(typeof(ActivityDetailModel))]
         public int ActivityDetailRefno { get; set; }
 
         [NotNull]

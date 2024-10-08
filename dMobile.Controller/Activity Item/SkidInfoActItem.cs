@@ -167,7 +167,7 @@ namespace dMobile.Controller.Activity_Item
         /// <param name="data"><see cref="XDocument"/> Adjustment activity information to insert.</param>
 
         /// <returns><see cref="Task"/> Task operation.</returns>
-        public override async Task Insert(XDocument data)
+        public override Task Insert(XDocument data)
         {
             throw new NotImplementedException();
         }
@@ -176,14 +176,14 @@ namespace dMobile.Controller.Activity_Item
         /// The Delete.
         /// </summary>
         /// <returns>The <see cref="int"/>.</returns>
-        public override async Task<int> Delete()
+        public override Task<int> Delete()
         {
             if (this.ListItems != null && this.ListItems.Count > 1)
             {
                 this.ListItems.RemoveRange(1, this.ListItems.Count - 1);
             }
 
-            return 0;
+            return Task.FromResult(0);
         }
 
         /// <summary>
@@ -221,7 +221,7 @@ namespace dMobile.Controller.Activity_Item
         /// </summary>
         /// <param name="selectedActivityItem">The selectedActivityItem<see cref="object"/>.</param>
         /// <returns><see cref="Task{T}"/> Activity item foreign key reference number.</returns>
-        public override async Task<int> AssignActivityItem(object activityItem)
+        public override Task<int> AssignActivityItem(object activityItem)
         {
             throw new NotImplementedException();
         }

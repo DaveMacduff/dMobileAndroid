@@ -206,7 +206,7 @@ namespace dMobile.GroundWork
             {
                 int actPickFkRefno;
                 var conn = DatabaseConnection.GetInstance().SqlConn;
-                var results = await conn.QueryAsync<tActivityPickingModel>(
+                var results = await conn.QueryAsync<ActivityPickingModel>(
                     "SELECT * FROM tActivityPicking WHERE ActivityFKRefno = ?",
                     activityFkRefno);
                 if (results?.Count > 0)

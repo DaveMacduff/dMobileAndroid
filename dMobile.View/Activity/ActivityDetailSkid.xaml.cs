@@ -382,7 +382,7 @@ namespace dMobile.View.Activity
         ///     Get the activity item return XDocument information.
         /// </summary>
         /// <returns><see cref="XDocument" /> Activity item return information.</returns>
-        public async Task<XDocument> GetXml()
+        public Task<XDocument> GetXml()
         {
             var fillQty = this.GetActivityItemQuantity();
 
@@ -394,7 +394,7 @@ namespace dMobile.View.Activity
                 + "<wt_qty>" + fillQty.WeightQuantity + "</wt_qty>"
                 + "</params>");
 
-            return xmldocParams;
+            return Task.FromResult(xmldocParams);
         }
 
         /// <summary>

@@ -152,7 +152,7 @@ namespace dMobile.Controller.Activity_Detail
         /// </summary>
         /// <param name="data">.</param>
         /// <returns>The <see cref="Task" />.</returns>
-        public override async Task Insert(XDocument data)
+        public override Task Insert(XDocument data)
         {
             throw new NotImplementedException();
         }
@@ -161,7 +161,7 @@ namespace dMobile.Controller.Activity_Detail
         ///     The Delete.
         /// </summary>
         /// <returns>The <see cref="int" />.</returns>
-        public override async Task<int> Delete()
+        public override Task<int> Delete()
         {
             throw new NotImplementedException();
         }
@@ -232,7 +232,7 @@ namespace dMobile.Controller.Activity_Detail
         /// </summary>
         /// <param name="isSubmitBatch">.</param>
         /// <returns>.</returns>
-        public override async Task<List<object>> GetActivityDetailList(bool isSubmitBatch)
+        public override Task<List<object>> GetActivityDetailList(bool isSubmitBatch)
         {
             var table = new DataTable("ActivityMoveDetail");
             table.Columns.Add(
@@ -290,7 +290,7 @@ namespace dMobile.Controller.Activity_Detail
 
             this.ListMoveInventoryDetails = table.Rows.Cast<MoveDetail>().ToList();
             this.ListDetails = this.ListMoveInventoryDetails.Cast<object>().ToList();
-            return this.ListDetails;
+            return Task.FromResult(this.ListDetails);
         }
 
         /// <summary>
@@ -495,7 +495,7 @@ namespace dMobile.Controller.Activity_Detail
         /// </summary>
         /// <param name="data">.</param>
         /// <returns>.</returns>
-        public override async Task<string> CreateDeleteXml(XDocument data)
+        public override Task<string> CreateDeleteXml(XDocument data)
         {
             throw new NotImplementedException();
         }

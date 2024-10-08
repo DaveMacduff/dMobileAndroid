@@ -532,7 +532,7 @@ namespace dMobile.Controller.Activity_Item
 
             if (selectedActivityItem is PickingItem pickingItem)
             {
-                var results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<tActivityItemPickingCommentModel>("SELECT * FROM tActivityItemPickingComment WHERE ActivityItemRefno = ?", pickingItem.ActivityItemRefno);
+                var results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<ActivityItemPickingCommentModel>("SELECT * FROM tActivityItemPickingComment WHERE ActivityItemRefno = ?", pickingItem.ActivityItemRefno);
 
                 if (results != null && results.Count > 0)
                 {
@@ -578,7 +578,7 @@ namespace dMobile.Controller.Activity_Item
         /// <param name="data"><see cref="XDocument"/> Adjustment activity information to insert.</param>
 
         /// <returns><see cref="Task"/> Task operation.</returns>
-        public override async Task Insert(XDocument data)
+        public override Task Insert(XDocument data)
         {
             throw new NotImplementedException();
         }
@@ -1144,10 +1144,10 @@ namespace dMobile.Controller.Activity_Item
         /// </summary>
         /// <param name="prodUnitRefno"><see cref="int"/> Product unit reference number.</param>
         /// <returns><see cref="int"/> Found activity item refno else 0.</returns>
-        public override async Task<int> GetActivityItemRefno(int prodUnitRefno, SLocMap locMap)
+        public override Task<int> GetActivityItemRefno(int prodUnitRefno, SLocMap locMap)
         {
             var foundActItemRefno = this.ItemRefno;
-            return foundActItemRefno;
+            return Task.FromResult(foundActItemRefno);
         }
 
         /// <summary>
@@ -1295,7 +1295,7 @@ namespace dMobile.Controller.Activity_Item
         /// The Delete.
         /// </summary>
         /// <returns>The <see cref="int"/>.</returns>
-        public override async Task<int> Delete()
+        public override Task<int> Delete()
         {
             throw new NotImplementedException();
         }

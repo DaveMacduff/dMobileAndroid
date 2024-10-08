@@ -106,16 +106,18 @@ namespace dMobile.View.Activity
         ///     Unregister the bar code scan event handler and disable the scanner.
         /// </summary>
         /// <remarks></remarks>
-        public async Task ScannerDisable()
+        public Task ScannerDisable()
         {
+            return Task.CompletedTask;
         }
 
         /// <summary>
         ///     Registers the bar code scan event handler and enables the scanner.
         /// </summary>
         /// <remarks></remarks>
-        public async Task ScannerEnable()
+        public Task ScannerEnable()
         {
+            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -123,7 +125,7 @@ namespace dMobile.View.Activity
         /// <returns></returns>
         /// <remarks></remarks>
         /// <inheritdoc />
-        public async Task<bool> IsReadyToSave()
+        public Task<bool> IsReadyToSave()
         {
             var IsReadyToSave = true;
 
@@ -135,7 +137,7 @@ namespace dMobile.View.Activity
                 IsReadyToSave = false;
             }
 
-            return IsReadyToSave;
+            return Task.FromResult(IsReadyToSave);
         }
 
         /// <summary>
@@ -143,9 +145,9 @@ namespace dMobile.View.Activity
         /// <returns></returns>
         /// <remarks></remarks>
         /// <inheritdoc />
-        public async Task<bool> IsReadyToClose()
+        public Task<bool> IsReadyToClose()
         {
-            return !this.bChangesMade;
+            return Task.FromResult(!this.bChangesMade);
         }
 
         /// <summary>
@@ -243,7 +245,7 @@ namespace dMobile.View.Activity
         /// <returns></returns>
         /// <remarks></remarks>
         /// <inheritdoc />
-        public async Task<XDocument> GetXml()
+        public Task<XDocument> GetXml()
         {
             var request = XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" +
                                           "<params>" +
@@ -254,7 +256,7 @@ namespace dMobile.View.Activity
                                           "<sortby>" + this.strSQLSortBy + "</sortby>" +
                                           "</params>");
 
-            return request;
+            return Task.FromResult(request);
         }
 
         /// <summary>

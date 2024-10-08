@@ -319,7 +319,7 @@ namespace dMobile.Controller.Activity_Item
 
             if (selectedActivityItem is ReceiveItem receiveItem)
             {
-                var results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<tActivityItemReceivingCommentModel>(
+                var results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<ActivityItemReceivingCommentModel>(
                     "SELECT * FROM tActivityItemReceivingComment WHERE ActivityItemRefno = ?",
                     receiveItem.ActivityItemRefno);
 
@@ -412,7 +412,7 @@ namespace dMobile.Controller.Activity_Item
         /// <param name="data"><see cref="XDocument"/> Adjustment activity information to insert.</param>
 
         /// <returns><see cref="Task"/> Task operation.</returns>
-        public override async Task Insert(XDocument data)
+        public override Task Insert(XDocument data)
         {
             throw new NotImplementedException();
         }

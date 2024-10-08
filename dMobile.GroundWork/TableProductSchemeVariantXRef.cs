@@ -13,6 +13,7 @@ namespace dMobile.GroundWork
     using System.Xml.Linq;
     using dMobile.Bedrock;
     using dMobile.Resources.Models;
+    using dMobile.Resources.Types;
     using SQLite;
 
     /// <summary>
@@ -27,6 +28,8 @@ namespace dMobile.GroundWork
       : base()
         {
             this.FullClassName = "dMobile.GroundWork.TableProductSchemeVariantXRef";
+            this.LowerCaseName = "scheme variant xrefs";
+            this.ProperCaseName = "Scheme Variant XRefs";
         }
 
         /// <summary>
@@ -36,16 +39,15 @@ namespace dMobile.GroundWork
         {
             try
             {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding product scheme variant xref.", true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Seeding {this.LowerCaseName}.", true);
                 var responseData = await this.SendRequest();
                 await this.Save(responseData);
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding product scheme variant xref complete.", true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Seeding {this.LowerCaseName} complete.", true);
             }
             catch (Exception ex)
             {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding product scheme variant xref failed.", true);
-
-                throw new Exception("Seeding product scheme variant xref failed.", ex);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Seeding {this.LowerCaseName} failed.", true);
+                throw new Exception($"Seeding {this.LowerCaseName} failed.", ex);
             }
         }
 
@@ -97,106 +99,58 @@ namespace dMobile.GroundWork
         /// <param name="responseData"></param>
         protected override async Task Save(string responseData)
         {
-            var errMsg = string.Empty;
-
-            await DatabaseConnection.GetInstance().SqlConn.RunInTransactionAsync(transaction =>
+            ////select distinct cast(iv_grade.scheme as varchar(10)) as ProductSchemeCode, ;
+            ////cast(iv_grade.variant_no as integer) as ProductSchemeVariantNo;
+            var conn = DatabaseConnection.GetInstance().SqlConn;
+            using var dataSet = new DataSet();
+            dataSet.ReadXml(SysCommon.GetXmlReader(ref responseData), XmlReadMode.Auto);
+            if (dataSet.Tables.Count > 0)
             {
-                try
+                var rows = dataSet.Tables[0].Rows;
+                if (rows.Count > 0)
                 {
-                    using var ds = new DataSet();
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received responseData.", false);
-
-                    ds.ReadXml(SysCommon.GetXmlReader(ref responseData), XmlReadMode.Auto);
-
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving product scheme variant xrefs.", false);
-
-                    if (ds.Tables.Count != 0)
+                    var variantXRefs = new List<Seg>();
+                    foreach (DataRow row in rows)
                     {
-                        var progMax = Convert.ToInt32(ds.Tables["tProductSchemeVariantXRef"].Rows.Count);
-
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Records {progMax}", false);
-
-                        var schemeRefno = 0;
-                        var schemeVarRefno = 0;
-                        var progValue = 0;
-                        var isSchemeVarXRef = false;
-                        var schemeCode = string.Empty;
-                        var schemeVariantNo = 0;
-
-                        this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
-
-                        foreach (DataRow drow in ds.Tables["tProductSchemeVariantXRef"].Rows)
+                        variantXRefs.Add(new Seg
                         {
-                            schemeCode = drow["ProductSchemeCode"].ToString();
-                            errMsg = "Code \'" + schemeCode + "\'";
-
-                            var resultsProductScheme = transaction.Query<tProductSchemeModel>("SELECT * FROM tProductScheme WHERE ProductSchemeCode = ?", schemeCode);
-
-                            if (resultsProductScheme?.Count > 0)
-                            {
-                                schemeRefno = resultsProductScheme[0].ProductSchemeRefno;
-                            }
-                            else
-                            {
-                                throw new Exception("drScheme.Read() failed." + Environment.NewLine + errMsg);
-                            }
-
-                            schemeVariantNo = Convert.ToInt32(drow["ProductSchemeVariantNo"]);
-                            errMsg += Environment.NewLine + "Variant no " + schemeVariantNo;
-
-                            var resultsProductSchemeVariant = transaction.Query<tProductSchemeVariantModel>("SELECT * FROM tProductSchemeVariant WHERE ProductSchemeVariantNo = ?", schemeVariantNo);
-
-                            if (resultsProductSchemeVariant?.Count > 0)
-                            {
-                                schemeVarRefno = resultsProductSchemeVariant[0].ProductSchemeVariantRefno;
-                            }
-                            else
-                            {
-                                throw new Exception("drSchemeVar.Read() failed." + Environment.NewLine + errMsg);
-                            }
-
-                            isSchemeVarXRef = false;
-
-                            if (this.SysEnv.RefreshOpt.RefreshDataChangesOnly)
-                            {
-                                var resultsProductSchemeVariantXRef = transaction.Query<tProductSchemeVariantXRefModel>("SELECT * FROM tProductSchemeVariantXRef WHERE ProductSchemeRefno = ? AND ProductSchemeVariantRefno = ?", schemeRefno, schemeVarRefno);
-
-                                if (resultsProductSchemeVariantXRef?.Count > 0)
-                                {
-                                    isSchemeVarXRef = true;
-                                }
-                            }
-
-                            if (!isSchemeVarXRef)
-                            {
-                                transaction.Execute("INSERT INTO tProductSchemeVariantXRef (ProductSchemeRefno, ProductSchemeVariantRefno) VALUES (?, ?)", schemeRefno, schemeVarRefno);
-                            }
-
-                            progValue++;
-
-                            if (progValue % 100 == 0)
-                            {
-                                this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue, 0, progMax);
-                            }
-                        }
-
-                        this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax, 0, progMax);
+                            ProductSchemeCode = row["ProductSchemeCode"].ToString(),
+                            ProductSchemeVariantNo = Convert.ToInt32(row["ProductSchemeVariantNo"]),
+                        });
                     }
 
-                    transaction.Commit();
+                    var query = "CREATE TEMP TABLE Seg " +
+                        "(" +
+                        "ProductSchemeCode VARCHAR(10)" +
+                        ",ProductSchemeVariantNo INTEGER" +
+                        ")";
+                    await conn.ExecuteAsync(query);
+                    await conn.InsertAllAsync(variantXRefs);
 
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving product scheme variant xref complete.", false);
+                    query = "INSERT INTO tProductSchemeVariantXRef (" +
+                        "ProductSchemeRefno" +
+                        ",ProductSchemeVariantRefno" +
+                        ") SELECT scheme.ProductSchemeRefno" +
+                        ",schemeVar.ProductSchemeVariantRefno " +
+                        "FROM Seg " +
+                        "JOIN tProductScheme scheme ON scheme.ProductSchemeCode = Seg.ProductSchemeCode " +
+                        "JOIN tProductSchemeVariant schemeVar ON schemeVar.ProductSchemeVariantNo = Seg.ProductSchemeVariantNo";
+                    var rowsAffected = await conn.ExecuteAsync(query);
+                    if (variantXRefs.Count != rowsAffected)
+                    {
+                        throw new Exception("Failed to insert all rows into tLocationMapSlot");
+                    }
+
+                    // Drop the temporary table
+                    const string dropTempTableQuery = "DROP TABLE IF EXISTS Seg";
+                    await conn.ExecuteAsync(dropTempTableQuery);
+
+                    this.DataAccessStatusOutHandler(
+                        this,
+                        EventArgs.Empty,
+                        $"{variantXRefs.Count} {this.LowerCaseName}.", true);
                 }
-                catch (SQLiteException ex)
-                {
-                    transaction.Rollback();
-
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving product scheme variant xref failed.", false);
-
-                    throw new Exception("Database exception occurred. Saving product scheme variant xref failed." + Environment.NewLine + errMsg, ex);
-                }
-            });
+            }
         }
 
         /// <summary>
@@ -277,6 +231,16 @@ namespace dMobile.GroundWork
         protected override Task<string> CreateRequestProdLoc(int prodLocMapType)
         {
             throw new NotImplementedException();
+        }
+
+        /// <summary>
+        ///     Class to hold the data for the temporary table.
+        /// </summary>
+        private class Seg
+        {
+            public string ProductSchemeCode { get; set; }
+
+            public int ProductSchemeVariantNo { get; set; }
         }
     }
 }

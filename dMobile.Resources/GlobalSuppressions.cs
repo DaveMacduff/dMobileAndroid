@@ -5,4 +5,4 @@
 
 using System.Diagnostics.CodeAnalysis;
 
-[assembly: SuppressMessage("StyleCop.CSharp.NamingRules", "SA1300:Element should begin with upper-case letter", Justification = "<Pending>", Scope = "type", Target = "~T:dMobile.Resources.Models.tActivityDetailTransferModel")]
+[assembly: SuppressMessage("StyleCop.CSharp.NamingRules", "SA1300:Element should begin with upper-case letter", Justification = "<Pending>", Scope = "type", Target = "~T:dMobile.Resources.Models.ActivityDetailTransferModel")]

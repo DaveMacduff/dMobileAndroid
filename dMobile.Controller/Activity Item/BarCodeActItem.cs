@@ -144,7 +144,7 @@ namespace dMobile.Controller.Activity_Item
             var queryProdUnitBarcode = "SELECT ProductUnitRefno, ProductUnitBarCodeRefno FROM tProductUnitBarCode" +
                                        " WHERE ProductUnitBarCodeCode = ? AND ProductUnitBarCodeModifier1 = ?";
             var prodUnitBarcodeResults = await DatabaseConnection.GetInstance().SqlConn.
-                QueryAsync<tProductUnitBarCodeModel>(queryProdUnitBarcode, prodIdentifier, data.Root.Element("ProductUnitBarCodeModifier1").Value);
+                QueryAsync<ProductUnitBarCodeModel>(queryProdUnitBarcode, prodIdentifier, data.Root.Element("ProductUnitBarCodeModifier1").Value);
 
             if (prodUnitBarcodeResults != null && prodUnitBarcodeResults.Count > 0)
             {
@@ -519,7 +519,7 @@ namespace dMobile.Controller.Activity_Item
         /// The Delete.
         /// </summary>
         /// <returns>The <see cref="int"/>.</returns>
-        public override async Task<int> Delete()
+        public override Task<int> Delete()
         {
             throw new NotImplementedException();
         }

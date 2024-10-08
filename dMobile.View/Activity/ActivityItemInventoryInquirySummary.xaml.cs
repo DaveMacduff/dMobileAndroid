@@ -168,23 +168,23 @@ namespace dMobile.View.Activity
         /// The GetXml.
         /// </summary>
         /// <returns>.</returns>
-        public async Task<XDocument> GetXml()
+        public Task<XDocument> GetXml()
         {
             var xmldocParams = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" +
                 "<params>" +
                 "</params>");
 
-            return xmldocParams;
+            return Task.FromResult(xmldocParams);
         }
 
         /// <summary>
         /// The IsReadyToSave.
         /// </summary>
         /// <returns>.</returns>
-        public async Task<bool> IsReadyToSave()
+        public Task<bool> IsReadyToSave()
         {
-            return this.IsValidData();
+            return Task.FromResult(this.IsValidData());
         }
 
         /// <summary>
@@ -586,8 +586,9 @@ namespace dMobile.View.Activity
         /// <param name="sender">.</param>
         /// <param name="e">.</param>
         /// <returns>The <see cref="Task"/>.</returns>
-        private async Task ActItemInventoryInquiry_GotFocus(object sender, EventArgs e)
+        private Task ActItemInventoryInquiry_GotFocus(object sender, EventArgs e)
         {
+            return Task.CompletedTask;
             ////await this.ScannerEnable();
         }
 

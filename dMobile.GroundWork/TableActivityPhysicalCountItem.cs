@@ -249,7 +249,7 @@ namespace dMobile.GroundWork
                                     var locMapSlotFkRefno = Convert.ToInt32(drow["f08"]);
 
                                     var locationMapSlotResults =
-                                        transaction.Query<tLocationMapSlotModel>(
+                                        transaction.Query<LocationMapSlotModel>(
                                             "SELECT * FROM tLocationMapSlot WHERE LocationMapSlotFKRefno = ?",
                                             locMapSlotFkRefno);
 
@@ -264,7 +264,7 @@ namespace dMobile.GroundWork
                                         locMapSectFkRefno = Convert.ToInt32(drow["f07"]);
 
                                         var locationMapSectionResults =
-                                            transaction.Query<tLocationMapSectionModel>(
+                                            transaction.Query<LocationMapSectionModel>(
                                                 "SELECT * FROM tLocationMapSection WHERE LocationMapSectionFKRefno = ?",
                                                 locMapSectFkRefno);
 
@@ -281,7 +281,7 @@ namespace dMobile.GroundWork
                                         locMapWhsFkRefno = Convert.ToInt32(drow["f06"]);
 
                                         var locationMapWarehouseResults =
-                                            transaction.Query<tLocationMapWarehouseModel>(
+                                            transaction.Query<LocationMapWarehouseModel>(
                                                 "SELECT * FROM tLocationMapWarehouse WHERE LocationMapWarehouseFKRefno = ?",
                                                 locMapWhsFkRefno);
 

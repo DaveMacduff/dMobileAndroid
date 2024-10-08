@@ -160,7 +160,7 @@ namespace dMobile.GroundWork
                                 foreach (DataRow drow in ds.Tables["tActivityAdjustment"].Rows)
                                 {
                                     var warehouseResults =
-                                        transaction.Query<tLocationMapWarehouseModel>(
+                                        transaction.Query<LocationMapWarehouseModel>(
                                             "SELECT * FROM tLocationMapWarehouse WHERE LocationMapWarehouseFKRefno = ?",
                                             Convert.ToInt32(drow["LocationMapWarehouseFKRefno"]));
 

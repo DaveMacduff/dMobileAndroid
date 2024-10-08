@@ -169,7 +169,7 @@ namespace dMobile.GroundWork
         {
             var conn = DatabaseConnection.GetInstance().SqlConn;
             var query = "SELECT * FROM tActivityItemReceiving WHERE ActivityItemFKRefno = ?";
-            var results = await conn.QueryAsync<tActivityItemReceivingModel>(
+            var results = await conn.QueryAsync<ActivityItemReceivingModel>(
                 query,
                 activityFkRefno);
             if (results.Count <= 0)
@@ -224,7 +224,7 @@ namespace dMobile.GroundWork
                                     0,
                                     0,
                                     maxRowCount);
-                                var results = transaction.Query<tActivityItemReceivingModel>(
+                                var results = transaction.Query<ActivityItemReceivingModel>(
                                     "SELECT * FROM tActivityItemReceiving WHERE ActivityItemRefno = ?",
                                     actItemRefno);
                                 if (results == null ||

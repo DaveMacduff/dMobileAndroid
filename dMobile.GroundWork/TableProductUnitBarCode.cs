@@ -6,6 +6,7 @@ namespace dMobile.GroundWork
 {
     using System;
     using System.Collections.Generic;
+    using System.Data;
     using System.IO;
     using System.Text;
     using System.Threading.Tasks;
@@ -13,6 +14,7 @@ namespace dMobile.GroundWork
     using System.Xml.Linq;
     using dMobile.Bedrock;
     using dMobile.Resources.Models;
+    using dMobile.Resources.Types;
     using SQLite;
 
     /// <summary>
@@ -27,6 +29,8 @@ namespace dMobile.GroundWork
             : base()
         {
             this.FullClassName = "dMobile.GroundWork.TableProductUnitBarCode";
+            this.LowerCaseName = "product unit bar codes";
+            this.ProperCaseName = "Product Unit Bar Codes";
         }
 
         /// <summary>
@@ -36,36 +40,15 @@ namespace dMobile.GroundWork
         {
             try
             {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding product uom bar codes.", true);
-
-                var responseData = string.Empty;
-                var results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<tFamilyModel>("SELECT * FROM tFamily");
-
-                if (results?.Count > 0)
-                {
-                    foreach (var family in results)
-                    {
-                        this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"For family {family.FamilyCode}", true);
-
-                        responseData = await this.SendRequest(family.FamilyCode);
-                        await this.SaveOpt(responseData);
-                    }
-
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding product uom bar codes complete.", true);
-                }
-            }
-            catch (SQLiteException ex)
-            {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding product uom bar codes failed.", true);
-
-                throw new Exception("Database exception occurred. Seeding product uom bar codes failed.", ex);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Seeding {this.LowerCaseName}.", true);
+                var responseData = await this.SendRequest(string.Empty);
+                await this.SaveOpt(responseData);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Seeding {this.LowerCaseName} complete.", true);
             }
             catch (Exception ex)
             {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding product uom bar codes failed.", true);
-
-                throw new Exception("Seeding product uom bar codes failed.", ex);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Seeding {this.LowerCaseName} failed.", true);
+                throw new Exception($"Seeding {this.LowerCaseName} failed.", ex);
             }
         }
 
@@ -76,19 +59,19 @@ namespace dMobile.GroundWork
         {
             try
             {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging product uom bar codes.", true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName}.", true);
 
                 await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync("DELETE FROM tActivityItemBarCodeAssociationXRef");
                 await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync("DELETE FROM tProductUnitBarCode");
 
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging product uom bar codes complete.", true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} complete.", true);
             }
             catch (SQLiteException ex)
             {
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging product uom bar codes failed.", true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} failed.", true);
 
-                throw new Exception("Database exception occurred. Purging product uom bar codes failed.", ex);
+                throw new Exception($"Database exception occurred. Purging {this.LowerCaseName} failed.", ex);
             }
         }
 
@@ -103,11 +86,11 @@ namespace dMobile.GroundWork
             {
                 rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SqlConn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tProductUnitBarCode"));
 
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"{rowsAffected} product uom bar codes.", true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"{rowsAffected} {this.LowerCaseName}.", true);
             }
             catch (SQLiteException ex)
             {
-                throw new Exception("Database exception occurred. Product uom bar codes status failed.", ex);
+                throw new Exception($"Database exception occurred. {this.ProperCaseName} status failed.", ex);
             }
 
             return rowsAffected;
@@ -127,8 +110,9 @@ namespace dMobile.GroundWork
         /// The Save.
         /// </summary>
         /// <param name="responseData"></param>
-        protected override async Task Save(string responseData)
+        protected override Task Save(string responseData)
         {
+            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -137,217 +121,133 @@ namespace dMobile.GroundWork
         /// <param name="responseData"></param>
         protected async Task SaveOpt(string responseData)
         {
-            var errMsg = string.Empty;
-            var refreshDataChangesOnly = this.SysEnv.RefreshOpt.RefreshDataChangesOnly;
-            var unitLookup = new Dictionary<string, int>();
-
-            await DatabaseConnection.GetInstance().SqlConn.RunInTransactionAsync(transaction =>
+            var conn = DatabaseConnection.GetInstance().SqlConn;
+            using var dataSet = new DataSet();
+            dataSet.ReadXml(SysCommon.GetXmlReader(ref responseData), XmlReadMode.Auto);
+            if (dataSet.Tables.Count > 0)
             {
-                try
+                var rows = dataSet.Tables[0].Rows;
+                if (rows.Count > 0)
                 {
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received responseData.", false);
-
-                    var startIndex = responseData.IndexOf("<VFPData", StringComparison.Ordinal);
-                    var sett = new XmlReaderSettings
+                    var barcodes = new List<Seg>();
+                    foreach (DataRow row in rows)
                     {
-                        CheckCharacters = false,
-                        CloseInput = false,
-                        ConformanceLevel = ConformanceLevel.Auto,
-                        IgnoreComments = true,
-                        IgnoreProcessingInstructions = true,
-                        IgnoreWhitespace = false,
-                        ValidationFlags = System.Xml.Schema.XmlSchemaValidationFlags.None,
-                        ValidationType = ValidationType.None,
-                    };
-
-                    using var stringReader = new StringReader(responseData.Substring(startIndex));
-                    using var reader = XmlReader.Create(stringReader, sett);
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving product uom bar codes.", false);
-
-                    var resultsUnit = transaction.Query<tUnitModel>("SELECT * FROM tUnit");
-
-                    if (resultsUnit?.Count > 0)
-                    {
-                        foreach (var unit in resultsUnit)
+                        barcodes.Add(new Seg
                         {
-                            unitLookup.Add(unit.UnitCode, unit.UnitRefno);
+                            ProductUnitIsBC = Convert.ToBoolean(row["ProductUnitIsBC"]),
+                            ProductFKRefno = Convert.ToInt32(row["ProductFKRefno"]),
+                            ProductUnitCode = row["ProductUnitCode"].ToString(),
+                            ProductUnitBarCodeCode = row["ProductUnitBarCodeCode"].ToString(),
+                            ProductUnitBarCodeRaw = string.Empty,
+                            ProductUnitBarCodeSymbologyEnum = Convert.ToInt32(row["ProductUnitBarCodeSymbologyEnum"]),
+                            ProductUnitBarCodeModifier1 = row["ProductUnitBarCodeModifier1"].ToString(),
+                        });
+                    }
+
+                    var query = "CREATE TEMP TABLE Seg " +
+                        "(" +
+                        "ProductUnitIsBC BIT NOT NULL," +
+                        "ProductFKRefno INTEGER NOT NULL," +
+                        "ProductUnitCode VARCHAR(2) NOT NULL," +
+                        "ProductUnitBarCodeCode VARCHAR(20) NOT NULL," +
+                        "ProductUnitBarCodeRaw VARCHAR(60) NOT NULL," +
+                        "ProductUnitBarCodeSymbologyEnum INTEGER NOT NULL," +
+                        "ProductUnitBarCodeModifier1 VARCHAR(1) NOT NULL" +
+                        ")";
+                    await conn.ExecuteAsync(query);
+                    await conn.InsertAllAsync(barcodes);
+
+                    try
+                    {
+                        query = "INSERT INTO tProductUnitBarCode (" +
+                                "ProductUnitRefno" +
+                                ",ProductUnitBarCodeCode" +
+                                ",ProductUnitBarCodeRaw" +
+                                ",ProductUnitBarCodeSymbologyEnum" +
+                                ",ProductUnitBarCodeModifier1" +
+                                ",ProductUnitBarCodeStatus)" +
+                                " SELECT pu.ProductUnitRefno" +
+                                ",Seg.ProductUnitBarCodeCode" +
+                                ",Seg.ProductUnitBarCodeRaw" +
+                                ",Seg.ProductUnitBarCodeSymbologyEnum" +
+                                ",Seg.ProductUnitBarCodeModifier1" +
+                                ",0 as ProductUnitBarCodeStatus" +
+                                " FROM Seg" +
+                                " INNER JOIN tUnit unit ON unit.UnitCode = Seg.ProductUnitCode" +
+                                " INNER JOIN tProduct prod ON prod.ProductFKRefno = Seg.ProductFKRefno" +
+                                " INNER JOIN tProductUnit pu ON pu.ProductRefno = prod.ProductRefno" +
+                                " AND pu.UnitRefno = unit.UnitRefno" +
+                                " AND pu.ProductUnitIsBC = Seg.ProductUnitIsBC";
+                        var rowsAffected = await conn.ExecuteAsync(query);
+                        if (barcodes.Count != rowsAffected)
+                        {
+                            throw new Exception("Failed to insert all rows into tProductUnitBarCode");
+                        }
+                    }
+                    catch (SQLiteException sqlEx)
+                    {
+                        if (sqlEx.Message.Contains("UNIQUE constraint failed"))
+                        {
+                            await this.PurgeData();
+                            var barCodeInfo = string.Empty;
+                            try
+                            {
+                                query = "SELECT 0 as ProductUnitBarCodeRefno" +
+                                        ",pu.ProductUnitRefno" +
+                                        ",Seg.ProductUnitBarCodeCode" +
+                                        ",Seg.ProductUnitBarCodeRaw" +
+                                        ",Seg.ProductUnitBarCodeSymbologyEnum" +
+                                        ",Seg.ProductUnitBarCodeModifier1" +
+                                        ",0 as ProductUnitBarCodeStatus" +
+                                        " FROM Seg" +
+                                        " INNER JOIN tUnit unit ON unit.UnitCode = Seg.ProductUnitCode" +
+                                        " INNER JOIN tProduct prod ON prod.ProductFKRefno = Seg.ProductFKRefno" +
+                                        " INNER JOIN tProductUnit pu ON pu.ProductRefno = prod.ProductRefno" +
+                                        " AND pu.UnitRefno = unit.UnitRefno" +
+                                        " AND pu.ProductUnitIsBC = Seg.ProductUnitIsBC";
+                                var barCodes = await conn.QueryAsync<ProductUnitBarCodeModel>(query);
+                                foreach (var barCode in barCodes)
+                                {
+                                    barCodeInfo = $"{barCode.ProductUnitBarCodeCode} - {barCode.ProductUnitBarCodeModifier1}";
+                                    await conn.InsertAsync(barCode);
+                                }
+                            }
+                            catch (SQLiteException sqlEx2)
+                            {
+                                if (sqlEx2.Message.Contains("UNIQUE constraint failed"))
+                                {
+                                    throw new Exception($"Seeding {this.LowerCaseName} failed. Duplicate {barCodeInfo}");
+                                }
+                                else
+                                {
+                                    throw;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            throw;
                         }
                     }
 
-                    var prodRefno = 0;
-                    var prodUnitRefno = 0;
-                    var unitRefno = 0;
-                    var recordCount = 0;
-                    var isProdUnitBarCodeFound = false;
-
-                    var prodUnitBarCodeRaw = string.Empty;
-
-                    // f01
-                    var prodUnitBarCodeIsBC = false;
-
-                    // f02
-                    var prodFKRefno = 0;
-
-                    // f03
-                    var unitCode = string.Empty;
-
-                    // f04
-                    var prodUnitBarCodeCode = string.Empty;
-
-                    // f05
-                    var prodUnitBarCodeSymbologyEnum = 0;
-
-                    // f06
-                    var prodUnitBarCodeModifier1 = string.Empty;
-
-                    this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, 100);
-
-                    while (!reader.EOF)
-                    {
-                        // fill one record
-                        // we do this by looping until an end segment is found
-                        var recordFilled = false;
-                        var elementName = string.Empty;
-                        prodUnitBarCodeModifier1 = string.Empty; // not always present, so we must fill it
-                        while (!recordFilled && reader.Read())
-                        {
-                            if (reader.NodeType == XmlNodeType.Element)
-                            {
-                                elementName = reader.Name;
-                            }
-                            else if (reader.NodeType == XmlNodeType.Text)
-                            {
-                                switch (elementName)
-                                {
-                                    case "f01":
-                                        prodUnitBarCodeIsBC = reader.ReadContentAsBoolean();
-                                        break;
-                                    case "f02":
-                                        prodFKRefno = reader.ReadContentAsInt();
-                                        break;
-                                    case "f03":
-                                        unitCode = reader.Value;
-                                        break;
-                                    case "f04":
-                                        prodUnitBarCodeCode = reader.Value;
-                                        break;
-                                    case "f05":
-                                        prodUnitBarCodeSymbologyEnum = reader.ReadContentAsInt();
-                                        break;
-                                    case "f06":
-                                        prodUnitBarCodeModifier1 = reader.Value;
-                                        break;
-                                }
-                            }
-                            else if (reader.NodeType == XmlNodeType.EndElement && reader.Name == "seg")
-                            {
-                                recordFilled = true; // we are full;
-                            }
-                        } // end of fill record
-
-                        if (!recordFilled)
-                        {
-                            continue;
-                        }
-
-                        prodUnitBarCodeRaw = string.Empty;
-                        errMsg = "FK Refno " + prodFKRefno;
-
-                        var resultsProduct = transaction.Query<tProductModel>("SELECT * FROM tProduct WHERE ProductFKRefno = ?", prodFKRefno);
-
-                        if (resultsProduct?.Count > 0)
-                        {
-                            prodRefno = Convert.ToInt32(resultsProduct[0].ProductRefno);
-                        }
-                        else
-                        {
-                            throw new Exception("drProd.Read() failed." + Environment.NewLine + errMsg);
-                        }
-
-                        errMsg += Environment.NewLine + "Unit code " + unitCode;
-
-                        unitLookup.TryGetValue(unitCode, out unitRefno);
-
-                        errMsg += Environment.NewLine + "Bar code is bc " + prodUnitBarCodeIsBC;
-
-                        var resultsProductUnit = transaction.Query<tProductUnitModel>("SELECT * FROM tProductUnit WHERE ProductRefno = ? AND UnitRefno = ? AND ProductUnitIsBC = ?", prodRefno, unitRefno, Convert.ToInt32(prodUnitBarCodeIsBC));
-
-                        if (resultsProductUnit?.Count > 0)
-                        {
-                            prodUnitRefno = resultsProductUnit[0].ProductUnitRefno;
-                        }
-                        else
-                        {
-                            throw new Exception("drProdUnit.Read() failed." + Environment.NewLine + errMsg);
-                        }
-
-                        isProdUnitBarCodeFound = false;
-
-                        if (this.SysEnv.RefreshOpt.RefreshDataChangesOnly)
-                        {
-                            var resultsProductUnitBarcode = transaction.Query<tProductUnitBarCodeModel>("SELECT ProductUnitBarCodeCode, ProductUnitBarCodeModifier1 FROM tProductUnitBarCode WHERE ProductUnitBarCodeCode = ? AND ProductUnitBarCodeModifier1 = ?", prodUnitBarCodeCode, prodUnitBarCodeModifier1);
-
-                            if (resultsProductUnitBarcode?.Count > 0)
-                            {
-                                isProdUnitBarCodeFound = true;
-
-                                var queryUpdate = "UPDATE tProductUnitBarCode " +
-                                                  "SET ProductUnitRefno = ?, " +
-                                                  "ProductUnitBarCodeSymbologyEnum = ?, " +
-                                                  "ProductUnitBarCodeStatus = ? " +
-                                                  "WHERE ProductUnitBarCodeCode = ? " +
-                                                  "AND ProductUnitBarCodeModifier1 = ?";
-
-                                transaction.Execute(queryUpdate, prodUnitRefno, prodUnitBarCodeSymbologyEnum, Convert.ToInt32(SysCommon.ActStatus.NoChange), prodUnitBarCodeCode, prodUnitBarCodeModifier1);
-                            }
-                        }
-
-                        if (!isProdUnitBarCodeFound)
-                        {
-                            var queryInsert = "INSERT INTO tProductUnitBarCode " +
-                                              "(ProductUnitRefno, " +
-                                              "ProductUnitBarCodeCode, " +
-                                              "ProductUnitBarCodeRaw, " +
-                                              "ProductUnitBarCodeSymbologyEnum, " +
-                                              "ProductUnitBarCodeModifier1, " +
-                                              "ProductUnitBarCodeStatus) " +
-                                              "VALUES " +
-                                              "(?, " +
-                                              "?, " +
-                                              "?, " +
-                                              "?, " +
-                                              "?, " +
-                                              "?)";
-
-                            transaction.Execute(queryInsert, prodUnitRefno, prodUnitBarCodeCode, prodUnitBarCodeRaw, prodUnitBarCodeSymbologyEnum, prodUnitBarCodeModifier1, Convert.ToInt32(SysCommon.ActStatus.NoChange));
-                        }
-
-                        ++recordCount;
-                        if (recordCount % 100 == 0)
-                        {
-                            this.DataAccessProgressOutHandler(this, EventArgs.Empty, recordCount / 10 % 100, 0, 100);
-                        }
-                    } // end of responseData
-
-                    this.DataAccessProgressOutHandler(this, EventArgs.Empty, 100, 0, 100);
-
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Records {recordCount}", false);
-
-                    unitLookup = null;
-                    transaction.Commit();
-
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving product uom bar codes complete.", false);
+                    // Drop the temporary table
+                    const string dropTempTableQuery = "DROP TABLE IF EXISTS Seg";
+                    await conn.ExecuteAsync(dropTempTableQuery);
                 }
-                catch (SQLiteException ex)
-                {
-                    transaction.Rollback();
 
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving product uom bar codes failed.", false);
-
-                    throw new Exception("Database exception occurred. Saving product uom bar codes failed." + Environment.NewLine + errMsg, ex);
-                }
-            });
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    $"{rows.Count} {this.LowerCaseName}.", true);
+            }
+            else
+            {
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    $"No {this.LowerCaseName} to save.",
+                    true);
+            }
         }
 
         /// <summary>
@@ -355,7 +255,7 @@ namespace dMobile.GroundWork
         /// </summary>
         /// <param name="familyCode"></param>
         /// <returns></returns>
-        protected async override Task<string> CreateRequest(string familyCode)
+        protected override async Task<string> CreateRequest(string familyCode)
         {
             var xmlString = new StringBuilder();
             var settings = new XmlWriterSettings
@@ -430,6 +330,26 @@ namespace dMobile.GroundWork
         protected override Task<string> CreateRequestProdLoc(int prodLocMapType)
         {
             throw new NotImplementedException();
+        }
+
+        /// <summary>
+        ///     Class to hold the data for the temporary table.
+        /// </summary>
+        private class Seg
+        {
+            public bool ProductUnitIsBC { get; set; }
+
+            public int ProductFKRefno { get; set; }
+
+            public string ProductUnitCode { get; set; }
+
+            public string ProductUnitBarCodeCode { get; set; }
+
+            public string ProductUnitBarCodeRaw { get; set; }
+
+            public int ProductUnitBarCodeSymbologyEnum { get; set; }
+
+            public string ProductUnitBarCodeModifier1 { get; set; }
         }
     }
 }
