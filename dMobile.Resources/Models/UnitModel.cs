@@ -4,16 +4,25 @@
 
 namespace dMobile.Resources.Models
 {
-    using System;
     using SQLite;
-    using SQLiteNetExtensions.Attributes;
 
+    /// <summary>
+    /// Represents a unit.
+    /// </summary>
     [Table("tUnit")]
     public class UnitModel
     {
-        [PrimaryKey, AutoIncrement, NotNull]
+        /// <summary>
+        /// Gets or sets the unique reference number for the unit.
+        /// </summary>
+        [PrimaryKey]
+        [AutoIncrement]
+        [NotNull]
         public int UnitRefno { get; set; }
 
+        /// <summary>
+        /// Gets or sets the unique code of the unit.
+        /// </summary>
         [NotNull]
         [Indexed(Name = "UQ_UnitOnUnitCode", Order = 1, Unique = true)]
         public string UnitCode { get; set; }

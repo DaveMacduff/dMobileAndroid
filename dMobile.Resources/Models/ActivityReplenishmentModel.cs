@@ -8,13 +8,13 @@ namespace dMobile.Resources.Models
     using SQLiteNetExtensions.Attributes;
 
     /// <summary>
-    /// Activity replenishment model.
+    /// Represents an activity replenishment.
     /// </summary>
     [Table("tActivityReplenishment")]
     public class ActivityReplenishmentModel
     {
         /// <summary>
-        /// Gets or sets the activity reference number.
+        /// Gets or sets the reference number of the activity.
         /// </summary>
         [PrimaryKey]
         [NotNull]
@@ -23,14 +23,14 @@ namespace dMobile.Resources.Models
         public int ActivityRefno { get; set; }
 
         /// <summary>
-        /// Gets or sets the activity sub type.
+        /// Gets or sets the subtype of the activity.
         /// </summary>
         [NotNull]
         [Indexed(Name = "UQ_ActivityReplenishmentOnActivityRefnoAndActivitySubType", Order = 2, Unique = true)]
         public int ActivitySubType { get; set; }
 
         /// <summary>
-        /// Gets or sets the warehouse location map reference number. Login warehouse filtered.
+        /// Gets or sets the reference number of the warehouse location map.
         /// </summary>
         [NotNull]
         public int WarehouseLocationMapRefno { get; set; }

@@ -6,11 +6,14 @@ namespace dMobile.Resources.Models
 {
     using SQLite;
 
+    /// <summary>
+    /// Represents a route.
+    /// </summary>
     [Table("tRoute")]
     public class RouteModel
     {
         /// <summary>
-        ///    Gets or sets the route reference number.
+        /// Gets or sets the route reference number.
         /// </summary>
         [PrimaryKey]
         [AutoIncrement]
@@ -18,7 +21,7 @@ namespace dMobile.Resources.Models
         public int RouteRefno { get; set; }
 
         /// <summary>
-        ///  Gets or sets the route code.
+        /// Gets or sets the route code.
         /// </summary>
         [NotNull]
         [Indexed(Name = "UQ_RouteOnRouteCode", Order = 1, Unique = true)]
@@ -32,7 +35,7 @@ namespace dMobile.Resources.Models
         public string RouteDescription { get; set; }
 
         /// <summary>
-        ///  Gets or sets the route day of week.
+        /// Gets or sets the route day of the week.
         /// </summary>
         [NotNull]
         public string RouteDayOfWeek { get; set; }

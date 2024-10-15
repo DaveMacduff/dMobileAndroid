@@ -8,14 +8,23 @@ namespace dMobile.Resources.Models
     using SQLite;
     using SQLiteNetExtensions.Attributes;
 
+    /// <summary>
+    /// Represents a comment on an activity item receiving.
+    /// </summary>
     [Table("tActivityItemReceivingComment")]
     public class ActivityItemReceivingCommentModel
     {
+        /// <summary>
+        /// Gets or sets the reference number of the activity item.
+        /// </summary>
         [PrimaryKey]
         [NotNull]
         [ForeignKey(typeof(ActivityItemReceivingModel))]
         public int ActivityItemRefno { get; set; }
 
+        /// <summary>
+        /// Gets or sets the comment for the activity item receiving.
+        /// </summary>
         [NotNull]
         public string ActivityItemReceivingCommentComment { get; set; }
     }

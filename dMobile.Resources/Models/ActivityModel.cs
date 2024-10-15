@@ -6,28 +6,30 @@ namespace dMobile.Resources.Models
 {
     using SQLite;
 
-    // string sqlTable = "CREATE TABLE IF NOT EXISTS tActivity"
-    // + "("
-    // + "ActivityRefno INTEGER NOT NULL CONSTRAINT PK_ActivityOnActivityRefno PRIMARY KEY,"
-    // + "ActivityStatus INTEGER NOT NULL,"
-    // + "ActivitySubType INTEGER NOT NULL"
-    // + ")";
-
-    // string sqlNdx = "CREATE UNIQUE INDEX IF NOT EXISTS UQ_ActivityOnActivityRefnoAndActivitySubType "
-    //            + "ON tActivity(ActivityRefno ASC, ActivitySubType ASC)";
-    //        this.RunDDLCommand(sqlNdx);
+    /// <summary>
+    /// Represents an activity.
+    /// </summary>
     [Table("tActivity")]
     public class ActivityModel
     {
+        /// <summary>
+        /// Gets or sets the unique reference number for the activity.
+        /// </summary>
         [PrimaryKey]
         [AutoIncrement]
         [NotNull]
         [Indexed(Name = "UQ_ActivityOnActivityRefnoAndActivitySubType", Order = 1, Unique = true)]
         public int ActivityRefno { get; set; }
 
+        /// <summary>
+        /// Gets or sets the status of the activity.
+        /// </summary>
         [NotNull]
         public int ActivityStatus { get; set; }
 
+        /// <summary>
+        /// Gets or sets the subtype of the activity.
+        /// </summary>
         [Indexed(Name = "UQ_ActivityOnActivityRefnoAndActivitySubType", Order = 2, Unique = true)]
         [NotNull]
         public int ActivitySubType { get; set; }

@@ -7,19 +7,19 @@ namespace dMobile.Resources.Models
     using SQLite;
 
     /// <summary>
-    ///     Family table model.
+    /// Represents a family in the family table.
     /// </summary>
     [Table("tFamily")]
     public class FamilyModel
     {
         /// <summary>
-        ///    Gets or sets the family reference number.
+        /// Gets or sets the family reference number.
         /// </summary>
         [PrimaryKey, AutoIncrement, NotNull]
         public int FamilyRefno { get; set; }
 
         /// <summary>
-        ///   Gets or sets the family code.
+        /// Gets or sets the family code.
         /// </summary>
         [Indexed(Name = "UQ_FamilyOnFamilyCode", Order = 1, Unique = true)]
         [NotNull]
