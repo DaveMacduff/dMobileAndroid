@@ -6,6 +6,7 @@
     xmlns:helpers="clr-namespace:dMobile.View.Helpers"
     xmlns:customcontrols="clr-namespace:dMobile.View.CustomControls"
     xmlns:types="clr-namespace:dMobile.Resources.Types;assembly=dMobile.Resources"
+    xmlns:locationMap="clr-namespace:dMobile.Resources.Types.LocationMap;assembly=dMobile.Resources"
     x:Class="dMobile.View.Views.SetLocationMap">
 
     <ContentPage x:Name="WarehouseTab">
@@ -34,12 +35,12 @@
                                            Grid.Column="0"
                                            Text="{Binding LocationMapWarehouseCode}"
                                            VerticalOptions="Center"
-                                           x:DataType="types:Warehouse" />
+                                           x:DataType="locationMap:Warehouse" />
                                     <Label Grid.Row="0"
                                            Grid.Column="1"
                                            Text="{Binding LocationMapWarehouseName}"
                                            VerticalOptions="Center"
-                                           x:DataType="types:Warehouse" />
+                                           x:DataType="locationMap:Warehouse" />
                                 </Grid>
                             </ViewCell>
                         </DataTemplate>
@@ -103,9 +104,9 @@
                                     </Grid.ColumnDefinitions>
 
                                     <Label Grid.Column="0" Text="{Binding LocationMapSectionCode}" VerticalOptions="Center"
-                                           x:DataType="types:Section" />
+                                           x:DataType="locationMap:Section" />
                                     <Label Grid.Column="1" Text="{Binding LocationMapSectionName}" VerticalOptions="Center"
-                                           x:DataType="types:Section" />
+                                           x:DataType="locationMap:Section" />
                                 </Grid>
                             </ViewCell>
                         </DataTemplate>
@@ -156,7 +157,7 @@
                                 <ViewCell>
                                     <StackLayout Padding="5,1,5,1">
                                         <Label Text="{Binding LocationMapSlotCoordinateCode}" VerticalOptions="Center"
-                                               x:DataType="types:Slot" />
+                                               x:DataType="locationMap:Slot" />
                                     </StackLayout>
                                 </ViewCell>
                             </DataTemplate>
@@ -184,7 +185,7 @@
                                     <StackLayout Padding="5,1,5,1">
                                         <Label Text="{Binding LocationMapSlotCoordinateCode}"
                                                VerticalOptions="Center"
-                                               x:DataType="types:Slot" />
+                                               x:DataType="locationMap:Slot" />
                                     </StackLayout>
                                 </ViewCell>
                             </DataTemplate>
@@ -208,7 +209,7 @@
                                 <ViewCell>
                                     <StackLayout Padding="5,1,5,1">
                                         <Label Text="{Binding LocationMapSlotCoordinateCode}" VerticalOptions="Center"
-                                               x:DataType="types:Slot" />
+                                               x:DataType="locationMap:Slot" />
                                     </StackLayout>
                                 </ViewCell>
                             </DataTemplate>

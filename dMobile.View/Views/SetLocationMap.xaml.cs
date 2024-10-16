@@ -16,6 +16,7 @@ namespace dMobile.View.Views
     using BarCodeScanner.BarCodeScanners;
     using Bedrock;
     using CustomPages.Modal;
+    using dMobile.Resources.Types.LocationMap;
     using Forms;
     using Helpers;
     using Resources.Enums;

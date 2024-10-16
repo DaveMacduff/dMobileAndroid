@@ -19,6 +19,8 @@ namespace dMobile.View.Activity
     using Controller.Activity_Detail;
     using Controller.Activity_Item;
     using CustomPages;
+    using dMobile.Resources.Types.Details;
+    using dMobile.Resources.Types.Products;
     using Forms;
     using Resources.Enums;
     using Resources.Types;
@@ -1196,7 +1198,7 @@ namespace dMobile.View.Activity
                 this.ActItem.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(this.FromProdUnitRefno);
                 this.ActItem.ProdInfo.Scheme =
                     await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ActItem.ProdInfo.Refno);
-                var detail = new Resources.Types.ActivityDetail();
+                var detail = new Resources.Types.Details.ActivityDetail();
                 this.ActDetail.ClearProperties();
 
                 this.ActDetail.Quantity = 0;

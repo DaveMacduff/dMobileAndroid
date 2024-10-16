@@ -14,6 +14,7 @@ namespace dMobile.Bedrock
     using System.Text;
     using System.Threading.Tasks;
     using System.Xml;
+    using dMobile.Resources.Models.Headers;
     using Resources.Models;
 
     /// <summary>

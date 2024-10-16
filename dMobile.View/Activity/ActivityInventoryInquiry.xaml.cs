@@ -2,6 +2,8 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
+using dMobile.Resources.Types.LocationMap;
+
 namespace dMobile.View.Activity
 {
     using System;
@@ -22,7 +24,8 @@ namespace dMobile.View.Activity
     using Forms;
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;
-    using Location = Resources.Types.Location;
+    using Location = Location;
+    using dMobile.Resources.Types.Products;
 
     /// <summary>
     /// Activity inventory inquiry.

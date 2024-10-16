@@ -25,6 +25,7 @@ namespace dMobile.View.Activity
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;
     using Resource = dMobile.Resources.Properties.Resources;
+    using dMobile.Resources.Types.Details;
 
     /// <summary>
     /// Defines the <see cref="ActivityMoveInventory" />.
@@ -486,7 +487,7 @@ namespace dMobile.View.Activity
                             prodInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(prodInfo.Refno);
                             this.ActItem.ProdInfo = prodInfo;
 
-                            var detail = (Resources.Types.ActivityDetail)this.ActDetail.ListDetails[idx];
+                            var detail = (Resources.Types.Details.ActivityDetail)this.ActDetail.ListDetails[idx];
                             await this.ActDetail.AssignActivityDetail(detail);
                             var xmlParam = XDocument.Parse(
                                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" +

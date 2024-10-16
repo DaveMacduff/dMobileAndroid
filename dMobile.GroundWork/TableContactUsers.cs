@@ -15,6 +15,7 @@ namespace dMobile.GroundWork
     using System.Xml;
     using System.Xml.Linq;
     using Bedrock;
+    using dMobile.Resources.Models.Contacts;
     using Resources.Models;
     using Resources.Types;
     using SQLite;

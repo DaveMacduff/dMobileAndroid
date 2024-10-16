@@ -11,7 +11,7 @@ using System.Xml.Linq;
 using Android.Views;
 using dMobile.Bedrock;
 using dMobile.Resources.Enums;
-using dMobile.Resources.Types;
+using dMobile.Resources.Types.Products;
 using dMobile.View.CustomPages.Modal;
 using dMobile.View.Forms;
 using Xamarin.Forms;

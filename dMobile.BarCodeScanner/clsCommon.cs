@@ -5,7 +5,7 @@
 namespace dMobile.BarCodeScanner
 {
     using dMobile.Bedrock;
-    using dMobile.Resources.Models;
+    using dMobile.Resources.Models.Products;
     using Org.Apache.Http.Protocol;
     using System;
     using System.Collections.Generic;

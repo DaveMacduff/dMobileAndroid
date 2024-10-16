@@ -12,6 +12,7 @@ namespace dMobile.View.Activity
     using BarCodeScanner.BarCodeScanners;
     using Bedrock;
     using Controller.Activity_Detail;
+    using dMobile.Resources.Types.Items;
     using Forms;
     using Helpers;
     using Resources.Enums;

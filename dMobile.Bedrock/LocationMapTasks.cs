@@ -7,6 +7,9 @@ namespace dMobile.Bedrock
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
+    using dMobile.Resources.Models.LocationMap;
+    using dMobile.Resources.Models.Products;
+    using dMobile.Resources.Types.LocationMap;
     using Resources.Models;
     using Resources.QueryResults;
     using Resources.Types;

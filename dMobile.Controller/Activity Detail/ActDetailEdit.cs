@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 using dMobile.Bedrock;
 using dMobile.Resources.Types;
+using dMobile.Resources.Types.Products;
 
 namespace dMobile.Controller.Activity_Detail
 {

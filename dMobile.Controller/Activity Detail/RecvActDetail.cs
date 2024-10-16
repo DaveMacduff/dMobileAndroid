@@ -15,7 +15,8 @@ using dMobile.Controller.Activity;
 using dMobile.Controller.Activity_Item;
 using dMobile.GroundWork;
 using dMobile.Resources.Services;
-using dMobile.Resources.Types;
+using dMobile.Resources.Types.Details;
+using dMobile.Resources.Types.Items;
 using SQLite;
 using Xamarin.Forms;
 

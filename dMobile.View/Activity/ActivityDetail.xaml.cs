@@ -20,6 +20,8 @@ namespace dMobile.View.Activity
     using Controller.Activity;
     using Controller.Activity_Detail;
     using Controller.Activity_Item;
+    using dMobile.Resources.Types.Details;
+    using dMobile.Resources.Types.Items;
     using Forms;
     using Resources.Enums;
     using Resources.Types;
@@ -1042,7 +1044,7 @@ namespace dMobile.View.Activity
                 {
                     // Read the selected detail.
                     await this.ActDetail.AssignActivityDetail(
-                        (Resources.Types.ActivityDetail)this.ListViewMainActivity.SelectedItem);
+                        (Resources.Types.Details.ActivityDetail)this.ListViewMainActivity.SelectedItem);
                     this.ActDetail.ActStatus = SysCommon.ActStatus.Deleted;
 
                     // Submit the request, and delete it from the data table.

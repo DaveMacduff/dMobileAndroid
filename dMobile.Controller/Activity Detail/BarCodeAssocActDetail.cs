@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 using dMobile.Bedrock;
 using dMobile.Controller.Activity_Item;
-using dMobile.Resources.Types;
+using dMobile.Resources.Types.Details;
 using Xamarin.Forms;
 
 namespace dMobile.Controller.Activity_Detail

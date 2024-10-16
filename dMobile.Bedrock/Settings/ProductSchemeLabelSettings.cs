@@ -4,7 +4,7 @@
 
 namespace dMobile.Bedrock
 {
-    using dMobile.Resources.Models;
+    using dMobile.Resources.Models.Products;
     using SQLite;
     using System;
     using System.Collections;

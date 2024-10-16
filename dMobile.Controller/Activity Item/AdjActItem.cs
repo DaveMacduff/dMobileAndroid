@@ -14,7 +14,7 @@ using System.Xml.Linq;
 using dMobile.Bedrock;
 using dMobile.GroundWork;
 using dMobile.Resources.Services;
-using dMobile.Resources.Types;
+using dMobile.Resources.Types.Items;
 using SQLite;
 using Xamarin.Forms;
 

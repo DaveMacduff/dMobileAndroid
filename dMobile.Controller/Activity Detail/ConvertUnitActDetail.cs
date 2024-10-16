@@ -13,7 +13,7 @@ using dMobile.Bedrock;
 using dMobile.Controller.Activity_Item;
 using dMobile.GroundWork;
 using dMobile.Resources.Services;
-using dMobile.Resources.Types;
+using dMobile.Resources.Types.Details;
 using Xamarin.Forms;
 
 namespace dMobile.Controller.Activity_Detail

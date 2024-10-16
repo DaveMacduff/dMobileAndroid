@@ -562,7 +562,7 @@ namespace dMobile.View.Activity
                     {
                         // Read the selected detail.
                         await this.ActDetail.AssignActivityDetail(
-                            (Resources.Types.ActivityDetail)this.ListViewMainActivity.SelectedItem);
+                            (Resources.Types.Details.ActivityDetail)this.ListViewMainActivity.SelectedItem);
 
                         // Submit the request, and delete it from the data table.
                         _ = await this.ActDetail.Delete();

@@ -472,13 +472,13 @@ namespace dMobile.View.Activity
                                         await ProductInfoTasks.GetInfoFromCodeBcUnit(
                                             Convert.ToString(
                                                 (this.ActItem.ListItems[currentIndex] as
-                                                    Resources.Types.ActivityItem).ProductCode),
+                                                    Resources.Types.Items.ActivityItem).ProductCode),
                                             Convert.ToString(
                                                 (this.ActItem.ListItems[currentIndex] as
-                                                    Resources.Types.ActivityItem).ProductUnitBC),
+                                                    Resources.Types.Items.ActivityItem).ProductUnitBC),
                                             Convert.ToString(
                                                 (this.ActItem.ListItems[currentIndex] as
-                                                    Resources.Types.ActivityItem).UnitCode));
+                                                    Resources.Types.Items.ActivityItem).UnitCode));
                                     var actDetail = ActDetailFacade.GetActDetail(
                                         this.ActItem,
                                         SysCommon.ActSubTypes.InventoryInquiry);
@@ -546,7 +546,7 @@ namespace dMobile.View.Activity
         /// </summary>
         private void DisplaySummaryData()
         {
-            var selectedItem = this.ActItem.SelectedItem as Resources.Types.ActivityItem;
+            var selectedItem = this.ActItem.SelectedItem as Resources.Types.Items.ActivityItem;
             var prodInfo = this.ActItem.ProdInfo;
 
             this.ExtraInfoItems.Clear();

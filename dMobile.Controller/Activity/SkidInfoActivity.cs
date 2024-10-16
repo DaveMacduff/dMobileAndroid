@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 using dMobile.Bedrock;
 using dMobile.Resources.Services;
-using dMobile.Resources.Types;
+using dMobile.Resources.Types.Headers;
 using Xamarin.Forms;
 
 namespace dMobile.Controller.Activity

@@ -8,7 +8,7 @@ using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using dMobile.Bedrock;
-using dMobile.Resources.Models;
+using dMobile.Resources.Models.Products;
 using dMobile.Resources.Types;
 using Xamarin.Forms;
 

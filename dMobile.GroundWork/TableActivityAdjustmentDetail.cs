@@ -12,6 +12,9 @@ namespace dMobile.GroundWork
     using System.Xml;
     using System.Xml.Linq;
     using Bedrock;
+    using dMobile.Resources.Models.Items;
+    using dMobile.Resources.Models.LocationMap;
+    using dMobile.Resources.Models.Products;
     using Resources.Models;
     using SQLite;
 

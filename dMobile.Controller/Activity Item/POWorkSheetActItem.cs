@@ -14,6 +14,7 @@ namespace dMobile.Controller.Activity_Item
     using System.Xml.Linq;
     using Activity;
     using Bedrock;
+    using dMobile.Resources.Types.Items;
     using GroundWork;
     using Resources.Services;
     using Resources.Types;

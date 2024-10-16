@@ -15,6 +15,7 @@ namespace dMobile.GroundWork
     using System.Xml;
     using System.Xml.Linq;
     using System.Linq;
+    using dMobile.Resources.Models.Products;
 
     public class TableFamily : TableBase
     {

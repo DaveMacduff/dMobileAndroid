@@ -9,6 +9,12 @@ namespace dMobile.GroundWork
     using System.Threading.Tasks;
     using dMobile.Bedrock;
     using dMobile.Resources.Models;
+    using dMobile.Resources.Models.Contacts;
+    using dMobile.Resources.Models.Details;
+    using dMobile.Resources.Models.Headers;
+    using dMobile.Resources.Models.Items;
+    using dMobile.Resources.Models.LocationMap;
+    using dMobile.Resources.Models.Products;
     using SQLite;
 
     public class DatabaseNub : IDataNubPublisher

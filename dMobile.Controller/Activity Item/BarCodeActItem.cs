@@ -11,8 +11,9 @@ using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Linq;
 using dMobile.Bedrock;
-using dMobile.Resources.Models;
-using dMobile.Resources.Types;
+using dMobile.Resources.Models.Products;
+using dMobile.Resources.Types.Items;
+using dMobile.Resources.Types.Products;
 using SQLite;
 using Xamarin.Forms;
 

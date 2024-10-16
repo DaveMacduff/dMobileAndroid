@@ -23,7 +23,8 @@ namespace dMobile.View.Activity
     using dMobile.Controller.Activity_Detail;
     using dMobile.Controller.Activity_Item;
     using dMobile.Resources.Enums;
-    using dMobile.Resources.Types;
+    using dMobile.Resources.Types.Headers;
+    using dMobile.Resources.Types.Items;
     using dMobile.View.CustomPages.Modal;
     using dMobile.View.Forms;
     using Xamarin.Forms;

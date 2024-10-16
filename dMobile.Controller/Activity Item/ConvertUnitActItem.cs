@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Linq;
 using dMobile.Bedrock;
-using dMobile.Resources.Types;
+using dMobile.Resources.Types.Items;
 using Xamarin.Forms;
 
 namespace dMobile.Controller.Activity_Item

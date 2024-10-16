@@ -19,6 +19,7 @@ namespace dMobile.View.Activity
     using Controller;
     using Controller.Activity;
     using CustomPages;
+    using dMobile.Resources.Types.Headers;
     using Forms;
     using Resources.Enums;
     using Resources.Types;

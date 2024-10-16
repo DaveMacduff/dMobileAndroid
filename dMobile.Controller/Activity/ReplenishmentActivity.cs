@@ -14,7 +14,7 @@ namespace dMobile.Controller.Activity
     using dMobile.GroundWork;
     using dMobile.Resources;
     using dMobile.Resources.Services;
-    using dMobile.Resources.Types;
+    using dMobile.Resources.Types.Headers;
     using Xamarin.Forms;
 
     /// <summary>

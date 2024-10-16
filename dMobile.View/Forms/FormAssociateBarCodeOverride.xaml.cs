@@ -10,7 +10,7 @@ namespace dMobile.View.Forms
     using dMobile.BarCodeScanner.BarCodeScanners;
     using dMobile.Bedrock;
     using dMobile.Resources.Enums;
-    using dMobile.Resources.Models;
+    using dMobile.Resources.Models.Contacts;
     using dMobile.View.CustomPages.Modal;
     using SQLite;
     using Xamarin.Forms;

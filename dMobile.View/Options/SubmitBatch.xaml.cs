@@ -15,6 +15,7 @@ namespace dMobile.View.Options
     using Controller.Activity_Detail;
     using Controller.Activity_Item;
     using CustomPages;
+    using dMobile.Resources.Types.Details;
     using Forms;
     using Resources.Enums;
     using Resources.Types;

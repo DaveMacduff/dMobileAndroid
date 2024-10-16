@@ -14,7 +14,8 @@ using System.Xml.Linq;
 using dMobile.Bedrock;
 using dMobile.Controller.Activity_Item;
 using dMobile.Resources.Services;
-using dMobile.Resources.Types;
+using dMobile.Resources.Types.Details;
+using dMobile.Resources.Types.Items;
 using Xamarin.Forms;
 
 namespace dMobile.Controller.Activity_Detail
