@@ -15,18 +15,18 @@ namespace dMobile.View.Activity
     using System.Xml;
     using System.Xml.Linq;
     using Android.Views;
-    using dMobile.BarCodeScanner.BarCodeParsing;
-    using dMobile.BarCodeScanner.BarCodeScanners;
-    using dMobile.Bedrock;
-    using dMobile.Controller;
+    using BarCodeScanner.BarCodeParsing;
+    using BarCodeScanner.BarCodeScanners;
+    using Bedrock;
+    using Controller;
     using dMobile.Controller.Activity;
-    using dMobile.Controller.Activity_Detail;
-    using dMobile.Controller.Activity_Item;
-    using dMobile.Resources.Enums;
-    using dMobile.Resources.Types.Headers;
-    using dMobile.Resources.Types.Items;
-    using dMobile.View.CustomPages.Modal;
-    using dMobile.View.Forms;
+    using Controller.Activity_Detail;
+    using Controller.Activity_Item;
+    using Resources.Enums;
+    using Resources.Types.Headers;
+    using Resources.Types.Items;
+    using CustomPages.Modal;
+    using Forms;
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;
     using static Android.Views.View;
@@ -98,7 +98,7 @@ namespace dMobile.View.Activity
         /// </summary>
         /// <param name="activity">.</param>
         /// <param name="actSubTypes">.</param>
-        public ActivityItemSingle(Controller.Activity.Activity activity, SysCommon.ActSubTypes actSubTypes)
+        public ActivityItemSingle(Activity activity, SysCommon.ActSubTypes actSubTypes)
         {
             this.InitializeComponent();
 
@@ -177,7 +177,7 @@ namespace dMobile.View.Activity
         /// <summary>
         /// Gets or sets the ActHdr.
         /// </summary>
-        private Controller.Activity.Activity ActHdr { get; set; }
+        private Activity ActHdr { get; set; }
 
         /// <summary>
         /// Gets or sets the LocMap.

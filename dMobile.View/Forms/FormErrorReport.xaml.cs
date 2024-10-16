@@ -7,9 +7,9 @@ namespace dMobile.View.Forms
     using System;
     using System.Threading.Tasks;
     using Android.Util;
-    using dMobile.Bedrock;
-    using dMobile.Resources.Enums;
-    using dMobile.View.CustomPages.Modal;
+    using Bedrock;
+    using Resources.Enums;
+    using CustomPages.Modal;
     using SQLite;
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;

@@ -96,4 +96,3 @@ namespace dMobile.Resources.Models.Products
         public int ProductAcceptDays { get; set; }
     }
 }
-

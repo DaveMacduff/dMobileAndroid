@@ -11,13 +11,13 @@ namespace dMobile.View.Views
     using System.Threading.Tasks;
     using System.Xml.Linq;
     using Android.Views;
-    using dMobile.BarCodeScanner.BarCodeParsing;
-    using dMobile.BarCodeScanner.BarCodeScanners;
-    using dMobile.Bedrock;
-    using dMobile.Resources.Enums;
-    using dMobile.Resources.Types.Products;
-    using dMobile.View.CustomPages.Modal;
-    using dMobile.View.Forms;
+    using BarCodeScanner.BarCodeParsing;
+    using BarCodeScanner.BarCodeScanners;
+    using Bedrock;
+    using Resources.Enums;
+    using Resources.Types.Products;
+    using CustomPages.Modal;
+    using Forms;
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;
     using Resource = Resources.Properties.Resources;
@@ -92,7 +92,7 @@ namespace dMobile.View.Views
         /// <summary>
         /// Gets or sets the bar code scanner engine.
         /// </summary>
-        private dMobile.BarCodeScanner.BarCodeScanners.BarCodeScanner Scanner { get; set; }
+        private BarCodeScanner Scanner { get; set; }
 
         /// <summary>
         /// Gets or sets the system environment instance.
@@ -379,7 +379,7 @@ namespace dMobile.View.Views
                 if (this.IsBarCodeHandlerRegistered)
                 {
                     this.Scanner.BarCodeScan -=
-                        new dMobile.BarCodeScanner.BarCodeScanners.BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
+                        new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
                     await this.Scanner.DisableScanning();
                     this.IsBarCodeHandlerRegistered = false;
                 }
@@ -398,7 +398,7 @@ namespace dMobile.View.Views
                 {
                     await this.Scanner.EnableScanning();
                     this.Scanner.BarCodeScan +=
-                        new dMobile.BarCodeScanner.BarCodeScanners.BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
+                        new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
                     this.IsBarCodeHandlerRegistered = true;
                 }
             }
@@ -468,7 +468,7 @@ namespace dMobile.View.Views
                 {
                     await this.Scanner.EnableScanning();
                     this.Scanner.BarCodeScan +=
-                        new dMobile.BarCodeScanner.BarCodeScanners.BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
+                        new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
                     this.IsBarCodeHandlerRegistered = true;
                 }
             }

@@ -8,8 +8,8 @@ namespace dMobile.View.Activity
     using System.Globalization;
     using System.Threading.Tasks;
     using System.Xml.Linq;
-    using dMobile.Bedrock;
-    using dMobile.View.CustomPages.Modal;
+    using Bedrock;
+    using CustomPages.Modal;
     using Xamarin.Forms.Xaml;
 
     [XamlCompilation(XamlCompilationOptions.Compile)]

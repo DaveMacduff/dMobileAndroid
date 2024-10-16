@@ -7,8 +7,8 @@ namespace dMobile.View.Forms
     using System;
     using System.ComponentModel;
     using Android.Views;
-    using dMobile.Resources.Enums;
-    using dMobile.View.CustomPages.Modal;
+    using Resources.Enums;
+    using CustomPages.Modal;
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;
 

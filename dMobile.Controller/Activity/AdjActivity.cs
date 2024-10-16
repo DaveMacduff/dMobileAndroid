@@ -17,6 +17,8 @@ using Xamarin.Forms;
 
 namespace dMobile.Controller.Activity
 {
+    using Bedrock.Settings;
+
     /// <summary>
     /// Defines the <see cref="AdjActivity" /> adjustment activity header.
     /// </summary>

@@ -2,34 +2,67 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
+// ReSharper disable InconsistentNaming
 namespace dMobile.Resources.Types.Items
 {
-    using System;
-
-    // sql.Append("SELECT tActivityItem.ActivityItemRefno,"); int
-    // sql.Append("tProduct.ProductCode AS ProductCode,"); string
-    // sql.Append("tProductUnit.ProductUnitRefno AS ProductUnitRefno,"); int
-    // sql.Append("tProductUnit.ProductUnitBC AS ProductUnitBC,"); string
-    // sql.Append("tProductUnit.ProductUnitIsBC AS ProductUnitIsBC,"); bool
-    // sql.Append("tUnit.UnitCode AS UnitCode,"); string 
-    // sql.Append("tProductUnitBarCode.ProductUnitBarCodeRefno AS ProductUnitBarCodeRefno,"); int 
-    // sql.Append("tProductUnitBarCode.ProductUnitBarCodeCode AS ProductUnitBarCodeCode,"); string
-    // sql.Append("tProductUnitBarCode.ProductUnitBarCodeModifier1 AS ProductUnitBarCodeModifier1,"); string
-    // sql.Append("tProductUnitBarCode.ProductUnitBarCodeSymbologyEnum AS ProductUnitBarCodeSymbologyEnum,"); int
-    // sql.Append("tActivityItem.ActivityItemStatus AS ActivityStatus "); int
-    // sql.Append("FROM tActivityItem ");
+    /// <summary>
+    /// Represents an item associated with a barcode.
+    /// </summary>
     public class BarcodeAssociationItem
     {
+        /// <summary>
+        /// Gets or sets the reference number of the activity item.
+        /// </summary>
         public int ActivityItemRefno { get; set; }
+
+        /// <summary>
+        /// Gets or sets the code of the product.
+        /// </summary>
         public string ProductCode { get; set; }
+
+        /// <summary>
+        /// Gets or sets the reference number of the product unit.
+        /// </summary>
         public int ProductUnitRefno { get; set; }
+
+        /// <summary>
+        /// Gets or sets the barcode of the product unit.
+        /// </summary>
         public string ProductUnitBC { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the product unit has a barcode.
+        /// </summary>
         public bool ProductUnitIsBC { get; set; }
+
+        /// <summary>
+        /// Gets or sets the code of the unit.
+        /// </summary>
         public string UnitCode { get; set; }
+
+        /// <summary>
+        /// Gets or sets the reference number of the product unit barcode.
+        /// </summary>
         public int ProductUnitBarCodeRefno { get; set; }
+
+        /// <summary>
+        /// Gets or sets the code of the product unit barcode.
+        /// </summary>
         public string ProductUnitBarCodeCode { get; set; }
+
+        /// <summary>
+        /// Gets or sets the first modifier of the product unit barcode.
+        /// </summary>
         public string ProductUnitBarCodeModifier1 { get; set; }
+
+        /// <summary>
+        /// Gets or sets the symbology enum of the product unit barcode.
+        /// </summary>
         public int ProductUnitBarCodeSymbologyEnum { get; set; }
+
+        /// <summary>
+        /// Gets or sets the status of the activity item.
+        /// </summary>
         public int ActivityItemStatus { get; set; }
     }
 }

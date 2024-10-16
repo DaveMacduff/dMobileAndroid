@@ -2,6 +2,7 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
+// ReSharper disable InconsistentNaming
 namespace dMobile.Resources.Types.Details
 {
     using System;
@@ -14,22 +15,22 @@ namespace dMobile.Resources.Types.Details
         /// <summary>
         /// Gets or sets the activity detail reference number.
         /// </summary>
-        public int ActivityDetailRefno { get; set; } = 0;
+        public int ActivityDetailRefno { get; set; }
 
         /// <summary>
         /// Gets or sets the activity detail foreign key reference number.
         /// </summary>
-        public int ActivityDetailFKRefno { get; set; } = 0;
+        public int ActivityDetailFKRefno { get; set; }
 
         /// <summary>
         /// Gets or sets the product reference number.
         /// </summary>
-        public int ProductRefno { get; set; } = 0;
+        public int ProductRefno { get; set; }
 
         /// <summary>
         /// Gets or sets the product unit reference number.
         /// </summary>
-        public int ProductUnitRefno { get; set; } = 0;
+        public int ProductUnitRefno { get; set; }
 
         /// <summary>
         /// Gets or sets the product code.
@@ -44,7 +45,7 @@ namespace dMobile.Resources.Types.Details
         /// <summary>
         /// Gets or sets a value indicating whether the product unit is broken case.
         /// </summary>
-        public bool ProductUnitIsBC { get; set; } = false;
+        public bool ProductUnitIsBC { get; set; }
 
         /// <summary>
         /// Gets or sets the product description.
@@ -74,27 +75,27 @@ namespace dMobile.Resources.Types.Details
         /// <summary>
         /// Gets or sets the activity detail alt quantity.
         /// </summary>
-        public decimal ActivityDetailQuantity { get; set; } = 0;
+        public decimal ActivityDetailQuantity { get; set; }
 
         /// <summary>
         /// Gets or sets the activity detail base quantity.
         /// </summary>
-        public decimal ActivityDetailBaseQuantity { get; set; } = 0;
+        public decimal ActivityDetailBaseQuantity { get; set; }
 
         /// <summary>
         /// Gets or sets the activity  detail weight quantity.
         /// </summary>
-        public decimal ActivityDetailWeightQuantity { get; set; } = 0;
+        public decimal ActivityDetailWeightQuantity { get; set; }
 
         /// <summary>
         /// Gets or sets the location map reference number.
         /// </summary>
-        public int LocationMapRefno { get; set; } = 0;
+        public int LocationMapRefno { get; set; }
 
         /// <summary>
         /// Gets or sets the location map code.
         /// </summary>
-        public int LocationCode { get; set; } = 0;
+        public int LocationCode { get; set; }
 
         /// <summary>
         /// Gets or sets the location name.
@@ -115,7 +116,7 @@ namespace dMobile.Resources.Types.Details
         /// <summary>
         /// Gets or sets the product scheme variant number.
         /// </summary>
-        public int ProductSchemeVariantNo { get; set; } = 0;
+        public int ProductSchemeVariantNo { get; set; }
 
         /// <summary>
         /// Gets or sets the product scheme variant description.

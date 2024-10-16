@@ -133,6 +133,3 @@ namespace dMobile.Resources.Models.Items
         public bool ActivityItemPickingIsReviewed { get; set; }
     }
 }
-
-
-

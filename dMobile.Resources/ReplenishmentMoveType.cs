@@ -7,7 +7,7 @@ namespace dMobile.Resources
     using System;
 
     /// <summary>
-    /// Replenishment move types.
+    /// Represents replenishment move types.
     /// </summary>
     public class ReplenishmentMoveType
     {
@@ -17,36 +17,36 @@ namespace dMobile.Resources
         public enum Code : int
         {
             /// <summary>
-            /// Defines the Manual
+            /// Defines the Manual move type.
             /// </summary>
             Manual = 0,
 
             /// <summary>
-            /// Defines the PullDown
+            /// Defines the PullDown move type.
             /// </summary>
             PullDown = 1,
 
             /// <summary>
-            /// Defines the Restock
+            /// Defines the Restock move type.
             /// </summary>
             Restock = 2,
         }
 
         /// <summary>
-        /// Convert enum ReplenishmentMoveType.Code value to reason string.
+        /// Converts an enum <see cref="ReplenishmentMoveType.Code"/> value to a reason string.
         /// </summary>
-        /// <param name="subType">ReplenishmentMoveType.Code enum value</param>
-        /// <returns>Reason name string.</returns>
+        /// <param name="subType">The <see cref="ReplenishmentMoveType.Code"/> enum value.</param>
+        /// <returns>The reason name string.</returns>
         public static string? Enum2String(Code subType)
         {
             return Enum.GetName(typeof(Code), subType);
         }
 
         /// <summary>
-        /// Convert sub type name string to enum ReplenishmentMoveType.Code value.
+        /// Converts a sub type name string to an enum <see cref="ReplenishmentMoveType.Code"/> value.
         /// </summary>
-        /// <param name="reason">Code name string.</param>
-        /// <returns>ReplenishmentMoveType.Code enum.</returns>
+        /// <param name="reason">The code name string.</param>
+        /// <returns>The <see cref="ReplenishmentMoveType.Code"/> enum value.</returns>
         public static Code TypeString2Enum(string reason)
         {
             return (Code)Enum.Parse(typeof(Code), reason);

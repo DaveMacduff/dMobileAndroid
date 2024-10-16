@@ -6,7 +6,7 @@ namespace dMobile.View.Views
 {
     using System;
     using CustomPages.Modal;
-    using dMobile.Resources.Types.Details;
+    using Resources.Types.Details;
     using Resources.Enums;
     using Resources.Types;
     using Xamarin.Forms.Xaml;

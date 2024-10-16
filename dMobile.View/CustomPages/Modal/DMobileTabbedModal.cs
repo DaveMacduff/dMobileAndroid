@@ -6,7 +6,7 @@ namespace dMobile.View.CustomPages.Modal
 {
     using System;
     using System.Threading.Tasks;
-    using dMobile.Resources.Enums;
+    using Resources.Enums;
     using Xamarin.Forms;
     using Resource = dMobile.Resources.Properties.Resources;
 

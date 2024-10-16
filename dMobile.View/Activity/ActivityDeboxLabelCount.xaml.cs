@@ -12,8 +12,8 @@ namespace dMobile.View.Activity
     using System.Text;
     using System.Threading.Tasks;
     using System.Xml.Linq;
-    using dMobile.Bedrock;
-    using dMobile.View.CustomPages.Modal;
+    using Bedrock;
+    using CustomPages.Modal;
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;
 

@@ -2,6 +2,7 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
+// ReSharper disable InconsistentNaming
 namespace dMobile.Resources.Types.Headers
 {
     /// <summary>
@@ -9,7 +10,6 @@ namespace dMobile.Resources.Types.Headers
     /// </summary>
     public class BarcodeAssociation
     {
-
         /// <summary>
         /// Gets or sets the ActivityRefno.
         /// </summary>

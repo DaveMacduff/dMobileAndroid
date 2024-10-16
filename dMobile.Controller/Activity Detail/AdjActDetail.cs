@@ -21,6 +21,8 @@ using Xamarin.Forms;
 
 namespace dMobile.Controller.Activity_Detail
 {
+    using Bedrock.Settings;
+
     /// <summary>
     /// Defines the <see cref="AdjActDetail" />.
     /// </summary>

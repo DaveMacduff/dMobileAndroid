@@ -2,6 +2,7 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
+// ReSharper disable InconsistentNaming
 namespace dMobile.Resources.Types.Details
 {
     /// <summary>
@@ -12,11 +13,11 @@ namespace dMobile.Resources.Types.Details
         /// <summary>
         /// Gets or sets the activity item foreign key reference number.
         /// </summary>
-        public int ActivityItemFKRefno { get; set; } = 0;
+        public int ActivityItemFKRefno { get; set; }
 
         /// <summary>
         /// Gets or sets the activity header foreign key reference number.
         /// </summary>
-        public int ActivityHdrFKRefno { get; set; } = 0;
+        public int ActivityHdrFKRefno { get; set; }
     }
 }

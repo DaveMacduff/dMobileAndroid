@@ -5,8 +5,8 @@
 // ReSharper disable InconsistentNaming
 namespace dMobile.Resources.Models.Items
 {
-    using dMobile.Resources.Models.LocationMap;
-    using dMobile.Resources.Models.Products;
+    using LocationMap;
+    using Products;
     using SQLite;
     using SQLiteNetExtensions.Attributes;
 
@@ -96,9 +96,3 @@ namespace dMobile.Resources.Models.Items
         public decimal ActivityItemCountWeightQuantity { get; set; }
     }
 }
-
-
-
-
-
-

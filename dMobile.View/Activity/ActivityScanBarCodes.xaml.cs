@@ -16,8 +16,8 @@ namespace dMobile.View.Activity
     using Bedrock;
     using Controller.Activity;
     using Controller.Activity_Item;
-    using dMobile.Resources.Models.Products;
-    using dMobile.Resources.Types.Products;
+    using Resources.Models.Products;
+    using Resources.Types.Products;
     using Forms;
     using GroundWork;
     using Helpers;

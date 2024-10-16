@@ -27,7 +27,7 @@ namespace dMobile.View.Activity
     using Xamarin.Forms.Xaml;
     using Resource = Resources.Properties.Resources;
     using System.Text;
-    using dMobile.Resources.Types.Items;
+    using Resources.Types.Items;
 
     /// <summary>
     /// Activity purchase order work sheet.

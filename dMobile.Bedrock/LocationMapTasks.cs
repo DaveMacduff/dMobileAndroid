@@ -494,7 +494,7 @@ namespace dMobile.Bedrock
                             INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno = tLocationMapSection.WarehouseLocationMapRefno 
                             WHERE tLocationMapSlot.LocationMapRefno = ?";
 
-                        var results = await conn.QueryAsync<tLocationMapSlotQueryResult>(query, Convert.ToInt32(locMapRefno));
+                        var results = await conn.QueryAsync<LocationMapSlotQueryResult>(query, Convert.ToInt32(locMapRefno));
 
                         if (results != null && results.Count > 0)
                         {
@@ -557,7 +557,7 @@ namespace dMobile.Bedrock
                             INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno = tLocationMapSection.WarehouseLocationMapRefno 
                             WHERE tLocationMapSection.LocationMapRefno = ?";
 
-                        var results = await conn.QueryAsync<tLocationMapSectionQueryResult>(query, Convert.ToInt32(locMapRefno));
+                        var results = await conn.QueryAsync<LocationMapSectionResult>(query, Convert.ToInt32(locMapRefno));
 
                         if (results != null && results.Count > 0)
                         {

@@ -12,6 +12,6 @@ namespace dMobile.Resources.Types.Details
         /// <summary>
         /// Gets or sets the status to track if, changed, inserted, updated.
         /// </summary>
-        public int ActivityDetailStatus { get; set; } = 0;
+        public int ActivityDetailStatus { get; set; }
     }
 }

@@ -11,7 +11,7 @@ namespace dMobile.View.Menus
     using Android.Views;
     using Bedrock;
     using CustomPages;
-    using dMobile.BarCodeScanner.BarCodeScanners;
+    using BarCodeScanner.BarCodeScanners;
     using Forms;
     using Resources.Enums;
     using Xamarin.Forms;

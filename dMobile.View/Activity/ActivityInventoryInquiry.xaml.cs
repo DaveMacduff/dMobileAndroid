@@ -25,7 +25,7 @@ namespace dMobile.View.Activity
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;
     using Location = Location;
-    using dMobile.Resources.Types.Products;
+    using Resources.Types.Products;
 
     /// <summary>
     /// Activity inventory inquiry.

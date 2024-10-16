@@ -11,6 +11,7 @@ namespace dMobile.View.Activity
     using System.Xml.Linq;
     using Android.Views;
     using Bedrock;
+    using Bedrock.Settings;
     using CustomPages.Modal;
     using Forms;
     using Resources.Enums;

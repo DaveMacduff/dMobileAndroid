@@ -5,8 +5,8 @@
 namespace dMobile.View.Exceptions
 {
     using System;
-    using dMobile.Bedrock;
-    using dMobile.View.Forms;
+    using Bedrock;
+    using Forms;
     using Xamarin.Forms;
     using Resource = dMobile.Resources.Properties.Resources;
 

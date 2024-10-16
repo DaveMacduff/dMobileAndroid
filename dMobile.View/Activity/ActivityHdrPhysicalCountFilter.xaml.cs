@@ -10,11 +10,11 @@ namespace dMobile.View.Activity
     using System.Threading.Tasks;
     using System.Xml.Linq;
     using Android.Views;
-    using dMobile.Bedrock;
-    using dMobile.Resources.Enums;
-    using dMobile.Resources.Types;
-    using dMobile.View.CustomPages.Modal;
-    using dMobile.View.Forms;
+    using Bedrock;
+    using Resources.Enums;
+    using Resources.Types;
+    using CustomPages.Modal;
+    using Forms;
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;
 

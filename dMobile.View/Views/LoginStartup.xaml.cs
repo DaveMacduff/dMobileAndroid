@@ -14,9 +14,9 @@ namespace dMobile.View.Views
     using Android.Views;
     using Bedrock;
     using CustomPages;
-    using dMobile.BarCodeScanner.BarCodeScanners;
-    using dMobile.Resources.Models.Contacts;
-    using dMobile.Resources.Types.LocationMap;
+    using BarCodeScanner.BarCodeScanners;
+    using Resources.Models.Contacts;
+    using Resources.Types.LocationMap;
     using Forms;
     using Helpers;
     using Pages;

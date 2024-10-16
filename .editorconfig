@@ -5,3 +5,6 @@ dotnet_diagnostic.SA1200.severity = silent
 
 # Default severity for analyzer diagnostics with category 'StyleCop.CSharp.ReadabilityRules'
 dotnet_analyzer_diagnostic.category-StyleCop.CSharp.ReadabilityRules.severity = none
+
+# SA1300: Element should begin with upper-case letter
+dotnet_diagnostic.SA1300.severity = none

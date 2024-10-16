@@ -9,12 +9,12 @@ namespace dMobile.View.Menus
     using System.Xml.Linq;
     using Android;
     using Android.Views;
-    using dMobile.Bedrock;
-    using dMobile.Resources.Enums;
-    using dMobile.View.Activity;
-    using dMobile.View.CustomPages;
-    using dMobile.View.Options;
-    using dMobile.View.Utilities;
+    using Bedrock;
+    using Resources.Enums;
+    using Activity;
+    using CustomPages;
+    using Options;
+    using Utilities;
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;
 

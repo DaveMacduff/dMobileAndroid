@@ -15,7 +15,7 @@ namespace dMobile.View.Activity
     using Bedrock;
     using Controller.Activity_Detail;
     using Controller.Activity_Item;
-    using dMobile.Resources.Types.Details;
+    using Resources.Types.Details;
     using Forms;
     using Resources.Enums;
     using Resources.Types;

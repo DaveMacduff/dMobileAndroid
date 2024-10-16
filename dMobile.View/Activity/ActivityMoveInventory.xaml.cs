@@ -25,7 +25,7 @@ namespace dMobile.View.Activity
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;
     using Resource = dMobile.Resources.Properties.Resources;
-    using dMobile.Resources.Types.Details;
+    using Resources.Types.Details;
 
     /// <summary>
     /// Defines the <see cref="ActivityMoveInventory" />.

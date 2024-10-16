@@ -19,8 +19,8 @@ namespace dMobile.View.Activity
     using Controller.Activity_Detail;
     using Controller.Activity_Item;
     using CustomPages;
-    using dMobile.Resources.Types.Details;
-    using dMobile.Resources.Types.Products;
+    using Resources.Types.Details;
+    using Resources.Types.Products;
     using Forms;
     using Resources.Enums;
     using Resources.Types;

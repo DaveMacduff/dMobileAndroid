@@ -13,10 +13,10 @@ namespace dMobile.View.Options
     using System.Xml;
     using System.Xml.Linq;
     using Android.Views;
-    using dMobile.Bedrock;
-    using dMobile.Resources.Enums;
-    using dMobile.View.CustomPages;
-    using dMobile.View.Forms;
+    using Bedrock;
+    using Resources.Enums;
+    using CustomPages;
+    using Forms;
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;
     using Resource = dMobile.Resources.Properties.Resources;

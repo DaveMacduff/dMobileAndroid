@@ -14,6 +14,6 @@ namespace dMobile.Resources.Types.Details
         /// <summary>
         /// Gets or sets the activity detail status.
         /// </summary>
-        public int ActivityDetailStatus { get; set; } = 0;
+        public int ActivityDetailStatus { get; set; }
     }
 }

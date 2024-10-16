@@ -68,5 +68,3 @@ namespace dMobile.Resources.Types.Headers
         public int ActivityStatus { get; set; }
     }
 }
-
-

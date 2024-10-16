@@ -10,14 +10,14 @@ namespace dMobile.View.Activity
     using System.Xml.Linq;
     using Android;
     using Android.Views;
-    using dMobile.BarCodeScanner.BarCodeParsing;
-    using dMobile.BarCodeScanner.BarCodeScanners;
-    using dMobile.Bedrock;
-    using dMobile.Controller.Activity_Detail;
-    using dMobile.Controller.Activity_Item;
-    using dMobile.Resources.Enums;
-    using dMobile.View.CustomPages.Modal;
-    using dMobile.View.Forms;
+    using BarCodeScanner.BarCodeParsing;
+    using BarCodeScanner.BarCodeScanners;
+    using Bedrock;
+    using Controller.Activity_Detail;
+    using Controller.Activity_Item;
+    using Resources.Enums;
+    using CustomPages.Modal;
+    using Forms;
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;
 

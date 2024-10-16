@@ -4,11 +4,11 @@
 
 namespace dMobile.View.CustomPages
 {
-    using dMobile.GroundWork;
+    using GroundWork;
     using System;
     using System.Threading.Tasks;
     using Xamarin.Forms;
-    using static dMobile.GroundWork.TableBase;
+    using static GroundWork.TableBase;
     using Resource = dMobile.Resources.Properties.Resources;
 
     /// <summary>

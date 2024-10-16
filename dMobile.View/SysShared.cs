@@ -11,12 +11,13 @@ namespace dMobile.View
     using BarCodeScanner;
     using BarCodeScanner.BarCodeParsing;
     using Bedrock;
+    using Bedrock.Settings;
     using Controller.Activity;
     using Controller.Activity_Detail;
     using Controller.Activity_Item;
     using CustomPages;
-    using dMobile.Controller;
-    using dMobile.Resources.Models.Products;
+    using Controller;
+    using Resources.Models.Products;
     using Forms;
     using Resources.Enums;
     using Resources.Models;

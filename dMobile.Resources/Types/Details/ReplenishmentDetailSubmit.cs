@@ -14,12 +14,12 @@ namespace dMobile.Resources.Types.Details
         /// <summary>
         /// Gets or sets the activity detail reference number.
         /// </summary>
-        public int ActivityDetailRefno { get; set; } = 0;
+        public int ActivityDetailRefno { get; set; }
 
         /// <summary>
         /// Gets or sets the product scheme variant number.
         /// </summary>
-        public int ProductSchemeVariantNo { get; set; } = 0;
+        public int ProductSchemeVariantNo { get; set; }
 
         /// <summary>
         /// Gets or sets the activity detail single trade item serial number.

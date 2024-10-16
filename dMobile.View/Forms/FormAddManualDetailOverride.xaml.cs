@@ -11,7 +11,7 @@ namespace dMobile.View.Forms
     using BarCodeScanner.BarCodeScanners;
     using Bedrock;
     using CustomPages.Modal;
-    using dMobile.Resources.Models.Contacts;
+    using Resources.Models.Contacts;
     using Resources.Enums;
     using Resources.Models;
     using SQLite;

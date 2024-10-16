@@ -5,7 +5,7 @@
 namespace dMobile.View.CustomPages.Modal
 {
     using System.Threading.Tasks;
-    using dMobile.Resources.Enums;
+    using Resources.Enums;
 
     public interface IDMobileModal
     {

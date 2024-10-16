@@ -12,6 +12,6 @@ namespace dMobile.Resources.Types.Details
         /// <summary>
         /// Gets or sets the count number.
         /// </summary>
-        public int CountNumber { get; set; } = 0;
+        public int CountNumber { get; set; }
     }
 }

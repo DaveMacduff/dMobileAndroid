@@ -2,6 +2,7 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
+// ReSharper disable InconsistentNaming
 namespace dMobile.Resources.Types.Items
 {
     /// <summary>
@@ -62,11 +63,11 @@ namespace dMobile.Resources.Types.Items
         /// <summary>
         /// Gets or sets the activity item quantity.
         /// </summary>
-        public decimal ActivityItemQuantity { get; set; } = 0;
+        public decimal ActivityItemQuantity { get; set; }
 
         /// <summary>
         /// Gets or sets the activity item weight quantity.
         /// </summary>
-        public decimal ActivityItemWeightQuantity { get; set; } = 0;
+        public decimal ActivityItemWeightQuantity { get; set; }
     }
 }

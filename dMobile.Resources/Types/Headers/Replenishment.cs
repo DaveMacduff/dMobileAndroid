@@ -2,6 +2,7 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
+// ReSharper disable InconsistentNaming
 namespace dMobile.Resources.Types.Headers
 {
     using System;
@@ -14,22 +15,22 @@ namespace dMobile.Resources.Types.Headers
         /// <summary>
         /// Gets or sets the activity reference number.
         /// </summary>
-        public int ActivityRefno { get; set; } = 0;
+        public int ActivityRefno { get; set; }
 
         /// <summary>
-        /// Gets or sets the activity sub type. Inventory replenishment.
+        /// Gets or sets the activity subtype. Inventory replenishment.
         /// </summary>
-        public int ActivitySubType { get; set; } = 0;
+        public int ActivitySubType { get; set; }
 
         /// <summary>
         /// Gets or sets the warehouse location map reference number.
         /// </summary>
-        public int WarehouseLocationMapRefno { get; set; } = 0;
+        public int WarehouseLocationMapRefno { get; set; }
 
         /// <summary>
         /// Gets or sets the activity item reference number.
         /// </summary>
-        public int ActivityItemRefno { get; set; } = 0;
+        public int ActivityItemRefno { get; set; }
 
         /// <summary>
         /// Gets or sets the activity move type.
@@ -44,12 +45,12 @@ namespace dMobile.Resources.Types.Headers
         /// <summary>
         /// Gets or sets the activity item foreign key reference.
         /// </summary>
-        public int ActivityItemFKRefno { get; set; } = 0;
+        public int ActivityItemFKRefno { get; set; }
 
         /// <summary>
         /// Gets or sets the activity item parent foreign key reference.
         /// </summary>
-        public int ActivityItemFKParRefno { get; set; } = 0;
+        public int ActivityItemFKParRefno { get; set; }
 
         /// <summary>
         /// Gets or sets the scheme identifier.
@@ -59,7 +60,7 @@ namespace dMobile.Resources.Types.Headers
         /// <summary>
         /// Gets or sets the product unit reference.
         /// </summary>
-        public int ProductUnitRefno { get; set; } = 0;
+        public int ProductUnitRefno { get; set; }
 
         /// <summary>
         /// Gets or sets the product code.
@@ -79,7 +80,7 @@ namespace dMobile.Resources.Types.Headers
         /// <summary>
         /// Gets or sets the location map reference number.
         /// </summary>
-        public int LocationMapRefno { get; set; } = 0;
+        public int LocationMapRefno { get; set; }
 
         /// <summary>
         /// Gets or sets the readable location.
@@ -89,17 +90,17 @@ namespace dMobile.Resources.Types.Headers
         /// <summary>
         /// Gets or sets the activity item replenishment quantity.
         /// </summary>
-        public decimal ActivityItemReplenishmentQuantity { get; set; } = 0;
+        public decimal ActivityItemReplenishmentQuantity { get; set; }
 
         /// <summary>
         /// Gets or sets the activity item replenishment base quantity.
         /// </summary>
-        public decimal ActivityItemReplenishmentBaseQuantity { get; set; } = 0;
+        public decimal ActivityItemReplenishmentBaseQuantity { get; set; }
 
         /// <summary>
         /// Gets or sets the activity item replenishment weight quantity.
         /// </summary>
-        public decimal ActivityItemReplenishmentWeightQuantity { get; set; } = 0;
+        public decimal ActivityItemReplenishmentWeightQuantity { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether the activity detail is confirmed.

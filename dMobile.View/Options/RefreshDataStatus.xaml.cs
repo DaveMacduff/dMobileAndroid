@@ -24,8 +24,8 @@ namespace dMobile.View.Options
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;
     using Resource = Resources.Properties.Resources;
-    using dMobile.Resources.Types.Headers;
-    using dMobile.Resources.Types.Items;
+    using Resources.Types.Headers;
+    using Resources.Types.Items;
 
     /// <summary>
     ///     Refresh database status.

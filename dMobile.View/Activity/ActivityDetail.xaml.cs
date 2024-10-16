@@ -20,8 +20,8 @@ namespace dMobile.View.Activity
     using Controller.Activity;
     using Controller.Activity_Detail;
     using Controller.Activity_Item;
-    using dMobile.Resources.Types.Details;
-    using dMobile.Resources.Types.Items;
+    using Resources.Types.Details;
+    using Resources.Types.Items;
     using Forms;
     using Resources.Enums;
     using Resources.Types;

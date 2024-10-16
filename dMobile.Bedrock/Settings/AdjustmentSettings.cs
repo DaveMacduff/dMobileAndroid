@@ -1,10 +1,8 @@
-﻿// ----------------------------------------------------------------------
-// <copyright file="AdjustmentSettings.cs" company="InterSect Business Systems Inc.">
-//     Copyright (2013) InterSect Business Systems Inc.
+﻿// <copyright file="AdjustmentSettings.cs" company="InterSect Business Systems Inc">
+// Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
-//
-// ------------------------------------------------------------------------
-namespace dMobile.Bedrock
+
+namespace dMobile.Bedrock.Settings
 {
     using System;
     using System.Collections.Generic;
