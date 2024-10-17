@@ -31,7 +31,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
     /// CHARACTER     WIDTH
     /// ENCODING      BARCODE
     /// ASCII         WIDTH     BARCODE
-    /// CHARACTER     ENCODING  ENCODING
+    /// CHARACTER     ENCODING
     /// 0             0000011   101010011
     /// 1             0000110   101011001
     /// 2             0001001   101001011

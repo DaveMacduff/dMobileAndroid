@@ -5,14 +5,14 @@
 namespace dMobile.BarCodeScanner.BarCodeScanners
 {
     /// <summary>
-    /// Defines the <see cref="HoneywellBarCodeScannerFactory" /> Honeywell scanner factory.
+    /// Defines the Honeywell barcode scanner factory.
     /// </summary>
     public class HoneywellBarCodeScannerFactory : BarCodeScannerFactory
     {
         /// <summary>
-        /// Get the Honeywell bar code scanner instance.
+        /// Gets the Honeywell barcode scanner instance.
         /// </summary>
-        /// <returns>The <see cref="BarCodeScanner"/>.</returns>
+        /// <returns>A <see cref="BarCodeScanner"/> instance.</returns>
         public override BarCodeScanner GetBarCodeScanner()
         {
             return new HoneywellBarCodeScanner();

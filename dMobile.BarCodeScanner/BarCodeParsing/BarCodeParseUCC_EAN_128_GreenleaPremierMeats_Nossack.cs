@@ -2,41 +2,42 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
+// ReSharper disable InconsistentNaming
 namespace dMobile.BarCodeScanner.BarCodeParsing
 {
     using System;
 
     /// <summary>
-    ///     Defines the bar code parsing for UCC/EAN-128 symbology for Greenlea Premier Meats Nossack.
+    /// Defines the bar code parsing for UCC/EAN-128 symbology for Greenlea Premier Meats Nossack.
     /// </summary>
     public class BarCodeParseUCC_EAN_128_GreenleaPremierMeats_Nossack : BarCodeParse
     {
         /// <summary>
-        ///     Parse bar code data.
+        /// Parses the bar code data.
         /// </summary>
-        /// <param name="barCodeData">The barCodeData<see cref="string"/>.</param>
+        /// <param name="barCodeData">The bar code data as a <see cref="string"/>.</param>
         public override void ParseBarCodeData(string barCodeData)
         {
-            // strip first character (unknown)
+            // Strip first character (unknown)
             barCodeData = barCodeData[1..];
 
             barCodeData = this.IdentifyProductIdentifier(barCodeData);
             barCodeData = this.IdentifyNetWeightMetricKg(barCodeData);
 
-            // strip one character (unknown)
+            // Strip one character (unknown)
             barCodeData = barCodeData[1..];
 
-            // read production date (Julian -> Convert to Gregorian)
+            // Read production date (Julian -> Convert to Gregorian)
             barCodeData = this.IdentifyLogisticUnitProductionDate(barCodeData);
 
             this.Remainder = barCodeData;
         }
 
         /// <summary>
-        /// The IdentifyProductIdentifier.
+        /// Identifies the product identifier from the bar code data.
         /// </summary>
-        /// <param name="barCodeData">The barCodeData<see cref="string"/>.</param>
-        /// <returns>The <see cref="string"/>.</returns>
+        /// <param name="barCodeData">The bar code data as a <see cref="string"/>.</param>
+        /// <returns>The remaining bar code data as a <see cref="string"/>.</returns>
         protected override string IdentifyProductIdentifier(string barCodeData)
         {
             this.ProductIdentifier = barCodeData[..5];
@@ -44,36 +45,28 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         }
 
         /// <summary>
-        /// The IdentifyNetWeightMetricKG.
+        /// Identifies the net weight in metric kilograms from the bar code data.
         /// </summary>
-        /// <param name="barCodeData">The barCodeData<see cref="string"/>.</param>
-        /// <returns>The <see cref="string"/>.</returns>
+        /// <param name="barCodeData">The bar code data as a <see cref="string"/>.</param>
+        /// <returns>The remaining bar code data as a <see cref="string"/>.</returns>
         protected override string IdentifyNetWeightMetricKg(string barCodeData)
         {
             this.NetWeightMetricKgFoundAi = true;
             const int fieldLength = 3;
             const int decimalPlaces = 1;
-            if (decimalPlaces > 0)
-            {
-                this.NetWeightMetricKg = Convert.ToDecimal(
-                    barCodeData[.. (fieldLength - decimalPlaces)]
-                    + "."
-                    + barCodeData.Substring(fieldLength - decimalPlaces, decimalPlaces));
-            }
-            else
-            {
-                this.NetWeightMetricKg = Convert.ToDecimal(
-                    barCodeData[..fieldLength]);
-            }
+            this.NetWeightMetricKg = Convert.ToDecimal(
+                barCodeData[.. (fieldLength - decimalPlaces)]
+                + "."
+                + barCodeData.Substring(fieldLength - decimalPlaces, decimalPlaces));
 
             return barCodeData[fieldLength..];
         }
 
         /// <summary>
-        /// 4-digit Julian to Gregorian date.
+        /// Converts a 4-digit Julian date to a Gregorian date.
         /// </summary>
-        /// <param name="barCodeData">.</param>
-        /// <returns>.</returns>
+        /// <param name="barCodeData">The bar code data as a <see cref="string"/>.</param>
+        /// <returns>The remaining bar code data as a <see cref="string"/>.</returns>
         protected override string IdentifyLogisticUnitProductionDate(string barCodeData)
         {
             var julianYear = Convert.ToInt32(barCodeData[..1]);
@@ -91,7 +84,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
             var julianDay = Convert.ToInt32(barCodeData.Substring(1, 3));
             var gregorianDate = DateTime.Parse("1 Jan " + year);
 
-            // -1 because 1 is the first day, and julian days start counting at 1
+            // -1 because 1 is the first day, and Julian days start counting at 1
             gregorianDate = gregorianDate.AddDays(julianDay - 1);
 
             this.LogisticUnitProductionDate = gregorianDate;

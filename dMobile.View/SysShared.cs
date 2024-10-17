@@ -1136,7 +1136,7 @@ namespace dMobile.View
 
             // UCC EAN 128
             // Suppress Rule Enabled
-            if (parse.Symbology == BarCodeSymbologies.UCC_EAN_128_Symbol &&
+            if (parse.Symbology == BarCodeSymbology.UCC_EAN_128_Symbol &&
                 parse.Settings.IsRuleEnabled_ParseEAN_UCC128_SuppressAllParseErrorsForNonTrackedComponents)
             {
                 ProdScheme scheme;

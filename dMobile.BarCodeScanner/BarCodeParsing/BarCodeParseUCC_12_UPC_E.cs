@@ -2,30 +2,38 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
+// ReSharper disable InconsistentNaming
 namespace dMobile.BarCodeScanner.BarCodeParsing
 {
     using System;
 
+    /// <summary>
+    /// Bar code parsing for UCC 12 / UPC E symbology.
+    /// </summary>
     public class BarCodeParseUCC_12_UPC_E : BarCodeParse
     {
         /// <summary>
-        ///
+        /// Parses the provided bar code data.
         /// </summary>
-        /// <param name="barCodeData"></param>
-        /// <returns></returns>
+        /// <param name="barCodeData">The bar code data to parse.</param>
         /// <inheritdoc/>
         public override void ParseBarCodeData(string barCodeData)
         {
+            // Identify the product identifier from the bar code data
             barCodeData = this.IdentifyProductIdentifier(barCodeData);
+
+            // Identify the GTIN from the bar code data
             barCodeData = this.IdentifyGtin(barCodeData);
+
+            // Set the remainder of the bar code data
             this.Remainder = barCodeData;
         }
 
         /// <summary>
-        ///
+        /// Identifies the product identifier from the bar code data.
         /// </summary>
-        /// <param name="barCodeData"></param>
-        /// <returns></returns>
+        /// <param name="barCodeData">The bar code data.</param>
+        /// <returns>The remaining bar code data after identifying the product identifier.</returns>
         /// <inheritdoc/>
         protected override string IdentifyProductIdentifier(string barCodeData)
         {
@@ -108,10 +116,10 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         }
 
         /// <summary>
-        ///
+        /// Identifies the GTIN from the bar code data.
         /// </summary>
-        /// <param name="barCodeData"></param>
-        /// <returns></returns>
+        /// <param name="barCodeData">The bar code data.</param>
+        /// <returns>The remaining bar code data after identifying the GTIN.</returns>
         /// <inheritdoc/>
         protected override string IdentifyGtin(string barCodeData)
         {

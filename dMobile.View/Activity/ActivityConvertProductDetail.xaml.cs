@@ -127,7 +127,7 @@ namespace dMobile.View.Activity
         public async Task ScannerEnable()
         {
             await this.Scanner.EnableScanning();
-            this.Scanner.BarCodeScan += this.BarCodeHandler;
+            this.Scanner.OnBarCodeScan += this.BarCodeHandler;
         }
 
         /// <summary>

@@ -39,7 +39,7 @@ namespace dMobile.BarCodeScanner.BarCodeScanners
         /// <summary>
         /// Bar code scan event handler.
         /// </summary>
-        public event BarCodeScanEventHandler BarCodeScan;
+        public event BarCodeScanEventHandler OnBarCodeScan;
 
         /// <summary>
         /// Open the scanner reader and load symbology settings.
@@ -75,11 +75,11 @@ namespace dMobile.BarCodeScanner.BarCodeScanners
         /// </summary>
         /// <param name="scanEventArgs"><see cref="BarCodeScannerEventArgs"/> Scanner event arguments.</param>
         /// <returns><see cref="Task"/> Task operation.</returns>
-        public virtual async Task OnBarCodeScan(BarCodeScannerEventArgs scanEventArgs)
+        public virtual async Task RaiseBarCodeScan(BarCodeScannerEventArgs scanEventArgs)
         {
-            if (this.BarCodeScan != null)
+            if (this.OnBarCodeScan != null)
             {
-                await this.BarCodeScan.Invoke(this, scanEventArgs);
+                await this.OnBarCodeScan.Invoke(this, scanEventArgs);
             }
         }
 
@@ -88,15 +88,15 @@ namespace dMobile.BarCodeScanner.BarCodeScanners
         /// </summary>
         public virtual void ClearBarCodeScanEventHandlers()
         {
-            if (this.BarCodeScan != null)
+            if (this.OnBarCodeScan != null)
             {
                 // Remove all event handlers. Hopefully this will prevent memory leaks, and possible multicast delegate issues.
-                foreach (var handler in this.BarCodeScan.GetInvocationList())
+                foreach (var handler in this.OnBarCodeScan.GetInvocationList())
                 {
-                    this.BarCodeScan -= (BarCodeScanEventHandler)handler;
+                    this.OnBarCodeScan -= (BarCodeScanEventHandler)handler;
                 }
 
-                this.BarCodeScan = null;
+                this.OnBarCodeScan = null;
             }
         }
 
@@ -107,10 +107,10 @@ namespace dMobile.BarCodeScanner.BarCodeScanners
         public virtual bool IsBarCodeScanEventHandlerAdded()
         {
             var isAdded = false;
-            if (this.BarCodeScan != null)
+            if (this.OnBarCodeScan != null)
             {
                 // Check if the event handler has been added to the delegate invocation list.
-                if (this.BarCodeScan.GetInvocationList().Any())
+                if (this.OnBarCodeScan.GetInvocationList().Any())
                 {
                     isAdded = true;
                 }

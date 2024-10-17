@@ -2,13 +2,14 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
+// ReSharper disable InconsistentNaming
 namespace dMobile.BarCodeScanner.BarCodeParsing
 {
     using System;
     using Bedrock;
 
     /// <summary>
-    ///     Bar code parsing for Code 128 symbology.
+    /// Bar code parsing for Code 128 symbology.
     /// </summary>
     public class BarCodeParseCode_128 : BarCodeParse
     {
@@ -71,7 +72,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
                     barCodeParse.ParseBarCodeData(barCodeData);
                 }
                 else if (this.Settings.IsRuleEnabled_ParseNossackBrokerMultiNationalProductFromChili
-                    && this.IsChiliBarcode(barCodeData))
+                    && IsChiliBarcode(barCodeData))
                 {
                     this.ClearResetBarCodeProperties(false);
                     var barCodeParse
@@ -85,7 +86,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
                     this.ClearResetBarCodeProperties(false);
                     var barCodeParse = new BarCodeParseUCC_EAN_128_Symbol();
 
-                    // Added missing GTIN AI 01 and left filled the GTIN data with and extra 0 to make the length 14 digits.
+                    // Added missing GTIN AI 01 and left filled the GTIN data with an extra 0 to make the length 14 digits.
                     // Called the GS1 standard parsing routine.
                     barCodeParse.ParseBarCodeData("010" + barCodeData);
                 }
@@ -108,21 +109,9 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         }
 
         /// <summary>
-        ///     Is the bar code a Chili product.
+        /// Identifies the product identifier from the bar code data.
         /// </summary>
-        /// <param name="barcode">Bar code string.</param>
-        /// <returns>True if is a chili bar code, else false.</returns>
-        public bool IsChiliBarcode(string barcode)
-        {
-            barcode = barcode ?? throw new ArgumentNullException(nameof(barcode));
-            return barcode.Length >= 8
-                   && barcode.Substring(2, 6) == "896775";
-        }
-
-        /// <summary>
-        /// Identify the product identifier.
-        /// </summary>
-        /// <param name="barCodeData"><see cref="string"/> Bar code data.</param>
+        /// <param name="barCodeData">Bar code data.</param>
         /// <returns>Remainder of the unparsable bar code data.</returns>
         protected override string IdentifyProductIdentifier(string barCodeData)
         {
@@ -146,6 +135,18 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
             barCodeData = barCodeData.Remove(0, len);
 
             return barCodeData;
+        }
+
+        /// <summary>
+        /// Determines if the bar code is a Chili product.
+        /// </summary>
+        /// <param name="barcode">Bar code string.</param>
+        /// <returns>True if it is a Chili bar code, otherwise false.</returns>
+        private static bool IsChiliBarcode(string barcode)
+        {
+            barcode = barcode ?? throw new ArgumentNullException(nameof(barcode));
+            return barcode.Length >= 8
+                   && barcode.Substring(2, 6) == "896775";
         }
     }
 }

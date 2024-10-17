@@ -2,22 +2,23 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
+// ReSharper disable InconsistentNaming
 namespace dMobile.BarCodeScanner.BarCodeParsing
 {
     using System;
 
     /// <summary>
-    /// Defines the <see cref="BarCodeParseCode_128_FINICA_as_EAN_UCC_128" />.
+    /// Provides parsing functionality for Code 128 barcodes specific to FINICA as EAN/UCC 128.
     /// </summary>
     public class BarCodeParseCode_128_FINICA_as_EAN_UCC_128 : BarCodeParse
     {
         /// <summary>
-        /// Parsing rules reviewed.
+        /// Parses the barcode data according to the specific rules for FINICA as EAN/UCC 128.
         /// </summary>
-        /// <param name="barCodeData">.</param>
+        /// <param name="barCodeData">The barcode data to parse.</param>
         public override void ParseBarCodeData(string barCodeData)
         {
-            barCodeData = this.IdentifyGtin(barCodeData);    // do not remove data
+            barCodeData = this.IdentifyGtin(barCodeData);    // Do not remove data
             barCodeData = this.IdentifyProductIdentifier(barCodeData);
             barCodeData = this.IdentifyNetWeightMetricKg(barCodeData);
             barCodeData = this.IdentifyLogisticUnitBestBeforeSellByDate(barCodeData);
@@ -25,10 +26,10 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         }
 
         /// <summary>
-        /// The IdentifyProductIdentifier.
+        /// Identifies the product identifier from the barcode data.
         /// </summary>
-        /// <param name="barCodeData">.</param>
-        /// <returns>.</returns>
+        /// <param name="barCodeData">The barcode data to parse.</param>
+        /// <returns>The remaining barcode data after extracting the product identifier.</returns>
         protected override string IdentifyProductIdentifier(string barCodeData)
         {
             if (barCodeData.Length < 14)
@@ -50,53 +51,52 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         }
 
         /// <summary>
-        /// The IdentifyGTIN.
+        /// Identifies the GTIN (Global Trade Item Number) from the barcode data.
         /// </summary>
-        /// <param name="barCodeData">.</param>
-        /// <returns>.</returns>
+        /// <param name="barCodeData">The barcode data to parse.</param>
+        /// <returns>The remaining barcode data after extracting the GTIN.</returns>
         protected override string IdentifyGtin(string barCodeData)
         {
             this.Data = barCodeData;
-
             this.Gtin = this.Data[..14];
 
-            // Do not remove the gtin from the data
+            // Do not remove the GTIN from the data
             return this.Data;
         }
 
         /// <summary>
-        /// The IdentifyLogisticUnitBestBeforeSellByDate.
+        /// Identifies the logistic unit best before/sell by date from the barcode data.
         /// </summary>
-        /// <param name="barCodeData">.</param>
-        /// <returns>.</returns>
+        /// <param name="barCodeData">The barcode data to parse.</param>
+        /// <returns>The remaining barcode data after extracting the best before/sell by date.</returns>
         protected override string IdentifyLogisticUnitBestBeforeSellByDate(string barCodeData)
         {
-            // Assign the BEST BEFORE SELL BY DATE
+            // Assign the best before/sell by date
             var year = Convert.ToInt32(barCodeData[..2]);
             if (year < 80)
             {
-                year = year + 2000;
+                year += 2000;
             }
             else
             {
-                year = year + 1900;
+                year += 1900;
             }
 
             var dt = new DateTime(year, Convert.ToInt32(barCodeData.Substring(2, 2)),
                 Convert.ToInt32(barCodeData.Substring(4, 2)));   // 101026
             this.LogisticUnitBestBeforeSellByDate = dt;
 
-            // remove the BEST BEFORE SELL BY DATE from the bar code data
+            // Remove the best before/sell by date from the barcode data
             barCodeData = barCodeData.Remove(0, 6);
 
             return barCodeData;
         }
 
         /// <summary>
-        /// The IdentifyNetWeightMetricKG.
+        /// Identifies the net weight in metric kilograms from the barcode data.
         /// </summary>
-        /// <param name="barCodeData">.</param>
-        /// <returns>.</returns>
+        /// <param name="barCodeData">The barcode data to parse.</param>
+        /// <returns>The remaining barcode data after extracting the net weight in metric kilograms.</returns>
         protected override string IdentifyNetWeightMetricKg(string barCodeData)
         {
             this.NetWeightMetricKgFoundAi = true;
@@ -104,18 +104,19 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
             // Get the number of decimal places
             var places = 2;
 
-            // assign the METRIC NET WEIGHT KG
+            // Assign the net weight in metric kilograms
             var wholeNumber = barCodeData[..6];
-            if (places != 0)
-            {
-                this.NetWeightMetricKg = Convert.ToDecimal(wholeNumber[..^places] + "." + wholeNumber[^places..]);
-            }
-            else
-            {
-                this.NetWeightMetricKg = Convert.ToDecimal(wholeNumber);
-            }
+            this.NetWeightMetricKg = Convert.ToDecimal(wholeNumber[..^places] + "." + wholeNumber[^places..]);
+            ////if (places != 0)
+            ////{
+            ////    this.NetWeightMetricKg = Convert.ToDecimal(wholeNumber[..^places] + "." + wholeNumber[^places..]);
+            ////}
+            ////else
+            ////{
+            ////    this.NetWeightMetricKg = Convert.ToDecimal(wholeNumber);
+            ////}
 
-            // Remove the METRIC NET WEIGHT KG from the bar code data
+            // Remove the net weight in metric kilograms from the barcode data
             barCodeData = barCodeData.Remove(0, 6);
 
             return barCodeData;

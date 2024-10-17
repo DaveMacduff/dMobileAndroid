@@ -5,10 +5,10 @@
 namespace dMobile.BarCodeScanner.BarCodeScanners
 {
     using System;
-    using dMobile.BarCodeScanner.BarCodeParsing;
+    using BarCodeParsing;
 
     /// <summary>
-    /// This is the event arguments for the BarCode Scanner class event BarCodeScan.
+    /// This is the event arguments for the BarCode Scanner class event OnBarCodeScan.
     /// </summary>
     public class BarCodeScannerEventArgs : EventArgs
     {

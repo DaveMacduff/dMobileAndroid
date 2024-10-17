@@ -2,15 +2,20 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
+// ReSharper disable InconsistentNaming
 namespace dMobile.BarCodeScanner.BarCodeParsing
 {
     using System;
 
+    /// <summary>
+    /// Provides parsing functionality for Code 128 barcodes specific to Ovation Field New Zealand Lamb.
+    /// </summary>
     public class BarCodeParseCode_128_OvationFielding_Lamb : BarCodeParse
     {
         /// <summary>
-        /// Parsing rule class for Ovation Field New Zealand Lamb.
+        /// Parses the barcode data according to the specific rules for Ovation Field New Zealand Lamb.
         /// </summary>
+        /// <param name="barCodeData">The barcode data to parse.</param>
         /// <remarks>
         /// See WO # 11127.
         /// <para>
@@ -21,7 +26,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// 0 = Check Digit
         /// 197 = Carton Number
         /// 0 = Check Digit
-        /// 51016 = Standpack Number
+        /// 51016 = Stand-pack Number
         /// 0 = Check Digit
         /// 0 = Check Digit
         /// 1492 = Weight 14.92 KG
@@ -32,8 +37,6 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// </para><para>
         /// 32 total digits.</para>
         /// </remarks>
-        /// <param name="barCodeData"></param>
-        /// <returns></returns>
         public override void ParseBarCodeData(string barCodeData)
         {
             barCodeData = this.IdentifyLogisticUnitPackagingDate(barCodeData);
@@ -56,11 +59,10 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         }
 
         /// <summary>
-        ///
+        /// Identifies the product identifier from the barcode data.
         /// </summary>
-        /// <param name="barCodeData"></param>
-        /// <returns></returns>
-        /// <inheritdoc/>
+        /// <param name="barCodeData">The barcode data to parse.</param>
+        /// <returns>The remaining barcode data after extracting the product identifier.</returns>
         protected override string IdentifyProductIdentifier(string barCodeData)
         {
             this.ProductIdentifier = barCodeData[..5];
@@ -70,77 +72,70 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         }
 
         /// <summary>
-        ///
+        /// Identifies the GTIN (Global Trade Item Number) from the barcode data.
         /// </summary>
-        /// <param name="barCodeData"></param>
-        /// <returns></returns>
-        /// <inheritdoc/>
+        /// <param name="barCodeData">The barcode data to parse.</param>
+        /// <returns>The remaining barcode data after extracting the GTIN.</returns>
         protected override string IdentifyGtin(string barCodeData)
         {
             this.Data = barCodeData;
-
             this.Gtin = this.Data[..5].PadLeft(13, '0');
 
-            // strBarCodeData = strBarCodeData.Remove(0, 5);
+            // Do not remove the GTIN from the data
             return this.Data;
         }
 
         /// <summary>
-        ///
+        /// Identifies the logistic unit packaging date from the barcode data.
         /// </summary>
-        /// <param name="barCodeData"></param>
-        /// <returns></returns>
-        /// <inheritdoc/>
+        /// <param name="barCodeData">The barcode data to parse.</param>
+        /// <returns>The remaining barcode data after extracting the packaging date.</returns>
         protected override string IdentifyLogisticUnitPackagingDate(string barCodeData)
         {
             var year = Convert.ToInt32(barCodeData[..2]);
             if (year < 80)
             {
-                year = year + 2000;
+                year += 2000;
             }
             else
             {
-                year = year + 1900;
+                year += 1900;
             }
 
             var dayOfTheYear = Convert.ToInt32(barCodeData.Substring(2, 3));
-
-            var dt = new DateTime(year, 1, 1);
-
-            dt = dt.AddDays(dayOfTheYear - 1);
+            var dt = new DateTime(year, 1, 1).AddDays(dayOfTheYear - 1);
 
             this.LogisticUnitProductionDate = dt;
-
             barCodeData = barCodeData.Remove(0, 5);
 
             return barCodeData;
         }
 
         /// <summary>
-        ///
+        /// Identifies the net weight in metric kilograms from the barcode data.
         /// </summary>
-        /// <param name="barCodeData"></param>
-        /// <returns></returns>
-        /// <inheritdoc/>
+        /// <param name="barCodeData">The barcode data to parse.</param>
+        /// <returns>The remaining barcode data after extracting the net weight in metric kilograms.</returns>
         protected override string IdentifyNetWeightMetricKg(string barCodeData)
         {
             this.NetWeightMetricKgFoundAi = false;
 
-            // get the number of decimal places
+            // Get the number of decimal places
             var iDecPlaces = 2;
 
-            // assign the METRIC NET WEIGHT KG
+            // Assign the net weight in metric kilograms
             var wholeNumber = barCodeData[..4];
-            if (iDecPlaces != 0)
-            {
-                this.NetWeightMetricKg = Convert.ToDecimal(wholeNumber[..^iDecPlaces] + "." + wholeNumber[^iDecPlaces..]);
-            }
-            else
-            {
-                this.NetWeightMetricKg = Convert.ToDecimal(wholeNumber);
-            }
+            this.NetWeightMetricKg = Convert.ToDecimal(wholeNumber[..^iDecPlaces] + "." + wholeNumber[^iDecPlaces..]);
+            ////if (iDecPlaces != 0)
+            ////{
+            ////    this.NetWeightMetricKg = Convert.ToDecimal(wholeNumber[..^iDecPlaces] + "." + wholeNumber[^iDecPlaces..]);
+            ////}
+            ////else
+            ////{
+            ////    this.NetWeightMetricKg = Convert.ToDecimal(wholeNumber);
+            ////}
 
-            // remove the METRIC NET WEIGHT KG from the bar code data
+            // Remove the net weight in metric kilograms from the barcode data
             barCodeData = barCodeData.Remove(0, 4);
 
             return barCodeData;

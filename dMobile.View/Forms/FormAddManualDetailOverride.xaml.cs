@@ -108,7 +108,7 @@ namespace dMobile.View.Forms
                 await this.Scanner.EnableScanning();
                 if (!this.Scanner.IsBarCodeScanEventHandlerAdded())
                 {
-                    this.Scanner.BarCodeScan += this.BarCodeHandler;
+                    this.Scanner.OnBarCodeScan += this.BarCodeHandler;
                 }
 
                 this.IsBarCodeHandlerRegistered = true;

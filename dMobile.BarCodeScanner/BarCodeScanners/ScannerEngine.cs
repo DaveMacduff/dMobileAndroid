@@ -5,12 +5,12 @@
 namespace dMobile.BarCodeScanner.BarCodeScanners
 {
     /// <summary>
-    /// Defines the <see cref="ScannerEngine"/> .
+    /// Represents the scanner engine which provides access to the barcode scanner.
     /// </summary>
     public sealed class ScannerEngine
     {
         /// <summary>
-        /// Defines the scanner.
+        /// Defines the barcode scanner instance.
         /// </summary>
         private static BarCodeScanner scanner = BarCodeScannerFacade.GetBarCodeScanner();
 
@@ -22,17 +22,13 @@ namespace dMobile.BarCodeScanner.BarCodeScanners
         }
 
         /// <summary>
-        /// Gets or sets the Scanner.
+        /// Gets or sets the barcode scanner instance.
         /// </summary>
         public BarCodeScanner Scanner
         {
             get
             {
-                if (scanner == null)
-                {
-                    scanner = BarCodeScannerFacade.GetBarCodeScanner();
-                }
-
+                scanner ??= BarCodeScannerFacade.GetBarCodeScanner();
                 return scanner;
             }
 
@@ -45,17 +41,12 @@ namespace dMobile.BarCodeScanner.BarCodeScanners
         private static ScannerEngine Instance { get; set; } = new ScannerEngine();
 
         /// <summary>
-        /// Get the scanner engine instance.
+        /// Gets the scanner engine instance.
         /// </summary>
-        /// <returns>.</returns>
+        /// <returns>The <see cref="ScannerEngine"/> instance.</returns>
         public static ScannerEngine GetInstance()
         {
-            if (Instance == null)
-            {
-                Instance = new ScannerEngine();
-            }
-
-            return Instance;
+            return Instance ??= new ScannerEngine();
         }
     }
 }

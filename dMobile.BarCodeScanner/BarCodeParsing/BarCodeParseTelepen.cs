@@ -4,21 +4,21 @@
 
 namespace dMobile.BarCodeScanner.BarCodeParsing
 {
-    using System;
-
     /// <summary>
-    ///     Bar code parsing for Telepen symbology.
+    /// Bar code parsing for Telepen symbology.
     /// </summary>
     public class BarCodeParseTelepen : BarCodeParse
     {
         /// <summary>
-        ///     Parse bar code data.
+        /// Parses the provided bar code data.
         /// </summary>
-        /// <param name="barCodeData"> Bar code parse data.</param>
+        /// <param name="barCodeData">The bar code data to parse.</param>
         public override void ParseBarCodeData(string barCodeData)
         {
+            // Identify the product identifier from the bar code data
             barCodeData = this.IdentifyProductIdentifier(barCodeData);
 
+            // Set the remainder of the bar code data
             this.Remainder = barCodeData;
         }
     }

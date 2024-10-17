@@ -2,10 +2,14 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
+// ReSharper disable InconsistentNaming
 namespace dMobile.BarCodeScanner.BarCodeParsing
 {
     using System;
 
+    /// <summary>
+    /// Class for parsing EAN/UPC symbols.
+    /// </summary>
     public class BarCodeParseEAN_UPC_Symbol : BarCodeParse
     {
         /// <summary>
@@ -15,8 +19,8 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// Pos 7-11 Item Reference
         /// Pos 12 Check Digit.
         /// </summary>
-        /// <param name="barCodeData"></param>
-        /// <returns></returns>
+        /// <param name="barCodeData">The barcode data to parse.</param>
+        /// <inheritdoc/>
         public override void ParseBarCodeData(string barCodeData)
         {
             barCodeData = this.IdentifyProductIdentifier(barCodeData);   // does not remove data
@@ -38,10 +42,10 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         }
 
         /// <summary>
-        ///
+        /// Identifies the number system character from the barcode data.
         /// </summary>
-        /// <param name="barCodeData"></param>
-        /// <returns></returns>
+        /// <param name="barCodeData">The barcode data.</param>
+        /// <returns>The remaining barcode data after extracting the number system character.</returns>
         /// <inheritdoc/>
         protected override string IdentifyNumberSystemCharacter(string barCodeData)
         {
@@ -55,10 +59,10 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         }
 
         /// <summary>
-        ///
+        /// Identifies the product identifier from the barcode data.
         /// </summary>
-        /// <param name="barCodeData"></param>
-        /// <returns></returns>
+        /// <param name="barCodeData">The barcode data.</param>
+        /// <returns>The remaining barcode data after extracting the product identifier.</returns>
         /// <inheritdoc/>
         protected override string IdentifyProductIdentifier(string barCodeData)
         {
@@ -77,10 +81,10 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         }
 
         /// <summary>
-        ///
+        /// Identifies the company prefix from the barcode data.
         /// </summary>
-        /// <param name="barCodeData"></param>
-        /// <returns></returns>
+        /// <param name="barCodeData">The barcode data.</param>
+        /// <returns>The remaining barcode data after extracting the company prefix.</returns>
         /// <inheritdoc/>
         protected override string IdentifyCompanyPrefix(string barCodeData)
         {
@@ -94,10 +98,10 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         }
 
         /// <summary>
-        ///
+        /// Identifies the item reference from the barcode data.
         /// </summary>
-        /// <param name="barCodeData"></param>
-        /// <returns></returns>
+        /// <param name="barCodeData">The barcode data.</param>
+        /// <returns>The remaining barcode data after extracting the item reference.</returns>
         /// <inheritdoc/>
         protected override string IdentifyItemReference(string barCodeData)
         {
@@ -112,10 +116,10 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         }
 
         /// <summary>
-        ///
+        /// Identifies the GTIN from the barcode data.
         /// </summary>
-        /// <param name="barCodeData"></param>
-        /// <returns></returns>
+        /// <param name="barCodeData">The barcode data.</param>
+        /// <returns>The remaining barcode data after extracting the GTIN.</returns>
         /// <inheritdoc/>
         protected override string IdentifyGtin(string barCodeData)
         {

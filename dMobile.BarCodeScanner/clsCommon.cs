@@ -25,126 +25,126 @@ namespace dMobile.BarCodeScanner
         /// </summary>
         /// <param name="symbology">.</param>
         /// <returns>.</returns>
-        public static string GetSymbologyPrefixFromSymbologyEnum(BarCodeSymbologies symbology)
+        public static string GetSymbologyPrefixFromSymbologyEnum(BarCodeSymbology symbology)
         {
             string symbologyPrefix;
             switch (symbology)
             {
-                case BarCodeSymbologies.UNDEFINED:
+                case BarCodeSymbology.UNDEFINED:
 
                     // or ']O4'
                     symbologyPrefix = "]01";
                     break;
 
-                case BarCodeSymbologies.UCC_12_UPC_E:
+                case BarCodeSymbology.UCC_12_UPC_E:
                     symbologyPrefix = "]X0";
                     break;
 
-                case BarCodeSymbologies.EAN_UCC_14:
+                case BarCodeSymbology.EAN_UCC_14:
                     symbologyPrefix = string.Empty;
                     break;
 
-                case BarCodeSymbologies.EAN_UCC_13:
+                case BarCodeSymbology.EAN_UCC_13:
                     symbologyPrefix = "]E0";
                     break;
 
-                case BarCodeSymbologies.EAN_UCC_8:
+                case BarCodeSymbology.EAN_UCC_8:
                     symbologyPrefix = "]E4";
                     break;
 
-                case BarCodeSymbologies.ITF_14_Symbol:
+                case BarCodeSymbology.ITF_14_Symbol:
                     symbologyPrefix = "]I";
                     break;
 
-                case BarCodeSymbologies.UCC_EAN_128_Symbol:
+                case BarCodeSymbology.UCC_EAN_128_Symbol:
                     symbologyPrefix = "]C1";
                     break;
 
-                case BarCodeSymbologies.Code_128:
+                case BarCodeSymbology.Code_128:
                     symbologyPrefix = "]C";
                     break;
 
-                case BarCodeSymbologies.SSCC_18:
+                case BarCodeSymbology.SSCC_18:
                     symbologyPrefix = string.Empty;
                     break;
 
-                case BarCodeSymbologies.Code_39:
+                case BarCodeSymbology.Code_39:
                     symbologyPrefix = "]A";
                     break;
 
-                case BarCodeSymbologies.EAN_UPC_Symbol:
+                case BarCodeSymbology.EAN_UPC_Symbol:
                     symbologyPrefix = "]E";
                     break;
 
-                case BarCodeSymbologies.Code_93:
+                case BarCodeSymbology.Code_93:
                     symbologyPrefix = "]G";
                     break;
 
-                case BarCodeSymbologies.Codabar:
+                case BarCodeSymbology.Codabar:
                     symbologyPrefix = "]F";
                     break;
 
-                case BarCodeSymbologies.Code_2_of_5:
+                case BarCodeSymbology.Code_2_of_5:
                     symbologyPrefix = string.Empty;
                     break;
 
-                case BarCodeSymbologies.MSI:
+                case BarCodeSymbology.MSI:
                     symbologyPrefix = "]M";
                     break;
 
-                case BarCodeSymbologies.Plessey:
+                case BarCodeSymbology.Plessey:
                     symbologyPrefix = string.Empty;
                     break;
 
-                case BarCodeSymbologies.Code_11:
+                case BarCodeSymbology.Code_11:
                     symbologyPrefix = "]H";
                     break;
 
-                case BarCodeSymbologies.Matrix_2_of_5:
+                case BarCodeSymbology.Matrix_2_of_5:
                     symbologyPrefix = string.Empty;
                     break;
 
-                case BarCodeSymbologies.Telepen:
+                case BarCodeSymbology.Telepen:
                     symbologyPrefix = "]B";
                     break;
 
-                case BarCodeSymbologies.PDF417:
+                case BarCodeSymbology.PDF417:
                     symbologyPrefix = "]L";
                     break;
 
-                case BarCodeSymbologies.Micro_PDF417:
+                case BarCodeSymbology.Micro_PDF417:
                     symbologyPrefix = string.Empty;
                     break;
 
-                case BarCodeSymbologies.RSS_14:
+                case BarCodeSymbology.RSS_14:
                     symbologyPrefix = string.Empty;
                     break;
 
-                case BarCodeSymbologies.RSS_Limited:
+                case BarCodeSymbology.RSS_Limited:
                     symbologyPrefix = string.Empty;
                     break;
 
-                case BarCodeSymbologies.RSS_Expanded:
+                case BarCodeSymbology.RSS_Expanded:
                     symbologyPrefix = "]e0";
                     break;
 
-                case BarCodeSymbologies.Codablock_A:
+                case BarCodeSymbology.Codablock_A:
                     symbologyPrefix = "]O6";
                     break;
 
-                case BarCodeSymbologies.Codablock_F:
+                case BarCodeSymbology.Codablock_F:
                     symbologyPrefix = "]O5";
                     break;
 
-                case BarCodeSymbologies.TLC_39:
+                case BarCodeSymbology.TLC_39:
                     symbologyPrefix = string.Empty;
                     break;
 
-                case BarCodeSymbologies.Codablock:
+                case BarCodeSymbology.Codablock:
                     symbologyPrefix = "]O";
                     break;
 
-                case BarCodeSymbologies.Codablock256:
+                case BarCodeSymbology.Codablock256:
                     symbologyPrefix = "]02";
                     break;
 
@@ -167,7 +167,7 @@ namespace dMobile.BarCodeScanner
         public static async Task<DeliProductInfo> GetDeliProdInfoFromBarCode(
                string productUnitBarCodeCode,
                string productUnitBarCodeModifier1,
-               BarCodeSymbologies barCodeSymbology,
+               BarCodeSymbology barCodeSymbology,
                decimal deliScaleAmount)
         {
             var sysEnv = SysEnvironment.GetInstance();

@@ -2,17 +2,18 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
+// ReSharper disable InconsistentNaming
 namespace dMobile.BarCodeScanner.BarCodeParsing
 {
     /// <summary>
-    /// Defines the <see cref="BarCodeParseTLC_39Factory" />.
+    /// Factory class for creating instances of <see cref="BarCodeParseTLC_39"/>.
     /// </summary>
     public class BarCodeParseTLC_39Factory : BarCodeParseFactory
     {
         /// <summary>
-        /// The GetBarCodeParse.
+        /// Creates and returns a new instance of <see cref="BarCodeParseTLC_39"/>.
         /// </summary>
-        /// <returns>The <see cref="BarCodeParse"/>.</returns>
+        /// <returns>A new instance of <see cref="BarCodeParseTLC_39"/>.</returns>
         public override BarCodeParse GetBarCodeParse()
         {
             return new BarCodeParseTLC_39();

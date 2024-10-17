@@ -2,17 +2,18 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
+// ReSharper disable InconsistentNaming
 namespace dMobile.BarCodeScanner.BarCodeParsing
 {
-    using System;
-
+    /// <summary>
+    /// Class for parsing EAN/UCC-8 barcodes.
+    /// </summary>
     public class BarCodeParseEAN_UCC_8 : BarCodeParse
     {
         /// <summary>
-        ///
+        /// Parses the EAN/UCC-8 barcode data.
         /// </summary>
-        /// <param name="barCodeData"></param>
-        /// <returns></returns>
+        /// <param name="barCodeData">The barcode data to parse.</param>
         /// <inheritdoc/>
         public override void ParseBarCodeData(string barCodeData)
         {
@@ -23,30 +24,24 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         }
 
         /// <summary>
-        ///
+        /// Identifies the product identifier from the barcode data.
         /// </summary>
-        /// <param name="barCodeData"></param>
-        /// <returns></returns>
+        /// <param name="barCodeData">The barcode data.</param>
+        /// <returns>The remaining barcode data after extracting the product identifier.</returns>
         /// <inheritdoc/>
         protected override string IdentifyProductIdentifier(string barCodeData)
         {
-            if (this.Settings.IsRuleEnabled_NoZeroPaddingOfProductIdentifierForUCC_EAN_Family)
-            {
-                this.ProductIdentifier = barCodeData;
-            }
-            else
-            {
-                this.ProductIdentifier = barCodeData.PadLeft(14, '0');
-            }
+            this.ProductIdentifier = this.Settings.IsRuleEnabled_NoZeroPaddingOfProductIdentifierForUCC_EAN_Family
+                ? barCodeData : barCodeData.PadLeft(14, '0');
 
             return barCodeData;
         }
 
         /// <summary>
-        ///
+        /// Identifies the GTIN from the barcode data.
         /// </summary>
-        /// <param name="barCodeData"></param>
-        /// <returns></returns>
+        /// <param name="barCodeData">The barcode data.</param>
+        /// <returns>The remaining barcode data after extracting the GTIN.</returns>
         /// <inheritdoc/>
         protected override string IdentifyGtin(string barCodeData)
         {

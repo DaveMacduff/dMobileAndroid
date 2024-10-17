@@ -8,12 +8,15 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
     using Bedrock;
 
     /// <summary>
-    ///     Bar code parsing UCC-EAN-128 symbol.
+    /// Represents a parser for UCC/EAN 128 bar code symbology.
     /// </summary>
     // ReSharper disable once InconsistentNaming
     public class BarCodeParseUCC_EAN_128_Symbol : BarCodeParse
     {
-        /// <inheritdoc />
+        /// <summary>
+        /// Parses the bar code data.
+        /// </summary>
+        /// <param name="barCodeData">The bar code data to parse.</param>
         public override void ParseBarCodeData(string barCodeData)
         {
             try
@@ -125,7 +128,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         }
 
         /// <summary>
-        ///     Cleans up any extra rule information.
+        /// Cleans up the parsing rules.
         /// </summary>
         protected void CleanupRules()
         {
@@ -153,10 +156,10 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         }
 
         /// <summary>
-        ///     Identify the product identifier.
+        /// Identifies the product identifier from the bar code data.
         /// </summary>
-        /// <param name="barCodeData">Barcode data to find the product identifier in.</param>
-        /// <returns>Modified barcode data.</returns>
+        /// <param name="barCodeData">The bar code data.</param>
+        /// <returns>The product identifier.</returns>
         protected override string IdentifyProductIdentifier(string barCodeData)
         {
             var tempData = barCodeData;

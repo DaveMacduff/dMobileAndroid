@@ -120,7 +120,7 @@ namespace dMobile.View.Activity
             var barCodeScanner = this.Scanner;
             if (barCodeScanner != null)
             {
-                barCodeScanner.BarCodeScan -=
+                barCodeScanner.OnBarCodeScan -=
                     new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
                 await barCodeScanner.DisableScanning();
             }
@@ -141,7 +141,7 @@ namespace dMobile.View.Activity
             if (barCodeScanner != null)
             {
                 await barCodeScanner.EnableScanning();
-                barCodeScanner.BarCodeScan +=
+                barCodeScanner.OnBarCodeScan +=
                     new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
             }
         }

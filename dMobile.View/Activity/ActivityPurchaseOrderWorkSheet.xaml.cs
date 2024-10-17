@@ -163,7 +163,7 @@ namespace dMobile.View.Activity
         {
             if (!this.Scanner.IsBarCodeScanEventHandlerAdded())
             {
-                this.Scanner.BarCodeScan += this.BarCodeHandler;
+                this.Scanner.OnBarCodeScan += this.BarCodeHandler;
             }
 
             await this.Scanner.EnableScanning();

@@ -259,7 +259,7 @@ namespace dMobile.View.Activity
             return Task.CompletedTask;
             ////if (!this.Scanner.IsBarCodeScanEventHandlerAdded())
             ////{
-            ////    this.Scanner.BarCodeScan += this.BarCodeHandler;
+            ////    this.Scanner.OnBarCodeScan += this.BarCodeHandler;
             ////}
 
             ////await this.Scanner.EnableScanning();

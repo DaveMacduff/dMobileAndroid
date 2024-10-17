@@ -2,19 +2,20 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
+// ReSharper disable InconsistentNaming
 namespace dMobile.BarCodeScanner.BarCodeParsing
 {
     using System;
 
     /// <summary>
-    /// Defines the <see cref="BarCodeParseCode_128_NorthCoopMeat_Product256912" />.
+    /// Provides parsing functionality for Code 128 barcodes specific to North Coop Meat Product 256912.
     /// </summary>
     public class BarCodeParseCode_128_NorthCoopMeat_Product256912 : BarCodeParse
     {
         /// <summary>
-        /// Parsing rules reviewed.
+        /// Parses the barcode data according to the specific rules for North Coop Meat Product 256912.
         /// </summary>
-        /// <param name="barCodeData">.</param>
+        /// <param name="barCodeData">The barcode data to parse.</param>
         public override void ParseBarCodeData(string barCodeData)
         {
             barCodeData = this.IdentifyProductIdentifier(barCodeData);
@@ -24,10 +25,10 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         }
 
         /// <summary>
-        /// The IdentifyProductIdentifier.
+        /// Identifies the product identifier from the barcode data.
         /// </summary>
-        /// <param name="barCodeData">.</param>
-        /// <returns>.</returns>
+        /// <param name="barCodeData">The barcode data to parse.</param>
+        /// <returns>The remaining barcode data after extracting the product identifier.</returns>
         protected override string IdentifyProductIdentifier(string barCodeData)
         {
             if (barCodeData.Length < 7)
@@ -49,10 +50,10 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         }
 
         /// <summary>
-        /// The IdentifyNetWeightMetricKG.
+        /// Identifies the net weight in metric kilograms from the barcode data.
         /// </summary>
-        /// <param name="barCodeData">.</param>
-        /// <returns>.</returns>
+        /// <param name="barCodeData">The barcode data to parse.</param>
+        /// <returns>The remaining barcode data after extracting the net weight in metric kilograms.</returns>
         protected override string IdentifyNetWeightMetricKg(string barCodeData)
         {
             this.NetWeightMetricKgFoundAi = true;
@@ -60,7 +61,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
             // Get the number of decimal places
             var places = 2;
 
-            // assign the METRIC NET WEIGHT KG
+            // Assign the net weight in metric kilograms
             var wholeNumber = barCodeData[..4];
             if (places != 0)
             {
@@ -71,32 +72,32 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
                 this.NetWeightMetricKg = Convert.ToDecimal(wholeNumber);
             }
 
-            // Remove the METRIC NET WEIGHT KG from the bar code data
+            // Remove the net weight in metric kilograms from the barcode data
             barCodeData = barCodeData.Remove(0, 4);
 
             return barCodeData;
         }
 
         /// <summary>
-        /// The IdentifyLogisticUnitProductionDate.
+        /// Identifies the logistic unit production date from the barcode data.
         /// </summary>
-        /// <param name="barCodeData">.</param>
-        /// <returns>.</returns>
+        /// <param name="barCodeData">The barcode data to parse.</param>
+        /// <returns>The remaining barcode data after extracting the logistic unit production date.</returns>
         protected override string IdentifyLogisticUnitProductionDate(string barCodeData)
         {
             var tempData = barCodeData;
 
             if (tempData.Length >= 8)
             {
-                // assign the PRODUCTION DATE
+                // Assign the production date
                 var year = Convert.ToInt32(tempData[..2]);
                 if (year < 80)
                 {
-                    year = year + 2000;
+                    year += 2000;
                 }
                 else
                 {
-                    year = year + 1900;
+                    year += 1900;
                 }
 
                 var dt = new DateTime(
@@ -106,7 +107,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
 
                 this.LogisticUnitProductionDate = dt;
 
-                // remove the PRODUCTION DATE from the bar code data
+                // Remove the production date from the barcode data
                 tempData = tempData.Remove(0, 6);
             }
 

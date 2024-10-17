@@ -2,14 +2,18 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
+// ReSharper disable InconsistentNaming
 namespace dMobile.BarCodeScanner.BarCodeParsing
 {
     using System;
 
+    /// <summary>
+    /// Represents a parser for ITF-14 barcode symbols.
+    /// </summary>
     public class BarCodeParseITF_14_Symbol : BarCodeParse
     {
         /// <summary>
-        /// Parsing rules reviewed
+        /// Parses the provided ITF-14 barcode data.
         ///
         /// Data structure is always 14 digits
         /// Position 1 is package indicator digit
@@ -18,8 +22,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// Position 9-13 item reference
         /// Position 14 is a check digit.
         /// </summary>
-        /// <param name="barCodeData"></param>
-        /// <returns></returns>
+        /// <param name="barCodeData">The barcode data to parse.</param>
         public override void ParseBarCodeData(string barCodeData)
         {
             if (barCodeData.Length < 14)
@@ -46,14 +49,15 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
 
                 // end parse GTIN
             }
+
             this.Remainder = barCodeData;
         }
 
         /// <summary>
-        ///
+        /// Identifies the packaging type from the barcode data.
         /// </summary>
-        /// <param name="barCodeData"></param>
-        /// <returns></returns>
+        /// <param name="barCodeData">The barcode data.</param>
+        /// <returns>The remaining barcode data after identifying the packaging type.</returns>
         /// <inheritdoc/>
         protected override string IdentifyPackagingType(string barCodeData)
         {
@@ -61,17 +65,17 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
 
             this.PackagingType = Convert.ToInt32(strBarCodeData[..1]);
 
-            // remove the packagiing indicator
+            // remove the packaging indicator
             strBarCodeData = strBarCodeData.Remove(0, 1);
 
             return strBarCodeData;
         }
 
         /// <summary>
-        ///
+        /// Identifies the product identifier from the barcode data.
         /// </summary>
-        /// <param name="barCodeData"></param>
-        /// <returns></returns>
+        /// <param name="barCodeData">The barcode data.</param>
+        /// <returns>The remaining barcode data after identifying the product identifier.</returns>
         /// <inheritdoc/>
         protected override string IdentifyProductIdentifier(string barCodeData)
         {
@@ -90,10 +94,10 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         }
 
         /// <summary>
-        ///
+        /// Identifies the company prefix from the barcode data.
         /// </summary>
-        /// <param name="barCodeData"></param>
-        /// <returns></returns>
+        /// <param name="barCodeData">The barcode data.</param>
+        /// <returns>The remaining barcode data after identifying the company prefix.</returns>
         /// <inheritdoc/>
         protected override string IdentifyCompanyPrefix(string barCodeData)
         {
@@ -108,10 +112,10 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         }
 
         /// <summary>
-        ///
+        /// Identifies the item reference from the barcode data.
         /// </summary>
-        /// <param name="barCodeData"></param>
-        /// <returns></returns>
+        /// <param name="barCodeData">The barcode data.</param>
+        /// <returns>The remaining barcode data after identifying the item reference.</returns>
         /// <inheritdoc/>
         protected override string IdentifyItemReference(string barCodeData)
         {
@@ -124,10 +128,10 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         }
 
         /// <summary>
-        ///
+        /// Identifies the GTIN from the barcode data.
         /// </summary>
-        /// <param name="barCodeData"></param>
-        /// <returns></returns>
+        /// <param name="barCodeData">The barcode data.</param>
+        /// <returns>The remaining barcode data after identifying the GTIN.</returns>
         /// <inheritdoc/>
         protected override string IdentifyGtin(string barCodeData)
         {

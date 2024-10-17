@@ -2,20 +2,21 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
+// ReSharper disable InconsistentNaming
 namespace dMobile.BarCodeScanner.BarCodeParsing
 {
-    using dMobile.Bedrock;
     using System;
+    using Bedrock;
 
     /// <summary>
-    /// Define bar code parsing for UCC/EAN-128 symbology for Nossack Product 94600 Chilean Back Ribs.
+    /// Defines bar code parsing for UCC/EAN-128 symbology for Nossack Product 94600 Chilean Back Ribs.
     /// </summary>
     public class BarCodeParseUCC_EAN_128_Symbol_NossackProduct94600_ChileanBackRibs : BarCodeParseUCC_EAN_128_Symbol
     {
         /// <summary>
-        /// The ParseBarCodeData.
+        /// Parses the bar code data.
         /// </summary>
-        /// <param name="barCodeData">The barCodeData<see cref="string"/>.</param>
+        /// <param name="barCodeData">The bar code data to parse.</param>
         public override void ParseBarCodeData(string barCodeData)
         {
             try
@@ -73,25 +74,25 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         }
 
         /// <summary>
-        /// The IdentifyGTIN.
+        /// Identifies the GTIN from the bar code data.
         /// </summary>
-        /// <param name="barCodeData">.</param>
-        /// <returns>.</returns>
+        /// <param name="barCodeData">The bar code data.</param>
+        /// <returns>The remaining bar code data after identifying the GTIN.</returns>
         protected override string IdentifyGtin(string barCodeData)
         {
             var tempData = barCodeData;
 
             if (tempData.StartsWith("01") && tempData.Length >= 14)
             {
-                // remove the AI
+                // Remove the AI
                 tempData = tempData.Remove(0, 2);
 
                 // Barcode AI01 only for this rule has a length 12 for the GTIN.
                 // <WO ID="14938" Comment="Assume they fixed their 12 digit to a 14 digit GTIN" />
-                // assign the GTIN
-                this.Gtin = tempData[..14];// .PadLeft(14, '0');
+                // Assign the GTIN
+                this.Gtin = tempData[..14];
 
-                // remove the GTIN from the bar code data
+                // Remove the GTIN from the bar code data
                 tempData = tempData.Remove(0, 14);
 
                 this.IdentifyCompanyPrefix(this.Gtin);
@@ -101,10 +102,10 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         }
 
         /// <summary>
-        /// The IdentifyProductIdentifier.
+        /// Identifies the product identifier from the bar code data.
         /// </summary>
-        /// <param name="barCodeData">.</param>
-        /// <returns>.</returns>
+        /// <param name="barCodeData">The bar code data.</param>
+        /// <returns>The remaining bar code data after identifying the product identifier.</returns>
         protected override string IdentifyProductIdentifier(string barCodeData)
         {
             var tempData = barCodeData;
@@ -129,39 +130,36 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         }
 
         /// <summary>
-        /// They want to read DDMMYY instead of the standard YYMMDD.
+        /// Identifies the production date from the bar code data, adjusting for vendor-specific formatting.
         /// </summary>
-        /// <param name="barCodeData">.</param>
-        /// <returns>.</returns>
+        /// <param name="barCodeData">The bar code data.</param>
+        /// <returns>The remaining bar code data after identifying the production date.</returns>
         protected override string IdentifyLogisticUnitProductionDate(string barCodeData)
         {
             var tempData = barCodeData;
 
             if (tempData.StartsWith("11") && tempData.Length >= 8)
             {
-                // remove the AI
+                // Remove the AI
                 tempData = tempData.Remove(0, 2);
 
                 try
                 {
-                    // assign the PRODUCTION DATE
+                    // Assign the production date
                     // <issue="13609" comment="DDMMYY"/>
                     var day = Convert.ToInt32(tempData[..2]);
                     var month = Convert.ToInt32(tempData.Substring(2, 2));
                     var year = Convert.ToInt32(tempData.Substring(4, 2));
                     if (year < 80)
                     {
-                        year = year + 2000;
+                        year += 2000;
                     }
                     else
                     {
-                        year = year + 1900;
+                        year += 1900;
                     }
 
-                    var dt = new DateTime(
-                        year,
-                        month,
-                        day);   // 101026
+                    var dt = new DateTime(year, month, day);
 
                     this.LogisticUnitProductionDate = dt;
                 }
@@ -179,7 +177,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
                 }
                 finally
                 {
-                    // remove the PRODUCTION DATE from the bar code data
+                    // Remove the production date from the bar code data
                     tempData = tempData.Remove(0, 6);
                 }
             }

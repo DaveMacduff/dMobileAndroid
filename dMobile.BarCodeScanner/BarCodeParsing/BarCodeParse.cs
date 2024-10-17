@@ -34,7 +34,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// <summary>
         ///     Bar code symbology, enumeration type.
         /// </summary>
-        private static BarCodeSymbologies symbology = BarCodeSymbologies.UNDEFINED;
+        private static BarCodeSymbology symbology = BarCodeSymbology.UNDEFINED;
 
         /// <summary>
         ///     Bar code symbology characters.
@@ -459,7 +459,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// <summary>
         ///     Gets or sets the bar code symbology, enumeration type.
         /// </summary>
-        public BarCodeSymbologies Symbology
+        public BarCodeSymbology Symbology
         {
             get => symbology;
 
@@ -1040,7 +1040,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
             {
                 this.Raw = string.Empty;
                 this.SymbologyPrefix = string.Empty;
-                this.Symbology = BarCodeSymbologies.UNDEFINED;
+                this.Symbology = BarCodeSymbology.UNDEFINED;
                 this.Data = string.Empty;
                 this.Length = 0;
             }
@@ -1161,11 +1161,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
             BarCodeExceptionReason exception,
             BarCodeParseException e)
         {
-            if (this.parseDetails == null)
-            {
-                this.parseDetails = new BarCodeParseDetails();
-            }
-
+            this.parseDetails ??= new BarCodeParseDetails();
             this.parseDetails.AddErrorDetail(exception, e);
         }
 

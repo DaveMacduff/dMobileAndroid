@@ -149,7 +149,7 @@ namespace dMobile.View.Activity
             await this.Scanner.EnableScanning();
             if (!this.Scanner.IsBarCodeScanEventHandlerAdded())
             {
-                this.Scanner.BarCodeScan += this.BarCodeHandler;
+                this.Scanner.OnBarCodeScan += this.BarCodeHandler;
             }
         }
 
@@ -449,8 +449,8 @@ namespace dMobile.View.Activity
                                     await this.AddScanMsg(prodBcUnit);
 
                                     if (this.Parse.DeliScaleAmount != 0 &&
-                                        (this.Parse.Symbology == BarCodeSymbologies.UCC_12_UPC_E ||
-                                         this.Parse.Symbology == BarCodeSymbologies.EAN_UCC_13))
+                                        (this.Parse.Symbology == BarCodeSymbology.UCC_12_UPC_E ||
+                                         this.Parse.Symbology == BarCodeSymbology.EAN_UCC_13))
                                     {
                                         await this.AddScanMsg(
                                             $"Product Deli Scale Amount {this.Parse.DeliScaleAmount}");

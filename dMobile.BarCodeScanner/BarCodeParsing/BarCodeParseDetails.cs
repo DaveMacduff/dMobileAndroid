@@ -4,10 +4,8 @@
 
 namespace dMobile.BarCodeScanner.BarCodeParsing
 {
-    using System;
     using System.Collections.Generic;
-    using System.Text;
-    using dMobile.Bedrock;
+    using Bedrock;
 
     /// <summary>
     /// Class contains details of parsing.
@@ -18,7 +16,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// <summary>
         /// List of all the error details.
         /// </summary>
-        List<BarCodeParseErrorDetail> errorDetails;
+        private readonly List<BarCodeParseErrorDetail> errorDetails;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="BarCodeParseDetails"/> class.
@@ -27,6 +25,16 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         {
             this.errorDetails = new List<BarCodeParseErrorDetail>();
         }
+
+        /// <summary>
+        /// Gets a value indicating whether there are any errors.
+        /// </summary>
+        public bool HasErrors => this.errorDetails.Count > 0;
+
+        /// <summary>
+        /// Gets the number of errors.
+        /// </summary>
+        public int ErrorCount => this.errorDetails.Count;
 
         /// <summary>
         /// Gets an enumerable for all parse error details.
@@ -43,16 +51,6 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         }
 
         /// <summary>
-        /// Checks if there are any errors.
-        /// </summary>
-        public bool HasErrors => this.errorDetails.Count > 0;
-
-        /// <summary>
-        /// Gets the number of errors.
-        /// </summary>
-        public int ErrorCount => this.errorDetails.Count;
-
-        /// <summary>
         /// Adds a detail of what went wrong with the parse.
         /// </summary>
         /// <param name="type">Field which failed the parse and the reason for it.</param>
@@ -60,23 +58,6 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         public void AddErrorDetail(BarCodeExceptionReason type, BarCodeParseException e)
         {
             this.errorDetails.Add(new BarCodeParseErrorDetail(type, e));
-        }
-
-        /// <summary>
-        /// Gets the exception at the specified index.
-        /// </summary>
-        /// <param name="index">Index of the exception.</param>
-        /// <returns>Exception if one is found, otherwise null.</returns>
-        public BarCodeParseException GetParseExceptionAt(int index)
-        {
-            var detail = this.GetErrorDetailAt(index);
-
-            if (detail == null)
-            {
-                return null;
-            }
-
-            return detail.Exception;
         }
 
         /// <summary>
@@ -97,26 +78,10 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         }
 
         /// <summary>
-        /// Gets the error detail at the specified index.
-        /// Null if out of bounds.
-        /// </summary>
-        /// <param name="index">Index of the error detail.</param>
-        /// <returns>ErrorDetail if one is found, otherwise null.</returns>
-        public BarCodeParseErrorDetail GetErrorDetailAt(int index)
-        {
-            if (index >= 0 && index < this.ErrorCount)
-            {
-                return this.errorDetails[index];
-            }
-
-            return null;
-        }
-
-        /// <summary>
         /// Removes the error from the list, then throws it.
         /// Ensures that it is only thrown once.
         /// </summary>
-        /// <param name="index"></param>
+        /// <param name="index">Index of the error to throw.</param>
         /// <exception cref="BarCodeParseException">Throws an exception referring to the failed parsing of a field.</exception>
         public void ThrowOnlyOneError(int index)
         {
@@ -133,10 +98,35 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// </summary>
         public void ClearErrors()
         {
-            if (this.errorDetails != null)
+            this.errorDetails?.Clear();
+        }
+
+        /// <summary>
+        /// Gets the exception at the specified index.
+        /// </summary>
+        /// <param name="index">Index of the exception.</param>
+        /// <returns>Exception if one is found, otherwise null.</returns>
+        private BarCodeParseException GetParseExceptionAt(int index)
+        {
+            var detail = this.GetErrorDetailAt(index);
+            return detail?.Exception;
+        }
+
+        /// <summary>
+        /// Gets the error detail at the specified index.
+        /// Null if out of bounds.
+        /// </summary>
+        /// <param name="index">Index of the error detail.</param>
+        /// <returns>ErrorDetail if one is found, otherwise null.</returns>
+        private BarCodeParseErrorDetail GetErrorDetailAt(int index)
+        {
+            if (index >= 0 &&
+                index < this.ErrorCount)
             {
-                this.errorDetails.Clear();
+                return this.errorDetails[index];
             }
+
+            return null;
         }
     }
 }

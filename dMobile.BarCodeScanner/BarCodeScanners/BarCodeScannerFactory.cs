@@ -5,14 +5,14 @@
 namespace dMobile.BarCodeScanner.BarCodeScanners
 {
     /// <summary>
-    /// This is the abstract barcode scanner class factory.
+    /// Represents the abstract factory for creating barcode scanner instances.
     /// </summary>
     public abstract class BarCodeScannerFactory
     {
         /// <summary>
-        /// Get the bar code scanner instance.
+        /// Gets the barcode scanner instance.
         /// </summary>
-        /// <returns><see cref="BarCodeScanner"/> Bar code scanner instance.</returns>
+        /// <returns>A <see cref="BarCodeScanner"/> instance.</returns>
         public abstract BarCodeScanner GetBarCodeScanner();
     }
 }

@@ -5,29 +5,28 @@
 namespace dMobile.BarCodeScanner.BarCodeScanners
 {
     using System;
-    using System.Threading;
     using System.Threading.Tasks;
-    using Resources.Services;
     using Honeywell.AIDC.CrossPlatform;
+    using Resources.Services;
     using Xamarin.Forms;
 
     /// <summary>
-    /// Defines the <see cref="HoneywellBarCodeScanner" />.
+    /// Represents a barcode scanner for Honeywell devices.
     /// </summary>
-    public partial class HoneywellBarCodeScanner : BarCodeScanner
+    public class HoneywellBarCodeScanner : BarCodeScanner
     {
         /// <summary>
-        /// Gets or sets the Honeywell bar code reader instance.
+        /// Gets or sets the Honeywell barcode reader instance.
         /// </summary>
         private BarcodeReader HoneywellReader { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether the symbology settings are set.
         /// </summary>
-        private bool IsSymbologySettingsSet { get; set; } = false;
+        private bool IsSymbologySettingsSet { get; set; }
 
         /// <summary>
-        /// Gets or sets the honey well scanner service.
+        /// Gets or sets the Honeywell scanner service.
         /// </summary>
         private IHoneywellScannerService HoneywellScannerService { get; set; } =
             DependencyService.Get<IHoneywellScannerService>();
@@ -38,20 +37,18 @@ namespace dMobile.BarCodeScanner.BarCodeScanners
         private EventHandler ProfileDataHandler { get; set; }
 
         /// <summary>
-        /// Open the scanner reader and load symbology settings.
+        /// Opens the scanner reader and loads symbology settings.
         /// </summary>
-        /// <returns><see cref="Task"/> Task completed.</returns>
+        /// <returns>A task representing the asynchronous operation.</returns>
+        /// <exception cref="Exception">Thrown when the barcode reader cannot be opened.</exception>
         public override async Task OpenBarcodeReader()
         {
-            if (this.HoneywellReader == null)
-            {
-                this.HoneywellReader = new BarcodeReader();
-            }
+            this.HoneywellReader ??= new BarcodeReader();
 
-            if (this.HoneywellReader.IsReaderOpened)
-            {
-                ////throw new Exception("Barcode reader cannot be opened while the reader is open.");
-            }
+            ////if (this.HoneywellReader.IsReaderOpened)
+            ////{
+            ////    ////throw new Exception("Barcode reader cannot be opened while the reader is open.");
+            ////}
 
             if (!this.HoneywellReader.IsReaderOpened)
             {
@@ -61,7 +58,6 @@ namespace dMobile.BarCodeScanner.BarCodeScanners
                 {
                     this.SetSymbologySettings();
                     this.HoneywellReader.BarcodeDataReady += this.HoneywellReader_BarcodeDataReady;
-
                 }
                 else
                 {
@@ -74,9 +70,10 @@ namespace dMobile.BarCodeScanner.BarCodeScanners
         }
 
         /// <summary>
-        /// Open the scanner reader and load symbology settings.
+        /// Closes the scanner reader.
         /// </summary>
-        /// <returns><see cref="Task"/> Task completed.</returns>
+        /// <returns>A task representing the asynchronous operation.</returns>
+        /// <exception cref="Exception">Thrown when the barcode reader cannot be closed.</exception>
         public override async Task CloseBarcodeReader()
         {
             if (this.HoneywellReader.IsReaderOpened)
@@ -102,9 +99,9 @@ namespace dMobile.BarCodeScanner.BarCodeScanners
         }
 
         /// <summary>
-        /// Open the scanner reader and load symbology settings.
+        /// Enables scanning on the barcode reader.
         /// </summary>
-        /// <returns><see cref="Task"/> Task operation.</returns>
+        /// <returns>A task representing the asynchronous operation.</returns>
         public override async Task EnableScanning()
         {
             // Software trigger turns off and on the scanner light and enables scanning.
@@ -114,9 +111,9 @@ namespace dMobile.BarCodeScanner.BarCodeScanners
         }
 
         /// <summary>
-        /// Close the scanner reader.
+        /// Disables scanning on the barcode reader.
         /// </summary>
-        /// <returns><see cref="Task"/> Task operation.</returns>
+        /// <returns>A task representing the asynchronous operation.</returns>
         public override async Task DisableScanning()
         {
             // Software trigger turns off and on the scanner light and enables scanning.
@@ -134,9 +131,9 @@ namespace dMobile.BarCodeScanner.BarCodeScanners
         }
 
         /// <summary>
-        /// The Dispose.
+        /// Disposes the resources used by the scanner.
         /// </summary>
-        /// <param name="disposing">The disposing<see cref="bool"/>.</param>
+        /// <param name="disposing">Indicates whether the method is called from Dispose.</param>
         public override void Dispose(bool disposing)
         {
             if (disposing)
@@ -147,15 +144,16 @@ namespace dMobile.BarCodeScanner.BarCodeScanners
         }
 
         /// <summary>
-        /// The HoneywellReader_BarcodeDataReady.
+        /// Handles the BarcodeDataReady event of the HoneywellReader.
         /// </summary>
-        /// <param name="sender">The sender<see cref="object"/>.</param>
-        /// <param name="e">The e<see cref="BarcodeDataArgs"/>.</param>
+        /// <param name="sender">The event source.</param>
+        /// <param name="e">The event data.</param>
+        /// <exception cref="Exception">Thrown when an error occurs while processing the barcode data.</exception>
         private async void HoneywellReader_BarcodeDataReady(object sender, BarcodeDataArgs e)
         {
             try
             {
-                await this.OnBarCodeScan(new BarCodeScannerEventArgs(e.Data));
+                await this.RaiseBarCodeScan(new BarCodeScannerEventArgs(e.Data));
             }
             catch (Exception ex)
             {
@@ -166,52 +164,47 @@ namespace dMobile.BarCodeScanner.BarCodeScanners
         }
 
         /// <summary>
-        /// The SetSymbologySettings.
+        /// Sets the symbology settings for the barcode reader.
         /// </summary>
+        /// <exception cref="Exception">Thrown when an error occurs while setting the symbology settings.</exception>
         private void SetSymbologySettings()
         {
             if (!this.IsSymbologySettingsSet)
             {
                 if (this.HoneywellReader.IsReaderOpened)
                 {
-                    this.HoneywellScannerService.ProfileDataReady += this.ProfileDataHandler = async (s, e) =>
-                    {
-                        try
-                        {
-                            this.HoneywellScannerService.ProfileDataReady -= this.ProfileDataHandler;
-                            var profileSettings = this.HoneywellScannerService.BarcodeReaderSettings;
-                            if (profileSettings.ContainsKey(this.HoneywellReader.SettingKeys.TriggerScanMode))
-                            {
-                                profileSettings[this.HoneywellReader.SettingKeys.TriggerScanMode] =
-                                    this.HoneywellReader.SettingValues.TriggerScanMode_OneShot;
-                            }
-                            else
-                            {
-                                profileSettings.Add(
-                                    this.HoneywellReader.SettingKeys.TriggerScanMode, 
-                                    this.HoneywellReader.SettingValues.TriggerScanMode_OneShot);
-                            }
-
-                            var result = await this.HoneywellReader.SetAsync(profileSettings);
-
-                            if (result.Code != BarcodeReaderBase.Result.Codes.SUCCESS)
-                            {
-                                var errMsg = $"Could not set symbology settings {result.Message}.";
-                                throw new Exception(errMsg);
-                            }
-                            else
-                            {
-                                this.IsSymbologySettingsSet = true;
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            var errMsg = $"SetSymbologySettings - Error setting symbology settings {ex.Message}";
-                            throw new Exception(errMsg);
-                        }
-                    };
+                    this.HoneywellScannerService.ProfileDataReady += this.ProfileDataHandler = SetSettings;
 
                     this.HoneywellScannerService.GetScannerProfile();
+                }
+            }
+
+            return;
+
+            ///////////////////////////////////////////////////////////
+            async void SetSettings(object s, EventArgs e)
+            {
+                try
+                {
+                    this.HoneywellScannerService.ProfileDataReady -= this.ProfileDataHandler;
+                    var profileSettings = this.HoneywellScannerService.BarcodeReaderSettings;
+                    profileSettings[this.HoneywellReader.SettingKeys.TriggerScanMode] =
+                        this.HoneywellReader.SettingValues.TriggerScanMode_OneShot;
+                    var result = await this.HoneywellReader.SetAsync(profileSettings);
+                    if (result.Code != BarcodeReaderBase.Result.Codes.SUCCESS)
+                    {
+                        var errMsg = $"Could not set symbology settings {result.Message}.";
+                        throw new Exception(errMsg);
+                    }
+                    else
+                    {
+                        this.IsSymbologySettingsSet = true;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    var errMsg = $"SetSymbologySettings - Error setting symbology settings {ex.Message}";
+                    throw new Exception(errMsg);
                 }
             }
         }

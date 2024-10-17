@@ -664,7 +664,7 @@ namespace dMobile.View.Options
                                     if (this.SubmitBatchSettings.eActivitySubType ==
                                         SysCommon.ActSubTypes.BarCodeAssociation)
                                     {
-                                        var i = (BarCodeSymbologies)Convert.ToInt32(
+                                        var i = (BarCodeSymbology)Convert.ToInt32(
                                             (actItem.ListItems[itemIdx] as dynamic).ProductUnitBarCodeSymbologyEnum);
                                         var symbologyPrefix = clsCommon.GetSymbologyPrefixFromSymbologyEnum(i);
 

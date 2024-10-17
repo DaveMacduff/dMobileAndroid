@@ -5,14 +5,14 @@
 namespace dMobile.BarCodeScanner.BarCodeParsing
 {
     /// <summary>
-    /// Defines the <see cref="BarCodeParseCodabarFactory" />.
+    /// Defines a factory for creating instances of <see cref="BarCodeParseCodabar"/>.
     /// </summary>
     public class BarCodeParseCodabarFactory : BarCodeParseFactory
     {
         /// <summary>
-        /// The GetBarCodeParse.
+        /// Creates an instance of <see cref="BarCodeParseCodabar"/>.
         /// </summary>
-        /// <returns>The <see cref="BarCodeParse"/>.</returns>
+        /// <returns>An instance of <see cref="BarCodeParse"/>.</returns>
         public override BarCodeParse GetBarCodeParse()
         {
             return new BarCodeParseCodabar();
