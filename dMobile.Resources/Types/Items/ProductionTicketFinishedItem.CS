@@ -1,4 +1,4 @@
-﻿// <copyright file="ProductionTicketFinishedItem.CS" company="InterSect Business Systems Inc">
+﻿// <copyright file="ProductionTicketFinishedItem" company="InterSect Business Systems Inc">
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 

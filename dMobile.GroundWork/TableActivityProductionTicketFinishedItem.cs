@@ -164,7 +164,7 @@ namespace dMobile.GroundWork
                 throw new Exception("drFinished.Read() failed.");
             }
 
-            return await this.SendComm(await this.CreateRequest(actProductionFKRefno));
+            return await SendComm(await this.CreateRequest(actProductionFKRefno));
         }
 
         /// <summary>
@@ -230,7 +230,7 @@ namespace dMobile.GroundWork
                                     actItemRefno = Convert.ToInt32(
                                         transaction.ExecuteScalar<int>(
                                             "SELECT last_insert_rowid() FROM tActivityItem"));
-                                    prodUnitRefno = this.GetProductUnitRefnoFromDataRow(
+                                    prodUnitRefno = GetProductUnitRefnoFromDataRow(
                                         drow,
                                         transaction,
                                         false);
@@ -266,7 +266,7 @@ namespace dMobile.GroundWork
                                         actItemRefno,
                                         Convert.ToInt32(SysCommon.ActSubTypes.TicketFinished),
                                         prodUnitRefno,
-                                        this.GetWhsLocMapRefnoFromDataRow(drow, transaction),
+                                        GetWhsLocMapRefnoFromDataRow(drow, transaction),
                                         Convert.ToDecimal(drow["ActivityItemProductionQuantity"]),
                                         Convert.ToDecimal(
                                             drow["ActivityItemProductionBaseQuantity"]),
@@ -375,61 +375,6 @@ namespace dMobile.GroundWork
             xml.Close();
 
             return xmlString.ToString();
-        }
-
-        protected override Task<string> CreateRequest()
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override Task<string> CreateRequest(XDocument criteriaFilter)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override Task<string> CreateRequest(string familyCode)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override Task RequestData(int actRefno)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override Task PurgeData(int sectLocMapRefno)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override Task PurgeData(SysCommon.ActSubTypes actSubType)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override Task<int> DataStatus()
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override Task Save(string responseData)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override Task<string> CreateRequest(int activityFkRefno, XDocument criteria)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override Task<string> CreateRequest(int prodLocMapType, int whsLocMapFkRefno)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override Task<string> CreateRequestProdLoc(int prodLocMapType)
-        {
-            throw new NotImplementedException();
         }
     }
 }

@@ -24,11 +24,6 @@ namespace dMobile.GroundWork
             this.ProperCaseName = "Product scheme variant xref";
         }
 
-        public override Task<int> DataStatus()
-        {
-            throw new NotImplementedException();
-        }
-
         /// <summary>
         ///
         /// </summary>
@@ -57,66 +52,6 @@ namespace dMobile.GroundWork
             {
                 throw new Exception($"Exception occurred. Purging {this.LowerCaseName} details failed.", ex);
             }
-        }
-
-        public override Task PurgeData(int sectLocMapRefno)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override Task PurgeData(SysCommon.ActSubTypes actSubType)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override Task RequestData(int actRefno)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override Task<string> CreateRequest()
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override Task<string> CreateRequest(XDocument criteriaFilter)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override Task<string> CreateRequest(string familyCode)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override Task<string> CreateRequest(int activityFkRefno)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override Task<string> CreateRequest(int activityFkRefno, XDocument criteria)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override Task<string> CreateRequest(int prodLocMapType, int whsLocMapFkRefno)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override Task<string> CreateRequestProdLoc(int prodLocMapType)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override Task Save(string responseData)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override Task Save(string responseData, int refno)
-        {
-            throw new NotImplementedException();
         }
     }
 }

@@ -294,7 +294,7 @@ namespace dMobile.Controller.Activity_Item
                             $" = {(int)SysCommon.ActSubTypes.Adjustment}"));
                         this.ItemFkRefno = this.ItemFkRefno + 1;
 
-                        // After insert the page refresh will load the list view in the proper order. 
+                        // After insert the page refresh will load the list view in the proper order.
                         // Inserted at the bottom.
                         var query = "INSERT INTO tActivityItemAdjustment (" +
                                     "ActivityItemRefno, " +

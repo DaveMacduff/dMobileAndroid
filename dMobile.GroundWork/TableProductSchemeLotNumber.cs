@@ -11,12 +11,12 @@ namespace dMobile.GroundWork
     using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
-    using dMobile.Bedrock;
-    using dMobile.Resources.Models.Products;
+    using Bedrock;
+    using Resources.Models.Products;
     using SQLite;
 
     /// <summary>
-    /// Defines the <see cref="TableProductSchemeLotNumber" />.
+    /// Represents the table for product scheme lot numbers.
     /// </summary>
     public class TableProductSchemeLotNumber : TableBase
     {
@@ -31,76 +31,125 @@ namespace dMobile.GroundWork
         }
 
         /// <summary>
-        /// The Request.
+        /// Requests data for the table.
         /// </summary>
         public override async Task RequestData()
         {
             try
             {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Seeding {this.LowerCaseName}.", true);
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    $"Seeding {this.LowerCaseName}.",
+                    true);
                 var responseData = await this.SendRequest();
                 await this.Save(responseData);
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Seeding {this.LowerCaseName} complete.", true);
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    $"Seeding {this.LowerCaseName} complete.",
+                    true);
             }
             catch (Exception ex)
             {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Seeding {this.LowerCaseName} failed.", true);
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    $"Seeding {this.LowerCaseName} failed.",
+                    true);
 
                 throw new Exception($"Seeding {this.LowerCaseName} failed.", ex);
             }
         }
 
         /// <summary>
-        /// The Purge.
+        /// Purges data from the table.
         /// </summary>
         public override async Task PurgeData()
         {
             try
             {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName}.", true);
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    $"Purging {this.LowerCaseName}.",
+                    true);
 
-                await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync("DELETE FROM tProductSchemeLotNumberXRef");
-                await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync("DELETE FROM tProductSchemeLotNumber");
+                await DatabaseConnection.GetInstance()
+                    .SqlConn.ExecuteAsync("DELETE FROM tProductSchemeLotNumberXRef");
+                await DatabaseConnection.GetInstance()
+                    .SqlConn.ExecuteAsync("DELETE FROM tProductSchemeLotNumber");
 
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} complete.", true);
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    $"Purging {this.LowerCaseName} complete.",
+                    true);
             }
             catch (SQLiteException ex)
             {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} failed.", true);
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    "Database exception occurred.",
+                    true);
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    $"Purging {this.LowerCaseName} failed.",
+                    true);
 
-                throw new Exception($"Database exception occurred. Purging {this.LowerCaseName} failed.", ex);
+                throw new Exception(
+                    $"Database exception occurred. Purging {this.LowerCaseName} failed.",
+                    ex);
             }
         }
 
         /// <summary>
-        /// The DataStatus.
+        /// Gets the data status of the table.
         /// </summary>
-        /// <returns>The <see cref="int"/>.</returns>
+        /// <returns>The number of rows in the table.</returns>
         public override async Task<int> DataStatus()
         {
             int rowsAffected;
             try
             {
-                rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SqlConn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tProductSchemeLotNumber"));
+                rowsAffected = Convert.ToInt32(
+                    await DatabaseConnection.GetInstance()
+                        .SqlConn.ExecuteScalarAsync<int>(
+                            "SELECT COUNT(*) FROM tProductSchemeLotNumber"));
 
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"{rowsAffected} {this.LowerCaseName}.", true);
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    $"{rowsAffected} {this.LowerCaseName}.",
+                    true);
             }
             catch (SQLiteException ex)
             {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"{this.ProperCaseName} status failed.", true);
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    "Database exception occurred.",
+                    true);
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    $"{this.ProperCaseName} status failed.",
+                    true);
 
-                throw new Exception($"Database exception occurred. {this.ProperCaseName} status failed.", ex);
+                throw new Exception(
+                    $"Database exception occurred. {this.ProperCaseName} status failed.",
+                    ex);
             }
 
             return rowsAffected;
         }
 
         /// <summary>
-        /// The Save.
+        /// Saves the response data to the table.
         /// </summary>
-        /// <param name="responseData">The responseData<see cref="string"/>.</param>
+        /// <param name="responseData">The response data as a string.</param>
         protected override async Task Save(string responseData)
         {
             var conn = DatabaseConnection.GetInstance().SqlConn;
@@ -114,11 +163,14 @@ namespace dMobile.GroundWork
                     var schemeLots = new List<ProductSchemeLotNumberModel>();
                     foreach (DataRow row in rows)
                     {
-                        schemeLots.Add(new ProductSchemeLotNumberModel
-                        {
-                            ProductSchemeLotNumberCode = Convert.ToString(row["ProductSchemeLotNumberCode"]),
-                            ProductSchemeLotNumberCodeDefault = Convert.ToString(row["ProductSchemeLotNumberCodeDefault"]),
-                        });
+                        schemeLots.Add(
+                            new ProductSchemeLotNumberModel
+                            {
+                                ProductSchemeLotNumberCode =
+                                    Convert.ToString(row["ProductSchemeLotNumberCode"]),
+                                ProductSchemeLotNumberCodeDefault = Convert.ToString(
+                                    row["ProductSchemeLotNumberCodeDefault"])
+                            });
                     }
 
                     await conn.InsertAllAsync(schemeLots);
@@ -141,82 +193,33 @@ namespace dMobile.GroundWork
         }
 
         /// <summary>
-        /// The Create.
+        /// Creates a request for data.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The request as a string.</returns>
         protected override async Task<string> CreateRequest()
         {
             var xmlString = new StringBuilder();
             var settings = new XmlWriterSettings
             {
                 Async = true,
-                Indent = false,
+                Indent = false
             };
             var xml = XmlWriter.Create(xmlString, settings);
 
             var request = XDocument.Parse(
-                "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>"
-                + "<imclient>"
-                + "<command>"
-                + "<action>REQUEST PRODUCT SCHEME LOT NUMBERS</action>"
-                + await SysCommon.GetRequestDefaults(true)
-                + "</command>" + "</imclient>");
+                "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>" +
+                "<imclient>" +
+                "<command>" +
+                "<action>REQUEST PRODUCT SCHEME LOT NUMBERS</action>" +
+                await SysCommon.GetRequestDefaults(true) +
+                "</command>" +
+                "</imclient>");
 
             request.Save(xml);
             await xml.FlushAsync();
             xml.Close();
 
             return xmlString.ToString();
-        }
-
-        public override Task RequestData(int actRefno)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override Task PurgeData(int sectLocMapRefno)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override Task PurgeData(SysCommon.ActSubTypes actSubType)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override Task Save(string responseData, int refno)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override Task<string> CreateRequest(XDocument criteriaFilter)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override Task<string> CreateRequest(string familyCode)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override Task<string> CreateRequest(int activityFkRefno)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override Task<string> CreateRequest(int activityFkRefno, XDocument criteria)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override Task<string> CreateRequest(int prodLocMapType, int whsLocMapFkRefno)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override Task<string> CreateRequestProdLoc(int prodLocMapType)
-        {
-            throw new NotImplementedException();
         }
     }
 }

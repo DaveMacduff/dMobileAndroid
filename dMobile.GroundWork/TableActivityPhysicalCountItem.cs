@@ -140,30 +140,6 @@ namespace dMobile.GroundWork
                 });
         }
 
-        /// <inheritdoc/>
-        public override Task RequestData(int actRefno)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <inheritdoc/>
-        public override Task PurgeData(int sectLocMapRefno)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <inheritdoc/>
-        public override Task PurgeData(SysCommon.ActSubTypes actSubType)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <inheritdoc/>
-        public override Task<int> DataStatus()
-        {
-            throw new NotImplementedException();
-        }
-
         protected override async Task<string> SendRequest(int activityFkRefno)
         {
             const string query = "SELECT * FROM tActivityCount WHERE ActivityFKRefno = ?";
@@ -175,7 +151,7 @@ namespace dMobile.GroundWork
                 activityFkRefno = results[0].ActivityFKRefno;
             }
 
-            return await this.SendComm(await this.CreateRequest(activityFkRefno));
+            return await SendComm(await this.CreateRequest(activityFkRefno));
         }
 
         /// <summary>
@@ -241,7 +217,7 @@ namespace dMobile.GroundWork
                                     var actItemRefno = Convert.ToInt32(
                                         transaction.ExecuteScalar<int>(
                                             "SELECT last_insert_rowid() FROM tActivityItem"));
-                                    var prodUnitRefno = this.GetProductUnitRefnoFromDataRow(
+                                    var prodUnitRefno = GetProductUnitRefnoFromDataRow(
                                         drow,
                                         transaction,
                                         true);
@@ -415,48 +391,6 @@ namespace dMobile.GroundWork
             xml.Close();
 
             return xmlString.ToString();
-        }
-
-        /// <inheritdoc/>
-        protected override Task<string> CreateRequest()
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <inheritdoc/>
-        protected override Task<string> CreateRequest(XDocument criteriaFilter)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <inheritdoc/>
-        protected override Task<string> CreateRequest(string familyCode)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <inheritdoc/>
-        protected override Task Save(string responseData)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <inheritdoc/>
-        protected override Task<string> CreateRequest(int activityFkRefno, XDocument criteria)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <inheritdoc/>
-        protected override Task<string> CreateRequest(int prodLocMapType, int whsLocMapFkRefno)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <inheritdoc/>
-        protected override Task<string> CreateRequestProdLoc(int prodLocMapType)
-        {
-            throw new NotImplementedException();
         }
     }
 }

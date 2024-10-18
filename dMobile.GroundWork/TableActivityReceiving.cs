@@ -175,7 +175,7 @@ namespace dMobile.GroundWork
                                     recvFKRefno = Convert.ToInt32(drow["ActivityFKRefno"]);
                                     recvPONumber = drow["ActivityPurchaseOrderPONumber"].ToString();
                                     whsLocMapRefno =
-                                        this.GetWhsLocMapRefnoFromDataRow(drow, transaction);
+                                        GetWhsLocMapRefnoFromDataRow(drow, transaction);
 
                                     var query = "INSERT INTO tActivityReceiving (" +
                                                 "ActivityRefno, " +
@@ -300,61 +300,6 @@ namespace dMobile.GroundWork
             xml.Close();
 
             return xmlString.ToString();
-        }
-
-        protected override Task<string> CreateRequest(XDocument criteriaFilter)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override Task<string> CreateRequest(string familyCode)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override Task<string> CreateRequest(int activityFkRefno)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override Task RequestData(int actRefno)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override Task PurgeData(int sectLocMapRefno)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override Task PurgeData(SysCommon.ActSubTypes actSubType)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override Task<int> DataStatus()
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override Task Save(string responseData, int refno)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override Task<string> CreateRequest(int activityFkRefno, XDocument criteria)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override Task<string> CreateRequest(int prodLocMapType, int whsLocMapFkRefno)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override Task<string> CreateRequestProdLoc(int prodLocMapType)
-        {
-            throw new NotImplementedException();
         }
     }
 }

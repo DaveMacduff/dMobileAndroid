@@ -13,9 +13,8 @@ namespace dMobile.GroundWork
     using System.Xml;
     using System.Xml.Linq;
     using Bedrock;
-    using dMobile.Resources.Models.LocationMap;
-    using dMobile.Resources.Models.Products;
-    using Resources.Models;
+    using Resources.Models.LocationMap;
+    using Resources.Models.Products;
     using SQLite;
 
     /// <summary>
@@ -29,16 +28,6 @@ namespace dMobile.GroundWork
         protected TableBase()
         {
             this.SysEnv = SysEnvironment.GetInstance();
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="TableBase"/> class.
-        /// </summary>
-        /// <param name="subType"> Current activity subtype.</param>
-        protected TableBase(SysCommon.ActSubTypes subType)
-        {
-            this.SysEnv = SysEnvironment.GetInstance();
-            this.CurrentSubType = subType;
         }
 
         /// <summary>
@@ -109,33 +98,38 @@ namespace dMobile.GroundWork
         /// </summary>
         /// <param name="actRefno"><see cref="int"/> Activity reference number.</param>
         /// <returns>The <see cref="Task"/> Task operation.</returns>
-        public abstract Task RequestData(int actRefno);
+        public virtual Task RequestData(int actRefno)
+        {
+            throw new NotImplementedException();
+        }
 
         /// <summary>
         /// Perform a data purge.
         /// </summary>
         /// <returns>The <see cref="Task"/> Task operation.</returns>
-        public abstract Task PurgeData();
-
-        /// <summary>
-        /// Perform a data purge.
-        /// </summary>
-        /// <param name="sectLocMapRefno"><see cref="int"/> Section location map reference number.</param>
-        /// <returns>The <see cref="Task"/> Task operation.</returns>
-        public abstract Task PurgeData(int sectLocMapRefno);
+        public virtual Task PurgeData()
+        {
+            throw new NotImplementedException();
+        }
 
         /// <summary>
         /// Perform a data purge.
         /// </summary>
         /// <param name="actSubType"> .</param>
         /// <returns>The <see cref="Task"/> Task operation.</returns>
-        public abstract Task PurgeData(SysCommon.ActSubTypes actSubType);
+        public virtual Task PurgeData(SysCommon.ActSubTypes actSubType)
+        {
+            throw new NotImplementedException();
+        }
 
         /// <summary>
         /// Get the data status.
         /// </summary>
         /// <returns>.</returns>
-        public abstract Task<int> DataStatus();
+        public virtual Task<int> DataStatus()
+        {
+            throw new NotImplementedException();
+        }
 
         /// <summary>
         /// Request header data.
@@ -153,7 +147,7 @@ namespace dMobile.GroundWork
                     EventArgs.Empty,
                     $"Seeding {this.LowerCaseName}.",
                     true);
-                var responseData = await this.SendComm(await this.CreateRequest());
+                var responseData = await SendComm(await this.CreateRequest());
                 await this.Save(responseData);
                 this.DataAccessStatusOutHandler(
                     this,
@@ -213,7 +207,7 @@ namespace dMobile.GroundWork
         /// <remarks>
         /// Send the comm request to the server and save the response to the local database.
         /// </remarks>
-        public virtual async Task RequestHeaderData(XDocument criteria)
+        public async Task RequestHeaderData(XDocument criteria)
         {
             try
             {
@@ -222,7 +216,7 @@ namespace dMobile.GroundWork
                     EventArgs.Empty,
                     $"Seeding {this.LowerCaseName}.",
                     true);
-                var responseData = await this.SendComm(await this.CreateRequest(criteria));
+                var responseData = await SendComm(await this.CreateRequest(criteria));
                 await this.Save(responseData);
                 this.DataAccessStatusOutHandler(
                     this,
@@ -348,7 +342,7 @@ namespace dMobile.GroundWork
         /// <param name="criteria"> Item data filter.</param>
         /// <param name="actHdrRefno"> Activity header reference number.</param>
         /// <returns><see cref="Task"/> Task completed.</returns>
-        public virtual async Task RequestItemData(
+        public async Task RequestItemData(
             int actHdrFkRefno,
             XDocument criteria,
             int actHdrRefno)
@@ -418,7 +412,7 @@ namespace dMobile.GroundWork
         /// <param name="actItemFkRefno">Activity item foreign key refno.</param>
         /// <param name="actItemRefno">Activity item refno.</param>
         /// <returns><see cref="Task"/> Task completed.</returns>
-        public virtual async Task RequestDetailData(int actItemFkRefno, int actItemRefno)
+        public async Task RequestDetailData(int actItemFkRefno, int actItemRefno)
         {
             try
             {
@@ -526,7 +520,7 @@ namespace dMobile.GroundWork
         /// Get the data header status.
         /// </summary>
         /// <returns><see cref="int"/> Row count.</returns>
-        public virtual async Task<int> DataHeaderStatus()
+        public async Task<int> DataHeaderStatus()
         {
             int rowsAffected;
             try
@@ -565,7 +559,7 @@ namespace dMobile.GroundWork
         /// Get the data item status.
         /// </summary>
         /// <returns><see cref="int"/> Row count.</returns>
-        public virtual async Task<int> DataItemStatus()
+        public async Task<int> DataItemStatus()
         {
             int rowsAffected;
             try
@@ -611,7 +605,7 @@ namespace dMobile.GroundWork
         /// Get the data detail status.
         /// </summary>
         /// <returns><see cref="int"/> Row count.</returns>
-        public virtual async Task<int> DataDetailStatus()
+        public async Task<int> DataDetailStatus()
         {
             int rowsAffected;
             try
@@ -646,71 +640,6 @@ namespace dMobile.GroundWork
             }
 
             return rowsAffected;
-        }
-
-        /// <summary>
-        /// Data access status out event handler.
-        /// </summary>
-        /// <param name="sender"><see cref="object"/> Sender object.</param>
-        /// <param name="e"><see cref="EventArgs"/> Sender event arguments.</param>
-        /// <param name="statMessage"><see cref="string"/> Status message.</param>
-        /// <param name="overrideDisconnectedMode"><see cref="bool"/> Flag to override disconnected mode.</param>
-        public void DataAccessStatusOutHandler(
-            object sender,
-            EventArgs e,
-            string statMessage,
-            bool overrideDisconnectedMode)
-        {
-            if (!this.SysEnv.SysSettings.IsDisconnectedMode || overrideDisconnectedMode)
-            {
-                if (this.OnDataAccessStatusOut != null)
-                {
-                    this.DataEventArgs.StatusOutMsg = statMessage;
-                    this.DataEventArgs.OverrideDisconnectedMode = overrideDisconnectedMode;
-                    this.OnDataAccessStatusOut(this, this.DataEventArgs);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Data access progress out event handler.
-        /// </summary>
-        /// <param name="sender"><see cref="object"/> Sender object.</param>
-        /// <param name="e"><see cref="EventArgs"/> Sender event arguments.</param>
-        /// <param name="currentValue"><see cref="int"/> Current progress index value.</param>
-        /// <param name="minValue"><see cref="int"/> Minimum / starting progress value.</param>
-        /// <param name="maxValue"><see cref="int"/> Maximum / last progress value.</param>
-        public void DataAccessProgressOutHandler(
-            object sender,
-            EventArgs e,
-            int currentValue,
-            int minValue,
-            int maxValue)
-        {
-            if (this.OnDataAccessProgressOut != null)
-            {
-                this.DataEventArgs.CurrentValue = currentValue;
-                this.DataEventArgs.MinValue = minValue;
-                this.DataEventArgs.MaxValue = maxValue;
-                this.DataEventArgs.SetMinMaxValue = true;
-                this.OnDataAccessProgressOut(this, this.DataEventArgs);
-            }
-        }
-
-        /// <summary>
-        /// Data access progress out event handler.
-        /// </summary>
-        /// <param name="sender"><see cref="object"/> Sender object.</param>
-        /// <param name="e"><see cref="EventArgs"/> Sender event arguments.</param>
-        /// <param name="currentValue"><see cref="int"/> Current progress index value.</param>
-        public void DataAccessProgressOutHandler(object sender, EventArgs e, int currentValue)
-        {
-            if (this.OnDataAccessProgressOut != null)
-            {
-                this.DataEventArgs.CurrentValue = currentValue;
-                this.DataEventArgs.SetMinMaxValue = false;
-                this.OnDataAccessProgressOut(this, this.DataEventArgs);
-            }
         }
 
         /// <summary>
@@ -750,142 +679,6 @@ namespace dMobile.GroundWork
         }
 
         /// <summary>
-        /// Send a data request.
-        /// </summary>
-        /// <param name="familyCode"><see cref="string"/> Family code filter.</param>
-        /// <returns><see cref="string"/> Send result information.</returns>
-        protected virtual async Task<string> SendRequest(string familyCode)
-        {
-            return await this.SendComm(await this.CreateRequest(familyCode));
-        }
-
-        /// <summary>
-        /// Send a data request.
-        /// </summary>
-        /// <param name="activityFkRefno"><see cref="int"/> Activity foreign key reference number.</param>
-        /// <returns><see cref="string"/> Send result information.</returns>
-        protected virtual async Task<string> SendRequest(int activityFkRefno)
-        {
-            return await this.SendComm(await this.CreateRequest(activityFkRefno));
-        }
-
-        /// <summary>
-        /// Send a data request.
-        /// </summary>
-        /// <param name="prodLocMapType"><see cref="int"/> Product location map type.</param>
-        /// <param name="locMapFkRefno"><see cref="int"/> Location map foreign key reference.</param>
-        /// <returns><see cref="string"/> Send result information.</returns>
-        protected virtual async Task<string> SendRequest(int prodLocMapType, int locMapFkRefno)
-        {
-            return await this.SendComm(await this.CreateRequest(prodLocMapType, locMapFkRefno));
-        }
-
-        /// <summary>
-        /// Send a data request.
-        /// </summary>
-        /// <returns><see cref="string"/> Send result information.</returns>
-        protected virtual async Task<string> SendRequest()
-        {
-            return await this.SendComm(await this.CreateRequest());
-        }
-
-        /// <summary>
-        /// Send a data request.
-        /// </summary>
-        /// <param name="criteria"><see cref="XDocument"/> Data filter request.</param>
-        /// <returns><see cref="string"/> Send result information.</returns>
-        protected virtual async Task<string> SendRequest(XDocument criteria)
-        {
-            return await this.SendComm(await this.CreateRequest(criteria));
-        }
-
-        /// <summary>
-        /// Send a data request.
-        /// </summary>
-        /// <param name="activityFkRefno"><see cref="int"/> Activity foreign key reference number.</param>
-        /// <param name="criteria"><see cref="XDocument"/> Data filter request.</param>
-        /// <returns><see cref="string"/> Send result information.</returns>
-        /// <remarks>
-        ///     The activity reference number may be an activity header, item or detail reference number.
-        ///     The criteria are used to filter the data request.
-        /// </remarks>
-        protected virtual async Task<string> SendRequest(int activityFkRefno, XDocument criteria)
-        {
-            return await this.SendComm(await this.CreateRequest(activityFkRefno, criteria));
-        }
-
-        /// <summary>
-        /// Save received data.
-        /// </summary>
-        /// <param name="responseData"><see cref="string"/> Received data to save.</param>
-        /// <returns><see cref="Task"/> Task operation.</returns>
-        protected abstract Task Save(string responseData);
-
-        /// <summary>
-        /// Save received data.
-        /// </summary>
-        /// <param name="responseData"><see cref="string"/> Received data to save.</param>
-        /// <param name="refno"><see cref="int"/> Refno.</param>
-        /// <returns><see cref="Task"/> Task operation.</returns>
-        protected abstract Task Save(string responseData, int refno);
-
-        /// <summary>
-        /// Create the request.
-        /// </summary>
-        /// <returns><see cref="string"/> Created request.</returns>
-        protected abstract Task<string> CreateRequest();
-
-        /// <summary>
-        /// Create the request.
-        /// </summary>
-        /// <param name="criteriaFilter"><see cref="XDocument"/> Data filter request.</param>
-        /// <returns><see cref="string"/> Created request.</returns>
-        protected abstract Task<string> CreateRequest(XDocument criteriaFilter);
-
-        /// <summary>
-        /// Create the request.
-        /// </summary>
-        /// <param name="familyCode"><see cref="string"/> Family code.</param>
-        /// <returns><see cref="string"/> Created request.</returns>
-        protected abstract Task<string> CreateRequest(string familyCode);
-
-        /// <summary>
-        /// Create the request.
-        /// </summary>
-        /// <param name="activityFkRefno"><see cref="int"/> Activity foreign key reference number.</param>
-        /// <returns><see cref="string"/> Created request.</returns>
-        /// <remarks>
-        ///     The activity reference number may be an activity header, item or detail reference number.
-        /// </remarks>
-        protected abstract Task<string> CreateRequest(int activityFkRefno);
-
-        /// <summary>
-        /// Create the request.
-        /// </summary>
-        /// <param name="activityFkRefno"><see cref="int"/> Activity foreign key reference number.</param>
-        /// <param name="criteria"><see cref="XDocument"/> Data filter request.</param>
-        /// <returns><see cref="string"/> Created request.</returns>
-        /// <remarks>
-        ///     The activity reference number may be an activity header, item or detail reference number.
-        /// </remarks>
-        protected abstract Task<string> CreateRequest(int activityFkRefno, XDocument criteria);
-
-        /// <summary>
-        /// Create the request.
-        /// </summary>
-        /// <param name="prodLocMapType"><see cref="int"/> Product location map type.</param>
-        /// <param name="whsLocMapFkRefno"><see cref="int"/> Warehouse location map foreign key reference number.</param>
-        /// <returns><see cref="string"/> Created request.</returns>
-        protected abstract Task<string> CreateRequest(int prodLocMapType, int whsLocMapFkRefno);
-
-        /// <summary>
-        /// Create the request.
-        /// </summary>
-        /// <param name="prodLocMapType"><see cref="int"/> Product location map type.</param>
-        /// <returns><see cref="string"/> Created request.</returns>
-        protected abstract Task<string> CreateRequestProdLoc(int prodLocMapType);
-
-        /// <summary>
         /// Save the common detail product scheme variant information.
         /// </summary>
         /// <param name="drow"><see cref="DataRow"/> Data row to get the scheme variant no from.</param>
@@ -893,7 +686,7 @@ namespace dMobile.GroundWork
         /// <param name="actDetailRefno"><see cref="int"/> Activity detail reference number.</param>
         /// <param name="useFNumberElements"><see cref="bool"/> Flag indicating whether to read
         /// 'F' XML element or a more verbose field name element.</param>
-        protected virtual void SaveCommonDetailVariant(
+        protected static void SaveCommonDetailVariant(
             DataRow drow,
             SQLiteConnection conn,
             int actDetailRefno,
@@ -939,7 +732,7 @@ namespace dMobile.GroundWork
         /// <param name="actDetailRefno"><see cref="int"/> Activity detail reference number.</param>
         /// <param name="useFNumberElements"><see cref="bool"/> Flag indicating whether to read
         /// 'F' XML element or a more verbose field name element.</param>
-        protected virtual void SaveDetailExtra(
+        protected static void SaveDetailExtra(
             DataRow drow,
             SQLiteConnection conn,
             int actDetailRefno,
@@ -1009,7 +802,7 @@ namespace dMobile.GroundWork
         /// <param name="useFNumberElements"><see cref="bool"/> Flag indicating whether to read 'F' XML element or a
         /// more verbose field name element.</param>
         /// <returns>The <see cref="int"/> Identified location map reference number.</returns>
-        protected virtual int GetDetailLocation(
+        protected static int GetDetailLocation(
             DataRow drow,
             SQLiteConnection conn,
             bool useFNumberElements)
@@ -1086,7 +879,7 @@ namespace dMobile.GroundWork
         /// <param name="useFNumberElements"><see cref="bool"/> Flag indicating whether to read
         /// 'F' XML element or a more verbose field name element.</param>
         /// <returns>The activity detail information.</returns>
-        protected virtual List<object> SaveDetail(
+        protected static List<object> SaveDetail(
             DataRow drow,
             SQLiteConnection conn,
             bool useFNumberElements)
@@ -1184,7 +977,7 @@ namespace dMobile.GroundWork
         /// </summary>
         /// <param name="sendData"><see cref="string"/> Communication request.</param>
         /// <returns><see cref="string"/> Communication result.</returns>
-        protected virtual Task<string> SendComm(string sendData)
+        protected static Task<string> SendComm(string sendData)
         {
             return Task.FromResult(SysCommon.SubmitComm(sendData));
         }
@@ -1195,7 +988,7 @@ namespace dMobile.GroundWork
         /// <param name="drow"><see cref="DataRow"/> Row of data.</param>
         /// <param name="conn"><see cref="SQLiteConnection"/> SQL connection.</param>
         /// <returns>.</returns>
-        protected virtual int GetWhsLocMapRefnoFromDataRow(
+        protected static int GetWhsLocMapRefnoFromDataRow(
             DataRow drow,
             SQLiteConnection conn)
         {
@@ -1232,7 +1025,7 @@ namespace dMobile.GroundWork
         /// <param name="useFNumberElements"><see cref="bool"/> Flag indicating whether to read 'F' XML element or a
         /// more verbose field name element.</param>
         /// <returns>.</returns>
-        protected virtual int GetProductUnitRefnoFromDataRow(
+        protected static int GetProductUnitRefnoFromDataRow(
             DataRow drow,
             SQLiteConnection conn,
             bool useFNumberElements)
@@ -1303,6 +1096,224 @@ namespace dMobile.GroundWork
             }
 
             return prodUnitRefno;
+        }
+
+        /// <summary>
+        /// Send a data request.
+        /// </summary>
+        /// <param name="familyCode"><see cref="string"/> Family code filter.</param>
+        /// <returns><see cref="string"/> Send result information.</returns>
+        protected virtual async Task<string> SendRequest(string familyCode)
+        {
+            return await SendComm(await this.CreateRequest(familyCode));
+        }
+
+        /// <summary>
+        /// Send a data request.
+        /// </summary>
+        /// <param name="activityFkRefno"><see cref="int"/> Activity foreign key reference number.</param>
+        /// <returns><see cref="string"/> Send result information.</returns>
+        protected virtual async Task<string> SendRequest(int activityFkRefno)
+        {
+            return await SendComm(await this.CreateRequest(activityFkRefno));
+        }
+
+        /// <summary>
+        /// Data access status out event handler.
+        /// </summary>
+        /// <param name="sender"><see cref="object"/> Sender object.</param>
+        /// <param name="e"><see cref="EventArgs"/> Sender event arguments.</param>
+        /// <param name="statMessage"><see cref="string"/> Status message.</param>
+        /// <param name="overrideDisconnectedMode"><see cref="bool"/> Flag to override disconnected mode.</param>
+        protected void DataAccessStatusOutHandler(
+            object sender,
+            EventArgs e,
+            string statMessage,
+            bool overrideDisconnectedMode)
+        {
+            if (!this.SysEnv.SysSettings.IsDisconnectedMode || overrideDisconnectedMode)
+            {
+                if (this.OnDataAccessStatusOut != null)
+                {
+                    this.DataEventArgs.StatusOutMsg = statMessage;
+                    this.DataEventArgs.OverrideDisconnectedMode = overrideDisconnectedMode;
+                    this.OnDataAccessStatusOut(this, this.DataEventArgs);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Data access progress out event handler.
+        /// </summary>
+        /// <param name="sender"><see cref="object"/> Sender object.</param>
+        /// <param name="e"><see cref="EventArgs"/> Sender event arguments.</param>
+        /// <param name="currentValue"><see cref="int"/> Current progress index value.</param>
+        /// <param name="minValue"><see cref="int"/> Minimum / starting progress value.</param>
+        /// <param name="maxValue"><see cref="int"/> Maximum / last progress value.</param>
+        protected void DataAccessProgressOutHandler(
+            object sender,
+            EventArgs e,
+            int currentValue,
+            int minValue,
+            int maxValue)
+        {
+            if (this.OnDataAccessProgressOut != null)
+            {
+                this.DataEventArgs.CurrentValue = currentValue;
+                this.DataEventArgs.MinValue = minValue;
+                this.DataEventArgs.MaxValue = maxValue;
+                this.DataEventArgs.SetMinMaxValue = true;
+                this.OnDataAccessProgressOut(this, this.DataEventArgs);
+            }
+        }
+
+        /// <summary>
+        /// Data access progress out event handler.
+        /// </summary>
+        /// <param name="sender"><see cref="object"/> Sender object.</param>
+        /// <param name="e"><see cref="EventArgs"/> Sender event arguments.</param>
+        /// <param name="currentValue"><see cref="int"/> Current progress index value.</param>
+        protected void DataAccessProgressOutHandler(object sender, EventArgs e, int currentValue)
+        {
+            if (this.OnDataAccessProgressOut != null)
+            {
+                this.DataEventArgs.CurrentValue = currentValue;
+                this.DataEventArgs.SetMinMaxValue = false;
+                this.OnDataAccessProgressOut(this, this.DataEventArgs);
+            }
+        }
+
+        /// <summary>
+        /// Send a data request.
+        /// </summary>
+        /// <param name="prodLocMapType"><see cref="int"/> Product location map type.</param>
+        /// <param name="locMapFkRefno"><see cref="int"/> Location map foreign key reference.</param>
+        /// <returns><see cref="string"/> Send result information.</returns>
+        protected async Task<string> SendRequest(int prodLocMapType, int locMapFkRefno)
+        {
+            return await SendComm(await this.CreateRequest(prodLocMapType, locMapFkRefno));
+        }
+
+        /// <summary>
+        /// Send a data request.
+        /// </summary>
+        /// <returns><see cref="string"/> Send result information.</returns>
+        protected virtual async Task<string> SendRequest()
+        {
+            return await SendComm(await this.CreateRequest());
+        }
+
+        /// <summary>
+        /// Send a data request.
+        /// </summary>
+        /// <param name="activityFkRefno"><see cref="int"/> Activity foreign key reference number.</param>
+        /// <param name="criteria"><see cref="XDocument"/> Data filter request.</param>
+        /// <returns><see cref="string"/> Send result information.</returns>
+        /// <remarks>
+        ///     The activity reference number may be an activity header, item or detail reference number.
+        ///     The criteria are used to filter the data request.
+        /// </remarks>
+        protected virtual async Task<string> SendRequest(int activityFkRefno, XDocument criteria)
+        {
+            return await SendComm(await this.CreateRequest(activityFkRefno, criteria));
+        }
+
+        /// <summary>
+        /// Save received data.
+        /// </summary>
+        /// <param name="responseData"><see cref="string"/> Received data to save.</param>
+        /// <returns><see cref="Task"/> Task operation.</returns>
+        protected virtual Task Save(string responseData)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Save received data.
+        /// </summary>
+        /// <param name="responseData"><see cref="string"/> Received data to save.</param>
+        /// <param name="refno"><see cref="int"/> Refno.</param>
+        /// <returns><see cref="Task"/> Task operation.</returns>
+        protected virtual Task Save(string responseData, int refno)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Create the request.
+        /// </summary>
+        /// <returns><see cref="string"/> Created request.</returns>
+        protected virtual Task<string> CreateRequest()
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Create the request.
+        /// </summary>
+        /// <param name="criteriaFilter"><see cref="XDocument"/> Data filter request.</param>
+        /// <returns><see cref="string"/> Created request.</returns>
+        protected virtual Task<string> CreateRequest(XDocument criteriaFilter)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Create the request.
+        /// </summary>
+        /// <param name="familyCode"><see cref="string"/> Family code.</param>
+        /// <returns><see cref="string"/> Created request.</returns>
+        protected virtual Task<string> CreateRequest(string familyCode)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Create the request.
+        /// </summary>
+        /// <param name="activityFkRefno"><see cref="int"/> Activity foreign key reference number.</param>
+        /// <returns><see cref="string"/> Created request.</returns>
+        /// <remarks>
+        ///     The activity reference number may be an activity header, item or detail reference number.
+        /// </remarks>
+        protected virtual Task<string> CreateRequest(int activityFkRefno)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Create the request.
+        /// </summary>
+        /// <param name="activityFkRefno"><see cref="int"/> Activity foreign key reference number.</param>
+        /// <param name="criteria"><see cref="XDocument"/> Data filter request.</param>
+        /// <returns><see cref="string"/> Created request.</returns>
+        /// <remarks>
+        ///     The activity reference number may be an activity header, item or detail reference number.
+        /// </remarks>
+        protected virtual Task<string> CreateRequest(int activityFkRefno, XDocument criteria)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Create the request.
+        /// </summary>
+        /// <param name="prodLocMapType"><see cref="int"/> Product location map type.</param>
+        /// <param name="whsLocMapFkRefno"><see cref="int"/> Warehouse location map foreign key reference number.</param>
+        /// <returns><see cref="string"/> Created request.</returns>
+        protected virtual Task<string> CreateRequest(int prodLocMapType, int whsLocMapFkRefno)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Create the request.
+        /// </summary>
+        /// <param name="prodLocMapType"><see cref="int"/> Product location map type.</param>
+        /// <returns><see cref="string"/> Created request.</returns>
+        protected virtual Task<string> CreateRequestProdLoc(int prodLocMapType)
+        {
+            throw new NotImplementedException();
         }
     }
 }

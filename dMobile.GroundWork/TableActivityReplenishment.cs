@@ -178,62 +178,6 @@ namespace dMobile.GroundWork
         }
 
         /// <summary>
-        /// Create request for replenishment data, to send to communication server.
-        /// </summary>
-        /// <param name="actRefno"><see cref="int"/> Activity reference number.</param>
-        /// <returns><see cref="string"/> Filtered request.</returns>
-        /// <exception cref="NotImplementedException"><see cref="NotImplementedException"/> Not implemented exception.</exception>
-        public override Task RequestData(int actRefno)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// Purge the activity header, item and detail data.
-        /// </summary>
-        /// <param name="sectLocMapRefno"><see cref="int"/> Section location map reference number.</param>
-        /// <returns><see cref="Task"/> Task complete.</returns>
-        /// <exception cref="NotImplementedException"><see cref="NotImplementedException"/> Not implemented exception.</exception>
-        public override Task PurgeData(int sectLocMapRefno)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// Purge the activity header, item and detail data.
-        /// </summary>
-        /// <param name="actSubType"><see cref="SysCommon.ActSubTypes"/> Activity subtype.</param>
-        /// <returns><see cref="Task"/> Task complete.</returns>
-        /// <exception cref="NotImplementedException"><see cref="NotImplementedException"/> Not implemented exception.</exception>
-        public override Task PurgeData(SysCommon.ActSubTypes actSubType)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// Data status, replenishment data.
-        /// </summary>
-        /// <remarks> We cannot return the number of records here for the header, items and details.</remarks>
-        /// <returns><see cref="int"/> Number of replenishment headers.</returns>
-        /// <exception cref="NotImplementedException"><see cref="NotImplementedException"/> Not implemented exception.</exception>
-        public override Task<int> DataStatus()
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// Save the activity header, item and detail replenishment data.
-        /// </summary>
-        /// <param name="responseData"><see cref="string"/> Received data from communication server to save.</param>
-        /// <param name="refno"><see cref="int"/> Activity header reference number.</param>
-        /// <returns><see cref="Task"/> Task operation.</returns>
-        /// <exception cref="NotImplementedException"><see cref="NotImplementedException"/> Not implemented exception.</exception>
-        protected override Task Save(string responseData, int refno)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
         /// Save the activity header, item and detail replenishment data.
         /// </summary>
         /// <param name="responseData"><see cref="string"/> Received data from communication server to save.</param>
@@ -341,7 +285,7 @@ namespace dMobile.GroundWork
                         {
                             // Find the warehouse foreign reference number in the location map warehouse table.
                             var whsLocMapRefno =
-                                this.GetWhsLocMapRefnoFromDataRow(drow, transaction);
+                                GetWhsLocMapRefnoFromDataRow(drow, transaction);
 
                             // Insert a new activity record, and read the new activity reference number.
                             _ = transaction.Execute(
@@ -392,8 +336,8 @@ namespace dMobile.GroundWork
                             var fkRefno = Convert.ToInt32(drow["Refno"]);
                             var fkParentRefno = Convert.ToInt32(drow["ParentRefno"]);
                             var prodUnitRefno =
-                                this.GetProductUnitRefnoFromDataRow(drow, transaction, false);
-                            var locMapRefno = this.GetDetailLocation(drow, transaction, false);
+                                GetProductUnitRefnoFromDataRow(drow, transaction, false);
+                            var locMapRefno = GetDetailLocation(drow, transaction, false);
                             var moveType =
                                 (SysCommon.ReplenishmentTypes)Convert.ToInt32(drow["MoveType"]);
                             var altQty = Convert.ToDecimal(drow["ActivityDetailQuantity"]) * -1;
@@ -470,18 +414,18 @@ namespace dMobile.GroundWork
 
                             var fkRefno = Convert.ToInt32(drow["Refno"]);
                             var prodUnitRefno =
-                                this.GetProductUnitRefnoFromDataRow(drow, transaction, false);
+                                GetProductUnitRefnoFromDataRow(drow, transaction, false);
                             var parametersInsertDetail = new List<object>
                             {
                                 Convert.ToInt32(SysCommon.ActSubTypes.InventoryReplenishment),
                                 Convert.ToInt32(0),
                                 actItemRefno,
-                                this.GetDetailLocation(drow, transaction, false),
+                                GetDetailLocation(drow, transaction, false),
                                 prodUnitRefno
                             };
 
                             parametersInsertDetail.AddRange(
-                                this.SaveDetail(drow, transaction, false));
+                                SaveDetail(drow, transaction, false));
 
                             var rowsAffected = transaction.Execute(
                                 query,
@@ -512,8 +456,8 @@ namespace dMobile.GroundWork
                                 fkRefno,
                                 Convert.ToBoolean(drow["ActivityDetailReplenishmentIsConfirmed"]));
 
-                            this.SaveCommonDetailVariant(drow, transaction, actDetailRefno, false);
-                            this.SaveDetailExtra(drow, transaction, actDetailRefno, false);
+                            SaveCommonDetailVariant(drow, transaction, actDetailRefno, false);
+                            SaveDetailExtra(drow, transaction, actDetailRefno, false);
 
                             return actDetailRefno;
                         }
@@ -548,74 +492,6 @@ namespace dMobile.GroundWork
             xml.Close();
 
             return xmlString.ToString();
-        }
-
-        /// <summary>
-        /// Create request for replenishment data, to send to communication server.
-        /// </summary>
-        /// <param name="criteriaFilter"><see cref="string"/> Request filter criteriaFilter.</param>
-        /// <returns><see cref="string"/> Filtered request.</returns>
-        /// <exception cref="NotImplementedException"><see cref="NotImplementedException"/> Not implemented exception.</exception>
-        protected override Task<string> CreateRequest(XDocument criteriaFilter)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// Create request for replenishment data, to send to communication server.
-        /// </summary>
-        /// <param name="familyCode"><see cref="string"/> Family code to filter with.</param>
-        /// <returns><see cref="string"/> Filtered request.</returns>
-        /// <exception cref="NotImplementedException"><see cref="NotImplementedException"/> Not implemented exception.</exception>
-        protected override Task<string> CreateRequest(string familyCode)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// Create request for replenishment data, to send to communication server.
-        /// </summary>
-        /// <param name="activityFkRefno"><see cref="int"/> Activity item foreign reference number.</param>
-        /// <returns><see cref="string"/> Filtered request.</returns>
-        /// <exception cref="NotImplementedException"><see cref="NotImplementedException"/> Not implemented exception.</exception>
-        protected override Task<string> CreateRequest(int activityFkRefno)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// Create request for replenishment data, to send to communication server.
-        /// </summary>
-        /// <param name="activityFkRefno"><see cref="int"/> Activity item foreign reference number.</param>
-        /// <param name="criteria"><see cref="XDocument"/> Filter criteria.</param>
-        /// <returns><see cref="string"/> Filtered request.</returns>
-        /// <exception cref="NotImplementedException"><see cref="NotImplementedException"/> Not implemented exception.</exception>
-        protected override Task<string> CreateRequest(int activityFkRefno, XDocument criteria)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// Create request for replenishment data, to send to communication server.
-        /// </summary>
-        /// <param name="prodLocMapType"><see cref="int"/> Product location map type.</param>
-        /// <param name="whsLocMapFkRefno"><see cref="int"/> Warehouse location map foreign key reference number.</param>
-        /// <returns><see cref="string"/> Filtered request.</returns>
-        /// <exception cref="NotImplementedException"><see cref="NotImplementedException"/> Not implemented exception.</exception>
-        protected override Task<string> CreateRequest(int prodLocMapType, int whsLocMapFkRefno)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// Create request for replenishment data, to send to communication server.
-        /// </summary>
-        /// <param name="prodLocMapType"><see cref="int"/> Product location map type.</param>
-        /// <returns><see cref="string"/> Filtered request.</returns>
-        /// <exception cref="NotImplementedException"><see cref="NotImplementedException"/> Not implemented exception.</exception>
-        protected override Task<string> CreateRequestProdLoc(int prodLocMapType)
-        {
-            throw new NotImplementedException();
         }
     }
 }

@@ -4,6 +4,7 @@
 
 using System.Diagnostics.CodeAnalysis;
 
+#pragma warning disable SA1404
 [assembly: SuppressMessage("StyleCop.CSharp.ReadabilityRules", "SA1129:Do not use default value type constructor", Justification = "<Pending>", Scope = "member", Target = "~P:dMobile.Bedrock.ProductInfo.Scheme")]
 [assembly: SuppressMessage("StyleCop.CSharp.ReadabilityRules", "SA1129:Do not use default value type constructor", Justification = "<Pending>", Scope = "member", Target = "~M:dMobile.Bedrock.ProductInfoTasks.GetSchemeComponentsFromRefno(System.Int32)~System.Threading.Tasks.Task{dMobile.Bedrock.ProdScheme}")]
 [assembly: SuppressMessage("StyleCop.CSharp.ReadabilityRules", "SA1129:Do not use default value type constructor", Justification = "<Pending>", Scope = "member", Target = "~P:dMobile.Bedrock.ProdScheme.LabelInfo")]
@@ -65,3 +66,4 @@ using System.Diagnostics.CodeAnalysis;
 [assembly: SuppressMessage("StyleCop.CSharp.NamingRules", "SA1310:Field names should not contain underscore", Justification = "<Pending>", Scope = "member", Target = "~F:dMobile.Bedrock.SysBarCodeSettings.ruleDescription_Recognize_Code_128_AI17_ExpiryDate_As_AI15_BestBeforeDate")]
 [assembly: SuppressMessage("StyleCop.CSharp.NamingRules", "SA1310:Field names should not contain underscore", Justification = "<Pending>", Scope = "member", Target = "~F:dMobile.Bedrock.SysBarCodeSettings.ruleEnabled_Parse_Code_128_AI01_Nossack_AI21_SkidNumber_BoxCount")]
 [assembly: SuppressMessage("StyleCop.CSharp.NamingRules", "SA1310:Field names should not contain underscore", Justification = "<Pending>", Scope = "member", Target = "~F:dMobile.Bedrock.SysBarCodeSettings.ruleEnabled_Recognize_Code_128_AI17_ExpiryDate_As_AI15_BestBeforeDate")]
+#pragma warning restore SA1404

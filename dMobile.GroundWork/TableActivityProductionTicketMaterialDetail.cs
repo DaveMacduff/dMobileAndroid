@@ -182,7 +182,7 @@ namespace dMobile.GroundWork
                 throw new Exception("drActItemMaterial.Read() failed.");
             }
 
-            return await this.SendComm(await this.CreateRequest(actItemMaterialFKRefno));
+            return await SendComm(await this.CreateRequest(actItemMaterialFKRefno));
         }
 
         /// <summary>
@@ -304,10 +304,10 @@ namespace dMobile.GroundWork
                                     parametersInsertDetail.Add(actItemProductionRefno);
                                     parametersInsertDetail.Add(
                                         Convert.ToInt32(
-                                            this.GetDetailLocation(drow, transaction, false)));
+                                            GetDetailLocation(drow, transaction, false)));
                                     parametersInsertDetail.Add(results[0].ProductUnitRefno);
                                     parametersInsertDetail.AddRange(
-                                        this.SaveDetail(drow, transaction, false));
+                                        SaveDetail(drow, transaction, false));
 
                                     transaction.Execute(
                                         queryInsertDetail,
@@ -327,12 +327,12 @@ namespace dMobile.GroundWork
                                         actDetailRefno,
                                         actDetailProductionFKRefno);
 
-                                    this.SaveCommonDetailVariant(
+                                    SaveCommonDetailVariant(
                                         drow,
                                         transaction,
                                         actDetailRefno,
                                         false);
-                                    this.SaveDetailExtra(drow, transaction, actDetailRefno, false);
+                                    SaveDetailExtra(drow, transaction, actDetailRefno, false);
 
                                     progValue++;
                                     if (progValue % 100 == 0)
@@ -418,61 +418,6 @@ namespace dMobile.GroundWork
             xml.Close();
 
             return xmlString.ToString();
-        }
-
-        protected override Task<string> CreateRequest()
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override Task<string> CreateRequest(XDocument criteriaFilter)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override Task<string> CreateRequest(string familyCode)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override Task RequestData(int actRefno)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override Task PurgeData(int sectLocMapRefno)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override Task PurgeData(SysCommon.ActSubTypes actSubType)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override Task<int> DataStatus()
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override Task Save(string responseData)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override Task<string> CreateRequest(int activityFkRefno, XDocument criteria)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override Task<string> CreateRequest(int prodLocMapType, int whsLocMapFkRefno)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override Task<string> CreateRequestProdLoc(int prodLocMapType)
-        {
-            throw new NotImplementedException();
         }
     }
 }

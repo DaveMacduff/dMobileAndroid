@@ -31,11 +31,6 @@ namespace dMobile.GroundWork
             this.ProperCaseName = "Sales order items";
         }
 
-        public override Task RequestData(int actRefno)
-        {
-            throw new NotImplementedException();
-        }
-
         /// <summary>
         ///     The Request Item Data.
         /// </summary>
@@ -46,21 +41,6 @@ namespace dMobile.GroundWork
         {
             _ = base.RequestItemData(actHdrFkRefno, actHdrRefno);
             return Task.CompletedTask;
-        }
-
-        public override Task PurgeData(int sectLocMapRefno)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override Task PurgeData(SysCommon.ActSubTypes actSubType)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override Task<int> DataStatus()
-        {
-            throw new NotImplementedException();
         }
 
         public override async Task PurgeData()
@@ -221,7 +201,7 @@ namespace dMobile.GroundWork
                 }
 
                 response =
-                    await this.SendComm(await this.CreateRequest(actPickFkRefno, xmlCriteria));
+                    await SendComm(await this.CreateRequest(actPickFkRefno, xmlCriteria));
             }
             catch (SQLiteException sqlEx)
             {
@@ -294,13 +274,13 @@ namespace dMobile.GroundWork
                                     var actItemPickFkRefno =
                                         Convert.ToInt32(drow["ActivityItemFKRefno"]);
 
-                                    var prodUnitRefno = this.GetProductUnitRefnoFromDataRow(
+                                    var prodUnitRefno = GetProductUnitRefnoFromDataRow(
                                         drow,
                                         transaction,
                                         false);
 
                                     var locMapRefno =
-                                        this.GetWhsLocMapRefnoFromDataRow(drow, transaction);
+                                        GetWhsLocMapRefnoFromDataRow(drow, transaction);
 
                                     var actItemRefno =
                                         Convert.ToInt32(
@@ -517,21 +497,6 @@ namespace dMobile.GroundWork
             return xmlString.ToString();
         }
 
-        protected override Task<string> CreateRequest()
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override Task<string> CreateRequest(XDocument criteriaFilter)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override Task<string> CreateRequest(string familyCode)
-        {
-            throw new NotImplementedException();
-        }
-
         protected override async Task<string> CreateRequest(int activityFkRefno)
         {
             var xmlString = new StringBuilder();
@@ -565,21 +530,6 @@ namespace dMobile.GroundWork
             xml.Close();
 
             return xmlString.ToString();
-        }
-
-        protected override Task Save(string responseData)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override Task<string> CreateRequest(int prodLocMapType, int whsLocMapFkRefno)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override Task<string> CreateRequestProdLoc(int prodLocMapType)
-        {
-            throw new NotImplementedException();
         }
     }
 }

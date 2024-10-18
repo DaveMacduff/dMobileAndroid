@@ -9,12 +9,12 @@ namespace dMobile.Resources
     /// <summary>
     /// Represents replenishment move types.
     /// </summary>
-    public class ReplenishmentMoveType
+    public static class ReplenishmentMoveType
     {
         /// <summary>
         /// Replenishment move type codes.
         /// </summary>
-        public enum Code : int
+        public enum Code
         {
             /// <summary>
             /// Defines the Manual move type.
@@ -37,7 +37,7 @@ namespace dMobile.Resources
         /// </summary>
         /// <param name="subType">The <see cref="ReplenishmentMoveType.Code"/> enum value.</param>
         /// <returns>The reason name string.</returns>
-        public static string? Enum2String(Code subType)
+        public static string Enum2String(Code subType)
         {
             return Enum.GetName(typeof(Code), subType);
         }

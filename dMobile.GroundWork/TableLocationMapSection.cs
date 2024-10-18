@@ -35,10 +35,6 @@ namespace dMobile.GroundWork
             this.ProperCaseName = "Sections";
         }
 
-        /// <summary>
-        /// The Request.
-        /// </summary>
-        /// <param name="whsLocMapRefno"></param>
         public override async Task RequestData(int whsLocMapRefno)
         {
             try
@@ -52,36 +48,6 @@ namespace dMobile.GroundWork
             {
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Seeding {this.LowerCaseName} failed.", true);
                 throw new Exception($"Seeding {this.LowerCaseName} failed.", ex);
-            }
-        }
-
-        /// <summary>
-        /// The PurgeData.
-        /// </summary>
-        /// <param name="whsLocMapRefno"></param>
-        public override async Task PurgeData(int whsLocMapRefno)
-        {
-            try
-            {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging sections.", true);
-
-                if (whsLocMapRefno == 0)
-                {
-                    await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync("DELETE FROM tLocationMapSection");
-                }
-                else
-                {
-                    await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync("DELETE FROM tLocationMapSection WHERE WarehouseLocationMapRefno = ?", Convert.ToString(whsLocMapRefno));
-                }
-
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging sections complete.", true);
-            }
-            catch (SQLiteException ex)
-            {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging sections failed.", true);
-
-                throw new Exception("Database exception occurred. Purging sections failed.", ex);
             }
         }
 
@@ -114,7 +80,7 @@ namespace dMobile.GroundWork
         /// <returns></returns>
         protected override async Task<string> SendRequest(int activityFkRefno)
         {
-            return await this.SendComm(await this.CreateRequest(activityFkRefno));
+            return await SendComm(await this.CreateRequest(activityFkRefno));
         }
 
         /// <summary>
@@ -250,51 +216,6 @@ namespace dMobile.GroundWork
             xml.Close();
 
             return xmlString.ToString();
-        }
-
-        public override Task PurgeData()
-        {
-            throw new NotImplementedException();
-        }
-
-        public override Task PurgeData(SysCommon.ActSubTypes actSubType)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override Task Save(string responseData, int refno)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override Task<string> CreateRequest()
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override Task<string> CreateRequest(XDocument criteriaFilter)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override Task<string> CreateRequest(string familyCode)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override Task<string> CreateRequest(int activityFkRefno, XDocument criteria)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override Task<string> CreateRequest(int prodLocMapType, int whsLocMapFkRefno)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override Task<string> CreateRequestProdLoc(int prodLocMapType)
-        {
-            throw new NotImplementedException();
         }
 
         /// <summary>

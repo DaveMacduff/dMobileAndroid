@@ -179,7 +179,7 @@ namespace dMobile.GroundWork
             }
 
             var request = await this.CreateRequest(results[0].ActivityItemFKRefno);
-            return await this.SendComm(request);
+            return await SendComm(request);
         }
 
         /// <summary>
@@ -292,12 +292,12 @@ namespace dMobile.GroundWork
                                         Convert.ToInt32(SysCommon.ActSubTypes.Receiving),
                                         Convert.ToInt32(0),
                                         actItemRefno,
-                                        this.GetDetailLocation(row, transaction, false),
+                                        GetDetailLocation(row, transaction, false),
                                         results[0].ProductUnitRefno
                                     };
 
                                     parametersInsertDetail.AddRange(
-                                        this.SaveDetail(row, transaction, false));
+                                        SaveDetail(row, transaction, false));
 
                                     var rowsAffected = transaction.Execute(
                                         queryInsertDetail,
@@ -337,12 +337,12 @@ namespace dMobile.GroundWork
                                         throw new Exception(errMsg);
                                     }
 
-                                    this.SaveCommonDetailVariant(
+                                    SaveCommonDetailVariant(
                                         row,
                                         transaction,
                                         actDetailRefno,
                                         false);
-                                    this.SaveDetailExtra(row, transaction, actDetailRefno, false);
+                                    SaveDetailExtra(row, transaction, actDetailRefno, false);
 
                                     currentRow++;
                                     if (currentRow % 10 == 0)
@@ -450,61 +450,6 @@ namespace dMobile.GroundWork
             request = request.Length <= 0 ? throw new Exception(errMsg) : request;
 
             return request.ToString();
-        }
-
-        protected override Task<string> CreateRequest()
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override Task<string> CreateRequest(XDocument criteriaFilter)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override Task<string> CreateRequest(string familyCode)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override Task RequestData(int actRefno)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override Task PurgeData(int sectLocMapRefno)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override Task PurgeData(SysCommon.ActSubTypes actSubType)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override Task<int> DataStatus()
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override Task Save(string responseData)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override Task<string> CreateRequest(int activityFkRefno, XDocument criteria)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override Task<string> CreateRequest(int prodLocMapType, int whsLocMapFkRefno)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override Task<string> CreateRequestProdLoc(int prodLocMapType)
-        {
-            throw new NotImplementedException();
         }
     }
 }

@@ -71,7 +71,7 @@ namespace dMobile.GroundWork
             async Task RefreshWhsLocMapTypeFloor()
             {
                 this.WarehouseMapTypeName = "Floor";
-                var responseData = await this.SendComm(
+                var responseData = await SendComm(
                     await this.CreateRequestProdLoc(
                         Convert.ToInt32(SysCommon.ProdLocMapTypes.Floor)));
                 if (responseData.Contains("<message>ERROR</message>"))
@@ -88,7 +88,7 @@ namespace dMobile.GroundWork
             async Task RefreshWhsLocMapTypePicking()
             {
                 this.WarehouseMapTypeName = "Picking";
-                var responseData = await this.SendComm(
+                var responseData = await SendComm(
                     await this.CreateRequestProdLoc(
                         Convert.ToInt32(SysCommon.ProdLocMapTypes.Picking)));
                 if (responseData.Contains("<message>ERROR</message>"))
@@ -105,7 +105,7 @@ namespace dMobile.GroundWork
             async Task RefreshWhsLocMapTypeReceiving()
             {
                 this.WarehouseMapTypeName = "Receiving";
-                var responseData = await this.SendComm(
+                var responseData = await SendComm(
                     await this.CreateRequestProdLoc(
                         Convert.ToInt32(SysCommon.ProdLocMapTypes.Receiving)));
                 if (responseData.Contains("<message>ERROR</message>"))
@@ -333,56 +333,6 @@ namespace dMobile.GroundWork
             xml.Close();
 
             return xmlString.ToString();
-        }
-
-        protected override Task<string> CreateRequest()
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override Task<string> CreateRequest(XDocument criteriaFilter)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override Task<string> CreateRequest(string familyCode)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override Task<string> CreateRequest(int activityFkRefno)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override Task RequestData(int actRefno)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override Task PurgeData(int sectLocMapRefno)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override Task PurgeData(SysCommon.ActSubTypes actSubType)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override Task Save(string responseData, int refno)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override Task<string> CreateRequest(int activityFkRefno, XDocument criteria)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override Task<string> CreateRequest(int prodLocMapType, int whsLocMapFkRefno)
-        {
-            throw new NotImplementedException();
         }
     }
 }

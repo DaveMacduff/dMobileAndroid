@@ -174,7 +174,7 @@ namespace dMobile.GroundWork
                         activityFkRefno);
                 }
 
-                return await this.SendComm(await this.CreateRequest(actItemCountFkRefno));
+                return await SendComm(await this.CreateRequest(actItemCountFkRefno));
             }
             catch (SQLiteException ex)
             {
@@ -301,10 +301,10 @@ namespace dMobile.GroundWork
                                             Convert.ToInt32(SysCommon.ActStatus.NoChange));
                                         detailParameterList.Add(actItemCountRefno);
                                         detailParameterList.Add(
-                                            this.GetDetailLocation(drow, transaction, true));
+                                            GetDetailLocation(drow, transaction, true));
                                         detailParameterList.Add(countItems[0].ProductUnitRefno);
                                         detailParameterList.AddRange(
-                                            this.SaveDetail(drow, transaction, true));
+                                            SaveDetail(drow, transaction, true));
 
                                         transaction.Execute(
                                             queryInsertDetail,
@@ -324,12 +324,12 @@ namespace dMobile.GroundWork
                                             actDetailRefno,
                                             actDetailCycleFkRefno);
 
-                                        this.SaveCommonDetailVariant(
+                                        SaveCommonDetailVariant(
                                             drow,
                                             transaction,
                                             actDetailRefno,
                                             true);
-                                        this.SaveDetailExtra(
+                                        SaveDetailExtra(
                                             drow,
                                             transaction,
                                             actDetailRefno,
@@ -420,61 +420,6 @@ namespace dMobile.GroundWork
             xml.Close();
 
             return xmlString.ToString();
-        }
-
-        protected override Task<string> CreateRequest()
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override Task<string> CreateRequest(XDocument criteriaFilter)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override Task<string> CreateRequest(string familyCode)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override Task RequestData(int actRefno)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override Task PurgeData(int sectLocMapRefno)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override Task PurgeData(SysCommon.ActSubTypes actSubType)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override Task<int> DataStatus()
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override Task Save(string responseData)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override Task<string> CreateRequest(int activityFkRefno, XDocument criteria)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override Task<string> CreateRequest(int prodLocMapType, int whsLocMapFkRefno)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected override Task<string> CreateRequestProdLoc(int prodLocMapType)
-        {
-            throw new NotImplementedException();
         }
     }
 }
