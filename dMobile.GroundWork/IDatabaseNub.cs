@@ -4,15 +4,15 @@
 
 namespace dMobile.GroundWork
 {
-    public interface IDataNubListener
+    public interface IDatabaseNub
     {
         void OnNubStatOut(IDataNubPublisher dataNubPublisher, DataNubEventArgs dataNubArgs);
     }
 
     public interface IDataNubPublisher
     {
-        void RegNubListenerStatOut(IDataNubListener dataNubListener);
+        void RegNubListenerStatOut(IDatabaseNub databaseNub);
 
-        void UnregNubListenerStatOut(IDataNubListener dataNubListener);
+        void UnregNubListenerStatOut(IDatabaseNub databaseNub);
     }
 }

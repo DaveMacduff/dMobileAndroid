@@ -26,7 +26,7 @@ namespace dMobile.View.Pages
     /// Startup splash.
     /// </summary>
     [XamlCompilation(XamlCompilationOptions.Compile)]
-    public partial class SplashStartup : IAppArea, IDataNubListener
+    public partial class SplashStartup : IAppArea, IDatabaseNub
     {
         /// <summary>
         ///     Initializes a new instance of the <see cref="SplashStartup" /> class.

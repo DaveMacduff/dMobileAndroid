@@ -7,14 +7,12 @@ namespace dMobile.GroundWork
     using System;
     using System.Collections.Generic;
     using System.Data;
-    using System.IO;
     using System.Text;
     using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
-    using dMobile.Bedrock;
-    using dMobile.Resources.Models.Products;
-    using dMobile.Resources.Types;
+    using Bedrock;
+    using Resources.Models.Products;
     using SQLite;
 
     /// <summary>
@@ -55,7 +53,7 @@ namespace dMobile.GroundWork
                 ////    }
                 ////}
 
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Seeding {this.LowerCaseName} complete.", true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"{this.LowerCaseName} seeded.", true);
             }
             catch (SQLiteException ex)
             {

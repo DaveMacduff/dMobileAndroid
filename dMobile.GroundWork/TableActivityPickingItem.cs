@@ -2,17 +2,18 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
+// ReSharper disable InconsistentNaming
 namespace dMobile.GroundWork
 {
     using System;
+    using System.Collections.Generic;
     using System.Data;
     using System.Text;
     using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
     using Bedrock;
-    using dMobile.Resources.Models.Headers;
-    using Resources.Models;
+    using Resources.Models.Headers;
     using SQLite;
 
     /// <summary>
@@ -43,133 +44,86 @@ namespace dMobile.GroundWork
             return Task.CompletedTask;
         }
 
+        /// <summary>
+        ///     Purge the activity header data.
+        /// </summary>
+        /// <returns><see cref="Task" /> Task complete.</returns>
         public override async Task PurgeData()
         {
-            this.DataAccessStatusOutHandler(
-                this,
-                EventArgs.Empty,
-                $"Purging {this.LowerCaseName}.",
-                true);
-            var conn = DatabaseConnection.GetInstance().SqlConn;
-            await conn.RunInTransactionAsync(
-                transaction =>
-                {
-                    try
-                    {
-                        // Corruption recovery cleanup.
-                        var query = @"
-                        DELETE FROM tActivityItemBarCodeAssociationXRef
-                            WHERE tActivityItemBarCodeAssociationXRef.ActivityItemRefno <= 0";
-                        transaction.Execute(query);
-
-                        query = @"
-                        DELETE FROM tActivityItemBarCodeAssociationXRef
-                            WHERE tActivityItemBarCodeAssociationXRef.ActivityItemRefno
-                                NOT IN (SELECT tActivityItem.ActivityItemRefno FROM tActivityItem)";
-                        transaction.Execute(query);
-
-                        query = @"
-                        DELETE FROM tActivityItemReasonCodeXRef
-                            WHERE tActivityItemReasonCodeXRef.ActivityItemRefno <= 0";
-                        transaction.Execute(query);
-
-                        query = @"
-                        DELETE FROM tActivityItemReasonCodeXRef
-                            WHERE tActivityItemReasonCodeXRef.ActivityItemRefno
-                                NOT IN (SELECT tActivityItem.ActivityItemRefno FROM tActivityItem)";
-                        transaction.Execute(query);
-
-                        query = @"
-                        DELETE FROM tActivityItemPickingComment
-                            WHERE tActivityItemPickingComment.ActivityItemRefno <= 0";
-                        transaction.Execute(query);
-
-                        query = @"
-                        DELETE FROM tActivityItemPickingComment
-                            WHERE tActivityItemPickingComment.ActivityItemRefno
-                                NOT IN (SELECT tActivityItem.ActivityItemRefno FROM tActivityItem)";
-                        transaction.Execute(query);
-
-                        query = @"
-                        DELETE FROM tActivityItemPicking
-                            WHERE tActivityItemPicking.ActivityItemRefno <= 0
-                                OR tActivityItemPicking.ActivityItemFKRefno <= 0";
-                        transaction.Execute(query);
-
-                        query = @"
-                        DELETE FROM tActivityItemPicking
-                            WHERE tActivityItemPicking.ActivityItemRefno
-                                NOT IN (SELECT tActivityItem.ActivityItemRefno FROM tActivityItem)";
-                        transaction.Execute(query);
-
-                        query = @"
-                        DELETE FROM tActivityItem
-                            WHERE tActivityItem.ActivityRefno
-                                NOT IN (SELECT tActivity.ActivityRefno FROM tActivity)";
-                        transaction.Execute(query);
-
-                        query = "DELETE FROM tActivityItem WHERE tActivityItem.ActivityRefno <= 0";
-                        transaction.Execute(query);
-
-                        // Regular purge.
-                        query = "DELETE FROM tActivityItemBarCodeAssociationXRef " +
-                                "WHERE tActivityItemBarCodeAssociationXRef.ActivityItemRefno IN " +
-                                "(SELECT tActivityItem.ActivityItemRefno FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = ?)";
-                        transaction.Execute(query, this.CurrentSubType);
-
-                        query = @"DELETE FROM tActivityItemReasonCodeXRef
-                                WHERE tActivityItemReasonCodeXRef.ActivityItemRefno IN
-                                (SELECT tActivityItem.ActivityItemRefno FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = ?)";
-                        transaction.Execute(query, this.CurrentSubType);
-
-                        query = @"DELETE FROM tActivityItemPickingComment
-                                WHERE tActivityItemPickingComment.ActivityItemRefno IN
-                                (SELECT tActivityItem.ActivityItemRefno FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = ?)";
-                        transaction.Execute(query, this.CurrentSubType);
-
-                        query =
-                            "DELETE FROM tActivityItemPicking WHERE tActivityItemPicking.ActivityItemSubType = ?";
-                        transaction.Execute(query, this.CurrentSubType);
-
-                        query =
-                            "DELETE FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = ?";
-                        transaction.Execute(query, this.CurrentSubType);
-
-                        transaction.Commit();
-                        this.DataAccessStatusOutHandler(
-                            this,
-                            EventArgs.Empty,
-                            $"Purging {this.LowerCaseName} completed.",
-                            true);
-                    }
-                    catch (SQLiteException ex)
-                    {
-                        transaction.Rollback();
-                        this.DataAccessStatusOutHandler(
-                            this,
-                            EventArgs.Empty,
-                            "Database exception occurred.",
-                            true);
-                        this.DataAccessStatusOutHandler(
-                            this,
-                            EventArgs.Empty,
-                            $"Purging {this.LowerCaseName} failed.",
-                            true);
-                        throw new Exception(
-                            $"Database exception occurred. Purging {this.LowerCaseName} failed.",
-                            ex);
-                    }
-                    catch
-                    {
-                        transaction.Rollback();
-                        this.DataAccessStatusOutHandler(
-                            this,
-                            EventArgs.Empty,
-                            $"Purging {this.LowerCaseName} failed.",
-                            true);
-                        throw;
-                    }
-                });
+            try
+            {
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    $"Purging {this.LowerCaseName}.",
+                    true);
+                var conn = DatabaseConnection.GetInstance().SqlConn;
+                var query = @"DELETE FROM tActivityItemBarCodeAssociationXRef
+                WHERE tActivityItemBarCodeAssociationXRef.ActivityItemRefno <= 0";
+                await conn.ExecuteAsync(query);
+                query = @"DELETE FROM tActivityItemBarCodeAssociationXRef
+                WHERE tActivityItemBarCodeAssociationXRef.ActivityItemRefno
+                    NOT IN (SELECT tActivityItem.ActivityItemRefno FROM tActivityItem)";
+                await conn.ExecuteAsync(query);
+                query = @"DELETE FROM tActivityItemReasonCodeXRef
+                WHERE tActivityItemReasonCodeXRef.ActivityItemRefno <= 0";
+                await conn.ExecuteAsync(query);
+                query = @"DELETE FROM tActivityItemReasonCodeXRef
+                WHERE tActivityItemReasonCodeXRef.ActivityItemRefno
+                    NOT IN (SELECT tActivityItem.ActivityItemRefno FROM tActivityItem)";
+                await conn.ExecuteAsync(query);
+                query = @"DELETE FROM tActivityItemPickingComment
+                WHERE tActivityItemPickingComment.ActivityItemRefno <= 0";
+                await conn.ExecuteAsync(query);
+                query = @"DELETE FROM tActivityItemPickingComment
+                WHERE tActivityItemPickingComment.ActivityItemRefno
+                    NOT IN (SELECT tActivityItem.ActivityItemRefno FROM tActivityItem)";
+                await conn.ExecuteAsync(query);
+                query = @"DELETE FROM tActivityItemPicking
+                WHERE tActivityItemPicking.ActivityItemRefno <= 0
+                    OR tActivityItemPicking.ActivityItemFKRefno <= 0";
+                await conn.ExecuteAsync(query);
+                query = @"DELETE FROM tActivityItemPicking
+                WHERE tActivityItemPicking.ActivityItemRefno
+                    NOT IN (SELECT tActivityItem.ActivityItemRefno FROM tActivityItem)";
+                await conn.ExecuteAsync(query);
+                query = @"DELETE FROM tActivityItem
+                WHERE tActivityItem.ActivityRefno
+                    NOT IN (SELECT tActivity.ActivityRefno FROM tActivity)";
+                await conn.ExecuteAsync(query);
+                query = "DELETE FROM tActivityItem WHERE tActivityItem.ActivityRefno <= 0";
+                await conn.ExecuteAsync(query);
+                query = "DELETE FROM tActivityItemBarCodeAssociationXRef " +
+                    "WHERE tActivityItemBarCodeAssociationXRef.ActivityItemRefno IN " +
+                    "(SELECT tActivityItem.ActivityItemRefno FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = ?)";
+                await conn.ExecuteAsync(query, this.CurrentSubType);
+                query = @"DELETE FROM tActivityItemReasonCodeXRef
+                WHERE tActivityItemReasonCodeXRef.ActivityItemRefno IN
+                (SELECT tActivityItem.ActivityItemRefno FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = ?)";
+                await conn.ExecuteAsync(query, this.CurrentSubType);
+                query = @"DELETE FROM tActivityItemPickingComment
+                WHERE tActivityItemPickingComment.ActivityItemRefno IN
+                (SELECT tActivityItem.ActivityItemRefno FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = ?)";
+                await conn.ExecuteAsync(query, this.CurrentSubType);
+                query = "DELETE FROM tActivityItemPicking WHERE tActivityItemPicking.ActivityItemSubType = ?";
+                await conn.ExecuteAsync(query, this.CurrentSubType);
+                query = "DELETE FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = ?";
+                await conn.ExecuteAsync(query, this.CurrentSubType);
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    $"Purging {this.LowerCaseName} complete.",
+                    true);
+            }
+            catch (Exception)
+            {
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    $"Purging {this.LowerCaseName} failed.",
+                    true);
+                throw;
+            }
         }
 
         /// <summary>
@@ -221,219 +175,165 @@ namespace dMobile.GroundWork
 
         protected override async Task Save(string responseData, int actRefno)
         {
-            await DatabaseConnection.GetInstance()
-                .SqlConn.RunInTransactionAsync(
-                    transaction =>
+            var conn = DatabaseConnection.GetInstance().SqlConn;
+            using var dataSet = new DataSet();
+            dataSet.ReadXml(SysCommon.GetXmlReader(ref responseData), XmlReadMode.Auto);
+            if (dataSet.Tables.Count > 0)
+            {
+                var rows = dataSet.Tables[0].Rows;
+                if (rows.Count > 0)
+                {
+                    try
                     {
-                        try
+                        var items = new List<Seg>();
+                        foreach (DataRow row in rows)
                         {
-                            using var ds = new DataSet();
-                            this.DataAccessStatusOutHandler(
-                                this,
-                                EventArgs.Empty,
-                                "Reading received data.",
-                                false);
-                            ds.ReadXml(SysCommon.GetXmlReader(ref responseData), XmlReadMode.Auto);
-                            this.DataAccessStatusOutHandler(
-                                this,
-                                EventArgs.Empty,
-                                "Saving sales order items.",
-                                false);
-                            var progValue = 0;
-                            if (ds.Tables.Count != 0)
+                            var itemRefno = await GetActivityItemRefno();
+                            var item = new Seg
                             {
-                                var progMax = Convert.ToInt32(
-                                    ds.Tables["tActivityItemPicking"].Rows.Count);
+                                ActivityItemRefno = itemRefno,
+                                ActivityFKRefno = actRefno,
+                                ActivityPickingFKRefno = Convert.ToInt32(row["ActivityPickingFKRefno"]),
+                                ActivityItemFKRefno = Convert.ToInt32(row["ActivityItemFKRefno"]),
+                                ActivityItemStringFKRefno = Convert.ToString(row["ActivityItemFKRefno"]),
+                                ProductFKRefno = Convert.ToInt32(row["ProductFKRefno"]),
+                                ProductUnitIsBC = Convert.ToBoolean(row["ProductUnitIsBC"]),
+                                UnitCode = Convert.ToString(row["UnitCode"]),
+                                LocationMapWarehouseFKRefno = Convert.ToInt32(row["LocationMapWarehouseFKRefno"]),
+                                ActivityItemPickingCustomerProductUnitCode = Convert.ToString(row["ActivityItemPickingCustomerProductUnitCode"]),
+                                ActivityItemPickingDescription = Convert.ToString(row["ActivityItemPickingDescription"]),
+                                ActivityItemPickingQuantityOrdered = Convert.ToDecimal(row["ActivityItemPickingQuantityOrdered"]),
+                                ActivityItemPickingBaseQuantityOrdered = Convert.ToDecimal(row["ActivityItemPickingBaseQuantityOrdered"]),
+                                ActivityItemPickingWeightQuantityOrdered = Convert.ToDecimal(row["ActivityItemPickingWeightQuantityOrdered"]),
+                                ActivityItemPickingQuantityPicked = Convert.ToDecimal(row["ActivityItemPickingQuantityPicked"]),
+                                ActivityItemPickingBaseQuantityPicked = Convert.ToDecimal(row["ActivityItemPickingBaseQuantityPicked"]),
+                                ActivityItemPickingWeightQuantityPicked = Convert.ToDecimal(row["ActivityItemPickingWeightQuantityPicked"]),
+                                ActivityItemPickingQuantityAvailable = Convert.ToDecimal(row["ActivityItemPickingQuantityAvailable"]),
+                                ActivityItemPickingBaseQuantityAvailable = Convert.ToDecimal(row["ActivityItemPickingBaseQuantityAvailable"]),
+                                ActivityItemPickingWeightQuantityAvailable = Convert.ToDecimal(row["ActivityItemPickingWeightQuantityAvailable"]),
+                                ActivityItemPickingComment = Convert.ToString(row["ActivityItemPickingComment"])
+                            };
 
-                                this.DataAccessStatusOutHandler(
-                                    this,
-                                    EventArgs.Empty,
-                                    $"Records {progMax}",
-                                    false);
-
-                                this.DataAccessProgressOutHandler(
-                                    this,
-                                    EventArgs.Empty,
-                                    0,
-                                    0,
-                                    progMax);
-
-                                foreach (DataRow drow in ds.Tables["tActivityItemPicking"].Rows)
-                                {
-                                    transaction.Execute(
-                                        "INSERT INTO tActivityItem (" +
-                                        "ActivityItemSubType" +
-                                        ",ActivityItemStatus" +
-                                        ",ActivityRefno" +
-                                        ",ActivityItemIsAdded) VALUES (?, ?, ?, ?)",
-                                        Convert.ToInt32(SysCommon.ActSubTypes.Picking),
-                                        Convert.ToInt32(SysCommon.ActStatus.NoChange),
-                                        actRefno,
-                                        0);
-
-                                    var actItemPickFkRefno =
-                                        Convert.ToInt32(drow["ActivityItemFKRefno"]);
-
-                                    var prodUnitRefno = GetProductUnitRefnoFromDataRow(
-                                        drow,
-                                        transaction,
-                                        false);
-
-                                    var locMapRefno =
-                                        GetWhsLocMapRefnoFromDataRow(drow, transaction);
-
-                                    var actItemRefno =
-                                        Convert.ToInt32(
-                                            transaction.ExecuteScalar<int>(
-                                                "SELECT last_insert_rowid() FROM tActivityItem"));
-
-                                    const string queryInsertItemPicking = "INSERT INTO tActivityItemPicking (" +
-                                        "ActivityItemRefno, " +
-                                        "ActivityItemSubType, " +
-                                        "ActivityItemFKRefno, " +
-                                        "ActivityItemStringFKRefno, " +
-                                        "ProductUnitRefno, " +
-                                        "WarehouseLocationMapRefno, " +
-                                        "ActivityItemPickingQuantityOrdered, " +
-                                        "ActivityItemPickingBaseQuantityOrdered, " +
-                                        "ActivityItemPickingWeightQuantityOrdered, " +
-                                        "ActivityItemPickingQuantityShipped, " +
-                                        "ActivityItemPickingBaseQuantityShipped, " +
-                                        "ActivityItemPickingWeightQuantityShipped, " +
-                                        "ActivityItemPickingCustomerProductUnitCode, " +
-                                        "ActivityItemPickingDescription, " +
-                                        "ActivityItemPickingQuantityAvailable, " +
-                                        "ActivityItemPickingBaseQuantityAvailable, " +
-                                        "ActivityItemPickingWeightQuantityAvailable," +
-                                        "ActivityItemPickingIsReviewed" +
-                                        ") VALUES (" +
-                                        "?, " +
-                                        "?, " +
-                                        "?, " +
-                                        "?, " +
-                                        "?, " +
-                                        "?, " +
-                                        "?, " +
-                                        "?, " +
-                                        "?, " +
-                                        "?, " +
-                                        "?, " +
-                                        "?, " +
-                                        "?, " +
-                                        "?, " +
-                                        "?, " +
-                                        "?, " +
-                                        "?," +
-                                        "?" +
-                                        ")";
-
-                                    var parametersInsertItemPicking = new object[]
-                                    {
-                                        actItemRefno,
-                                        Convert.ToInt32(SysCommon.ActSubTypes.Picking),
-                                        actItemPickFkRefno,
-                                        actItemPickFkRefno.ToString(),
-                                        prodUnitRefno,
-                                        locMapRefno,
-                                        Convert.ToDecimal(
-                                            drow["ActivityItemPickingQuantityOrdered"]),
-                                        Convert.ToDecimal(
-                                            drow["ActivityItemPickingBaseQuantityOrdered"]),
-                                        Convert.ToDecimal(
-                                            drow["ActivityItemPickingWeightQuantityOrdered"]),
-                                        Convert.ToDecimal(
-                                            drow["ActivityItemPickingQuantityPicked"]),
-                                        Convert.ToDecimal(
-                                            drow["ActivityItemPickingBaseQuantityPicked"]),
-                                        Convert.ToDecimal(
-                                            drow["ActivityItemPickingWeightQuantityPicked"]),
-                                        Convert.ToString(
-                                            drow["ActivityItemPickingCustomerProductUnitCode"]),
-                                        Convert.ToString(drow["ActivityItemPickingDescription"]),
-                                        Convert.ToDecimal(
-                                            drow["ActivityItemPickingQuantityAvailable"]),
-                                        Convert.ToDecimal(
-                                            drow["ActivityItemPickingBaseQuantityAvailable"]),
-                                        Convert.ToDecimal(
-                                            drow["ActivityItemPickingWeightQuantityAvailable"]),
-                                        false
-                                    };
-
-                                    transaction.Execute(
-                                        queryInsertItemPicking,
-                                        parametersInsertItemPicking);
-
-                                    var actItemPickComment =
-                                        Convert.ToString(drow["ActivityItemPickingComment"]);
-
-                                    if (!string.IsNullOrEmpty(actItemPickComment))
-                                    {
-                                        transaction.Execute(
-                                                "INSERT INTO tActivityItemPickingComment" +
-                                                " (ActivityItemRefno, ActivityItemPickingCommentComment)" +
-                                                " VALUES (?, ?)",
-                                            actItemRefno,
-                                            actItemPickComment);
-                                    }
-
-                                    progValue++;
-                                    if (progValue % 100 == 0)
-                                    {
-                                        this.DataAccessProgressOutHandler(
-                                            this,
-                                            EventArgs.Empty,
-                                            progValue,
-                                            0,
-                                            progMax);
-                                    }
-                                }
-
-                                this.DataAccessProgressOutHandler(
-                                    this,
-                                    EventArgs.Empty,
-                                    progMax,
-                                    0,
-                                    progMax);
-                            }
-
-                            transaction.Commit();
-
-                            this.DataAccessStatusOutHandler(
-                                this,
-                                EventArgs.Empty,
-                                "Saving sales order items complete.",
-                                false);
+                            items.Add(item);
                         }
-                        catch (SQLiteException ex)
-                        {
-                            transaction.Rollback();
 
-                            this.DataAccessStatusOutHandler(
-                                this,
-                                EventArgs.Empty,
-                                "Database exception occurred.",
-                                true);
-                            this.DataAccessStatusOutHandler(
-                                this,
-                                EventArgs.Empty,
-                                "Saving sales order items failed.",
-                                true);
+                        var query = "CREATE TEMP TABLE Seg (" +
+                            "ActivityItemRefno INTEGER PRIMARY KEY," +
+                            "ActivityFKRefno INTEGER," +
+                            "ActivityPickingFKRefno INTEGER," +
+                            "ActivityItemFKRefno INTEGER," +
+                            "ActivityItemStringFKRefno VARCHAR(10)," +
+                            "ActivityItemPickingFKRefno INTEGER," +
+                            "ProductFKRefno INTEGER," +
+                            "ProductUnitIsBC INTEGER," +
+                            "UnitCode VARCHAR(2)," +
+                            "LocationMapWarehouseFKRefno INTEGER," +
+                            "ActivityItemPickingCustomerProductUnitCode VARCHAR(10)," +
+                            "ActivityItemPickingDescription VARCHAR(40)," +
+                            "ActivityItemPickingQuantityOrdered DECIMAL(11, 3)," +
+                            "ActivityItemPickingBaseQuantityOrdered DECIMAL(11, 3)," +
+                            "ActivityItemPickingWeightQuantityOrdered DECIMAL(11, 3)," +
+                            "ActivityItemPickingQuantityPicked DECIMAL(11, 3)," +
+                            "ActivityItemPickingBaseQuantityPicked DECIMAL(11, 3)," +
+                            "ActivityItemPickingWeightQuantityPicked DECIMAL(11, 3)," +
+                            "ActivityItemPickingQuantityAvailable DECIMAL(11, 3)," +
+                            "ActivityItemPickingBaseQuantityAvailable DECIMAL(11, 3)," +
+                            "ActivityItemPickingWeightQuantityAvailable DECIMAL(11, 3)," +
+                            "ActivityItemPickingComment VARCHAR(254)" +
+                            ")";
+                        await conn.ExecuteAsync(query);
+                        await conn.InsertAllAsync(items);
 
-                            throw new Exception(
-                                "Database exception occurred. Saving sales order items failed.",
-                                ex);
-                        }
-                        catch (Exception)
-                        {
-                            transaction.Rollback();
-                            this.DataAccessStatusOutHandler(
-                                this,
-                                EventArgs.Empty,
-                                "Saving sales order items failed.",
-                                true);
-                            throw;
-                        }
-                    });
+                        query = "INSERT INTO tActivityItemPicking (" +
+                            "ActivityItemRefno," +
+                            "ActivityItemSubType," +
+                            "ActivityItemFKRefno," +
+                            "ActivityItemStringFKRefno," +
+                            "ProductUnitRefno," +
+                            "WarehouseLocationMapRefno," +
+                            "ActivityItemPickingQuantityOrdered," +
+                            "ActivityItemPickingBaseQuantityOrdered," +
+                            "ActivityItemPickingWeightQuantityOrdered," +
+                            "ActivityItemPickingQuantityShipped," +
+                            "ActivityItemPickingBaseQuantityShipped," +
+                            "ActivityItemPickingWeightQuantityShipped," +
+                            "ActivityItemPickingCustomerProductUnitCode," +
+                            "ActivityItemPickingDescription," +
+                            "ActivityItemPickingQuantityAvailable," +
+                            "ActivityItemPickingBaseQuantityAvailable," +
+                            "ActivityItemPickingWeightQuantityAvailable," +
+                            "ActivityItemPickingIsReviewed" +
+                            ") SELECT " +
+                            "Seg.ActivityItemRefno," +
+                            $"{(int)SysCommon.ActSubTypes.Picking} as ActivityItemSubType," +
+                            "Seg.ActivityItemFKRefno," +
+                            "Seg.ActivityItemStringFKRefno," +
+                            "prodUnit.UnitRefno as ProductUnitRefno," +
+                            "whs.LocationMapRefno as WarehouseLocationMapRefno," +
+                            "Seg.ActivityItemPickingQuantityOrdered," +
+                            "Seg.ActivityItemPickingBaseQuantityOrdered," +
+                            "Seg.ActivityItemPickingWeightQuantityOrdered," +
+                            "Seg.ActivityItemPickingQuantityPicked," +
+                            "Seg.ActivityItemPickingBaseQuantityPicked," +
+                            "Seg.ActivityItemPickingWeightQuantityPicked," +
+                            "Seg.ActivityItemPickingCustomerProductUnitCode," +
+                            "Seg.ActivityItemPickingDescription," +
+                            "Seg.ActivityItemPickingQuantityAvailable," +
+                            "Seg.ActivityItemPickingBaseQuantityAvailable," +
+                            "Seg.ActivityItemPickingWeightQuantityAvailable," +
+                            "0 AS ActivityItemPickingIsReviewed" +
+                            " FROM Seg" +
+                            " INNER JOIN tLocationMapWarehouse whs ON whs.LocationMapWarehouseFKRefno =" +
+                            " Seg.LocationMapWarehouseFKRefno" +
+                            " INNER JOIN tProduct prod ON prod.ProductFKRefno = Seg.ProductFKRefno" +
+                            " INNER JOIN tUnit ON tUnit.UnitCode = Seg.UnitCode" +
+                            " INNER JOIN tProductUnit prodUnit ON prodUnit.ProductRefno = prod.ProductRefno" +
+                            " AND prodUnit.UnitRefno = tUnit.UnitRefno" +
+                            " AND prodUnit.ProductUnitIsBC = Seg.ProductUnitIsBC";
+                        await conn.ExecuteAsync(query);
+
+                        query = "INSERT INTO tActivityItemPickingComment (" +
+                            "ActivityItemRefno," +
+                            "ActivityItemPickingCommentComment" +
+                            ") SELECT " +
+                            "Seg.ActivityItemRefno," +
+                            "Seg.ActivityItemPickingComment as ActivityItemPickingCommentComment" +
+                            " FROM Seg" +
+                            " WHERE COALESCE(Seg.ActivityItemPickingComment, '') != ''";
+                        await conn.ExecuteAsync(query);
+                    }
+                    finally
+                    {
+                        // Drop the temporary table
+                        const string dropTempTableQuery = "DROP TABLE IF EXISTS Seg";
+                        await conn.ExecuteAsync(dropTempTableQuery);
+                    }
+                }
+            }
+
+            return;
+
+            ///////////////////////////////////////////////////////////
+            async Task<int> GetActivityItemRefno()
+            {
+                var query = "INSERT INTO tActivityItem (" +
+                    "ActivityItemSubType" +
+                    ",ActivityItemStatus" +
+                    ",ActivityRefno" +
+                    ",ActivityItemIsAdded) VALUES (?, ?, ?, ?)";
+                await conn.ExecuteAsync(
+                    query,
+                    Convert.ToInt32(SysCommon.ActSubTypes.Picking),
+                    Convert.ToInt32(SysCommon.ActStatus.NoChange),
+                    actRefno,
+                    0);
+                query = "SELECT last_insert_rowid()";
+                ////query = "SELECT tActivityItem.ActivityItemRefno" +
+                ////    " FROM tActivityItem" +
+                ////    $" WHERE tActivityItem.ActivityItemSubType = {Convert.ToInt32(SysCommon.ActSubTypes.Picking)}" +
+                ////    " ORDER BY tActivityItem.ActivityItemRefno DESC LIMIT 1";
+                return Convert.ToInt32(await conn.ExecuteScalarAsync<int>(query));
+            }
         }
 
         protected override async Task<string> CreateRequest(int activityFkRefno, XDocument criteria)
@@ -530,6 +430,77 @@ namespace dMobile.GroundWork
             xml.Close();
 
             return xmlString.ToString();
+        }
+
+        /// <summary>
+        ///     Class to hold the data for the temporary table.
+        /// </summary>
+        private class Seg
+        {
+            /// <summary>
+            ///    Gets or sets the activity item reference number.
+            /// </summary>
+            public int ActivityItemRefno { get; set; }
+
+            // Gets or sets the activity foreign key reference number.
+            public int ActivityFKRefno { get; set; }
+
+            // Gets or sets the activity picking foreign key reference number.
+            public int ActivityPickingFKRefno { get; set; }
+
+            // Gets or sets the activity item foreign key reference number.
+            public int ActivityItemFKRefno { get; set; }
+
+            // Gets or sets the activity item foreign key reference number as a string.
+            public string ActivityItemStringFKRefno { get; set; }
+
+            // Gets or sets the product foreign key reference number.
+            public int ProductFKRefno { get; set; }
+
+            // Gets or sets a value indicating whether the product unit is BC.
+            public bool ProductUnitIsBC { get; set; }
+
+            // Gets or sets the unit code.
+            public string UnitCode { get; set; }
+
+            // Gets or sets the location map warehouse foreign key reference number.
+            public int LocationMapWarehouseFKRefno { get; set; }
+
+            // Gets or sets the activity item picking customer product unit code.
+            public string ActivityItemPickingCustomerProductUnitCode { get; set; }
+
+            // Gets or sets the activity item picking description.
+            public string ActivityItemPickingDescription { get; set; }
+
+            // Gets or sets the activity item picking quantity ordered.
+            public decimal ActivityItemPickingQuantityOrdered { get; set; }
+
+            // Gets or sets the activity item picking base quantity ordered.
+            public decimal ActivityItemPickingBaseQuantityOrdered { get; set; }
+
+            // Gets or sets the activity item picking weight quantity ordered.
+            public decimal ActivityItemPickingWeightQuantityOrdered { get; set; }
+
+            // Gets or sets the activity item picking quantity picked.
+            public decimal ActivityItemPickingQuantityPicked { get; set; }
+
+            // Gets or sets the activity item picking base quantity picked.
+            public decimal ActivityItemPickingBaseQuantityPicked { get; set; }
+
+            // Gets or sets the activity item picking weight quantity picked.
+            public decimal ActivityItemPickingWeightQuantityPicked { get; set; }
+
+            // Gets or sets the activity item picking quantity available.
+            public decimal ActivityItemPickingQuantityAvailable { get; set; }
+
+            // Gets or sets the activity item picking base quantity available.
+            public decimal ActivityItemPickingBaseQuantityAvailable { get; set; }
+
+            // Gets or sets the activity item picking weight quantity available.
+            public decimal ActivityItemPickingWeightQuantityAvailable { get; set; }
+
+            // Gets or sets the activity item picking comment.
+            public string ActivityItemPickingComment { get; set; }
         }
     }
 }

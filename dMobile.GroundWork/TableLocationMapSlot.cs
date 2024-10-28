@@ -2,19 +2,18 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
+// ReSharper disable InconsistentNaming
 namespace dMobile.GroundWork
 {
     using System;
     using System.Collections.Generic;
     using System.Data;
-    using System.IO;
     using System.Text;
     using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
-    using dMobile.Bedrock;
-    using dMobile.Resources.Models.LocationMap;
-    using dMobile.Resources.Types;
+    using Bedrock;
+    using Resources.Models.LocationMap;
     using SQLite;
 
     /// <summary>
@@ -33,18 +32,25 @@ namespace dMobile.GroundWork
         }
 
         /// <summary>
-        /// The Request.
+        ///     Request data from the server and save it to the database.
         /// </summary>
-        /// <param name="whsLocMapRefno"></param>
+        /// <param name="whsLocMapRefno">Warehouse location map reference number.</param>
+        /// <returns>The <see cref="Task"/>.</returns>
         public override async Task RequestData(int whsLocMapRefno)
         {
             try
             {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Seeding {this.LowerCaseName}.", true);
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    $"Seeding {this.LowerCaseName}.",
+                    suppressStatusOutMessage: true);
                 if (whsLocMapRefno > 0)
                 {
-                    var results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<LocationMapWarehouseModel>(
-                        "SELECT * FROM tLocationMapWarehouse WHERE LocationMapRefno = ?", whsLocMapRefno);
+                    const string query = "SELECT * FROM tLocationMapWarehouse WHERE LocationMapRefno = ?";
+                    var results = await DatabaseConnection.GetInstance()
+                        .SqlConn.QueryAsync<LocationMapWarehouseModel>(
+                        query, whsLocMapRefno);
 
                     if (results?.Count > 0)
                     {
@@ -53,18 +59,25 @@ namespace dMobile.GroundWork
                     }
                     else
                     {
-                        throw new Exception("No results in tLocationMapWarehouse for LocationMapRefno " + whsLocMapRefno + Environment.NewLine + this.FullClassName + " Request");
+                        var msg = $"No results in tLocationMapWarehouse for LocationMapRefno {whsLocMapRefno}";
+                        throw new Exception(msg + Environment.NewLine + this.FullClassName + " Request");
                     }
                 }
 
-                var responseData = await this.SendRequest(whsLocMapRefno);
-                await this.SaveOpt(responseData);
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Seeding {this.LowerCaseName} complete.", true);
+                await this.Save(await this.SendRequest(whsLocMapRefno));
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    $"{this.LowerCaseName} seeded.",
+                    suppressStatusOutMessage: true);
             }
             catch (Exception ex)
             {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Seeding {this.LowerCaseName} failed.", true);
-
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    $"Seeding {this.LowerCaseName} failed.",
+                    suppressStatusOutMessage: true);
                 throw new Exception($"Seeding {this.LowerCaseName} failed.", ex);
             }
         }
@@ -101,14 +114,15 @@ namespace dMobile.GroundWork
         }
 
         /// <summary>
-        /// The SaveOpt.
+        /// Save the xml data to the database.
         /// </summary>
-        /// <param name="responseData"></param>
-        protected async Task SaveOpt(string responseData)
+        /// <param name="xmlData">XML data to parse and save.</param>
+        /// <returns>The <see cref="Task"/>.</returns>
+        protected override async Task Save(string xmlData)
         {
             var conn = DatabaseConnection.GetInstance().SqlConn;
             using var dataSet = new DataSet();
-            dataSet.ReadXml(SysCommon.GetXmlReader(ref responseData), XmlReadMode.Auto);
+            dataSet.ReadXml(SysCommon.GetXmlReader(ref xmlData), XmlReadMode.Auto);
             if (dataSet.Tables.Count > 0)
             {
                 var rows = dataSet.Tables[0].Rows;
@@ -214,7 +228,8 @@ namespace dMobile.GroundWork
             {
                 var query = "INSERT INTO tLocationMap (LocationMapSubType) VALUES (?)";
                 await conn.ExecuteAsync(query, Convert.ToInt32(SysCommon.LocMapSubTypes.Slot));
-                query = "SELECT tLocationMap.LocationMapRefno FROM tLocationMap ORDER BY LocationMapRefno DESC LIMIT 1";
+                query = "SELECT last_insert_rowid()";
+                ////query = "SELECT tLocationMap.LocationMapRefno FROM tLocationMap ORDER BY LocationMapRefno DESC LIMIT 1";
                 var locMapRefno = Convert.ToInt32(await conn.ExecuteScalarAsync<int>(query));
                 return locMapRefno;
             }
@@ -261,27 +276,55 @@ namespace dMobile.GroundWork
         }
 
         /// <summary>
-        ///     Class to hold the data for the temporary table.
+        /// Class to hold the data for the temporary table.
         /// </summary>
         private class Seg
         {
+            /// <summary>
+            /// Gets or sets the reference number for the location map.
+            /// </summary>
             public int LocationMapRefno { get; set; }
 
+            /// <summary>
+            /// Gets or sets the slot code for the location map.
+            /// </summary>
             public int LocationMapSlotCode { get; set; }
 
+            /// <summary>
+            /// Gets or sets the name of the location map slot.
+            /// </summary>
             public string LocationMapSlotName { get; set; }
 
+            /// <summary>
+            /// Gets or sets the barcode of the location map slot.
+            /// </summary>
             public string LocationMapSlotBarCode { get; set; }
 
+            /// <summary>
+            /// Gets or sets the foreign key reference number for the location map slot.
+            /// </summary>
             public int LocationMapSlotFKRefno { get; set; }
 
+            /// <summary>
+            /// Gets or sets the foreign key reference number for the location map section.
+            /// </summary>
             public int LocationMapSectionFKRefno { get; set; }
 
+            /// <summary>
+            /// Gets or sets the first coordinate code for the location map slot.
+            /// </summary>
             public string LocationMapSlotCoordinate1Code { get; set; }
 
+            /// <summary>
+            /// Gets or sets the second coordinate code for the location map slot.
+            /// </summary>
             public string LocationMapSlotCoordinate2Code { get; set; }
 
+            /// <summary>
+            /// Gets or sets the third coordinate code for the location map slot.
+            /// </summary>
             public string LocationMapSlotCoordinate3Code { get; set; }
         }
+
     }
 }

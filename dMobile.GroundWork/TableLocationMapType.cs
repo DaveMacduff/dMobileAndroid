@@ -7,14 +7,12 @@ namespace dMobile.GroundWork
     using System;
     using System.Collections.Generic;
     using System.Data;
-    using System.Data.Common;
     using System.Text;
     using System.Threading.Tasks;
-    using System.Transactions;
     using System.Xml;
     using System.Xml.Linq;
-    using dMobile.Bedrock;
-    using dMobile.Resources.Models.LocationMap;
+    using Bedrock;
+    using Resources.Models.LocationMap;
     using SQLite;
 
     /// <summary>
@@ -26,7 +24,6 @@ namespace dMobile.GroundWork
         /// Initializes a new instance of the <see cref="TableLocationMapType"/> class.
         /// </summary>
         public TableLocationMapType()
-      : base()
         {
             this.FullClassName = "dMobile.GroundWork.TableLocationMapType";
             this.LowerCaseName = "location map types";
@@ -36,6 +33,7 @@ namespace dMobile.GroundWork
         /// <summary>
         /// The Request.
         /// </summary>
+        /// <returns>The <see cref="Task"/>.</returns>
         public override async Task RequestData()
         {
             try
@@ -51,7 +49,7 @@ namespace dMobile.GroundWork
                 this.DataAccessStatusOutHandler(
                     this,
                     EventArgs.Empty,
-                    $"Seeding {this.LowerCaseName} complete.",
+                    $"{this.LowerCaseName} seeded.",
                     true);
             }
             catch (Exception ex)
@@ -68,22 +66,42 @@ namespace dMobile.GroundWork
         /// <summary>
         /// The Purge.
         /// </summary>
+        /// <returns>The <see cref="Task"/>.</returns>
         public override async Task PurgeData()
         {
             try
             {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging location map types.", true);
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    "Purging location map types.",
+                    true);
 
-                await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync("DELETE FROM tLocationMapType");
+                await DatabaseConnection.GetInstance()
+                    .SqlConn.ExecuteAsync("DELETE FROM tLocationMapType");
 
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging location map types complete.", true);
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    "Purging location map types complete.",
+                    true);
             }
             catch (SQLiteException ex)
             {
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging location map types failed.", true);
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    "Database exception occurred.",
+                    true);
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    "Purging location map types failed.",
+                    true);
 
-                throw new Exception("Database exception occurred. Purging location map types failed.", ex);
+                throw new Exception(
+                    "Database exception occurred. Purging location map types failed.",
+                    ex);
             }
         }
 
@@ -96,13 +114,21 @@ namespace dMobile.GroundWork
             int rowsAffected;
             try
             {
-                rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SqlConn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tLocationMapType"));
+                rowsAffected = Convert.ToInt32(
+                    await DatabaseConnection.GetInstance()
+                        .SqlConn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tLocationMapType"));
 
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"{rowsAffected} location map types.", true);
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    $"{rowsAffected} location map types.",
+                    true);
             }
             catch (SQLiteException ex)
             {
-                throw new Exception("Database exception occurred. Location map types status failed.", ex);
+                throw new Exception(
+                    "Database exception occurred. Location map types status failed.",
+                    ex);
             }
 
             return rowsAffected;
@@ -111,8 +137,8 @@ namespace dMobile.GroundWork
         /// <summary>
         /// The Send.
         /// </summary>
-        /// <param name="activityFkRefno</param>
-        /// <returns></returns>
+        /// <param name="activityFkRefno">The activityFkRefno<see cref="int"/>.</param>
+        /// <returns>The <see cref="Task"/>.</returns>
         protected override async Task<string> SendRequest(int activityFkRefno)
         {
             return await SendComm(await this.CreateRequest(activityFkRefno));
@@ -121,7 +147,8 @@ namespace dMobile.GroundWork
         /// <summary>
         /// The Save.
         /// </summary>
-        /// <param name="responseData"></param>
+        /// <param name="responseData">The responseData<see cref="string"/>.</param>
+        /// <returns>The <see cref="Task"/>.</returns>
         protected override async Task Save(string responseData)
         {
             var conn = DatabaseConnection.GetInstance().SqlConn;
@@ -134,7 +161,8 @@ namespace dMobile.GroundWork
                 for (var i = 0; i < rowsToSave; i++)
                 {
                     var row = dataSet.Tables["tLocationMapType"].Rows[i];
-                    var locMapType = (SysCommon.LocMapTypes)Convert.ToInt32(row["LocationMapTypeEnum"]);
+                    var locMapType =
+                        (SysCommon.LocMapTypes)Convert.ToInt32(row["LocationMapTypeEnum"]);
 
                     // Removed validation because of try to make save faster.
                     ////switch (locMapType)
@@ -176,7 +204,7 @@ namespace dMobile.GroundWork
                     var locType = new LocationMapTypeModel
                     {
                         LocationMapRefno = locMapRefno,
-                        LocationMapTypeEnum = (int)locMapType,
+                        LocationMapTypeEnum = (int)locMapType
                     };
                     locTypes.Add(locType);
                 }
@@ -185,7 +213,8 @@ namespace dMobile.GroundWork
                 this.DataAccessStatusOutHandler(
                     this,
                     EventArgs.Empty,
-                    $"{locTypes.Count} {this.LowerCaseName}.", true);
+                    $"{locTypes.Count} {this.LowerCaseName}.",
+                    true);
             }
             else
             {
@@ -204,7 +233,8 @@ namespace dMobile.GroundWork
                 const string query = "SELECT LocationMapRefno FROM tLocationMapWarehouse" +
                                      " WHERE LocationMapWarehouseFKRefno = ?";
                 var result = await conn.FindWithQueryAsync<LocationMapWarehouseModel>(
-                    query, locMapFkRefno);
+                    query,
+                    locMapFkRefno);
                 if (result == null)
                 {
                     var msg = $"Unable to find foreign key {locMapFkRefno} in warehouses.";
@@ -218,9 +248,10 @@ namespace dMobile.GroundWork
             async Task<int> GetSectionLocMapRefno(int locMapFkRefno)
             {
                 const string query = "SELECT LocationMapRefno FROM tLocationMapSection" +
-                    " WHERE LocationMapSectionFKRefno = ?";
+                                     " WHERE LocationMapSectionFKRefno = ?";
                 var result = await conn.FindWithQueryAsync<LocationMapSectionModel>(
-                    query, locMapFkRefno);
+                    query,
+                    locMapFkRefno);
                 if (result == null)
                 {
                     var msg = $"Unable to find foreign key {locMapFkRefno} in sections.";
@@ -234,9 +265,10 @@ namespace dMobile.GroundWork
             async Task<int> GetSlotLocMapRefno(int locMapFkRefno)
             {
                 const string query = "SELECT LocationMapRefno FROM tLocationMapSlot" +
-                    " WHERE LocationMapSlotFKRefno = ?";
+                                     " WHERE LocationMapSlotFKRefno = ?";
                 var result = await conn.FindWithQueryAsync<LocationMapSlotModel>(
-                    query, locMapFkRefno);
+                    query,
+                    locMapFkRefno);
                 if (result == null)
                 {
                     var msg = $"Unable to find foreign key {locMapFkRefno} in slots.";
@@ -248,38 +280,39 @@ namespace dMobile.GroundWork
         }
 
         /// <summary>
-        /// The Create.
+        /// Create a data request.
         /// </summary>
-        /// <param name="activityFkRefno"></param>
-        /// <returns></returns>
+        /// <param name="activityFkRefno">The activityFkRefno<see cref="int"/>.</param>
+        /// <returns>The <see cref="Task"/>.</returns>
         protected override async Task<string> CreateRequest(int activityFkRefno)
         {
             var xmlString = new StringBuilder();
             var settings = new XmlWriterSettings
             {
                 Async = true,
-                Indent = false,
+                Indent = false
             };
             var xml = XmlWriter.Create(xmlString, settings);
 
-            var locMapWhsFKRefno = 0;
+            var locMapWhsFkRefno = 0;
             var locMapWhs = new TableLocationMapWarehouse();
-
-            // lookup and verify warehouse
             if (activityFkRefno > 0)
             {
-                locMapWhsFKRefno = await locMapWhs.GetLocMapWhsFKRefnoFromLocMapWhsRefno(activityFkRefno);
+                locMapWhsFkRefno =
+                    await locMapWhs.GetLocMapWhsFKRefnoFromLocMapWhsRefno(activityFkRefno);
             }
 
             var request = XDocument.Parse(
-                "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>"
-                + "<imclient>"
-                + "<command>"
-                + "<action>REQUEST LOCATION MAP TYPES</action>"
-                + await SysCommon.GetRequestDefaults(true)
-                + "<LocationMapWarehouseFKRefno>" + locMapWhsFKRefno + "</LocationMapWarehouseFKRefno>"
-                + "</command>"
-                + "</imclient>");
+                "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>" +
+                "<imclient>" +
+                "<command>" +
+                "<action>REQUEST LOCATION MAP TYPES</action>" +
+                await SysCommon.GetRequestDefaults(true) +
+                "<LocationMapWarehouseFKRefno>" +
+                locMapWhsFkRefno +
+                "</LocationMapWarehouseFKRefno>" +
+                "</command>" +
+                "</imclient>");
 
             request.Save(xml);
             await xml.FlushAsync();

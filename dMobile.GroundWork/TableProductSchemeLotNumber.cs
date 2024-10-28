@@ -47,7 +47,7 @@ namespace dMobile.GroundWork
                 this.DataAccessStatusOutHandler(
                     this,
                     EventArgs.Empty,
-                    $"Seeding {this.LowerCaseName} complete.",
+                    $"{this.LowerCaseName} seeded.",
                     true);
             }
             catch (Exception ex)

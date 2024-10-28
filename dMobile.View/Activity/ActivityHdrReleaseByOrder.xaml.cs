@@ -68,6 +68,7 @@ namespace dMobile.View.Activity
         private SysCommon.ActSubTypes ActSubType { get; } = SysCommon.ActSubTypes.ReleaseByOrder;
 
         public ObservableCollection<string> ExtraInfoItems { get; set; }
+        
         public ObservableCollection<object> MainActivityItems { get; set; }
 
         /// <summary>

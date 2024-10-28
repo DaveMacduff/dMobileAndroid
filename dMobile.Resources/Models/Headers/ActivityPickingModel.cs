@@ -5,7 +5,7 @@
 namespace dMobile.Resources.Models.Headers
 {
     using System;
-    using dMobile.Resources.Models.LocationMap;
+    using LocationMap;
     using SQLite;
     using SQLiteNetExtensions.Attributes;
 

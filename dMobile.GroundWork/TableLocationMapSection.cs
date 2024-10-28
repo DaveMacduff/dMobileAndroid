@@ -7,17 +7,12 @@ namespace dMobile.GroundWork
     using System;
     using System.Collections.Generic;
     using System.Data;
-    using System.Data.Common;
-    using System.Linq;
     using System.Text;
     using System.Threading.Tasks;
-    using System.Transactions;
     using System.Xml;
     using System.Xml.Linq;
-    using dMobile.Bedrock;
-    using dMobile.Resources.Models;
+    using Bedrock;
     using SQLite;
-    using static Xamarin.Forms.Markup.GridRowsColumns;
 
     /// <summary>
     /// Defines the <see cref="TableLocationMapSection" />.
@@ -42,7 +37,7 @@ namespace dMobile.GroundWork
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Seeding {this.LowerCaseName}.", true);
                 var responseData = await this.SendRequest(whsLocMapRefno);
                 await this.Save(responseData);
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Seeding {this.LowerCaseName} complete.", true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"{this.LowerCaseName} seeded.", true);
             }
             catch (Exception ex)
             {
@@ -171,7 +166,8 @@ namespace dMobile.GroundWork
             {
                 var query = "INSERT INTO tLocationMap (LocationMapSubType) VALUES (?)";
                 await conn.ExecuteAsync(query, Convert.ToInt32(SysCommon.LocMapSubTypes.Section));
-                query = "SELECT tLocationMap.LocationMapRefno FROM tLocationMap ORDER BY LocationMapRefno DESC LIMIT 1";
+                query = "SELECT last_insert_rowid()";
+                ////query = "SELECT tLocationMap.LocationMapRefno FROM tLocationMap ORDER BY LocationMapRefno DESC LIMIT 1";
                 var locMapRefno = Convert.ToInt32(await conn.ExecuteScalarAsync<int>(query));
                 return locMapRefno;
             }

@@ -2299,10 +2299,10 @@ namespace dMobile.View.Activity
 
                     ////this.ExtraInfoItems.Add(pickDetail.ActivityDetailSchemeID);
 
-                    var qty = ((this.ActDetail.ActItem.SelectedItem as PickingItem)!).
+                    var qty = ((this.ActDetail.ActItem.SelectedItem as PickingItem) !).
                         ActivityItemPickingQuantityOrdered;
 
-                    var wtQty = ((this.ActDetail.ActItem.SelectedItem as PickingItem)!).
+                    var wtQty = ((this.ActDetail.ActItem.SelectedItem as PickingItem) !).
                         ActivityItemPickingWeightQuantityOrdered;
 
                     this.ExtraInfoItems.Add("Ordered: " + SysCommon.NiceQuantityReadableString(
@@ -2310,6 +2310,8 @@ namespace dMobile.View.Activity
                         qty,
                         wtQty));
                 }
+
+                return;
 
                 ///////////////////////////////////////////////////////////
                 void DisplayPickingLocation(SLocMap itemLocMap, PickingDetail pickDetail)

@@ -176,7 +176,7 @@ namespace dMobile.View
                 if (!sysEnv.SysSettings.IsDisconnectedMode)
                 {
                     decimal deliScaleWeight = 0;
-                    var unitRefnoFromBarCode = await clsCommon.GetDeliProdInfoFromBarCode(
+                    var unitRefnoFromBarCode = await BarCodeCommon.GetDeliProdInfoFromBarCode(
                         barCodeParse.ProductIdentifier,
                         sysEnv.CurrentBarCodeModifier1,
                         barCodeParse.Symbology,

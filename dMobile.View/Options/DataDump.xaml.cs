@@ -67,7 +67,7 @@ namespace dMobile.View.Options
         /// <summary>
         ///     Gets the full class name.
         /// </summary>
-        private string FullClassName { get; } = typeof(RefreshDataStatus).FullName;
+        private string FullClassName { get; } = typeof(RefreshDatabaseStatus).FullName;
 
         /// <summary>
         ///     Gets the product location map type table.

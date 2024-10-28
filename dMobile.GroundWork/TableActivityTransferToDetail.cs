@@ -12,8 +12,7 @@ namespace dMobile.GroundWork
     using System.Xml;
     using System.Xml.Linq;
     using Bedrock;
-    using dMobile.Resources.Models.Items;
-    using Resources.Models;
+    using Resources.Models.Items;
     using SQLite;
 
     public class TableActivityTransferToDetail : TableBase
@@ -159,7 +158,7 @@ namespace dMobile.GroundWork
         {
             var results = await DatabaseConnection.GetInstance()
                 .SqlConn.QueryAsync<ActivityItemTransferModel>(
-                    "SELECT * FROM tActivityItemTransfer WHERE ActivityItemRefno = ?",
+                    "SELECT * FROM tActivityItemTransfer WHERE ActivityItemFKRefno = ?",
                     Convert.ToInt32(activityFkRefno));
 
             int actItemFKRefno;

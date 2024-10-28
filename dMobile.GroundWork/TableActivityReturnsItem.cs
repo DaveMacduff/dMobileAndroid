@@ -5,15 +5,13 @@
 namespace dMobile.GroundWork
 {
     using System;
-    using System.Collections.Generic;
     using System.Data;
     using System.Text;
     using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
     using Bedrock;
-    using dMobile.Resources.Models.Headers;
-    using Resources.Models;
+    using Resources.Models.Headers;
     using SQLite;
 
     public class TableActivityReturnsItem : TableBase

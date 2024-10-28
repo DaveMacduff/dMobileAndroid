@@ -7,17 +7,12 @@ namespace dMobile.GroundWork
     using System;
     using System.Collections.Generic;
     using System.Data;
-    using System.Data.Common;
-    using System.Linq;
     using System.Text;
     using System.Threading.Tasks;
-    using System.Transactions;
     using System.Xml;
     using System.Xml.Linq;
     using Bedrock;
-    using dMobile.Resources.Models.Contacts;
-    using Resources.Models;
-    using Resources.Types;
+    using Resources.Models.Contacts;
     using SQLite;
 
     /// <summary>
@@ -61,7 +56,7 @@ namespace dMobile.GroundWork
                 this.DataAccessStatusOutHandler(
                     this,
                     EventArgs.Empty,
-                    $"Seeding {this.LowerCaseName} complete.",
+                    $"{this.LowerCaseName} seeded.",
                     true);
             }
             catch (Exception ex)
@@ -294,8 +289,9 @@ namespace dMobile.GroundWork
                     await conn.ExecuteAsync(
                         query,
                         Convert.ToInt32(SysCommon.ContactSubTypes.User));
-                    query = "SELECT tContact.ContactRefno FROM tContact" +
-                            " ORDER BY tContact.ContactRefno DESC LIMIT 1";
+                    query = "SELECT last_insert_rowid()";
+                    ////query = "SELECT tContact.ContactRefno FROM tContact" +
+                    ////        " ORDER BY tContact.ContactRefno DESC LIMIT 1";
                     var contactRefno = Convert.ToInt32(await conn.ExecuteScalarAsync<int>(query));
 
                     // Decided not to check for duplicates. Just insert all.

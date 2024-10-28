@@ -19,15 +19,6 @@ namespace dMobile.Controller
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="DataLayerEventArgs"/> class.
-        /// </summary>
-        /// <param name="msgData">The msgData<see cref="string"/>.</param>
-        public DataLayerEventArgs(string msgData)
-        {
-            this.StatusOutMsg = msgData;
-        }
-
-        /// <summary>
         /// Gets or sets a value indicating whether this.MinValue or this.MaxValue was set.
         /// Because MinValue and MaxValue are integers, 0 is valid value. We needed a way
         /// to indicate to use them.
@@ -40,7 +31,7 @@ namespace dMobile.Controller
         public bool OverrideDisconnectedMode { get; set; }
 
         /// <summary>
-        /// Gets or sets the status out messge.
+        /// Gets or sets the status out message.
         /// </summary>
         public string StatusOutMsg { get; set; } = string.Empty;
 

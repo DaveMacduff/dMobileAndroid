@@ -54,7 +54,7 @@ namespace dMobile.GroundWork
         }
 
         /// <summary>
-        /// Get the ground work assembly version information.
+        /// Get the groundwork assembly version information.
         /// </summary>
         /// <returns><see cref="string"/> Assembly version information.</returns>
         public string GetAssemblyVersion()

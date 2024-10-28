@@ -20,7 +20,6 @@ namespace dMobile.View.Activity
     using Resources.Types.Headers;
     using Forms;
     using Resources.Enums;
-    using Resources.Types;
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;
     using Resource = Resources.Properties.Resources;
@@ -1629,6 +1628,9 @@ namespace dMobile.View.Activity
 
                         case SysCommon.ActSubTypes.ConvertProduct:
                             throw new NotImplementedException("SysCommon.ActSubTypes.ConvertProduct");
+
+                        default:
+                            throw new ArgumentOutOfRangeException();
                     }
 
                     this.ListViewDisplayExtraInfo.ItemsSource = this.ExtraInfoItems;

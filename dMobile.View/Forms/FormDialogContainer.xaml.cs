@@ -37,7 +37,7 @@ namespace dMobile.View.Forms
             this.InitializeComponent();
             var model = modelType switch
             {
-                EDialogTypes.RefreshDataStatus => new RefreshDataStatus(actSubType),
+                EDialogTypes.RefreshDataStatus => new RefreshDatabaseStatus(actSubType),
                 EDialogTypes.ActivityInventoryInquiry => new ActivityInventoryInquiry(),
                 EDialogTypes.ActivityDeboxLabelCount => new ActivityDeboxLabelCount(),
                 EDialogTypes.SelectProductUnit => this.GetModel(modelType, actSubType, activityType),
@@ -160,7 +160,7 @@ namespace dMobile.View.Forms
             this.InitializeComponent();
             var model = modelType switch
             {
-                EDialogTypes.RefreshDataStatus => new RefreshDataStatus(actSubType),
+                EDialogTypes.RefreshDataStatus => new RefreshDatabaseStatus(actSubType),
                 EDialogTypes.ActivityInventoryInquiry => new ActivityInventoryInquiry(),
                 EDialogTypes.SelectProductUnit => this.GetModel(modelType, activity, actSubType, activityType),
                 EDialogTypes.SelectProductUnitFilterToProduct => this.GetModel(modelType, activity, actSubType, activityType),
@@ -220,7 +220,7 @@ namespace dMobile.View.Forms
             this.InitializeComponent();
             var model = modelType switch
             {
-                EDialogTypes.RefreshDataStatus => new RefreshDataStatus(actSubType),
+                EDialogTypes.RefreshDataStatus => new RefreshDatabaseStatus(actSubType),
                 EDialogTypes.ActivityInventoryInquiry => new ActivityInventoryInquiry(actItem.ProdInfo),
                 EDialogTypes.ActivityInventoryInquirySummary => new ActivityItemInventoryInquirySummary(actItem),
                 EDialogTypes.SelectProductUnit => this.GetModel(modelType, actItem, actSubType, callingActSubType, activityType),
@@ -278,7 +278,7 @@ namespace dMobile.View.Forms
             this.InitializeComponent();
             var model = modelType switch
             {
-                EDialogTypes.RefreshDataStatus => new RefreshDataStatus(actSubType),
+                EDialogTypes.RefreshDataStatus => new RefreshDatabaseStatus(actSubType),
                 EDialogTypes.ActivityInventoryInquiry => new ActivityInventoryInquiry(actDetail.ActItem.ProdInfo),
                 EDialogTypes.SelectProductUnit => this.GetModel(modelType, actDetail, actSubType, activityType),
                 EDialogTypes.SelectProductUnitFilterToProduct => this.GetModel(modelType, actDetail, actSubType, activityType),

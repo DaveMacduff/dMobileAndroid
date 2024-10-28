@@ -6,6 +6,7 @@ namespace dMobile.Bedrock
 {
     using System;
     using System.Data;
+    using System.Diagnostics.CodeAnalysis;
     using System.IO;
     using System.Text;
     using System.Threading.Tasks;
@@ -484,7 +485,7 @@ namespace dMobile.Bedrock
             var skid = await GetSkidInfoFromXml(skidData);
             var tempSkidInfo = skid.CurrSkid;
             tempSkidInfo.SkidFkRefno = int.Parse(result.DocumentElement!["skid_fk_refno"] !.InnerText);
-            tempSkidInfo.SkidCode = result.DocumentElement!["skid_code"]!.InnerText;
+            tempSkidInfo.SkidCode = result.DocumentElement!["skid_code"] !.InnerText;
             tempSkidInfo.LogisticUnitSkidCode = result.DocumentElement!["logistic_unit_skid_code"] !.InnerText;
             skid.CurrSkid = tempSkidInfo;
             return skid;
@@ -540,7 +541,6 @@ namespace dMobile.Bedrock
                 {
                     var tempSkidInfo = skidInfo;
                     tempSkidInfo.IsConsumed = true;
-                    skidInfo = tempSkidInfo;
                 }
             }
             else
@@ -554,6 +554,7 @@ namespace dMobile.Bedrock
         /// </summary>
         /// <param name="skidData"><see cref="string"/> Skid bar code or skid code.</param>
         /// <returns><see cref="SysSkidInfo"/> Skid information found.</returns>
+        [SuppressMessage("ReSharper", "StringLiteralTypo", Justification = "XML data elements")]
         public static async Task<SysSkidInfo> GetSkidInfoFromBarCodeOrCode(string skidData)
         {
             var request = await CreateSkidInfoRequest();
@@ -681,7 +682,7 @@ namespace dMobile.Bedrock
                 const string variantCodeNodeName = "/VFPData/cskidinfo/productschemevariantcode";
                 schemeData.VariantCode = result.SelectSingleNode(variantCodeNodeName) !.InnerText;
                 const string variantDescNodeName = "/VFPData/cskidinfo/productschemevariantdescription";
-                schemeData.VariantDescription = result.SelectSingleNode(variantDescNodeName).InnerText;
+                schemeData.VariantDescription = result.SelectSingleNode(variantDescNodeName) !.InnerText;
                 skidInfo.SchemeData = schemeData;
 
                 return skidInfo;
@@ -760,7 +761,7 @@ namespace dMobile.Bedrock
         /// </summary>
         /// <param name="other"><see cref="SysSkidInfo" /> Skid information to compare.</param>
         /// <returns><see cref="bool" /> True if the instances are the same else false.</returns>
-        public bool Equals(SysSkidInfo? other)
+        public bool Equals(SysSkidInfo other)
         {
             return other != null && other.CurrSkid.Equals(this.CurrSkid);
         }

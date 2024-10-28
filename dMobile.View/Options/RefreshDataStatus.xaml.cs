@@ -8,41 +8,40 @@ namespace dMobile.View.Options
     using System.Collections.ObjectModel;
     using System.IO;
     using System.Linq;
-    using System.Threading;
     using System.Threading.Tasks;
     using System.Xml.Linq;
     using Android.Views;
     using Bedrock;
     using Controller.Activity_Detail;
-    using dMobile.Controller.Activity;
     using Controller.Activity_Item;
+    using dMobile.Controller.Activity;
     using Forms;
     using GroundWork;
     using Resources.Enums;
     using Resources.Types;
+    using Resources.Types.Headers;
+    using Resources.Types.Items;
     using SQLite;
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;
     using Resource = Resources.Properties.Resources;
-    using Resources.Types.Headers;
-    using Resources.Types.Items;
 
     /// <summary>
     ///     Refresh database status.
     /// </summary>
     [XamlCompilation(XamlCompilationOptions.Compile)]
-    public partial class RefreshDataStatus : IAppArea, ISysSettingsEventListener,
+    public partial class RefreshDatabaseStatus : IAppArea, ISysSettingsEventListener,
         IBarCodeSettingsEventListener, IPrnSettingsListener, IProdSchemeLabelSettingsListener,
-        IDataNubListener, IDataAccessEventListener
+        IDatabaseNub, IDataAccess
     {
         private bool isFirstAppearance = true;
         private int messageIndex;
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="RefreshDataStatus" /> class.
+        ///     Initializes a new instance of the <see cref="RefreshDatabaseStatus" /> class.
         /// </summary>
         /// <param name="actSubTypes"><see cref="SysCommon.ActSubTypes" /> Activity subtypes.</param>
-        public RefreshDataStatus(SysCommon.ActSubTypes actSubTypes)
+        public RefreshDatabaseStatus(SysCommon.ActSubTypes actSubTypes)
         {
             this.InitializeComponent();
 
@@ -69,7 +68,7 @@ namespace dMobile.View.Options
         /// <summary>
         ///     Gets the full class name.
         /// </summary>
-        private string FullClassName { get; } = typeof(RefreshDataStatus).FullName;
+        private string FullClassName { get; } = typeof(RefreshDatabaseStatus).FullName;
 
         /// <summary>
         ///     Gets the total refresh data time.

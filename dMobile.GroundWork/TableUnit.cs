@@ -11,9 +11,8 @@ namespace dMobile.GroundWork
     using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
-    using dMobile.Bedrock;
-    using dMobile.Resources.Models.Products;
-    using dMobile.Resources.Types;
+    using Bedrock;
+    using Resources.Models.Products;
     using SQLite;
 
     public class TableUnit : TableBase
@@ -40,7 +39,7 @@ namespace dMobile.GroundWork
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Seeding {this.LowerCaseName}.", true);
                 var responseData = await this.SendRequest();
                 await this.Save(responseData);
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Seeding {this.LowerCaseName} complete.", true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"{this.LowerCaseName} seeded.", true);
             }
             catch (Exception ex)
             {

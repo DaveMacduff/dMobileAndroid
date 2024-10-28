@@ -152,7 +152,7 @@ namespace dMobile.GroundWork
                 this.DataAccessStatusOutHandler(
                     this,
                     EventArgs.Empty,
-                    $"Seeding {this.LowerCaseName} complete.",
+                    $"{this.LowerCaseName} seeded.",
                     true);
             }
             catch (SQLiteException)
@@ -221,7 +221,7 @@ namespace dMobile.GroundWork
                 this.DataAccessStatusOutHandler(
                     this,
                     EventArgs.Empty,
-                    $"Seeding {this.LowerCaseName} complete.",
+                    $"{this.LowerCaseName} seeded.",
                     true);
             }
             catch (SQLiteException)
@@ -502,7 +502,7 @@ namespace dMobile.GroundWork
                 this.DataAccessStatusOutHandler(
                     this,
                     EventArgs.Empty,
-                    $"Seeding {this.LowerCaseName} complete.",
+                    $"{this.LowerCaseName} seeded.",
                     true);
             }
             catch (Exception ex)
@@ -645,8 +645,8 @@ namespace dMobile.GroundWork
         /// <summary>
         /// Register the data access status out listener.
         /// </summary>
-        /// <param name="listener"><see cref="IDataAccessEventListener"/> Data access event listener.</param>
-        public void RegisterDataAccessListenerStatusOut(IDataAccessEventListener listener)
+        /// <param name="listener"><see cref="IDataAccess"/> Data access event listener.</param>
+        public void RegisterDataAccessListenerStatusOut(IDataAccess listener)
         {
             this.OnDataAccessStatusOut += listener.OnDataAccessStatusOut;
         }
@@ -654,8 +654,8 @@ namespace dMobile.GroundWork
         /// <summary>
         /// Unregister the data access status out listener.
         /// </summary>
-        /// <param name="listener"><see cref="IDataAccessEventListener"/> Data access event listener.</param>
-        public void UnregisterDataAccessListenerStatusOut(IDataAccessEventListener listener)
+        /// <param name="listener"><see cref="IDataAccess"/> Data access event listener.</param>
+        public void UnregisterDataAccessListenerStatusOut(IDataAccess listener)
         {
             this.OnDataAccessStatusOut -= listener.OnDataAccessStatusOut;
         }
@@ -663,8 +663,8 @@ namespace dMobile.GroundWork
         /// <summary>
         /// Register the data access progress out listener.
         /// </summary>
-        /// <param name="listener"><see cref="IDataAccessEventListener"/> Data access event listener.</param>
-        public void RegisterDataAccessListenerProgressOut(IDataAccessEventListener listener)
+        /// <param name="listener"><see cref="IDataAccess"/> Data access event listener.</param>
+        public void RegisterDataAccessListenerProgressOut(IDataAccess listener)
         {
             this.OnDataAccessProgressOut += listener.OnDataAccessProgressOut;
         }
@@ -672,8 +672,8 @@ namespace dMobile.GroundWork
         /// <summary>
         /// Unregister the data access progress out listener.
         /// </summary>
-        /// <param name="listener"><see cref="IDataAccessEventListener"/> Data access event listener.</param>
-        public void UnregisterDataAccessListenerProgressOut(IDataAccessEventListener listener)
+        /// <param name="listener"><see cref="IDataAccess"/> Data access event listener.</param>
+        public void UnregisterDataAccessListenerProgressOut(IDataAccess listener)
         {
             this.OnDataAccessProgressOut -= listener.OnDataAccessProgressOut;
         }
@@ -824,37 +824,34 @@ namespace dMobile.GroundWork
                 locMapSlotFkRefno = Convert.ToInt32(drow["LocationMapSlotFKRefno"]);
             }
 
-            if (locMapSlotFkRefno == 0)
+            if (locMapSlotFkRefno != 0)
             {
                 var results = conn.Query<LocationMapSlotModel>(
                     "SELECT * FROM tLocationMapSlot WHERE LocationMapSlotFKRefno = ?",
                     locMapSlotFkRefno);
-                if (results != null &&
-                    results.Count > 0)
+                if (results != null && results.Count > 0)
                 {
                     locMapRefno = results[0].LocationMapRefno;
                 }
             }
 
-            if (locMapSectFkRefno == 0)
+            if (locMapSectFkRefno != 0 && locMapRefno == 0)
             {
                 var results = conn.Query<LocationMapSectionModel>(
                     "SELECT * FROM tLocationMapSection WHERE LocationMapSectionFKRefno = ?",
                     locMapSectFkRefno);
-                if (results != null &&
-                    results.Count > 0)
+                if (results != null && results.Count > 0)
                 {
                     locMapRefno = results[0].LocationMapRefno;
                 }
             }
 
-            if (locMapWhsFkRefno == 0)
+            if (locMapWhsFkRefno != 0 && locMapRefno == 0)
             {
                 var results = conn.Query<LocationMapWarehouseModel>(
                     "SELECT * FROM tLocationMapWarehouse WHERE LocationMapWarehouseFKRefno = ?",
                     locMapWhsFkRefno);
-                if (results != null &&
-                    results.Count > 0)
+                if (results != null && results.Count > 0)
                 {
                     locMapRefno = results[0].LocationMapRefno;
                 }
@@ -990,6 +987,40 @@ namespace dMobile.GroundWork
         /// <returns>.</returns>
         protected static int GetWhsLocMapRefnoFromDataRow(
             DataRow drow,
+            SQLiteAsyncConnection conn)
+        {
+            var locMapWhsFkRefno = Convert.ToInt32(drow["LocationMapWarehouseFKRefno"]);
+            var results = conn.QueryAsync<LocationMapWarehouseModel>(
+                "SELECT * FROM tLocationMapWarehouse WHERE LocationMapWarehouseFKRefno = ?",
+                Convert.ToInt32(locMapWhsFkRefno));
+
+            int locMapRefno;
+            if (results != null && results.Result.Count > 0)
+            {
+                locMapRefno = results.Result[0].LocationMapRefno;
+            }
+            else
+            {
+                throw new Exception("No query result was returned.");
+            }
+
+            if (locMapRefno == 0)
+            {
+                throw new Exception(
+                    "Unable to locate the location map reference number.");
+            }
+
+            return locMapRefno;
+        }
+
+        /// <summary>
+        /// Get the warehouse location map refno from the data row.
+        /// </summary>
+        /// <param name="drow"><see cref="DataRow"/> Row of data.</param>
+        /// <param name="conn"><see cref="SQLiteConnection"/> SQL connection.</param>
+        /// <returns>.</returns>
+        protected static int GetWhsLocMapRefnoFromDataRow(
+            DataRow drow,
             SQLiteConnection conn)
         {
             var locMapWhsFkRefno = Convert.ToInt32(drow["LocationMapWarehouseFKRefno"]);
@@ -1005,7 +1036,7 @@ namespace dMobile.GroundWork
             }
             else
             {
-                throw new Exception("drWhs.Read() failed.");
+                throw new Exception("No query result was returned.");
             }
 
             if (locMapRefno == 0)
@@ -1123,20 +1154,20 @@ namespace dMobile.GroundWork
         /// </summary>
         /// <param name="sender"><see cref="object"/> Sender object.</param>
         /// <param name="e"><see cref="EventArgs"/> Sender event arguments.</param>
-        /// <param name="statMessage"><see cref="string"/> Status message.</param>
-        /// <param name="overrideDisconnectedMode"><see cref="bool"/> Flag to override disconnected mode.</param>
+        /// <param name="statusMessage"><see cref="string"/> Status message.</param>
+        /// <param name="suppressStatusOutMessage">Flag to suppress the status out message.</param>
         protected void DataAccessStatusOutHandler(
             object sender,
             EventArgs e,
-            string statMessage,
-            bool overrideDisconnectedMode)
+            string statusMessage,
+            bool suppressStatusOutMessage)
         {
-            if (!this.SysEnv.SysSettings.IsDisconnectedMode || overrideDisconnectedMode)
+            if (!this.SysEnv.SysSettings.IsDisconnectedMode && !suppressStatusOutMessage)
             {
                 if (this.OnDataAccessStatusOut != null)
                 {
-                    this.DataEventArgs.StatusOutMsg = statMessage;
-                    this.DataEventArgs.OverrideDisconnectedMode = overrideDisconnectedMode;
+                    this.DataEventArgs.StatusOutMsg = statusMessage;
+                    this.DataEventArgs.OverrideDisconnectedMode = suppressStatusOutMessage;
                     this.OnDataAccessStatusOut(this, this.DataEventArgs);
                 }
             }

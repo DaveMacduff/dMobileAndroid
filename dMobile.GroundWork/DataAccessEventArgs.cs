@@ -6,14 +6,11 @@ namespace dMobile.GroundWork
 {
     using System;
 
+    /// <summary>
+    /// Provides data for data access events.
+    /// </summary>
     public class DataAccessEventArgs : EventArgs
     {
-        private int currentValue = 0;
-        private bool setMinMaxValue = false;
-
-        /// <summary>
-        ///
-        /// </summary>
         /// <summary>
         /// Initializes a new instance of the <see cref="DataAccessEventArgs"/> class.
         /// </summary>
@@ -22,38 +19,33 @@ namespace dMobile.GroundWork
         }
 
         /// <summary>
-        ///
+        /// Gets or sets a value indicating whether to set minimum and maximum values.
         /// </summary>
-        /// <param name="dataMsg"></param>
+        public bool SetMinMaxValue { get; set; }
+
         /// <summary>
-        /// Initializes a new instance of the <see cref="DataAccessEventArgs"/> class.
+        /// Gets or sets a value indicating whether to override disconnected mode.
         /// </summary>
-        /// <param name="msgData"></param>
-        public DataAccessEventArgs(string msgData)
-        {
-            this.StatusOutMsg = msgData;
-        }
+        public bool OverrideDisconnectedMode { get; set; }
 
-        public bool SetMinMaxValue
-        {
-            get => this.setMinMaxValue;
-
-            set => this.setMinMaxValue = value;
-        }
-
-        public bool OverrideDisconnectedMode { get; set; } = false;
-
+        /// <summary>
+        /// Gets or sets the status output message.
+        /// </summary>
         public string StatusOutMsg { get; set; } = string.Empty;
 
-        public int MinValue { get; set; } = 0;
+        /// <summary>
+        /// Gets or sets the minimum value.
+        /// </summary>
+        public int MinValue { get; set; }
 
-        public int MaxValue { get; set; } = 0;
+        /// <summary>
+        /// Gets or sets the maximum value.
+        /// </summary>
+        public int MaxValue { get; set; }
 
-        public int CurrentValue
-        {
-            get => this.currentValue;
-
-            set => this.currentValue = value;
-        }
+        /// <summary>
+        /// Gets or sets the current value.
+        /// </summary>
+        public int CurrentValue { get; set; }
     }
 }

@@ -12,8 +12,7 @@ namespace dMobile.GroundWork
     using System.Xml;
     using System.Xml.Linq;
     using Bedrock;
-    using dMobile.Resources.Models.Items;
-    using Resources.Models;
+    using Resources.Models.Items;
     using SQLite;
 
     /// <summary>
@@ -157,7 +156,7 @@ namespace dMobile.GroundWork
         {
             try
             {
-                var query = "SELECT * FROM tActivityItemCount WHERE ActivityItemRefno = ?";
+                var query = "SELECT * FROM tActivityItemCount WHERE ActivityItemFKRefno = ?";
                 var results = await DatabaseConnection.GetInstance()
                     .SqlConn.QueryAsync<ActivityItemCountModel>(query, activityFkRefno);
 

@@ -12,8 +12,7 @@ namespace dMobile.GroundWork
     using System.Xml;
     using System.Xml.Linq;
     using Bedrock;
-    using dMobile.Resources.Models.LocationMap;
-    using Resources.Models;
+    using Resources.Models.LocationMap;
     using SQLite;
 
     /// <summary>
@@ -59,7 +58,7 @@ namespace dMobile.GroundWork
                 this.DataAccessStatusOutHandler(
                     this,
                     EventArgs.Empty,
-                    $"Seeding {this.LowerCaseName} complete.",
+                    $"{this.LowerCaseName} seeded.",
                     true);
             }
             catch (Exception ex)

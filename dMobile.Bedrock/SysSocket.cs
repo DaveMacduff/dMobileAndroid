@@ -38,16 +38,6 @@ namespace dMobile.Bedrock
         public string ServerIp { get; set; }
 
         /// <summary>
-        ///     Gets or sets the SendEOM.
-        /// </summary>
-        public string SendEom { get; set; } = "</WAIT_EOM>" + (char)20;
-
-        /// <summary>
-        ///     Gets or sets the ReceiveEOM.
-        /// </summary>
-        public string ReceiveEom { get; set; } = "</EOM>" + (char)20;
-
-        /// <summary>
         ///     Gets or sets the ReceiveBuffSize.
         /// </summary>
         public int ReceiveBuffSize { get; set; } = 32768;
@@ -96,6 +86,16 @@ namespace dMobile.Bedrock
         ///     Gets the system environment.
         /// </summary>
         private SysEnvironment SysEnv { get; } = SysEnvironment.GetInstance();
+
+        /// <summary>
+        ///     Gets or sets the SendEOM.
+        /// </summary>
+        private string SendEom { get; set; } = "</WAIT_EOM>" + (char)20;
+
+        /// <summary>
+        ///     Gets or sets the ReceiveEOM.
+        /// </summary>
+        private string ReceiveEom { get; set; } = "</EOM>" + (char)20;
 
         /// <summary>
         ///     The UnregSockListenerStatusOut.

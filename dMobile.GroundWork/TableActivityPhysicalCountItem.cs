@@ -11,9 +11,8 @@ namespace dMobile.GroundWork
     using System.Xml;
     using System.Xml.Linq;
     using Bedrock;
-    using dMobile.Resources.Models.Headers;
-    using dMobile.Resources.Models.LocationMap;
-    using Resources.Models;
+    using Resources.Models.Headers;
+    using Resources.Models.LocationMap;
     using SQLite;
 
     /// <summary>

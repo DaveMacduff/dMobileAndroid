@@ -296,7 +296,7 @@ namespace dMobile.View.Options
         private async void cmdVersionInfo_Click(object sender, EventArgs e)
         {
             var viewsAssemblyVersion = SysShared.GetAssemblyVersion();
-            var barCodeScannerAssemblyVersion = new BarCodeScanner.clsCommon().GetAssemblyVersion();
+            var barCodeScannerAssemblyVersion = new BarCodeScanner.BarCodeCommon().GetAssemblyVersion();
             var groundWorkAssemblyVersion = new GroundWork.Common().GetAssemblyVersion();
             var controllerAssemblyVersion = new Controller.Common().GetAssemblyVersion();
             var bedrockAssemblyVersion = new SysCommon().GetAssemblyVersion();

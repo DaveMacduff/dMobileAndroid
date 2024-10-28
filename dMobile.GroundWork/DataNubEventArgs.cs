@@ -6,12 +6,11 @@ namespace dMobile.GroundWork
 {
     using System;
 
+    /// <summary>
+    /// Represents event data for DataNub events.
+    /// </summary>
     public class DataNubEventArgs : EventArgs
     {
-
-        /// <summary>
-        ///
-        /// </summary>
         /// <summary>
         /// Initializes a new instance of the <see cref="DataNubEventArgs"/> class.
         /// </summary>
@@ -20,18 +19,17 @@ namespace dMobile.GroundWork
         }
 
         /// <summary>
-        ///
+        /// Initializes a new instance of the <see cref="DataNubEventArgs"/> class with a specified message.
         /// </summary>
-        /// <param name="msgData"></param>
-        /// <summary>
-        /// Initializes a new instance of the <see cref="DataNubEventArgs"/> class.
-        /// </summary>
-        /// <param name="msgData"></param>
+        /// <param name="msgData">The message data.</param>
         public DataNubEventArgs(string msgData)
         {
             this.StatusOutMsg = msgData;
         }
 
+        /// <summary>
+        /// Gets or sets the status output message.
+        /// </summary>
         public string StatusOutMsg { get; set; } = string.Empty;
     }
 }

@@ -11,7 +11,7 @@ namespace dMobile.GroundWork
     using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
-    using dMobile.Bedrock;
+    using Bedrock;
     using SQLite;
 
     /// <summary>

@@ -17,7 +17,7 @@ namespace dMobile.Controller.Activity
     /// <summary>
     /// Defines the <see cref="Activity" /> Activity header base class.
     /// </summary>
-    public abstract class Activity : IDataLayerEventPublisher, IDataAccessEventListener
+    public abstract class Activity : IDataLayerEventPublisher, IDataAccess
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="Activity"/> class.
@@ -286,10 +286,6 @@ namespace dMobile.Controller.Activity
             {
                 throw new Exception("Database exception occurred. Create activity failed.", ex);
             }
-            catch
-            {
-                throw;
-            }
         }
 
         /// <summary>
@@ -297,12 +293,12 @@ namespace dMobile.Controller.Activity
         /// </summary>
         /// <param name="sender"><see cref="object"/> Object that generated the event.</param>
         /// <param name="e"><see cref="EventArgs"/> Sender object event arguments.</param>
-        /// <param name="outMessage"><see cref="string"/> Status out message.</param>
+        /// <param name="statusOutMessage"><see cref="string"/> Status out message.</param>
         /// <param name="overrideDisconnectedMode"><see cref="bool"/> Override disconnected mode.</param>
         public void DataLayerStatusOutHandler(
             object sender,
             EventArgs e,
-            string outMessage,
+            string statusOutMessage,
             bool overrideDisconnectedMode)
         {
             if (sender is null)
@@ -315,9 +311,9 @@ namespace dMobile.Controller.Activity
                 throw new ArgumentNullException(nameof(e));
             }
 
-            if (string.IsNullOrEmpty(outMessage))
+            if (string.IsNullOrEmpty(statusOutMessage))
             {
-                throw new ArgumentException($"'{nameof(outMessage)}' cannot be null or empty.", nameof(outMessage));
+                throw new ArgumentException($@"'{nameof(statusOutMessage)}' cannot be null or empty.", nameof(statusOutMessage));
             }
 
             if (!this.SysEnv.SysSettings.IsDisconnectedMode || overrideDisconnectedMode)
@@ -325,7 +321,7 @@ namespace dMobile.Controller.Activity
                 if (this.OnDataLayerStatusOut != null)
                 {
                     this.DataEventArgs.OverrideDisconnectedMode = overrideDisconnectedMode;
-                    this.DataEventArgs.StatusOutMsg = outMessage;
+                    this.DataEventArgs.StatusOutMsg = statusOutMessage;
                     this.OnDataLayerStatusOut(this, this.DataEventArgs);
                 }
             }
@@ -435,45 +431,41 @@ namespace dMobile.Controller.Activity
         /// <summary>
         /// Register data layer status out listener.
         /// </summary>
-        /// <param name="listener"><see cref="IDataAccessEventListener"/> Data access
+        /// <param name="listener"><see cref="IDataAccess"/> Data access
         /// status out listener.</param>
         public void RegLayerListenerStatOut(IDataLayerEventListener listener)
         {
-            this.OnDataLayerStatusOut += new DataLayerStatusOutEventHandler(
-                listener.OnLayerStatOut);
+            this.OnDataLayerStatusOut += listener.OnLayerStatOut;
         }
 
         /// <summary>
         /// Unregister data layer status out listener.
         /// </summary>
-        /// <param name="listener"><see cref="IDataAccessEventListener"/> Data access
+        /// <param name="listener"><see cref="IDataAccess"/> Data access
         /// status out listener.</param>
         public void UnregLayerListenerStatOut(IDataLayerEventListener listener)
         {
-            this.OnDataLayerStatusOut -= new DataLayerStatusOutEventHandler(
-                listener.OnLayerStatOut);
+            this.OnDataLayerStatusOut -= listener.OnLayerStatOut;
         }
 
         /// <summary>
         /// Register data layer progress out listener.
         /// </summary>
-        /// <param name="listener"><see cref="IDataAccessEventListener"/> Data access
+        /// <param name="listener"><see cref="IDataAccess"/> Data access
         /// status out listener.</param>
         public void RegLayerListenerProgOut(IDataLayerEventListener listener)
         {
-            this.OnDataLayerProgressOut += new DataLayerProgressOutEventHandler(
-                listener.OnLayerProgressOut);
+            this.OnDataLayerProgressOut += listener.OnLayerProgressOut;
         }
 
         /// <summary>
         /// Unregister data layer progress out listener.
         /// </summary>
-        /// <param name="listener"><see cref="IDataAccessEventListener"/> Data access
+        /// <param name="listener"><see cref="IDataAccess"/> Data access
         /// status out listener.</param>
         public void UnregLayerListenerProgOut(IDataLayerEventListener listener)
         {
-            this.OnDataLayerProgressOut -= new DataLayerProgressOutEventHandler(
-                listener.OnLayerProgressOut);
+            this.OnDataLayerProgressOut -= listener.OnLayerProgressOut;
         }
     }
 }

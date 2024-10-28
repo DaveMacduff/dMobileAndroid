@@ -6,8 +6,7 @@ namespace dMobile.GroundWork
 {
     using System;
     using System.Threading.Tasks;
-    using System.Xml.Linq;
-    using dMobile.Bedrock;
+    using Bedrock;
     using SQLite;
 
     public class TableActivityMoveInventoryItem : TableBase

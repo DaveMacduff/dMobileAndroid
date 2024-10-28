@@ -1663,40 +1663,56 @@ namespace dMobile.Bedrock
             return sb.ToString();
         }
 
+        public static XmlReader GetXmlReader(ref string xml)
+        {
+            const string endSchema = "</xsd:schema>";
+            var eoSchemaEnd = xml.IndexOf(endSchema, StringComparison.Ordinal);
+
+            if (eoSchemaEnd >= 0)
+            {
+                var actualSchemaEnd = eoSchemaEnd + endSchema.Length;
+                var dataSpan = xml.AsSpan(actualSchemaEnd);
+                var sr = new StringReader(dataSpan.ToString());
+                return XmlReader.Create(sr);
+            }
+
+            return null;
+        }
+
         /// <summary>
         /// The GetXmlReader.
         /// </summary>
         /// <param name="xml">.</param>
         /// <returns>.</returns>
-        public static XmlReader GetXmlReader(ref string xml)
-        {
-            // Parse the Data into Schema and Data
-            const string endSchema = "</xsd:schema>";
-            var eoSchemaEnd = xml.IndexOf(endSchema, StringComparison.Ordinal);
-            if (eoSchemaEnd >= 0)
-            {
-                var actualSchemaEnd = eoSchemaEnd + endSchema.Length;
-                var dataLength = xml.Length - actualSchemaEnd;
-                var data = xml.Substring(actualSchemaEnd, dataLength);
+        ////public static XmlReader GetXmlReader(ref string xml)
+        ////{
+        ////    // Parse the Data into Schema and Data
+        ////    const string endSchema = "</xsd:schema>";
+        ////    var eoSchemaEnd = xml.IndexOf(endSchema, StringComparison.Ordinal);
+        ////    if (eoSchemaEnd >= 0)
+        ////    {
+        ////        var actualSchemaEnd = eoSchemaEnd + endSchema.Length;
+        ////        var dataLength = xml.Length - actualSchemaEnd;
+        ////        var data = xml.Substring(actualSchemaEnd, dataLength);
 
-                ////var schema = xml[..actualSchemaEnd];
-                ////var xmlschema = XmlSchema.Read(new StringReader(schema), null);
-                ////var sc = new XmlSchemaSet();
-                ////sc.Add(xmlschema);
-                ////var settings = new XmlReaderSettings();
-                ////settings.ValidationType = ValidationType.None;
-                ////settings.Schemas = sc;
+        ////        ////var schema = xml[..actualSchemaEnd];
+        ////        ////var xmlschema = XmlSchema.Read(new StringReader(schema), null);
+        ////        ////var sc = new XmlSchemaSet();
+        ////        ////sc.Add(xmlschema);
+        ////        ////var settings = new XmlReaderSettings();
+        ////        ////settings.ValidationType = ValidationType.None;
+        ////        ////settings.Schemas = sc;
 
-                var sr = new StringReader(data);
-                var xmlText = XmlReader.Create(sr);
+        ////        var sr = new StringReader(data);
+        ////        var xmlText = XmlReader.Create(sr);
 
-                return xmlText;
-            }
-            else
-            {
-                return null;
-            }
-        }
+        ////        return xmlText;
+        ////    }
+        ////    else
+        ////    {
+        ////        return null;
+        ////    }
+        ////}
 
         /// <summary>
         /// The ShowMemory.

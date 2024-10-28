@@ -2,17 +2,17 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
+// ReSharper disable InconsistentNaming
 namespace dMobile.GroundWork
 {
     using System;
+    using System.Collections.Generic;
     using System.Data;
     using System.Text;
     using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
     using Bedrock;
-    using Resources.Models;
-    using SQLite;
 
     /// <summary>
     ///     Defines the <see cref="TableActivityPicking" />.
@@ -36,283 +36,190 @@ namespace dMobile.GroundWork
         /// <returns><see cref="Task" /> Task complete.</returns>
         public override async Task PurgeData()
         {
-            this.DataAccessStatusOutHandler(
-                this,
-                EventArgs.Empty,
-                $"Purging {this.LowerCaseName}.",
-                true);
+            try
+            {
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    $"Purging {this.LowerCaseName}.",
+                    true);
+                var conn = DatabaseConnection.GetInstance().SqlConn;
+                var query = @"DELETE FROM tActivityPickingRoute
+                WHERE tActivityPickingRoute.PickingActivityRefno <= 0
+                    OR tActivityPickingRoute.RouteRefno <= 0";
+                await conn.ExecuteAsync(query);
+                query = @"DELETE FROM tActivityPickingRoute
+                WHERE tActivityPickingRoute.PickingActivityRefno
+                    NOT IN (SELECT tActivity.ActivityRefno FROM tActivity)";
+                await conn.ExecuteAsync(query);
+                query = @"DELETE FROM tActivityPickingRoute
+                WHERE tActivityPickingRoute.RouteRefno
+                    NOT IN (SELECT tRoute.RouteRefno FROM tRoute)";
+                await conn.ExecuteAsync(query);
+                query = @"DELETE FROM tActivityPicking
+                WHERE tActivityPicking.ActivityRefno <= 0
+                    OR tActivityPicking.ActivityFKRefno <= 0";
+                await conn.ExecuteAsync(query);
+                query = @"DELETE FROM tActivityPicking
+                WHERE tActivityPicking.ActivityRefno
+                    NOT IN (SELECT tActivity.ActivityRefno FROM tActivity)";
+                await conn.ExecuteAsync(query);
+                query = "DELETE FROM tActivity WHERE tActivity.ActivityRefno <= 0";
+                await conn.ExecuteAsync(query, this.CurrentSubType);
+                query = @"DELETE FROM tActivityPickingRoute
+                WHERE PickingActivityRefno IN
+                    (SELECT ActivityRefno FROM tActivity WHERE ActivitySubType = ?)";
+                await conn.ExecuteAsync(query, this.CurrentSubType);
+                query = "DELETE FROM tActivityPicking WHERE ActivitySubType = ?";
+                await conn.ExecuteAsync(query, this.CurrentSubType);
+                query = "DELETE FROM tActivity WHERE ActivitySubType = ?";
+                await conn.ExecuteAsync(query, this.CurrentSubType);
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    $"Purging {this.LowerCaseName} complete.",
+                    true);
+            }
+            catch (Exception)
+            {
+                this.DataAccessStatusOutHandler(
+                    this,
+                    EventArgs.Empty,
+                    $"Purging {this.LowerCaseName} failed.",
+                    true);
+                throw;
+            }
+        }
+
+        /// <summary>
+        ///    Save the data to the database.
+        /// </summary>
+        /// <param name="responseData"></param>
+        /// <returns>Task completed.</returns>
+        protected override async Task Save(string responseData)
+        {
             var conn = DatabaseConnection.GetInstance().SqlConn;
-            var subType = Convert.ToInt32(this.CurrentSubType);
-            await conn.RunInTransactionAsync(
-                transaction =>
+            using var dataSet = new DataSet();
+            dataSet.ReadXml(SysCommon.GetXmlReader(ref responseData), XmlReadMode.Auto);
+            if (dataSet.Tables.Count > 0)
+            {
+                var rows = dataSet.Tables[0].Rows;
+                if (rows.Count > 0)
                 {
                     try
                     {
-                        this.DataAccessStatusOutHandler(
-                            this,
-                            EventArgs.Empty,
-                            $"Purging {this.LowerCaseName}.",
-                            true);
-
-                        // Corruption recovery cleanup.
-                        var query = @"
-                            DELETE FROM tActivityPickingRoute
-                                WHERE tActivityPickingRoute.PickingActivityRefno <= 0
-                                    OR tActivityPickingRoute.RouteRefno <= 0";
-                        transaction.Execute(query);
-
-                        query = @"
-                            DELETE FROM tActivityPickingRoute
-                                WHERE tActivityPickingRoute.PickingActivityRefno
-                                    NOT IN (SELECT tActivity.ActivityRefno FROM tActivity)";
-                        transaction.Execute(query);
-
-                        query = @"
-                            DELETE FROM tActivityPickingRoute
-                                WHERE tActivityPickingRoute.RouteRefno
-                                    NOT IN (SELECT tRoute.RouteRefno FROM tRoute)";
-                        transaction.Execute(query);
-
-                        query = @"
-                            DELETE FROM tActivityPicking
-                                WHERE tActivityPicking.ActivityRefno <= 0
-                                    OR tActivityPicking.ActivityFKRefno <= 0";
-                        transaction.Execute(query);
-
-                        query = @"
-                            DELETE FROM tActivityPicking
-                                WHERE tActivityPicking.ActivityRefno
-                                    NOT IN (SELECT tActivity.ActivityRefno FROM tActivity)";
-                        transaction.Execute(query);
-
-                        query = "DELETE FROM tActivity WHERE tActivity.ActivityRefno <= 0";
-                        transaction.Execute(query);
-
-                        // Regular purge.
-                        query = @"
-                            DELETE FROM tActivityPickingRoute
-                                WHERE PickingActivityRefno IN
-                                    (SELECT ActivityRefno FROM tActivity WHERE ActivitySubType = ?)";
-                        transaction.Execute(query, subType);
-
-                        query = "DELETE FROM tActivityPicking WHERE ActivitySubType = ?";
-                        transaction.Execute(query, subType);
-
-                        query = "DELETE FROM tActivity WHERE ActivitySubType = ?";
-                        transaction.Execute(query, subType);
-
-                        transaction.Commit();
-                        this.DataAccessStatusOutHandler(
-                            this,
-                            EventArgs.Empty,
-                            $"Purging {this.LowerCaseName} complete.",
-                            true);
-                    }
-                    catch (SQLiteException ex)
-                    {
-                        transaction.Rollback();
-                        this.DataAccessStatusOutHandler(
-                            this,
-                            EventArgs.Empty,
-                            "Database exception occurred.",
-                            true);
-                        this.DataAccessStatusOutHandler(
-                            this,
-                            EventArgs.Empty,
-                            $"Purging {this.LowerCaseName} failed.",
-                            true);
-                        throw new Exception(
-                            $"Database exception occurred. Purging {this.LowerCaseName} failed.",
-                            ex);
-                    }
-                    catch (Exception ex)
-                    {
-                        transaction.Rollback();
-                        this.DataAccessStatusOutHandler(
-                            this,
-                            EventArgs.Empty,
-                            "Exception occurred.",
-                            true);
-                        this.DataAccessStatusOutHandler(
-                            this,
-                            EventArgs.Empty,
-                            $"Purging {this.LowerCaseName} failed.",
-                            true);
-                        throw new Exception(
-                            $"Exception occurred. Purging {this.LowerCaseName} failed.",
-                            ex);
-                    }
-                });
-        }
-
-        protected override async Task Save(string responseData)
-        {
-            await DatabaseConnection.GetInstance()
-                .SqlConn.RunInTransactionAsync(
-                    transaction =>
-                    {
-                        try
+                        var orders = new List<Seg>();
+                        foreach (DataRow row in rows)
                         {
-                            using var ds = new DataSet();
-                            this.DataAccessStatusOutHandler(
-                                this,
-                                EventArgs.Empty,
-                                "Reading received responseData.",
-                                false);
-
-                            ds.ReadXml(SysCommon.GetXmlReader(ref responseData), XmlReadMode.Auto);
-
-                            this.DataAccessStatusOutHandler(
-                                this,
-                                EventArgs.Empty,
-                                "Saving sales orders.",
-                                false);
-
-                            if (ds.Tables.Count != 0)
+                            var refno = await GetActivityRefno();
+                            var order = new Seg
                             {
-                                var progMax = Convert.ToInt32(
-                                    ds.Tables["tActivityPicking"].Rows.Count);
-
-                                this.DataAccessStatusOutHandler(
-                                    this,
-                                    EventArgs.Empty,
-                                    $"Records {progMax}",
-                                    false);
-
-                                var progValue = 0;
-
-                                this.DataAccessProgressOutHandler(
-                                    this,
-                                    EventArgs.Empty,
-                                    0,
-                                    0,
-                                    progMax);
-
-                                foreach (DataRow drow in ds.Tables["tActivityPicking"].Rows)
-                                {
-                                    transaction.Execute(
-                                        "INSERT INTO tActivity (ActivityStatus, ActivitySubType) VALUES (?, ?)",
-                                        0,
-                                        Convert.ToInt32(SysCommon.ActSubTypes.Picking));
-
-                                    var actRefno = Convert.ToInt32(
-                                        transaction.ExecuteScalar<int>(
-                                            "SELECT last_insert_rowid() FROM tActivity"));
-                                    var actPickFkRefno = Convert.ToInt32(drow["ActivityFKRefno"]);
-                                    var whsLocMapRefno =
-                                        GetWhsLocMapRefnoFromDataRow(drow, transaction);
-                                    const string queryInsertPicking =
-                                        "INSERT INTO tActivityPicking (" +
-                                        "ActivityRefno, " +
-                                        "ActivitySubType, " +
-                                        "ActivityFKRefno, " +
-                                        "ActivityStringFKRefno, " +
-                                        "WarehouseLocationMapRefno, " +
-                                        "ActivityPickingOrderedDateTime, " +
-                                        "ActivityPickingDeliveryDateTime, " +
-                                        "ActivityPickingCustomerContactName, " +
-                                        "ActivityPickingCustomerShipToInfo, " +
-                                        "ActivityPickingIsReviewed" +
-                                        ") VALUES (" +
-                                        "?, " +
-                                        "?, " +
-                                        "?, " +
-                                        "?, " +
-                                        "?, " +
-                                        "?, " +
-                                        "?, " +
-                                        "?, " +
-                                        "?, " +
-                                        "?" +
-                                        ")";
-                                    var parametersInsertPicking = new object[]
-                                    {
-                                        actRefno,
-                                        Convert.ToInt32(SysCommon.ActSubTypes.Picking),
-                                        actPickFkRefno,
-                                        Convert.ToString(actPickFkRefno),
-                                        whsLocMapRefno,
-                                        Convert.ToDateTime(drow["ActivityPickingOrderedDateTime"]),
-                                        Convert.ToDateTime(drow["ActivityPickingDeliveryDateTime"]),
-                                        Convert.ToString(
-                                            drow["ActivityPickingCustomerContactName"]),
-                                        Convert.ToString(drow["ActivityPickingCustomerShipToInfo"]),
-                                        false
-                                    };
-
-                                    transaction.Execute(
-                                        queryInsertPicking,
-                                        parametersInsertPicking);
-
-                                    var routeRefno = 0;
-                                    var pickRouteCode =
-                                        Convert.ToString(drow["ActivityPickingRouteCode"]);
-                                    if (!string.IsNullOrEmpty(pickRouteCode))
-                                    {
-                                        var resultRoutes = transaction.Query<RouteModel>(
-                                            "SELECT * FROM tRoute WHERE RouteCode = ?",
-                                            pickRouteCode);
-
-                                        if (resultRoutes?.Count > 0)
-                                        {
-                                            routeRefno = resultRoutes[0].RouteRefno;
-                                        }
-                                        else
-                                        {
-                                            throw new Exception("drRoute.Read() failed.");
-                                        }
-                                    }
-
-                                    if (routeRefno != 0)
-                                    {
-                                        transaction.Execute(
-                                            "INSERT INTO tActivityPickingRoute (PickingActivityRefno, RouteRefno, RouteStop) VALUES (?, ?, ?)",
-                                            actRefno,
-                                            routeRefno,
-                                            Convert.ToInt32(drow["ActivityPickingRouteStop"]));
-                                    }
-
-                                    progValue++;
-                                    if (progValue % 10 == 0)
-                                    {
-                                        this.DataAccessProgressOutHandler(
-                                            this,
-                                            EventArgs.Empty,
-                                            progValue);
-                                    }
-                                }
-
-                                this.DataAccessProgressOutHandler(this, EventArgs.Empty, progMax);
-                            }
-
-                            transaction.Commit();
-
-                            this.DataAccessStatusOutHandler(
-                                this,
-                                EventArgs.Empty,
-                                "Saving sales orders complete.",
-                                false);
+                                ActivityRefno = refno,
+                                ActivitySubType = Convert.ToInt32(SysCommon.ActSubTypes.Picking),
+                                ActivityFKRefno = Convert.ToInt32(row["ActivityFKRefno"]),
+                                ActivityStringFKRefno = Convert.ToString(row["ActivityFKRefno"]),
+                                LocationMapWarehouseFKRefno =
+                                    Convert.ToInt32(row["LocationMapWarehouseFKRefno"]),
+                                ActivityPickingOrderedDateTime =
+                                    Convert.ToDateTime(row["ActivityPickingOrderedDateTime"]),
+                                ActivityPickingDeliveryDateTime =
+                                    Convert.ToDateTime(row["ActivityPickingDeliveryDateTime"]),
+                                ActivityPickingCustomerContactName =
+                                    Convert.ToString(row["ActivityPickingCustomerContactName"]),
+                                ActivityPickingCustomerShipToInfo =
+                                    Convert.ToString(row["ActivityPickingCustomerShipToInfo"]),
+                                ActivityPickingIsReviewed = false,
+                                ActivityPickingRouteCode =
+                                    Convert.ToString(row["ActivityPickingRouteCode"]),
+                                ActivityPickingRouteStop =
+                                    Convert.ToInt32(row["ActivityPickingRouteStop"])
+                            };
+                            orders.Add(order);
                         }
-                        catch (SQLiteException ex)
-                        {
-                            transaction.Rollback();
 
-                            this.DataAccessStatusOutHandler(
-                                this,
-                                EventArgs.Empty,
-                                "Database exception occurred.",
-                                true);
-                            this.DataAccessStatusOutHandler(
-                                this,
-                                EventArgs.Empty,
-                                "Saving sales orders failed.",
-                                true);
+                        const string query = "CREATE TEMP TABLE Seg" +
+                                             "(" +
+                                             "ActivityRefno INTEGER NOT NULL," +
+                                             "ActivitySubType INTEGER NOT NULL," +
+                                             "ActivityFKRefno INTEGER NOT NULL," +
+                                             "ActivityStringFKRefno VARCHAR(10) NOT NULL," +
+                                             "LocationMapWarehouseFKRefno INTEGER NOT NULL," +
+                                             "ActivityPickingOrderedDateTime DATETIME NOT NULL," +
+                                             "ActivityPickingDeliveryDateTime DATETIME NOT NULL," +
+                                             "ActivityPickingCustomerContactName VARCHAR(40) NOT NULL," +
+                                             "ActivityPickingCustomerShipToInfo VARCHAR(40) NOT NULL," +
+                                             "ActivityPickingIsReviewed BIT NOT NULL," +
+                                             "ActivityPickingRouteCode VARCHAR(5) NOT NULL," +
+                                             "ActivityPickingRouteStop INTEGER NOT NULL" +
+                                             ")";
 
-                            throw new Exception(
-                                "Database exception occurred. Saving sales orders failed.",
-                                ex);
-                        }
-                    });
+                        await conn.ExecuteAsync(query);
+                        await conn.InsertAllAsync(orders);
+
+                        const string query1 = "INSERT INTO tActivityPicking " +
+                                              "(" +
+                                              "ActivityRefno," +
+                                              "ActivitySubType," +
+                                              "ActivityFKRefno," +
+                                              "ActivityStringFKRefno," +
+                                              "WarehouseLocationMapRefno," +
+                                              "ActivityPickingOrderedDateTime," +
+                                              "ActivityPickingDeliveryDateTime," +
+                                              "ActivityPickingCustomerContactName," +
+                                              "ActivityPickingCustomerShipToInfo," +
+                                              "ActivityPickingIsReviewed" +
+                                              ")" +
+                                              "SELECT Seg.ActivityRefno," +
+                                              "Seg.ActivitySubType," +
+                                              "Seg.ActivityFKRefno," +
+                                              "Seg.ActivityStringFKRefno," +
+                                              "whs.LocationMapRefno as WarehouseLocationMapRefno," +
+                                              "Seg.ActivityPickingOrderedDateTime," +
+                                              "Seg.ActivityPickingDeliveryDateTime," +
+                                              "Seg.ActivityPickingCustomerContactName," +
+                                              "Seg.ActivityPickingCustomerShipToInfo," +
+                                              "Seg.ActivityPickingIsReviewed" +
+                                              " FROM Seg" +
+                                              " INNER JOIN tLocationMapWarehouse whs ON " +
+                                              "whs.LocationMapWarehouseFKRefno = Seg.LocationMapWarehouseFKRefno";
+
+                        const string query2 = "INSERT INTO tActivityPickingRoute " +
+                                              "(" +
+                                              "PickingActivityRefno," +
+                                              "RouteRefno," +
+                                              "RouteStop" +
+                                              ")" +
+                                              "SELECT Seg.ActivityRefno," +
+                                              "tRoute.RouteRefno," +
+                                              "Seg.ActivityPickingRouteStop" +
+                                              " FROM Seg" +
+                                              " INNER JOIN tRoute ON tRoute.RouteCode = Seg.ActivityPickingRouteCode";
+
+                        await Task.WhenAll(conn.ExecuteAsync(query1), conn.ExecuteAsync(query2));
+                    }
+                    finally
+                    {
+                        // Drop the temporary table
+                        const string dropTempTableQuery = "DROP TABLE IF EXISTS Seg";
+                        await conn.ExecuteAsync(dropTempTableQuery);
+                    }
+                }
+            }
+
+            return;
+
+            ///////////////////////////////////////////////////////////
+            async Task<int> GetActivityRefno()
+            {
+                var query = "INSERT INTO tActivity (ActivityStatus, ActivitySubType) VALUES (?, ?)";
+                await conn.ExecuteAsync(query, 0, Convert.ToInt32(SysCommon.ActSubTypes.Picking));
+
+                query = "SELECT last_insert_rowid()";
+                ////query = "SELECT tActivity.ActivityRefno FROM tActivity" +
+                ////        $" WHERE tActivity.ActivitySubType = {Convert.ToInt32(SysCommon.ActSubTypes.Picking)}" +
+                ////        " ORDER BY tActivity.ActivityRefno DESC LIMIT 1";
+                return Convert.ToInt32(await conn.ExecuteScalarAsync<int>(query));
+            }
         }
 
         /// <summary>
@@ -394,6 +301,72 @@ namespace dMobile.GroundWork
             xml.Close();
 
             return xmlString.ToString();
+        }
+
+        /// <summary>
+        ///     Class to hold the data for the temporary table.
+        /// </summary>
+        private class Seg
+        {
+            /// <summary>
+            ///     Gets or sets the activity reference identifier.
+            /// </summary>
+            public int ActivityRefno { get; set; }
+
+            /// <summary>
+            ///    Gets or sets the activity subtype.
+            /// </summary>
+            public int ActivitySubType { get; set; }
+
+            /// <summary>
+            ///    Gets or sets the activity foreign key reference number.
+            /// </summary>
+            public int ActivityFKRefno { get; set; }
+
+            /// <summary>
+            ///   Gets or sets the activity string foreign key reference number.
+            /// </summary>
+            public string ActivityStringFKRefno { get; set; }
+
+            /// <summary>
+            ///   Gets or sets the location map warehouse foreign key reference number.
+            /// </summary>
+            public int LocationMapWarehouseFKRefno { get; set; }
+
+            /// <summary>
+            ///  Gets or sets the activity picking ordered date time.
+            /// </summary>
+            public DateTime ActivityPickingOrderedDateTime { get; set; }
+
+            /// <summary>
+            ///     Gets or sets the activity picking delivery date time.
+            /// </summary>
+            public DateTime ActivityPickingDeliveryDateTime { get; set; }
+
+            /// <summary>
+            ///     Gets or sets the activity picking customer contact name.
+            /// </summary>
+            public string ActivityPickingCustomerContactName { get; set; }
+
+            /// <summary>
+            ///     Gets or sets the activity picking customer ship to information.
+            /// </summary>
+            public string ActivityPickingCustomerShipToInfo { get; set; }
+
+            /// <summary>
+            ///     Gets or sets a value indicating whether the activity picking is reviewed.
+            /// </summary>
+            public bool ActivityPickingIsReviewed { get; set; }
+
+            /// <summary>
+            ///    Gets or sets the activity picking route code.
+            /// </summary>
+            public string ActivityPickingRouteCode { get; set; }
+
+            /// <summary>
+            ///   Gets or sets the activity picking route stop.
+            /// </summary>
+            public int ActivityPickingRouteStop { get; set; }
         }
     }
 }

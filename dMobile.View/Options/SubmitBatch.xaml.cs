@@ -666,7 +666,7 @@ namespace dMobile.View.Options
                                     {
                                         var i = (BarCodeSymbology)Convert.ToInt32(
                                             (actItem.ListItems[itemIdx] as dynamic).ProductUnitBarCodeSymbologyEnum);
-                                        var symbologyPrefix = clsCommon.GetSymbologyPrefixFromSymbologyEnum(i);
+                                        var symbologyPrefix = BarCodeCommon.GetSymbologyPrefixFromSymbologyEnum(i);
 
                                         XDocument xmlParams = XDocument.Parse(
                                             "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"

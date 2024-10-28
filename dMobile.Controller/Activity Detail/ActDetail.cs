@@ -23,7 +23,7 @@ namespace dMobile.Controller.Activity_Detail
     /// <summary>
     ///     <see cref="ActDetail" /> Activity detail base class.
     /// </summary>
-    public abstract class ActDetail : IDataLayerEventPublisher, IDataAccessEventListener
+    public abstract class ActDetail : IDataLayerEventPublisher, IDataAccess
     {
         /// <summary>
         ///     Initializes a new instance of the <see cref="ActDetail" /> class.
@@ -207,7 +207,7 @@ namespace dMobile.Controller.Activity_Detail
         /// <summary>
         ///     Register data layer listener status out.
         /// </summary>
-        /// <param name="listener"><see cref="IDataAccessEventListener" /> Event listener.</param>
+        /// <param name="listener"><see cref="IDataAccess" /> Event listener.</param>
         public void RegLayerListenerStatOut(IDataLayerEventListener listener)
         {
             this.OnDataLayerStatusOut += listener.OnLayerStatOut;
@@ -216,7 +216,7 @@ namespace dMobile.Controller.Activity_Detail
         /// <summary>
         ///     Un-register data layer listener status out.
         /// </summary>
-        /// <param name="listener"><see cref="IDataAccessEventListener" /> Event listener.</param>
+        /// <param name="listener"><see cref="IDataAccess" /> Event listener.</param>
         public void UnregLayerListenerStatOut(IDataLayerEventListener listener)
         {
             this.OnDataLayerStatusOut -= listener.OnLayerStatOut;
@@ -225,7 +225,7 @@ namespace dMobile.Controller.Activity_Detail
         /// <summary>
         ///     Register data layer listener progress out.
         /// </summary>
-        /// <param name="listener"><see cref="IDataAccessEventListener" /> Event listener.</param>
+        /// <param name="listener"><see cref="IDataAccess" /> Event listener.</param>
         public void RegLayerListenerProgOut(IDataLayerEventListener listener)
         {
             this.OnDataLayerProgressOut += listener.OnLayerProgressOut;
@@ -234,7 +234,7 @@ namespace dMobile.Controller.Activity_Detail
         /// <summary>
         ///     Unregister data layer listener progress out.
         /// </summary>
-        /// <param name="listener"><see cref="IDataAccessEventListener" /> Event listener.</param>
+        /// <param name="listener"><see cref="IDataAccess" /> Event listener.</param>
         public void UnregLayerListenerProgOut(IDataLayerEventListener listener)
         {
             this.OnDataLayerProgressOut -= listener.OnLayerProgressOut;

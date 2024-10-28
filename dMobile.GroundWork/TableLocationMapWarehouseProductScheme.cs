@@ -5,18 +5,14 @@
 namespace dMobile.GroundWork
 {
     using System;
-    using System.Collections.Generic;
     using System.Data;
     using System.Linq;
     using System.Text;
     using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
-    using dMobile.Bedrock;
-    using dMobile.Resources.Models;
-    using dMobile.Resources.Types;
+    using Bedrock;
     using SQLite;
-    using static Xamarin.Forms.Markup.GridRowsColumns;
 
     public class TableLocationMapWarehouseProductScheme : TableBase
     {

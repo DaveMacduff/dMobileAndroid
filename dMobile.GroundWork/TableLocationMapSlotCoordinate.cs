@@ -9,12 +9,10 @@ namespace dMobile.GroundWork
     using System.Data;
     using System.Text;
     using System.Threading.Tasks;
-    using System.Transactions;
     using System.Xml;
     using System.Xml.Linq;
-    using dMobile.Bedrock;
-    using dMobile.Resources.Models.LocationMap;
-    using dMobile.Resources.Types;
+    using Bedrock;
+    using Resources.Models.LocationMap;
     using SQLite;
 
     /// <summary>
@@ -33,38 +31,38 @@ namespace dMobile.GroundWork
         }
 
         /// <summary>
-        /// The Purge.
+        /// Purges the data asynchronously.
         /// </summary>
+        /// <returns>Task.</returns>
         public override async Task PurgeData()
         {
             try
             {
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName}.", true);
-
-                await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync("DELETE FROM tLocationMapSlotCoordinate");
-
+                const string query = "DELETE FROM tLocationMapSlotCoordinate";
+                await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync(query);
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} complete.", true);
             }
             catch (SQLiteException ex)
             {
+                // Handle database exceptions.
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} failed.", true);
-
                 throw new Exception($"Database exception occurred. Purging {this.LowerCaseName} failed.", ex);
             }
         }
 
         /// <summary>
-        /// The DataStatus.
+        /// Gets the data status asynchronously.
         /// </summary>
-        /// <returns>The <see cref="int"/>.</returns>
+        /// <returns>The number of rows affected.</returns>
         public override async Task<int> DataStatus()
         {
             int rowsAffected;
             try
             {
-                rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SqlConn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tLocationMapSlotCoordinate"));
-
+                rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SqlConn.
+                    ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tLocationMapSlotCoordinate"));
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"{rowsAffected} slot coordinates.", true);
             }
             catch (SQLiteException ex)
@@ -76,9 +74,10 @@ namespace dMobile.GroundWork
         }
 
         /// <summary>
-        /// The Save.
+        /// Saves the response data asynchronously.
         /// </summary>
-        /// <param name="responseData"></param>
+        /// <param name="responseData">The response data to save.</param>
+        /// <returns>Task.</returns>
         protected override async Task Save(string responseData)
         {
             var conn = DatabaseConnection.GetInstance().SqlConn;
@@ -102,14 +101,16 @@ namespace dMobile.GroundWork
                     coords.Add(coord);
                 }
 
+                // Insert all coordinates into the database.
                 await conn.InsertAllAsync(coords);
                 this.DataAccessStatusOutHandler(
                     this,
-                EventArgs.Empty,
+                    EventArgs.Empty,
                     $"{coords.Count} slot coordinates.", true);
             }
             else
             {
+                // Notify that there are no slot coordinates to save.
                 this.DataAccessStatusOutHandler(
                     this,
                     EventArgs.Empty,
@@ -120,6 +121,7 @@ namespace dMobile.GroundWork
             return;
 
             ///////////////////////////////////////////////////////////
+            // Gets the warehouse location map reference number asynchronously.
             async Task<int> GetWarehouseLocMapRefno(DataRow drow)
             {
                 var whsFkRefno = Convert.ToInt32(drow["LocationMapWarehouseFKRefno"]);
@@ -132,9 +134,9 @@ namespace dMobile.GroundWork
         }
 
         /// <summary>
-        /// The Create.
+        /// Creates the request asynchronously.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The request as a string.</returns>
         protected override async Task<string> CreateRequest()
         {
             var xmlString = new StringBuilder();

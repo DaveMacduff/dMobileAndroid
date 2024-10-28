@@ -2,19 +2,17 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
+// ReSharper disable InconsistentNaming
 namespace dMobile.GroundWork
 {
     using System;
-    using System.Collections.Generic;
     using System.Data;
-    using System.IO;
+    using System.Linq;
     using System.Text;
     using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
-    using dMobile.Bedrock;
-    using dMobile.Resources.Models;
-    using dMobile.Resources.Types;
+    using Bedrock;
     using SQLite;
 
     /// <summary>
@@ -26,7 +24,6 @@ namespace dMobile.GroundWork
         /// Initializes a new instance of the <see cref="TableProductUnit"/> class.
         /// </summary>
         public TableProductUnit()
-            : base()
         {
             this.FullClassName = "dMobile.GroundWork.TableProductUnit";
             this.LowerCaseName = "product units";
@@ -43,22 +40,7 @@ namespace dMobile.GroundWork
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Seeding {this.LowerCaseName}.", true);
                 var responseData = await this.SendRequest(string.Empty);
                 await this.SaveOpt(responseData);
-
-                ////await this.SaveOpt(responseData);
-                ////var responseData = string.Empty;
-                ////var resultsFamily = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<FamilyModel>("SELECT * FROM tFamily");
-
-                ////if (resultsFamily?.Count > 0)
-                ////{
-                ////    foreach (var family in resultsFamily)
-                ////    {
-                ////        this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"For family {family.FamilyCode}", true);
-                ////        responseData = await this.SendRequest(family.FamilyCode);
-                ////        await this.SaveOpt(responseData);
-                ////    }
-                ////}
-
-                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Seeding {this.LowerCaseName} complete.", true);
+                this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"{this.LowerCaseName} seeded.", true);
             }
             catch (SQLiteException ex)
             {
@@ -202,10 +184,42 @@ namespace dMobile.GroundWork
         }
 
         /// <summary>
+        /// The CreateRequest.
+        /// </summary>
+        /// <param name="familyCode"></param>
+        /// <returns></returns>
+        protected override async Task<string> CreateRequest(string familyCode)
+        {
+            var xmlString = new StringBuilder();
+            var settings = new XmlWriterSettings
+            {
+                Async = true,
+                Indent = false,
+            };
+            var xml = XmlWriter.Create(xmlString, settings);
+
+            var request = XDocument.Parse(
+                "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>"
+                + "<imclient>"
+                + "<command>"
+                + "<action>REQUEST PRODUCT UNITS</action>"
+                + await SysCommon.GetRequestDefaults(true)
+                + "<family_code>" + familyCode + "</family_code>"
+                + "</command>"
+                + "</imclient>");
+
+            request.Save(xml);
+            await xml.FlushAsync();
+            xml.Close();
+
+            return xmlString.ToString();
+        }
+
+        /// <summary>
         /// The SaveOpt.
         /// </summary>
         /// <param name="responseData"></param>
-        protected async Task SaveOpt(string responseData)
+        private async Task SaveOpt(string responseData)
         {
             var conn = DatabaseConnection.GetInstance().SqlConn;
             using var dataSet = new DataSet();
@@ -215,24 +229,21 @@ namespace dMobile.GroundWork
                 var rows = dataSet.Tables[0].Rows;
                 if (rows.Count > 0)
                 {
-                    var prodUnits = new List<Seg>();
-                    foreach (DataRow row in rows)
+                    var prodUnits = (from DataRow row in rows
+                    select new Seg
                     {
-                        prodUnits.Add(new Seg
-                        {
-                            IsBCUnit = Convert.ToBoolean(row["IsBCUnit"]),
-                            BaseWeight = Convert.ToDecimal(row["BaseWeight"]),
-                            UnitSize = Convert.ToString(row["UnitSize"]),
-                            ProductFKRefno = Convert.ToInt32(row["ProductFKRefno"]),
-                            UnitCode = Convert.ToString(row["UnitCode"]),
-                            BaseUnitCode = Convert.ToString(row["BaseUnitCode"]),
-                            WeightUnitCode = Convert.ToString(row["WeightUnitCode"]),
-                            IsSellUnit = Convert.ToBoolean(row["IsSellUnit"]),
-                            IsDefault = Convert.ToBoolean(row["IsDefault"]),
-                            BoxCount = Convert.ToDecimal(row["BoxCount"]),
-                            WeightTolerance = Convert.ToDecimal(row["WeightTolerance"]),
-                        });
-                    }
+                        IsBCUnit = Convert.ToBoolean(row["IsBCUnit"]),
+                        BaseWeight = Convert.ToDecimal(row["BaseWeight"]),
+                        UnitSize = Convert.ToString(row["UnitSize"]),
+                        ProductFKRefno = Convert.ToInt32(row["ProductFKRefno"]),
+                        UnitCode = Convert.ToString(row["UnitCode"]),
+                        BaseUnitCode = Convert.ToString(row["BaseUnitCode"]),
+                        WeightUnitCode = Convert.ToString(row["WeightUnitCode"]),
+                        IsSellUnit = Convert.ToBoolean(row["IsSellUnit"]),
+                        IsDefault = Convert.ToBoolean(row["IsDefault"]),
+                        BoxCount = Convert.ToDecimal(row["BoxCount"]),
+                        WeightTolerance = Convert.ToDecimal(row["WeightTolerance"]),
+                    }).ToList();
 
                     var query = "CREATE TEMP TABLE Seg ("
                                 + "IsBCUnit BIT, "
@@ -277,8 +288,8 @@ namespace dMobile.GroundWork
                         " FROM Seg " +
                         " INNER JOIN tProduct ON tProduct.ProductFKRefno = Seg.ProductFKRefno" +
                         " INNER JOIN tUnit SellUnit ON SellUnit.UnitCode = Seg.UnitCode" +
-                        " INNER JOIN tUnit BaseUnit ON BaseUnit.UnitCode = Seg.UnitCode" +
-                        " INNER JOIN tUnit WeightUnit ON WeightUnit.UnitCode = Seg.UnitCode";
+                        " INNER JOIN tUnit BaseUnit ON BaseUnit.UnitCode = Seg.BaseUnitCode" +
+                        " INNER JOIN tUnit WeightUnit ON WeightUnit.UnitCode = Seg.WeightUnitCode";
                     var rowsAffected = await conn.ExecuteAsync(query);
                     if (prodUnits.Count != rowsAffected)
                     {
@@ -298,62 +309,63 @@ namespace dMobile.GroundWork
         }
 
         /// <summary>
-        /// The CreateRequest.
-        /// </summary>
-        /// <param name="familyCode"></param>
-        /// <returns></returns>
-        protected async override Task<string> CreateRequest(string familyCode)
-        {
-            var xmlString = new StringBuilder();
-            var settings = new XmlWriterSettings
-            {
-                Async = true,
-                Indent = false,
-            };
-            var xml = XmlWriter.Create(xmlString, settings);
-
-            var request = XDocument.Parse(
-                "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>"
-                + "<imclient>"
-                + "<command>"
-                + "<action>REQUEST PRODUCT UNITS</action>"
-                + await SysCommon.GetRequestDefaults(true)
-                + "<family_code>" + familyCode + "</family_code>"
-                + "</command>"
-                + "</imclient>");
-
-            request.Save(xml);
-            await xml.FlushAsync();
-            xml.Close();
-
-            return xmlString.ToString();
-        }
-
-        /// <summary>
         ///     Class to hold the data for the temporary table.
         /// </summary>
         private class Seg
         {
+            /// <summary>
+            ///     Gets or sets a value indicating whether the unit is a BC unit.
+            /// </summary>
             public bool IsBCUnit { get; set; }
 
+            /// <summary>
+            ///     Gets or sets the base weight.
+            /// </summary>
             public decimal BaseWeight { get; set; }
 
+            /// <summary>
+            ///     Gets or sets the unit size.
+            /// </summary>
             public string UnitSize { get; set; }
 
+            /// <summary>
+            ///     Gets or sets the product foreign key reference number.
+            /// </summary>
             public int ProductFKRefno { get; set; }
 
+            /// <summary>
+            ///     Gets or sets the unit code.
+            /// </summary>
             public string UnitCode { get; set; }
 
+            /// <summary>
+            ///     Gets or sets the base unit code.
+            /// </summary>
             public string BaseUnitCode { get; set; }
 
+            /// <summary>
+            ///     Gets or sets the weight unit code.
+            /// </summary>
             public string WeightUnitCode { get; set; }
 
+            /// <summary>
+            ///     Gets or sets a value indicating whether the unit is a sell unit.
+            /// </summary>
             public bool IsSellUnit { get; set; }
 
+            /// <summary>
+            ///     Gets or sets a value indicating whether the unit is the default unit.
+            /// </summary>
             public bool IsDefault { get; set; }
 
+            /// <summary>
+            ///     Gets or sets the box count.
+            /// </summary>
             public decimal BoxCount { get; set; }
 
+            /// <summary>
+            ///     Gets or sets the weight tolerance.
+            /// </summary>
             public decimal WeightTolerance { get; set; }
         }
     }

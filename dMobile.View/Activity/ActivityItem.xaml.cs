@@ -2263,24 +2263,17 @@ namespace dMobile.View.Activity
                     if (scanArgs != null)
                     {
                         this.ListViewDisplayExtraInfo.ItemsSource = this.ExtraInfoItems;
-                        if (isNewLineItemAdded)
-                        {
-                            await this.LoadAndBindData();
-                        }
-                        else
-                        {
-                            this.MainActivityItems[this.ActItem.SelectedListIdx] = this.ActItem.SelectedItem;
-                            this.ListViewMainActivity.ItemsSource = this.MainActivityItems;
-                            await Device.InvokeOnMainThreadAsync(() =>
-                            {
-                                this.ListViewMainActivity.SelectedItem = this.ActItem.SelectedItem;
-                                this.ListViewMainActivity.ScrollTo(
-                                    this.ListViewMainActivity.SelectedItem,
-                                    ScrollToPosition.MakeVisible,
-                                    true);
-                                return Task.CompletedTask;
-                            });
-                        }
+                        await this.LoadAndBindData(performRefreshData: true);
+                        ////if (isNewLineItemAdded)
+                        ////{
+                        ////    await this.LoadAndBindData(performRefreshData: true);
+                        ////}
+                        ////else
+                        ////{
+                        ////    this.MainActivityItems[this.ActItem.SelectedListIdx] = this.ActItem.SelectedItem;
+                        ////    this.ListViewMainActivity.ItemsSource = this.MainActivityItems;
+                        ////    await this.LoadAndBindData(performRefreshData: false);
+                        ////}
                     }
 
                     await this.ScannerEnable();

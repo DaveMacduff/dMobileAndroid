@@ -389,7 +389,7 @@ namespace dMobile.View.Activity
                     {
                         try
                         {
-                            var unitRefnoFromBarcode = await clsCommon.GetDeliProdInfoFromBarCode(
+                            var unitRefnoFromBarcode = await BarCodeCommon.GetDeliProdInfoFromBarCode(
                                 prodIdentifier,
                                 this.SysEnv.CurrentBarCodeModifier1,
                                 this.Parse.Symbology,

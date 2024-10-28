@@ -12,8 +12,7 @@ namespace dMobile.GroundWork
     using System.Xml;
     using System.Xml.Linq;
     using Bedrock;
-    using dMobile.Resources.Models.Items;
-    using Resources.Models;
+    using Resources.Models.Items;
     using SQLite;
 
     public class TableActivityPickingDetail : TableBase
@@ -162,7 +161,7 @@ namespace dMobile.GroundWork
         {
             var results = await DatabaseConnection.GetInstance()
                 .SqlConn.QueryAsync<ActivityItemPickingModel>(
-                    "SELECT * FROM tActivityItemPicking WHERE ActivityItemRefno = ?",
+                    "SELECT * FROM tActivityItemPicking WHERE ActivityItemFKRefno = ?",
                     activityFkRefno);
 
             int actItemPickFkRefno;
