@@ -36,11 +36,6 @@ namespace dMobile.Bedrock
         public bool IsDataCreatedInStartUp { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether IsRefreshedLastDataChangesOnly.
-        /// </summary>
-        public bool IsRefreshedLastDataChangesOnly { get; set; }
-
-        /// <summary>
         /// Gets or sets the RefreshedDataLast.
         /// </summary>
         public DateTime RefreshedDataLast
@@ -59,11 +54,6 @@ namespace dMobile.Bedrock
         /// Gets or sets a value indicating whether Transfers.
         /// </summary>
         public bool Transfers { get; set; }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether RefreshDataChangesOnly.
-        /// </summary>
-        public bool RefreshDataChangesOnly { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether SystemData.

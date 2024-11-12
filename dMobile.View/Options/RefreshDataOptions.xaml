@@ -17,15 +17,13 @@
                 </Grid.RowDefinitions>
 
                 <Grid VerticalOptions="Start" Grid.Row="0">
-                    <Label x:Name="lblRefreshDataChangesOnly" Text="Refresh Data Changes Only" VerticalTextAlignment="Center" />
-                    <Custom:CustomSwitch x:Name="chkRefreshDataChangesOnly" Toggled="IdentifyChangesMade" />
-                    <Label x:Name="lblSelectAll" Text="Select/Deselect All" VerticalTextAlignment="Center" Grid.Row="1" />
-                    <Custom:CustomSwitch x:Name="chkSelectAll"  Grid.Row="1" Clicked="chkSelectAll_Click" Toggled="IdentifyChangesMade"/>
+                    <Label x:Name="lblSelectAll" Text="Select/Deselect All" VerticalTextAlignment="Center" Grid.Row="0" />
+                    <Custom:CustomSwitch x:Name="chkSelectAll"  Grid.Row="0" Clicked="chkSelectAll_Click" Toggled="IdentifyChangesMade"/>
                 </Grid>
 
                 <Frame VerticalOptions="Start" Grid.Row="1" OutlineColor="{DynamicResource BorderColor}">
                     <ScrollView>
-                        <Grid Padding="5">
+                        <Grid Padding="10">
                             <Label x:Name="lblSystemData" Text="System Data" VerticalTextAlignment="Center" />
                             <Custom:CustomSwitch x:Name="chkSystemData" Clicked="ClickHandler" Toggled="IdentifyChangesMade"/>
                             <Label x:Name="lblAdjustments" Text="Adjustments" VerticalTextAlignment="Center" Grid.Row="1"/>

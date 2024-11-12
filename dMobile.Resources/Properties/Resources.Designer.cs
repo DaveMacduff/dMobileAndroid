@@ -457,29 +457,11 @@ namespace dMobile.Resources.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Refresh changes only.
-        /// </summary>
-        public static string RefreshChangesOnly {
-            get {
-                return ResourceManager.GetString("RefreshChangesOnly", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Refresh Data.
         /// </summary>
         public static string RefreshData {
             get {
                 return ResourceManager.GetString("RefreshData", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Refresh Data Changes Only.
-        /// </summary>
-        public static string RefreshDataChangesOnly {
-            get {
-                return ResourceManager.GetString("RefreshDataChangesOnly", resourceCulture);
             }
         }
         

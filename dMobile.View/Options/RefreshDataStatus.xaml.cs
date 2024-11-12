@@ -839,7 +839,6 @@ namespace dMobile.View.Options
                             refreshLast = this.SysEnv.RefreshOpt.RefreshedDataLast;
 
                             if (this.SysEnv.RefreshOpt.SystemData &&
-                                !this.SysEnv.RefreshOpt.RefreshDataChangesOnly &&
                                 this.ActSubType != SysCommon.ActSubTypes.PurgeActivityData)
                             {
                                 await this.CreateDatabase();
@@ -853,8 +852,7 @@ namespace dMobile.View.Options
                                 refreshLast = this.SysEnv.RefreshOpt.RefreshedDataLast;
                                 await this.RefreshSystemData();
                             }
-                            else if (this.SysEnv.RefreshOpt.RefreshDataChangesOnly &&
-                                     this.ActSubType != SysCommon.ActSubTypes.PurgeActivityData)
+                            else if (this.ActSubType != SysCommon.ActSubTypes.PurgeActivityData)
                             {
                                 DatabaseConnection.Open();
                                 await this.RefreshSystemData();
@@ -910,8 +908,6 @@ namespace dMobile.View.Options
                         }
                         finally
                         {
-                            this.SysEnv.RefreshOpt.IsRefreshedLastDataChangesOnly =
-                                this.SysEnv.RefreshOpt.RefreshDataChangesOnly;
                             var tempRefreshOpt3 = this.SysEnv.RefreshOpt;
                             _ = this.SysEnv.RefreshOpt.SaveData(ref tempRefreshOpt3);
                         }
@@ -1327,14 +1323,6 @@ namespace dMobile.View.Options
                             MessageValue = Resource.LastRefresh +
                                            " " +
                                            this.SysEnv.RefreshOpt.RefreshedDataLast
-                        });
-                    this.ExtraInfoItems.Add(
-                        new Message
-                        {
-                            MessageIndex = this.messageIndex++,
-                            MessageValue = Resource.RefreshChangesOnly +
-                                           " " +
-                                           this.SysEnv.RefreshOpt.IsRefreshedLastDataChangesOnly
                         });
                 });
 

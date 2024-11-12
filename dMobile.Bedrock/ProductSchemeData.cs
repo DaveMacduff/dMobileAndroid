@@ -2,10 +2,10 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
+// ReSharper disable NonReadonlyMemberInGetHashCode
 namespace dMobile.Bedrock
 {
     using System;
-    using System.Diagnostics.CodeAnalysis;
 
     /// <summary>
     ///     Define the product scheme data.
@@ -60,7 +60,7 @@ namespace dMobile.Bedrock
         /// <summary>
         ///     Gets or sets the variant number.
         /// </summary>
-        public int VariantNumber { get; set; } = 0;
+        public int VariantNumber { get; set; }
 
         /// <summary>
         ///     Gets or sets variant description.
@@ -109,7 +109,6 @@ namespace dMobile.Bedrock
         }
 
         /// <inheritdoc/>
-        [SuppressMessage("ReSharper", "NonReadonlyMemberInGetHashCode", Justification = "Not sure how to fix the warnings.")]
         public override int GetHashCode()
         {
             var hashCode = new HashCode();

@@ -32,7 +32,7 @@
     </PackageReference>
     <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
     <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
-    <PackageReference Include="Honeywell.BarcodeReader" Version="1.35.0.17" />
+    <PackageReference Include="Honeywell.BarcodeReader" Version="1.35.0.44" />
   </ItemGroup>
 	<ItemGroup>
 		<Reference Include="Mono.Android">

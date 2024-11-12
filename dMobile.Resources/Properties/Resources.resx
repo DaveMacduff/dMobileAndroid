@@ -224,9 +224,6 @@ Below new line</value>
   <data name="DataStatus" xml:space="preserve">
     <value>Data Status</value>
   </data>
-  <data name="RefreshDataChangesOnly" xml:space="preserve">
-    <value>Refresh Data Changes Only</value>
-  </data>
   <data name="SelectDeselectAll" xml:space="preserve">
     <value>Select/Deselect All</value>
   </data>

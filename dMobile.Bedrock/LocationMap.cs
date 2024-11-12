@@ -32,7 +32,7 @@ namespace dMobile.Bedrock
         /// <summary>
         /// Gets or sets the LoginWhsLocMapRefno.
         /// </summary>
-        public int LoginWhsLocMapRefno { get; set; } = 0;
+        public int LoginWhsLocMapRefno { get; set; }
 
         /// <summary>
         /// Gets or sets the current location map.

@@ -50,7 +50,6 @@ namespace dMobile.View.Options
 
             this.cmdRefreshData.Text = Resource.RefreshData;
             this.cmdDataStatus.Text = Resource.DataStatus;
-            this.lblRefreshDataChangesOnly.Text = Resource.RefreshDataChangesOnly;
             this.lblSelectAll.Text = Resource.SelectDeselectAll;
             this.lblSystemData.Text = Resource.SystemData;
             this.lblAdjustments.Text = Resource.Adjustments;
@@ -168,7 +167,6 @@ namespace dMobile.View.Options
                     if (this.SysEnv.SysSettings.IsDisconnectedMode)
                     {
                         isReadyToSave = isReadyToSave && this.chkSystemData.IsToggled;
-                        isReadyToSave = isReadyToSave && this.chkRefreshDataChangesOnly.IsToggled;
                         isReadyToSave = isReadyToSave && this.chkAdjustments.IsToggled;
                         isReadyToSave = isReadyToSave && this.chkCounts.IsToggled;
                         isReadyToSave = isReadyToSave && this.chkProductionTickets.IsToggled;
@@ -344,7 +342,6 @@ namespace dMobile.View.Options
             {
                 if (await this.IsReadyToSave())
                 {
-                    this.SysEnv.RefreshOpt.RefreshDataChangesOnly = this.chkRefreshDataChangesOnly.IsToggled;
                     this.SysEnv.RefreshOpt.SystemData = this.chkSystemData.IsToggled;
                     this.SysEnv.RefreshOpt.Adjustments = Convert.ToBoolean(this.chkAdjustments.IsToggled && this.SysEnv.SysSettings.IsDisconnectedMode);
                     this.SysEnv.RefreshOpt.PurchaseOrders = Convert.ToBoolean(this.chkPurchaseOrders.IsToggled && this.SysEnv.SysSettings.IsDisconnectedMode);
@@ -625,10 +622,6 @@ namespace dMobile.View.Options
                     else if (sender == this.chkPurchaseOrderWorkSheet)
                     {
                     }
-                    else if (sender == this.chkRefreshDataChangesOnly)
-                    {
-                        this.chkRefreshDataChangesOnly.IsToggled = this.chkRefreshDataChangesOnly.IsToggled && await GroundWork.Common.IsDataBaseDataExist();
-                    }
                     else if (sender == this.chkReplenishment)
                     {
                     }
@@ -698,9 +691,6 @@ namespace dMobile.View.Options
                 else if (sender == this.chkPurchaseOrderWorkSheet)
                 {
                 }
-                else if (sender == this.chkRefreshDataChangesOnly)
-                {
-                }
                 else if (sender == this.chkReplenishment)
                 {
                 }
@@ -746,7 +736,6 @@ namespace dMobile.View.Options
         {
             _ = this.SysEnv.RefreshOpt.LoadData();
 
-            this.chkRefreshDataChangesOnly.IsToggled = this.SysEnv.RefreshOpt.RefreshDataChangesOnly;
             this.chkSystemData.IsToggled = this.SysEnv.RefreshOpt.SystemData;
 
             if (this.SysEnv.SysSettings.IsDisconnectedMode)
