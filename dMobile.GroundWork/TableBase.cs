@@ -1130,6 +1130,71 @@ namespace dMobile.GroundWork
         }
 
         /// <summary>
+        /// Get the product unit refno from the data row.
+        /// </summary>
+        /// <param name="drow"><see cref="DataRow"/> Data row.</param>
+        /// <param name="conn">The conn<see cref="SQLiteConnection"/> SQL connection.</param>
+        /// <returns>Found product unit reference number.</returns>
+        protected static async Task<int> GetProductUnitRefnoFromDataRowAsync(
+            DataRow drow,
+            SQLiteAsyncConnection conn)
+        {
+            var prodFkRefno = Convert.ToInt32(drow["ProductFKRefno"]);
+            var unitCode = Convert.ToString(drow["UnitCode"]);
+            var prodUnitIsBc = Convert.ToBoolean(drow["ProductUnitIsBC"]);
+            var productResults = await conn.QueryAsync<ProductModel>(
+                "SELECT * FROM tProduct WHERE ProductFKRefno = ?",
+                Convert.ToInt32(prodFkRefno));
+            int prodRefno;
+            if (productResults != null &&
+                productResults.Count > 0)
+            {
+                prodRefno = Convert.ToInt32(productResults[0].ProductRefno);
+            }
+            else
+            {
+                throw new Exception(
+                    "drProduct.Read() failed. Unable to locate the product refno from the product foreign key" +
+                    " reference number in tProduct.");
+            }
+
+            var unitResults = await conn.QueryAsync<UnitModel>(
+                "SELECT * FROM tUnit WHERE UnitCode = ?",
+                unitCode);
+            int unitRefno;
+            if (unitResults != null &&
+                unitResults.Count > 0)
+            {
+                unitRefno = Convert.ToInt32(unitResults[0].UnitRefno);
+            }
+            else
+            {
+                throw new Exception("drUnit.Read() failed.");
+            }
+
+            var productUnitResults = await conn.QueryAsync<ProductUnitModel>(
+                "SELECT * FROM tProductUnit WHERE ProductRefno = ? AND UnitRefno = ? AND" +
+                " ProductUnitIsBC = ?",
+                Convert.ToInt32(prodRefno),
+                Convert.ToInt32(unitRefno),
+                Convert.ToBoolean(prodUnitIsBc));
+            int prodUnitRefno;
+            if (productUnitResults != null &&
+                productUnitResults.Count > 0)
+            {
+                prodUnitRefno = Convert.ToInt32(productUnitResults[0].ProductUnitRefno);
+            }
+            else
+            {
+                throw new Exception(
+                    "drProdUnit.Read() failed. Unable to locate the product unit refno from the" +
+                    " product foreign key reference number, broken case and unit code in tProductUnit.");
+            }
+
+            return prodUnitRefno;
+        }
+
+        /// <summary>
         /// Send a data request.
         /// </summary>
         /// <param name="familyCode"><see cref="string"/> Family code filter.</param>
@@ -1162,7 +1227,17 @@ namespace dMobile.GroundWork
             string statusMessage,
             bool suppressStatusOutMessage)
         {
-            if (!this.SysEnv.SysSettings.IsDisconnectedMode && !suppressStatusOutMessage)
+            ////if (!this.SysEnv.SysSettings.IsDisconnectedMode && !suppressStatusOutMessage)
+            ////{
+            ////    if (this.OnDataAccessStatusOut != null)
+            ////    {
+            ////        this.DataEventArgs.StatusOutMsg = statusMessage;
+            ////        this.DataEventArgs.OverrideDisconnectedMode = suppressStatusOutMessage;
+            ////        this.OnDataAccessStatusOut(this, this.DataEventArgs);
+            ////    }
+            ////}
+
+            if (!this.SysEnv.SysSettings.IsDisconnectedMode || suppressStatusOutMessage)
             {
                 if (this.OnDataAccessStatusOut != null)
                 {

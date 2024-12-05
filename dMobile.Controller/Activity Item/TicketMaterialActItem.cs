@@ -35,96 +35,97 @@ namespace dMobile.Controller.Activity_Item
             this.IsAllowAddItem = this.SysEnv.SysSettings.AllowAddProduct2TicketMaterial;
             this.IsAskCreateNewItem = !this.SysEnv.SysSettings.IsTicketMaterialCreateNewItemNoAsk;
 
-            // Create item template
-            var dataTemplate = new DataTemplate(() =>
+            DefineInitialGrid();
+            return;
+
+            ///////////////////////////////////////////////////////////
+            void DefineInitialGrid()
             {
-                var gridData = new Grid
+                var dataTemplate = new DataTemplate(() =>
                 {
-                    Padding = new Thickness(5),
-                    ColumnDefinitions =
+                    var gridData = new Grid
                     {
-                        new ColumnDefinition { Width = new GridLength(this.ColumnWidth0, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(this.ColumnWidth1, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(this.ColumnWidth2, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(this.ColumnWidth3, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(this.ColumnWidth4, GridUnitType.Absolute) },
-                    },
-                };
+                        Padding = new Thickness(5),
+                        ColumnDefinitions =
+                        {
+                            new ColumnDefinition { Width = new GridLength(this.ColumnWidth0, GridUnitType.Absolute) },
+                            new ColumnDefinition { Width = new GridLength(this.ColumnWidth1, GridUnitType.Absolute) },
+                            new ColumnDefinition { Width = new GridLength(this.ColumnWidth2, GridUnitType.Absolute) },
+                            new ColumnDefinition { Width = new GridLength(this.ColumnWidth3, GridUnitType.Absolute) },
+                            new ColumnDefinition { Width = new GridLength(this.ColumnWidth4, GridUnitType.Absolute) },
+                        },
+                    };
 
-                var labelCode = new Label { VerticalOptions = LayoutOptions.Center };
-                var labelBc = new Label { VerticalOptions = LayoutOptions.Center };
-                var labelUnit = new Label { VerticalOptions = LayoutOptions.Center };
-                var labelQty = new Label { VerticalOptions = LayoutOptions.Center };
-                var labelExpQty = new Label { VerticalOptions = LayoutOptions.Center };
+                    var labelCode = new Label { VerticalOptions = LayoutOptions.Center };
+                    var labelBc = new Label { VerticalOptions = LayoutOptions.Center };
+                    var labelUnit = new Label { VerticalOptions = LayoutOptions.Center };
+                    var labelQty = new Label { VerticalOptions = LayoutOptions.Center };
+                    var labelExpQty = new Label { VerticalOptions = LayoutOptions.Center };
 
-                // Set label bindings
-                labelCode.SetBinding(Label.TextProperty, new Binding("ProductCode"));
-                labelBc.SetBinding(Label.TextProperty, new Binding("ProductUnitBC"));
-                labelUnit.SetBinding(Label.TextProperty, new Binding("BaseUnitCode"));
-                labelQty.SetBinding(Label.TextProperty, new Binding("ActivityItemProductionBaseQuantity", BindingMode.Default, null, null, "{0:F3}"));
-                labelExpQty.SetBinding(Label.TextProperty, new Binding("ActivityItemProductionBaseQuantityExpected", BindingMode.Default, null, null, "{0:F3}"));
+                    // Set label bindings
+                    labelCode.SetBinding(Label.TextProperty, new Binding("ProductCode"));
+                    labelBc.SetBinding(Label.TextProperty, new Binding("ProductUnitBC"));
+                    labelUnit.SetBinding(Label.TextProperty, new Binding("BaseUnitCode"));
+                    labelQty.SetBinding(Label.TextProperty, new Binding("ActivityItemProductionBaseQuantity", BindingMode.Default, null, null, "{0:F3}"));
+                    labelExpQty.SetBinding(Label.TextProperty, new Binding("ActivityItemProductionBaseQuantityExpected", BindingMode.Default, null, null, "{0:F3}"));
 
-                // Add labels to grid
-                gridData.Children.Add(labelCode);
-                gridData.Children.Add(labelBc);
-                gridData.Children.Add(labelUnit);
-                gridData.Children.Add(labelQty);
-                gridData.Children.Add(labelExpQty);
+                    // Add labels to grid
+                    gridData.Children.Add(labelCode);
+                    gridData.Children.Add(labelBc);
+                    gridData.Children.Add(labelUnit);
+                    gridData.Children.Add(labelQty);
+                    gridData.Children.Add(labelExpQty);
 
-                // Set label columns
-                Grid.SetColumn(labelCode, 0);
-                Grid.SetColumn(labelBc, 1);
-                Grid.SetColumn(labelUnit, 2);
-                Grid.SetColumn(labelQty, 3);
-                Grid.SetColumn(labelExpQty, 4);
+                    // Set label columns
+                    Grid.SetColumn(labelCode, 0);
+                    Grid.SetColumn(labelBc, 1);
+                    Grid.SetColumn(labelUnit, 2);
+                    Grid.SetColumn(labelQty, 3);
+                    Grid.SetColumn(labelExpQty, 4);
 
-                return new ViewCell { View = gridData };
-            });
+                    return new ViewCell { View = gridData };
+                });
 
-            var isAddKey = true;
-            foreach (var item in this.ResDict)
-            {
-                if (item.Key == "dataTemplateRawMaterialItem")
+                var isAddKey = true;
+                foreach (var item in this.ResourceDictionary)
                 {
-                    isAddKey = false;
+                    if (item.Key == "dataTemplateRawMaterialItem")
+                    {
+                        isAddKey = false;
+                    }
                 }
-            }
 
-            if (isAddKey)
-            {
-                this.ResDict.Add("dataTemplateRawMaterialItem", dataTemplate);
+                if (isAddKey)
+                {
+                    this.ResourceDictionary.Add("dataTemplateRawMaterialItem", dataTemplate);
+                }
             }
         }
 
         /// <summary>
         /// Defines the columnWidth0.
         /// </summary>
-        private double ColumnWidth0 { get; set; } = 0;
+        private double ColumnWidth0 { get; set; }
 
         /// <summary>
         /// Defines the columnWidth1.
         /// </summary>
-        private double ColumnWidth1 { get; set; } = 0;
+        private double ColumnWidth1 { get; set; }
 
         /// <summary>
         /// Defines the columnWidth2.
         /// </summary>
-        private double ColumnWidth2 { get; set; } = 0;
+        private double ColumnWidth2 { get; set; }
 
         /// <summary>
         /// Defines the columnWidth3.
         /// </summary>
-        private double ColumnWidth3 { get; set; } = 0;
+        private double ColumnWidth3 { get; set; }
 
         /// <summary>
         /// Defines the columnWidth4.
         /// </summary>
-        private double ColumnWidth4 { get; set; } = 0;
-
-        /// <summary>
-        /// Defines the resourceDictionary.
-        /// </summary>
-        private ResourceDictionary ResDict { get; } = new ResourceDictionary();
+        private double ColumnWidth4 { get; set; }
 
         /// <summary>
         /// Defines the listProductionTicketMaterialItems.
@@ -469,37 +470,119 @@ namespace dMobile.Controller.Activity_Item
         /// <returns>The <see cref="ObservableCollection{object}"/>.</returns>
         public override ObservableCollection<object> DesignGrid(ref Grid gridMainActivity, ref ListView listViewMainActivity)
         {
-            var observableCollection = new ObservableCollection<object>();
+            this.PlaceNewItemsAtBottomOfList(this.ListItems);
+            var mainActivityItems = this.CreateObservableCollectionFromListItems(this.ListItems);
+            var gridItems = this.DefineGrid();
+            this.CalcMaxDataColWidth(gridItems, mainActivityItems.ToList());
+            gridMainActivity.Children.Add(gridItems);
 
-            // Add all items in dataview to observable collection for display
-            foreach (var productionTicketMaterialItem in this.ListItems.Cast<ProductionTicketMaterialItem>())
+            listViewMainActivity.ItemTemplate = (DataTemplate)this.ResourceDictionary["dataTemplateRawMaterialItem"];
+
+            return mainActivityItems;
+        }
+
+        /// <summary>
+        ///     Create observable collection from list items.
+        /// </summary>
+        /// <param name="listItems">List of item objects.</param>
+        /// <returns>Created observable collection.</returns>
+        public override ObservableCollection<object> CreateObservableCollectionFromListItems(List<object> listItems)
+        {
+            // This code is optimized, it iterates over this.ListItems only once.
+            // It separates the list items into two lists, one for positive refno and one for negative refno.
+            // It then adds the positive refno items first, then the negative refno items.
+            // This is done to ensure that the negative refno items "new items" are displayed at the bottom of the list.
+            var mainActivityItems = new ObservableCollection<object>();
+            foreach (var item in listItems.Cast<ProductionTicketMaterialItem>())
             {
-                // ProductionTicketMaterialItem productionTicketMaterialItem = new ProductionTicketMaterialItem
-                // {
-                //    ActivityItemRefno = Convert.ToInt32(row["ActivityItemRefno"] != DBNull.Value ? row["ActivityItemRefno"] : null),
-                //    ActivityItemProductionQuantity = Convert.ToDecimal(row["ActivityItemProductionQuantity"] != DBNull.Value ? row["ActivityItemProductionQuantity"] : null),
-                //    ActivityItemProductionBaseQuantity = Convert.ToDecimal(row["ActivityItemProductionBaseQuantity"] != DBNull.Value ? row["ActivityItemProductionBaseQuantity"] : null),
-                //    ActivityItemProductionWeightQuantity = Convert.ToDecimal(row["ActivityItemProductionWeightQuantity"] != DBNull.Value ? row["ActivityItemProductionWeightQuantity"] : null),
-                //    ProductUnitRefno = Convert.ToInt32(row["ProductUnitRefno"] != DBNull.Value ? row["ProductUnitRefno"] : null),
-                //    ProductRefno = Convert.ToInt32(row["ProductRefno"] != DBNull.Value ? row["ProductRefno"] : null),
-                //    ProductCode = Convert.ToString(row["ProductCode"] != DBNull.Value ? row["ProductCode"] : null),
-                //    ProductDescription = Convert.ToString(row["ProductDescription"] != DBNull.Value ? row["ProductDescription"] : null),
-                //    ProductUnitBC = Convert.ToString(row["ProductUnitBC"] != DBNull.Value ? row["ProductUnitBC"] : null),
-                //    ProductUnitSizeDescription = Convert.ToString(row["ProductUnitSizeDescription"] != DBNull.Value ? row["ProductUnitSizeDescription"] : null),
-                //    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"] != DBNull.Value ? row["LocationMapRefno"] : null),
-                //    LocationName = Convert.ToString(row["LocationName"] != DBNull.Value ? row["LocationName"] : null),
-                //    ActivityItemStatus = Convert.ToInt32(row["ActivityItemStatus"] != DBNull.Value ? row["ActivityItemStatus"] : null),
-                //    ActivityItemProductionBaseQuantityExpected = Convert.ToDecimal(row["ActivityItemProductionBaseQuantityExpected"] != DBNull.Value ? row["ActivityItemProductionBaseQuantityExpected"] : null),
-                //    ActivityItemFKRefno = Convert.ToInt32(row["ActivityItemFKRefno"] != DBNull.Value ? row["ActivityItemFKRefno"] : null),
-                //    ActivityItemStringFKRefno = Convert.ToString(row["ActivityItemStringFKRefno"] != DBNull.Value ? row["ActivityItemStringFKRefno"] : null),
-                //    ActivityItemProductionQuantityExpected = Convert.ToDecimal(row["ActivityItemProductionQuantityExpected"] != DBNull.Value ? row["ActivityItemProductionQuantityExpected"] : null),
-                //    ActivityItemProductionWeightQuantityExpected = Convert.ToDecimal(row["ActivityItemProductionWeightQuantityExpected"] != DBNull.Value ? row["ActivityItemProductionWeightQuantityExpected"] : null),
-                //    BaseUnitCode = Convert.ToString(row["BaseUnitCode"] != DBNull.Value ? row["BaseUnitCode"] : null),
-                //    LocationCode = Convert.ToInt32(row["LocationCode"] != DBNull.Value ? row["LocationCode"] : null)
-                // };
-                observableCollection.Add(productionTicketMaterialItem);
+                mainActivityItems.Add(item);
             }
 
+            return mainActivityItems;
+        }
+
+        /// <summary>
+        ///     Sort the list items and place new items at the bottom of the list.
+        /// </summary>
+        /// <param name="listItems">List of items to sort.</param>
+        /// <remarks>
+        /// New items with negative foreign key item reference numbers will be placed at the bottom of
+        /// the new collection. The list items will not be sorted to match the new collection.
+        /// </remarks>
+        public override void PlaceNewItemsAtBottomOfList(List<object> listItems)
+        {
+            var sortedItems = listItems
+                .Cast<ProductionTicketMaterialItem>()
+                .OrderBy(item => item.ActivityItemFKRefno >= 0 ? 0 : 1)
+                .ThenBy(item => item.ActivityItemFKRefno)
+                .Cast<object>()
+                .ToList();
+
+            listItems.Clear();
+            listItems.AddRange(sortedItems);
+        }
+
+        /// <summary>
+        ///     Calculate the maximum data column widths.
+        /// </summary>
+        /// <param name="definition">Grid layout definition.</param>
+        /// <param name="itemsToMeasure">List of data items to measure in order to determine the max column width.</param>
+        public override void CalcMaxDataColWidth(Grid definition, List<object> itemsToMeasure)
+        {
+            var gridService = DependencyService.Get<IGridService>();
+            var columns = definition.ColumnDefinitions;
+            foreach (var item in itemsToMeasure)
+            {
+                this.CalcMaxDataColWidth(item, gridService, columns);
+            }
+        }
+
+        /// <summary>
+        ///    Calculate the maximum data column widths for one item.
+        /// </summary>
+        /// <param name="item">Item to compare to the max width.</param>
+        /// <param name="gridService">Grid service.</param>
+        /// <param name="columns">Column definitions to compare.</param>
+        public override void CalcMaxDataColWidth(
+            object item,
+            IGridService gridService,
+            ColumnDefinitionCollection columns)
+        {
+            var materialItem = (ProductionTicketMaterialItem)item;
+
+            var detailWidths = new[]
+            {
+                gridService.CalculateTextWidth(Convert.ToString(materialItem.ProductCode)),
+                gridService.CalculateTextWidth(materialItem.ProductUnitBC),
+                gridService.CalculateTextWidth(materialItem.BaseUnitCode),
+                gridService.CalculateTextWidth($"{materialItem.ActivityItemProductionBaseQuantity:F3}"),
+                gridService.CalculateTextWidth($"{materialItem.ActivityItemProductionBaseQuantityExpected:F3}")
+            };
+
+            var columnWidths = new[] { this.ColumnWidth0, this.ColumnWidth1, this.ColumnWidth2, this.ColumnWidth3, this.ColumnWidth4 };
+
+            for (int i = 0; i < detailWidths.Length; i++)
+            {
+                if (detailWidths[i] > columnWidths[i])
+                {
+                    columnWidths[i] = detailWidths[i];
+                    columns[i].Width = new GridLength(columnWidths[i], GridUnitType.Absolute);
+                }
+            }
+
+            this.ColumnWidth0 = columnWidths[0];
+            this.ColumnWidth1 = columnWidths[1];
+            this.ColumnWidth2 = columnWidths[2];
+            this.ColumnWidth3 = columnWidths[3];
+            this.ColumnWidth4 = columnWidths[4];
+        }
+
+        /// <summary>
+        ///     Define the grid layout for the activity item.
+        /// </summary>
+        /// <returns>New grid layout.</returns>
+        public override Grid DefineGrid()
+        {
             var labelCodeHeader = new Label { Text = "Code", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
             var labelBcHeader = new Label { Text = "BC", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
             var labelUnitHeader = new Label { Text = string.Empty, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
@@ -542,78 +625,7 @@ namespace dMobile.Controller.Activity_Item
             Grid.SetColumn(labelExpQtyHeader, 4);
 
             Grid.SetRow(gridHeader, 0);
-
-            gridMainActivity.Children.Add(gridHeader);
-
-            foreach (var productionTicketMaterialItem in observableCollection.Cast<ProductionTicketMaterialItem>())
-            {
-                var detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(Convert.ToString(productionTicketMaterialItem.ProductCode));
-                var detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(productionTicketMaterialItem.ProductUnitBC);
-                var detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(productionTicketMaterialItem.BaseUnitCode);
-                var detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(
-                    $"{productionTicketMaterialItem.ActivityItemProductionBaseQuantity:F3}");
-                var detailWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(
-                    $"{productionTicketMaterialItem.ActivityItemProductionBaseQuantityExpected:F3}");
-
-                if (detailWidth0 > this.ColumnWidth0)
-                {
-                    this.ColumnWidth0 = detailWidth0;
-                    gridHeader.ColumnDefinitions[0].Width = this.ColumnWidth0;
-                }
-
-                if (detailWidth1 > this.ColumnWidth1)
-                {
-                    this.ColumnWidth1 = detailWidth1;
-                    gridHeader.ColumnDefinitions[1].Width = this.ColumnWidth1;
-                }
-
-                if (detailWidth2 > this.ColumnWidth2)
-                {
-                    this.ColumnWidth2 = detailWidth2;
-                    gridHeader.ColumnDefinitions[2].Width = this.ColumnWidth2;
-                }
-
-                if (detailWidth3 > this.ColumnWidth3)
-                {
-                    this.ColumnWidth3 = detailWidth3;
-                    gridHeader.ColumnDefinitions[3].Width = this.ColumnWidth3;
-                }
-
-                if (detailWidth4 > this.ColumnWidth4)
-                {
-                    this.ColumnWidth4 = detailWidth4;
-                    gridHeader.ColumnDefinitions[4].Width = this.ColumnWidth4;
-                }
-            }
-
-            listViewMainActivity.ItemTemplate = (DataTemplate)this.ResDict["dataTemplateRawMaterialItem"];
-
-            return observableCollection;
-        }
-
-        public override Grid DesignGrid()
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        ///     Create and fill the data template.
-        /// </summary>
-        /// <param name="gridMainActivity"><see cref="Grid"/> Main activity grid.</param>
-        public override void FillDataTemplate(Grid gridMainActivity)
-        {
-            throw new NotImplementedException();
-        }
-
-
-        public override DataTemplate GetDataTemplate()
-        {
-            throw new NotImplementedException();
-        }
-
-        public override ObservableCollection<object> GetActivityItemList()
-        {
-            throw new NotImplementedException();
+            return gridHeader;
         }
 
         /// <summary>
@@ -1125,6 +1137,12 @@ namespace dMobile.Controller.Activity_Item
         public override XDocument CreateDump()
         {
             throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public override DataTemplate GetDataTemplate()
+        {
+            return (DataTemplate)this.ResourceDictionary["dataTemplateRawMaterialItem"];
         }
     }
 }

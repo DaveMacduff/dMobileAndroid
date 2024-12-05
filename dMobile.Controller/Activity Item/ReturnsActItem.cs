@@ -51,11 +51,6 @@ namespace dMobile.Controller.Activity_Item
         private double columnWidth4 = 0;
 
         /// <summary>
-        /// Defines the resourceDictionary.
-        /// </summary>
-        private ResourceDictionary resourceDictionary = new ResourceDictionary();
-
-        /// <summary>
         /// Defines the listReturnItems.
         /// </summary>
         private List<ReturnItem> listReturnItems = new List<ReturnItem>();
@@ -72,62 +67,70 @@ namespace dMobile.Controller.Activity_Item
             this.IsAskCreateNewItem = !this.SysEnv.SysSettings.IsRetCreateNewItemNoAsk;
 
             // Data grid
-            var dataTemplate = new DataTemplate(() =>
+            DefineInitialGrid();
+            return;
+
+            ///////////////////////////////////////////////////////////
+            void DefineInitialGrid()
             {
-                var gridData = new Grid
-                {
-                    Padding = new Thickness(5),
-                    ColumnDefinitions =
+                var dataTemplate = new DataTemplate(
+                    () =>
                     {
-                        new ColumnDefinition { Width = new GridLength(this.columnWidth0, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(this.columnWidth1, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(this.columnWidth2, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(this.columnWidth3, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(this.columnWidth4, GridUnitType.Absolute) },
-                    },
-                };
+                        var gridData = new Grid
+                        {
+                            Padding = new Thickness(5),
+                            ColumnDefinitions =
+                            {
+                                new ColumnDefinition { Width = new GridLength(this.columnWidth0, GridUnitType.Absolute) },
+                                new ColumnDefinition { Width = new GridLength(this.columnWidth1, GridUnitType.Absolute) },
+                                new ColumnDefinition { Width = new GridLength(this.columnWidth2, GridUnitType.Absolute) },
+                                new ColumnDefinition { Width = new GridLength(this.columnWidth3, GridUnitType.Absolute) },
+                                new ColumnDefinition { Width = new GridLength(this.columnWidth4, GridUnitType.Absolute) },
+                            },
+                        };
 
-                var labelIsActivityItemReturnsComment = new Label { VerticalOptions = LayoutOptions.Center };
-                var labelProductCode = new Label { VerticalOptions = LayoutOptions.Center };
-                var labelProductUnitBc = new Label { VerticalOptions = LayoutOptions.Center };
-                var labelUnitCode = new Label { VerticalOptions = LayoutOptions.Center };
-                var labelActivityItemReturnsQuantityReturned = new Label { VerticalOptions = LayoutOptions.Center };
+                        var labelIsActivityItemReturnsComment = new Label { VerticalOptions = LayoutOptions.Center };
+                        var labelProductCode = new Label { VerticalOptions = LayoutOptions.Center };
+                        var labelProductUnitBc = new Label { VerticalOptions = LayoutOptions.Center };
+                        var labelUnitCode = new Label { VerticalOptions = LayoutOptions.Center };
+                        var labelActivityItemReturnsQuantityReturned = new Label { VerticalOptions = LayoutOptions.Center };
 
-                labelIsActivityItemReturnsComment.SetBinding(Label.TextProperty, new Binding("IsActivityItemReturnsComment"));
-                labelProductCode.SetBinding(Label.TextProperty, new Binding("ProductCode"));
-                labelProductUnitBc.SetBinding(Label.TextProperty, new Binding("ProductUnitBC"));
-                labelUnitCode.SetBinding(Label.TextProperty, new Binding("UnitCode"));
-                labelActivityItemReturnsQuantityReturned.SetBinding(
-                    Label.TextProperty,
-                    new Binding("ActivityItemReturnsQuantityReturned", BindingMode.Default, null, null, "{0:F3}"));
+                        labelIsActivityItemReturnsComment.SetBinding(Label.TextProperty, new Binding("IsActivityItemReturnsComment"));
+                        labelProductCode.SetBinding(Label.TextProperty, new Binding("ProductCode"));
+                        labelProductUnitBc.SetBinding(Label.TextProperty, new Binding("ProductUnitBC"));
+                        labelUnitCode.SetBinding(Label.TextProperty, new Binding("UnitCode"));
+                        labelActivityItemReturnsQuantityReturned.SetBinding(
+                            Label.TextProperty,
+                            new Binding("ActivityItemReturnsQuantityReturned", BindingMode.Default, null, null, "{0:F3}"));
 
-                gridData.Children.Add(labelIsActivityItemReturnsComment);
-                gridData.Children.Add(labelProductCode);
-                gridData.Children.Add(labelProductUnitBc);
-                gridData.Children.Add(labelUnitCode);
-                gridData.Children.Add(labelActivityItemReturnsQuantityReturned);
+                        gridData.Children.Add(labelIsActivityItemReturnsComment);
+                        gridData.Children.Add(labelProductCode);
+                        gridData.Children.Add(labelProductUnitBc);
+                        gridData.Children.Add(labelUnitCode);
+                        gridData.Children.Add(labelActivityItemReturnsQuantityReturned);
 
-                Grid.SetColumn(labelIsActivityItemReturnsComment, 0);
-                Grid.SetColumn(labelProductCode, 1);
-                Grid.SetColumn(labelProductUnitBc, 2);
-                Grid.SetColumn(labelUnitCode, 3);
-                Grid.SetColumn(labelActivityItemReturnsQuantityReturned, 4);
+                        Grid.SetColumn(labelIsActivityItemReturnsComment, 0);
+                        Grid.SetColumn(labelProductCode, 1);
+                        Grid.SetColumn(labelProductUnitBc, 2);
+                        Grid.SetColumn(labelUnitCode, 3);
+                        Grid.SetColumn(labelActivityItemReturnsQuantityReturned, 4);
 
-                return new ViewCell { View = gridData };
-            });
+                        return new ViewCell { View = gridData };
+                    });
 
-            var isAddKey = true;
-            foreach (var item in this.resourceDictionary)
-            {
-                if (item.Key == "dataTemplateReturnsItem")
+                var isAddKey = true;
+                foreach (var item in this.ResourceDictionary)
                 {
-                    isAddKey = false;
+                    if (item.Key == "dataTemplateReturnsItem")
+                    {
+                        isAddKey = false;
+                    }
                 }
-            }
 
-            if (isAddKey)
-            {
-                this.resourceDictionary.Add("dataTemplateReturnsItem", dataTemplate);
+                if (isAddKey)
+                {
+                    this.ResourceDictionary.Add("dataTemplateReturnsItem", dataTemplate);
+                }
             }
         }
 
@@ -255,6 +258,7 @@ namespace dMobile.Controller.Activity_Item
             var locMapRefno = 0;
             if (this.SelectedItem is ReturnItem item)
             {
+                // If the quantity is zero or negative, then the location is receiving.
                 if (Math.Sign(item.ActivityItemReturnsQuantityReturned) == 0 ||
                     Math.Sign(item.ActivityItemReturnsQuantityReturned) == -1)
                 {
@@ -364,20 +368,42 @@ namespace dMobile.Controller.Activity_Item
         /// <returns>The <see cref="ObservableCollection{object}"/>.</returns>
         public override ObservableCollection<object> DesignGrid(ref Grid gridMainActivity, ref ListView listViewMainActivity)
         {
-            var observableCollection = new ObservableCollection<object>();
+            this.PlaceNewItemsAtBottomOfList(this.ListItems);
+            var mainActivityItems = this.CreateObservableCollectionFromListItems(this.ListItems);
+            var gridItems = this.DefineGrid();
+            this.CalcMaxDataColWidth(gridItems, this.ListItems);
+            gridMainActivity.Children.Add(gridItems);
 
-            var labelIsActivityItemReturnsCommentHeader = new Label { Text = "C", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            var labelProductCodeHeader = new Label { Text = "Product ID", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            var labelProductUnitBcHeader = new Label { Text = string.Empty, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            var labelUnitCodeHeader = new Label { Text = string.Empty, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            var labelActivityItemReturnsQuantityReturnedHeader = new Label { Text = "Returned", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            listViewMainActivity.ItemTemplate = (DataTemplate)this.ResourceDictionary["dataTemplateReturnsItem"];
 
-            this.columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelIsActivityItemReturnsCommentHeader.Text);
+            return mainActivityItems;
+        }
+
+        /// <summary>
+        ///     Define the grid layout for the activity item.
+        /// </summary>
+        /// <returns>New grid layout.</returns>
+        public override Grid DefineGrid()
+        {
+            var labelIsActivityItemReturnsCommentHeader = new Label
+                { Text = "C", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelProductCodeHeader = new Label
+                { Text = "Product ID", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelProductUnitBcHeader = new Label
+                { Text = string.Empty, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelUnitCodeHeader = new Label
+                { Text = string.Empty, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelActivityItemReturnsQuantityReturnedHeader = new Label
+                { Text = "Returned", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+
+            this.columnWidth0 = DependencyService.Get<IGridService>()
+                .CalculateTextWidth(labelIsActivityItemReturnsCommentHeader.Text);
             this.columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelProductCodeHeader.Text);
             this.columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelProductUnitBcHeader.Text);
             this.columnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelUnitCodeHeader.Text);
-            this.columnWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(labelActivityItemReturnsQuantityReturnedHeader.Text);
-            var gridHeaderReturns = new Grid
+            this.columnWidth4 = DependencyService.Get<IGridService>()
+                .CalculateTextWidth(labelActivityItemReturnsQuantityReturnedHeader.Text);
+            var gridColumns = new Grid
             {
                 Padding = new Thickness(5),
                 ColumnDefinitions =
@@ -386,17 +412,17 @@ namespace dMobile.Controller.Activity_Item
                     new ColumnDefinition { Width = new GridLength(this.columnWidth1, GridUnitType.Absolute) },
                     new ColumnDefinition { Width = new GridLength(this.columnWidth2, GridUnitType.Absolute) },
                     new ColumnDefinition { Width = new GridLength(this.columnWidth3, GridUnitType.Absolute) },
-                    new ColumnDefinition { Width = new GridLength(this.columnWidth4, GridUnitType.Absolute) },
-                },
+                    new ColumnDefinition { Width = new GridLength(this.columnWidth4, GridUnitType.Absolute) }
+                }
             };
 
-            gridHeaderReturns.SetDynamicResource(VisualElement.BackgroundColorProperty, "HeaderColor");
+            gridColumns.SetDynamicResource(VisualElement.BackgroundColorProperty, "HeaderColor");
 
-            gridHeaderReturns.Children.Add(labelIsActivityItemReturnsCommentHeader);
-            gridHeaderReturns.Children.Add(labelProductCodeHeader);
-            gridHeaderReturns.Children.Add(labelProductUnitBcHeader);
-            gridHeaderReturns.Children.Add(labelUnitCodeHeader);
-            gridHeaderReturns.Children.Add(labelActivityItemReturnsQuantityReturnedHeader);
+            gridColumns.Children.Add(labelIsActivityItemReturnsCommentHeader);
+            gridColumns.Children.Add(labelProductCodeHeader);
+            gridColumns.Children.Add(labelProductUnitBcHeader);
+            gridColumns.Children.Add(labelUnitCodeHeader);
+            gridColumns.Children.Add(labelActivityItemReturnsQuantityReturnedHeader);
 
             Grid.SetColumn(labelIsActivityItemReturnsCommentHeader, 0);
             Grid.SetColumn(labelProductCodeHeader, 1);
@@ -404,78 +430,106 @@ namespace dMobile.Controller.Activity_Item
             Grid.SetColumn(labelUnitCodeHeader, 3);
             Grid.SetColumn(labelActivityItemReturnsQuantityReturnedHeader, 4);
 
-            Grid.SetRow(gridHeaderReturns, 0);
+            Grid.SetRow(gridColumns, 0);
 
-            gridMainActivity.Children.Add(gridHeaderReturns);
-
-            foreach (var returnItem in this.ListItems.Cast<ReturnItem>())
-            {
-                observableCollection.Add(returnItem);
-
-                var detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(returnItem.IsActivityItemReturnsComment);
-                var detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(returnItem.ProductCode);
-                var detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(returnItem.ProductUnitBC);
-                var detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(returnItem.UnitCode);
-                var detailWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(
-                    $"{returnItem.ActivityItemReturnsQuantityReturned:F3}");
-                if (detailWidth0 > this.columnWidth0)
-                {
-                    this.columnWidth0 = detailWidth0;
-                    gridHeaderReturns.ColumnDefinitions[0].Width = this.columnWidth0;
-                }
-
-                if (detailWidth1 > this.columnWidth1)
-                {
-                    this.columnWidth1 = detailWidth1;
-                    gridHeaderReturns.ColumnDefinitions[1].Width = this.columnWidth1;
-                }
-
-                if (detailWidth2 > this.columnWidth2)
-                {
-                    this.columnWidth2 = detailWidth2;
-                    gridHeaderReturns.ColumnDefinitions[2].Width = this.columnWidth2;
-                }
-
-                if (detailWidth3 > this.columnWidth3)
-                {
-                    this.columnWidth3 = detailWidth3;
-                    gridHeaderReturns.ColumnDefinitions[3].Width = this.columnWidth3;
-                }
-
-                if (detailWidth4 > this.columnWidth4)
-                {
-                    this.columnWidth4 = detailWidth4;
-                    gridHeaderReturns.ColumnDefinitions[4].Width = this.columnWidth4;
-                }
-            }
-
-            listViewMainActivity.ItemTemplate = (DataTemplate)this.resourceDictionary["dataTemplateReturnsItem"];
-
-            return observableCollection;
-        }
-
-        public override Grid DesignGrid()
-        {
-            throw new NotImplementedException();
+            return gridColumns;
         }
 
         /// <summary>
-        ///     Create and fill the data template.
+        ///     Create observable collection from list items.
         /// </summary>
-        /// <param name="gridMainActivity"><see cref="Grid"/> Main activity grid.</param>
-        public override void FillDataTemplate(Grid gridMainActivity)
+        /// <param name="listItems">List of item objects.</param>
+        /// <returns>Created observable collection.</returns>
+        public override ObservableCollection<object> CreateObservableCollectionFromListItems(List<object> listItems)
         {
-            throw new NotImplementedException();
+            // This code is optimized, it iterates over this.ListItems only once.
+            // It separates the list items into two lists, one for positive refno and one for negative refno.
+            // It then adds the positive refno items first, then the negative refno items.
+            // This is done to ensure that the negative refno items "new items" are displayed at the bottom of the list.
+            var mainActivityItems = new ObservableCollection<object>();
+            foreach (var item in listItems.Cast<ReturnItem>())
+            {
+                mainActivityItems.Add(item);
+            }
+
+            return mainActivityItems;
         }
 
-        public override DataTemplate GetDataTemplate()
+        /// <summary>
+        ///     Sort the list items and place new items at the bottom of the list.
+        /// </summary>
+        /// <param name="listItems">List of items to sort.</param>
+        /// <remarks>
+        /// New items with negative foreign key item reference numbers will be placed at the bottom of
+        /// the new collection. The list items will not be sorted to match the new collection.
+        /// </remarks>
+        public override void PlaceNewItemsAtBottomOfList(List<object> listItems)
         {
-            throw new NotImplementedException();
+            var sortedItems = listItems
+                .Cast<ReturnItem>()
+                .OrderBy(item => item.ActivityItemFKRefno >= 0 ? 0 : 1)
+                .ThenBy(item => item.ActivityItemFKRefno)
+                .Cast<object>()
+                .ToList();
+
+            listItems.Clear();
+            listItems.AddRange(sortedItems);
         }
 
-        public override ObservableCollection<object> GetActivityItemList()
+        /// <summary>
+        ///     Calculate the maximum data column widths.
+        /// </summary>
+        /// <param name="definition">Grid layout definition.</param>
+        /// <param name="itemsToMeasure">List of data items to measure in order to determine the max column width.</param>
+        public override void CalcMaxDataColWidth(Grid definition, List<object> itemsToMeasure)
         {
-            throw new NotImplementedException();
+            var gridService = DependencyService.Get<IGridService>();
+            var columns = definition.ColumnDefinitions;
+            foreach (var item in itemsToMeasure)
+            {
+                this.CalcMaxDataColWidth(item, gridService, columns);
+            }
+        }
+
+        /// <summary>
+        ///    Calculate the maximum data column widths for one item.
+        /// </summary>
+        /// <param name="item">Item to compare to the max width.</param>
+        /// <param name="gridService">Grid service.</param>
+        /// <param name="columns">Column definitions to compare.</param>
+        public override void CalcMaxDataColWidth(
+            object item,
+            IGridService gridService,
+            ColumnDefinitionCollection columns)
+        {
+            var returnItem = (ReturnItem)item;
+
+            var detailWidths = new[]
+            {
+                gridService.CalculateTextWidth(returnItem.IsActivityItemReturnsComment),
+                gridService.CalculateTextWidth(returnItem.ProductCode),
+                gridService.CalculateTextWidth(returnItem.ProductUnitBC),
+                gridService.CalculateTextWidth(returnItem.UnitCode),
+                gridService.CalculateTextWidth($"{returnItem.ActivityItemReturnsQuantityReturned:F3}")
+            };
+
+            var columnWidths = new[]
+                { this.columnWidth0, this.columnWidth1, this.columnWidth2, this.columnWidth3, this.columnWidth4 };
+
+            for (var i = 0; i < detailWidths.Length; i++)
+            {
+                if (detailWidths[i] > columnWidths[i])
+                {
+                    columnWidths[i] = detailWidths[i];
+                    columns[i].Width = new GridLength(columnWidths[i], GridUnitType.Absolute);
+                }
+            }
+
+            this.columnWidth0 = columnWidths[0];
+            this.columnWidth1 = columnWidths[1];
+            this.columnWidth2 = columnWidths[2];
+            this.columnWidth3 = columnWidths[3];
+            this.columnWidth4 = columnWidths[4];
         }
 
         /// <summary>
@@ -998,6 +1052,12 @@ namespace dMobile.Controller.Activity_Item
         public override XDocument CreateDump()
         {
             throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public override DataTemplate GetDataTemplate()
+        {
+            return (DataTemplate)this.ResourceDictionary["dataTemplateReturnsItem"];
         }
     }
 }

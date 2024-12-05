@@ -204,10 +204,7 @@ namespace dMobile.GroundWork
                                     $"Records {progMax}",
                                     false);
 
-                                var actItemRefno = 0;
                                 var progValue = 0;
-                                var prodUnitRefno = 0;
-                                var locMapRefno = 0;
 
                                 this.DataAccessProgressOutHandler(
                                     this,
@@ -225,10 +222,10 @@ namespace dMobile.GroundWork
                                         Convert.ToInt32(SysCommon.ActStatus.NoChange),
                                         Convert.ToInt32(actRefno),
                                         0);
-                                    actItemRefno = Convert.ToInt32(
+                                    var actItemRefno = Convert.ToInt32(
                                         transaction.ExecuteScalar<int>(
                                             "SELECT last_insert_rowid() FROM tActivityItem"));
-                                    prodUnitRefno = GetProductUnitRefnoFromDataRow(
+                                    var prodUnitRefno = GetProductUnitRefnoFromDataRow(
                                         drow,
                                         transaction,
                                         false);

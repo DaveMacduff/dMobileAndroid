@@ -57,81 +57,129 @@ namespace dMobile.Controller.Activity_Item
         private double columnWidth5 = 0;
 
         /// <summary>
-        /// Defines the resourceDictionary.
-        /// </summary>
-        private ResourceDictionary resourceDictionary = new ResourceDictionary();
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="RecvActItem"/> class.
         /// </summary>
         /// <param name="activity">.</param>
         public RecvActItem(Activity.Activity activity)
-          : base(activity)
+            : base(activity)
         {
             this.FullClassName = typeof(RecvActItem).FullName;
             this.IsAllowAddItem = this.SysEnv.SysSettings.AllowAddProduct2Receiving;
             this.IsAskCreateNewItem = !this.SysEnv.SysSettings.IsReceivingCreateNewItemNoAsk;
 
-            // Data grid
-            var dataTemplate = new DataTemplate(() =>
+            DefineInitialGrid();
+            return;
+
+            ///////////////////////////////////////////////////////////
+            void DefineInitialGrid()
             {
-                var gridData = new Grid
-                {
-                    Padding = new Thickness(5),
-                    ColumnDefinitions =
+                var dataTemplate = new DataTemplate(
+                    () =>
                     {
-                        new ColumnDefinition { Width = new GridLength(this.columnWidth0, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(this.columnWidth1, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(this.columnWidth2, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(this.columnWidth3, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(this.columnWidth4, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(this.columnWidth5, GridUnitType.Absolute) },
-                    },
-                };
+                        var gridData = new Grid
+                        {
+                            Padding = new Thickness(5),
+                            ColumnDefinitions =
+                            {
+                                new ColumnDefinition
+                                    { Width = new GridLength(this.columnWidth0, GridUnitType.Absolute) },
+                                new ColumnDefinition
+                                    { Width = new GridLength(this.columnWidth1, GridUnitType.Absolute) },
+                                new ColumnDefinition
+                                    { Width = new GridLength(this.columnWidth2, GridUnitType.Absolute) },
+                                new ColumnDefinition
+                                    { Width = new GridLength(this.columnWidth3, GridUnitType.Absolute) },
+                                new ColumnDefinition
+                                    { Width = new GridLength(this.columnWidth4, GridUnitType.Absolute) },
+                                new ColumnDefinition
+                                    { Width = new GridLength(this.columnWidth5, GridUnitType.Absolute) }
+                            }
+                        };
 
-                var labelIsActivityItemReceivingCommentItem = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
-                var labelProductCodeItem = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
-                var labelProductUnitBcItem = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
-                var labelUnitCodeItem = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
-                var labelActivityItemReceivingQuantityOrderedItem = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
-                var labelActivityItemReceivingQuantityReceivedItem = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
+                        var labelIsActivityItemReceivingCommentItem = new Label
+                        {
+                            VerticalOptions = LayoutOptions.Center,
+                            HorizontalOptions = LayoutOptions.Start
+                        };
+                        var labelProductCodeItem = new Label
+                        {
+                            VerticalOptions = LayoutOptions.Center,
+                            HorizontalOptions = LayoutOptions.Start
+                        };
+                        var labelProductUnitBcItem = new Label
+                        {
+                            VerticalOptions = LayoutOptions.Center,
+                            HorizontalOptions = LayoutOptions.Start
+                        };
+                        var labelUnitCodeItem = new Label
+                        {
+                            VerticalOptions = LayoutOptions.Center,
+                            HorizontalOptions = LayoutOptions.Start
+                        };
+                        var labelActivityItemReceivingQuantityOrderedItem = new Label
+                        {
+                            VerticalOptions = LayoutOptions.Center,
+                            HorizontalOptions = LayoutOptions.Start
+                        };
+                        var labelActivityItemReceivingQuantityReceivedItem = new Label
+                        {
+                            VerticalOptions = LayoutOptions.Center,
+                            HorizontalOptions = LayoutOptions.Start
+                        };
 
-                labelIsActivityItemReceivingCommentItem.SetBinding(Label.TextProperty, new Binding("IsActivityItemReceivingComment"));
-                labelProductCodeItem.SetBinding(Label.TextProperty, new Binding("ProductCode"));
-                labelProductUnitBcItem.SetBinding(Label.TextProperty, new Binding("ProductUnitBC"));
-                labelUnitCodeItem.SetBinding(Label.TextProperty, new Binding("UnitCode"));
-                labelActivityItemReceivingQuantityOrderedItem.SetBinding(Label.TextProperty, new Binding("ActivityItemReceivingQuantityOrdered", BindingMode.Default, null, null, "{0:F3}"));
-                labelActivityItemReceivingQuantityReceivedItem.SetBinding(Label.TextProperty, new Binding("ActivityItemReceivingQuantityReceived", BindingMode.Default, null, null, "{0:F3}"));
+                        labelIsActivityItemReceivingCommentItem.SetBinding(
+                            Label.TextProperty,
+                            new Binding("IsActivityItemReceivingComment"));
+                        labelProductCodeItem.SetBinding(Label.TextProperty, new Binding("ProductCode"));
+                        labelProductUnitBcItem.SetBinding(Label.TextProperty, new Binding("ProductUnitBC"));
+                        labelUnitCodeItem.SetBinding(Label.TextProperty, new Binding("UnitCode"));
+                        labelActivityItemReceivingQuantityOrderedItem.SetBinding(
+                            Label.TextProperty,
+                            new Binding(
+                                "ActivityItemReceivingQuantityOrdered",
+                                BindingMode.Default,
+                                null,
+                                null,
+                                "{0:F3}"));
+                        labelActivityItemReceivingQuantityReceivedItem.SetBinding(
+                            Label.TextProperty,
+                            new Binding(
+                                "ActivityItemReceivingQuantityReceived",
+                                BindingMode.Default,
+                                null,
+                                null,
+                                "{0:F3}"));
 
-                gridData.Children.Add(labelIsActivityItemReceivingCommentItem);
-                gridData.Children.Add(labelProductCodeItem);
-                gridData.Children.Add(labelProductUnitBcItem);
-                gridData.Children.Add(labelUnitCodeItem);
-                gridData.Children.Add(labelActivityItemReceivingQuantityOrderedItem);
-                gridData.Children.Add(labelActivityItemReceivingQuantityReceivedItem);
+                        gridData.Children.Add(labelIsActivityItemReceivingCommentItem);
+                        gridData.Children.Add(labelProductCodeItem);
+                        gridData.Children.Add(labelProductUnitBcItem);
+                        gridData.Children.Add(labelUnitCodeItem);
+                        gridData.Children.Add(labelActivityItemReceivingQuantityOrderedItem);
+                        gridData.Children.Add(labelActivityItemReceivingQuantityReceivedItem);
 
-                Grid.SetColumn(labelIsActivityItemReceivingCommentItem, 0);
-                Grid.SetColumn(labelProductCodeItem, 1);
-                Grid.SetColumn(labelProductUnitBcItem, 2);
-                Grid.SetColumn(labelUnitCodeItem, 3);
-                Grid.SetColumn(labelActivityItemReceivingQuantityOrderedItem, 4);
-                Grid.SetColumn(labelActivityItemReceivingQuantityReceivedItem, 5);
+                        Grid.SetColumn(labelIsActivityItemReceivingCommentItem, 0);
+                        Grid.SetColumn(labelProductCodeItem, 1);
+                        Grid.SetColumn(labelProductUnitBcItem, 2);
+                        Grid.SetColumn(labelUnitCodeItem, 3);
+                        Grid.SetColumn(labelActivityItemReceivingQuantityOrderedItem, 4);
+                        Grid.SetColumn(labelActivityItemReceivingQuantityReceivedItem, 5);
 
-                return new ViewCell { View = gridData };
-            });
+                        return new ViewCell { View = gridData };
+                    });
 
-            var isAddKey = true;
-            foreach (var item in this.resourceDictionary)
-            {
-                if (item.Key == "dataTemplateReceivingItem")
+                var isAddKey = true;
+                foreach (var item in this.ResourceDictionary)
                 {
-                    isAddKey = false;
+                    if (item.Key == "dataTemplateReceivingItem")
+                    {
+                        isAddKey = false;
+                    }
                 }
-            }
 
-            if (isAddKey)
-            {
-                this.resourceDictionary.Add("dataTemplateReceivingItem", dataTemplate);
+                if (isAddKey)
+                {
+                    this.ResourceDictionary.Add("dataTemplateReceivingItem", dataTemplate);
+                }
             }
         }
 
@@ -201,7 +249,8 @@ namespace dMobile.Controller.Activity_Item
         public override bool IsCatchAskZero()
         {
             var result = false;
-            if (this.IsCatchAsk() && this.ProdInfo.IsCatchAskZero)
+            if (this.IsCatchAsk() &&
+                this.ProdInfo.IsCatchAskZero)
             {
                 result = !this.SysEnv.SysSettings.IsReceivingNoCatchAskZeroEnabled;
             }
@@ -239,11 +288,14 @@ namespace dMobile.Controller.Activity_Item
         {
             if (!this.SysEnv.SysSettings.IsDisconnectedMode)
             {
-                var sendReq = await this.CreateDeleteXml(XDocument.Parse(
-                    "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
-                    + "<params>"
-                    + "<skid_data>" + this.ActHdr.SkidInfo.CurrSkid.SkidCode + "</skid_data>"
-                    + "</params>"));
+                var sendReq = await this.CreateDeleteXml(
+                    XDocument.Parse(
+                        "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" +
+                        "<params>" +
+                        "<skid_data>" +
+                        this.ActHdr.SkidInfo.CurrSkid.SkidCode +
+                        "</skid_data>" +
+                        "</params>"));
 
                 var responseData = SysCommon.SubmitComm(sendReq);
                 if (responseData.Contains("<message>ERROR</message>"))
@@ -271,13 +323,13 @@ namespace dMobile.Controller.Activity_Item
         /// </summary>
         /// <param name="data">.</param>
         /// <returns>.</returns>
-        public async override Task<string> CreateDeleteXml(XDocument data)
+        public override async Task<string> CreateDeleteXml(XDocument data)
         {
             var xmlString = new StringBuilder();
             var settings = new XmlWriterSettings
             {
                 Async = true,
-                Indent = false,
+                Indent = false
             };
             var xml = XmlWriter.Create(xmlString, settings);
 
@@ -285,18 +337,26 @@ namespace dMobile.Controller.Activity_Item
             if (data.Document.Root.Element("skid_data") == null)
             {
                 request = XDocument.Parse(
-                    "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
-                    + "<imclient>"
-                    + "<command>"
-                    + "<action>DELETE PURCHASE ORDER DETAIL SKID</action>"
-                    + "</command>"
-                    + await SysCommon.GetRequestDefaults(false)
-                    + "<skid_data>" + data.Root.Element("skid_data").Value + "</skid_data>"
-                    + "<whs_id>" + this.LocMap.WhsFkRefno + "</whs_id>"
-                    + "<refno>" + this.ActHdr.HdrFkRefno + "</refno>"
-                    + "<itm_refno>" + this.ItemFkRefno + "</itm_refno>"
-                    + "<is_negate_qty>false</is_negate_qty>"
-                    + "</imclient>");
+                    "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" +
+                    "<imclient>" +
+                    "<command>" +
+                    "<action>DELETE PURCHASE ORDER DETAIL SKID</action>" +
+                    "</command>" +
+                    await SysCommon.GetRequestDefaults(false) +
+                    "<skid_data>" +
+                    data.Root.Element("skid_data").Value +
+                    "</skid_data>" +
+                    "<whs_id>" +
+                    this.LocMap.WhsFkRefno +
+                    "</whs_id>" +
+                    "<refno>" +
+                    this.ActHdr.HdrFkRefno +
+                    "</refno>" +
+                    "<itm_refno>" +
+                    this.ItemFkRefno +
+                    "</itm_refno>" +
+                    "<is_negate_qty>false</is_negate_qty>" +
+                    "</imclient>");
             }
             else
             {
@@ -321,11 +381,13 @@ namespace dMobile.Controller.Activity_Item
 
             if (selectedActivityItem is ReceiveItem receiveItem)
             {
-                var results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<ActivityItemReceivingCommentModel>(
-                    "SELECT * FROM tActivityItemReceivingComment WHERE ActivityItemRefno = ?",
-                    receiveItem.ActivityItemRefno);
+                var results = await DatabaseConnection.GetInstance()
+                    .SqlConn.QueryAsync<ActivityItemReceivingCommentModel>(
+                        "SELECT * FROM tActivityItemReceivingComment WHERE ActivityItemRefno = ?",
+                        receiveItem.ActivityItemRefno);
 
-                if (results != null && results.Count > 0)
+                if (results != null &&
+                    results.Count > 0)
                 {
                     cmmt = results[0].ActivityItemReceivingCommentComment;
                 }
@@ -412,7 +474,6 @@ namespace dMobile.Controller.Activity_Item
         /// Insert a new adjustment activity item.
         /// </summary>
         /// <param name="data"><see cref="XDocument"/> Adjustment activity information to insert.</param>
-
         /// <returns><see cref="Task"/> Task operation.</returns>
         public override Task Insert(XDocument data)
         {
@@ -453,33 +514,130 @@ namespace dMobile.Controller.Activity_Item
         /// <param name="gridMainActivity">The GridMainActivity<see cref="Grid"/>.</param>
         /// <param name="listViewMainActivity">The ListViewMainActivity<see cref="ListView"/>.</param>
         /// <returns>The <see cref="ObservableCollection{object}"/>.</returns>
-        public override ObservableCollection<object> DesignGrid(ref Grid gridMainActivity, ref ListView listViewMainActivity)
+        public override ObservableCollection<object> DesignGrid(
+            ref Grid gridMainActivity,
+            ref ListView listViewMainActivity)
         {
-            var receiveItems = new ObservableCollection<object>();
+            this.PlaceNewItemsAtBottomOfList(this.ListItems);
+            var mainActivityItems = this.CreateObservableCollectionFromListItems(this.ListItems);
+            var gridItems = this.DefineGrid();
+            gridMainActivity.Children.Add(gridItems);
 
-            foreach (var receiveItem in this.ListItems.Cast<ReceiveItem>())
+            listViewMainActivity.ItemTemplate = (DataTemplate)this.ResourceDictionary["dataTemplateReceivingItem"];
+
+            return mainActivityItems;
+        }
+
+        /// <summary>
+        ///     Calculate the maximum data column widths.
+        /// </summary>
+        /// <param name="definition">Grid layout definition.</param>
+        /// <param name="itemsToMeasure">List of data items to measure in order to determine the max column width.</param>
+        public override void CalcMaxDataColWidth(Grid definition, List<object> itemsToMeasure)
+        {
+            var gridService = DependencyService.Get<IGridService>();
+            var columns = definition.ColumnDefinitions;
+            foreach (var item in itemsToMeasure)
             {
-                if (receiveItem.ActivityItemFKRefno >= 0)
+                this.CalcMaxDataColWidth(item, gridService, columns);
+            }
+        }
+
+        /// <summary>
+        ///    Calculate the maximum data column widths for one item.
+        /// </summary>
+        /// <param name="item">Item to compare to the max width.</param>
+        /// <param name="gridService">Grid service.</param>
+        /// <param name="columns">Column definitions to compare.</param>
+        public override void CalcMaxDataColWidth(
+            object item,
+            IGridService gridService,
+            ColumnDefinitionCollection columns)
+        {
+            var receiveItem = (ReceiveItem)item;
+
+            var detailWidths = new[]
+            {
+                gridService.CalculateTextWidth(receiveItem.IsActivityItemReceivingComment),
+                gridService.CalculateTextWidth(receiveItem.ProductCode),
+                gridService.CalculateTextWidth(receiveItem.ProductUnitBC),
+                gridService.CalculateTextWidth(receiveItem.UnitCode),
+                gridService.CalculateTextWidth($"{receiveItem.ActivityItemReceivingQuantityOrdered:F3}"),
+                gridService.CalculateTextWidth($"{receiveItem.ActivityItemReceivingQuantityReceived:F3}")
+            };
+
+            var columnWidths = new[] { this.columnWidth0, this.columnWidth1, this.columnWidth2, this.columnWidth3, this.columnWidth4, this.columnWidth5 };
+
+            for (var i = 0; i < detailWidths.Length; i++)
+            {
+                if (detailWidths[i] > columnWidths[i])
                 {
-                    receiveItems.Add(receiveItem);
+                    columnWidths[i] = detailWidths[i];
+                    columns[i].Width = new GridLength(columnWidths[i], GridUnitType.Absolute);
                 }
             }
 
-            // Add negative new line items to the bottom.
-            foreach (var receiveItem in this.ListItems.Cast<ReceiveItem>())
+            this.columnWidth0 = columnWidths[0];
+            this.columnWidth1 = columnWidths[1];
+            this.columnWidth2 = columnWidths[2];
+            this.columnWidth3 = columnWidths[3];
+            this.columnWidth4 = columnWidths[4];
+            this.columnWidth5 = columnWidths[5];
+        }
+
+        /// <summary>
+        ///     Create observable collection from list items.
+        /// </summary>
+        /// <param name="listItems">List of item objects.</param>
+        /// <returns>Created observable collection.</returns>
+        public override ObservableCollection<object> CreateObservableCollectionFromListItems(List<object> listItems)
+        {
+            // This code is optimized, it iterates over this.ListItems only once.
+            // It separates the list items into two lists, one for positive refno and one for negative refno.
+            // It then adds the positive refno items first, then the negative refno items.
+            // This is done to ensure that the negative refno items "new items" are displayed at the bottom of the list.
+            var mainActivityItems = new ObservableCollection<object>();
+            foreach (var item in listItems.Cast<ReceiveItem>())
             {
-                if (receiveItem.ActivityItemFKRefno < 0)
-                {
-                    receiveItems.Add(receiveItem);
-                }
+                mainActivityItems.Add(item);
             }
 
+            return mainActivityItems;
+        }
+
+        /// <summary>
+        ///     Sort the list items and place new items at the bottom of the list.
+        /// </summary>
+        /// <param name="listItems">List of items to sort.</param>
+        /// <remarks>
+        /// New items with negative foreign key item reference numbers will be placed at the bottom of
+        /// the new collection. The list items will not be sorted to match the new collection.
+        /// </remarks>
+        public override void PlaceNewItemsAtBottomOfList(List<object> listItems)
+        {
+            var sortedItems = listItems
+                .Cast<ReceiveItem>()
+                .OrderBy(item => item.ActivityItemFKRefno >= 0 ? 0 : 1)
+                .ThenBy(item => item.ActivityItemFKRefno)
+                .Cast<object>()
+                .ToList();
+
+            listItems.Clear();
+            listItems.AddRange(sortedItems);
+        }
+
+        /// <summary>
+        ///     Define the grid layout for the activity item.
+        /// </summary>
+        /// <returns>New grid layout.</returns>
+        public override Grid DefineGrid()
+        {
             var labelIsItemComment = new Label
             {
                 Text = "C",
                 VerticalOptions = LayoutOptions.Center,
                 HorizontalOptions = LayoutOptions.Start,
-                FontAttributes = FontAttributes.Bold,
+                FontAttributes = FontAttributes.Bold
             };
             this.columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelIsItemComment.Text);
 
@@ -488,7 +646,7 @@ namespace dMobile.Controller.Activity_Item
                 Text = "Product ID",
                 VerticalOptions = LayoutOptions.Center,
                 HorizontalOptions = LayoutOptions.Start,
-                FontAttributes = FontAttributes.Bold,
+                FontAttributes = FontAttributes.Bold
             };
             this.columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelProductCode.Text);
 
@@ -497,7 +655,7 @@ namespace dMobile.Controller.Activity_Item
                 Text = string.Empty,
                 VerticalOptions = LayoutOptions.Center,
                 HorizontalOptions = LayoutOptions.Start,
-                FontAttributes = FontAttributes.Bold,
+                FontAttributes = FontAttributes.Bold
             };
             this.columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelProductUnitBc.Text);
 
@@ -506,7 +664,7 @@ namespace dMobile.Controller.Activity_Item
                 Text = string.Empty,
                 VerticalOptions = LayoutOptions.Center,
                 HorizontalOptions = LayoutOptions.Start,
-                FontAttributes = FontAttributes.Bold,
+                FontAttributes = FontAttributes.Bold
             };
             this.columnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelUnitCode.Text);
 
@@ -515,7 +673,7 @@ namespace dMobile.Controller.Activity_Item
                 Text = "Ordered",
                 VerticalOptions = LayoutOptions.Center,
                 HorizontalOptions = LayoutOptions.Start,
-                FontAttributes = FontAttributes.Bold,
+                FontAttributes = FontAttributes.Bold
             };
             this.columnWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(labelQuantityOrdered.Text);
 
@@ -524,7 +682,7 @@ namespace dMobile.Controller.Activity_Item
                 Text = "Received",
                 VerticalOptions = LayoutOptions.Center,
                 HorizontalOptions = LayoutOptions.Start,
-                FontAttributes = FontAttributes.Bold,
+                FontAttributes = FontAttributes.Bold
             };
             this.columnWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(labelQuantityReceived.Text);
 
@@ -539,8 +697,8 @@ namespace dMobile.Controller.Activity_Item
                     new ColumnDefinition { Width = new GridLength(this.columnWidth2, GridUnitType.Absolute) },
                     new ColumnDefinition { Width = new GridLength(this.columnWidth3, GridUnitType.Absolute) },
                     new ColumnDefinition { Width = new GridLength(this.columnWidth4, GridUnitType.Absolute) },
-                    new ColumnDefinition { Width = new GridLength(this.columnWidth5, GridUnitType.Absolute) },
-                },
+                    new ColumnDefinition { Width = new GridLength(this.columnWidth5, GridUnitType.Absolute) }
+                }
             };
 
             gridItems.SetDynamicResource(VisualElement.BackgroundColorProperty, "HeaderColor");
@@ -560,86 +718,7 @@ namespace dMobile.Controller.Activity_Item
             Grid.SetColumn(labelQuantityReceived, 5);
 
             Grid.SetRow(gridItems, 0);
-
-            gridMainActivity.Children.Add(gridItems);
-
-            foreach (var receiveItem in receiveItems.Cast<ReceiveItem>())
-            {
-                var detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(
-                    receiveItem.IsActivityItemReceivingComment);
-                var detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(receiveItem.ProductCode);
-                var detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(receiveItem.ProductUnitBC);
-                var detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(receiveItem.UnitCode);
-                var detailWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(
-                    $"{receiveItem.ActivityItemReceivingQuantityOrdered:F3}");
-                var detailWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(
-                    $"{receiveItem.ActivityItemReceivingQuantityReceived:F3}");
-
-                if (detailWidth0 > this.columnWidth0)
-                {
-                    this.columnWidth0 = detailWidth0;
-                    gridItems.ColumnDefinitions[0].Width = this.columnWidth0;
-                }
-
-                if (detailWidth1 > this.columnWidth1)
-                {
-                    this.columnWidth1 = detailWidth1;
-                    gridItems.ColumnDefinitions[1].Width = this.columnWidth1;
-                }
-
-                if (detailWidth2 > this.columnWidth2)
-                {
-                    this.columnWidth2 = detailWidth2;
-                    gridItems.ColumnDefinitions[2].Width = this.columnWidth2;
-                }
-
-                if (detailWidth3 > this.columnWidth3)
-                {
-                    this.columnWidth3 = detailWidth3;
-                    gridItems.ColumnDefinitions[3].Width = this.columnWidth3;
-                }
-
-                if (detailWidth4 > this.columnWidth4)
-                {
-                    this.columnWidth4 = detailWidth4;
-                    gridItems.ColumnDefinitions[4].Width = this.columnWidth4;
-                }
-
-                if (detailWidth5 > this.columnWidth5)
-                {
-                    this.columnWidth5 = detailWidth5;
-                    gridItems.ColumnDefinitions[5].Width = this.columnWidth5;
-                }
-            }
-
-            listViewMainActivity.ItemTemplate = (DataTemplate)this.resourceDictionary["dataTemplateReceivingItem"];
-
-            return receiveItems;
-        }
-
-        public override Grid DesignGrid()
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        ///     Create and fill the data template.
-        /// </summary>
-        /// <param name="gridMainActivity"><see cref="Grid"/> Main activity grid.</param>
-        public override void FillDataTemplate(Grid gridMainActivity)
-        {
-            throw new NotImplementedException();
-        }
-
-
-        public override DataTemplate GetDataTemplate()
-        {
-            throw new NotImplementedException();
-        }
-
-        public override ObservableCollection<object> GetActivityItemList()
-        {
-            throw new NotImplementedException();
+            return gridItems;
         }
 
         /// <summary>
@@ -675,15 +754,20 @@ namespace dMobile.Controller.Activity_Item
                 sql.Append("- recvItem.ActivityItemReceivingWeightQuantityReceivedToDate ");
                 sql.Append("AS ActivityItemReceivingWeightQuantityOrdered,");
                 sql.Append("recvItem.ActivityItemReceivingQuantityReceived AS ActivityItemReceivingQuantityReceived,");
-                sql.Append("recvItem.ActivityItemReceivingBaseQuantityReceived AS ActivityItemReceivingBaseQuantityReceived,");
-                sql.Append("recvItem.ActivityItemReceivingWeightQuantityReceived AS ActivityItemReceivingWeightQuantityReceived,");
-                sql.Append("recvItem.ActivityItemReceivingVendorProductUnitCode AS ActivityItemReceivingVendorProductUnitCode,");
+                sql.Append(
+                    "recvItem.ActivityItemReceivingBaseQuantityReceived AS ActivityItemReceivingBaseQuantityReceived,");
+                sql.Append(
+                    "recvItem.ActivityItemReceivingWeightQuantityReceived AS ActivityItemReceivingWeightQuantityReceived,");
+                sql.Append(
+                    "recvItem.ActivityItemReceivingVendorProductUnitCode AS ActivityItemReceivingVendorProductUnitCode,");
                 sql.Append("recvItem.ActivityItemReceivingDescription AS ActivityItemReceivingDescription,");
                 sql.Append("whs.LocationMapRefno AS LocationMapRefno,");
                 sql.Append("whs.LocationMapWarehouseCode AS LocationCode,");
                 sql.Append("whs.LocationMapWarehouseName AS LocationName,");
-                sql.Append("recvItem.ActivityItemReceivingQuantityReceivedToDate AS ActivityItemReceivingQuantityReceivedToDate,");
-                sql.Append("recvItem.ActivityItemReceivingWeightQuantityReceivedToDate AS ActivityItemReceivingWeightQuantityReceivedToDate,");
+                sql.Append(
+                    "recvItem.ActivityItemReceivingQuantityReceivedToDate AS ActivityItemReceivingQuantityReceivedToDate,");
+                sql.Append(
+                    "recvItem.ActivityItemReceivingWeightQuantityReceivedToDate AS ActivityItemReceivingWeightQuantityReceivedToDate,");
                 sql.Append("CASE WHEN itemComment.ActivityItemReceivingCommentComment IS NULL ");
                 sql.Append("THEN \' \' ELSE \'*\' END AS IsActivityItemReceivingComment,");
                 sql.Append("tActivityItem.ActivityItemStatus AS ActivityItemStatus ");
@@ -699,8 +783,12 @@ namespace dMobile.Controller.Activity_Item
                 sql.Append("LEFT JOIN tActivityItemReceivingComment itemComment ON itemComment.ActivityItemRefno = ");
                 sql.Append("recvItem.ActivityItemRefno ");
                 sql.AppendFormat("WHERE tActivityItem.ActivityRefno = {0} ", this.ActHdr.HdrRefno);
-                sql.AppendFormat("AND tActivityItem.ActivityItemSubType = {0} ", Convert.ToInt32(SysCommon.ActSubTypes.Receiving));
-                sql.AppendFormat("AND tActivityItem.ActivityItemStatus <> {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
+                sql.AppendFormat(
+                    "AND tActivityItem.ActivityItemSubType = {0} ",
+                    Convert.ToInt32(SysCommon.ActSubTypes.Receiving));
+                sql.AppendFormat(
+                    "AND tActivityItem.ActivityItemStatus <> {0} ",
+                    Convert.ToInt32(SysCommon.ActStatus.NoChange));
                 sql.Append("UNION ");
                 sql.Append("SELECT recvItem.ActivityItemRefno,");
                 sql.Append("recvItem.ActivityItemFKRefno,");
@@ -748,10 +836,18 @@ namespace dMobile.Controller.Activity_Item
                 sql.Append("LEFT JOIN tActivityItemReceivingComment itemComment ON itemComment.ActivityItemRefno = ");
                 sql.Append("recvItem.ActivityItemRefno ");
                 sql.AppendFormat("WHERE tActivityItem.ActivityRefno = {0} ", this.ActHdr.HdrRefno);
-                sql.AppendFormat("AND tActivityItem.ActivityItemStatus = {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
-                sql.AppendFormat("AND tActivityDetail.ActivityDetailStatus <> {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
-                sql.AppendFormat("AND tActivityItem.ActivityItemSubType = {0} ", Convert.ToInt32(SysCommon.ActSubTypes.Receiving));
-                sql.AppendFormat("AND tActivityDetail.ActivityDetailSubType = {0} ", Convert.ToInt32(SysCommon.ActSubTypes.Receiving));
+                sql.AppendFormat(
+                    "AND tActivityItem.ActivityItemStatus = {0} ",
+                    Convert.ToInt32(SysCommon.ActStatus.NoChange));
+                sql.AppendFormat(
+                    "AND tActivityDetail.ActivityDetailStatus <> {0} ",
+                    Convert.ToInt32(SysCommon.ActStatus.NoChange));
+                sql.AppendFormat(
+                    "AND tActivityItem.ActivityItemSubType = {0} ",
+                    Convert.ToInt32(SysCommon.ActSubTypes.Receiving));
+                sql.AppendFormat(
+                    "AND tActivityDetail.ActivityDetailSubType = {0} ",
+                    Convert.ToInt32(SysCommon.ActSubTypes.Receiving));
                 sql.Append("ORDER BY recvItem.ActivityItemRefno");
             }
             else
@@ -776,15 +872,20 @@ namespace dMobile.Controller.Activity_Item
                 sql.Append("recvItem.ActivityItemReceivingWeightQuantityReceivedToDate AS ");
                 sql.Append("ActivityItemReceivingWeightQuantityOrdered,");
                 sql.Append("recvItem.ActivityItemReceivingQuantityReceived AS ActivityItemReceivingQuantityReceived,");
-                sql.Append("recvItem.ActivityItemReceivingBaseQuantityReceived AS ActivityItemReceivingBaseQuantityReceived,");
-                sql.Append("recvItem.ActivityItemReceivingWeightQuantityReceived AS ActivityItemReceivingWeightQuantityReceived,");
-                sql.Append("recvItem.ActivityItemReceivingVendorProductUnitCode AS ActivityItemReceivingVendorProductUnitCode,");
+                sql.Append(
+                    "recvItem.ActivityItemReceivingBaseQuantityReceived AS ActivityItemReceivingBaseQuantityReceived,");
+                sql.Append(
+                    "recvItem.ActivityItemReceivingWeightQuantityReceived AS ActivityItemReceivingWeightQuantityReceived,");
+                sql.Append(
+                    "recvItem.ActivityItemReceivingVendorProductUnitCode AS ActivityItemReceivingVendorProductUnitCode,");
                 sql.Append("recvItem.ActivityItemReceivingDescription AS ActivityItemReceivingDescription,");
                 sql.Append("whs.LocationMapRefno AS LocationMapRefno,");
                 sql.Append("whs.LocationMapWarehouseCode AS LocationCode,");
                 sql.Append("whs.LocationMapWarehouseName AS LocationName,");
-                sql.Append("recvItem.ActivityItemReceivingQuantityReceivedToDate AS ActivityItemReceivingQuantityReceivedToDate,");
-                sql.Append("recvItem.ActivityItemReceivingWeightQuantityReceivedToDate AS ActivityItemReceivingWeightQuantityReceivedToDate,");
+                sql.Append(
+                    "recvItem.ActivityItemReceivingQuantityReceivedToDate AS ActivityItemReceivingQuantityReceivedToDate,");
+                sql.Append(
+                    "recvItem.ActivityItemReceivingWeightQuantityReceivedToDate AS ActivityItemReceivingWeightQuantityReceivedToDate,");
                 sql.Append("CASE WHEN itemComment.ActivityItemReceivingCommentComment IS NULL THEN \' \' ");
                 sql.Append("ELSE \'*\' END AS IsActivityItemReceivingComment ");
                 sql.Append("FROM tActivityItemReceiving recvItem ");
@@ -802,7 +903,8 @@ namespace dMobile.Controller.Activity_Item
                 sql.Append("ORDER BY recvItem.ActivityItemRefno");
             }
 
-            this.ListReceiveItems = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<ReceiveItem>(sql.ToString());
+            this.ListReceiveItems =
+                await DatabaseConnection.GetInstance().SqlConn.QueryAsync<ReceiveItem>(sql.ToString());
             this.ListItems = this.ListReceiveItems.Cast<object>().ToList();
             return this.ListItems;
         }
@@ -816,8 +918,10 @@ namespace dMobile.Controller.Activity_Item
         {
             var observableCollection = new ObservableCollection<object>();
 
-            this.ListItems = this.ListReceiveItems.Where(receiveItem => receiveItem.ProductCode.ToLower().Contains(
-                searchText.ToLower().Trim())).Cast<object>().ToList();
+            this.ListItems = this.ListReceiveItems
+                .Where(receiveItem => receiveItem.ProductCode.ToLower().Contains(searchText.ToLower().Trim()))
+                .Cast<object>()
+                .ToList();
 
             foreach (var receiveItem in this.ListItems.Cast<ReceiveItem>())
             {
@@ -869,7 +973,7 @@ namespace dMobile.Controller.Activity_Item
                     if (this.LocMap.WhsLocMapRefno == 0)
                     {
                         // We need to have at least a location with a warehouse.
-                        var defLocMapRefno = LocationMapTasks.DefaultLocMapRefnoToWhsIfUnassigned(locationMapRefno: 0);
+                        var defLocMapRefno = LocationMapTasks.DefaultLocMapRefnoToWhsIfUnassigned(0);
                         this.LocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(defLocMapRefno);
                     }
                 }
@@ -925,11 +1029,13 @@ namespace dMobile.Controller.Activity_Item
 
             var results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<ReceiveItem>(sql.ToString());
 
-            if (results != null && results.Count > 0)
+            if (results != null &&
+                results.Count > 0)
             {
                 this.ItemRefno = Convert.ToInt32(results[0].ActivityItemRefno);
                 this.ItemFkRefno = Convert.ToInt32(results[0].ActivityItemFKRefno);
-                this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(Convert.ToInt32(results[0].ProductUnitRefno));
+                this.ProdInfo =
+                    await ProductInfoTasks.GetInfoFromUnitRefno(Convert.ToInt32(results[0].ProductUnitRefno));
                 this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
                 foundActItemRefno = this.ItemRefno;
             }
@@ -937,7 +1043,8 @@ namespace dMobile.Controller.Activity_Item
             {
                 foreach (var item in this.ListReceiveItems)
                 {
-                    if (item.LocationMapRefno == locMap.WhsLocMapRefno && item.ProductUnitRefno == prodUnitRefno)
+                    if (item.LocationMapRefno == locMap.WhsLocMapRefno &&
+                        item.ProductUnitRefno == prodUnitRefno)
                     {
                         this.ItemRefno = item.ActivityItemRefno;
                         this.ItemFkRefno = item.ActivityItemFKRefno;
@@ -957,13 +1064,13 @@ namespace dMobile.Controller.Activity_Item
         /// </summary>
         /// <param name="data">.</param>
         /// <returns>.</returns>
-        public async override Task<string> CreateSubmitXml(XDocument data)
+        public override async Task<string> CreateSubmitXml(XDocument data)
         {
             var xmlString = new StringBuilder();
             var settings = new XmlWriterSettings
             {
                 Async = true,
-                Indent = false,
+                Indent = false
             };
             var xml = XmlWriter.Create(xmlString, settings);
 
@@ -974,20 +1081,29 @@ namespace dMobile.Controller.Activity_Item
             var symbologyPrefix = data.Root.Element("ProductUnitBarCodeSymbologyPrefix").Value;
 
             var request = XDocument.Parse(
-                "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
-                + "<imclient>"
-                + "<command>"
-                + "<action>SUBMIT RECEIVING ITEM</action>"
-                + "</command>"
-                + await SysCommon.GetRequestDefaults(false)
-                + "<prod_id>" + prodCode + "</prod_id>"
-                + "<is_bc>" + prodUnitIsBc.ToString() + "</is_bc>"
-                + "<symbology>" + symbologyPrefix + "</symbology>"
-                + "<gtin>" + prodUnitBarCodeCode + "</gtin>" + "<whs_id></whs_id>"
-                + "<sect_refno></sect_refno>"
-                + "<slot_refno></slot_refno>"
-                + "<refno></refno>"
-                + "</imclient>");
+                "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" +
+                "<imclient>" +
+                "<command>" +
+                "<action>SUBMIT RECEIVING ITEM</action>" +
+                "</command>" +
+                await SysCommon.GetRequestDefaults(false) +
+                "<prod_id>" +
+                prodCode +
+                "</prod_id>" +
+                "<is_bc>" +
+                prodUnitIsBc.ToString() +
+                "</is_bc>" +
+                "<symbology>" +
+                symbologyPrefix +
+                "</symbology>" +
+                "<gtin>" +
+                prodUnitBarCodeCode +
+                "</gtin>" +
+                "<whs_id></whs_id>" +
+                "<sect_refno></sect_refno>" +
+                "<slot_refno></slot_refno>" +
+                "<refno></refno>" +
+                "</imclient>");
 
             request.Save(xml);
             await xml.FlushAsync();
@@ -1055,7 +1171,7 @@ namespace dMobile.Controller.Activity_Item
                     receiveItem.ActivityItemReceivingQuantityReceived,
                     receiveItem.ActivityItemReceivingBaseQuantityReceived,
                     receiveItem.ActivityItemReceivingWeightQuantityReceived,
-                    receiveItem.ActivityItemRefno,
+                    receiveItem.ActivityItemRefno
                 };
 
                 await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync(query, parameters);
@@ -1069,17 +1185,18 @@ namespace dMobile.Controller.Activity_Item
         public override async Task<string> GetTotalQuantity()
         {
             var msg = "Total received:";
-            var query = "SELECT SUM(tActivityItemReceiving.ActivityItemReceivingQuantityOrdered) AS "
-                        + "Ordered,"
-                        + "SUM(tActivityItemReceiving.ActivityItemReceivingQuantityReceived) AS Received "
-                        + "FROM tActivityItem "
-                        + "INNER JOIN tActivityItemReceiving ON tActivityItemReceiving.ActivityItemRefno = "
-                        + "tActivityItem.ActivityItemRefno "
-                        + $"WHERE tActivityItem.ActivityRefno = {this.ActHdr.HdrRefno}";
+            var query = "SELECT SUM(tActivityItemReceiving.ActivityItemReceivingQuantityOrdered) AS " +
+                        "Ordered," +
+                        "SUM(tActivityItemReceiving.ActivityItemReceivingQuantityReceived) AS Received " +
+                        "FROM tActivityItem " +
+                        "INNER JOIN tActivityItemReceiving ON tActivityItemReceiving.ActivityItemRefno = " +
+                        "tActivityItem.ActivityItemRefno " +
+                        $"WHERE tActivityItem.ActivityRefno = {this.ActHdr.HdrRefno}";
 
             var results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<TotalQuantity>(query);
 
-            if (results != null && results.Count > 0)
+            if (results != null &&
+                results.Count > 0)
             {
                 foreach (var result in results)
                 {
@@ -1103,8 +1220,9 @@ namespace dMobile.Controller.Activity_Item
             await base.IsReadyToApply(data);
 
             // New items are identified with 0 < this.FkRefno, do not validate.
-            if (this.SysEnv.SysSettings.RecvQtyOverWarn != SysCommon.ActReceivingQtyOverValLevels.NoValidationOrWarning
-                && this.ItemFkRefno > 0)
+            if (this.SysEnv.SysSettings.RecvQtyOverWarn !=
+                SysCommon.ActReceivingQtyOverValLevels.NoValidationOrWarning &&
+                this.ItemFkRefno > 0)
             {
                 try
                 {
@@ -1116,12 +1234,13 @@ namespace dMobile.Controller.Activity_Item
                     {
                         case SysCommon.ActReceivingQtyOverValLevels.ValidateWarnAndContinue:
 
-                            if (await Device.InvokeOnMainThreadAsync(async () =>
-                                await Application.Current.MainPage.DisplayAlert(
-                                    "Quantity Over",
-                                    ex.Message + Environment.NewLine + "Continue?",
-                                    "Yes",
-                                    "No")))
+                            if (await Device.InvokeOnMainThreadAsync(
+                                    async () =>
+                                        await Application.Current.MainPage.DisplayAlert(
+                                            "Quantity Over",
+                                            ex.Message + Environment.NewLine + "Continue?",
+                                            "Yes",
+                                            "No")))
                             {
                                 throw new IsReadyToApplyException(ex.Message, true, true);
                             }
@@ -1150,7 +1269,8 @@ namespace dMobile.Controller.Activity_Item
 
                 if (received + actItemRecvQuantity > ordered)
                 {
-                    throw new Exception($"The resulting quantity received {received + actItemRecvQuantity}" +
+                    throw new Exception(
+                        $"The resulting quantity received {received + actItemRecvQuantity}" +
                         $" {this.ProdInfo.UnitCode} will be greater than the quantity ordered {ordered}" +
                         $" {this.ProdInfo.UnitCode}.");
                 }
@@ -1223,6 +1343,12 @@ namespace dMobile.Controller.Activity_Item
         public override XDocument CreateDump()
         {
             throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public override DataTemplate GetDataTemplate()
+        {
+            return (DataTemplate)this.ResourceDictionary["dataTemplateReceivingItem"];
         }
     }
 }

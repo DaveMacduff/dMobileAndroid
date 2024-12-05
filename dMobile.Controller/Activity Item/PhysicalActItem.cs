@@ -35,69 +35,94 @@ namespace dMobile.Controller.Activity_Item
             this.IsAllowAddItem = this.SysEnv.SysSettings.AllowAddProduct2Physical;
             this.IsAskCreateNewItem = !this.SysEnv.SysSettings.IsPhysicalCreateNewItemNoAsk;
 
-            // Create item template
-            var dataTemplate = new DataTemplate(() =>
+            DefineInitialGrid();
+            return;
+
+            ///////////////////////////////////////////////////////////
+            void DefineInitialGrid()
             {
-                var gridData = new Grid
-                {
-                    Padding = new Thickness(5),
-                    ColumnDefinitions =
+                var dataTemplate = new DataTemplate(
+                    () =>
                     {
-                        new ColumnDefinition { Width = new GridLength(this.ColumnWidth0, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(this.ColumnWidth1, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(this.ColumnWidth2, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(this.ColumnWidth3, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(this.ColumnWidth4, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(this.ColumnWidth5, GridUnitType.Absolute) },
-                    },
-                };
+                        var gridData = new Grid
+                        {
+                            Padding = new Thickness(5),
+                            ColumnDefinitions =
+                            {
+                                new ColumnDefinition
+                                    { Width = new GridLength(this.ColumnWidth0, GridUnitType.Absolute) },
+                                new ColumnDefinition
+                                    { Width = new GridLength(this.ColumnWidth1, GridUnitType.Absolute) },
+                                new ColumnDefinition
+                                    { Width = new GridLength(this.ColumnWidth2, GridUnitType.Absolute) },
+                                new ColumnDefinition
+                                    { Width = new GridLength(this.ColumnWidth3, GridUnitType.Absolute) },
+                                new ColumnDefinition
+                                    { Width = new GridLength(this.ColumnWidth4, GridUnitType.Absolute) },
+                                new ColumnDefinition
+                                    { Width = new GridLength(this.ColumnWidth5, GridUnitType.Absolute) }
+                            }
+                        };
 
-                var labelProductCode = new Label { VerticalOptions = LayoutOptions.Center };
-                var labelProductUnitBc = new Label { VerticalOptions = LayoutOptions.Center };
-                var labelUnitCode = new Label { VerticalOptions = LayoutOptions.Center };
-                var labelActivityItemCountQuantityOnHand = new Label { VerticalOptions = LayoutOptions.Center };
-                var labelActivityItemCountQuantity = new Label { VerticalOptions = LayoutOptions.Center };
-                var labelActivityItemCountWeightQuantityOnHand = new Label { VerticalOptions = LayoutOptions.Center };
+                        var labelProductCode = new Label { VerticalOptions = LayoutOptions.Center };
+                        var labelProductUnitBc = new Label { VerticalOptions = LayoutOptions.Center };
+                        var labelUnitCode = new Label { VerticalOptions = LayoutOptions.Center };
+                        var labelActivityItemCountQuantityOnHand = new Label { VerticalOptions = LayoutOptions.Center };
+                        var labelActivityItemCountQuantity = new Label { VerticalOptions = LayoutOptions.Center };
+                        var labelActivityItemCountWeightQuantityOnHand =
+                            new Label { VerticalOptions = LayoutOptions.Center };
 
-                // Set label bindings
-                labelProductCode.SetBinding(Label.TextProperty, new Binding("ProductCode"));
-                labelProductUnitBc.SetBinding(Label.TextProperty, new Binding("ProductUnitBC"));
-                labelUnitCode.SetBinding(Label.TextProperty, new Binding("UnitCode"));
-                labelActivityItemCountQuantityOnHand.SetBinding(Label.TextProperty, new Binding("ActivityItemCountQuantityOnHand", BindingMode.Default, null, null, "{0:F3}"));
-                labelActivityItemCountQuantity.SetBinding(Label.TextProperty, new Binding("ActivityItemCountQuantity", BindingMode.Default, null, null, "{0:F3}"));
-                labelActivityItemCountWeightQuantityOnHand.SetBinding(Label.TextProperty, new Binding("ActivityItemCountWeightQuantityOnHand", BindingMode.Default, null, null, "{0:F3}"));
+                        // Set label bindings
+                        labelProductCode.SetBinding(Label.TextProperty, new Binding("ProductCode"));
+                        labelProductUnitBc.SetBinding(Label.TextProperty, new Binding("ProductUnitBC"));
+                        labelUnitCode.SetBinding(Label.TextProperty, new Binding("UnitCode"));
+                        labelActivityItemCountQuantityOnHand.SetBinding(
+                            Label.TextProperty,
+                            new Binding("ActivityItemCountQuantityOnHand", BindingMode.Default, null, null, "{0:F3}"));
+                        labelActivityItemCountQuantity.SetBinding(
+                            Label.TextProperty,
+                            new Binding("ActivityItemCountQuantity", BindingMode.Default, null, null, "{0:F3}"));
+                        labelActivityItemCountWeightQuantityOnHand.SetBinding(
+                            Label.TextProperty,
+                            new Binding(
+                                "ActivityItemCountWeightQuantityOnHand",
+                                BindingMode.Default,
+                                null,
+                                null,
+                                "{0:F3}"));
 
-                // Add labels to grid
-                gridData.Children.Add(labelProductCode);
-                gridData.Children.Add(labelProductUnitBc);
-                gridData.Children.Add(labelUnitCode);
-                gridData.Children.Add(labelActivityItemCountQuantityOnHand);
-                gridData.Children.Add(labelActivityItemCountQuantity);
-                gridData.Children.Add(labelActivityItemCountWeightQuantityOnHand);
+                        // Add labels to grid
+                        gridData.Children.Add(labelProductCode);
+                        gridData.Children.Add(labelProductUnitBc);
+                        gridData.Children.Add(labelUnitCode);
+                        gridData.Children.Add(labelActivityItemCountQuantityOnHand);
+                        gridData.Children.Add(labelActivityItemCountQuantity);
+                        gridData.Children.Add(labelActivityItemCountWeightQuantityOnHand);
 
-                // Set label columns
-                Grid.SetColumn(labelProductCode, 0);
-                Grid.SetColumn(labelProductUnitBc, 1);
-                Grid.SetColumn(labelUnitCode, 2);
-                Grid.SetColumn(labelActivityItemCountQuantityOnHand, 3);
-                Grid.SetColumn(labelActivityItemCountQuantity, 4);
-                Grid.SetColumn(labelActivityItemCountWeightQuantityOnHand, 5);
+                        // Set label columns
+                        Grid.SetColumn(labelProductCode, 0);
+                        Grid.SetColumn(labelProductUnitBc, 1);
+                        Grid.SetColumn(labelUnitCode, 2);
+                        Grid.SetColumn(labelActivityItemCountQuantityOnHand, 3);
+                        Grid.SetColumn(labelActivityItemCountQuantity, 4);
+                        Grid.SetColumn(labelActivityItemCountWeightQuantityOnHand, 5);
 
-                return new ViewCell { View = gridData };
-            });
+                        return new ViewCell { View = gridData };
+                    });
 
-            var isAddKey = true;
-            foreach (var item in this.ResourceDictionary)
-            {
-                if (item.Key == "dataTemplatePhysicalCountItem")
+                var isAddKey = true;
+                foreach (var item in this.ResourceDictionary)
                 {
-                    isAddKey = false;
+                    if (item.Key == "dataTemplatePhysicalCountItem")
+                    {
+                        isAddKey = false;
+                    }
                 }
-            }
 
-            if (isAddKey)
-            {
-                this.ResourceDictionary.Add("dataTemplatePhysicalCountItem", dataTemplate);
+                if (isAddKey)
+                {
+                    this.ResourceDictionary.Add("dataTemplatePhysicalCountItem", dataTemplate);
+                }
             }
         }
 
@@ -130,11 +155,6 @@ namespace dMobile.Controller.Activity_Item
         /// Gets or sets the grid column 5 width.
         /// </summary>
         public double ColumnWidth5 { get; set; } = default(double);
-
-        /// <summary>
-        /// Gets or sets the resource dictionary.
-        /// </summary>
-        public ResourceDictionary ResourceDictionary { get; set; } = new ResourceDictionary();
 
         /// <summary>
         /// Gets or sets the list of count items.
@@ -418,7 +438,7 @@ namespace dMobile.Controller.Activity_Item
                 this.DataLayerProgressOutHandler(this, EventArgs.Empty, 5);
 
                 tableItem.RegisterDataAccessListenerProgressOut(this);
-                await tableItem.RequestItemData(this.ActHdr.HdrRefno, this.ActHdr.HdrFkRefno);
+                await tableItem.RequestItemData(this.ActHdr.HdrFkRefno, this.ActHdr.HdrRefno);
                 tableItem.UnregisterDataAccessListenerProgressOut(this);
             }
         }
@@ -429,31 +449,149 @@ namespace dMobile.Controller.Activity_Item
         /// <param name="gridMainActivity">The GridMainActivity<see cref="Grid"/>.</param>
         /// <param name="listViewMainActivity">The ListViewMainActivity<see cref="ListView"/>.</param>
         /// <returns>The <see cref="ObservableCollection{object}"/>.</returns>
-        public override ObservableCollection<object> DesignGrid(ref Grid gridMainActivity, ref ListView listViewMainActivity)
+        public override ObservableCollection<object> DesignGrid(
+            ref Grid gridMainActivity,
+            ref ListView listViewMainActivity)
         {
-            var observableCollection = new ObservableCollection<object>();
+            this.PlaceNewItemsAtBottomOfList(this.ListItems);
+            var mainActivityItems = this.CreateObservableCollectionFromListItems(this.ListItems);
+            var gridItems = this.DefineGrid();
+            this.CalcMaxDataColWidth(gridItems, this.ListItems);
+            gridMainActivity.Children.Add(gridItems);
 
-            // Add all items in data view to observable collection for display
-            foreach (var countItem in this.ListItems.Cast<CountItem>())
+            listViewMainActivity.ItemTemplate = (DataTemplate)this.ResourceDictionary["dataTemplatePhysicalCountItem"];
+
+            return mainActivityItems;
+        }
+
+        /// <summary>
+        ///     Calculate the maximum data column widths.
+        /// </summary>
+        /// <param name="definition">Grid layout definition.</param>
+        /// <param name="itemsToMeasure">List of data items to measure in order to determine the max column width.</param>
+        public override void CalcMaxDataColWidth(Grid definition, List<object> itemsToMeasure)
+        {
+            var gridService = DependencyService.Get<IGridService>();
+            var columns = definition.ColumnDefinitions;
+            foreach (var item in itemsToMeasure)
             {
-                observableCollection.Add(countItem);
+                this.CalcMaxDataColWidth(item, gridService, columns);
+            }
+        }
+
+        /// <summary>
+        ///    Calculate the maximum data column widths for one item.
+        /// </summary>
+        /// <param name="item">Item to compare to the max width.</param>
+        /// <param name="gridService">Grid service.</param>
+        /// <param name="columns">Column definitions to compare.</param>
+        public override void CalcMaxDataColWidth(
+            object item,
+            IGridService gridService,
+            ColumnDefinitionCollection columns)
+        {
+            var countItem = item as CountItem;
+            var detailWidths = new[]
+            {
+                gridService.CalculateTextWidth(countItem.ProductCode),
+                gridService.CalculateTextWidth(countItem.ProductUnitBC),
+                gridService.CalculateTextWidth(countItem.UnitCode),
+                gridService.CalculateTextWidth($"{countItem.ActivityItemCountQuantityOnHand:F3}"),
+                gridService.CalculateTextWidth($"{countItem.ActivityItemCountQuantity:F3}"),
+                gridService.CalculateTextWidth($"{countItem.ActivityItemCountWeightQuantityOnHand:F3}")
+            };
+
+            var columnWidths = new[]
+            {
+                this.ColumnWidth0, this.ColumnWidth1, this.ColumnWidth2, this.ColumnWidth3, this.ColumnWidth4,
+                this.ColumnWidth5
+            };
+
+            for (var i = 0; i < detailWidths.Length; i++)
+            {
+                if (detailWidths[i] > columnWidths[i])
+                {
+                    columnWidths[i] = detailWidths[i];
+                    columns[i].Width = new GridLength(columnWidths[i], GridUnitType.Absolute);
+                }
             }
 
-            var labelPhysicalCountCode = new Label { Text = "Code", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            var labelPhysicalCountBc = new Label { Text = "BC", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            var labelPhysicalCountUnit = new Label { Text = "Unit", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            var labelPhysicalCountOnHand = new Label { Text = "On Hand", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            var labelPhysicalCountCounted = new Label { Text = "Counted", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            var labelPhysicalCountWtOn = new Label { Text = "Wt On", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            this.ColumnWidth0 = columnWidths[0];
+            this.ColumnWidth1 = columnWidths[1];
+            this.ColumnWidth2 = columnWidths[2];
+            this.ColumnWidth3 = columnWidths[3];
+            this.ColumnWidth4 = columnWidths[4];
+            this.ColumnWidth5 = columnWidths[5];
+        }
 
-            this.ColumnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelPhysicalCountCode.Text);
-            this.ColumnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelPhysicalCountBc.Text);
-            this.ColumnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelPhysicalCountUnit.Text);
-            this.ColumnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelPhysicalCountOnHand.Text);
-            this.ColumnWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(labelPhysicalCountCounted.Text);
-            this.ColumnWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(labelPhysicalCountWtOn.Text);
+        /// <summary>
+        ///     Create observable collection from list items.
+        /// </summary>
+        /// <param name="listItems">List of item objects.</param>
+        /// <returns>Created observable collection.</returns>
+        public override ObservableCollection<object> CreateObservableCollectionFromListItems(List<object> listItems)
+        {
+            // This code is optimized, it iterates over this.ListItems only once.
+            // It separates the list items into two lists, one for positive refno and one for negative refno.
+            // It then adds the positive refno items first, then the negative refno items.
+            // This is done to ensure that the negative refno items "new items" are displayed at the bottom of the list.
+            var mainActivityItems = new ObservableCollection<object>();
+            foreach (var item in listItems.Cast<CountItem>())
+            {
+                mainActivityItems.Add(item);
+            }
 
-            var gridHeaderPhysicalCount = new Grid
+            return mainActivityItems;
+        }
+
+        /// <summary>
+        ///     Sort the list items and place new items at the bottom of the list.
+        /// </summary>
+        /// <param name="listItems">List of items to sort.</param>
+        /// <remarks>
+        /// New items with negative foreign key item reference numbers will be placed at the bottom of
+        /// the new collection. The list items will not be sorted to match the new collection.
+        /// </remarks>
+        public override void PlaceNewItemsAtBottomOfList(List<object> listItems)
+        {
+            var sortedItems = listItems
+                .Cast<CountItem>()
+                .OrderBy(item => item.ActivityItemFKRefno >= 0 ? 0 : 1)
+                .ThenBy(item => item.ActivityItemFKRefno)
+                .Cast<object>()
+                .ToList();
+
+            listItems.Clear();
+            listItems.AddRange(sortedItems);
+        }
+
+        /// <summary>
+        ///     Define the grid layout for the activity item.
+        /// </summary>
+        /// <returns>New grid layout.</returns>
+        public override Grid DefineGrid()
+        {
+            var labelCountCode = new Label
+            { Text = "Code", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelCountBc = new Label
+            { Text = "BC", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelCountUnit = new Label
+            { Text = "", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelCountOnHand = new Label
+            { Text = "On Hand", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelCountCounted = new Label
+            { Text = "Counted", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelCountWtOn = new Label
+            { Text = "Wt On", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+
+            this.ColumnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelCountCode.Text);
+            this.ColumnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelCountBc.Text);
+            this.ColumnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelCountUnit.Text);
+            this.ColumnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelCountOnHand.Text);
+            this.ColumnWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(labelCountCounted.Text);
+            this.ColumnWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(labelCountWtOn.Text);
+
+            var gridColumns = new Grid
             {
                 Padding = new Thickness(5),
                 ColumnDefinitions =
@@ -463,115 +601,31 @@ namespace dMobile.Controller.Activity_Item
                     new ColumnDefinition { Width = new GridLength(this.ColumnWidth2, GridUnitType.Absolute) },
                     new ColumnDefinition { Width = new GridLength(this.ColumnWidth3, GridUnitType.Absolute) },
                     new ColumnDefinition { Width = new GridLength(this.ColumnWidth4, GridUnitType.Absolute) },
-                    new ColumnDefinition { Width = new GridLength(this.ColumnWidth5, GridUnitType.Absolute) },
-                },
+                    new ColumnDefinition { Width = new GridLength(this.ColumnWidth5, GridUnitType.Absolute) }
+                }
             };
 
-            gridHeaderPhysicalCount.SetDynamicResource(VisualElement.BackgroundColorProperty, "HeaderColor");
+            gridColumns.SetDynamicResource(VisualElement.BackgroundColorProperty, "HeaderColor");
 
             // Add labels to grid
-            gridHeaderPhysicalCount.Children.Add(labelPhysicalCountCode);
-            gridHeaderPhysicalCount.Children.Add(labelPhysicalCountBc);
-            gridHeaderPhysicalCount.Children.Add(labelPhysicalCountUnit);
-            gridHeaderPhysicalCount.Children.Add(labelPhysicalCountOnHand);
-            gridHeaderPhysicalCount.Children.Add(labelPhysicalCountCounted);
-            gridHeaderPhysicalCount.Children.Add(labelPhysicalCountWtOn);
+            gridColumns.Children.Add(labelCountCode);
+            gridColumns.Children.Add(labelCountBc);
+            gridColumns.Children.Add(labelCountUnit);
+            gridColumns.Children.Add(labelCountOnHand);
+            gridColumns.Children.Add(labelCountCounted);
+            gridColumns.Children.Add(labelCountWtOn);
 
             // Set label columns
-            Grid.SetColumn(labelPhysicalCountCode, 0);
-            Grid.SetColumn(labelPhysicalCountBc, 1);
-            Grid.SetColumn(labelPhysicalCountUnit, 2);
-            Grid.SetColumn(labelPhysicalCountOnHand, 3);
-            Grid.SetColumn(labelPhysicalCountCounted, 4);
-            Grid.SetColumn(labelPhysicalCountWtOn, 5);
+            Grid.SetColumn(labelCountCode, 0);
+            Grid.SetColumn(labelCountBc, 1);
+            Grid.SetColumn(labelCountUnit, 2);
+            Grid.SetColumn(labelCountOnHand, 3);
+            Grid.SetColumn(labelCountCounted, 4);
+            Grid.SetColumn(labelCountWtOn, 5);
 
-            Grid.SetRow(gridHeaderPhysicalCount, 0);
+            Grid.SetRow(gridColumns, 0);
 
-            gridMainActivity.Children.Add(gridHeaderPhysicalCount);
-
-            foreach (var countItem in observableCollection.Cast<CountItem>())
-            {
-                var detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(Convert.ToString(countItem.ProductCode));
-                var detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(countItem.ProductUnitBC);
-                var detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(countItem.UnitCode);
-                var detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(
-                    $"{countItem.ActivityItemCountQuantityOnHand:F3}");
-                var detailWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(
-                    $"{countItem.ActivityItemCountQuantity:F3}");
-                var detailWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(
-                    $"{countItem.ActivityItemCountWeightQuantityOnHand:F3}");
-
-                if (detailWidth0 > this.ColumnWidth0)
-                {
-                    this.ColumnWidth0 = detailWidth0;
-                    gridHeaderPhysicalCount.ColumnDefinitions[0].Width = this.ColumnWidth0;
-                }
-
-                if (detailWidth1 > this.ColumnWidth1)
-                {
-                    this.ColumnWidth1 = detailWidth1;
-                    gridHeaderPhysicalCount.ColumnDefinitions[1].Width = this.ColumnWidth1;
-                }
-
-                if (detailWidth2 > this.ColumnWidth2)
-                {
-                    this.ColumnWidth2 = detailWidth2;
-                    gridHeaderPhysicalCount.ColumnDefinitions[2].Width = this.ColumnWidth2;
-                }
-
-                if (detailWidth3 > this.ColumnWidth3)
-                {
-                    this.ColumnWidth3 = detailWidth3;
-                    gridHeaderPhysicalCount.ColumnDefinitions[3].Width = this.ColumnWidth3;
-                }
-
-                if (detailWidth4 > this.ColumnWidth4)
-                {
-                    this.ColumnWidth4 = detailWidth4;
-                    gridHeaderPhysicalCount.ColumnDefinitions[4].Width = this.ColumnWidth4;
-                }
-                if (detailWidth5 > this.ColumnWidth5)
-                {
-                    this.ColumnWidth5 = detailWidth5;
-                    gridHeaderPhysicalCount.ColumnDefinitions[5].Width = this.ColumnWidth5;
-                }
-            }
-
-            try
-            {
-                listViewMainActivity.ItemTemplate = (DataTemplate)this.ResourceDictionary["dataTemplatePhysicalCountItem"];
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex);
-            }
-
-            return observableCollection;
-        }
-
-        public override Grid DesignGrid()
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        ///     Create and fill the data template.
-        /// </summary>
-        /// <param name="gridMainActivity"><see cref="Grid"/> Main activity grid.</param>
-        public override void FillDataTemplate(Grid gridMainActivity)
-        {
-            throw new NotImplementedException();
-        }
-
-
-        public override DataTemplate GetDataTemplate()
-        {
-            throw new NotImplementedException();
-        }
-
-        public override ObservableCollection<object> GetActivityItemList()
-        {
-            throw new NotImplementedException();
+            return gridColumns;
         }
 
         /// <summary>
@@ -1313,6 +1367,12 @@ namespace dMobile.Controller.Activity_Item
         public override XDocument CreateDump()
         {
             throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public override DataTemplate GetDataTemplate()
+        {
+            return (DataTemplate)this.ResourceDictionary["dataTemplatePhysicalCountItem"];
         }
     }
 }

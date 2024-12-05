@@ -751,12 +751,16 @@ namespace dMobile.View
                 return actDetailAndStopForDetail;
 
                 //////////////////////////////////////////////////////////////////////////
-                static void GatherWeightQuantity(ProductInfo prodInfo, ActDetail actDetail, BarCodeParse barCodeParse)
+                void GatherWeightQuantity(ProductInfo prodInfo, ActDetail actDetail, BarCodeParse barCodeParse)
                 {
                     var sysEnv = SysEnvironment.GetInstance();
 
                     // Assign scanned weight and convert if needed
-                    if (!(sysEnv.SysSettings.IsSetCatchWeightZero && prodInfo.IsCatchWeight))
+                    if (sysEnv.SysSettings.IsSetCatchWeightZero && prodInfo.IsCatchWeight)
+                    {
+                        barCodeRuleForcedEdit = true;
+                    }
+                    else
                     {
                         actDetail.WeightQuantity = prodInfo.UnitGrossWeight;
                     }

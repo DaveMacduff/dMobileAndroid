@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 using dMobile.Bedrock;
 using dMobile.GroundWork;
+using dMobile.Resources.Services;
 using SQLite;
 using Xamarin.Forms;
 using static dMobile.Bedrock.SysCommon;
@@ -64,6 +65,11 @@ namespace dMobile.Controller.Activity_Item
         /// Data layer progress out event handler.
         /// </summary>
         public event DataLayerProgressOutEventHandler OnDataLayerProgressOut;
+
+        /// <summary>
+        /// Gets or sets the resource dictionary.
+        /// </summary>
+        public ResourceDictionary ResourceDictionary { get; set; } = new ResourceDictionary();
 
         /// <summary>
         /// Gets or sets a value indicating whether to ask to create a new item.
@@ -227,30 +233,6 @@ namespace dMobile.Controller.Activity_Item
         public abstract ObservableCollection<object> DesignGrid(
             ref Grid gridMainActivity,
             ref ListView listViewMainActivity);
-
-        /// <summary>
-        ///     Design the list view grid.
-        /// </summary>
-        /// <returns>Activity item grid.</returns>
-        public abstract Grid DesignGrid();
-
-        /// <summary>
-        ///     Create and fill the data template.
-        /// </summary>
-        /// <param name="gridMainActivity"><see cref="Grid"/> Main activity grid.</param>
-        public abstract void FillDataTemplate(Grid gridMainActivity);
-
-        /// <summary>
-        ///     Get the filled data template.
-        /// </summary>
-        /// <returns>Filled data template.</returns>
-        public abstract DataTemplate GetDataTemplate();
-
-        /// <summary>
-        ///     Get the activity item list.
-        /// </summary>
-        /// <returns>Observable collection.</returns>
-        public abstract ObservableCollection<object> GetActivityItemList();
 
         /// <summary>
         /// Get the activity item reference number from the product unit reference number and current location warehouse.
@@ -428,6 +410,65 @@ namespace dMobile.Controller.Activity_Item
         public abstract int FindActivityItemIndex(int activityItemFkRefno);
 
         /// <summary>
+        ///    Get the activity item data template.
+        /// </summary>
+        /// <returns>Data template.</returns>
+        public abstract DataTemplate GetDataTemplate();
+
+        /// <summary>
+        ///     Calculate the maximum data column widths.
+        /// </summary>
+        /// <param name="definition">Grid layout definition.</param>
+        /// <param name="itemsToMeasure">List of data items to measure in order to determine the max column width.</param>
+        public virtual void CalcMaxDataColWidth(Grid definition, List<object> itemsToMeasure)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        ///    Calculate the maximum data column widths for one item.
+        /// </summary>
+        /// <param name="item">Item to compare to the max width.</param>
+        /// <param name="gridService">Grid service.</param>
+        /// <param name="columns">Column definitions to compare.</param>
+        public virtual void CalcMaxDataColWidth(object item, IGridService gridService, ColumnDefinitionCollection columns)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        ///     Create observable collection from list items.
+        /// </summary>
+        /// <param name="listItems">List of item objects.</param>
+        /// <returns>Created observable collection.</returns>
+        public virtual ObservableCollection<object> CreateObservableCollectionFromListItems(List<object> listItems)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        ///     Sort the list items and place new items at the bottom of the list.
+        /// </summary>
+        /// <param name="listItems">List of items to sort.</param>
+        /// <remarks>
+        /// New items with negative foreign key item reference numbers will be placed at the bottom of
+        /// the new collection. The list items will not be sorted to match the new collection.
+        /// </remarks>
+        public virtual void PlaceNewItemsAtBottomOfList(List<object> listItems)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        ///     Define the grid layout for the activity item.
+        /// </summary>
+        /// <returns>New grid layout.</returns>
+        public virtual Grid DefineGrid()
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
         /// Determine what the selected location map should be when an activity line item or
         /// detail is selected.
         /// </summary>
@@ -464,8 +505,7 @@ namespace dMobile.Controller.Activity_Item
                     this.ProdInfo.Refno);
                 if (await LocationMapTasks.IsCompleteLocMap(defaultLocMapRefno))
                 {
-                    selectedLocMap =
-                        await LocationMapTasks.GetSLocMapFromLocMapRefno(defaultLocMapRefno);
+                    selectedLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(defaultLocMapRefno);
                 }
             }
             else

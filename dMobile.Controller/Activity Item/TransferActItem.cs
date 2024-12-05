@@ -27,37 +27,32 @@ namespace dMobile.Controller.Activity_Item
         /// <summary>
         /// Defines the columnWidth0.
         /// </summary>
-        private double columnWidth0 = 0;
+        private double columnWidth0;
 
         /// <summary>
         /// Defines the columnWidth1.
         /// </summary>
-        private double columnWidth1 = 0;
+        private double columnWidth1;
 
         /// <summary>
         /// Defines the columnWidth2.
         /// </summary>
-        private double columnWidth2 = 0;
+        private double columnWidth2;
 
         /// <summary>
         /// Defines the columnWidth3.
         /// </summary>
-        private double columnWidth3 = 0;
+        private double columnWidth3;
 
         /// <summary>
         /// Defines the columnWidth4.
         /// </summary>
-        private double columnWidth4 = 0;
+        private double columnWidth4;
 
         /// <summary>
         /// Defines the columnWidth5.
         /// </summary>
-        private double columnWidth5 = 0;
-
-        /// <summary>
-        /// Defines the resourceDictionary.
-        /// </summary>
-        private ResourceDictionary resourceDictionary = new ResourceDictionary();
+        private double columnWidth5;
 
         /// <summary>
         /// Defines the listTransferItems.
@@ -76,66 +71,88 @@ namespace dMobile.Controller.Activity_Item
             this.IsAskCreateNewItem = !this.SysEnv.SysSettings.IsTransCreateNewItemNoAsk;
             this.ActSubType = activity.ActSubType;
 
-            // Data grid
-            var dataTemplate = new DataTemplate(() =>
+            DefineInitialGrid();
+            return;
+
+            ///////////////////////////////////////////////////////////
+            void DefineInitialGrid()
             {
-                var gridData = new Grid
-                {
-                    Padding = new Thickness(5),
-                    ColumnDefinitions =
+                var dataTemplate = new DataTemplate(
+                    () =>
                     {
-                            new ColumnDefinition { Width = new GridLength(this.columnWidth0, GridUnitType.Absolute) },
-                            new ColumnDefinition { Width = new GridLength(this.columnWidth1, GridUnitType.Absolute) },
-                            new ColumnDefinition { Width = new GridLength(this.columnWidth2, GridUnitType.Absolute) },
-                            new ColumnDefinition { Width = new GridLength(this.columnWidth3, GridUnitType.Absolute) },
-                            new ColumnDefinition { Width = new GridLength(this.columnWidth4, GridUnitType.Absolute) },
-                            new ColumnDefinition { Width = new GridLength(this.columnWidth5, GridUnitType.Absolute) },
-                    },
-                };
+                        var gridData = new Grid
+                        {
+                            Padding = new Thickness(5),
+                            ColumnDefinitions =
+                            {
+                                new ColumnDefinition
+                                    { Width = new GridLength(this.columnWidth0, GridUnitType.Absolute) },
+                                new ColumnDefinition
+                                    { Width = new GridLength(this.columnWidth1, GridUnitType.Absolute) },
+                                new ColumnDefinition
+                                    { Width = new GridLength(this.columnWidth2, GridUnitType.Absolute) },
+                                new ColumnDefinition
+                                    { Width = new GridLength(this.columnWidth3, GridUnitType.Absolute) },
+                                new ColumnDefinition
+                                    { Width = new GridLength(this.columnWidth4, GridUnitType.Absolute) },
+                                new ColumnDefinition
+                                    { Width = new GridLength(this.columnWidth5, GridUnitType.Absolute) }
+                            }
+                        };
 
-                var labelProductId = new Label { VerticalOptions = LayoutOptions.Center };
-                var labelBc = new Label { VerticalOptions = LayoutOptions.Center };
-                var labelUnitCode = new Label { VerticalOptions = LayoutOptions.Center };
-                var labelRequired = new Label { VerticalOptions = LayoutOptions.Center };
-                var labelQty = new Label { VerticalOptions = LayoutOptions.Center };
-                var labelWhs = new Label { VerticalOptions = LayoutOptions.Center };
+                        var labelProductId = new Label { VerticalOptions = LayoutOptions.Center };
+                        var labelBc = new Label { VerticalOptions = LayoutOptions.Center };
+                        var labelUnitCode = new Label { VerticalOptions = LayoutOptions.Center };
+                        var labelRequired = new Label { VerticalOptions = LayoutOptions.Center };
+                        var labelQty = new Label { VerticalOptions = LayoutOptions.Center };
+                        var labelWhs = new Label { VerticalOptions = LayoutOptions.Center };
 
-                labelProductId.SetBinding(Label.TextProperty, new Binding("ProductCode"));
-                labelBc.SetBinding(Label.TextProperty, new Binding("ProductUnitBC"));
-                labelUnitCode.SetBinding(Label.TextProperty, new Binding("UnitCode"));
-                labelRequired.SetBinding(Label.TextProperty, new Binding("ActivityItemTransferRequiredQuantity", BindingMode.Default, null, null, "{0:F3}"));
-                labelQty.SetBinding(Label.TextProperty, new Binding("ActivityItemTransferQuantity", BindingMode.Default, null, null, "{0:F3}"));
-                labelWhs.SetBinding(Label.TextProperty, new Binding("LocationCode"));
+                        labelProductId.SetBinding(Label.TextProperty, new Binding("ProductCode"));
+                        labelBc.SetBinding(Label.TextProperty, new Binding("ProductUnitBC"));
+                        labelUnitCode.SetBinding(Label.TextProperty, new Binding("UnitCode"));
+                        labelRequired.SetBinding(
+                            Label.TextProperty,
+                            new Binding(
+                                "ActivityItemTransferRequiredQuantity",
+                                BindingMode.Default,
+                                null,
+                                null,
+                                "{0:F3}"));
+                        labelQty.SetBinding(
+                            Label.TextProperty,
+                            new Binding("ActivityItemTransferQuantity", BindingMode.Default, null, null, "{0:F3}"));
+                        labelWhs.SetBinding(Label.TextProperty, new Binding("LocationCode"));
 
-                gridData.Children.Add(labelProductId);
-                gridData.Children.Add(labelBc);
-                gridData.Children.Add(labelUnitCode);
-                gridData.Children.Add(labelRequired);
-                gridData.Children.Add(labelQty);
-                gridData.Children.Add(labelWhs);
+                        gridData.Children.Add(labelProductId);
+                        gridData.Children.Add(labelBc);
+                        gridData.Children.Add(labelUnitCode);
+                        gridData.Children.Add(labelRequired);
+                        gridData.Children.Add(labelQty);
+                        gridData.Children.Add(labelWhs);
 
-                Grid.SetColumn(labelProductId, 0);
-                Grid.SetColumn(labelBc, 1);
-                Grid.SetColumn(labelUnitCode, 2);
-                Grid.SetColumn(labelRequired, 3);
-                Grid.SetColumn(labelQty, 4);
-                Grid.SetColumn(labelWhs, 5);
+                        Grid.SetColumn(labelProductId, 0);
+                        Grid.SetColumn(labelBc, 1);
+                        Grid.SetColumn(labelUnitCode, 2);
+                        Grid.SetColumn(labelRequired, 3);
+                        Grid.SetColumn(labelQty, 4);
+                        Grid.SetColumn(labelWhs, 5);
 
-                return new ViewCell { View = gridData };
-            });
+                        return new ViewCell { View = gridData };
+                    });
 
-            var isAddKey = true;
-            foreach (var item in this.resourceDictionary)
-            {
-                if (item.Key == "dataTemplateTransferItem")
+                var isAddKey = true;
+                foreach (var item in this.ResourceDictionary)
                 {
-                    isAddKey = false;
+                    if (item.Key == "dataTemplateTransferItem")
+                    {
+                        isAddKey = false;
+                    }
                 }
-            }
 
-            if (isAddKey)
-            {
-                this.resourceDictionary.Add("dataTemplateTransferItem", dataTemplate);
+                if (isAddKey)
+                {
+                    this.ResourceDictionary.Add("dataTemplateTransferItem", dataTemplate);
+                }
             }
         }
 
@@ -200,7 +217,8 @@ namespace dMobile.Controller.Activity_Item
         public override bool IsCatchAskZero()
         {
             var result = false;
-            if (this.IsCatchAsk() && this.ProdInfo.IsCatchAskZero)
+            if (this.IsCatchAsk() &&
+                this.ProdInfo.IsCatchAskZero)
             {
                 result = !this.SysEnv.SysSettings.IsTransferNoCatchAskZeroEnabled;
             }
@@ -239,7 +257,8 @@ namespace dMobile.Controller.Activity_Item
         {
             data = data ?? throw new ArgumentNullException(nameof(data));
             _ = data.Root ?? throw new ArgumentNullException(nameof(data.Root));
-            _ = data.Root.Element("itm_refno")?.Value ?? throw new Exception("xml 'itm_refno' element is does not exist.");
+            _ = data.Root.Element("itm_refno")?.Value ??
+                throw new Exception("xml 'itm_refno' element is does not exist.");
             _ = data.Root.Element("alt_qty")?.Value ?? throw new Exception("xml 'alt_qty' element is does not exist.");
 
             var itmRefno = int.Parse(data.Root.Element("itm_refno")?.Value!);
@@ -350,7 +369,6 @@ namespace dMobile.Controller.Activity_Item
         /// Insert a new adjustment activity item.
         /// </summary>
         /// <param name="data"><see cref="XDocument"/> Adjustment activity information to insert.</param>
-
         /// <returns><see cref="Task"/> Task operation.</returns>
         public override async Task Insert(XDocument data)
         {
@@ -370,30 +388,33 @@ namespace dMobile.Controller.Activity_Item
             //////////////////////////////////////////////////////////////////////////
             async Task InsertActivityItemInTables(int prodUnitRefno)
             {
-                await DatabaseConnection.GetInstance().SqlConn.RunInTransactionAsync(transaction =>
-                {
-                    try
-                    {
-                        // NOTE: ActivityItemStatus is set to inserted for later submission use.
-                        _ = transaction.Execute(
-                            "INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus," +
-                                " ActivityRefno, ActivityItemIsAdded) VALUES (?, ?, ?, ?)",
-                            (int)this.ActSubType,
-                            Convert.ToInt32(SysCommon.ActStatus.Inserted),
-                            Convert.ToInt32(this.ActHdr.HdrRefno),
-                            1);
+                await DatabaseConnection.GetInstance()
+                    .SqlConn.RunInTransactionAsync(
+                        transaction =>
+                        {
+                            try
+                            {
+                                // NOTE: ActivityItemStatus is set to inserted for later submission use.
+                                _ = transaction.Execute(
+                                    "INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus," +
+                                    " ActivityRefno, ActivityItemIsAdded) VALUES (?, ?, ?, ?)",
+                                    (int)this.ActSubType,
+                                    Convert.ToInt32(SysCommon.ActStatus.Inserted),
+                                    Convert.ToInt32(this.ActHdr.HdrRefno),
+                                    1);
 
-                        this.ItemRefno = Convert.ToInt32(transaction.ExecuteScalar<int>(
-                            "SELECT last_insert_rowid() FROM tActivityItem"));
+                                this.ItemRefno = Convert.ToInt32(
+                                    transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivityItem"));
 
-                        // Get temporary item FK refno for newly inserted line item.
-                        this.ItemFkRefno = Convert.ToInt32(transaction.ExecuteScalar<int>(
-                            "SELECT MAX(tActivityItemTransfer.ActivityItemFKRefno)" +
-                            $" FROM tActivityItemTransfer WHERE tActivityItemTransfer.ActivityItemSubType" +
-                            $" = {(int)this.ActSubType}"));
-                        this.ItemFkRefno = this.ItemFkRefno + 1;
+                                // Get temporary item FK refno for newly inserted line item.
+                                this.ItemFkRefno = Convert.ToInt32(
+                                    transaction.ExecuteScalar<int>(
+                                        "SELECT MAX(tActivityItemTransfer.ActivityItemFKRefno)" +
+                                        $" FROM tActivityItemTransfer WHERE tActivityItemTransfer.ActivityItemSubType" +
+                                        $" = {(int)this.ActSubType}"));
+                                this.ItemFkRefno = this.ItemFkRefno + 1;
 
-                        var query = "INSERT INTO tActivityItemTransfer (" +
+                                var query = "INSERT INTO tActivityItemTransfer (" +
                                             "ActivityItemRefno, " +
                                             "ActivityItemSubType, " +
                                             "ActivityItemFKRefno, " +
@@ -417,30 +438,30 @@ namespace dMobile.Controller.Activity_Item
                                             "?" +
                                             ")";
 
-                        var locMap = LocationMap.GetInstance().CurrLocMap;
-                        var parameters = new object[]
-                        {
-                            Convert.ToInt32(this.ItemRefno),
-                            Convert.ToInt32(this.ActSubType),
-                            Convert.ToInt32(this.ItemFkRefno),
-                            Convert.ToString(this.ItemFkRefno),
-                            Convert.ToInt32(prodUnitRefno),
-                            Convert.ToInt32(locMap.WhsLocMapRefno),
-                            Convert.ToDecimal(0),
-                            Convert.ToDecimal(0),
-                            Convert.ToDecimal(0),
-                            Convert.ToDecimal(0),
-                        };
+                                var locMap = LocationMap.GetInstance().CurrLocMap;
+                                var parameters = new object[]
+                                {
+                                    Convert.ToInt32(this.ItemRefno),
+                                    Convert.ToInt32(this.ActSubType),
+                                    Convert.ToInt32(this.ItemFkRefno),
+                                    Convert.ToString(this.ItemFkRefno),
+                                    Convert.ToInt32(prodUnitRefno),
+                                    Convert.ToInt32(locMap.WhsLocMapRefno),
+                                    Convert.ToDecimal(0),
+                                    Convert.ToDecimal(0),
+                                    Convert.ToDecimal(0),
+                                    Convert.ToDecimal(0)
+                                };
 
-                        transaction.Execute(query, parameters);
-                        transaction.Commit();
-                    }
-                    catch (SQLiteException)
-                    {
-                        transaction.Rollback();
-                        throw;
-                    }
-                });
+                                transaction.Execute(query, parameters);
+                                transaction.Commit();
+                            }
+                            catch (SQLiteException)
+                            {
+                                transaction.Rollback();
+                                throw;
+                            }
+                        });
             }
 
             //////////////////////////////////////////////////////////////////////////
@@ -466,7 +487,7 @@ namespace dMobile.Controller.Activity_Item
                     ActivityItemTransferRequiredQuantity = 0,
                     ActivityItemTransferQuantity = 0,
                     ActivityItemTransferBaseQuantity = 0,
-                    ActivityItemTransferWeightQuantity = 0,
+                    ActivityItemTransferWeightQuantity = 0
                 };
 
                 this.ListItems.Add(item);
@@ -523,16 +544,141 @@ namespace dMobile.Controller.Activity_Item
         /// <param name="gridMainActivity">The GridMainActivity<see cref="Grid"/>.</param>
         /// <param name="listViewMainActivity">The ListViewMainActivity<see cref="ListView"/>.</param>
         /// <returns>The <see cref="ObservableCollection{object}"/>.</returns>
-        public override ObservableCollection<object> DesignGrid(ref Grid gridMainActivity, ref ListView listViewMainActivity)
+        public override ObservableCollection<object> DesignGrid(
+            ref Grid gridMainActivity,
+            ref ListView listViewMainActivity)
         {
-            var observableCollection = new ObservableCollection<object>();
+            this.PlaceNewItemsAtBottomOfList(this.ListItems);
+            var mainActivityItems = this.CreateObservableCollectionFromListItems(this.ListItems);
+            var gridItems = this.DefineGrid();
+            this.CalcMaxDataColWidth(gridItems, mainActivityItems.ToList());
+            gridMainActivity.Children.Add(gridItems);
 
-            var labelProductIdHeader = new Label { Text = "Product ID", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            var labelBcHeader = new Label { Text = "BC", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            var labelUnitCodeHeader = new Label { Text = string.Empty, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            var labelRequiredHeader = new Label { Text = "Required", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            var labelQtyHeader = new Label { Text = "Qty", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            var labelWhsHeader = new Label { Text = "Whs", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            listViewMainActivity.ItemTemplate = (DataTemplate)this.ResourceDictionary["dataTemplateTransferItem"];
+
+            return mainActivityItems;
+        }
+
+        /// <summary>
+        ///     Create observable collection from list items.
+        /// </summary>
+        /// <param name="listItems">List of item objects.</param>
+        /// <returns>Created observable collection.</returns>
+        public override ObservableCollection<object> CreateObservableCollectionFromListItems(List<object> listItems)
+        {
+            // This code is optimized, it iterates over this.ListItems only once.
+            // It separates the list items into two lists, one for positive refno and one for negative refno.
+            // It then adds the positive refno items first, then the negative refno items.
+            // This is done to ensure that the negative refno items "new items" are displayed at the bottom of the list.
+            var mainActivityItems = new ObservableCollection<object>();
+            foreach (var item in listItems.Cast<TransferItem>())
+            {
+                mainActivityItems.Add(item);
+            }
+
+            return mainActivityItems;
+        }
+
+        /// <summary>
+        ///     Sort the list items and place new items at the bottom of the list.
+        /// </summary>
+        /// <param name="listItems">List of items to sort.</param>
+        /// <remarks>
+        /// New items with negative foreign key item reference numbers will be placed at the bottom of
+        /// the new collection. The list items will not be sorted to match the new collection.
+        /// </remarks>
+        public override void PlaceNewItemsAtBottomOfList(List<object> listItems)
+        {
+            var sortedItems = listItems
+                .Cast<TransferItem>()
+                .OrderBy(item => item.ActivityItemFKRefno >= 0 ? 0 : 1)
+                .ThenBy(item => item.ActivityItemFKRefno)
+                .Cast<object>()
+                .ToList();
+
+            listItems.Clear();
+            listItems.AddRange(sortedItems);
+        }
+
+        /// <summary>
+        ///     Calculate the maximum data column widths.
+        /// </summary>
+        /// <param name="definition">Grid layout definition.</param>
+        /// <param name="itemsToMeasure">List of data items to measure in order to determine the max column width.</param>
+        public override void CalcMaxDataColWidth(Grid definition, List<object> itemsToMeasure)
+        {
+            var gridService = DependencyService.Get<IGridService>();
+            var columns = definition.ColumnDefinitions;
+            foreach (var item in itemsToMeasure)
+            {
+                this.CalcMaxDataColWidth(item, gridService, columns);
+            }
+        }
+
+        /// <summary>
+        ///    Calculate the maximum data column widths for one item.
+        /// </summary>
+        /// <param name="item">Item to compare to the max width.</param>
+        /// <param name="gridService">Grid service.</param>
+        /// <param name="columns">Column definitions to compare.</param>
+        public override void CalcMaxDataColWidth(
+            object item,
+            IGridService gridService,
+            ColumnDefinitionCollection columns)
+        {
+            var transferItem = (TransferItem)item;
+
+            var detailWidths = new[]
+            {
+                gridService.CalculateTextWidth(transferItem.ProductCode),
+                gridService.CalculateTextWidth(transferItem.ProductUnitBC),
+                gridService.CalculateTextWidth(transferItem.UnitCode),
+                gridService.CalculateTextWidth($"{transferItem.ActivityItemTransferRequiredQuantity:F3}"),
+                gridService.CalculateTextWidth($"{transferItem.ActivityItemTransferQuantity:F3}"),
+                gridService.CalculateTextWidth(Convert.ToString(transferItem.LocationCode))
+            };
+
+            var columnWidths = new[]
+            {
+                this.columnWidth0, this.columnWidth1, this.columnWidth2, this.columnWidth3, this.columnWidth4,
+                this.columnWidth5
+            };
+
+            for (var i = 0; i < detailWidths.Length; i++)
+            {
+                if (detailWidths[i] > columnWidths[i])
+                {
+                    columnWidths[i] = detailWidths[i];
+                    columns[i].Width = new GridLength(columnWidths[i], GridUnitType.Absolute);
+                }
+            }
+
+            this.columnWidth0 = columnWidths[0];
+            this.columnWidth1 = columnWidths[1];
+            this.columnWidth2 = columnWidths[2];
+            this.columnWidth3 = columnWidths[3];
+            this.columnWidth4 = columnWidths[4];
+            this.columnWidth5 = columnWidths[5];
+        }
+
+        /// <summary>
+        ///     Define the grid layout for the activity item.
+        /// </summary>
+        /// <returns>New grid layout.</returns>
+        public override Grid DefineGrid()
+        {
+            var labelProductIdHeader = new Label
+                { Text = "Product ID", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelBcHeader = new Label
+                { Text = "BC", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelUnitCodeHeader = new Label
+                { Text = string.Empty, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelRequiredHeader = new Label
+                { Text = "Required", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelQtyHeader = new Label
+                { Text = "Qty", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelWhsHeader = new Label
+                { Text = "Whs", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
 
             this.columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelProductIdHeader.Text);
             this.columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelBcHeader.Text);
@@ -542,7 +688,7 @@ namespace dMobile.Controller.Activity_Item
             this.columnWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(labelWhsHeader.Text);
 
             // Create header data template
-            var gridHeader = new Grid
+            var gridColumns = new Grid
             {
                 Padding = new Thickness(5),
                 ColumnDefinitions =
@@ -552,18 +698,18 @@ namespace dMobile.Controller.Activity_Item
                     new ColumnDefinition { Width = new GridLength(this.columnWidth2, GridUnitType.Absolute) },
                     new ColumnDefinition { Width = new GridLength(this.columnWidth3, GridUnitType.Absolute) },
                     new ColumnDefinition { Width = new GridLength(this.columnWidth4, GridUnitType.Absolute) },
-                    new ColumnDefinition { Width = new GridLength(this.columnWidth5, GridUnitType.Absolute) },
-                },
+                    new ColumnDefinition { Width = new GridLength(this.columnWidth5, GridUnitType.Absolute) }
+                }
             };
 
-            gridHeader.SetDynamicResource(VisualElement.BackgroundColorProperty, "HeaderColor");
+            gridColumns.SetDynamicResource(VisualElement.BackgroundColorProperty, "HeaderColor");
 
-            gridHeader.Children.Add(labelProductIdHeader);
-            gridHeader.Children.Add(labelBcHeader);
-            gridHeader.Children.Add(labelUnitCodeHeader);
-            gridHeader.Children.Add(labelRequiredHeader);
-            gridHeader.Children.Add(labelQtyHeader);
-            gridHeader.Children.Add(labelWhsHeader);
+            gridColumns.Children.Add(labelProductIdHeader);
+            gridColumns.Children.Add(labelBcHeader);
+            gridColumns.Children.Add(labelUnitCodeHeader);
+            gridColumns.Children.Add(labelRequiredHeader);
+            gridColumns.Children.Add(labelQtyHeader);
+            gridColumns.Children.Add(labelWhsHeader);
 
             Grid.SetColumn(labelProductIdHeader, 0);
             Grid.SetColumn(labelBcHeader, 1);
@@ -572,88 +718,8 @@ namespace dMobile.Controller.Activity_Item
             Grid.SetColumn(labelQtyHeader, 4);
             Grid.SetColumn(labelWhsHeader, 5);
 
-            Grid.SetRow(gridHeader, 0);
-
-            gridMainActivity.Children.Add(gridHeader);
-
-            foreach (var transferItem in this.ListItems.Cast<TransferItem>())
-            {
-                observableCollection.Add(transferItem);
-
-                var detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(transferItem.ProductCode);
-                var detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(transferItem.ProductUnitBC);
-                var detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(transferItem.UnitCode);
-                var detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(
-                    $"{transferItem.ActivityItemTransferRequiredQuantity:F3}");
-                var detailWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(
-                    $"{transferItem.ActivityItemTransferQuantity:F3}");
-                var detailWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(Convert.ToString(transferItem.LocationCode));
-
-                if (detailWidth0 > this.columnWidth0)
-                {
-                    this.columnWidth0 = detailWidth0;
-                    gridHeader.ColumnDefinitions[0].Width = this.columnWidth0;
-                }
-
-                if (detailWidth1 > this.columnWidth1)
-                {
-                    this.columnWidth1 = detailWidth1;
-                    gridHeader.ColumnDefinitions[1].Width = this.columnWidth1;
-                }
-
-                if (detailWidth2 > this.columnWidth2)
-                {
-                    this.columnWidth2 = detailWidth2;
-                    gridHeader.ColumnDefinitions[2].Width = this.columnWidth2;
-                }
-
-                if (detailWidth3 > this.columnWidth3)
-                {
-                    this.columnWidth3 = detailWidth3;
-                    gridHeader.ColumnDefinitions[3].Width = this.columnWidth3;
-                }
-
-                if (detailWidth4 > this.columnWidth4)
-                {
-                    this.columnWidth4 = detailWidth4;
-                    gridHeader.ColumnDefinitions[4].Width = this.columnWidth4;
-                }
-
-                if (detailWidth5 > this.columnWidth5)
-                {
-                    this.columnWidth5 = detailWidth5;
-                    gridHeader.ColumnDefinitions[5].Width = this.columnWidth5;
-                }
-            }
-
-            listViewMainActivity.ItemTemplate = (DataTemplate)this.resourceDictionary["dataTemplateTransferItem"];
-
-            return observableCollection;
-        }
-
-        public override Grid DesignGrid()
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        ///     Create and fill the data template.
-        /// </summary>
-        /// <param name="gridMainActivity"><see cref="Grid"/> Main activity grid.</param>
-        public override void FillDataTemplate(Grid gridMainActivity)
-        {
-            throw new NotImplementedException();
-        }
-
-
-        public override DataTemplate GetDataTemplate()
-        {
-            throw new NotImplementedException();
-        }
-
-        public override ObservableCollection<object> GetActivityItemList()
-        {
-            throw new NotImplementedException();
+            Grid.SetRow(gridColumns, 0);
+            return gridColumns;
         }
 
         /// <summary>
@@ -677,10 +743,13 @@ namespace dMobile.Controller.Activity_Item
                 sql.Append("tUnit.UnitCode AS UnitCode,");
                 sql.Append("tProductUnit.ProductUnitBC AS ProductUnitBC,");
                 sql.Append("tProductUnit.ProductUnitSizeDescription AS ProductUnitSizeDescription,");
-                sql.Append("tActivityItemTransfer.ActivityItemTransferRequiredQuantity AS ActivityItemTransferRequiredQuantity,");
+                sql.Append(
+                    "tActivityItemTransfer.ActivityItemTransferRequiredQuantity AS ActivityItemTransferRequiredQuantity,");
                 sql.Append("tActivityItemTransfer.ActivityItemTransferQuantity AS ActivityItemTransferQuantity,");
-                sql.Append("tActivityItemTransfer.ActivityItemTransferBaseQuantity AS ActivityItemTransferBaseQuantity,");
-                sql.Append("tActivityItemTransfer.ActivityItemTransferWeightQuantity AS ActivityItemTransferWeightQuantity,");
+                sql.Append(
+                    "tActivityItemTransfer.ActivityItemTransferBaseQuantity AS ActivityItemTransferBaseQuantity,");
+                sql.Append(
+                    "tActivityItemTransfer.ActivityItemTransferWeightQuantity AS ActivityItemTransferWeightQuantity,");
                 sql.Append("tLocationMapWarehouse.LocationMapRefno AS LocationMapRefno,");
                 sql.Append("tLocationMapWarehouse.LocationMapWarehouseCode AS LocationCode,");
                 sql.Append("tLocationMapWarehouse.LocationMapWarehouseName AS LocationName,");
@@ -695,7 +764,9 @@ namespace dMobile.Controller.Activity_Item
                 sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno ");
                 sql.Append("= tActivityItemTransfer.TransferFromWarehouseLocationMapRefno ");
                 sql.AppendFormat("WHERE tActivityItem.ActivityRefno = {0} ", this.ActHdr.HdrRefno);
-                sql.AppendFormat("AND tActivityItem.ActivityItemStatus <> {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
+                sql.AppendFormat(
+                    "AND tActivityItem.ActivityItemStatus <> {0} ",
+                    Convert.ToInt32(SysCommon.ActStatus.NoChange));
                 sql.Append("UNION ");
                 sql.Append("SELECT tActivityItemTransfer.ActivityItemRefno,");
                 sql.Append("tActivityItemTransfer.ActivityItemFKRefno,");
@@ -727,7 +798,9 @@ namespace dMobile.Controller.Activity_Item
                 sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno ");
                 sql.Append("= tActivityItemTransfer.TransferFromWarehouseLocationMapRefno ");
                 sql.AppendFormat("WHERE tActivityItem.ActivityRefno = {0} ", this.ActHdr.HdrRefno);
-                sql.AppendFormat(" AND tActivityDetail.ActivityDetailStatus <> {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
+                sql.AppendFormat(
+                    " AND tActivityDetail.ActivityDetailStatus <> {0} ",
+                    Convert.ToInt32(SysCommon.ActStatus.NoChange));
                 sql.Append(" ORDER BY tActivityItemTransfer.ActivityItemRefno");
             }
             else
@@ -742,10 +815,13 @@ namespace dMobile.Controller.Activity_Item
                 sql.Append("tUnit.UnitCode AS UnitCode, ");
                 sql.Append("tProductUnit.ProductUnitBC AS ProductUnitBC,");
                 sql.Append("tProductUnit.ProductUnitSizeDescription AS ProductUnitSizeDescription, ");
-                sql.Append("tActivityItemTransfer.ActivityItemTransferRequiredQuantity AS ActivityItemTransferRequiredQuantity, ");
+                sql.Append(
+                    "tActivityItemTransfer.ActivityItemTransferRequiredQuantity AS ActivityItemTransferRequiredQuantity, ");
                 sql.Append("tActivityItemTransfer.ActivityItemTransferQuantity AS ActivityItemTransferQuantity, ");
-                sql.Append("tActivityItemTransfer.ActivityItemTransferBaseQuantity AS ActivityItemTransferBaseQuantity, ");
-                sql.Append("tActivityItemTransfer.ActivityItemTransferWeightQuantity AS ActivityItemTransferWeightQuantity, ");
+                sql.Append(
+                    "tActivityItemTransfer.ActivityItemTransferBaseQuantity AS ActivityItemTransferBaseQuantity, ");
+                sql.Append(
+                    "tActivityItemTransfer.ActivityItemTransferWeightQuantity AS ActivityItemTransferWeightQuantity, ");
                 sql.Append("tLocationMapWarehouse.LocationMapRefno AS LocationMapRefno,");
                 sql.Append("tLocationMapWarehouse.LocationMapWarehouseCode AS LocationCode,");
                 sql.Append("tLocationMapWarehouse.LocationMapWarehouseName AS LocationName,");
@@ -763,7 +839,8 @@ namespace dMobile.Controller.Activity_Item
                 sql.Append("ORDER BY tActivityItemTransfer.ActivityItemRefno");
             }
 
-            this.listTransferItems = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<TransferItem>(sql.ToString());
+            this.listTransferItems =
+                await DatabaseConnection.GetInstance().SqlConn.QueryAsync<TransferItem>(sql.ToString());
             this.ListItems = this.listTransferItems.Cast<object>().ToList();
             return this.ListItems;
         }
@@ -776,8 +853,11 @@ namespace dMobile.Controller.Activity_Item
         public override ObservableCollection<object> Search(string searchText)
         {
             var observableCollection = new ObservableCollection<object>();
-            this.ListItems = this.listTransferItems.Where(transferItem => transferItem.ProductCode.ToLower()
-                .Contains(searchText.ToLower().Trim())).Cast<object>().ToList();
+            this.ListItems = this.listTransferItems.Where(
+                    transferItem => transferItem.ProductCode.ToLower()
+                        .Contains(searchText.ToLower().Trim()))
+                .Cast<object>()
+                .ToList();
 
             foreach (var transferItem in this.ListItems.Cast<TransferItem>())
             {
@@ -830,7 +910,7 @@ namespace dMobile.Controller.Activity_Item
                     if (this.LocMap.WhsLocMapRefno == 0)
                     {
                         // We need to have at least a location with a warehouse.
-                        var defLocMapRefno = LocationMapTasks.DefaultLocMapRefnoToWhsIfUnassigned(locationMapRefno: 0);
+                        var defLocMapRefno = LocationMapTasks.DefaultLocMapRefnoToWhsIfUnassigned(0);
                         this.LocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(defLocMapRefno);
                     }
                 }
@@ -871,26 +951,27 @@ namespace dMobile.Controller.Activity_Item
         {
             var foundItemRefno = 0;
 
-            const string query = "SELECT tActivityItem.ActivityItemRefno,"
-                                 + "tActivityItemTransfer.ActivityItemFKRefno,"
-                                 + "tActivityItemTransfer.ProductUnitRefno,"
-                                 + "tLocationMapWarehouse.LocationMapRefno "
-                                 + "FROM tActivityItemTransfer "
-                                 + "INNER JOIN tActivityItem ON tActivityItem.ActivityItemRefno = tActivityItemTransfer.ActivityItemRefno "
-                                 + "INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno "
-                                 + "= tActivityItemTransfer.TransferFromWarehouseLocationMapRefno "
-                                 + "WHERE tActivityItem.ActivityRefno = ? "
-                                 + "AND tActivityItemTransfer.TransferFromWarehouseLocationMapRefno = ? "
-                                 + "AND tActivityItemTransfer.ProductUnitRefno = ?";
+            const string query = "SELECT tActivityItem.ActivityItemRefno," +
+                                 "tActivityItemTransfer.ActivityItemFKRefno," +
+                                 "tActivityItemTransfer.ProductUnitRefno," +
+                                 "tLocationMapWarehouse.LocationMapRefno " +
+                                 "FROM tActivityItemTransfer " +
+                                 "INNER JOIN tActivityItem ON tActivityItem.ActivityItemRefno = tActivityItemTransfer.ActivityItemRefno " +
+                                 "INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno " +
+                                 "= tActivityItemTransfer.TransferFromWarehouseLocationMapRefno " +
+                                 "WHERE tActivityItem.ActivityRefno = ? " +
+                                 "AND tActivityItemTransfer.TransferFromWarehouseLocationMapRefno = ? " +
+                                 "AND tActivityItemTransfer.ProductUnitRefno = ?";
 
-            var results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<TransferItem>(
-                query, this.ActHdr.HdrRefno, locMap.WhsLocMapRefno, prodUnitRefno);
+            var results = await DatabaseConnection.GetInstance()
+                .SqlConn.QueryAsync<TransferItem>(query, this.ActHdr.HdrRefno, locMap.WhsLocMapRefno, prodUnitRefno);
 
             if (results?.Count > 0)
             {
                 this.ItemRefno = Convert.ToInt32(results[0].ActivityItemRefno);
                 this.ItemFkRefno = Convert.ToInt32(results[0].ActivityItemFKRefno);
-                this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(Convert.ToInt32(results[0].ProductUnitRefno));
+                this.ProdInfo =
+                    await ProductInfoTasks.GetInfoFromUnitRefno(Convert.ToInt32(results[0].ProductUnitRefno));
                 this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
 
                 foundItemRefno = this.ItemRefno;
@@ -904,33 +985,43 @@ namespace dMobile.Controller.Activity_Item
         /// </summary>
         /// <param name="data">.</param>
         /// <returns>.</returns>
-        public async override Task<string> CreateSubmitXml(XDocument data)
+        public override async Task<string> CreateSubmitXml(XDocument data)
         {
             var xmlString = new StringBuilder();
             var settings = new XmlWriterSettings
             {
                 Async = true,
-                Indent = false,
+                Indent = false
             };
             var xml = XmlWriter.Create(xmlString, settings);
 
             var request = XDocument.Parse(
-                "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
-                + "<imclient>"
-                + "<command>"
-                + "<action>SUBMIT TRANSFER ITEM</action>"
-                + "</command>"
-                + await SysCommon.GetRequestDefaults(false)
-                + "<prod_id>" + data.Root.Element("ProductCode").Value.PadRight(10) + "</prod_id>"
-                + "<alt_unit>" + data.Root.Element("UnitCode").Value + "</alt_unit>"
-                + "<is_bc>" + bool.Parse(data.Root.Element("ProductUnitIsBC").Value) + "</is_bc>"
-                + "<symbology>" + data.Root.Element("ProductUnitBarCodeSymbologyPrefix") + "</symbology>"
-                + "<gtin>" + data.Root.Element("ProductUnitBarCodeCode").Value.PadRight(20) + "</gtin>"
-                + "<whs_id></whs_id>"
-                + "<sect_refno></sect_refno>"
-                + "<slot_refno></slot_refno>"
-                + "<refno></refno>"
-                + "</imclient>");
+                "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" +
+                "<imclient>" +
+                "<command>" +
+                "<action>SUBMIT TRANSFER ITEM</action>" +
+                "</command>" +
+                await SysCommon.GetRequestDefaults(false) +
+                "<prod_id>" +
+                data.Root.Element("ProductCode").Value.PadRight(10) +
+                "</prod_id>" +
+                "<alt_unit>" +
+                data.Root.Element("UnitCode").Value +
+                "</alt_unit>" +
+                "<is_bc>" +
+                bool.Parse(data.Root.Element("ProductUnitIsBC").Value) +
+                "</is_bc>" +
+                "<symbology>" +
+                data.Root.Element("ProductUnitBarCodeSymbologyPrefix") +
+                "</symbology>" +
+                "<gtin>" +
+                data.Root.Element("ProductUnitBarCodeCode").Value.PadRight(20) +
+                "</gtin>" +
+                "<whs_id></whs_id>" +
+                "<sect_refno></sect_refno>" +
+                "<slot_refno></slot_refno>" +
+                "<refno></refno>" +
+                "</imclient>");
 
             request.Save(xml);
             await xml.FlushAsync();
@@ -946,7 +1037,11 @@ namespace dMobile.Controller.Activity_Item
         /// <param name="quantity">.</param>
         /// <param name="baseQuantity">.</param>
         /// <param name="weightQuantity">.</param>
-        public override void ReplaceQuantityInActivityItem(object selectedActivityItem, decimal quantity, decimal baseQuantity, decimal weightQuantity)
+        public override void ReplaceQuantityInActivityItem(
+            object selectedActivityItem,
+            decimal quantity,
+            decimal baseQuantity,
+            decimal weightQuantity)
         {
             if (selectedActivityItem is TransferItem transferItem)
             {
@@ -963,7 +1058,11 @@ namespace dMobile.Controller.Activity_Item
         /// <param name="quantity">.</param>
         /// <param name="baseQuantity">.</param>
         /// <param name="weightQuantity">.</param>
-        public override void AddToQuantityInActivityItem(object selectedActivityItem, decimal quantity, decimal baseQuantity, decimal weightQuantity)
+        public override void AddToQuantityInActivityItem(
+            object selectedActivityItem,
+            decimal quantity,
+            decimal baseQuantity,
+            decimal weightQuantity)
         {
             if (selectedActivityItem is TransferItem transferItem)
             {
@@ -990,7 +1089,7 @@ namespace dMobile.Controller.Activity_Item
                     transferItem.ActivityItemTransferQuantity,
                     transferItem.ActivityItemTransferBaseQuantity,
                     transferItem.ActivityItemTransferWeightQuantity,
-                    transferItem.ActivityItemRefno,
+                    transferItem.ActivityItemRefno
                 };
 
                 await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync(query, parameters);
@@ -1164,6 +1263,12 @@ namespace dMobile.Controller.Activity_Item
         public override XDocument CreateDump()
         {
             throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public override DataTemplate GetDataTemplate()
+        {
+            return (DataTemplate)this.ResourceDictionary["dataTemplateTransferItem"];
         }
     }
 }

@@ -14,10 +14,9 @@ namespace dMobile.Controller.Activity_Item
     using System.Xml.Linq;
     using Activity;
     using Bedrock;
-    using dMobile.Resources.Types.Items;
     using GroundWork;
     using Resources.Services;
-    using Resources.Types;
+    using Resources.Types.Items;
     using SQLite;
     using Xamarin.Forms;
 
@@ -48,11 +47,6 @@ namespace dMobile.Controller.Activity_Item
             new List<PurchaseOrderWorkSheetItem>();
 
         /// <summary>
-        ///     Defines the resourceDictionary.
-        /// </summary>
-        private readonly ResourceDictionary resourceDictionary = new ResourceDictionary();
-
-        /// <summary>
         ///     Initializes a new instance of the <see cref="PoWorkSheetActItem" /> class.
         /// </summary>
         /// <param name="activity">.</param>
@@ -66,57 +60,78 @@ namespace dMobile.Controller.Activity_Item
             this.IsAskCreateNewItem = !this.SysEnv.SysSettings.IsPOWorkSheetCreateNewItemNoAsk;
 
             // Data grid
-            var dataTemplate = new DataTemplate(() =>
+            DefineInitialGrid();
+            return;
+
+            ///////////////////////////////////////////////////////////
+            void DefineInitialGrid()
             {
-                var gridData = new Grid
-                {
-                    Padding = new Thickness(5),
-                    ColumnDefinitions =
+                var dataTemplate = new DataTemplate(
+                    () =>
                     {
-                        new ColumnDefinition { Width = new GridLength(this.columnWidth0, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(this.columnWidth1, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(this.columnWidth2, GridUnitType.Absolute) }
-                    }
-                };
+                        var gridData = new Grid
+                        {
+                            Padding = new Thickness(5),
+                            ColumnDefinitions =
+                            {
+                                new ColumnDefinition
+                                    { Width = new GridLength(this.columnWidth0, GridUnitType.Absolute) },
+                                new ColumnDefinition
+                                    { Width = new GridLength(this.columnWidth1, GridUnitType.Absolute) },
+                                new ColumnDefinition
+                                    { Width = new GridLength(this.columnWidth2, GridUnitType.Absolute) }
+                            }
+                        };
 
-                var labelActivityPoProductId = new Label
-                    { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
-                var labelActivityPoOrdered = new Label
-                    { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
-                var labelActivityPoWeight = new Label
-                    { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
+                        var labelActivityPoProductId = new Label
+                            { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
+                        var labelActivityPoOrdered = new Label
+                            { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
+                        var labelActivityPoWeight = new Label
+                            { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
 
-                labelActivityPoProductId.SetBinding(Label.TextProperty, new Binding("ProductCode"));
-                labelActivityPoOrdered.SetBinding(Label.TextProperty,
-                    new Binding("ActivityItemPurchaseOrderWorkSheetQuantityOrdered", BindingMode.Default, null, null,
-                        "{0:F3}"));
-                labelActivityPoWeight.SetBinding(Label.TextProperty,
-                    new Binding("ActivityItemPurchaseOrderWorkSheetWeightQuantityOrdered", BindingMode.Default, null,
-                        null, "{0:F3}"));
+                        labelActivityPoProductId.SetBinding(Label.TextProperty, new Binding("ProductCode"));
+                        labelActivityPoOrdered.SetBinding(
+                            Label.TextProperty,
+                            new Binding(
+                                "ActivityItemPurchaseOrderWorkSheetQuantityOrdered",
+                                BindingMode.Default,
+                                null,
+                                null,
+                                "{0:F3}"));
+                        labelActivityPoWeight.SetBinding(
+                            Label.TextProperty,
+                            new Binding(
+                                "ActivityItemPurchaseOrderWorkSheetWeightQuantityOrdered",
+                                BindingMode.Default,
+                                null,
+                                null,
+                                "{0:F3}"));
 
-                gridData.Children.Add(labelActivityPoProductId);
-                gridData.Children.Add(labelActivityPoOrdered);
-                gridData.Children.Add(labelActivityPoWeight);
+                        gridData.Children.Add(labelActivityPoProductId);
+                        gridData.Children.Add(labelActivityPoOrdered);
+                        gridData.Children.Add(labelActivityPoWeight);
 
-                Grid.SetColumn(labelActivityPoProductId, 0);
-                Grid.SetColumn(labelActivityPoOrdered, 1);
-                Grid.SetColumn(labelActivityPoWeight, 2);
+                        Grid.SetColumn(labelActivityPoProductId, 0);
+                        Grid.SetColumn(labelActivityPoOrdered, 1);
+                        Grid.SetColumn(labelActivityPoWeight, 2);
 
-                return new ViewCell { View = gridData };
-            });
+                        return new ViewCell { View = gridData };
+                    });
 
-            var isAddKey = true;
-            foreach (var item in this.resourceDictionary)
-            {
-                if (item.Key == "dataTemplatePOWorkSheetItem")
+                var isAddKey = true;
+                foreach (var item in this.ResourceDictionary)
                 {
-                    isAddKey = false;
+                    if (item.Key == "dataTemplatePOWorkSheetItem")
+                    {
+                        isAddKey = false;
+                    }
                 }
-            }
 
-            if (isAddKey)
-            {
-                this.resourceDictionary.Add("dataTemplatePOWorkSheetItem", dataTemplate);
+                if (isAddKey)
+                {
+                    this.ResourceDictionary.Add("dataTemplatePOWorkSheetItem", dataTemplate);
+                }
             }
         }
 
@@ -557,16 +572,119 @@ namespace dMobile.Controller.Activity_Item
         /// <param name="gridMainActivity">The GridMainActivity<see cref="Grid" />.</param>
         /// <param name="listViewMainActivity">The ListViewMainActivity<see cref="ListView" />.</param>
         /// <returns>The <see cref="ObservableCollection{object}" />.</returns>
-        public override ObservableCollection<object> DesignGrid(ref Grid gridMainActivity,
+        public override ObservableCollection<object> DesignGrid(
+            ref Grid gridMainActivity,
             ref ListView listViewMainActivity)
         {
-            var observableCollection = new ObservableCollection<object>();
+            this.PlaceNewItemsAtBottomOfList(this.ListItems);
+            var mainActivityItems = this.CreateObservableCollectionFromListItems(this.ListItems);
+            var gridItems = this.DefineGrid();
+            gridMainActivity.Children.Add(gridItems);
 
-            foreach (var purchaseOrderWorkSheetItem in this.ListItems.Cast<PurchaseOrderWorkSheetItem>())
+            listViewMainActivity.ItemTemplate = (DataTemplate)this.ResourceDictionary["dataTemplatePOWorkSheetItem"];
+
+            return mainActivityItems;
+        }
+
+        /// <summary>
+        ///     Calculate the maximum data column widths.
+        /// </summary>
+        /// <param name="definition">Grid layout definition.</param>
+        /// <param name="itemsToMeasure">List of data items to measure in order to determine the max column width.</param>
+        public override void CalcMaxDataColWidth(Grid definition, List<object> itemsToMeasure)
+        {
+            var gridService = DependencyService.Get<IGridService>();
+            var columns = definition.ColumnDefinitions;
+            foreach (var item in itemsToMeasure)
             {
-                observableCollection.Add(purchaseOrderWorkSheetItem);
+                this.CalcMaxDataColWidth(item, gridService, columns);
+            }
+        }
+
+        /// <summary>
+        ///    Calculate the maximum data column widths for one item.
+        /// </summary>
+        /// <param name="item">Item to compare to the max width.</param>
+        /// <param name="gridService">Grid service.</param>
+        /// <param name="columns">Column definitions to compare.</param>
+        public override void CalcMaxDataColWidth(
+            object item,
+            IGridService gridService,
+            ColumnDefinitionCollection columns)
+        {
+            var purchaseOrderWorkSheetItem = (PurchaseOrderWorkSheetItem)item;
+            var detailWidths = new[]
+            {
+                gridService.CalculateTextWidth(purchaseOrderWorkSheetItem.ProductCode),
+                gridService.CalculateTextWidth(
+                    $"{purchaseOrderWorkSheetItem.ActivityItemPurchaseOrderWorkSheetQuantityOrdered:F3}"),
+                gridService.CalculateTextWidth(
+                    $"{purchaseOrderWorkSheetItem.ActivityItemPurchaseOrderWorkSheetWeightQuantityOrdered:F3}")
+            };
+
+            var columnWidths = new[] { this.columnWidth0, this.columnWidth1, this.columnWidth2 };
+
+            for (var i = 0; i < detailWidths.Length; i++)
+            {
+                if (detailWidths[i] > columnWidths[i])
+                {
+                    columnWidths[i] = detailWidths[i];
+                    columns[i].Width = new GridLength(columnWidths[i], GridUnitType.Absolute);
+                }
             }
 
+            this.columnWidth0 = columnWidths[0];
+            this.columnWidth1 = columnWidths[1];
+            this.columnWidth2 = columnWidths[2];
+        }
+
+        /// <summary>
+        ///     Create observable collection from list items.
+        /// </summary>
+        /// <param name="listItems">List of item objects.</param>
+        /// <returns>Created observable collection.</returns>
+        public override ObservableCollection<object> CreateObservableCollectionFromListItems(List<object> listItems)
+        {
+            // This code is optimized, it iterates over this.ListItems only once.
+            // It separates the list items into two lists, one for positive refno and one for negative refno.
+            // It then adds the positive refno items first, then the negative refno items.
+            // This is done to ensure that the negative refno items "new items" are displayed at the bottom of the list.
+            var mainActivityItems = new ObservableCollection<object>();
+            foreach (var item in listItems.Cast<PurchaseOrderWorkSheetItem>())
+            {
+                mainActivityItems.Add(item);
+            }
+
+            return mainActivityItems;
+        }
+
+        /// <summary>
+        ///     Sort the list items and place new items at the bottom of the list.
+        /// </summary>
+        /// <param name="listItems">List of items to sort.</param>
+        /// <remarks>
+        /// New items with negative foreign key item reference numbers will be placed at the bottom of
+        /// the new collection. The list items will not be sorted to match the new collection.
+        /// </remarks>
+        public override void PlaceNewItemsAtBottomOfList(List<object> listItems)
+        {
+            var sortedItems = listItems
+                .Cast<PurchaseOrderWorkSheetItem>()
+                .OrderBy(item => item.ActivityItemFKRefno >= 0 ? 0 : 1)
+                .ThenBy(item => item.ActivityItemFKRefno)
+                .Cast<object>()
+                .ToList();
+
+            listItems.Clear();
+            listItems.AddRange(sortedItems);
+        }
+
+        /// <summary>
+        ///     Define the grid layout for the activity item.
+        /// </summary>
+        /// <returns>New grid layout.</returns>
+        public override Grid DefineGrid()
+        {
             var labelProductId = new Label
             {
                 Text = "Product ID", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start,
@@ -588,7 +706,7 @@ namespace dMobile.Controller.Activity_Item
             this.columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelWeight.Text);
 
             // Header grid
-            var gridHeader = new Grid
+            var gridItems = new Grid
             {
                 Padding = new Thickness(5),
                 ColumnDefinitions =
@@ -599,76 +717,18 @@ namespace dMobile.Controller.Activity_Item
                 }
             };
 
-            gridHeader.SetDynamicResource(VisualElement.BackgroundColorProperty, "HeaderColor");
+            gridItems.SetDynamicResource(VisualElement.BackgroundColorProperty, "HeaderColor");
 
-            gridHeader.Children.Add(labelProductId);
-            gridHeader.Children.Add(labelOrdered);
-            gridHeader.Children.Add(labelWeight);
+            gridItems.Children.Add(labelProductId);
+            gridItems.Children.Add(labelOrdered);
+            gridItems.Children.Add(labelWeight);
 
             Grid.SetColumn(labelProductId, 0);
             Grid.SetColumn(labelOrdered, 1);
             Grid.SetColumn(labelWeight, 2);
 
-            Grid.SetRow(gridHeader, 0);
-
-            gridMainActivity.Children.Add(gridHeader);
-
-            foreach (var purchaseOrderWorkSheetItem in observableCollection.Cast<PurchaseOrderWorkSheetItem>())
-            {
-                var detailWidth0 = DependencyService.Get<IGridService>()
-                    .CalculateTextWidth(purchaseOrderWorkSheetItem.ProductCode);
-                var detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(
-                    $"{purchaseOrderWorkSheetItem.ActivityItemPurchaseOrderWorkSheetQuantityOrdered:F3}");
-                var detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(
-                    $"{purchaseOrderWorkSheetItem.ActivityItemPurchaseOrderWorkSheetWeightQuantityOrdered:F3}");
-
-                if (detailWidth0 > this.columnWidth0)
-                {
-                    this.columnWidth0 = detailWidth0;
-                    gridHeader.ColumnDefinitions[0].Width = this.columnWidth0;
-                }
-
-                if (detailWidth1 > this.columnWidth1)
-                {
-                    this.columnWidth1 = detailWidth1;
-                    gridHeader.ColumnDefinitions[1].Width = this.columnWidth1;
-                }
-
-                if (detailWidth2 > this.columnWidth2)
-                {
-                    this.columnWidth2 = detailWidth2;
-                    gridHeader.ColumnDefinitions[2].Width = this.columnWidth2;
-                }
-            }
-
-            listViewMainActivity.ItemTemplate = (DataTemplate)this.resourceDictionary["dataTemplatePOWorkSheetItem"];
-
-            return observableCollection;
-        }
-
-        public override Grid DesignGrid()
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        ///     Create and fill the data template.
-        /// </summary>
-        /// <param name="gridMainActivity"><see cref="Grid"/> Main activity grid.</param>
-        public override void FillDataTemplate(Grid gridMainActivity)
-        {
-            throw new NotImplementedException();
-        }
-
-
-        public override DataTemplate GetDataTemplate()
-        {
-            throw new NotImplementedException();
-        }
-
-        public override ObservableCollection<object> GetActivityItemList()
-        {
-            throw new NotImplementedException();
+            Grid.SetRow(gridItems, 0);
+            return gridItems;
         }
 
         /// <summary>
@@ -1134,6 +1194,12 @@ namespace dMobile.Controller.Activity_Item
         public override XDocument CreateDump()
         {
             throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public override DataTemplate GetDataTemplate()
+        {
+            return (DataTemplate)this.ResourceDictionary["dataTemplatePOWorkSheetItem"];
         }
     }
 }

@@ -268,7 +268,7 @@ namespace dMobile.GroundWork
                             $"{(int)SysCommon.ActSubTypes.Picking} as ActivityItemSubType," +
                             "Seg.ActivityItemFKRefno," +
                             "Seg.ActivityItemStringFKRefno," +
-                            "prodUnit.UnitRefno as ProductUnitRefno," +
+                            "prodUnit.ProductUnitRefno," +
                             "whs.LocationMapRefno as WarehouseLocationMapRefno," +
                             "Seg.ActivityItemPickingQuantityOrdered," +
                             "Seg.ActivityItemPickingBaseQuantityOrdered," +

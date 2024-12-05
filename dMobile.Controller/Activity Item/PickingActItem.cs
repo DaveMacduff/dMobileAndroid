@@ -31,7 +31,7 @@ namespace dMobile.Controller.Activity_Item
         /// </summary>
         /// <param name="activity">.</param>
         public PickingActItem(Activity.Activity activity)
-          : base(activity)
+            : base(activity)
         {
             this.FullClassName = typeof(PickingActItem).FullName;
             this.IsAllowAddItem = this.SysEnv.SysSettings.AllowAddProd2Pick;
@@ -158,7 +158,6 @@ namespace dMobile.Controller.Activity_Item
                         gridData.Children.Add(labelActivityItemPickingUnitCode);
                         gridData.Children.Add(labelActivityItemPickingQuantityOrdered);
                         gridData.Children.Add(labelActivityItemPickingQuantityReceived);
-
                         if (this.SysEnv.SysSettings.IsPickShowItemQtyAvail)
                         {
                             gridData.Children.Add(labelActivityItemPickingQuantityAvailable);
@@ -170,7 +169,6 @@ namespace dMobile.Controller.Activity_Item
                         Grid.SetColumn(labelActivityItemPickingUnitCode, 3);
                         Grid.SetColumn(labelActivityItemPickingQuantityOrdered, 4);
                         Grid.SetColumn(labelActivityItemPickingQuantityReceived, 5);
-
                         if (this.SysEnv.SysSettings.IsPickShowItemQtyAvail)
                         {
                             Grid.SetColumn(labelActivityItemPickingQuantityAvailable, 6);
@@ -199,45 +197,40 @@ namespace dMobile.Controller.Activity_Item
         /// <summary>
         /// Gets or sets the grid column 0 width.
         /// </summary>
-        private double ColumnWidth0 { get; set; } = 0;
+        private double ColumnWidth0 { get; set; }
 
         /// <summary>
         /// Gets or sets the grid column 1 width.
         /// </summary>
-        private double ColumnWidth1 { get; set; } = 0;
+        private double ColumnWidth1 { get; set; }
 
         /// <summary>
         /// Gets or sets the grid column 2 width.
         /// </summary>
-        private double ColumnWidth2 { get; set; } = 0;
+        private double ColumnWidth2 { get; set; }
 
         /// <summary>
         /// Gets or sets the grid column 3 width.
         /// </summary>
-        private double ColumnWidth3 { get; set; } = 0;
+        private double ColumnWidth3 { get; set; }
 
         /// <summary>
         /// Gets or sets the grid column 4 width.
         /// </summary>
-        private double ColumnWidth4 { get; set; } = 0;
+        private double ColumnWidth4 { get; set; }
 
         /// <summary>
         /// Gets or sets the grid column 5 width.
         /// </summary>
-        private double ColumnWidth5 { get; set; } = 0;
+        private double ColumnWidth5 { get; set; }
 
         /// <summary>
         /// Gets or sets the grid column 6 width.
         /// </summary>
-        private double ColumnWidth6 { get; set; } = 0;
+        private double ColumnWidth6 { get; set; }
 
         /// <summary>
-        /// Gets or sets the resource dictionary.
-        /// </summary>
-        private ResourceDictionary ResourceDictionary { get; set; } = new ResourceDictionary();
-
-        /// <summary>
-        /// Gets or sets the list picking items.
+        /// Gets or sets the list picking items that is not search filtered.
         /// </summary>
         private List<PickingItem> ListPickingItems { get; set; } = new List<PickingItem>();
 
@@ -291,7 +284,7 @@ namespace dMobile.Controller.Activity_Item
             if (this.SysEnv.SysSettings.IsPickOverrideMsg1)
             {
                 msg = $"Product scanned, code \'{prodInfo.Code}\' bc \'{prodInfo.UnitBc}\' unit" +
-                    $" \'{prodInfo.UnitCode}\', is not found on this order for warehouse {locMap.CurrLocMap.WhsFkRefno}.";
+                      $" \'{prodInfo.UnitCode}\', is not found on this order for warehouse {locMap.CurrLocMap.WhsFkRefno}.";
             }
 
             return msg;
@@ -321,7 +314,8 @@ namespace dMobile.Controller.Activity_Item
         public override bool IsCatchAskZero()
         {
             var result = false;
-            if (this.IsCatchAsk() && this.ProdInfo.IsCatchAskZero)
+            if (this.IsCatchAsk() &&
+                this.ProdInfo.IsCatchAskZero)
             {
                 result = !this.SysEnv.SysSettings.IsPickingNoCatchAskZeroEnabled;
             }
@@ -349,6 +343,12 @@ namespace dMobile.Controller.Activity_Item
             }
 
             return foundIdx;
+        }
+
+        /// <inheritdoc />
+        public override DataTemplate GetDataTemplate()
+        {
+            return (DataTemplate)this.ResourceDictionary["dataTemplatePickingItem"];
         }
 
         /// <summary>
@@ -381,7 +381,8 @@ namespace dMobile.Controller.Activity_Item
                 var weightUpper = (this.ProdInfo.UnitGrossWeight + (this.ProdInfo.UnitGrossWeight * per)) * qty;
                 var weightLower = (this.ProdInfo.UnitGrossWeight - (this.ProdInfo.UnitGrossWeight * per)) * qty;
 
-                if (weight < weightLower || weight > weightUpper)
+                if (weight < weightLower ||
+                    weight > weightUpper)
                 {
                     // clsPickingSingleAcivityitem is different, it only raises a message box as a warning, but continues.
                     // Lekker changed its mind again and only wanting a warning rather than stop.
@@ -392,8 +393,8 @@ namespace dMobile.Controller.Activity_Item
             }
 
             // New items are identified with 0 < this.FkRefno, do not validate.
-            if (this.SysEnv.SysSettings.PickQtyOverWarn != SysCommon.ActPickingQtyOverValLevels.NoValidationOrWarning
-                && this.ItemFkRefno > 0)
+            if (this.SysEnv.SysSettings.PickQtyOverWarn != SysCommon.ActPickingQtyOverValLevels.NoValidationOrWarning &&
+                this.ItemFkRefno > 0)
             {
                 try
                 {
@@ -401,16 +402,19 @@ namespace dMobile.Controller.Activity_Item
                 }
                 catch (MessageOnlyException msgEx)
                 {
-                    var msg = (msgEx.Message.IndexOf("MSGBOX-") == -1) ? msgEx.Message : msgEx.Message["MSGBOX-".Length..];
+                    var msg = msgEx.Message.IndexOf("MSGBOX-") == -1
+                        ? msgEx.Message
+                        : msgEx.Message["MSGBOX-".Length..];
                     switch (this.SysEnv.SysSettings.PickQtyOverWarn)
                     {
                         case SysCommon.ActPickingQtyOverValLevels.ValidateWarnAndContinue:
-                            if (await Device.InvokeOnMainThreadAsync(async () =>
-                                await Application.Current.MainPage.DisplayAlert(
-                                    "Quantity Over",
-                                    msg + Environment.NewLine + "Continue?",
-                                    "Yes",
-                                    "No")))
+                            if (await Device.InvokeOnMainThreadAsync(
+                                    async () =>
+                                        await Application.Current.MainPage.DisplayAlert(
+                                            "Quantity Over",
+                                            msg + Environment.NewLine + "Continue?",
+                                            "Yes",
+                                            "No")))
                             {
                                 throw new IsReadyToApplyException(msg, true, true);
                             }
@@ -437,7 +441,7 @@ namespace dMobile.Controller.Activity_Item
             var settings = new XmlWriterSettings
             {
                 Async = true,
-                Indent = false,
+                Indent = false
             };
             var xml = XmlWriter.Create(xmlString, settings);
 
@@ -491,50 +495,54 @@ namespace dMobile.Controller.Activity_Item
             tempSchemeData.VariantNumber = int.Parse(
                 xmlDoc.SelectSingleNode("/VFPData/seg/productschemevariantno").InnerText);
 
-            if (!(xmlDoc.SelectSingleNode(
-                "/VFPData/seg/activitydetaillogisticunitbestbeforesellbydate").InnerText == string.Empty))
+            if (!(xmlDoc.SelectSingleNode("/VFPData/seg/activitydetaillogisticunitbestbeforesellbydate").InnerText ==
+                  string.Empty))
             {
                 tempSchemeData.LogisticUnitBestBeforeSellByDate = DateTime.Parse(
                     xmlDoc.SelectSingleNode("/VFPData/seg/activitydetaillogisticunitbestbeforesellbydate").InnerText);
             }
 
-            if (!(xmlDoc.SelectSingleNode(
-                "/VFPData/seg/activitydetaillogisticunitproductiondate").InnerText == string.Empty))
+            if (!(xmlDoc.SelectSingleNode("/VFPData/seg/activitydetaillogisticunitproductiondate").InnerText ==
+                  string.Empty))
             {
                 tempSchemeData.LogisticUnitProductionDate = DateTime.Parse(
                     xmlDoc.SelectSingleNode("/VFPData/seg/activitydetaillogisticunitproductiondate").InnerText);
             }
 
-            if (!(xmlDoc.SelectSingleNode(
-                "/VFPData/seg/activitydetaillogisticunitexpiryusebydate").InnerText == string.Empty))
+            if (!(xmlDoc.SelectSingleNode("/VFPData/seg/activitydetaillogisticunitexpiryusebydate").InnerText ==
+                  string.Empty))
             {
                 tempSchemeData.LogisticUnitExpiryUseByDate = DateTime.Parse(
                     xmlDoc.SelectSingleNode("/VFPData/seg/activitydetaillogisticunitexpiryusebydate").InnerText);
             }
 
-            if (!(xmlDoc.SelectSingleNode(
-                "/VFPData/seg/activitydetaillogisticunitduedate").InnerText == string.Empty))
+            if (!(xmlDoc.SelectSingleNode("/VFPData/seg/activitydetaillogisticunitduedate").InnerText == string.Empty))
             {
                 tempSchemeData.LogisticUnitDueDate = DateTime.Parse(
                     xmlDoc.SelectSingleNode("/VFPData/seg/activitydetaillogisticunitduedate").InnerText);
             }
 
-            if (!(xmlDoc.SelectSingleNode(
-                "/VFPData/seg/activitydetaillogisticunitpackagingdate").InnerText == string.Empty))
+            if (!(xmlDoc.SelectSingleNode("/VFPData/seg/activitydetaillogisticunitpackagingdate").InnerText ==
+                  string.Empty))
             {
                 tempSchemeData.LogisticUnitPackagingDate = DateTime.Parse(
                     xmlDoc.SelectSingleNode("/VFPData/seg/activitydetaillogisticunitpackagingdate").InnerText);
             }
 
             itemSchemeData.ProdSchemeData = tempSchemeData;
-            itemSchemeData.ActDetailExtra.Text1 = xmlDoc.SelectSingleNode("/VFPData/seg/activitydetailextra1").InnerText;
-            itemSchemeData.ActDetailExtra.Text2 = xmlDoc.SelectSingleNode("/VFPData/seg/activitydetailextra2").InnerText;
-            itemSchemeData.ActDetailExtra.Text3 = xmlDoc.SelectSingleNode("/VFPData/seg/activitydetailextra3").InnerText;
-            itemSchemeData.ActDetailExtra.Text4 = xmlDoc.SelectSingleNode("/VFPData/seg/activitydetailextra4").InnerText;
+            itemSchemeData.ActDetailExtra.Text1 =
+                xmlDoc.SelectSingleNode("/VFPData/seg/activitydetailextra1").InnerText;
+            itemSchemeData.ActDetailExtra.Text2 =
+                xmlDoc.SelectSingleNode("/VFPData/seg/activitydetailextra2").InnerText;
+            itemSchemeData.ActDetailExtra.Text3 =
+                xmlDoc.SelectSingleNode("/VFPData/seg/activitydetailextra3").InnerText;
+            itemSchemeData.ActDetailExtra.Text4 =
+                xmlDoc.SelectSingleNode("/VFPData/seg/activitydetailextra4").InnerText;
 
             if (!(xmlDoc.SelectSingleNode("/VFPData/seg/activitydetailextra5").InnerText == string.Empty))
             {
-                itemSchemeData.ActDetailExtra.DateTime1 = DateTime.Parse(xmlDoc.SelectSingleNode("/VFPData/seg/activitydetailextra5").InnerText);
+                itemSchemeData.ActDetailExtra.DateTime1 = DateTime.Parse(
+                    xmlDoc.SelectSingleNode("/VFPData/seg/activitydetailextra5").InnerText);
             }
 
             return itemSchemeData;
@@ -550,11 +558,12 @@ namespace dMobile.Controller.Activity_Item
             var comment = string.Empty;
             if (selectedActivityItem is PickingItem pickingItem)
             {
-                var results = await DatabaseConnection.GetInstance().
-                SqlConn.QueryAsync<ActivityItemPickingCommentModel>(
-                    "SELECT * FROM tActivityItemPickingComment WHERE ActivityItemRefno = ?",
-                    Convert.ToInt32(pickingItem.ActivityItemRefno));
-                if (results != null && results.Count > 0)
+                var results = await DatabaseConnection.GetInstance()
+                    .SqlConn.QueryAsync<ActivityItemPickingCommentModel>(
+                        "SELECT * FROM tActivityItemPickingComment WHERE ActivityItemRefno = ?",
+                        Convert.ToInt32(pickingItem.ActivityItemRefno));
+                if (results != null &&
+                    results.Count > 0)
                 {
                     comment = Convert.ToString(results[0].ActivityItemPickingCommentComment);
                 }
@@ -596,7 +605,6 @@ namespace dMobile.Controller.Activity_Item
         /// Insert a new adjustment activity item.
         /// </summary>
         /// <param name="data"><see cref="XDocument"/> Adjustment activity information to insert.</param>
-
         /// <returns><see cref="Task"/> Task operation.</returns>
         public override async Task Insert(XDocument data)
         {
@@ -616,33 +624,37 @@ namespace dMobile.Controller.Activity_Item
             //////////////////////////////////////////////////////////////////////////
             async Task InsertActivityItemInTables(int prodUnitRefno)
             {
-                await DatabaseConnection.GetInstance().SqlConn.RunInTransactionAsync(transaction =>
-                {
-                    try
-                    {
-                        // NOTE: ActivityItemStatus is set to inserted for later submission use.
-                        _ = transaction.Execute(@"INSERT INTO tActivityItem (
+                await DatabaseConnection.GetInstance()
+                    .SqlConn.RunInTransactionAsync(
+                        transaction =>
+                        {
+                            try
+                            {
+                                // NOTE: ActivityItemStatus is set to inserted for later submission use.
+                                _ = transaction.Execute(
+                                    @"INSERT INTO tActivityItem (
                                 ActivityItemSubType
                                 ,ActivityItemStatus
                                 ,ActivityRefno
                                 ,ActivityItemIsAdded
                                 ) VALUES (?, ?, ?, ?)",
-                            Convert.ToInt32(SysCommon.ActSubTypes.Picking),
-                            Convert.ToInt32(SysCommon.ActStatus.Inserted),
-                            Convert.ToInt32(this.ActHdr.HdrRefno),
-                            1);
+                                    Convert.ToInt32(SysCommon.ActSubTypes.Picking),
+                                    Convert.ToInt32(SysCommon.ActStatus.Inserted),
+                                    Convert.ToInt32(this.ActHdr.HdrRefno),
+                                    1);
 
-                        this.ItemRefno = Convert.ToInt32(transaction.ExecuteScalar<int>(
-                            "SELECT last_insert_rowid() FROM tActivityItem"));
+                                this.ItemRefno = Convert.ToInt32(
+                                    transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivityItem"));
 
-                        // Get temporary item FK refno for newly inserted line item.
-                        this.ItemFkRefno = Convert.ToInt32(transaction.ExecuteScalar<int>(
-                            @"SELECT MAX(tActivityItemCount.ActivityItemFKRefno)
+                                // Get temporary item FK refno for newly inserted line item.
+                                this.ItemFkRefno = Convert.ToInt32(
+                                    transaction.ExecuteScalar<int>(
+                                        @"SELECT MAX(tActivityItemCount.ActivityItemFKRefno)
                               FROM tActivityItemCount WHERE tActivityItemCount.ActivityItemSubType" +
-                            $" = {(int)SysCommon.ActSubTypes.Picking}"));
-                        this.ItemFkRefno = this.ItemFkRefno + 1;
+                                        $" = {(int)SysCommon.ActSubTypes.Picking}"));
+                                this.ItemFkRefno = this.ItemFkRefno + 1;
 
-                        var query = @"
+                                var query = @"
                             INSERT INTO tActivityItemPicking (
                                     ActivityItemRefno, 
                                     ActivityItemSubType, 
@@ -682,38 +694,38 @@ namespace dMobile.Controller.Activity_Item
                                     ?, 
                                     ?)";
 
-                        var locMap = LocationMap.GetInstance().CurrLocMap;
-                        var parameters = new object[]
-                        {
-                            Convert.ToInt32(this.ItemRefno),
-                            Convert.ToInt32(SysCommon.ActSubTypes.Picking),
-                            Convert.ToInt32(this.ItemFkRefno),
-                            Convert.ToString(this.ItemFkRefno),
-                            Convert.ToInt32(prodUnitRefno),
-                            Convert.ToInt32(locMap.WhsLocMapRefno),
-                            Convert.ToInt32(0),
-                            Convert.ToInt32(0),
-                            Convert.ToInt32(0),
-                            Convert.ToInt32(0),
-                            Convert.ToInt32(0),
-                            Convert.ToInt32(0),
-                            Convert.ToString(string.Empty),
-                            Convert.ToString(this.ProdInfo.Desc.Trim() + " " + this.ProdInfo.UnitSizeDesc),
-                            Convert.ToInt32(0),
-                            Convert.ToInt32(0),
-                            Convert.ToInt32(0),
-                            Convert.ToInt32(false),
-                        };
+                                var locMap = LocationMap.GetInstance().CurrLocMap;
+                                var parameters = new object[]
+                                {
+                                    Convert.ToInt32(this.ItemRefno),
+                                    Convert.ToInt32(SysCommon.ActSubTypes.Picking),
+                                    Convert.ToInt32(this.ItemFkRefno),
+                                    Convert.ToString(this.ItemFkRefno),
+                                    Convert.ToInt32(prodUnitRefno),
+                                    Convert.ToInt32(locMap.WhsLocMapRefno),
+                                    Convert.ToInt32(0),
+                                    Convert.ToInt32(0),
+                                    Convert.ToInt32(0),
+                                    Convert.ToInt32(0),
+                                    Convert.ToInt32(0),
+                                    Convert.ToInt32(0),
+                                    Convert.ToString(string.Empty),
+                                    Convert.ToString(this.ProdInfo.Desc.Trim() + " " + this.ProdInfo.UnitSizeDesc),
+                                    Convert.ToInt32(0),
+                                    Convert.ToInt32(0),
+                                    Convert.ToInt32(0),
+                                    Convert.ToInt32(false)
+                                };
 
-                        transaction.Execute(query, parameters);
-                        transaction.Commit();
-                    }
-                    catch (SQLiteException)
-                    {
-                        transaction.Rollback();
-                        throw;
-                    }
-                });
+                                transaction.Execute(query, parameters);
+                                transaction.Commit();
+                            }
+                            catch (SQLiteException)
+                            {
+                                transaction.Rollback();
+                                throw;
+                            }
+                        });
             }
 
             //////////////////////////////////////////////////////////////////////////
@@ -746,7 +758,7 @@ namespace dMobile.Controller.Activity_Item
                     ActivityItemPickingWeightQuantityShipped = 0,
                     ActivityItemPickingQuantityAvailable = 0,
                     ActivityItemPickingBaseQuantityAvailable = 0,
-                    ActivityItemPickingWeightQuantityAvailable = 0,
+                    ActivityItemPickingWeightQuantityAvailable = 0
                 };
 
                 this.ListItems.Add(item);
@@ -769,6 +781,7 @@ namespace dMobile.Controller.Activity_Item
                 await tableActPickingDetail.PurgeData();
                 await tableActPickingItem.PurgeData();
             }
+
             this.DataLayerProgressOutHandler(this, EventArgs.Empty, 3);
             await tableActPickingItem.RequestItemData(this.ActHdr.HdrFkRefno, data, this.ActHdr.HdrRefno);
             this.DataLayerProgressOutHandler(this, EventArgs.Empty, 5);
@@ -780,54 +793,94 @@ namespace dMobile.Controller.Activity_Item
         /// </summary>
         /// <param name="gridMainActivity">The GridMainActivity<see cref="Grid"/>.</param>
         /// <param name="listViewMainActivity">The ListViewMainActivity<see cref="ListView"/>.</param>
-        /// <returns>The <see cref="ObservableCollection{object}"/>.</returns>
-        public override ObservableCollection<object> DesignGrid(ref Grid gridMainActivity, ref ListView listViewMainActivity)
+        /// <returns>New observable collection.</returns>
+        public override ObservableCollection<object> DesignGrid(
+            ref Grid gridMainActivity,
+            ref ListView listViewMainActivity)
         {
-            ////var observableCollection = new ObservableCollection<Object>(this.ListItems);
+            this.PlaceNewItemsAtBottomOfList(this.ListItems);
+            var mainActivityItems = this.CreateObservableCollectionFromListItems(this.ListItems);
+            var gridItems = this.DefineGrid();
+            this.CalcMaxDataColWidth(gridItems, this.ListItems);
+            gridMainActivity.Children.Add(gridItems);
 
-            // This code is optimized, it iterates over this.ListItems only once.
-            var items = new ObservableCollection<Object>();
-            var positiveRefnoItems = new List<PickingItem>();
-            var negativeRefnoItems = new List<PickingItem>();
-            foreach (var pickingItem in this.ListItems.Cast<PickingItem>())
+            listViewMainActivity.ItemTemplate = (DataTemplate)this.ResourceDictionary["dataTemplatePickingItem"];
+
+            return mainActivityItems;
+        }
+
+        /// <summary>
+        ///     Define the grid layout for the activity item.
+        /// </summary>
+        /// <returns>New grid layout.</returns>
+        public override Grid DefineGrid()
+        {
+            var labelIsActivityItemPickingCommentHeader = new Label
             {
-                if (pickingItem.ActivityItemFKRefno >= 0)
-                {
-                    positiveRefnoItems.Add(pickingItem);
-                }
-                else
-                {
-                    negativeRefnoItems.Add(pickingItem);
-                }
-            }
-
-            foreach (var item in positiveRefnoItems.Cast<PickingItem>())
+                Text = "C",
+                VerticalOptions = LayoutOptions.Center,
+                HorizontalOptions = LayoutOptions.Start,
+                FontAttributes = FontAttributes.Bold
+            };
+            var labelActivityItemPickingProductCodeHeader = new Label
             {
-                items.Add(item);
-            }
-
-            foreach (var item in negativeRefnoItems.Cast<PickingItem>())
+                Text = "Product ID",
+                VerticalOptions = LayoutOptions.Center,
+                HorizontalOptions = LayoutOptions.Start,
+                FontAttributes = FontAttributes.Bold
+            };
+            var labelActivityItemPickingProductUnitBcHeader = new Label
             {
-                items.Add(item);
-            }
+                Text = string.Empty,
+                VerticalOptions = LayoutOptions.Center,
+                HorizontalOptions = LayoutOptions.Start,
+                FontAttributes = FontAttributes.Bold
+            };
+            var labelActivityItemPickingUnitCodeHeader = new Label
+            {
+                Text = string.Empty,
+                VerticalOptions = LayoutOptions.Center,
+                HorizontalOptions = LayoutOptions.Start,
+                FontAttributes = FontAttributes.Bold
+            };
+            var labelActivityItemPickingQuantityOrderedHeader = new Label
+            {
+                Text = "Ordered",
+                VerticalOptions = LayoutOptions.Center,
+                HorizontalOptions = LayoutOptions.Start,
+                FontAttributes = FontAttributes.Bold
+            };
+            var labelActivityItemPickingQuantityReceivedHeader = new Label
+            {
+                Text = "Shipped",
+                VerticalOptions = LayoutOptions.Center,
+                HorizontalOptions = LayoutOptions.Start,
+                FontAttributes = FontAttributes.Bold
+            };
+            var labelActivityItemPickingQuantityAvailableHeader = new Label
+            {
+                Text = "Available",
+                VerticalOptions = LayoutOptions.Center,
+                HorizontalOptions = LayoutOptions.Start,
+                FontAttributes = FontAttributes.Bold
+            };
 
-            var labelIsActivityItemPickingCommentHeader = new Label { Text = "C", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
-            var labelActivityItemPickingProductCodeHeader = new Label { Text = "Product ID", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
-            var labelActivityItemPickingProductUnitBcHeader = new Label { Text = string.Empty, VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
-            var labelActivityItemPickingUnitCodeHeader = new Label { Text = string.Empty, VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
-            var labelActivityItemPickingQuantityOrderedHeader = new Label { Text = "Ordered", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
-            var labelActivityItemPickingQuantityReceivedHeader = new Label { Text = "Shipped", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
-            var labelActivityItemPickingQuantityAvailableHeader = new Label { Text = "Available", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start, FontAttributes = FontAttributes.Bold };
+            this.ColumnWidth0 = DependencyService.Get<IGridService>()
+                .CalculateTextWidth(labelIsActivityItemPickingCommentHeader.Text);
+            this.ColumnWidth1 = DependencyService.Get<IGridService>()
+                .CalculateTextWidth(labelActivityItemPickingProductCodeHeader.Text);
+            this.ColumnWidth2 = DependencyService.Get<IGridService>()
+                .CalculateTextWidth(labelActivityItemPickingProductUnitBcHeader.Text);
+            this.ColumnWidth3 = DependencyService.Get<IGridService>()
+                .CalculateTextWidth(labelActivityItemPickingUnitCodeHeader.Text);
+            this.ColumnWidth4 = DependencyService.Get<IGridService>()
+                .CalculateTextWidth(labelActivityItemPickingQuantityOrderedHeader.Text);
+            this.ColumnWidth5 = DependencyService.Get<IGridService>()
+                .CalculateTextWidth(labelActivityItemPickingQuantityReceivedHeader.Text);
+            this.ColumnWidth6 = DependencyService.Get<IGridService>()
+                .CalculateTextWidth(labelActivityItemPickingQuantityAvailableHeader.Text);
 
-            this.ColumnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelIsActivityItemPickingCommentHeader.Text);
-            this.ColumnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelActivityItemPickingProductCodeHeader.Text);
-            this.ColumnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelActivityItemPickingProductUnitBcHeader.Text);
-            this.ColumnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelActivityItemPickingUnitCodeHeader.Text);
-            this.ColumnWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(labelActivityItemPickingQuantityOrderedHeader.Text);
-            this.ColumnWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(labelActivityItemPickingQuantityReceivedHeader.Text);
-            this.ColumnWidth6 = DependencyService.Get<IGridService>().CalculateTextWidth(labelActivityItemPickingQuantityAvailableHeader.Text);
-
-            var gridItems = new Grid
+            var gridColumns = new Grid
             {
                 Padding = new Thickness(5),
                 ColumnDefinitions =
@@ -838,22 +891,21 @@ namespace dMobile.Controller.Activity_Item
                     new ColumnDefinition { Width = new GridLength(this.ColumnWidth3, GridUnitType.Absolute) },
                     new ColumnDefinition { Width = new GridLength(this.ColumnWidth4, GridUnitType.Absolute) },
                     new ColumnDefinition { Width = new GridLength(this.ColumnWidth5, GridUnitType.Absolute) },
-                    new ColumnDefinition { Width = new GridLength(this.ColumnWidth6, GridUnitType.Absolute) },
-                },
+                    new ColumnDefinition { Width = new GridLength(this.ColumnWidth6, GridUnitType.Absolute) }
+                }
             };
 
-            gridItems.SetDynamicResource(VisualElement.BackgroundColorProperty, "HeaderColor");
+            gridColumns.SetDynamicResource(VisualElement.BackgroundColorProperty, "HeaderColor");
 
-            gridItems.Children.Add(labelIsActivityItemPickingCommentHeader);
-            gridItems.Children.Add(labelActivityItemPickingProductCodeHeader);
-            gridItems.Children.Add(labelActivityItemPickingProductUnitBcHeader);
-            gridItems.Children.Add(labelActivityItemPickingUnitCodeHeader);
-            gridItems.Children.Add(labelActivityItemPickingQuantityOrderedHeader);
-            gridItems.Children.Add(labelActivityItemPickingQuantityReceivedHeader);
-
+            gridColumns.Children.Add(labelIsActivityItemPickingCommentHeader);
+            gridColumns.Children.Add(labelActivityItemPickingProductCodeHeader);
+            gridColumns.Children.Add(labelActivityItemPickingProductUnitBcHeader);
+            gridColumns.Children.Add(labelActivityItemPickingUnitCodeHeader);
+            gridColumns.Children.Add(labelActivityItemPickingQuantityOrderedHeader);
+            gridColumns.Children.Add(labelActivityItemPickingQuantityReceivedHeader);
             if (this.SysEnv.SysSettings.IsPickShowItemQtyAvail)
             {
-                gridItems.Children.Add(labelActivityItemPickingQuantityAvailableHeader);
+                gridColumns.Children.Add(labelActivityItemPickingQuantityAvailableHeader);
             }
 
             Grid.SetColumn(labelIsActivityItemPickingCommentHeader, 0);
@@ -862,107 +914,145 @@ namespace dMobile.Controller.Activity_Item
             Grid.SetColumn(labelActivityItemPickingUnitCodeHeader, 3);
             Grid.SetColumn(labelActivityItemPickingQuantityOrderedHeader, 4);
             Grid.SetColumn(labelActivityItemPickingQuantityReceivedHeader, 5);
-
             if (this.SysEnv.SysSettings.IsPickShowItemQtyAvail)
             {
                 Grid.SetColumn(labelActivityItemPickingQuantityAvailableHeader, 6);
             }
 
-            Grid.SetRow(gridItems, 0);
+            // Place the columns on the grid's row zero.
+            Grid.SetRow(gridColumns, 0);
 
-            gridMainActivity.Children.Add(gridItems);
+            return gridColumns;
+        }
 
-            var gridService = DependencyService.Get<IGridService>();
-            var columnDefinitions = gridItems.ColumnDefinitions;
-            var isPickShowItemQtyAvail = this.SysEnv.SysSettings.IsPickShowItemQtyAvail;
-            for (var item = 0; item < this.ListItems.Count; item++)
+        /// <summary>
+        ///     Create observable collection from list items.
+        /// </summary>
+        /// <param name="listItems">List of item objects.</param>
+        /// <returns>Created observable collection.</returns>
+        public override ObservableCollection<object> CreateObservableCollectionFromListItems(List<object> listItems)
+        {
+            // This code is optimized, it iterates over this.ListItems only once.
+            // It separates the list items into two lists, one for positive refno and one for negative refno.
+            // It then adds the positive refno items first, then the negative refno items.
+            // This is done to ensure that the negative refno items "new items" are displayed at the bottom of the list.
+            var mainActivityItems = new ObservableCollection<object>();
+            foreach (var item in listItems.Cast<PickingItem>())
             {
-                var pickingItem = (PickingItem)this.ListItems[item];
-                var detailWidths = new[]
-                {
-                    gridService.CalculateTextWidth(pickingItem.IsActivityItemPickingComment),
-                    gridService.CalculateTextWidth(pickingItem.ProductCode),
-                    gridService.CalculateTextWidth(pickingItem.ProductUnitBC),
-                    gridService.CalculateTextWidth(pickingItem.UnitCode),
-                    gridService.CalculateTextWidth($"{pickingItem.ActivityItemPickingQuantityOrdered:F3}"),
-                    gridService.CalculateTextWidth($"{pickingItem.ActivityItemPickingWeightQuantityShipped:F3}"),
-                    gridService.CalculateTextWidth($"{pickingItem.ActivityItemPickingQuantityAvailable:F3}")
-                };
-
-                if (detailWidths[0] > this.ColumnWidth0)
-                {
-                    this.ColumnWidth0 = detailWidths[0];
-                    columnDefinitions[0].Width = this.ColumnWidth0;
-                }
-
-                if (detailWidths[1] > this.ColumnWidth1)
-                {
-                    this.ColumnWidth1 = detailWidths[1];
-                    columnDefinitions[1].Width = this.ColumnWidth1;
-                }
-
-                if (detailWidths[2] > this.ColumnWidth2)
-                {
-                    this.ColumnWidth2 = detailWidths[2];
-                    columnDefinitions[2].Width = this.ColumnWidth2;
-                }
-
-                if (detailWidths[3] > this.ColumnWidth3)
-                {
-                    this.ColumnWidth3 = detailWidths[3];
-                    columnDefinitions[3].Width = this.ColumnWidth3;
-                }
-
-                if (detailWidths[4] > this.ColumnWidth4)
-                {
-                    this.ColumnWidth4 = detailWidths[4];
-                    columnDefinitions[4].Width = this.ColumnWidth4;
-                }
-
-                if (detailWidths[5] > this.ColumnWidth5)
-                {
-                    this.ColumnWidth5 = detailWidths[5];
-                    columnDefinitions[5].Width = this.ColumnWidth5;
-                }
-
-                if (isPickShowItemQtyAvail)
-                {
-                    if (detailWidths[6] > this.ColumnWidth6)
-                    {
-                        this.ColumnWidth6 = detailWidths[6];
-                        columnDefinitions[6].Width = this.ColumnWidth6;
-                    }
-                }
-                else
-                {
-                    this.ColumnWidth6 = 0;
-                    columnDefinitions[6].Width = this.ColumnWidth6;
-                }
+                mainActivityItems.Add(item);
             }
 
-            listViewMainActivity.ItemTemplate = (DataTemplate)this.ResourceDictionary["dataTemplatePickingItem"];
-
-            return items;
+            return mainActivityItems;
         }
 
-        public override Grid DesignGrid()
+        /// <summary>
+        ///     Sort the list items and place new items at the bottom of the list.
+        /// </summary>
+        /// <param name="listItems">List of items to sort.</param>
+        /// <remarks>
+        /// New items with negative foreign key item reference numbers will be placed at the bottom of
+        /// the new collection. The list items will not be sorted to match the new collection.
+        /// </remarks>
+        public override void PlaceNewItemsAtBottomOfList(List<object> listItems)
         {
-            throw new NotImplementedException();
+            var sortedItems = listItems
+                .Cast<PickingItem>()
+                .OrderBy(item => item.ActivityItemFKRefno >= 0 ? 0 : 1)
+                .ThenBy(item => item.ActivityItemFKRefno)
+                .Cast<object>()
+                .ToList();
+
+            listItems.Clear();
+            listItems.AddRange(sortedItems);
         }
 
-        public override void FillDataTemplate(Grid gridMainActivity)
+        /// <summary>
+        ///     Calculate the maximum data column widths.
+        /// </summary>
+        /// <param name="definition">Grid layout definition.</param>
+        /// <param name="itemsToMeasure">List of data items to measure in order to determine the max column width.</param>
+        public override void CalcMaxDataColWidth(Grid definition, List<object> itemsToMeasure)
         {
-            throw new NotImplementedException();
+            var gridService = DependencyService.Get<IGridService>();
+            var columns = definition.ColumnDefinitions;
+            foreach (var item in itemsToMeasure)
+            {
+                this.CalcMaxDataColWidth(item, gridService, columns);
+            }
         }
 
-        public override DataTemplate GetDataTemplate()
+        /// <summary>
+        ///    Calculate the maximum data column widths for one item.
+        /// </summary>
+        /// <param name="item">Item to compare to the max width.</param>
+        /// <param name="gridService">Grid service.</param>
+        /// <param name="columns">Column definitions to compare.</param>
+        public override void CalcMaxDataColWidth(
+            object item,
+            IGridService gridService,
+            ColumnDefinitionCollection columns)
         {
-            throw new NotImplementedException();
-        }
+            var pickingItem = (PickingItem)item;
+            var detailWidths = new[]
+            {
+                gridService.CalculateTextWidth(pickingItem.IsActivityItemPickingComment),
+                gridService.CalculateTextWidth(pickingItem.ProductCode),
+                gridService.CalculateTextWidth(pickingItem.ProductUnitBC),
+                gridService.CalculateTextWidth(pickingItem.UnitCode),
+                gridService.CalculateTextWidth($"{pickingItem.ActivityItemPickingQuantityOrdered:F3}"),
+                gridService.CalculateTextWidth($"{pickingItem.ActivityItemPickingWeightQuantityShipped:F3}"),
+                gridService.CalculateTextWidth($"{pickingItem.ActivityItemPickingQuantityAvailable:F3}")
+            };
 
-        public override ObservableCollection<object> GetActivityItemList()
-        {
-            throw new NotImplementedException();
+            if (detailWidths[0] > this.ColumnWidth0)
+            {
+                this.ColumnWidth0 = detailWidths[0];
+                columns[0].Width = this.ColumnWidth0;
+            }
+
+            if (detailWidths[1] > this.ColumnWidth1)
+            {
+                this.ColumnWidth1 = detailWidths[1];
+                columns[1].Width = this.ColumnWidth1;
+            }
+
+            if (detailWidths[2] > this.ColumnWidth2)
+            {
+                this.ColumnWidth2 = detailWidths[2];
+                columns[2].Width = this.ColumnWidth2;
+            }
+
+            if (detailWidths[3] > this.ColumnWidth3)
+            {
+                this.ColumnWidth3 = detailWidths[3];
+                columns[3].Width = this.ColumnWidth3;
+            }
+
+            if (detailWidths[4] > this.ColumnWidth4)
+            {
+                this.ColumnWidth4 = detailWidths[4];
+                columns[4].Width = this.ColumnWidth4;
+            }
+
+            if (detailWidths[5] > this.ColumnWidth5)
+            {
+                this.ColumnWidth5 = detailWidths[5];
+                columns[5].Width = this.ColumnWidth5;
+            }
+
+            if (this.SysEnv.SysSettings.IsPickShowItemQtyAvail)
+            {
+                if (detailWidths[6] > this.ColumnWidth6)
+                {
+                    this.ColumnWidth6 = detailWidths[6];
+                    columns[6].Width = this.ColumnWidth6;
+                }
+            }
+            else
+            {
+                this.ColumnWidth6 = 0;
+                columns[6].Width = this.ColumnWidth6;
+            }
         }
 
         /// <summary>
@@ -1114,30 +1204,42 @@ namespace dMobile.Controller.Activity_Item
             //        this.DataViewItems.Sort = "ActivityItemRefno";
             //    }
             // }
-            this.ListPickingItems = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<PickingItem>(sql.ToString());
+            this.ListPickingItems =
+                await DatabaseConnection.GetInstance().SqlConn.QueryAsync<PickingItem>(sql.ToString());
             this.ListPickingItems = this.ListPickingItems.OrderBy(x => x.ActivityItemRefno).ToList();
             this.ListItems = this.ListPickingItems.Cast<object>().ToList();
             return this.ListItems;
         }
 
         /// <summary>
-        /// The Search.
+        /// Create a new filtered list of activity items, and an observable collection of activity items.
         /// </summary>
-        /// <param name="searchText">.</param>
+        /// <param name="searchText">Text to filter on.</param>
         /// <returns>.</returns>
         public override ObservableCollection<object> Search(string searchText)
         {
-            var observableCollection = new ObservableCollection<object>();
-
-            this.ListItems = this.ListPickingItems.Where(pickingItem => pickingItem.ProductCode.ToString().ToLower()
-                .Contains(searchText.ToLower().Trim())).Cast<object>().ToList();
-
-            foreach (var pickingItem in this.ListItems.Cast<PickingItem>())
+            ObservableCollection<object> mainActivityItems = null;
+            if (string.IsNullOrEmpty(searchText) ||
+                string.IsNullOrWhiteSpace(searchText))
             {
-                observableCollection.Add(pickingItem);
+                mainActivityItems = new ObservableCollection<object>(this.ListPickingItems);
+            }
+            else
+            {
+                mainActivityItems = new ObservableCollection<object>();
+                var lowerSearchText = searchText.ToLower().Trim();
+                foreach (var pickingItem in this.ListPickingItems)
+                {
+                    if (pickingItem.ProductCode.ToLower().Contains(lowerSearchText))
+                    {
+                        mainActivityItems.Add(pickingItem);
+                    }
+                }
             }
 
-            return observableCollection;
+            this.ListItems = mainActivityItems.ToList();
+
+            return mainActivityItems;
         }
 
         /// <summary>
@@ -1147,7 +1249,18 @@ namespace dMobile.Controller.Activity_Item
         /// <returns><see cref="Task{T}"/> Activity item foreign key reference number.</returns>
         public override async Task<int> AssignActivityItem(object selectedActivityItem)
         {
-            if (selectedActivityItem is PickingItem item)
+            if (selectedActivityItem == null)
+            {
+                this.SelectedListIdx = -1;
+                this.SelectedItem = null;
+                this.ItemRefno = 0;
+                this.ItemFkRefno = 0;
+                this.ProdInfo = new ProductInfo
+                {
+                    Scheme = new ProdScheme()
+                };
+            }
+            else if (selectedActivityItem is PickingItem item)
             {
                 this.SelectedItem = item;
                 this.ItemRefno = item.ActivityItemRefno;
@@ -1181,7 +1294,7 @@ namespace dMobile.Controller.Activity_Item
                     this.LocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(this.ActHdr.LocationMapRefno);
                     if (this.LocMap.WhsLocMapRefno == 0)
                     {
-                        var defLocMapRefno = LocationMapTasks.DefaultLocMapRefnoToWhsIfUnassigned(locationMapRefno: 0);
+                        var defLocMapRefno = LocationMapTasks.DefaultLocMapRefnoToWhsIfUnassigned(0);
                         this.LocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(defLocMapRefno);
                     }
                 }
@@ -1235,10 +1348,12 @@ namespace dMobile.Controller.Activity_Item
                         AND tActivityItemPicking.ProductUnitRefno = {prodUnitRefno}";
 
             var results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<PickingItem>(sql);
-            if (results != null && results.Count > 0)
+            if (results != null &&
+                results.Count > 0)
             {
                 this.ItemFkRefno = Convert.ToInt32(results[0].ActivityItemFKRefno);
-                this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(Convert.ToInt32(results[0].ProductUnitRefno));
+                this.ProdInfo =
+                    await ProductInfoTasks.GetInfoFromUnitRefno(Convert.ToInt32(results[0].ProductUnitRefno));
                 this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
                 this.ItemRefno = Convert.ToInt32(results[0].ActivityItemRefno);
                 foundActItemRefno = this.ItemRefno;
@@ -1247,7 +1362,8 @@ namespace dMobile.Controller.Activity_Item
             {
                 foreach (var item in this.ListPickingItems)
                 {
-                    if (item.LocationMapRefno == locMap.WhsLocMapRefno && item.ProductUnitRefno == prodUnitRefno)
+                    if (item.LocationMapRefno == locMap.WhsLocMapRefno &&
+                        item.ProductUnitRefno == prodUnitRefno)
                     {
                         this.ItemRefno = item.ActivityItemRefno;
                         this.ItemFkRefno = item.ActivityItemFKRefno;
@@ -1263,7 +1379,8 @@ namespace dMobile.Controller.Activity_Item
                 // on it for the same product and different warehouse.
                 // Picking is the only activity that could have this sort of problem. All other activities are
                 // warehouse friend because the can't mix warehouses or are created by the mobile itself.
-                if (foundActItemRefno == 0 && this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc)
+                if (foundActItemRefno == 0 &&
+                    this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc)
                 {
                     sql = $@"
                         SELECT tActivityItem.ActivityItemRefno,
@@ -1277,7 +1394,8 @@ namespace dMobile.Controller.Activity_Item
                             AND tActivityItemPicking.ProductUnitRefno = {prodUnitRefno}";
 
                     results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<PickingItem>(sql);
-                    if (results != null && results.Count > 0)
+                    if (results != null &&
+                        results.Count > 0)
                     {
                         var locMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(
                             Convert.ToInt32(results[0].LocationMapRefno),
@@ -1295,12 +1413,16 @@ namespace dMobile.Controller.Activity_Item
 
                         if (await LocationMapTasks.IsCompleteLocMap(locMapRefno))
                         {
-                            LocationMap.GetInstance().CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(locMapRefno);
+                            LocationMap.GetInstance().CurrLocMap =
+                                await LocationMapTasks.GetSLocMapFromLocMapRefno(locMapRefno);
                             LocationMap.GetInstance().ChosenLocMap = LocationMap.GetInstance().CurrLocMap;
                             this.LocMap = LocationMap.GetInstance().CurrLocMap;
                             this.ItemFkRefno = Convert.ToInt32(results[0].ActivityItemFKRefno);
-                            this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(Convert.ToInt32(results[0].ProductUnitRefno));
-                            this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
+                            this.ProdInfo =
+                                await ProductInfoTasks.GetInfoFromUnitRefno(
+                                    Convert.ToInt32(results[0].ProductUnitRefno));
+                            this.ProdInfo.Scheme =
+                                await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
                             this.ItemRefno = Convert.ToInt32(results[0].ActivityItemRefno);
                             foundActItemRefno = this.ItemRefno;
                         }
@@ -1314,7 +1436,8 @@ namespace dMobile.Controller.Activity_Item
                                 this.ItemRefno = item.ActivityItemRefno;
                                 this.ItemFkRefno = item.ActivityItemFKRefno;
                                 this.ProdInfo = await ProductInfoTasks.GetInfoFromRefno(item.ProductRefno);
-                                this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
+                                this.ProdInfo.Scheme =
+                                    await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
                                 foundActItemRefno = this.ItemRefno;
                                 break;
                             }
@@ -1334,11 +1457,14 @@ namespace dMobile.Controller.Activity_Item
         {
             if (!this.SysEnv.SysSettings.IsDisconnectedMode)
             {
-                var sendReq = await this.CreateDeleteXml(XDocument.Parse(
-                "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
-                + "<params>"
-                + "<skid_data>" + this.ActHdr.SkidInfo.CurrSkid.SkidCode + "</skid_data>"
-                + "</params>"));
+                var sendReq = await this.CreateDeleteXml(
+                    XDocument.Parse(
+                        "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" +
+                        "<params>" +
+                        "<skid_data>" +
+                        this.ActHdr.SkidInfo.CurrSkid.SkidCode +
+                        "</skid_data>" +
+                        "</params>"));
 
                 _ = SysCommon.SubmitComm(sendReq);
             }
@@ -1351,13 +1477,13 @@ namespace dMobile.Controller.Activity_Item
         /// </summary>
         /// <param name="data">.</param>
         /// <returns>.</returns>
-        public async override Task<string> CreateDeleteXml(XDocument data)
+        public override async Task<string> CreateDeleteXml(XDocument data)
         {
             var xmlString = new StringBuilder();
             var settings = new XmlWriterSettings
             {
                 Async = true,
-                Indent = false,
+                Indent = false
             };
             var xml = XmlWriter.Create(xmlString, settings);
 
@@ -1369,18 +1495,26 @@ namespace dMobile.Controller.Activity_Item
             else
             {
                 request = XDocument.Parse(
-                    "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
-                    + "<imclient>"
-                    + "<command>"
-                    + "<action>DELETE SALES ORDER DETAIL SKID</action>"
-                    + "</command>"
-                    + await SysCommon.GetRequestDefaults(false)
-                    + "<skid_data>" + data.Root.Element("skid_data").Value + "</skid_data>"
-                    + "<whs_id>" + this.LocMap.WhsFkRefno + "</whs_id>"
-                    + "<refno>" + this.ActHdr.HdrFkRefno + "</refno>"
-                    + "<itm_refno>" + this.ItemFkRefno + "</itm_refno>"
-                    + "<is_negate_qty>false</is_negate_qty>"
-                    + "</imclient>");
+                    "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" +
+                    "<imclient>" +
+                    "<command>" +
+                    "<action>DELETE SALES ORDER DETAIL SKID</action>" +
+                    "</command>" +
+                    await SysCommon.GetRequestDefaults(false) +
+                    "<skid_data>" +
+                    data.Root.Element("skid_data").Value +
+                    "</skid_data>" +
+                    "<whs_id>" +
+                    this.LocMap.WhsFkRefno +
+                    "</whs_id>" +
+                    "<refno>" +
+                    this.ActHdr.HdrFkRefno +
+                    "</refno>" +
+                    "<itm_refno>" +
+                    this.ItemFkRefno +
+                    "</itm_refno>" +
+                    "<is_negate_qty>false</is_negate_qty>" +
+                    "</imclient>");
             }
 
             request.Save(xml);
@@ -1395,13 +1529,13 @@ namespace dMobile.Controller.Activity_Item
         /// </summary>
         /// <param name="data">.</param>
         /// <returns>.</returns>
-        public async override Task<string> CreateSubmitXml(XDocument data)
+        public override async Task<string> CreateSubmitXml(XDocument data)
         {
             var xmlString = new StringBuilder();
             var settings = new XmlWriterSettings
             {
                 Async = true,
-                Indent = false,
+                Indent = false
             };
             var xml = XmlWriter.Create(xmlString, settings);
 
@@ -1412,21 +1546,31 @@ namespace dMobile.Controller.Activity_Item
             var symbologyPrefix = data.Root.Element("ProductUnitBarCodeSymbologyPrefix").Value;
 
             var request = XDocument.Parse(
-                "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
-                + "<imclient>"
-                + "<command>"
-                + "<action>SUBMIT PICKING ITEM</action>"
-                + "</command>"
-                + await SysCommon.GetRequestDefaults(false)
-                + "<prod_id>" + prodCode + "</prod_id>"
-                + "<is_bc>" + prodUnitIsBc + "</is_bc>"
-                + "<symbology>" + symbologyPrefix + "</symbology>"
-                + "<gtin>" + barCodeCode + "</gtin>"
-                + "<whs_id>" + this.LocMap.WhsFkRefno + "</whs_id>"
-                + "<sect_refno></sect_refno>"
-                + "<slot_refno></slot_refno>"
-                + "<refno></refno>"
-                + "</imclient>");
+                "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" +
+                "<imclient>" +
+                "<command>" +
+                "<action>SUBMIT PICKING ITEM</action>" +
+                "</command>" +
+                await SysCommon.GetRequestDefaults(false) +
+                "<prod_id>" +
+                prodCode +
+                "</prod_id>" +
+                "<is_bc>" +
+                prodUnitIsBc +
+                "</is_bc>" +
+                "<symbology>" +
+                symbologyPrefix +
+                "</symbology>" +
+                "<gtin>" +
+                barCodeCode +
+                "</gtin>" +
+                "<whs_id>" +
+                this.LocMap.WhsFkRefno +
+                "</whs_id>" +
+                "<sect_refno></sect_refno>" +
+                "<slot_refno></slot_refno>" +
+                "<refno></refno>" +
+                "</imclient>");
 
             request.Save(xml);
             await xml.FlushAsync();
@@ -1500,7 +1644,7 @@ namespace dMobile.Controller.Activity_Item
                     pickingItem.ActivityItemPickingQuantityShipped,
                     pickingItem.ActivityItemPickingBaseQuantityShipped,
                     pickingItem.ActivityItemPickingWeightQuantityShipped,
-                    pickingItem.ActivityItemRefno,
+                    pickingItem.ActivityItemRefno
                 };
 
                 await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync(query, parameters);
@@ -1522,19 +1666,21 @@ namespace dMobile.Controller.Activity_Item
             var settings = new XmlWriterSettings
             {
                 Async = true,
-                Indent = false,
+                Indent = false
             };
             var xml = XmlWriter.Create(xmlString, settings);
 
             var request = XDocument.Parse(
-                "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
-                + "<imclient>"
-                + "<command>"
-                + "<action>REQUEST PICKING TOTAL QUANTITY</action>"
-                + await SysCommon.GetRequestDefaults(false)
-                + "<refno>" + actFkRefno + "</refno>"
-                + "</command>"
-                + "</imclient>");
+                "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" +
+                "<imclient>" +
+                "<command>" +
+                "<action>REQUEST PICKING TOTAL QUANTITY</action>" +
+                await SysCommon.GetRequestDefaults(false) +
+                "<refno>" +
+                actFkRefno +
+                "</refno>" +
+                "</command>" +
+                "</imclient>");
 
             request.Save(xml);
             await xml.FlushAsync();
@@ -1553,18 +1699,18 @@ namespace dMobile.Controller.Activity_Item
 
             try
             {
-                var query = "SELECT SUM(tActivityItemPicking.ActivityItemPickingQuantityOrdered) AS Ordered,"
-                            + "SUM(tActivityItemPicking.ActivityItemPickingWeightQuantityOrdered) AS WeightOrdered,"
-                            + "SUM(tActivityItemPicking.ActivityItemPickingQuantityShipped) AS Shipped,"
-                            + "SUM(tActivityItemPicking.ActivityItemPickingWeightQuantityShipped) AS WeightShipped,"
-                            + "tUnit.UnitCode AS WtUnitCode "
-                            + "FROM tActivityItem "
-                            + "INNER JOIN tActivityItemPicking ON tActivityItemPicking.ActivityItemRefno = "
-                            + "tActivityItem.ActivityItemRefno "
-                            + "INNER JOIN tProductUnit ON tProductUnit.ProductUnitRefno = tActivityItemPicking.ProductUnitRefno "
-                            + "INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.WtUnitRefno "
-                            + $"WHERE tActivityItem.ActivityRefno = {this.ActHdr.HdrRefno} "
-                            + "GROUP BY tUnit.UnitCode";
+                var query = "SELECT SUM(tActivityItemPicking.ActivityItemPickingQuantityOrdered) AS Ordered," +
+                            "SUM(tActivityItemPicking.ActivityItemPickingWeightQuantityOrdered) AS WeightOrdered," +
+                            "SUM(tActivityItemPicking.ActivityItemPickingQuantityShipped) AS Shipped," +
+                            "SUM(tActivityItemPicking.ActivityItemPickingWeightQuantityShipped) AS WeightShipped," +
+                            "tUnit.UnitCode AS WtUnitCode " +
+                            "FROM tActivityItem " +
+                            "INNER JOIN tActivityItemPicking ON tActivityItemPicking.ActivityItemRefno = " +
+                            "tActivityItem.ActivityItemRefno " +
+                            "INNER JOIN tProductUnit ON tProductUnit.ProductUnitRefno = tActivityItemPicking.ProductUnitRefno " +
+                            "INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.WtUnitRefno " +
+                            $"WHERE tActivityItem.ActivityRefno = {this.ActHdr.HdrRefno} " +
+                            "GROUP BY tUnit.UnitCode";
 
                 var results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<PickingItemSummary>(query);
 

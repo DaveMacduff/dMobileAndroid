@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 using dMobile.Bedrock;
 using dMobile.Resources.Models.Products;
-using dMobile.Resources.Types;
 using Xamarin.Forms;
 
 namespace dMobile.Controller.Activity_Item
@@ -54,7 +53,11 @@ namespace dMobile.Controller.Activity_Item
         /// <param name="quantity">.</param>
         /// <param name="baseQuantity">.</param>
         /// <param name="weightQuantity">.</param>
-        public override void AddToQuantityInActivityItem(object selectedActivityItem, decimal quantity, decimal baseQuantity, decimal weightQuantity)
+        public override void AddToQuantityInActivityItem(
+            object selectedActivityItem,
+            decimal quantity,
+            decimal baseQuantity,
+            decimal weightQuantity)
         {
             throw new NotImplementedException();
         }
@@ -109,32 +112,9 @@ namespace dMobile.Controller.Activity_Item
         /// <param name="gridMainActivity">The GridMainActivity<see cref="Grid"/>.</param>
         /// <param name="listViewMainActivity">The ListViewMainActivity<see cref="ListView"/>.</param>
         /// <returns>The <see cref="ObservableCollection{object}"/>.</returns>
-        public override ObservableCollection<object> DesignGrid(ref Grid gridMainActivity, ref ListView listViewMainActivity)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override Grid DesignGrid()
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        ///     Create and fill the data template.
-        /// </summary>
-        /// <param name="gridMainActivity"><see cref="Grid"/> Main activity grid.</param>
-        public override void FillDataTemplate(Grid gridMainActivity)
-        {
-            throw new NotImplementedException();
-        }
-
-
-        public override DataTemplate GetDataTemplate()
-        {
-            throw new NotImplementedException();
-        }
-
-        public override ObservableCollection<object> GetActivityItemList()
+        public override ObservableCollection<object> DesignGrid(
+            ref Grid gridMainActivity,
+            ref ListView listViewMainActivity)
         {
             throw new NotImplementedException();
         }
@@ -206,7 +186,11 @@ namespace dMobile.Controller.Activity_Item
         /// <param name="quantity">.</param>
         /// <param name="baseQuantity">.</param>
         /// <param name="weightQuantity">.</param>
-        public override void ReplaceQuantityInActivityItem(object selectedActivityItem, decimal quantity, decimal baseQuantity, decimal weightQuantity)
+        public override void ReplaceQuantityInActivityItem(
+            object selectedActivityItem,
+            decimal quantity,
+            decimal baseQuantity,
+            decimal weightQuantity)
         {
             throw new NotImplementedException();
         }
@@ -230,39 +214,44 @@ namespace dMobile.Controller.Activity_Item
         {
             if (bool.Parse(data.Root.Element("picking_is_update").Value))
             {
-                var query = "SELECT * FROM tProductLocationMapType WHERE ProductRefno = ? AND LocationMapRefno = ? AND ProductLocationMapTypeEnum = ?";
+                var query =
+                    "SELECT * FROM tProductLocationMapType WHERE ProductRefno = ? AND LocationMapRefno = ? AND ProductLocationMapTypeEnum = ?";
                 var parameters = new object[]
                 {
                     Convert.ToInt32(int.Parse(data.Root.Element("prod_refno").Value)),
                     Convert.ToInt32(int.Parse(data.Root.Element("picking_old_location_refno").Value)),
-                    Convert.ToInt32(SysCommon.ProdLocMapTypes.Picking),
+                    Convert.ToInt32(SysCommon.ProdLocMapTypes.Picking)
                 };
 
-                var results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<ProductLocationMapTypeModel>(query, parameters);
+                var results = await DatabaseConnection.GetInstance()
+                    .SqlConn.QueryAsync<ProductLocationMapTypeModel>(query, parameters);
 
-                if (results != null && results.Count > 0)
+                if (results != null &&
+                    results.Count > 0)
                 {
-                    var queryUpdate = "UPDATE tProductLocationMapType SET LocationMapRefno = ? WHERE ProductRefno = ? AND WarehouseLocationMapRefno = ? AND LocationMapRefno = ? AND ProductLocationMapTypeEnum = ?";
+                    var queryUpdate =
+                        "UPDATE tProductLocationMapType SET LocationMapRefno = ? WHERE ProductRefno = ? AND WarehouseLocationMapRefno = ? AND LocationMapRefno = ? AND ProductLocationMapTypeEnum = ?";
                     var parametersUpdate = new object[]
                     {
                         Convert.ToInt32(int.Parse(data.Root.Element("picking_new_location_refno").Value)),
                         Convert.ToInt32(int.Parse(data.Root.Element("prod_refno").Value)),
                         Convert.ToInt32(int.Parse(data.Root.Element("picking_warehouse_location_refno").Value)),
                         Convert.ToInt32(int.Parse(data.Root.Element("picking_old_location_refno").Value)),
-                        Convert.ToInt32(SysCommon.ProdLocMapTypes.Picking),
+                        Convert.ToInt32(SysCommon.ProdLocMapTypes.Picking)
                     };
 
                     await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync(queryUpdate, parametersUpdate);
                 }
                 else
                 {
-                    var queryInsert = "INSERT INTO tProductLocationMapType (ProductRefno, WarehouseLocationMapRefno, LocationMapRefno, ProductLocationMapTypeEnum) VALUES (?, ?, ?, ?)";
+                    var queryInsert =
+                        "INSERT INTO tProductLocationMapType (ProductRefno, WarehouseLocationMapRefno, LocationMapRefno, ProductLocationMapTypeEnum) VALUES (?, ?, ?, ?)";
                     var parametersInsert = new object[]
                     {
                         Convert.ToInt32(int.Parse(data.Root.Element("prod_refno").Value)),
                         Convert.ToInt32(int.Parse(data.Root.Element("picking_warehouse_location_refno").Value)),
                         Convert.ToInt32(int.Parse(data.Root.Element("picking_new_location_refno").Value)),
-                        Convert.ToInt32(SysCommon.ProdLocMapTypes.Picking),
+                        Convert.ToInt32(SysCommon.ProdLocMapTypes.Picking)
                     };
 
                     await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync(queryInsert, parametersInsert);
@@ -271,39 +260,44 @@ namespace dMobile.Controller.Activity_Item
 
             if (bool.Parse(data.Root.Element("receiving_is_update").Value))
             {
-                var query = "SELECT * FROM tProductLocationMapType WHERE ProductRefno = ? AND LocationMapRefno = ? AND ProductLocationMapTypeEnum = ?";
+                var query =
+                    "SELECT * FROM tProductLocationMapType WHERE ProductRefno = ? AND LocationMapRefno = ? AND ProductLocationMapTypeEnum = ?";
                 var parameters = new object[]
                 {
                     Convert.ToInt32(int.Parse(data.Root.Element("prod_refno").Value)),
                     Convert.ToInt32(int.Parse(data.Root.Element("receiving_old_location_refno").Value)),
-                    Convert.ToInt32(SysCommon.ProdLocMapTypes.Receiving),
+                    Convert.ToInt32(SysCommon.ProdLocMapTypes.Receiving)
                 };
 
-                var results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<ProductLocationMapTypeModel>(query, parameters);
+                var results = await DatabaseConnection.GetInstance()
+                    .SqlConn.QueryAsync<ProductLocationMapTypeModel>(query, parameters);
 
-                if (results != null && results.Count > 0)
+                if (results != null &&
+                    results.Count > 0)
                 {
-                    var queryUpdate = "UPDATE tProductLocationMapType SET LocationMapRefno = ? WHERE ProductRefno = ? AND WarehouseLocationMapRefno = ? AND LocationMapRefno = ? AND ProductLocationMapTypeEnum = ?";
+                    var queryUpdate =
+                        "UPDATE tProductLocationMapType SET LocationMapRefno = ? WHERE ProductRefno = ? AND WarehouseLocationMapRefno = ? AND LocationMapRefno = ? AND ProductLocationMapTypeEnum = ?";
                     var parametersUpdate = new object[]
                     {
                         Convert.ToInt32(int.Parse(data.Root.Element("receiving_new_location_refno").Value)),
                         Convert.ToInt32(int.Parse(data.Root.Element("prod_refno").Value)),
                         Convert.ToInt32(int.Parse(data.Root.Element("receiving_warehouse_location_refno").Value)),
                         Convert.ToInt32(int.Parse(data.Root.Element("receiving_old_location_refno").Value)),
-                        Convert.ToInt32(SysCommon.ProdLocMapTypes.Receiving),
+                        Convert.ToInt32(SysCommon.ProdLocMapTypes.Receiving)
                     };
 
                     await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync(queryUpdate, parametersUpdate);
                 }
                 else
                 {
-                    var queryInsert = "INSERT INTO tProductLocationMapType (ProductRefno, WarehouseLocationMapRefno, LocationMapRefno, ProductLocationMapTypeEnum) VALUES (?, ?, ?, ?)";
+                    var queryInsert =
+                        "INSERT INTO tProductLocationMapType (ProductRefno, WarehouseLocationMapRefno, LocationMapRefno, ProductLocationMapTypeEnum) VALUES (?, ?, ?, ?)";
                     var parametersInsert = new object[]
                     {
                         Convert.ToInt32(int.Parse(data.Root.Element("prod_refno").Value)),
                         Convert.ToInt32(int.Parse(data.Root.Element("receiving_warehouse_location_refno").Value)),
                         Convert.ToInt32(int.Parse(data.Root.Element("receiving_new_location_refno").Value)),
-                        Convert.ToInt32(SysCommon.ProdLocMapTypes.Receiving),
+                        Convert.ToInt32(SysCommon.ProdLocMapTypes.Receiving)
                     };
 
                     await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync(queryInsert, parametersInsert);
@@ -458,6 +452,12 @@ namespace dMobile.Controller.Activity_Item
         }
 
         public override XDocument CreateDump()
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public override DataTemplate GetDataTemplate()
         {
             throw new NotImplementedException();
         }
