@@ -153,6 +153,11 @@ namespace dMobile.Controller.Activity_Item
         public int ItemFkRefno { get; set; }
 
         /// <summary>
+        ///     Gets or sets the activity item comment.
+        /// </summary>
+        public string ItemComment { get; set; } = string.Empty;
+
+        /// <summary>
         /// Gets or sets the activity header.
         /// </summary>
         public Activity.Activity ActHdr { get; set; }
@@ -365,8 +370,7 @@ namespace dMobile.Controller.Activity_Item
         /// Assign the activity item values from the activity item parameter arguments.
         /// </summary>
         /// <param name="activityItem"><see cref="object"/> Activity item.</param>
-        /// <returns><see cref="Task{T}"/> Activity item foreign key reference number.</returns>
-        public abstract Task<int> AssignActivityItem(object activityItem);
+        public abstract Task AssignActivityItem(object activityItem);
 
         /// <summary>
         /// Get the default location map reference number for a warehouse, product.
@@ -414,6 +418,30 @@ namespace dMobile.Controller.Activity_Item
         /// </summary>
         /// <returns>Data template.</returns>
         public abstract DataTemplate GetDataTemplate();
+
+        /// <summary>
+        ///     Get the single activity item ordered expected on hand quantity title.
+        /// </summary>
+        /// <returns>Title.</returns>
+        public abstract string GetOrderedExpectedOnHandTitle();
+
+        /// <summary>
+        ///     Get the single activity item shipped received counted quantity title.
+        /// </summary>
+        /// <returns>Title.</returns>
+        public abstract string GetShippedReceivedCountedTitle();
+
+        /// <summary>
+        ///     Get the single activity item ordered expected on hand quantity.
+        /// </summary>
+        /// <returns>Quantity.</returns>
+        public abstract string GetOrderedExpectedOnHandQuantity();
+
+        /// <summary>
+        ///     Get the single activity item shipped received counted quantity.
+        /// </summary>
+        /// <returns>Quantity.</returns>
+        public abstract string GetShippedReceivedCountedQuantity();
 
         /// <summary>
         ///     Calculate the maximum data column widths.

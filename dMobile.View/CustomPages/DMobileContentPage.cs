@@ -4,17 +4,15 @@
 
 namespace dMobile.View.CustomPages
 {
-    using GroundWork;
     using System;
     using System.Threading.Tasks;
     using Xamarin.Forms;
-    using static GroundWork.TableBase;
     using Resource = dMobile.Resources.Properties.Resources;
 
     /// <summary>
     /// Defines the <see cref="DMobileContentPage" />.
     /// </summary>
-    public class DMobileContentPage : ContentPage, IPageShownPublisher
+    public class DMobileContentPage : ContentPage
     {
         /// <summary>
         /// Defines the loading.
@@ -39,14 +37,7 @@ namespace dMobile.View.CustomPages
             this.BindingContext = this;
             this.IsIndicatorRunning = false;
             this.OptionsIconSource = Convert.ToString(Application.Current.Resources["OptionsIcon"]);
-
-            // Subscribe to the LayoutChanged event
-            this.LayoutChanged += OnLayoutChanged;
         }
-
-        public delegate void PageShownEventHandler(IPageShownPublisher publisher, PageShownEventArgs args);
-
-        public event PageShownEventHandler OnPageShown;
 
         /// <summary>
         /// Gets or sets a value indicating whether the activity indicator should run.
@@ -74,23 +65,6 @@ namespace dMobile.View.CustomPages
         }
 
         /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void OnLayoutChanged(object sender, EventArgs e)
-        {
-            // This event is called whenever the layout of the page changes
-            // You can put logic here that runs when the layout is updated
-            // Typically, this would indicate that the drawing is complete
-            this.LayoutChanged -= OnLayoutChanged; // Unsubscribe if you only need it once
-            if (OnPageShown != null)
-            {
-                OnPageShown(this, new PageShownEventArgs());
-            }
-        }
-
-        /// <summary>
         /// The ShowDialog.
         /// </summary>
         /// <returns>The <see cref="Task{DialogResult}"/>.</returns>
@@ -105,7 +79,8 @@ namespace dMobile.View.CustomPages
             }
             catch (Exception ex)
             {
-                await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(Resource.Error, ex.Message, Resource.OK));
+                await Device.InvokeOnMainThreadAsync(
+                    async () => await this.DisplayAlert(Resource.Error, ex.Message, Resource.OK));
             }
         }
 
@@ -121,17 +96,19 @@ namespace dMobile.View.CustomPages
                 {
                     this.isClosing = true;
 
-                    await Task.Run(() =>
-                    {
-                        while (this.IsIndicatorRunning)
+                    await Task.Run(
+                        () =>
                         {
-                            // Wait for loading to complete
-                        }
-                    });
+                            while (this.IsIndicatorRunning)
+                            {
+                                // Wait for loading to complete
+                            }
+                        });
 
                     if (Application.Current.MainPage is MasterDetailPage mainPage)
                     {
-                        _ = await Device.InvokeOnMainThreadAsync(async () => await mainPage.Detail.Navigation.PopAsync());
+                        _ = await Device.InvokeOnMainThreadAsync(
+                            async () => await mainPage.Detail.Navigation.PopAsync());
                     }
 
                     this.isClosing = false;
@@ -139,20 +116,9 @@ namespace dMobile.View.CustomPages
             }
             catch (Exception ex)
             {
-                await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(Resource.Error, ex.Message, Resource.OK));
+                await Device.InvokeOnMainThreadAsync(
+                    async () => await this.DisplayAlert(Resource.Error, ex.Message, Resource.OK));
             }
-        }
-
-        public void RegisterPageShownListener(IPageShownListener pageShownListener)
-        {
-            this.OnPageShown += new PageShownEventHandler(
-                pageShownListener.OnPageShown);
-        }
-
-        public void UnregisterPageShownListener(IPageShownListener pageShownListener)
-        {
-            this.OnPageShown -= new PageShownEventHandler(
-                pageShownListener.OnPageShown);
         }
     }
 }

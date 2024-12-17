@@ -424,9 +424,7 @@ namespace dMobile.View.Activity
         public async Task<bool> IsReadyToSave()
         {
             var isReadyToSave = !this.IsChangesMade;
-            if (isReadyToSave &&
-                (this.ActSubType == SysCommon.ActSubTypes.Picking ||
-                 this.ActSubType == SysCommon.ActSubTypes.PickingSingle))
+            if (isReadyToSave && this.ActSubType == SysCommon.ActSubTypes.Picking)
             {
                 isReadyToSave = await IsReadyToSavePicking();
             }
@@ -602,9 +600,7 @@ namespace dMobile.View.Activity
             // Prairie meats like Lekker requirement to check quantity under even though we are
             // canceling / closing.
             // See WO# 12080
-            if (isReadyToClose &&
-                (this.ActSubType == SysCommon.ActSubTypes.Picking ||
-                 this.ActSubType == SysCommon.ActSubTypes.PickingSingle))
+            if (isReadyToClose && this.ActSubType == SysCommon.ActSubTypes.Picking)
             {
                 isReadyToClose = await IsReadyToClosePicking();
             }
@@ -726,7 +722,7 @@ namespace dMobile.View.Activity
                             _ = base.OnBackButtonPressed();
                             await this.Close();
                         }
-                    }).GetAwaiter();
+                    }).Wait();
             }
         }
 
@@ -1800,10 +1796,14 @@ namespace dMobile.View.Activity
                                 if (actItemFoundRefno > 0)
                                 {
                                     this.ActItem.SetSelectedActivityItemFromList(actItemFoundRefno);
-                                    selectedItem = this.ActItem.SelectedItem;
-                                    await this.ActItem.AssignActivityItem(selectedItem);
-                                    this.SelectedActivityItemFkRefno = this.ActItem.ItemFkRefno;
+                                    if (this.ActItem.SelectedItem == null)
+                                    {
+                                        throw new Exception("Failed to set the found selected item in the list.");
+                                    }
 
+                                    await this.ActItem.AssignActivityItem(this.ActItem.SelectedItem);
+                                    selectedItem = this.ActItem.SelectedItem;
+                                    this.SelectedActivityItemFkRefno = this.ActItem.ItemFkRefno;
                                     await AssignDefaultProductLocation();
                                     await AssignSkidLocation();
                                 }
@@ -2111,8 +2111,7 @@ namespace dMobile.View.Activity
                 {
                     // Special validation for picking and filtering by section.
                     // Check if the scanned section matched the filtered one.
-                    if (this.ActSubType == SysCommon.ActSubTypes.Picking ||
-                        this.ActSubType == SysCommon.ActSubTypes.PickingSingle)
+                    if (this.ActSubType == SysCommon.ActSubTypes.Picking)
                     {
                         var sectRefno = ((PickingActivity)this.ActItem.ActHdr).PickingLocationMapFilter.SectLocMapRefno;
                         if (sectRefno != 0 &&
@@ -2180,6 +2179,12 @@ namespace dMobile.View.Activity
                 if (actItemFoundRefno > 0)
                 {
                     this.ActItem.SetSelectedActivityItemFromList(actItemFoundRefno);
+                    if (this.ActItem.SelectedItem == null)
+                    {
+                        throw new Exception("Failed to set the found selected item in the list.");
+                    }
+
+                    await this.ActItem.AssignActivityItem(this.ActItem.SelectedItem);
                     selectedItem = this.ActItem.SelectedItem;
                     this.SelectedActivityItemFkRefno = this.ActItem.ItemFkRefno;
                 }
@@ -2430,7 +2435,6 @@ namespace dMobile.View.Activity
                 // RULE: CHECK IF THE CURRENT LOCATION AND PRODUCT HOME LOCATION ARE THE SAME
                 var isVerifyProductLocation = this.SysEnv.SysSettings.IsVerifyProductLocation;
                 var isActivityTypeToVerify = this.ActSubType == SysCommon.ActSubTypes.Picking ||
-                                             this.ActSubType == SysCommon.ActSubTypes.PickingSingle ||
                                              this.ActSubType == SysCommon.ActSubTypes.TransferFrom ||
                                              this.ActSubType == SysCommon.ActSubTypes.TransferTo;
                 if (isVerifyProductLocation && isActivityTypeToVerify)
@@ -2929,7 +2933,6 @@ namespace dMobile.View.Activity
 
                         case SysCommon.ActSubTypes.CycleCounts:
                             await DisplayDataItemCycleCount();
-
                             break;
 
                         case SysCommon.ActSubTypes.InventoryInquiry:
@@ -2942,10 +2945,6 @@ namespace dMobile.View.Activity
 
                         case SysCommon.ActSubTypes.Picking:
                             await DisplayDataItemPicking();
-                            break;
-
-                        case SysCommon.ActSubTypes.PickingSingle:
-                            await DisplayDataItemPickingSingle();
                             break;
 
                         case SysCommon.ActSubTypes.TicketAddProduct:
@@ -2980,6 +2979,7 @@ namespace dMobile.View.Activity
                             await DisplayDataItemTransferTo();
                             break;
 
+                        case SysCommon.ActSubTypes.PickingSingle:
                         case SysCommon.ActSubTypes.NotApplicable:
                         case SysCommon.ActSubTypes.BarCodeAssociation:
                         case SysCommon.ActSubTypes.RefreshData:
@@ -3251,60 +3251,6 @@ namespace dMobile.View.Activity
                 else
                 {
                     this.ExtraLineItemInfo.Add("No product description.");
-                    this.ExtraLineItemInfo.Add("Default Location: Unknown");
-                }
-            }
-
-            //////////////////////////////////////////////////////////////////////////
-            async Task DisplayDataItemPickingSingle()
-            {
-                if (this.ListViewMainActivity.SelectedItem is PickingItem pickingItemSingle)
-                {
-                    ////var prodLocCode = Convert.ToString(pickingItemSingle.LocationCode);
-                    ////var prodLocName = pickingItemSingle.LocationName;
-                    var prodDesc = pickingItemSingle.ProductDescription;
-                    var prodUnitSizeDesc = pickingItemSingle.ProductUnitSizeDescription;
-                    var prodBrandDesc = pickingItemSingle.ProductBrandDescription;
-
-                    // Get product default location info
-                    var defLocMapRefno = await this.ActItem.GetDefaultLocMapRefno(
-                        pickingItemSingle.LocationMapRefno,
-                        pickingItemSingle.ProductRefno);
-                    var sLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(defLocMapRefno);
-                    var defLoc = LocationMapTasks.GetReadableLocation(sLocMap);
-
-                    switch (this.SysEnv.SysSettings.PickItemDescOpt)
-                    {
-                        case 1:
-                            ////prodDesc = pickingItemSingle.ProductDescription;
-                            prodUnitSizeDesc = pickingItemSingle.ProductUnitSizeDescription;
-                            this.ExtraLineItemInfo.Add(
-                                "SIZE: " +
-                                prodUnitSizeDesc.Trim() +
-                                ", BRAND: " +
-                                prodBrandDesc.Trim());
-                            break;
-
-                        default:
-                            this.ExtraLineItemInfo.Add("DESC: " + prodDesc.Trim() + ", " + prodUnitSizeDesc.Trim());
-                            break;
-                    }
-
-                    this.ExtraLineItemInfo.Add("Default Location: " + defLoc);
-                }
-                else
-                {
-                    switch (this.SysEnv.SysSettings.PickItemDescOpt)
-                    {
-                        case 1:
-                            this.ExtraLineItemInfo.Add("SIZE: Unknown, BRAND: Unknown");
-                            break;
-
-                        default:
-                            this.ExtraLineItemInfo.Add("DESC: Unknown");
-                            break;
-                    }
-
                     this.ExtraLineItemInfo.Add("Default Location: Unknown");
                 }
             }
@@ -3637,8 +3583,7 @@ namespace dMobile.View.Activity
 
                     // Special validation for picking and filtering by section.
                     // Check if the scanned section matched the filtered one.
-                    if (this.ActSubType == SysCommon.ActSubTypes.Picking ||
-                        this.ActSubType == SysCommon.ActSubTypes.PickingSingle)
+                    if (this.ActSubType == SysCommon.ActSubTypes.Picking)
                     {
                         var sectRefno = ((PickingActivity)this.ActItem.ActHdr).PickingLocationMapFilter.SectLocMapRefno;
                         if (sectRefno != 0 &&
@@ -3690,8 +3635,7 @@ namespace dMobile.View.Activity
                     {
                         // Special validation for picking and filtering by section.
                         // Check if the skid section matched the activity filtered one.
-                        if (this.ActSubType == SysCommon.ActSubTypes.Picking ||
-                            this.ActSubType == SysCommon.ActSubTypes.PickingSingle)
+                        if (this.ActSubType == SysCommon.ActSubTypes.Picking)
                         {
                             var filterSectRefno = ((PickingActivity)this.ActItem.ActHdr).PickingLocationMapFilter
                                 .SectLocMapRefno;
@@ -3732,8 +3676,9 @@ namespace dMobile.View.Activity
                                 throw new Exception("Failed to set the found selected item in the list.");
                             }
 
-                            this.SelectedActivityItemFkRefno =
-                                await this.ActItem.AssignActivityItem(this.ActItem.SelectedItem);
+                            await this.ActItem.AssignActivityItem(this.ActItem.SelectedItem);
+                            this.SelectedActivityItemFkRefno = this.ActItem.ItemFkRefno;
+                            await this.ActItem.AssignActivityItem(this.ActItem.SelectedItem);
                         }
                         else
                         {
@@ -3887,6 +3832,11 @@ namespace dMobile.View.Activity
 
                         await this.ActItem.Insert(xmlDoc);
                         this.ActItem.SetSelectedActivityItemFromList(this.ActItem.ItemRefno);
+                        if (this.ActItem.SelectedItem == null)
+                        {
+                            throw new Exception("Failed to set the found selected item in the list.");
+                        }
+
                         await this.ActItem.AssignActivityItem(this.ActItem.SelectedItem);
                         this.SelectedActivityItemFkRefno = this.ActItem.ItemFkRefno;
 
@@ -3968,7 +3918,12 @@ namespace dMobile.View.Activity
                         if (actItemFoundRefno > 0)
                         {
                             this.ActItem.SetSelectedActivityItemFromList(actItemFoundRefno);
-                            _ = this.ActItem.AssignActivityItem(this.ActItem.SelectedItem);
+                            if (this.ActItem.SelectedItem == null)
+                            {
+                                throw new Exception("Failed to set the found selected item in the list.");
+                            }
+
+                            await this.ActItem.AssignActivityItem(this.ActItem.SelectedItem);
                         }
                         else
                         {
@@ -4000,7 +3955,7 @@ namespace dMobile.View.Activity
                             // this.ActItem.ProdInfo.Scheme assigned in Insert();
                             await this.ActItem.Insert(xmlDoc);
                             this.ActItem.SetSelectedActivityItemFromList(this.ActItem.ItemRefno);
-                            _ = this.ActItem.AssignActivityItem(this.ActItem.SelectedItem);
+                            this.ActItem.AssignActivityItem(this.ActItem.SelectedItem);
 
                             if (actItemFoundRefno == 0)
                             {

@@ -224,6 +224,12 @@ namespace dMobile.Controller.Activity_Item
             return foundIdx;
         }
 
+        /// <inheritdoc />
+        public override DataTemplate GetDataTemplate()
+        {
+            return (DataTemplate)this.ResourceDictionary["dataTemplateReturnsItem"];
+        }
+
         /// <summary>
         /// The GetComment.
         /// </summary>
@@ -235,7 +241,8 @@ namespace dMobile.Controller.Activity_Item
             if (selectedActivityItem is ReturnItem returnItem)
             {
                 var results = await DatabaseConnection.GetInstance().SqlConn.
-                    QueryAsync<ActivityItemReturnsCommentModel>("SELECT * FROM tActivityItemReturnsComment WHERE ActivityItemRefno = ?",
+                    QueryAsync<ActivityItemReturnsCommentModel>(
+                        "SELECT * FROM tActivityItemReturnsComment WHERE ActivityItemRefno = ?",
                         returnItem.ActivityItemRefno);
 
                 if (results != null && results.Count > 0)
@@ -705,11 +712,22 @@ namespace dMobile.Controller.Activity_Item
         /// Select an activity item.
         /// </summary>
         /// <param name="selectedActivityItem"><see cref="object"/> Selected activity object.</param>
-        /// <returns><see cref="Task{T}"/> Activity item foreign key reference number.</returns>
-        public override async Task<int> AssignActivityItem(object selectedActivityItem)
+        public override async Task AssignActivityItem(object selectedActivityItem)
         {
-            if (selectedActivityItem is ReturnItem item)
+            if (selectedActivityItem == null)
             {
+                this.SelectedListIdx = -1;
+                this.SelectedItem = null;
+                this.ItemRefno = 0;
+                this.ItemFkRefno = 0;
+                this.ProdInfo = new ProductInfo
+                {
+                    Scheme = new ProdScheme()
+                };
+            }
+            else if (selectedActivityItem is ReturnItem item)
+            {
+                this.SelectedListIdx = this.ListItems.IndexOf(item);
                 this.SelectedItem = item;
                 this.ItemRefno = item.ActivityItemRefno;
                 this.ItemFkRefno = item.ActivityItemFKRefno;
@@ -722,7 +740,7 @@ namespace dMobile.Controller.Activity_Item
                 this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
             }
 
-            return this.ItemFkRefno;
+            return;
 
             //////////////////////////////////////////////////////////////////////////
             async Task AssignItemLocation(ReturnItem item)
@@ -801,11 +819,6 @@ namespace dMobile.Controller.Activity_Item
 
             if (results != null && results.Count > 0)
             {
-                // <WO ID="14777" comment="The last of the uncommented locmap code was removed here. We do not wish to set location map when we just want refnos." />
-                this.ItemRefno = Convert.ToInt32(results[0].ActivityItemRefno);
-                this.ItemFkRefno = Convert.ToInt32(results[0].ActivityItemFKRefno);
-                this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(Convert.ToInt32(results[0].ProductUnitRefno));
-                this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
                 foundActItemRefno = this.ItemRefno;
             }
 
@@ -1055,9 +1068,35 @@ namespace dMobile.Controller.Activity_Item
         }
 
         /// <inheritdoc />
-        public override DataTemplate GetDataTemplate()
+        public override string GetOrderedExpectedOnHandTitle()
         {
-            return (DataTemplate)this.ResourceDictionary["dataTemplateReturnsItem"];
+            return "Ordered";
+        }
+
+        /// <inheritdoc />
+        public override string GetShippedReceivedCountedTitle()
+        {
+            return "Shipped";
+        }
+
+        /// <inheritdoc />
+        public override string GetOrderedExpectedOnHandQuantity()
+        {
+            const string quantity = "0.000";
+            return quantity;
+        }
+
+        /// <inheritdoc />
+        public override string GetShippedReceivedCountedQuantity()
+        {
+            var quantity = "0.000";
+            if (this.SelectedItem is ReturnItem item)
+            {
+                quantity = $"{item.ActivityItemReturnsQuantityReturned:F3} {this.ProdInfo.UnitCode} @ " +
+                           $"{item.ActivityItemReturnsWeightQuantityReturned:F3} {this.ProdInfo.WeightUnitCode}";
+            }
+
+            return quantity;
         }
     }
 }

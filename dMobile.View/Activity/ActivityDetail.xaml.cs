@@ -2756,8 +2756,7 @@ namespace dMobile.View.Activity
             {
                 var isAllowedAddManualDetail = true;
                 if (this.SysEnv.SysSettings.IsPickAddManualDetailPasswordRequired &&
-                    (this.ActSubType == SysCommon.ActSubTypes.PickingSingle ||
-                     this.ActSubType == SysCommon.ActSubTypes.Picking))
+                    this.ActSubType == SysCommon.ActSubTypes.Picking)
                 {
                     var form = new FormAddManualDetailOverride();
 
@@ -2871,8 +2870,7 @@ namespace dMobile.View.Activity
 
                         // Special validation for picking and filtering by section.
                         // Check if the scanned section matched the filtered one.
-                        if (this.ActSubType == SysCommon.ActSubTypes.Picking ||
-                            this.ActSubType == SysCommon.ActSubTypes.PickingSingle)
+                        if (this.ActSubType == SysCommon.ActSubTypes.Picking)
                         {
                             var sectRefno = ((PickingActivity)this.ActDetail.ActItem.ActHdr)
                                 .PickingLocationMapFilter
@@ -3082,8 +3080,7 @@ namespace dMobile.View.Activity
                 {
                     var isAllowedAddManualDetail = true;
                     if (this.SysEnv.SysSettings.IsPickAddManualDetailPasswordRequired &&
-                        (this.ActSubType == SysCommon.ActSubTypes.PickingSingle ||
-                         this.ActSubType == SysCommon.ActSubTypes.Picking))
+                        this.ActSubType == SysCommon.ActSubTypes.Picking)
                     {
                         if (!this.SysEnv.ContactLog.IsAllowedPickingModuleOverrideAddManualDetail)
                         {

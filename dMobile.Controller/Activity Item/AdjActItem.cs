@@ -140,6 +140,44 @@ namespace dMobile.Controller.Activity_Item
         /// </summary>
         public List<AdjustmentItem> ListAdjustmentItems { get; set; } = new List<AdjustmentItem>();
 
+        /// <inheritdoc />
+        public override string GetOrderedExpectedOnHandTitle()
+        {
+            return "Quantity";
+        }
+
+        /// <inheritdoc />
+        public override string GetShippedReceivedCountedTitle()
+        {
+            return "Quantity";
+        }
+
+        /// <inheritdoc />
+        public override string GetOrderedExpectedOnHandQuantity()
+        {
+            var quantity = "0.000";
+            if (this.SelectedItem is AdjustmentItem item)
+            {
+                quantity = $"{item.ActivityItemAdjustmentQuantity:F3} {this.ProdInfo.UnitCode} @ " +
+                    $"{item.ActivityItemAdjustmentWeightQuantity:F3} {this.ProdInfo.WeightUnitCode}";
+            }
+
+            return quantity;
+        }
+
+        /// <inheritdoc />
+        public override string GetShippedReceivedCountedQuantity()
+        {
+            var quantity = "0.000";
+            if (this.SelectedItem is AdjustmentItem item)
+            {
+                quantity = $"{item.ActivityItemAdjustmentQuantity:F3} {this.ProdInfo.UnitCode} @ " +
+                           $"{item.ActivityItemAdjustmentWeightQuantity:F3} {this.ProdInfo.WeightUnitCode}";
+            }
+
+            return quantity;
+        }
+
         /// <summary>
         /// Set the activity item selected activity item and selected activity item index.
         /// </summary>
@@ -805,27 +843,38 @@ namespace dMobile.Controller.Activity_Item
         /// Assign the activity item values from the activity item parameter arguments.
         /// </summary>
         /// <param name="selectedActivityItem"><see cref="object"/> Activity item.</param>
-        /// <returns><see cref="Task{T}"/> Activity item foreign key reference number.</returns>
-        public override async Task<int> AssignActivityItem(object selectedActivityItem)
+        public override async Task AssignActivityItem(object selectedActivityItem)
         {
-            if (selectedActivityItem is AdjustmentItem item)
+            if (selectedActivityItem == null)
             {
+                this.SelectedListIdx = -1;
+                this.SelectedItem = null;
+                this.ItemRefno = 0;
+                this.ItemFkRefno = 0;
+                this.ProdInfo = new ProductInfo
+                {
+                    Scheme = new ProdScheme()
+                };
+            }
+            else if (selectedActivityItem is AdjustmentItem item)
+            {
+                this.SelectedListIdx = this.ListItems.IndexOf(item);
                 this.SelectedItem = item;
                 this.ItemRefno = item.ActivityItemRefno;
                 this.ItemFkRefno = item.ActivityItemFKRefno;
                 this.ActStatus = (SysCommon.ActStatus)item.ActivityItemStatus;
                 this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(item.ProductUnitRefno);
 
-                await AssignItemLocation();
+                await AssignItemLocation(item);
 
                 // LocationMap.GetInstance().CurrLocMap warehouse needs to be set before call to GetSchemeComponentsFromRefno.
                 this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
             }
 
-            return this.ItemFkRefno;
+            return;
 
             //////////////////////////////////////////////////////////////////////////
-            async Task AssignItemLocation()
+            async Task AssignItemLocation(AdjustmentItem item)
             {
                 // This code needs to be before the call to GetSelectedItemLocation below, because the skid location may be
                 // used if the product unit and warehouse match.
@@ -897,14 +946,8 @@ namespace dMobile.Controller.Activity_Item
                         AND tActivityItemAdjustment.ProductUnitRefno = {prodUnitRefno}";
 
             var results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<AdjustmentItem>(query);
-            if (results != null &&
-                results.Count > 0)
+            if (results != null && results.Count > 0)
             {
-                this.ItemRefno = Convert.ToInt32(results[0].ActivityItemRefno);
-                this.ItemFkRefno = Convert.ToInt32(results[0].ActivityItemFKRefno);
-                this.ProdInfo =
-                    await ProductInfoTasks.GetInfoFromUnitRefno(Convert.ToInt32(results[0].ProductUnitRefno));
-                this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
                 foundActItemRefno = this.ItemRefno;
             }
             else
@@ -914,10 +957,6 @@ namespace dMobile.Controller.Activity_Item
                     if (item.LocationMapRefno == locMap.WhsLocMapRefno &&
                         item.ProductUnitRefno == prodUnitRefno)
                     {
-                        this.ItemRefno = item.ActivityItemRefno;
-                        this.ItemFkRefno = item.ActivityItemFKRefno;
-                        this.ProdInfo = await ProductInfoTasks.GetInfoFromRefno(item.ProductRefno);
-                        this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
                         foundActItemRefno = this.ItemRefno;
                         break;
                     }
@@ -1100,7 +1139,7 @@ namespace dMobile.Controller.Activity_Item
         /// <returns>The <see cref="string"/>.</returns>
         public override Task<string> GetComment(object selectedActivityItem)
         {
-            throw new NotImplementedException();
+            return Task.FromResult(string.Empty);
         }
 
         /// <summary>

@@ -633,11 +633,11 @@ namespace dMobile.Controller.Activity_Item
                                 // NOTE: ActivityItemStatus is set to inserted for later submission use.
                                 _ = transaction.Execute(
                                     @"INSERT INTO tActivityItem (
-                                ActivityItemSubType
-                                ,ActivityItemStatus
-                                ,ActivityRefno
-                                ,ActivityItemIsAdded
-                                ) VALUES (?, ?, ?, ?)",
+                                        ActivityItemSubType
+                                        ,ActivityItemStatus
+                                        ,ActivityRefno
+                                        ,ActivityItemIsAdded
+                                        ) VALUES (?, ?, ?, ?)",
                                     Convert.ToInt32(SysCommon.ActSubTypes.Picking),
                                     Convert.ToInt32(SysCommon.ActStatus.Inserted),
                                     Convert.ToInt32(this.ActHdr.HdrRefno),
@@ -650,49 +650,49 @@ namespace dMobile.Controller.Activity_Item
                                 this.ItemFkRefno = Convert.ToInt32(
                                     transaction.ExecuteScalar<int>(
                                         @"SELECT MAX(tActivityItemCount.ActivityItemFKRefno)
-                              FROM tActivityItemCount WHERE tActivityItemCount.ActivityItemSubType" +
-                                        $" = {(int)SysCommon.ActSubTypes.Picking}"));
+                                          FROM tActivityItemCount WHERE tActivityItemCount.ActivityItemSubType" +
+                                          $" = {(int)SysCommon.ActSubTypes.Picking}"));
                                 this.ItemFkRefno = this.ItemFkRefno + 1;
 
-                                var query = @"
-                            INSERT INTO tActivityItemPicking (
-                                    ActivityItemRefno, 
-                                    ActivityItemSubType, 
-                                    ActivityItemFKRefno, 
-                                    ActivityItemStringFKRefno, 
-                                    ProductUnitRefno, 
-                                    WarehouseLocationMapRefno, 
-                                    ActivityItemPickingQuantityOrdered, 
-                                    ActivityItemPickingBaseQuantityOrdered, 
-                                    ActivityItemPickingWeightQuantityOrdered, 
-                                    ActivityItemPickingQuantityShipped, 
-                                    ActivityItemPickingBaseQuantityShipped, 
-                                    ActivityItemPickingWeightQuantityShipped, 
-                                    ActivityItemPickingCustomerProductUnitCode, 
-                                    ActivityItemPickingDescription, 
-                                    ActivityItemPickingQuantityAvailable, 
-                                    ActivityItemPickingBaseQuantityAvailable, 
-                                    ActivityItemPickingWeightQuantityAvailable, 
-                                    ActivityItemPickingIsReviewed
-                                ) VALUES (
-                                    ?, 
-                                    ?, 
-                                    ?, 
-                                    ?, 
-                                    ?, 
-                                    ?, 
-                                    ?, 
-                                    ?, 
-                                    ?, 
-                                    ?, 
-                                    ?, 
-                                    ?, 
-                                    ?, 
-                                    ?, 
-                                    ?, 
-                                    ?, 
-                                    ?, 
-                                    ?)";
+                                const string query = @"
+                                    INSERT INTO tActivityItemPicking (
+                                            ActivityItemRefno, 
+                                            ActivityItemSubType, 
+                                            ActivityItemFKRefno, 
+                                            ActivityItemStringFKRefno, 
+                                            ProductUnitRefno, 
+                                            WarehouseLocationMapRefno, 
+                                            ActivityItemPickingQuantityOrdered, 
+                                            ActivityItemPickingBaseQuantityOrdered, 
+                                            ActivityItemPickingWeightQuantityOrdered, 
+                                            ActivityItemPickingQuantityShipped, 
+                                            ActivityItemPickingBaseQuantityShipped, 
+                                            ActivityItemPickingWeightQuantityShipped, 
+                                            ActivityItemPickingCustomerProductUnitCode, 
+                                            ActivityItemPickingDescription, 
+                                            ActivityItemPickingQuantityAvailable, 
+                                            ActivityItemPickingBaseQuantityAvailable, 
+                                            ActivityItemPickingWeightQuantityAvailable, 
+                                            ActivityItemPickingIsReviewed
+                                        ) VALUES (
+                                            ?, 
+                                            ?, 
+                                            ?, 
+                                            ?, 
+                                            ?, 
+                                            ?, 
+                                            ?, 
+                                            ?, 
+                                            ?, 
+                                            ?, 
+                                            ?, 
+                                            ?, 
+                                            ?, 
+                                            ?, 
+                                            ?, 
+                                            ?, 
+                                            ?, 
+                                            ?)";
 
                                 var locMap = LocationMap.GetInstance().CurrLocMap;
                                 var parameters = new object[]
@@ -1190,22 +1190,8 @@ namespace dMobile.Controller.Activity_Item
                     WHERE tActivityItem.ActivityRefno = {this.ActHdr.HdrRefno}";
             }
 
-            // using (SQLiteDataAdapter da = new SQLiteDataAdapter(sql.ToString(), DatabaseConnection.GetInstance().SQLConn))
-            // {
-            //    using (DataSet ds = new DataSet())
-            //    {
-            //        da.Fill(ds);
-            //        this.DataViewItems = ds.Tables[0].DefaultView;
-            //        this.DataViewItems.Table.TableName = this.MainGridMappingName;
-            //        this.DataViewItems.AllowNew = true;
-            //        this.DataViewItems.AllowEdit = true;
-            //        this.DataViewItems.AllowDelete = true;
-            //        TODO: Fix sorting
-            //        this.DataViewItems.Sort = "ActivityItemRefno";
-            //    }
-            // }
             this.ListPickingItems =
-                await DatabaseConnection.GetInstance().SqlConn.QueryAsync<PickingItem>(sql.ToString());
+                await DatabaseConnection.GetInstance().SqlConn.QueryAsync<PickingItem>(sql);
             this.ListPickingItems = this.ListPickingItems.OrderBy(x => x.ActivityItemRefno).ToList();
             this.ListItems = this.ListPickingItems.Cast<object>().ToList();
             return this.ListItems;
@@ -1247,7 +1233,7 @@ namespace dMobile.Controller.Activity_Item
         /// </summary>
         /// <param name="selectedActivityItem"><see cref="object"/> Selected activity object.</param>
         /// <returns><see cref="Task{T}"/> Activity item foreign key reference number.</returns>
-        public override async Task<int> AssignActivityItem(object selectedActivityItem)
+        public override async Task AssignActivityItem(object selectedActivityItem)
         {
             if (selectedActivityItem == null)
             {
@@ -1262,6 +1248,7 @@ namespace dMobile.Controller.Activity_Item
             }
             else if (selectedActivityItem is PickingItem item)
             {
+                this.SelectedListIdx = this.ListItems.IndexOf(item);
                 this.SelectedItem = item;
                 this.ItemRefno = item.ActivityItemRefno;
                 this.ItemFkRefno = item.ActivityItemFKRefno;
@@ -1274,7 +1261,7 @@ namespace dMobile.Controller.Activity_Item
                 this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
             }
 
-            return this.ItemFkRefno;
+            return;
 
             //////////////////////////////////////////////////////////////////////////
             async Task AssignItemLocation(PickingItem item)
@@ -1330,7 +1317,8 @@ namespace dMobile.Controller.Activity_Item
         /// Get the activity item reference number from the product unit reference number and current location warehouse.
         /// </summary>
         /// <param name="prodUnitRefno"><see cref="int"/> Product unit reference number.</param>
-        /// <returns><see cref="int"/> Found activity item reference number else 0.</returns>
+        /// <param name="locMap"><see cref="SLocMap"/> Location map.</param>
+        /// <returns><see cref="int"/> Found activity item refno else 0.</returns>
         public override async Task<int> GetActivityItemRefno(int prodUnitRefno, SLocMap locMap)
         {
             var foundActItemRefno = 0;
@@ -1351,24 +1339,15 @@ namespace dMobile.Controller.Activity_Item
             if (results != null &&
                 results.Count > 0)
             {
-                this.ItemFkRefno = Convert.ToInt32(results[0].ActivityItemFKRefno);
-                this.ProdInfo =
-                    await ProductInfoTasks.GetInfoFromUnitRefno(Convert.ToInt32(results[0].ProductUnitRefno));
-                this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
-                this.ItemRefno = Convert.ToInt32(results[0].ActivityItemRefno);
                 foundActItemRefno = this.ItemRefno;
             }
             else
             {
                 foreach (var item in this.ListPickingItems)
                 {
-                    if (item.LocationMapRefno == locMap.WhsLocMapRefno &&
-                        item.ProductUnitRefno == prodUnitRefno)
+                    if (item.LocationMapRefno == locMap.WhsLocMapRefno
+                        && item.ProductUnitRefno == prodUnitRefno)
                     {
-                        this.ItemRefno = item.ActivityItemRefno;
-                        this.ItemFkRefno = item.ActivityItemFKRefno;
-                        this.ProdInfo = await ProductInfoTasks.GetInfoFromRefno(item.ProductRefno);
-                        this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
                         foundActItemRefno = this.ItemRefno;
                         break;
                     }
@@ -1378,7 +1357,7 @@ namespace dMobile.Controller.Activity_Item
                 // warehouse location. Yes this will be a problem if the sales order has multiple item lines
                 // on it for the same product and different warehouse.
                 // Picking is the only activity that could have this sort of problem. All other activities are
-                // warehouse friend because the can't mix warehouses or are created by the mobile itself.
+                // warehouse friend because they can't mix warehouses or are created by the mobile itself.
                 if (foundActItemRefno == 0 &&
                     this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc)
                 {
@@ -1416,30 +1395,22 @@ namespace dMobile.Controller.Activity_Item
                             LocationMap.GetInstance().CurrLocMap =
                                 await LocationMapTasks.GetSLocMapFromLocMapRefno(locMapRefno);
                             LocationMap.GetInstance().ChosenLocMap = LocationMap.GetInstance().CurrLocMap;
-                            this.LocMap = LocationMap.GetInstance().CurrLocMap;
-                            this.ItemFkRefno = Convert.ToInt32(results[0].ActivityItemFKRefno);
-                            this.ProdInfo =
-                                await ProductInfoTasks.GetInfoFromUnitRefno(
-                                    Convert.ToInt32(results[0].ProductUnitRefno));
-                            this.ProdInfo.Scheme =
-                                await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
-                            this.ItemRefno = Convert.ToInt32(results[0].ActivityItemRefno);
+                            await this.AssignActivityItem(results[0]);
                             foundActItemRefno = this.ItemRefno;
                         }
                     }
                     else
                     {
-                        foreach (var item in this.ListPickingItems)
+                        foreach (var item in this.ListItems)
                         {
-                            if (item.ProductUnitRefno == prodUnitRefno)
+                            if (item is PickingItem pickItem)
                             {
-                                this.ItemRefno = item.ActivityItemRefno;
-                                this.ItemFkRefno = item.ActivityItemFKRefno;
-                                this.ProdInfo = await ProductInfoTasks.GetInfoFromRefno(item.ProductRefno);
-                                this.ProdInfo.Scheme =
-                                    await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
-                                foundActItemRefno = this.ItemRefno;
-                                break;
+                                if (pickItem.ProductUnitRefno == prodUnitRefno)
+                                {
+                                    await this.AssignActivityItem(pickItem);
+                                    foundActItemRefno = this.ItemRefno;
+                                    break;
+                                }
                             }
                         }
                     }
@@ -1852,6 +1823,44 @@ namespace dMobile.Controller.Activity_Item
         public override XDocument CreateDump()
         {
             throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public override string GetOrderedExpectedOnHandTitle()
+        {
+            return "Ordered";
+        }
+
+        /// <inheritdoc />
+        public override string GetShippedReceivedCountedTitle()
+        {
+            return "Shipped";
+        }
+
+        /// <inheritdoc />
+        public override string GetOrderedExpectedOnHandQuantity()
+        {
+            var quantity = "0.000";
+            if (this.SelectedItem is PickingItem item)
+            {
+                quantity = $"{item.ActivityItemPickingQuantityOrdered:F3} {this.ProdInfo.UnitCode} @ " +
+                           $"{item.ActivityItemPickingWeightQuantityOrdered:F3} {this.ProdInfo.WeightUnitCode}";
+            }
+
+            return quantity;
+        }
+
+        /// <inheritdoc />
+        public override string GetShippedReceivedCountedQuantity()
+        {
+            var quantity = "0.000";
+            if (this.SelectedItem is PickingItem item)
+            {
+                quantity = $"{item.ActivityItemPickingQuantityShipped:F3} {this.ProdInfo.UnitCode} @ " +
+                           $"{item.ActivityItemPickingWeightQuantityShipped:F3} {this.ProdInfo.WeightUnitCode}";
+            }
+
+            return quantity;
         }
     }
 }

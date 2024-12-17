@@ -179,7 +179,7 @@ namespace dMobile.Controller.Activity_Item
                 };
                 this.ListItems.Add(item);
                 this.SelectedListIdx = this.ListItems.Count - 1;
-                _ = this.AssignActivityItem(item);
+                this.AssignActivityItem(item);
             }
 
             return Task.CompletedTask;
@@ -255,23 +255,35 @@ namespace dMobile.Controller.Activity_Item
         /// The SelectActivityItem.
         /// </summary>
         /// <param name="selectedActivityItem">The selectedActivityItem<see cref="object"/>.</param>
-        /// <returns><see cref="Task{T}"/> Activity item foreign key reference number.</returns>
-        public override async Task<int> AssignActivityItem(object selectedActivityItem)
+        public override async Task AssignActivityItem(object selectedActivityItem)
         {
-            if (selectedActivityItem is ConvertUnitItem item)
+            if (selectedActivityItem == null)
             {
+                this.SelectedListIdx = -1;
+                this.SelectedItem = null;
+                this.ItemRefno = 0;
+                this.ItemFkRefno = 0;
+                this.ProdInfo = new ProductInfo
+                {
+                    Scheme = new ProdScheme()
+                };
+            }
+            else if (selectedActivityItem is ConvertUnitItem item)
+            {
+                this.SelectedListIdx = this.ListItems.IndexOf(item);
                 this.SelectedItem = item;
                 this.ItemRefno = item.ActivityDetailRefno;
                 this.ItemFkRefno = item.ActivityDetailFKRefno;
                 this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(item.ProductUnitRefno);
                 this.ActStatus = SysCommon.ActStatus.NoChange;
+
                 await AssignItemLocation(item);
 
                 // LocationMap.GetInstance().CurrLocMap warehouse needs to be set before call to GetSchemeComponentsFromRefno.
                 this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
             }
 
-            return this.ItemFkRefno;
+            return;
 
             //////////////////////////////////////////////////////////////////////////
             async Task AssignItemLocation(ConvertUnitItem item)
@@ -321,7 +333,6 @@ namespace dMobile.Controller.Activity_Item
                     }
                 }
             }
-
         }
 
         /// <summary>
@@ -551,6 +562,26 @@ namespace dMobile.Controller.Activity_Item
 
         /// <inheritdoc />
         public override DataTemplate GetDataTemplate()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override string GetOrderedExpectedOnHandTitle()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override string GetShippedReceivedCountedTitle()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override string GetOrderedExpectedOnHandQuantity()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override string GetShippedReceivedCountedQuantity()
         {
             throw new NotImplementedException();
         }

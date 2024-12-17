@@ -373,7 +373,7 @@ namespace dMobile.Bedrock
         /// <summary>
         /// Is picking single product..
         /// </summary>
-        private bool isPickSingleProd = false;
+        private bool isSingleActivityItem = false;
 
         /// <summary>
         /// Is picking single scanned product must match selected product..
@@ -1641,13 +1641,13 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether IsPickSingleProd.
+        /// Gets or sets a value indicating whether IsSingleActivityItem.
         /// </summary>
-        public bool IsPickSingleProd
+        public bool IsSingleActivityItem
         {
-            get => this.isPickSingleProd;
+            get => this.isSingleActivityItem;
 
-            set => this.isPickSingleProd = value;
+            set => this.isSingleActivityItem = value;
         }
 
         /// <summary>

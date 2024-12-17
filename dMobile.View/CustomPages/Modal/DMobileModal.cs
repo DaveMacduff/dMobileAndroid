@@ -94,21 +94,21 @@ namespace dMobile.View.CustomPages.Modal
             {
                 if (Application.Current.MainPage is MasterDetailPage mainPage)
                 {
-                    await Device.InvokeOnMainThreadAsync(async () =>
-                        await mainPage.Detail.Navigation.PushAsync(this));
+                    await Device.InvokeOnMainThreadAsync(
+                        async () => await mainPage.Detail.Navigation.PushAsync(this));
                 }
                 else
                 {
-                    await Device.InvokeOnMainThreadAsync(async () =>
-                        await Application.Current.MainPage.Navigation.PushAsync(this));
+                    await Device.InvokeOnMainThreadAsync(
+                        async () => await Application.Current.MainPage.Navigation.PushAsync(this));
                 }
 
                 await this.Closed;
             }
             catch (Exception ex)
             {
-                await Device.InvokeOnMainThreadAsync(async () =>
-                    await this.DisplayAlert(Resource.Error, ex.Message, Resource.OK));
+                await Device.InvokeOnMainThreadAsync(
+                    async () => await this.DisplayAlert(Resource.Error, ex.Message, Resource.OK));
             }
 
             return this.DialogResult;
@@ -126,13 +126,14 @@ namespace dMobile.View.CustomPages.Modal
                 {
                     this.isClosing = true;
 
-                    await Task.Run(() =>
-                    {
-                        while (this.IsIndicatorRunning)
+                    await Task.Run(
+                        () =>
                         {
-                            // Wait for loading to complete
-                        }
-                    });
+                            while (this.IsIndicatorRunning)
+                            {
+                                // Wait for loading to complete
+                            }
+                        });
 
                     while (!this.Tcs.Task.IsCompleted)
                     {
@@ -140,18 +141,18 @@ namespace dMobile.View.CustomPages.Modal
                     }
 
                     _ = Application.Current.MainPage is MasterDetailPage mainPage
-                        ? await Device.InvokeOnMainThreadAsync(async () =>
-                            await mainPage.Detail.Navigation.PopAsync())
-                        : await Device.InvokeOnMainThreadAsync(async () =>
-                            await Application.Current.MainPage.Navigation.PopAsync());
+                        ? await Device.InvokeOnMainThreadAsync(
+                            async () => await mainPage.Detail.Navigation.PopAsync())
+                        : await Device.InvokeOnMainThreadAsync(
+                            async () => await Application.Current.MainPage.Navigation.PopAsync());
 
                     this.isClosing = false;
                 }
             }
             catch (Exception ex)
             {
-                await Device.InvokeOnMainThreadAsync(async () =>
-                    await this.DisplayAlert(Resource.Error, ex.Message, Resource.OK));
+                await Device.InvokeOnMainThreadAsync(
+                    async () => await this.DisplayAlert(Resource.Error, ex.Message, Resource.OK));
             }
         }
     }

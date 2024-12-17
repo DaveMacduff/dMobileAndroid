@@ -163,7 +163,7 @@ namespace dMobile.Controller.Activity_Item
 
                 this.ListItems.Add(item);
                 this.SelectedListIdx = this.ListItems.Count - 1;
-                _ = this.AssignActivityItem(item);
+                this.AssignActivityItem(item);
             }
 
             return Task.CompletedTask;
@@ -224,9 +224,8 @@ namespace dMobile.Controller.Activity_Item
         /// </summary>
         /// <param name="activityItem"><see cref="object"/> The activity item.</param>
         /// <returns><see cref="Task{T}"/> Activity item foreign key reference number.</returns>
-        public override Task<int> AssignActivityItem(object activityItem)
+        public override async Task AssignActivityItem(object activityItem)
         {
-            var itemFKRefno = Task.FromResult(0);
             var item = activityItem as ConvertProductItem;
             item = item ?? throw new NullReferenceException("activityItem as ConvertProductItem == null");
             this.FromProdRefno = item.FromProdFKRefno;
@@ -237,8 +236,6 @@ namespace dMobile.Controller.Activity_Item
                     await LocationMapTasks.GetSLocMapFromLocMapRefno(
                         ((ConvertProductItem)activityItem).LocMapRefno);
             });
-
-            return itemFKRefno;
         }
 
         /// <summary>
@@ -449,6 +446,26 @@ namespace dMobile.Controller.Activity_Item
 
         /// <inheritdoc />
         public override DataTemplate GetDataTemplate()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override string GetOrderedExpectedOnHandTitle()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override string GetShippedReceivedCountedTitle()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override string GetOrderedExpectedOnHandQuantity()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override string GetShippedReceivedCountedQuantity()
         {
             throw new NotImplementedException();
         }

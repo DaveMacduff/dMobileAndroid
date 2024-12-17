@@ -32,7 +32,7 @@
                             Grid.Row="0"
                             Grid.Column="0"
                             Clicked="CmdSetLocation_Click"
-                            Text="Selected Location"
+                            Text="Select Location"
                             FontAttributes="Bold"
                             IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}"/>
                 </Grid>
@@ -49,13 +49,13 @@
                            Grid.Row="0"
                            Grid.Column="0"
                            FontAttributes="Bold"
-                           Text="      Default"/>
+                           Text="Default Location"/>
                     <Label x:Name="LblDefaultLocationData"
                            Grid.Row="0"
                            Grid.Column="1"
                            Text="Unknown"/>
                 </Grid>
-                <!--Suggested location-->
+                <!--Skid location-->
                 <Grid Grid.Row="2">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -64,12 +64,12 @@
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <Label x:Name="LblSuggestedLocation"
+                    <Label x:Name="LblSkidLocation"
                            Grid.Row="0"
                            Grid.Column="0"
                            FontAttributes="Bold"
-                           Text = "Suggested"/>
-                    <Label x:Name="LblSuggestedLocationData"
+                           Text = "    Skid Location"/>
+                    <Label x:Name="LblSkidLocationData"
                            Grid.Row="0"
                            Grid.Column="1"
                            Text = "Unknown"/>
@@ -80,7 +80,8 @@
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="70*"/>
+                        <ColumnDefinition Width="50*"/>
+                        <ColumnDefinition Width="20*"/>
                         <ColumnDefinition Width="10*"/>
                         <ColumnDefinition Width="20*"/>
                     </Grid.ColumnDefinitions>
@@ -91,16 +92,23 @@
                             FontAttributes="Bold"
                             Text="Selected Skid"
                             IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}"/>
-                    <Button x:Name="CmdClearSkid"
+                    <Button x:Name="CmdAddSkid"
                             Grid.Row="0"
                             Grid.Column="1"
+                            Clicked="CmdAddSkid_Clicked"
+                            FontAttributes="Bold"
+                            Text="Add"
+                            IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}"/>
+                    <Button x:Name="CmdClearSkid"
+                            Grid.Row="0"
+                            Grid.Column="2"
                             Clicked="CmdClearSkid_Clicked"
                             FontAttributes="Bold"
                             Text="Clr"
                             IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}"/>
                     <customcontrols:CustomPicker x:Name="BarCodeModifier1Picker"
                                                  Grid.Row="0"
-                                                 Grid.Column="2"
+                                                 Grid.Column="3"
                                                  Image="arrow_drop_down"
                                                  SelectedIndexChanged="BarCodeModifier1Picker_SelectedIndexChanged"
                                                  IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}"/>
@@ -174,13 +182,15 @@
                            Grid.Row="1"
                            Grid.Column="0"
                            FontAttributes="Bold"
+                           TextColor="Purple"
                            Text="Shipped"/>
                     <Label x:Name="LblShippedReceivedCountedData"
                            Grid.Row="1"
                            Grid.Column="1"
+                           TextColor="Purple"
                            Text="0000000.000"/>
                 </Grid>
-                <!--SID-->
+                <!--Item Comment and Count-->
                 <Grid Grid.Row="6">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*"/>
@@ -199,15 +209,15 @@
                            Grid.Row="0"
                            Grid.Column="1"
                            Text="None"/>
-                    <Label x:Name="LblSchemeId"
+                    <Label x:Name="LblItemCount"
                            Grid.Row="1"
                            Grid.Column="0"
                            FontAttributes="Bold"
-                           Text="SID"/>
-                    <Label x:Name="LblSchemeIdData"
+                           Text="      Item #"/>
+                    <Label x:Name="LblItemCountData"
                            Grid.Row="1"
                            Grid.Column="1"
-                           Text="Unknown"/>
+                           Text="0 of 0"/>
                 </Grid>
                 <!--Items, AddItem, Details-->
                 <Grid Grid.Row="7">
@@ -273,7 +283,7 @@
                             Grid.Column="2"
                             Clicked="CmdItems_Click"
                             FontAttributes="Bold"
-                            Text="Items"
+                            Text="Inq"
                             IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}"/>
                     <Button x:Name="CmdNext"
                             Grid.Row="0"

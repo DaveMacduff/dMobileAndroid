@@ -253,8 +253,7 @@ namespace dMobile.View.Options
         /// <summary>
         ///     Gets the table activity picking detail.
         /// </summary>
-        private TableActivityPickingDetail PickingDetail { get; } =
-            new TableActivityPickingDetail();
+        private TableActivityPickingDetail PickingDetail { get; } = new TableActivityPickingDetail();
 
         /// <summary>
         ///     Gets the table activity picking route.

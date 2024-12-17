@@ -144,9 +144,9 @@ namespace dMobile.View.Activity
         private Activity ActHdr { get; }
 
         /// <summary>
-        ///     Gets the activity header subtype.
+        ///     Gets or sets the activity header subtype.
         /// </summary>
-        private SysCommon.ActSubTypes ActSubType { get; }
+        private SysCommon.ActSubTypes ActSubType { get; set; }
 
         /// <summary>
         ///     Gets the list of items.
@@ -276,8 +276,7 @@ namespace dMobile.View.Activity
         {
             var isReadyToSave = !this.IsChangesMade;
 
-            if (isReadyToSave && (this.ActSubType == SysCommon.ActSubTypes.Picking
-                                  || this.ActSubType == SysCommon.ActSubTypes.PickingSingle))
+            if (isReadyToSave && this.ActSubType == SysCommon.ActSubTypes.Picking)
             {
                 isReadyToSave = await IsReadyToSavePicking();
             }
@@ -311,9 +310,7 @@ namespace dMobile.View.Activity
             // If activity is picking and confirm to exit form is enabled.
             // This code should be moved into an picking header class inherited from ucActivityHdr.
             if (isReadyToClose
-                && this.SysEnv.SysSettings.IsPickConfirmExit
-                && (this.ActSubType == SysCommon.ActSubTypes.Picking
-                    || this.ActSubType == SysCommon.ActSubTypes.PickingSingle))
+                && this.SysEnv.SysSettings.IsPickConfirmExit && this.ActSubType == SysCommon.ActSubTypes.Picking)
             {
                 isReadyToClose = await this.AskConfirmExit();
             }
@@ -751,7 +748,7 @@ namespace dMobile.View.Activity
                     this.ActHdr.AssignRefnoFromActivity(this.ListViewMainActivity.SelectedItem);
                     var labelQuantity = new SLabelQuantity();
 
-                    if (this.ActSubType == SysCommon.ActSubTypes.PickingSingle &&
+                    if (this.ActSubType == SysCommon.ActSubTypes.Picking &&
                         this.SysEnv.SysSettings.CanPrintShippingLabel &&
                         !this.SysEnv.SysSettings.IsDisconnectedMode)
                     {
@@ -768,7 +765,6 @@ namespace dMobile.View.Activity
                             // Lekker Foods wants to be ask to print labels after the order has been released.
                             // There is no opportunity to reprint after the release.
                             case SysCommon.ActSubTypes.Picking:
-                            case SysCommon.ActSubTypes.PickingSingle:
                             {
                                 // Shipping labels
                                 if (this.SysEnv.SysSettings.CanPrintShippingLabel &&
@@ -821,7 +817,7 @@ namespace dMobile.View.Activity
                 //////////////////////////////////////////////////////////////////////////
                 async Task PrintLabelsAfterRelease(SLabelQuantity labelQuantity)
                 {
-                    if (this.ActSubType == SysCommon.ActSubTypes.PickingSingle || this.ActSubType == SysCommon.ActSubTypes.Picking)
+                    if (this.ActSubType == SysCommon.ActSubTypes.Picking)
                     {
                         if (this.SysEnv.SysSettings.IsPickSinglePrintShipLabelFullQuantity)
                         {
@@ -890,18 +886,16 @@ namespace dMobile.View.Activity
                 // Change pick selection.
                 await Task.Run(async () =>
                 {
-                    if ((this.ActSubType == SysCommon.ActSubTypes.Picking ||
-                         this.ActSubType == SysCommon.ActSubTypes.PickingSingle) &&
-                        this.SysEnv.SysSettings.IsPrePickCrit)
+                    if (this.ActSubType == SysCommon.ActSubTypes.Picking && this.SysEnv.SysSettings.IsPrePickCrit)
                     {
-                        // NOTE: oBarCodeParse is not initialized yet so there is not reason to
+                        // NOTE: oBarCodeParse is not initialized yet so there is no reason to
                         // preserve its values
                         var form = new FormDialogContainer(
                             EDialogTypes.ActivityPickingSelectCriteria,
                             this.ActSubType);
 
-                        if (await Device.InvokeOnMainThreadAsync(async () =>
-                                await form.DisplayControl.ShowDialog() == DialogResult.OK))
+                        if (await Device.InvokeOnMainThreadAsync(
+                            async () => await form.DisplayControl.ShowDialog() == DialogResult.OK))
                         {
                             var locMap = LocationMap.GetInstance();
                             var result = await form.GetXml();
@@ -936,10 +930,23 @@ namespace dMobile.View.Activity
             async Task KeyUpEnterHandler()
             {
                 this.ActHdr.AssignRefnoFromActivity(this.ListViewMainActivity.SelectedItem);
-                if (this.SysEnv.SysSettings.IsPickSingleProd &&
-                    this.ActSubType == SysCommon.ActSubTypes.PickingSingle)
+                if (this.SysEnv.SysSettings.IsSingleActivityItem)
                 {
-                    await this.ListViewMainActivity_KeyUpEnter_PickingSingle();
+                    if (this.ActSubType == SysCommon.ActSubTypes.Picking)
+                    {
+                        await this.ListViewMainActivity_KeyUpEnter_PickingSingle();
+                    }
+                    else
+                    {
+                        var form = new FormDialogContainer(
+                            EDialogTypes.ActivityItemSingle,
+                            this.ActHdr,
+                            this.ActSubType);
+                        this.IsChangesMade = false;
+                        _ = await Device.InvokeOnMainThreadAsync(
+                            async () => await form.DisplayControl.ShowDialog());
+                        await this.FindSelectedItemAsync(this.ActHdr.HdrRefno);
+                    }
                 }
                 else
                 {
@@ -1113,10 +1120,23 @@ namespace dMobile.View.Activity
                     {
                         await this.ScannerDisable();
                         this.ActHdr.AssignRefnoFromActivity(this.ListViewMainActivity.SelectedItem);
-                        if (this.SysEnv.SysSettings.IsPickSingleProd &&
-                            this.ActSubType == SysCommon.ActSubTypes.PickingSingle)
+                        if (this.SysEnv.SysSettings.IsSingleActivityItem)
                         {
-                            await this.ListViewMainActivity_KeyUpEnter_PickingSingle();
+                            if (this.ActSubType == SysCommon.ActSubTypes.Picking)
+                            {
+                                await this.ListViewMainActivity_KeyUpEnter_PickingSingle();
+                            }
+                            else
+                            {
+                                var form = new FormDialogContainer(
+                                    EDialogTypes.ActivityItemSingle,
+                                    this.ActHdr,
+                                    this.ActSubType);
+                                this.IsChangesMade = false;
+                                _ = await Device.InvokeOnMainThreadAsync(
+                                    async () => await form.DisplayControl.ShowDialog());
+                                await this.FindSelectedItemAsync(this.ActHdr.HdrRefno);
+                            }
                         }
                         else
                         {
@@ -1125,8 +1145,8 @@ namespace dMobile.View.Activity
                                 this.ActHdr,
                                 this.ActSubType);
                             this.IsChangesMade = false;
-                            _ = await Device.InvokeOnMainThreadAsync(async () =>
-                                await form.DisplayControl.ShowDialog());
+                            _ = await Device.InvokeOnMainThreadAsync(
+                                async () =>  await form.DisplayControl.ShowDialog());
                             await this.FindSelectedItemAsync(this.ActHdr.HdrRefno);
                         }
                     }
@@ -1413,29 +1433,31 @@ namespace dMobile.View.Activity
                 if (this.SysEnv.ContactLog.IsAllowedPickingModuleOverridePicker)
                 {
                     // TODO: Test
-                    if (await Device.InvokeOnMainThreadAsync(async () =>
-                            await this.DisplayAlert(
-                                "Picker Override",
-                                "Do you wish to clear the current picker?",
-                                "Yes",
-                                "No")))
+                    if (await Device.InvokeOnMainThreadAsync(
+                        async () => await this.DisplayAlert(
+                            "Picker Override",
+                            "Do you wish to clear the current picker?",
+                            "Yes",
+                            "No")))
                     {
                         if (await ((PickingActivity)this.ActHdr).ClearSalesOrderBeingPicked(false))
                         {
-                            await Device.InvokeOnMainThreadAsync(async () =>
-                                await this.DisplayAlert(
-                                    "Picker Override",
-                                    "Picker cleared.",
-                                    "OK"));
+                            await Device.InvokeOnMainThreadAsync(
+                                async () =>
+                                    await this.DisplayAlert(
+                                        "Picker Override",
+                                        "Picker cleared.",
+                                        "OK"));
                             isAllowedToPick = true;
                         }
                         else
                         {
-                            await Device.InvokeOnMainThreadAsync(async () =>
-                                await this.DisplayAlert(
-                                    "Picker Override",
-                                    "Unable to clear the current picker.",
-                                    "OK"));
+                            await Device.InvokeOnMainThreadAsync(
+                                async () =>
+                                    await this.DisplayAlert(
+                                        "Picker Override",
+                                        "Unable to clear the current picker.",
+                                        "OK"));
                         }
                     }
                 }
@@ -1443,13 +1465,15 @@ namespace dMobile.View.Activity
 
             if (isAllowedToPick)
             {
+                this.ActSubType = SysCommon.ActSubTypes.PickingSingle;
                 var form = new FormDialogContainer(
                     EDialogTypes.ActivityItemSingle,
                     this.ActHdr,
                     this.ActSubType);
                 this.IsChangesMade = false;
-                _ = await Device.InvokeOnMainThreadAsync(async () =>
-                    await form.DisplayControl.ShowDialog());
+                _ = await Device.InvokeOnMainThreadAsync(
+                    async () => await form.DisplayControl.ShowDialog());
+                this.ActSubType = SysCommon.ActSubTypes.Picking;
                 await this.FindSelectedItemAsync(this.ActHdr.HdrRefno);
             }
         }
@@ -1504,11 +1528,6 @@ namespace dMobile.View.Activity
 
                         case SysCommon.ActSubTypes.Picking:
                             DisplayDataPicking();
-
-                            break;
-
-                        case SysCommon.ActSubTypes.PickingSingle:
-                            DisplayDataPickingSingle();
 
                             break;
 
@@ -1700,18 +1719,6 @@ namespace dMobile.View.Activity
                         this.ExtraInfoItems.Add("Ship to:   " + picking.ActivityPickingCustomerShipToInfo);
                         this.ExtraInfoItems.Add(
                             $"Order warehouse:   {picking.LocationMapWarehouseFKRefno} - {picking.LocationMapWarehouseName}");
-                    }
-                }
-
-                //////////////////////////////////////////////////////////////////////////
-                void DisplayDataPickingSingle()
-                {
-                    if (this.ActHdr.SelectedActivity is Picking pickingSingle)
-                    {
-                        this.ExtraInfoItems.Add("Customer: " + pickingSingle.ActivityPickingCustomerContactName);
-                        this.ExtraInfoItems.Add("Ship to:   " + pickingSingle.ActivityPickingCustomerShipToInfo);
-                        this.ExtraInfoItems.Add(
-                            $"Order warehouse:   {pickingSingle.LocationMapWarehouseFKRefno} - {pickingSingle.LocationMapWarehouseName}");
                     }
                 }
 

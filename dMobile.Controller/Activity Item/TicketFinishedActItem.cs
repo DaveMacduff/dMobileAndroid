@@ -936,29 +936,6 @@ namespace dMobile.Controller.Activity_Item
             // Add all items in dataview to observable collection for display
             foreach (var productionTicketFinishedItem in this.ListItems.Cast<ProductionTicketFinishedItem>())
             {
-                // ProductionTicketFinishedItem productionTicketFinishedItem = new ProductionTicketFinishedItem
-                // {
-                //    ActivityItemRefno = Convert.ToInt32(row["ActivityItemRefno"] != DBNull.Value ? row["ActivityItemRefno"] : null),
-                //    ActivityItemProductionQuantity = Convert.ToDecimal(row["ActivityItemProductionQuantity"] != DBNull.Value ? row["ActivityItemProductionQuantity"] : null),
-                //    ActivityItemProductionBaseQuantity = Convert.ToDecimal(row["ActivityItemProductionBaseQuantity"] != DBNull.Value ? row["ActivityItemProductionBaseQuantity"] : null),
-                //    ActivityItemProductionWeightQuantity = Convert.ToDecimal(row["ActivityItemProductionWeightQuantity"] != DBNull.Value ? row["ActivityItemProductionWeightQuantity"] : null),
-                //    ProductUnitRefno = Convert.ToInt32(row["ProductUnitRefno"] != DBNull.Value ? row["ProductUnitRefno"] : null),
-                //    ProductRefno = Convert.ToInt32(row["ProductRefno"] != DBNull.Value ? row["ProductRefno"] : null),
-                //    ProductCode = Convert.ToString(row["ProductCode"] != DBNull.Value ? row["ProductCode"] : null),
-                //    ProductDescription = Convert.ToString(row["ProductDescription"] != DBNull.Value ? row["ProductDescription"] : null),
-                //    ProductUnitBC = Convert.ToString(row["ProductUnitBC"] != DBNull.Value ? row["ProductUnitBC"] : null),
-                //    ProductUnitSizeDescription = Convert.ToString(row["ProductUnitSizeDescription"] != DBNull.Value ? row["ProductUnitSizeDescription"] : null),
-                //    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"] != DBNull.Value ? row["LocationMapRefno"] : null),
-                //    LocationName = Convert.ToString(row["LocationName"] != DBNull.Value ? row["LocationName"] : null),
-                //    ActivityItemStatus = Convert.ToInt32(row["ActivityItemStatus"] != DBNull.Value ? row["ActivityItemStatus"] : null),
-                //    ActivityItemProductionBaseQuantityExpected = Convert.ToDecimal(row["ActivityItemProductionBaseQuantityExpected"] != DBNull.Value ? row["ActivityItemProductionBaseQuantityExpected"] : null),
-                //    ActivityItemFKRefno = Convert.ToInt32(row["ActivityItemFKRefno"] != DBNull.Value ? row["ActivityItemFKRefno"] : null),
-                //    ActivityItemStringFKRefno = Convert.ToString(row["ActivityItemStringFKRefno"] != DBNull.Value ? row["ActivityItemStringFKRefno"] : null),
-                //    ActivityItemProductionQuantityExpected = Convert.ToDecimal(row["ActivityItemProductionQuantityExpected"] != DBNull.Value ? row["ActivityItemProductionQuantityExpected"] : null),
-                //    ActivityItemProductionWeightQuantityExpected = Convert.ToDecimal(row["ActivityItemProductionWeightQuantityExpected"] != DBNull.Value ? row["ActivityItemProductionWeightQuantityExpected"] : null),
-                //    BaseUnitCode = Convert.ToString(row["BaseUnitCode"] != DBNull.Value ? row["BaseUnitCode"] : null),
-                //    LocationCode = Convert.ToInt32(row["LocationCode"] != DBNull.Value ? row["LocationCode"] : null)
-                // };
                 observableCollection.Add(productionTicketFinishedItem);
             }
 
@@ -969,11 +946,22 @@ namespace dMobile.Controller.Activity_Item
         /// Select an activity item.
         /// </summary>
         /// <param name="selectedActivityItem"><see cref="object"/> Selected activity object.</param>
-        /// <returns><see cref="Task{T}"/> Activity item foreign key reference number.</returns>
-        public override async Task<int> AssignActivityItem(object selectedActivityItem)
+        public override async Task AssignActivityItem(object selectedActivityItem)
         {
-            if (selectedActivityItem is ProductionTicketFinishedItem item)
+            if (selectedActivityItem == null)
             {
+                this.SelectedListIdx = -1;
+                this.SelectedItem = null;
+                this.ItemRefno = 0;
+                this.ItemFkRefno = 0;
+                this.ProdInfo = new ProductInfo
+                {
+                    Scheme = new ProdScheme()
+                };
+            }
+            else if (selectedActivityItem is ProductionTicketFinishedItem item)
+            {
+                this.SelectedListIdx = this.ListItems.IndexOf(item);
                 this.SelectedItem = item;
                 this.ItemRefno = item.ActivityItemRefno;
                 this.ItemFkRefno = item.ActivityItemFKRefno;
@@ -986,7 +974,7 @@ namespace dMobile.Controller.Activity_Item
                 this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
             }
 
-            return this.ItemFkRefno;
+            return;
 
             //////////////////////////////////////////////////////////////////////////
             async Task AssignItemLocation(ProductionTicketFinishedItem item)
@@ -1073,13 +1061,6 @@ namespace dMobile.Controller.Activity_Item
             if (results != null &&
                 results.Count > 0)
             {
-                this.LocMap =
-                    await LocationMapTasks.GetSLocMapFromLocMapRefno(Convert.ToInt32(results[0].LocationMapRefno));
-                this.ItemRefno = Convert.ToInt32(results[0].ActivityItemRefno);
-                this.ItemFkRefno = Convert.ToInt32(results[0].ActivityItemFKRefno);
-                this.ProdInfo =
-                    await ProductInfoTasks.GetInfoFromUnitRefno(Convert.ToInt32(results[0].ProductUnitRefno));
-                this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
                 foundActItemRefno = this.ItemRefno;
             }
 
@@ -1251,7 +1232,7 @@ namespace dMobile.Controller.Activity_Item
         /// <returns>The <see cref="string"/>.</returns>
         public override Task<string> GetComment(object selectedActivityItem)
         {
-            throw new NotImplementedException();
+            return Task.FromResult(string.Empty);
         }
 
         /// <summary>
@@ -1313,6 +1294,44 @@ namespace dMobile.Controller.Activity_Item
         public override DataTemplate GetDataTemplate()
         {
             return (DataTemplate)this.ResourceDictionary["dataTemplateFinishedItem"];
+        }
+
+        /// <inheritdoc />
+        public override string GetOrderedExpectedOnHandTitle()
+        {
+            return "Expected";
+        }
+
+        /// <inheritdoc />
+        public override string GetShippedReceivedCountedTitle()
+        {
+            return "Finished";
+        }
+
+        /// <inheritdoc />
+        public override string GetOrderedExpectedOnHandQuantity()
+        {
+            var quantity = "0.000";
+            if (this.SelectedItem is ProductionTicketFinishedItem item)
+            {
+                quantity = $"{item.ActivityItemProductionQuantityExpected:F3} {this.ProdInfo.UnitCode} @ " +
+                           $"{item.ActivityItemProductionWeightQuantityExpected:F3} {this.ProdInfo.WeightUnitCode}";
+            }
+
+            return quantity;
+        }
+
+        /// <inheritdoc />
+        public override string GetShippedReceivedCountedQuantity()
+        {
+            var quantity = "0.000";
+            if (this.SelectedItem is ProductionTicketFinishedItem item)
+            {
+                quantity = $"{item.ActivityItemProductionQuantity:F3} {this.ProdInfo.UnitCode} @ " +
+                           $"{item.ActivityItemProductionWeightQuantity:F3} {this.ProdInfo.WeightUnitCode}";
+            }
+
+            return quantity;
         }
     }
 }

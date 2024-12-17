@@ -203,8 +203,7 @@ namespace dMobile.Controller.Activity_Item
         /// The SelectActivityItem.
         /// </summary>
         /// <param name="selectedActivityItem">The selectedActivityItem<see cref="object"/>.</param>
-        /// <returns><see cref="Task{T}"/> Activity item foreign key reference number.</returns>
-        public override Task<int> AssignActivityItem(object activityItem)
+        public override Task AssignActivityItem(object activityItem)
         {
             throw new NotImplementedException();
         }
@@ -371,6 +370,26 @@ namespace dMobile.Controller.Activity_Item
 
         /// <inheritdoc />
         public override DataTemplate GetDataTemplate()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override string GetOrderedExpectedOnHandTitle()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override string GetShippedReceivedCountedTitle()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override string GetOrderedExpectedOnHandQuantity()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override string GetShippedReceivedCountedQuantity()
         {
             throw new NotImplementedException();
         }

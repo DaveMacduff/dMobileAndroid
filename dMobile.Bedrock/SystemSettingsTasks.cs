@@ -191,7 +191,7 @@ namespace dMobile.Bedrock
                 drow["IsPickingModuleQuantityOverWarning"]);
             settings.PickQtyUnderWarn = (SysCommon.ActPickingQtyUnderValLevels)Convert.ToInt32(
                 drow["IsPickingModuleQuantityUnderWarning"]);
-            settings.IsPickSingleProd = Convert.ToBoolean(drow["IsPickingModuleSingleProduct"]);
+            settings.IsSingleActivityItem = Convert.ToBoolean(drow["IsPickingModuleSingleProduct"]);
             settings.IsPickDisallowManualAddProd = Convert.ToBoolean(drow["IsPickingModuleDisallowManualAddProduct"]);
             settings.IsPickAssocBarCodePwdReq = Convert.ToBoolean(drow["IsPickingModuleAssociateProductBarCodePasswordRequired"]);
             settings.IsPickSingleScanProdMustMatchSelProd = Convert.ToBoolean(

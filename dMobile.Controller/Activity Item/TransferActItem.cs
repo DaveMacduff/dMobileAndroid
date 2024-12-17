@@ -248,6 +248,12 @@ namespace dMobile.Controller.Activity_Item
             return foundIdx;
         }
 
+        /// <inheritdoc />
+        public override DataTemplate GetDataTemplate()
+        {
+            return (DataTemplate)this.ResourceDictionary["dataTemplateTransferItem"];
+        }
+
         /// <summary>
         /// Check if the quantity is valid, and is ready to be used.
         /// </summary>
@@ -871,11 +877,22 @@ namespace dMobile.Controller.Activity_Item
         /// Select an activity item.
         /// </summary>
         /// <param name="selectedActivityItem"><see cref="object"/> Selected activity object.</param>
-        /// <returns><see cref="Task{T}"/> Activity item foreign key reference number.</returns>
-        public override async Task<int> AssignActivityItem(object selectedActivityItem)
+        public override async Task AssignActivityItem(object selectedActivityItem)
         {
-            if (selectedActivityItem is TransferItem item)
+            if (selectedActivityItem == null)
             {
+                this.SelectedListIdx = -1;
+                this.SelectedItem = null;
+                this.ItemRefno = 0;
+                this.ItemFkRefno = 0;
+                this.ProdInfo = new ProductInfo
+                {
+                    Scheme = new ProdScheme()
+                };
+            }
+            else if (selectedActivityItem is TransferItem item)
+            {
+                this.SelectedListIdx = this.ListItems.IndexOf(item);
                 this.SelectedItem = item;
                 this.ItemRefno = item.ActivityItemRefno;
                 this.ItemFkRefno = item.ActivityItemFKRefno;
@@ -888,7 +905,7 @@ namespace dMobile.Controller.Activity_Item
                 this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
             }
 
-            return this.ItemFkRefno;
+            return;
 
             //////////////////////////////////////////////////////////////////////////
             async Task AssignItemLocation(TransferItem item)
@@ -968,12 +985,6 @@ namespace dMobile.Controller.Activity_Item
 
             if (results?.Count > 0)
             {
-                this.ItemRefno = Convert.ToInt32(results[0].ActivityItemRefno);
-                this.ItemFkRefno = Convert.ToInt32(results[0].ActivityItemFKRefno);
-                this.ProdInfo =
-                    await ProductInfoTasks.GetInfoFromUnitRefno(Convert.ToInt32(results[0].ProductUnitRefno));
-                this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
-
                 foundItemRefno = this.ItemRefno;
             }
 
@@ -1142,7 +1153,7 @@ namespace dMobile.Controller.Activity_Item
         /// <returns>The <see cref="string"/>.</returns>
         public override Task<string> GetComment(object selectedActivityItem)
         {
-            throw new NotImplementedException();
+            return Task.FromResult(string.Empty);
         }
 
         /// <summary>
@@ -1266,9 +1277,41 @@ namespace dMobile.Controller.Activity_Item
         }
 
         /// <inheritdoc />
-        public override DataTemplate GetDataTemplate()
+        public override string GetOrderedExpectedOnHandTitle()
         {
-            return (DataTemplate)this.ResourceDictionary["dataTemplateTransferItem"];
+            return "Ordered";
+        }
+
+        /// <inheritdoc />
+        public override string GetShippedReceivedCountedTitle()
+        {
+            return "Transferred";
+        }
+
+        /// <inheritdoc />
+        public override string GetOrderedExpectedOnHandQuantity()
+        {
+            var quantity = "0.000";
+            if (this.SelectedItem is ProductionTicketMaterialItem item)
+            {
+                quantity = $"{item.ActivityItemProductionQuantityExpected:F3} {this.ProdInfo.UnitCode} @ " +
+                           $"{item.ActivityItemProductionWeightQuantityExpected:F3} {this.ProdInfo.WeightUnitCode}";
+            }
+
+            return quantity;
+        }
+
+        /// <inheritdoc />
+        public override string GetShippedReceivedCountedQuantity()
+        {
+            var quantity = "0.000";
+            if (this.SelectedItem is ProductionTicketMaterialItem item)
+            {
+                quantity = $"{item.ActivityItemProductionQuantity:F3} {this.ProdInfo.UnitCode} @ " +
+                           $"{item.ActivityItemProductionWeightQuantity:F3} {this.ProdInfo.WeightUnitCode}";
+            }
+
+            return quantity;
         }
     }
 }

@@ -55,10 +55,6 @@
     <Compile Update="Activity\ActivityConvertUnitDetail.xaml.cs">
       <DependentUpon>ActivityConvertUnitDetail.xaml</DependentUpon>
     </Compile>
-    <Compile Update="Activity\ActivityItemSingleOld.xaml.cs">
-      <SubType>Code</SubType>
-      <DependentUpon>ActivityItemSingleOld.xaml</DependentUpon>
-    </Compile>
     <Compile Update="Activity\ActivityProductLabelQuantity.xaml.cs">
       <SubType>Code</SubType>
       <DependentUpon>ActivityProductLabelQuantity.xaml</DependentUpon>
@@ -255,10 +251,6 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Update="Activity\ActivityItemSingleOld.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
-    </EmbeddedResource>
     <EmbeddedResource Update="Activity\ActivityProductLabelQuantity.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:UpdateDesignTimeXaml</Generator>

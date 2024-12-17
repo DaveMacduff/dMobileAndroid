@@ -300,39 +300,31 @@ namespace dMobile.View.Menus
         {
             this.DisableControls();
 
-            if (this.SysEnv.SysSettings.IsPickSingleProd)
+            // Note: This filter request will be asked for upon a page refresh.
+            // IsShowActivityFilterSelection flag stored in singleton so it is not reset on a page refresh.
+            if (this.SysEnv.SysSettings.IsPrePickCrit && this.SysEnv.SysSettings.IsShowActivityFilterSelection)
             {
-                var pickingSingle = new ActivityHdr(SysCommon.ActSubTypes.PickingSingle);
-                await pickingSingle.Show();
+                this.XmlDataFilter = XDocument.Parse(
+                    "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
+                    + "<params>"
+                    + "<whs_id>0</whs_id>"
+                    + "<sect_refno>0</sect_refno>"
+                    + "</params>");
+
+                this.PickingLocMapFilter = new SLocMap();
+                if (await this.HandlePrePickCriteria())
+                {
+                    var picking = new ActivityHdr(
+                        SysCommon.ActSubTypes.Picking,
+                        this.XmlDataFilter,
+                        this.PickingLocMapFilter);
+                    await picking.Show();
+                }
             }
             else
             {
-                // Note: This filter request will be asked for upon a page refresh.
-                // IsShowActivityFilterSelection flag stored in singleton so it is not reset on a page refresh.
-                if (this.SysEnv.SysSettings.IsPrePickCrit && this.SysEnv.SysSettings.IsShowActivityFilterSelection)
-                {
-                    this.XmlDataFilter = XDocument.Parse(
-                        "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
-                        + "<params>"
-                        + "<whs_id>0</whs_id>"
-                        + "<sect_refno>0</sect_refno>"
-                        + "</params>");
-
-                    this.PickingLocMapFilter = new SLocMap();
-                    if (await this.HandlePrePickCriteria())
-                    {
-                        var picking = new ActivityHdr(
-                            SysCommon.ActSubTypes.Picking,
-                            this.XmlDataFilter,
-                            this.PickingLocMapFilter);
-                        await picking.Show();
-                    }
-                }
-                else
-                {
-                    var picking = new ActivityHdr(SysCommon.ActSubTypes.Picking);
-                    await picking.Show();
-                }
+                var picking = new ActivityHdr(SysCommon.ActSubTypes.Picking);
+                await picking.Show();
             }
 
             this.IsControlLoaded = false;
@@ -437,9 +429,9 @@ namespace dMobile.View.Menus
         {
             this.DisableControls();
 
-            if (this.SysEnv.SysSettings.IsPickSingleProd)
+            if (this.SysEnv.SysSettings.IsSingleActivityItem)
             {
-                var releaseByOrder = new ActivityHdrReleaseByOrder(SysCommon.ActSubTypes.PickingSingle);
+                var releaseByOrder = new ActivityHdrReleaseByOrder(SysCommon.ActSubTypes.Picking);
                 await releaseByOrder.Show();
             }
             else

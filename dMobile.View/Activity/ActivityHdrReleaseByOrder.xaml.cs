@@ -255,8 +255,7 @@ namespace dMobile.View.Activity
 
         private async Task ReleaseOrder()
         {
-            if (this.ActSubType == SysCommon.ActSubTypes.Picking ||
-                this.ActSubType == SysCommon.ActSubTypes.PickingSingle)
+            if (this.ActSubType == SysCommon.ActSubTypes.Picking)
             {
                 if (await Device.InvokeOnMainThreadAsync(async () =>
                         await this.Activity.ChangeStatus(this.ListViewMainActivity.SelectedItem)))

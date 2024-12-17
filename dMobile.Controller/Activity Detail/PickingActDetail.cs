@@ -36,89 +36,90 @@ namespace dMobile.Controller.Activity_Detail
         {
             this.FullClassName = typeof(PickingActDetail).FullName;
 
-            var dataTemplate = new DataTemplate(() =>
-            {
-                var gridData = new Grid
+            var dataTemplate = new DataTemplate(
+                () =>
                 {
-                    Padding = new Thickness(5),
-                    ColumnDefinitions =
+                    var gridData = new Grid
                     {
-                        new ColumnDefinition { Width = new GridLength(this.ColumnWidth0, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(this.ColumnWidth1, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(this.ColumnWidth2, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(this.ColumnWidth3, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(this.ColumnWidth4, GridUnitType.Absolute) },
-                    },
-                };
+                        Padding = new Thickness(5),
+                        ColumnDefinitions =
+                        {
+                            new ColumnDefinition { Width = new GridLength(this.ColumnWidth0, GridUnitType.Absolute) },
+                            new ColumnDefinition { Width = new GridLength(this.ColumnWidth1, GridUnitType.Absolute) },
+                            new ColumnDefinition { Width = new GridLength(this.ColumnWidth2, GridUnitType.Absolute) },
+                            new ColumnDefinition { Width = new GridLength(this.ColumnWidth3, GridUnitType.Absolute) },
+                            new ColumnDefinition { Width = new GridLength(this.ColumnWidth4, GridUnitType.Absolute) },
+                        },
+                    };
 
-                var labelPickingDetailConfirmed = new Label
-                {
-                    VerticalOptions = LayoutOptions.Center,
-                    HorizontalOptions = LayoutOptions.Start,
-                };
+                    var labelPickingDetailConfirmed = new Label
+                    {
+                        VerticalOptions = LayoutOptions.Center,
+                        HorizontalOptions = LayoutOptions.Start,
+                    };
 
-                var labelPickingQuantity = new Label
-                {
-                    VerticalOptions = LayoutOptions.Center,
-                    HorizontalOptions = LayoutOptions.Start,
-                };
+                    var labelPickingQuantity = new Label
+                    {
+                        VerticalOptions = LayoutOptions.Center,
+                        HorizontalOptions = LayoutOptions.Start,
+                    };
 
-                var labelPickingWeightQuantity = new Label
-                {
-                    VerticalOptions = LayoutOptions.Center,
-                    HorizontalOptions = LayoutOptions.Start,
-                };
+                    var labelPickingWeightQuantity = new Label
+                    {
+                        VerticalOptions = LayoutOptions.Center,
+                        HorizontalOptions = LayoutOptions.Start,
+                    };
 
-                var labelPickingUnitCode = new Label
-                {
-                    VerticalOptions = LayoutOptions.Center,
-                    HorizontalOptions = LayoutOptions.Start,
-                };
+                    var labelPickingUnitCode = new Label
+                    {
+                        VerticalOptions = LayoutOptions.Center,
+                        HorizontalOptions = LayoutOptions.Start,
+                    };
 
-                var labelPickingSchemeId = new Label
-                {
-                    VerticalOptions = LayoutOptions.Center,
-                    HorizontalOptions = LayoutOptions.Start,
-                };
+                    var labelPickingSchemeId = new Label
+                    {
+                        VerticalOptions = LayoutOptions.Center,
+                        HorizontalOptions = LayoutOptions.Start,
+                    };
 
-                labelPickingDetailConfirmed.SetBinding(Label.TextProperty, new Binding("ActivityDetailIsConfirmedString"));
-                labelPickingQuantity.SetBinding(Label.TextProperty, new Binding(
-                    "ActivityDetailQuantity",
-                    BindingMode.Default,
-                    null,
-                    null,
-                    "{0:F3}"));
-                labelPickingWeightQuantity.SetBinding(Label.TextProperty, new Binding(
-                    "ActivityDetailWeightQuantity",
-                    BindingMode.Default,
-                    null,
-                    null,
-                    "{0:F3}"));
-                labelPickingUnitCode.SetBinding(Label.TextProperty, new Binding("UnitCode"));
-                labelPickingSchemeId.SetBinding(Label.TextProperty, new Binding("ActivityDetailSchemeID"));
+                    labelPickingDetailConfirmed.SetBinding(Label.TextProperty, new Binding("ActivityDetailIsConfirmedString"));
+                    labelPickingQuantity.SetBinding(Label.TextProperty, new Binding(
+                        "ActivityDetailQuantity",
+                        BindingMode.Default,
+                        null,
+                        null,
+                        "{0:F3}"));
+                    labelPickingWeightQuantity.SetBinding(Label.TextProperty, new Binding(
+                        "ActivityDetailWeightQuantity",
+                        BindingMode.Default,
+                        null,
+                        null,
+                        "{0:F3}"));
+                    labelPickingUnitCode.SetBinding(Label.TextProperty, new Binding("UnitCode"));
+                    labelPickingSchemeId.SetBinding(Label.TextProperty, new Binding("ActivityDetailSchemeID"));
 
-                if (this.SysEnv.SysSettings.IsPickConfirmDet)
-                {
-                    gridData.Children.Add(labelPickingDetailConfirmed);
-                }
+                    if (this.SysEnv.SysSettings.IsPickConfirmDet)
+                    {
+                        gridData.Children.Add(labelPickingDetailConfirmed);
+                    }
 
-                gridData.Children.Add(labelPickingQuantity);
-                gridData.Children.Add(labelPickingWeightQuantity);
-                gridData.Children.Add(labelPickingUnitCode);
-                gridData.Children.Add(labelPickingSchemeId);
+                    gridData.Children.Add(labelPickingQuantity);
+                    gridData.Children.Add(labelPickingWeightQuantity);
+                    gridData.Children.Add(labelPickingUnitCode);
+                    gridData.Children.Add(labelPickingSchemeId);
 
-                if (this.SysEnv.SysSettings.IsPickConfirmDet)
-                {
-                    Grid.SetColumn(labelPickingDetailConfirmed, 0);
-                }
+                    if (this.SysEnv.SysSettings.IsPickConfirmDet)
+                    {
+                        Grid.SetColumn(labelPickingDetailConfirmed, 0);
+                    }
 
-                Grid.SetColumn(labelPickingQuantity, 1);
-                Grid.SetColumn(labelPickingWeightQuantity, 2);
-                Grid.SetColumn(labelPickingUnitCode, 3);
-                Grid.SetColumn(labelPickingSchemeId, 4);
+                    Grid.SetColumn(labelPickingQuantity, 1);
+                    Grid.SetColumn(labelPickingWeightQuantity, 2);
+                    Grid.SetColumn(labelPickingUnitCode, 3);
+                    Grid.SetColumn(labelPickingSchemeId, 4);
 
-                return new ViewCell { View = gridData };
-            });
+                    return new ViewCell { View = gridData };
+                });
 
             var isAddKey = true;
             foreach (var item in this.ResourceDictionary)

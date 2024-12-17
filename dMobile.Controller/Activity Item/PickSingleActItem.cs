@@ -1045,11 +1045,22 @@ namespace dMobile.Controller.Activity_Item
         /// Select an activity item.
         /// </summary>
         /// <param name="selectedActivityItem"><see cref="object"/> Selected activity object.</param>
-        /// <returns><see cref="Task{T}"/> Activity item foreign key reference number.</returns>
-        public override async Task<int> AssignActivityItem(object selectedActivityItem)
+        public override async Task AssignActivityItem(object selectedActivityItem)
         {
-            if (selectedActivityItem is PickingItem item)
+            if (selectedActivityItem == null)
             {
+                this.SelectedListIdx = -1;
+                this.SelectedItem = null;
+                this.ItemRefno = 0;
+                this.ItemFkRefno = 0;
+                this.ProdInfo = new ProductInfo
+                {
+                    Scheme = new ProdScheme()
+                };
+            }
+            else if (selectedActivityItem is PickingItem item)
+            {
+                this.SelectedListIdx = this.ListItems.IndexOf(item);
                 this.SelectedItem = item;
                 this.ItemRefno = item.ActivityItemRefno;
                 this.ItemFkRefno = item.ActivityItemFKRefno;
@@ -1062,7 +1073,7 @@ namespace dMobile.Controller.Activity_Item
                 this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
             }
 
-            return this.ItemFkRefno;
+            return;
 
             //////////////////////////////////////////////////////////////////////////
             async Task AssignItemLocation(PickingItem item)
@@ -1082,7 +1093,7 @@ namespace dMobile.Controller.Activity_Item
                     this.LocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(this.ActHdr.LocationMapRefno);
                     if (this.LocMap.WhsLocMapRefno == 0)
                     {
-                        var defLocMapRefno = LocationMapTasks.DefaultLocMapRefnoToWhsIfUnassigned(locationMapRefno: 0);
+                        var defLocMapRefno = LocationMapTasks.DefaultLocMapRefnoToWhsIfUnassigned(0);
                         this.LocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(defLocMapRefno);
                     }
                 }
@@ -1118,11 +1129,112 @@ namespace dMobile.Controller.Activity_Item
         /// Get the activity item reference number from the product unit reference number and current location warehouse.
         /// </summary>
         /// <param name="prodUnitRefno"><see cref="int"/> Product unit reference number.</param>
+        /// <param name="locMap"><see cref="SLocMap"/> Location map.</param>
         /// <returns><see cref="int"/> Found activity item refno else 0.</returns>
-        public override Task<int> GetActivityItemRefno(int prodUnitRefno, SLocMap locMap)
+        public override async Task<int> GetActivityItemRefno(int prodUnitRefno, SLocMap locMap)
         {
-            var foundActItemRefno = this.ItemRefno;
-            return Task.FromResult(foundActItemRefno);
+            var foundActItemRefno = 0;
+
+            var sql = $@"
+                SELECT tActivityItem.ActivityItemRefno,
+                        tActivityItemPicking.ActivityItemFKRefno,
+                        tActivityItemPicking.ProductUnitRefno,
+                        tLocationMapWarehouse.LocationMapRefno 
+                    FROM tActivityItemPicking 
+                    INNER JOIN tActivityItem ON tActivityItem.ActivityItemRefno = tActivityItemPicking.ActivityItemRefno 
+                    INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno = tActivityItemPicking.WarehouseLocationMapRefno 
+                    WHERE tActivityItem.ActivityRefno = {this.ActHdr.HdrRefno} 
+                        AND tActivityItemPicking.WarehouseLocationMapRefno = {locMap.WhsLocMapRefno} 
+                        AND tActivityItemPicking.ProductUnitRefno = {prodUnitRefno}";
+
+            var results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<PickingItem>(sql);
+            if (results != null &&
+                results.Count > 0)
+            {
+                await this.AssignActivityItem(results[0]);
+                foundActItemRefno = this.ItemRefno;
+            }
+            else
+            {
+                foreach (var item in this.ListItems)
+                {
+                    if (item is PickingItem pickItem)
+                    {
+                        if (pickItem.LocationMapRefno == locMap.WhsLocMapRefno
+                            && pickItem.ProductUnitRefno == prodUnitRefno)
+                        {
+                            await this.AssignActivityItem(pickItem);
+                            foundActItemRefno = this.ItemRefno;
+                            break;
+                        }
+                    }
+                }
+
+                // If location defaulting is on, attempt to find a matching line item by ignoring the line item
+                // warehouse location. Yes this will be a problem if the sales order has multiple item lines
+                // on it for the same product and different warehouse.
+                // Picking is the only activity that could have this sort of problem. All other activities are
+                // warehouse friend because they can't mix warehouses or are created by the mobile itself.
+                if (foundActItemRefno == 0 &&
+                    this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc)
+                {
+                    sql = $@"
+                        SELECT tActivityItem.ActivityItemRefno,
+                                tActivityItemPicking.ActivityItemFKRefno,
+                                tActivityItemPicking.ProductUnitRefno,
+                                tLocationMapWarehouse.LocationMapRefno 
+                            FROM tActivityItemPicking 
+                            INNER JOIN tActivityItem ON tActivityItem.ActivityItemRefno = tActivityItemPicking.ActivityItemRefno 
+                            INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno = tActivityItemPicking.WarehouseLocationMapRefno 
+                            WHERE tActivityItem.ActivityRefno = {this.ActHdr.HdrRefno} 
+                            AND tActivityItemPicking.ProductUnitRefno = {prodUnitRefno}";
+
+                    results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<PickingItem>(sql);
+                    if (results != null &&
+                        results.Count > 0)
+                    {
+                        var locMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(
+                            Convert.ToInt32(results[0].LocationMapRefno),
+                            prodUnitRefno,
+                            SysCommon.ProdLocMapTypes.Picking);
+
+                        if (!await LocationMapTasks.IsCompleteLocMap(locMapRefno))
+                        {
+                            // Default location to the floor.
+                            locMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(
+                                Convert.ToInt32(results[0].LocationMapRefno),
+                                prodUnitRefno,
+                                SysCommon.ProdLocMapTypes.Floor);
+                        }
+
+                        if (await LocationMapTasks.IsCompleteLocMap(locMapRefno))
+                        {
+                            LocationMap.GetInstance().CurrLocMap =
+                                await LocationMapTasks.GetSLocMapFromLocMapRefno(locMapRefno);
+                            LocationMap.GetInstance().ChosenLocMap = LocationMap.GetInstance().CurrLocMap;
+                            await this.AssignActivityItem(results[0]);
+                            foundActItemRefno = this.ItemRefno;
+                        }
+                    }
+                    else
+                    {
+                        foreach (var item in this.ListItems)
+                        {
+                            if (item is PickingItem pickItem)
+                            {
+                                if (pickItem.ProductUnitRefno == prodUnitRefno)
+                                {
+                                    await this.AssignActivityItem(pickItem);
+                                    foundActItemRefno = this.ItemRefno;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            return foundActItemRefno;
         }
 
         /// <summary>
@@ -1367,6 +1479,44 @@ namespace dMobile.Controller.Activity_Item
         public override DataTemplate GetDataTemplate()
         {
             throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public override string GetOrderedExpectedOnHandTitle()
+        {
+            return "Ordered";
+        }
+
+        /// <inheritdoc />
+        public override string GetShippedReceivedCountedTitle()
+        {
+            return "Shipped";
+        }
+
+        /// <inheritdoc />
+        public override string GetOrderedExpectedOnHandQuantity()
+        {
+            var quantity = "0.000";
+            if (this.SelectedItem is PickingItem item)
+            {
+                quantity = $"{item.ActivityItemPickingQuantityOrdered:F3} {this.ProdInfo.UnitCode} @ " +
+                           $"{item.ActivityItemPickingWeightQuantityOrdered:F3} {this.ProdInfo.WeightUnitCode}";
+            }
+
+            return quantity;
+        }
+
+        /// <inheritdoc />
+        public override string GetShippedReceivedCountedQuantity()
+        {
+            var quantity = "0.000";
+            if (this.SelectedItem is PickingItem item)
+            {
+                quantity = $"{item.ActivityItemPickingQuantityShipped:F3} {this.ProdInfo.UnitCode} @ " +
+                           $"{item.ActivityItemPickingWeightQuantityShipped:F3} {this.ProdInfo.WeightUnitCode}";
+            }
+
+            return quantity;
         }
     }
 }

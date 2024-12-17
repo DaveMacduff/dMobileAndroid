@@ -586,6 +586,11 @@ namespace dMobile.Controller.Activity_Item
             return mainActivityItems;
         }
 
+        public override string GetShippedReceivedCountedQuantity()
+        {
+            throw new NotImplementedException();
+        }
+
         /// <summary>
         ///     Calculate the maximum data column widths.
         /// </summary>
@@ -847,27 +852,38 @@ namespace dMobile.Controller.Activity_Item
         ///     Select an activity item.
         /// </summary>
         /// <param name="selectedActivityItem"><see cref="object" /> Selected activity object.</param>
-        /// <returns><see cref="Task{T}" /> Activity item foreign key reference number.</returns>
-        public override async Task<int> AssignActivityItem(object selectedActivityItem)
+        public override async Task AssignActivityItem(object selectedActivityItem)
         {
-            if (selectedActivityItem is PurchaseOrderWorkSheetItem item)
+            if (selectedActivityItem == null)
             {
+                this.SelectedListIdx = -1;
+                this.SelectedItem = null;
+                this.ItemRefno = 0;
+                this.ItemFkRefno = 0;
+                this.ProdInfo = new ProductInfo
+                {
+                    Scheme = new ProdScheme()
+                };
+            }
+            else if (selectedActivityItem is PurchaseOrderWorkSheetItem item)
+            {
+                this.SelectedListIdx = this.ListItems.IndexOf(item);
                 this.SelectedItem = item;
                 this.ItemRefno = item.ActivityItemRefno;
                 this.ItemFkRefno = item.ActivityItemFKRefno;
                 this.ActStatus = (SysCommon.ActStatus)item.ActivityItemStatus;
                 this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(item.ProductUnitRefno);
 
-                await AssignItemLocation();
+                await AssignItemLocation(item);
 
                 // LocationMap.GetInstance().CurrLocMap warehouse needs to be set before call to GetSchemeComponentsFromRefno.
                 this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
             }
 
-            return this.ItemFkRefno;
+            return;
 
             //////////////////////////////////////////////////////////////////////////
-            async Task AssignItemLocation()
+            async Task AssignItemLocation(PurchaseOrderWorkSheetItem item)
             {
                 // This code needs to be before the call to GetSelectedItemLocation, because the skid location may be
                 // used if the product unit and warehouse match.
@@ -944,13 +960,6 @@ namespace dMobile.Controller.Activity_Item
 
             if (results != null && results.Count > 0)
             {
-                this.LocMap =
-                    await LocationMapTasks.GetSLocMapFromLocMapRefno(Convert.ToInt32(results[0].LocationMapRefno));
-                this.ItemRefno = Convert.ToInt32(results[0].ActivityItemRefno);
-                this.ItemFkRefno = Convert.ToInt32(results[0].ActivityItemFKRefno);
-                this.ProdInfo =
-                    await ProductInfoTasks.GetInfoFromUnitRefno(Convert.ToInt32(results[0].ProductUnitRefno));
-                this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
                 foundActItemRefno = this.ItemRefno;
             }
 
@@ -1115,7 +1124,7 @@ namespace dMobile.Controller.Activity_Item
         /// <returns>The <see cref="string" />.</returns>
         public override Task<string> GetComment(object selectedActivityItem)
         {
-            throw new NotImplementedException();
+            return Task.FromResult(string.Empty);
         }
 
         /// <summary>
@@ -1200,6 +1209,21 @@ namespace dMobile.Controller.Activity_Item
         public override DataTemplate GetDataTemplate()
         {
             return (DataTemplate)this.ResourceDictionary["dataTemplatePOWorkSheetItem"];
+        }
+
+        public override string GetOrderedExpectedOnHandTitle()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override string GetShippedReceivedCountedTitle()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override string GetOrderedExpectedOnHandQuantity()
+        {
+            throw new NotImplementedException();
         }
     }
 }

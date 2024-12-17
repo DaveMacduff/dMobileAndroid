@@ -652,9 +652,7 @@ namespace dMobile.View.Activity
                     async Task PromptRemove()
                     {
                         // picking not allowed to remove boxes from skid
-                        if (this.ActDetail.Quantity == 1 ||
-                            this.CallingActSubType == SysCommon.ActSubTypes.Picking ||
-                            this.CallingActSubType == SysCommon.ActSubTypes.PickingSingle)
+                        if (this.ActDetail.Quantity == 1 || this.CallingActSubType == SysCommon.ActSubTypes.Picking)
                         {
                             if (await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(
                                     this.GetControlDescription(),

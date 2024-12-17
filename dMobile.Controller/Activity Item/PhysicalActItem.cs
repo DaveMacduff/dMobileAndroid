@@ -972,11 +972,22 @@ namespace dMobile.Controller.Activity_Item
         /// Select an activity item.
         /// </summary>
         /// <param name="selectedActivityItem"><see cref="object"/> Selected activity object.</param>
-        /// <returns><see cref="Task{T}"/> Activity item foreign key reference number.</returns>
-        public override async Task<int> AssignActivityItem(object selectedActivityItem)
+        public override async Task AssignActivityItem(object selectedActivityItem)
         {
-            if (selectedActivityItem is CountItem item)
+            if (selectedActivityItem == null)
             {
+                this.SelectedListIdx = -1;
+                this.SelectedItem = null;
+                this.ItemRefno = 0;
+                this.ItemFkRefno = 0;
+                this.ProdInfo = new ProductInfo
+                {
+                    Scheme = new ProdScheme()
+                };
+            }
+            else if (selectedActivityItem is CountItem item)
+            {
+                this.SelectedListIdx = this.ListItems.IndexOf(item);
                 this.SelectedItem = item;
                 this.ItemRefno = item.ActivityItemRefno;
                 this.ItemFkRefno = item.ActivityItemFKRefno;
@@ -989,7 +1000,7 @@ namespace dMobile.Controller.Activity_Item
                 this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
             }
 
-            return this.ItemFkRefno;
+            return;
 
             //////////////////////////////////////////////////////////////////////////
             async Task AssignItemLocation(CountItem item)
@@ -1097,10 +1108,7 @@ namespace dMobile.Controller.Activity_Item
 
             if (results != null && results.Count > 0)
             {
-                this.ItemRefno = Convert.ToInt32(results[0].ActivityItemRefno);
-                this.ItemFkRefno = Convert.ToInt32(results[0].ActivityItemFKRefno);
-                this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(Convert.ToInt32(results[0].ProductUnitRefno));
-                this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
+                await this.AssignActivityItem(results[0]);
                 foundActItemRefno = this.ItemRefno;
             }
             else
@@ -1109,10 +1117,7 @@ namespace dMobile.Controller.Activity_Item
                 {
                     if (item.LocationMapRefno == locMap.WhsLocMapRefno && item.ProductUnitRefno == prodUnitRefno)
                     {
-                        this.ItemRefno = item.ActivityItemRefno;
-                        this.ItemFkRefno = item.ActivityItemFKRefno;
-                        this.ProdInfo = await ProductInfoTasks.GetInfoFromRefno(item.ProductRefno);
-                        this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
+                        await this.AssignActivityItem(item);
                         foundActItemRefno = this.ItemRefno;
                         break;
                     }
@@ -1278,7 +1283,7 @@ namespace dMobile.Controller.Activity_Item
         /// <returns>The <see cref="string"/>.</returns>
         public override Task<string> GetComment(object selectedActivityItem)
         {
-            throw new NotImplementedException();
+            return Task.FromResult(string.Empty);
         }
 
         /// <summary>
@@ -1373,6 +1378,44 @@ namespace dMobile.Controller.Activity_Item
         public override DataTemplate GetDataTemplate()
         {
             return (DataTemplate)this.ResourceDictionary["dataTemplatePhysicalCountItem"];
+        }
+
+        /// <inheritdoc />
+        public override string GetOrderedExpectedOnHandTitle()
+        {
+            return "On hand";
+        }
+
+        /// <inheritdoc />
+        public override string GetShippedReceivedCountedTitle()
+        {
+            return "Counted";
+        }
+
+        /// <inheritdoc />
+        public override string GetOrderedExpectedOnHandQuantity()
+        {
+            var quantity = "0.000";
+            if (this.SelectedItem is CountItem item)
+            {
+                quantity = $"{item.ActivityItemCountQuantityOnHand:F3} {this.ProdInfo.UnitCode} @ " +
+                           $"{item.ActivityItemCountWeightQuantityOnHand:F3} {this.ProdInfo.WeightUnitCode}";
+            }
+
+            return quantity;
+        }
+
+        /// <inheritdoc />
+        public override string GetShippedReceivedCountedQuantity()
+        {
+            var quantity = "0.000";
+            if (this.SelectedItem is CountItem item)
+            {
+                quantity = $"{item.ActivityItemCountQuantity:F3} {this.ProdInfo.UnitCode} @ " +
+                           $"{item.ActivityItemCountWeightQuantity:F3} {this.ProdInfo.WeightUnitCode}";
+            }
+
+            return quantity;
         }
     }
 }

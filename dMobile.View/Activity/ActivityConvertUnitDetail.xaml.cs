@@ -817,16 +817,16 @@ namespace dMobile.View.Activity
                     // Get the activity item reference number from the identified location reference number
                     // and product reference number.
                     var tempActItemRefno = await this.ActDetail.ActItem.GetActivityItemRefno(
-                        prodUnitRefno, LocationMap.GetInstance().CurrLocMap);
+                        prodUnitRefno,
+                        LocationMap.GetInstance().CurrLocMap);
                     if (tempActItemRefno == 0)
                     {
                         // Location and product was not found on this activity
-                        await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(
-                            this.ActDetail.GetControlDescription(),
-                            Convert.ToString(this.ActDetail.ActItem.GetItemNotFoundMessage(
-                                this.LocMap,
-                                prodInfo)),
-                            "OK"));
+                        await Device.InvokeOnMainThreadAsync(
+                            async () => await this.DisplayAlert(
+                                this.ActDetail.GetControlDescription(),
+                                Convert.ToString(this.ActDetail.ActItem.GetItemNotFoundMessage(this.LocMap, prodInfo)),
+                                "OK"));
                     }
                     else
                     {
@@ -1214,8 +1214,7 @@ namespace dMobile.View.Activity
             {
                 var isAllowedAddManualDetail = true;
                 if (this.SysEnv.SysSettings.IsPickAddManualDetailPasswordRequired &&
-                    (this.ActSubType == SysCommon.ActSubTypes.PickingSingle ||
-                     this.ActSubType == SysCommon.ActSubTypes.Picking))
+                    this.ActSubType == SysCommon.ActSubTypes.Picking)
                 {
                     var form = new FormAddManualDetailOverride();
 

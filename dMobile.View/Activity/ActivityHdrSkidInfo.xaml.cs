@@ -303,8 +303,7 @@ namespace dMobile.View.Activity
             ////}
 
             if (this.SysEnv.SysSettings.IsPickDisableMakeSkid &&
-                (this.CallingActSubType == SysCommon.ActSubTypes.Picking ||
-                 this.CallingActSubType == SysCommon.ActSubTypes.PickingSingle))
+                this.CallingActSubType == SysCommon.ActSubTypes.Picking)
             {
                 throw new MessageOnlyException("Making a new skid is disabled during picking.");
             }
@@ -1149,8 +1148,7 @@ namespace dMobile.View.Activity
                         case SysShared.ActivityType.Details:
                             if (this.SysEnv.SysSettings.IsPickDisableMakeSkid &&
                                 scannedSkidInfo.CurrSkid.SkidFkRefno <= 0 &&
-                                (this.CallingActSubType == SysCommon.ActSubTypes.Picking ||
-                                 this.CallingActSubType == SysCommon.ActSubTypes.PickingSingle))
+                                this.CallingActSubType == SysCommon.ActSubTypes.Picking)
                             {
                                 const string msg =
                                     "Creating a new skid is not allowed in this picking activity." +
