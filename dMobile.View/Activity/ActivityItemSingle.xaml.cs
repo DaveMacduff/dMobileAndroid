@@ -8,6 +8,7 @@ namespace dMobile.View.Activity
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
+    using System.Xml;
     using System.Xml.Linq;
     using BarCodeScanner.BarCodeParsing;
     using BarCodeScanner.BarCodeScanners;
@@ -17,6 +18,7 @@ namespace dMobile.View.Activity
     using dMobile.Controller.Activity;
     using Forms;
     using Resources.Enums;
+    using Resources.Types.Items;
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;
     using Resource = dMobile.Resources.Properties.Resources;
@@ -50,7 +52,6 @@ namespace dMobile.View.Activity
 
             // Init activity item object
             this.ActItem = ActItemFacade.GetActItem(this.ActHdr, this.ActSubType);
-            this.CmdAddItem.IsEnabled = this.ActItem.IsAllowAddItem;
 
             // Init activity detail object
             this.ActDetail = ActDetailFacade.GetActDetail(this.ActItem, this.ActSubType);
@@ -58,6 +59,7 @@ namespace dMobile.View.Activity
             InitBarCodeModifiers();
             this.Title = this.GetControlDescription();
             this.LoadAndBind().FireAndForgetSafeAsync();
+            this.Timer = new SysTimer(this.TimerTickCallback);
             return;
 
             ///////////////////////////////////////////////////////////
@@ -87,54 +89,26 @@ namespace dMobile.View.Activity
             }
         }
 
-        /// <summary>
-        /// Gets or sets a value indicating whether this is the first appearance of the control.
-        /// </summary>
         private bool IsFirstAppearance { get; set; } = true;
 
-        /// <summary>
-        /// Gets or sets the Scanner.
-        /// </summary>
         private BarCodeScanner Scanner { get; set; }
 
-        /// <summary>
-        /// Gets or sets the LocMap.
-        /// </summary>
-        private LocationMap LocMap { get; set; }
+        private LocationMap LocMap { get; }
 
-        /// <summary>
-        /// Gets or sets the ActHdr.
-        /// </summary>
-        private Activity ActHdr { get; set; }
+        private Activity ActHdr { get; }
 
-        /// <summary>
-        /// Gets or sets the activity item.
-        /// </summary>
-        private ActItem ActItem { get; set; }
+        private ActItem ActItem { get; }
 
-        /// <summary>
-        /// Gets or sets the activity detail.
-        /// </summary>
         private ActDetail ActDetail { get; set; }
 
-        /// <summary>
-        /// Gets or sets the ActSubType.
-        /// </summary>
-        private SysCommon.ActSubTypes ActSubType { get; set; }
+        private SysCommon.ActSubTypes ActSubType { get; }
 
-        /// <summary>
-        /// Gets or sets a value indicating whether this controls data is being loaded.
-        /// </summary>
         private bool IsDataLoading { get; set; }
 
-        /// <summary>
-        /// Gets or sets the SysEnv.
-        /// </summary>
-        private SysEnvironment SysEnv { get; set; }
+        private SysEnvironment SysEnv { get; }
 
-        /// <summary>
-        ///     Gets or sets a list of activity items.
-        /// </summary>
+        private SysTimer Timer { get; }
+
         private List<object> ListItems { get; set; } = new List<object>();
 
         /// <summary>
@@ -217,11 +191,24 @@ namespace dMobile.View.Activity
         /// </summary>
         protected override async void OnAppearing()
         {
-            base.OnAppearing();
-            if (this.IsFirstAppearance)
+            try
             {
-                this.IsFirstAppearance = false;
-                await this.ScannerEnable();
+                base.OnAppearing();
+                if (this.IsFirstAppearance)
+                {
+                    this.IsFirstAppearance = false;
+                    await this.ScannerEnable();
+                    this.Timer.Start();
+                }
+            }
+            catch (Exception ex)
+            {
+                await Device.InvokeOnMainThreadAsync(
+                    async () =>
+                    {
+                        var errRpt = new FormErrorReport(ex);
+                        _ = await errRpt.ShowDialog();
+                    });
             }
         }
 
@@ -230,11 +217,24 @@ namespace dMobile.View.Activity
         /// </summary>
         protected override async void OnDisappearing()
         {
-            MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
-            base.OnDisappearing();
-            this.IsIndicatorRunning = false;
-            GC.Collect();
-            GC.WaitForPendingFinalizers();
+            try
+            {
+                MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
+                base.OnDisappearing();
+                this.IsIndicatorRunning = false;
+                this.Timer.Stop();
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
+            }
+            catch (Exception ex)
+            {
+                await Device.InvokeOnMainThreadAsync(
+                    async () =>
+                    {
+                        var errRpt = new FormErrorReport(ex);
+                        _ = await errRpt.ShowDialog();
+                    });
+            }
         }
 
         /// <summary>
@@ -288,6 +288,18 @@ namespace dMobile.View.Activity
             };
 
             return desc;
+        }
+
+        /// <summary>
+        ///     Timer tick call back.
+        /// </summary>
+        private void TimerTickCallback()
+        {
+            if (!this.IsIndicatorRunning)
+            {
+                this.Timer.Stop();
+                this.CmdAddItem.IsEnabled = this.ActItem.IsAllowAddItem;
+            }
         }
 
         /// <summary>
@@ -396,14 +408,8 @@ namespace dMobile.View.Activity
                 this.CmdSetLocation.IsEnabled = true;
             }
 
-            if (this.LocMap.CurrLocMap.WhsLocMapRefno > 0)
-            {
-                this.CmdSetLocation.Text = LocationMapTasks.GetCurrentReadableLocation();
-            }
-            else
-            {
-                this.CmdSetLocation.Text = "Select Location";
-            }
+            this.CmdSetLocation.Text = this.LocMap.CurrLocMap.WhsLocMapRefno > 0
+                ? LocationMapTasks.GetCurrentReadableLocation() : "Select Location";
         }
 
         /// <summary>
@@ -766,8 +772,8 @@ namespace dMobile.View.Activity
                             async () =>
                             {
                                 var msg = "The current selected skid does not have a product assigned to it yet." +
-                                          $"Do you wish to assign '{prodInfo.Code} {prodInfo.UnitBc.Trim()} {prodInfo.UnitCode}'" +
-                                          $" to the skid?";
+                                          $"Do you wish to assign '{prodInfo.Code} {prodInfo.UnitBc.Trim()}" +
+                                          $" {prodInfo.UnitCode}' to the skid?";
                                 if (await this.DisplayAlert(
                                         this.ActItem.GetControlDescription(),
                                         msg,
@@ -902,7 +908,6 @@ namespace dMobile.View.Activity
             if (locMapRefno == 0)
             {
                 this.LblSkidLocationData.Text = "Unknown";
-                return;
             }
             else
             {
@@ -924,6 +929,20 @@ namespace dMobile.View.Activity
                     this.LblOrderedExpectedOnHand.Text = this.ActItem.GetOrderedExpectedOnHandTitle();
                     this.LblOrderedExpectedOnHandData.Text = this.ActItem.GetOrderedExpectedOnHandQuantity();
                     this.LblShippedReceivedCounted.Text = this.ActItem.GetShippedReceivedCountedTitle();
+                    if (this.ActSubType == SysCommon.ActSubTypes.Picking)
+                    {
+                        if (this.ActItem.SelectedItem != null &&
+                            ((PickingItem)this.ActItem.SelectedItem).ActivityItemPickingQuantityOrdered ==
+                            ((PickingItem)this.ActItem.SelectedItem).ActivityItemPickingQuantityShipped)
+                        {
+                            this.LblShippedReceivedCountedData.TextColor = Color.Green;
+                        }
+                        else
+                        {
+                            this.LblShippedReceivedCountedData.TextColor = Color.Red;
+                        }
+                    }
+
                     this.LblShippedReceivedCountedData.Text = this.ActItem.GetShippedReceivedCountedQuantity();
                 });
         }
@@ -1196,6 +1215,29 @@ namespace dMobile.View.Activity
                                 "OK"));
                     }
                 }
+
+                return;
+
+                ///////////////////////////////////////////////////////////
+                async Task CheckIfPickingSectionMatchesSkidSection(SSkidInfo skidInfo)
+                {
+                    if (this.ActSubType == SysCommon.ActSubTypes.Picking)
+                    {
+                        var hdr = (PickingActivity)this.ActItem.ActHdr;
+                        var filterSectRefno = hdr.PickingLocationMapFilter.SectLocMapRefno;
+                        if (filterSectRefno != 0)
+                        {
+                            var skidLoc = await LocationMapTasks.GetSLocMapFromLocMapRefno(skidInfo.LocMapRefno);
+                            if (skidLoc.SectLocMapRefno > 0 && skidLoc.SectLocMapRefno != filterSectRefno)
+                            {
+                                var sectName = hdr.PickingLocationMapFilter.SectName;
+                                var msg = $"Warning the skid section '{skidLoc.SectName}' does" +
+                                          $" not match the filtered picking section '{sectName}'.";
+                                throw new MessageOnlyException(msg);
+                            }
+                        }
+                    }
+                }
             }
             catch (CancelOperationException)
             {
@@ -1224,36 +1266,8 @@ namespace dMobile.View.Activity
             {
                 this.CmdSetSkid.IsEnabled = true;
             }
-
-            return;
-
-            ///////////////////////////////////////////////////////////
-            async Task CheckIfPickingSectionMatchesSkidSection(SSkidInfo skidInfo)
-            {
-                if (this.ActSubType == SysCommon.ActSubTypes.Picking)
-                {
-                    var hdr = (PickingActivity)this.ActItem.ActHdr;
-                    var filterSectRefno = hdr.PickingLocationMapFilter.SectLocMapRefno;
-                    if (filterSectRefno != 0)
-                    {
-                        var skidLoc = await LocationMapTasks.GetSLocMapFromLocMapRefno(skidInfo.LocMapRefno);
-                        if (skidLoc.SectLocMapRefno > 0 && skidLoc.SectLocMapRefno != filterSectRefno)
-                        {
-                            var sectName = hdr.PickingLocationMapFilter.SectName;
-                            var msg = $"Warning the skid section '{skidLoc.SectName}' does" +
-                                      $" not match the filtered picking section '{sectName}'.";
-                            throw new MessageOnlyException(msg);
-                        }
-                    }
-                }
-            }
         }
 
-        /// <summary>
-        /// Command first click event handler.
-        /// </summary>
-        /// <param name="sender">Object that generated this event.</param>
-        /// <param name="e">Event argument data.</param>
         private async void CmdFirst_Click(object sender, EventArgs e)
         {
             try
@@ -1276,11 +1290,6 @@ namespace dMobile.View.Activity
             }
         }
 
-        /// <summary>
-        /// Command last click event handler.
-        /// </summary>
-        /// <param name="sender">Object that generated this event.</param>
-        /// <param name="e">Event argument data.</param>
         private async void CmdLast_Click(object sender, EventArgs e)
         {
             try
@@ -1326,11 +1335,6 @@ namespace dMobile.View.Activity
             }
         }
 
-        /// <summary>
-        /// Command previous click event handler.
-        /// </summary>
-        /// <param name="sender">Object that generated this event.</param>
-        /// <param name="e">Event argument data.</param>
         private async void CmdPrevious_Click(object sender, EventArgs e)
         {
             try
@@ -1353,25 +1357,33 @@ namespace dMobile.View.Activity
             }
         }
 
-        /// <summary>
-        ///     Command items click event handler.
-        /// </summary>
-        /// <param name="sender">Object that generated this event.</param>
-        /// <param name="e">Event argument data.</param>
         private async void CmdItems_Click(object sender, EventArgs e)
         {
             try
             {
-                var actDetail = ActDetailFacade.GetActDetail(this.ActItem, SysCommon.ActSubTypes.InventoryInquiry);
+                this.CmdInvInquiry.IsEnabled = false;
+                await this.ScannerDisable();
                 var form = new FormDialogContainer(
-                    EDialogTypes.ActivityInventoryInquiryDetail,
-                    actDetail,
-                    SysCommon.ActSubTypes.InventoryInquiry);
-                await form.DisplayControl.ShowDialog();
-                if (await form.DisplayControl.ShowDialog() != DialogResult.OK)
+                    EDialogTypes.SelectActivityItem,
+                    this.ActItem.ActHdr,
+                    this.ActSubType);
+                _ = await form.DisplayControl.ShowDialog();
+                var xmlDoc = await form.GetXml();
+                var itmRefno = Convert.ToInt32(xmlDoc.Root!.Element("ActivityItemRefno") !.Value);
+                if (itmRefno > 0)
                 {
-                    throw new CancelOperationException();
+                    await this.AssignAndDisplayLineItem(itmRefno);
                 }
+            }
+            catch (MessageOnlyException msgEx)
+            {
+                var msg = SysCommon.GetMessageFromMessageException(msgEx);
+                await Device.InvokeOnMainThreadAsync(
+                    async () =>
+                        await Application.Current.MainPage.DisplayAlert(
+                            this.GetControlDescription(),
+                            msg,
+                            Resource.OK));
             }
             catch (Exception ex)
             {
@@ -1382,13 +1394,13 @@ namespace dMobile.View.Activity
                         _ = await errRpt.ShowDialog();
                     });
             }
+            finally
+            {
+                this.CmdInvInquiry.IsEnabled = true;
+                await this.ScannerEnable();
+            }
         }
 
-        /// <summary>
-        ///     Command add item click event handler.
-        /// </summary>
-        /// <param name="sender">Object that generated this event.</param>
-        /// <param name="e">Event argument data.</param>
         private async void CmdAddItem_Click(object sender, EventArgs e)
         {
             try
@@ -1410,6 +1422,9 @@ namespace dMobile.View.Activity
                 await this.CheckCurrentLocationMatchDefaultProductLocation(
                     prodInfoToAdd,
                     LocationMap.GetInstance().CurrLocMap);
+                this.DisplayCmdSetLocationData();
+                await this.DisplayLocationData();
+
                 await FindOrCreateLineItem();
                 await this.AssignAndDisplayLineItem(this.ActItem.ItemRefno);
                 return;
@@ -1954,8 +1969,9 @@ namespace dMobile.View.Activity
                     throw new CancelOperationException();
                 }
 
-                await FindOrCreateLineItem(currSkid);
-                await AssignAndDisplayLineItem();
+                await FindOrCreateLineItem();
+                await this.AssignAndDisplayLineItem(this.ActItem.ItemRefno);
+
                 await PerformAddDetail();
                 this.ActItem.AddToQuantityInActivityItem(
                     this.ActItem.SelectedItem,
@@ -1964,6 +1980,70 @@ namespace dMobile.View.Activity
                     this.ActDetail.WeightQuantity);
                 await this.ActItem.UpdateItemTableQuantity(this.ActItem.SelectedItem);
                 await this.DisplayData();
+
+                return;
+
+                ///////////////////////////////////////////////////////////
+                async Task FindOrCreateLineItem()
+                {
+                    // Check if the line item exists already.
+                    var actItemFoundRefno = await this.ActItem.GetActivityItemRefno(
+                        currSkid.ProdInfo.UnitRefno,
+                        currSkid.LocMap);
+                    if (actItemFoundRefno > 0)
+                    {
+                        this.ActItem.ItemRefno = actItemFoundRefno;
+                    }
+                    else
+                    {
+                        // Check rule for default location and product default location must match.
+                        await this.CheckCurrentLocationMatchDefaultProductLocation(currSkid.ProdInfo, currSkid.LocMap);
+
+                        // Insert into activity item table, and add new activity item to the list.
+                        // Inserted item uses the current location.
+                        // this.ActItem.ItemRefno assigned in Insert();
+                        // this.ActItem.ItemFKRefno assigned in Insert();
+                        // this.ActItem.ProdInfo assigned in Insert();
+                        // this.ActItem.ProdInfo.Scheme assigned in Insert();
+                        var xmlDoc = ProductInfoTasks.GetXml(currSkid.ProdInfo);
+                        await this.ActItem.Insert(xmlDoc);
+                    }
+                }
+
+                ///////////////////////////////////////////////////////////
+                async Task PerformAddDetail()
+                {
+                    this.ActDetail = ActDetailFacade.GetActDetail(this.ActItem, this.ActSubType);
+                    this.ActDetail.ActItem = this.ActItem;
+
+                    // Did not use this.ActItem.ActHdr.SkidInfo.CurrSkid.LogisticUnitSkidCode
+                    // because of the length of the code and the fact isn't human-readable friendly.
+                    var schemeData = this.ActDetail.SchemeData;
+                    schemeData.LogisticUnitSkidNumber = this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidCode;
+                    this.ActDetail.SchemeData = schemeData;
+                    this.ActDetail.UniqueSchemeId = ProductInfoTasks.GetUniqueSchemeIdFromSProdSchemeData(
+                        this.ActItem.ProdInfo.Code,
+                        this.ActItem.ProdInfo.Scheme,
+                        this.ActDetail.SchemeData);
+                    this.ActDetail.SchemeId = ProductInfoTasks.GetActSchemeIdFromSProdSchemeData(
+                        this.ActItem.ProdInfo.Code,
+                        this.ActItem.ProdInfo.Scheme,
+                        this.ActDetail.SchemeData);
+
+                    // IsReadyToApply will perform any validations, such as duplicate
+                    // checks and quantity validations.
+                    var xmlParam = XDocument.Parse(
+                        "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" +
+                        "<imclient>" +
+                        "<itm_refno> +" + this.ActItem.ItemFkRefno + "</itm_refno>" +
+                        "<alt_qty>" + this.ActItem.ActHdr.SkidInfo.CurrSkid.Quantity + "</alt_qty>" +
+                        "<wt_qty>" + this.ActItem.ActHdr.SkidInfo.CurrSkid.WeightQuantity + "</wt_qty>" +
+                        "<ActivityDetailUniqueSchemeID>" + this.ActDetail.UniqueSchemeId + "</ActivityDetailUniqueSchemeID>" +
+                        "</imclient>");
+
+                    await this.ActItem.IsReadyToApply(xmlParam);
+                    await this.ActDetail.InsertSkid(this.ActItem.ActHdr.SkidInfo);
+                }
             }
             catch (CancelOperationException)
             {
@@ -1992,82 +2072,38 @@ namespace dMobile.View.Activity
                 await this.ScannerEnable();
                 this.CmdAddSkid.IsEnabled = true;
             }
+        }
 
-            return;
-
-            ///////////////////////////////////////////////////////////
-            async Task FindOrCreateLineItem(SSkidInfo currSkid)
+        /// <summary>
+        /// Command find items click event handler.
+        /// </summary>
+        /// <param name="sender">Object that generated this event.</param>
+        /// <param name="e">Event argument data.</param>
+        private async void CmdInvInquiry_Click(object sender, EventArgs e)
+        {
+            try
             {
-                // Check if the line item exists already.
-                var actItemFoundRefno = await this.ActItem.GetActivityItemRefno(
-                    currSkid.ProdInfo.UnitRefno,
-                    currSkid.LocMap);
-                if (actItemFoundRefno > 0)
+                var actDetail = ActDetailFacade.GetActDetail(this.ActItem, SysCommon.ActSubTypes.InventoryInquiry);
+                actDetail.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
+                    this.ActItem.LocMap.WhsLocMapRefno);
+                var form = new FormDialogContainer(
+                    EDialogTypes.ActivityInventoryInquiryDetail,
+                    actDetail,
+                    SysCommon.ActSubTypes.InventoryInquiry);
+                await form.DisplayControl.ShowDialog();
+                if (await form.DisplayControl.ShowDialog() != DialogResult.OK)
                 {
-                    this.ActItem.ItemRefno = actItemFoundRefno;
-                }
-                else
-                {
-                    // Check rule for default location and product default location must match.
-                    await this.CheckCurrentLocationMatchDefaultProductLocation(currSkid.ProdInfo, currSkid.LocMap);
-
-                    // Insert into activity item table, and add new activity item to the list.
-                    // Inserted item uses the current location.
-                    // this.ActItem.ItemRefno assigned in Insert();
-                    // this.ActItem.ItemFKRefno assigned in Insert();
-                    // this.ActItem.ProdInfo assigned in Insert();
-                    // this.ActItem.ProdInfo.Scheme assigned in Insert();
-                    var xmlDoc = ProductInfoTasks.GetXml(currSkid.ProdInfo);
-                    await this.ActItem.Insert(xmlDoc);
+                    throw new CancelOperationException();
                 }
             }
-
-            ///////////////////////////////////////////////////////////
-            async Task AssignAndDisplayLineItem()
+            catch (Exception ex)
             {
-                this.ActItem.SetSelectedActivityItemFromList(this.ActItem.ItemRefno);
-                if (this.ActItem.SelectedItem == null)
-                {
-                    throw new Exception("Failed to set the found selected item in the list.");
-                }
-
-                await this.ActItem.AssignActivityItem(this.ActItem.SelectedItem);
-                await this.DisplayData();
-            }
-
-            ///////////////////////////////////////////////////////////
-            async Task PerformAddDetail()
-            {
-                this.ActDetail = ActDetailFacade.GetActDetail(this.ActItem, this.ActSubType);
-                this.ActDetail.ActItem = this.ActItem;
-
-                // Did not use this.ActItem.ActHdr.SkidInfo.CurrSkid.LogisticUnitSkidCode
-                // because of the length of the code and the fact isn't human-readable friendly.
-                var schemeData = this.ActDetail.SchemeData;
-                schemeData.LogisticUnitSkidNumber = this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidCode;
-                this.ActDetail.SchemeData = schemeData;
-                this.ActDetail.UniqueSchemeId = ProductInfoTasks.GetUniqueSchemeIdFromSProdSchemeData(
-                    this.ActItem.ProdInfo.Code,
-                    this.ActItem.ProdInfo.Scheme,
-                    this.ActDetail.SchemeData);
-                this.ActDetail.SchemeId = ProductInfoTasks.GetActSchemeIdFromSProdSchemeData(
-                    this.ActItem.ProdInfo.Code,
-                    this.ActItem.ProdInfo.Scheme,
-                    this.ActDetail.SchemeData);
-
-                // IsReadyToApply will perform any validations, such as duplicate
-                // checks and quantity validations.
-                var xmlParam = XDocument.Parse(
-                    "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" +
-                    "<imclient>" +
-                    "<itm_refno> +" + this.ActItem.ItemFkRefno + "</itm_refno>" +
-                    "<alt_qty>" + this.ActItem.ActHdr.SkidInfo.CurrSkid.Quantity + "</alt_qty>" +
-                    "<wt_qty>" + this.ActItem.ActHdr.SkidInfo.CurrSkid.WeightQuantity + "</wt_qty>" +
-                    "<ActivityDetailUniqueSchemeID>" + this.ActDetail.UniqueSchemeId + "</ActivityDetailUniqueSchemeID>" +
-                    "</imclient>");
-
-                await this.ActItem.IsReadyToApply(xmlParam);
-                await this.ActDetail.InsertSkid(this.ActItem.ActHdr.SkidInfo);
+                await Device.InvokeOnMainThreadAsync(
+                    async () =>
+                    {
+                        var errRpt = new FormErrorReport(ex);
+                        _ = await errRpt.ShowDialog();
+                    });
             }
         }
     }

@@ -316,7 +316,7 @@ namespace dMobile.GroundWork
                                     parametersInsertDetail.Add(0);
                                     parametersInsertDetail.Add(actItemProductionRefno);
                                     parametersInsertDetail.Add(
-                                        GetDetailLocation(drow, transaction, false));
+                                        GetReceivedDataLocation(drow, transaction, false));
                                     parametersInsertDetail.Add(results[0].ProductUnitRefno);
                                     parametersInsertDetail.AddRange(
                                         SaveDetail(drow, transaction, false));

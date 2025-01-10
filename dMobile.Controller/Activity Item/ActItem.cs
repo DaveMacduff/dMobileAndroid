@@ -475,6 +475,19 @@ namespace dMobile.Controller.Activity_Item
         }
 
         /// <summary>
+        ///     Create observable collection from list items.
+        /// </summary>
+        /// <param name="listItems">List of item objects.</param>
+        /// <param name="filterSearch">Filter search text.</param>
+        /// <returns>Created observable collection.</returns>
+        public virtual ObservableCollection<object> CreateObservableCollectionFromListItems(
+            List<object> listItems,
+            string filterSearch)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
         ///     Sort the list items and place new items at the bottom of the list.
         /// </summary>
         /// <param name="listItems">List of items to sort.</param>

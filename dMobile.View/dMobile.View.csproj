@@ -164,6 +164,10 @@
     <Compile Update="Activity\ActivitySkidPutAway.xaml.cs">
       <DependentUpon>ActivitySkidPutAway.xaml</DependentUpon>
     </Compile>
+    <Compile Update="Activity\SelectActivityItem.xaml.cs">
+      <SubType>Code</SubType>
+      <DependentUpon>SelectActivityItem.xaml</DependentUpon>
+    </Compile>
     <Compile Update="CustomControls\LocationMapInfo.xaml.cs">
       <DependentUpon>LocationMapInfo.xaml</DependentUpon>
     </Compile>
@@ -252,6 +256,10 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Update="Activity\ActivityProductLabelQuantity.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Activity\SelectActivityItem.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
     </EmbeddedResource>

@@ -168,7 +168,7 @@ namespace dMobile.Controller.Activity_Item
                 var idx = 0;
                 foreach (var item in this.ListItems.Cast<PickingItem>())
                 {
-                    if (item.ActivityItemRefno == this.ItemRefno)
+                    if (item.ActivityItemRefno == actItemFoundRefno)
                     {
                         this.SelectedItem = item;
                         this.SelectedListIdx = idx;

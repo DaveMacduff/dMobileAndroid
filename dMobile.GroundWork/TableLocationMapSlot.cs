@@ -325,6 +325,5 @@ namespace dMobile.GroundWork
             /// </summary>
             public string LocationMapSlotCoordinate3Code { get; set; }
         }
-
     }
 }

@@ -337,7 +337,7 @@ namespace dMobile.GroundWork
                             var fkParentRefno = Convert.ToInt32(drow["ParentRefno"]);
                             var prodUnitRefno =
                                 GetProductUnitRefnoFromDataRow(drow, transaction, false);
-                            var locMapRefno = GetDetailLocation(drow, transaction, false);
+                            var locMapRefno = GetReceivedDataLocation(drow, transaction, false);
                             var moveType =
                                 (SysCommon.ReplenishmentTypes)Convert.ToInt32(drow["MoveType"]);
                             var altQty = Convert.ToDecimal(drow["ActivityDetailQuantity"]) * -1;
@@ -420,7 +420,7 @@ namespace dMobile.GroundWork
                                 Convert.ToInt32(SysCommon.ActSubTypes.InventoryReplenishment),
                                 Convert.ToInt32(0),
                                 actItemRefno,
-                                GetDetailLocation(drow, transaction, false),
+                                GetReceivedDataLocation(drow, transaction, false),
                                 prodUnitRefno
                             };
 

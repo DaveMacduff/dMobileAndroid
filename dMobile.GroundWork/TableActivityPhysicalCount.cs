@@ -209,37 +209,19 @@ namespace dMobile.GroundWork
 
                                     // rec.SetDateTime((int)SysCommon.ActCountFields.DateTime, DateTime.Parse(dt.ToShortDateString()));
                                     parameters.Add(DateTime.Parse(dt.ToShortDateString()));
-                                    switch (Convert.ToInt32(drow["ActivityCountType"]))
+                                    actCountTypeDesc = Convert.ToInt32(drow["ActivityCountType"]) switch
                                     {
-                                        case (int)SysCommon.ActCountTypeFields
-                                            .PhysicalCountByWarehouse:
-
-                                            actCountTypeDesc =
-                                                "Standard Physical Count By Warehouse";
-                                            break;
-
-                                        case (int)SysCommon.ActCountTypeFields
-                                            .CycleCountByWarehouse:
-
-                                            actCountTypeDesc = "Cycle Count By Warehouse";
-                                            break;
-
-                                        case (int)SysCommon.ActCountTypeFields.CycleCountBySection:
-
-                                            actCountTypeDesc = "Cycle Count By Section";
-                                            break;
-
-                                        case (int)SysCommon.ActCountTypeFields.CycleCountBySlot:
-
-                                            actCountTypeDesc = "Cycle Count By Slot";
-                                            break;
-
-                                        case (int)SysCommon.ActCountTypeFields
-                                            .BaseCycleCountByWarehouse:
-
-                                            actCountTypeDesc = "Base Cycle Count By Warehouse";
-                                            break;
-                                    }
+                                        (int)SysCommon.ActCountTypeFields.PhysicalCountByWarehouse =>
+                                            "Standard Physical Count By Warehouse",
+                                        (int)SysCommon.ActCountTypeFields.CycleCountByWarehouse =>
+                                            "Cycle Count By Warehouse",
+                                        (int)SysCommon.ActCountTypeFields.CycleCountBySection =>
+                                            "Cycle Count By Section",
+                                        (int)SysCommon.ActCountTypeFields.CycleCountBySlot => "Cycle Count By Slot",
+                                        (int)SysCommon.ActCountTypeFields.BaseCycleCountByWarehouse =>
+                                            "Base Cycle Count By Warehouse",
+                                        _ => actCountTypeDesc
+                                    };
 
                                     parameters.Add(actCountTypeDesc);
 
@@ -249,10 +231,9 @@ namespace dMobile.GroundWork
 
                                     if (incomingDescription.Length > 60)
                                     {
-                                        incomingDescription =
-                                            incomingDescription.Replace(
-                                                " ",
-                                                string.Empty); // remove all spaces
+                                        incomingDescription = incomingDescription.Replace(
+                                            " ",
+                                            string.Empty); // remove all spaces
                                     }
 
                                     if (incomingDescription.Length > 60)

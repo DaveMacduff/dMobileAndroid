@@ -1,0 +1,68 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<modal:DMobileModal
+    xmlns:modal="clr-namespace:dMobile.View.CustomPages.Modal"
+    xmlns="http://xamarin.com/schemas/2014/forms"          
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:helpers="clr-namespace:dMobile.View.Helpers"
+    xmlns:customControls="clr-namespace:dMobile.View.CustomControls;assembly=dMobile.View"
+    x:Class="dMobile.View.Activity.SelectActivityItem" x:DataType="modal:DMobileModal">
+    <ContentPage.Content>
+        <AbsoluteLayout VerticalOptions="Center">
+            <Grid Padding="10" AbsoluteLayout.LayoutFlags="All" AbsoluteLayout.LayoutBounds="0,0,1,1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="90*"/>
+                    <RowDefinition Height="10*"/>
+                </Grid.RowDefinitions>
+                <Frame VerticalOptions="Start"  Grid.Row="0" BorderColor="{DynamicResource BorderColor}">
+                    <ScrollView Orientation="Horizontal">
+                        <Grid x:Name="GridMainActivity">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            
+                                <!--Not sure why the Grid.Row has to be set to 1, rather than 0. But the listview
+                                will not draw itself properly otherwise. Perhaps because the list view columns
+                                and rows are defined in the activity class the headers are row 0?-->
+                                <ListView x:Name="ListViewMainActivity"
+                                      ItemSelected="ListViewMainActivity_ItemSelected"
+                                      HasUnevenRows="True"
+                                      IsEnabled="{Binding IsIndicatorRunning, Converter={helpers:BoolConverter}}"
+                                      Grid.Row="1"
+                                      VerticalScrollBarVisibility="Always"
+                                      HorizontalScrollBarVisibility="Always" />
+                        </Grid>
+                    </ScrollView>
+                </Frame>
+
+                <Grid x:Name="GridControls" Grid.Row="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="80*"/>
+                        <ColumnDefinition Width="20*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Entry x:Name="TxtSearchItem" Grid.Row="0"
+                           Grid.Column="0"
+                           TextChanged="TxtSearchItem_TextChanged"
+                           IsEnabled="{Binding IsIndicatorRunning, Converter={helpers:BoolConverter}}"
+                           Focused="TxtSearchItem_Focused"
+                           Unfocused="TxtSearchItem_Unfocused"
+                           />
+                    <customControls:CustomPicker x:Name="BarCodeModifier1Picker"
+                                                 Grid.Row="0"
+                                                 Grid.Column="1"
+                                                 Image="arrow_drop_down"
+                                                 SelectedIndexChanged="BarCodeModifier1Picker_SelectedIndexChanged"
+                                                 Focused="BarCodeModifier1Picker_Focused"
+                                                 Unfocused="BarCodeModifier1Picker_Unfocused"
+                                                 IsEnabled="{Binding IsIndicatorRunning, Converter={helpers:BoolConverter}}"
+                                                 x:DataType="modal:DMobileModal" />
+                </Grid>
+            </Grid>
+
+            <ActivityIndicator IsVisible="{Binding IsIndicatorRunning}" 
+                                   IsRunning="{Binding IsIndicatorRunning}"
+                                   AbsoluteLayout.LayoutFlags="All" 
+                                   AbsoluteLayout.LayoutBounds="0.5,0.5,0.3,0.3"/>
+        </AbsoluteLayout>
+    </ContentPage.Content>
+</modal:DMobileModal>

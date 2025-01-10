@@ -173,7 +173,7 @@ namespace dMobile.Controller.Activity_Item
                 var idx = 0;
                 foreach (var item in this.ListItems.Cast<CountItem>())
                 {
-                    if (item.ActivityItemRefno == this.ItemRefno)
+                    if (item.ActivityItemRefno == actItemFoundRefno)
                     {
                         this.SelectedItem = item;
                         this.SelectedListIdx = idx;
@@ -323,12 +323,17 @@ namespace dMobile.Controller.Activity_Item
                                     transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivityItem"));
 
                                 // Get temporary item FK refno for newly inserted line item.
+                                // Do not use the subtype for the max FK item refno because we could have more than one
+                                // subtype in the table.
+                                ////this.ItemFkRefno = Convert.ToInt32(
+                                ////    transaction.ExecuteScalar<int>(
+                                ////        "SELECT MAX(tActivityItemCount.ActivityItemFKRefno)" +
+                                ////        $" FROM tActivityItemCount WHERE tActivityItemCount.ActivityItemSubType" +
+                                ////        $" = {(int)SysCommon.ActSubTypes.CycleCounts}"));
                                 this.ItemFkRefno = Convert.ToInt32(
                                     transaction.ExecuteScalar<int>(
-                                        "SELECT MAX(tActivityItemCount.ActivityItemFKRefno)" +
-                                        $" FROM tActivityItemCount WHERE tActivityItemCount.ActivityItemSubType" +
-                                        $" = {(int)SysCommon.ActSubTypes.CycleCounts}"));
-                                this.ItemFkRefno = this.ItemFkRefno + 1;
+                                        "SELECT MAX(tActivityItemCount.ActivityItemFKRefno) FROM tActivityItemCount"));
+                                this.ItemFkRefno += 1;
 
                                 var query = "INSERT INTO tActivityItemCount (" +
                                             "ActivityItemRefno, " +
@@ -531,17 +536,37 @@ namespace dMobile.Controller.Activity_Item
         ///     Create observable collection from list items.
         /// </summary>
         /// <param name="listItems">List of item objects.</param>
+        /// <param name="filterSearch">Search filter text.</param>
         /// <returns>Created observable collection.</returns>
-        public override ObservableCollection<object> CreateObservableCollectionFromListItems(List<object> listItems)
+        public override ObservableCollection<object> CreateObservableCollectionFromListItems(
+            List<object> listItems,
+            string filterSearch)
         {
             // This code is optimized, it iterates over this.ListItems only once.
             // It separates the list items into two lists, one for positive refno and one for negative refno.
             // It then adds the positive refno items first, then the negative refno items.
             // This is done to ensure that the negative refno items "new items" are displayed at the bottom of the list.
             var mainActivityItems = new ObservableCollection<object>();
-            foreach (var item in listItems.Cast<CountItem>())
+            if (string.IsNullOrEmpty(filterSearch) || string.IsNullOrWhiteSpace(filterSearch))
             {
-                mainActivityItems.Add(item);
+                foreach (var item in listItems.Cast<CountItem>())
+                {
+                    mainActivityItems.Add(item);
+                }
+            }
+            else
+            {
+                mainActivityItems = new ObservableCollection<object>();
+                var lowerSearchText = filterSearch.ToLower().Trim();
+                foreach (var item in listItems.Cast<CountItem>())
+                {
+                    if (item.ProductCode.ToLower().Contains(lowerSearchText))
+                    {
+                        mainActivityItems.Add(item);
+                    }
+                }
+
+                this.ListItems = mainActivityItems.ToList();
             }
 
             return mainActivityItems;

@@ -198,5 +198,10 @@ namespace dMobile.Bedrock
         /// Activity product label quantity.
         /// </summary>
         ActivityProductLabelQuantity,
+
+        /// <summary>
+        /// Select Activity item.
+        /// </summary>
+        SelectActivityItem,
     }
 }

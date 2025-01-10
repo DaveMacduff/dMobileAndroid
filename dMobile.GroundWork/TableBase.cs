@@ -9,6 +9,7 @@ namespace dMobile.GroundWork
     using System;
     using System.Collections.Generic;
     using System.Data;
+    using System.Runtime.CompilerServices;
     using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
@@ -801,21 +802,33 @@ namespace dMobile.GroundWork
         /// <param name="conn"><see cref="SQLiteConnection"/> SQLite connection.</param>
         /// <param name="useFNumberElements"><see cref="bool"/> Flag indicating whether to read 'F' XML element or a
         /// more verbose field name element.</param>
+        /// <param name="actSubType">Activity subtype to control the field names to parse.</param>
         /// <returns>The <see cref="int"/> Identified location map reference number.</returns>
-        protected static int GetDetailLocation(
+        protected static int GetReceivedDataLocation(
             DataRow drow,
             SQLiteConnection conn,
-            bool useFNumberElements)
+            bool useFNumberElements,
+            SysCommon.ActSubTypes actSubType = SysCommon.ActSubTypes.NotApplicable)
         {
             var locMapRefno = 0;
             int locMapWhsFkRefno;
             int locMapSectFkRefno;
             int locMapSlotFkRefno;
+            string query;
             if (useFNumberElements)
             {
-                locMapWhsFkRefno = Convert.ToInt32(drow["f07"]);
-                locMapSectFkRefno = Convert.ToInt32(drow["f08"]);
-                locMapSlotFkRefno = Convert.ToInt32(drow["f09"]);
+                if (actSubType == SysCommon.ActSubTypes.PhysicalCounts || actSubType == SysCommon.ActSubTypes.CycleCounts)
+                {
+                    locMapWhsFkRefno = Convert.ToInt32(drow["f06"]);
+                    locMapSectFkRefno = Convert.ToInt32(drow["f07"]);
+                    locMapSlotFkRefno = Convert.ToInt32(drow["f08"]);
+                }
+                else
+                {
+                    locMapWhsFkRefno = Convert.ToInt32(drow["f07"]);
+                    locMapSectFkRefno = Convert.ToInt32(drow["f08"]);
+                    locMapSlotFkRefno = Convert.ToInt32(drow["f09"]);
+                }
             }
             else
             {
@@ -826,9 +839,8 @@ namespace dMobile.GroundWork
 
             if (locMapSlotFkRefno != 0)
             {
-                var results = conn.Query<LocationMapSlotModel>(
-                    "SELECT * FROM tLocationMapSlot WHERE LocationMapSlotFKRefno = ?",
-                    locMapSlotFkRefno);
+                query = "SELECT * FROM tLocationMapSlot WHERE LocationMapSlotFKRefno = ?";
+                var results = conn.Query<LocationMapSlotModel>(query, locMapSlotFkRefno);
                 if (results != null && results.Count > 0)
                 {
                     locMapRefno = results[0].LocationMapRefno;
@@ -837,9 +849,8 @@ namespace dMobile.GroundWork
 
             if (locMapSectFkRefno != 0 && locMapRefno == 0)
             {
-                var results = conn.Query<LocationMapSectionModel>(
-                    "SELECT * FROM tLocationMapSection WHERE LocationMapSectionFKRefno = ?",
-                    locMapSectFkRefno);
+                query = "SELECT * FROM tLocationMapSection WHERE LocationMapSectionFKRefno = ?";
+                var results = conn.Query<LocationMapSectionModel>(query, locMapSectFkRefno);
                 if (results != null && results.Count > 0)
                 {
                     locMapRefno = results[0].LocationMapRefno;
@@ -848,9 +859,8 @@ namespace dMobile.GroundWork
 
             if (locMapWhsFkRefno != 0 && locMapRefno == 0)
             {
-                var results = conn.Query<LocationMapWarehouseModel>(
-                    "SELECT * FROM tLocationMapWarehouse WHERE LocationMapWarehouseFKRefno = ?",
-                    locMapWhsFkRefno);
+                query = "SELECT * FROM tLocationMapWarehouse WHERE LocationMapWarehouseFKRefno = ?";
+                var results = conn.Query<LocationMapWarehouseModel>(query, locMapWhsFkRefno);
                 if (results != null && results.Count > 0)
                 {
                     locMapRefno = results[0].LocationMapRefno;
@@ -859,13 +869,98 @@ namespace dMobile.GroundWork
 
             if (locMapRefno == 0)
             {
-                throw new Exception(
-                    $"Unable to identify the location map reference number. {Environment.NewLine}" +
-                    $"Whs FK Refno {locMapWhsFkRefno}{Environment.NewLine}Section" +
-                    $" FK Refno {locMapSectFkRefno}{Environment.NewLine} Slot FK Refno {locMapSlotFkRefno}");
+                var msg = $"Unable to identify the location map reference number. {Environment.NewLine}" +
+                          $"Whs FK Refno {locMapWhsFkRefno}{Environment.NewLine}Section" +
+                          $" FK Refno {locMapSectFkRefno}{Environment.NewLine} Slot FK Refno {locMapSlotFkRefno}";
+                throw new Exception(msg);
             }
 
             return Convert.ToInt32(locMapRefno);
+        }
+
+        /// <summary>
+        /// Get the activity detail location information.
+        /// </summary>
+        /// <param name="drow"><see cref="DataRow"/> Data row to get the scheme variant no from.</param>
+        /// <param name="conn"><see cref="SQLiteAsyncConnection"/> SQLite async connection.</param>
+        /// <param name="useFNumberElements"><see cref="bool"/> Flag indicating whether to read 'F' XML element or a
+        /// more verbose field name element.</param>
+        /// <param name="actSubType">Activity subtype to control the field names to parse.</param>
+        /// <returns>The <see cref="int"/> Identified location map reference number.</returns>
+        protected static async Task<int> GetReceivedDataLocationAsync(
+            DataRow drow,
+            SQLiteAsyncConnection conn,
+            bool useFNumberElements,
+            SysCommon.ActSubTypes actSubType = SysCommon.ActSubTypes.NotApplicable)
+        {
+            int locMapWhsFkRefno;
+            int locMapSectFkRefno;
+            int locMapSlotFkRefno;
+            if (useFNumberElements)
+            {
+                if (actSubType == SysCommon.ActSubTypes.PhysicalCounts || actSubType == SysCommon.ActSubTypes.CycleCounts)
+                {
+                    locMapWhsFkRefno = Convert.ToInt32(drow["f06"]);
+                    locMapSectFkRefno = Convert.ToInt32(drow["f07"]);
+                    locMapSlotFkRefno = Convert.ToInt32(drow["f08"]);
+                }
+                else
+                {
+                    locMapWhsFkRefno = Convert.ToInt32(drow["f07"]);
+                    locMapSectFkRefno = Convert.ToInt32(drow["f08"]);
+                    locMapSlotFkRefno = Convert.ToInt32(drow["f09"]);
+                }
+            }
+            else
+            {
+                locMapWhsFkRefno = Convert.ToInt32(drow["LocationMapWarehouseFKRefno"]);
+                locMapSectFkRefno = Convert.ToInt32(drow["LocationMapSectionFKRefno"]);
+                locMapSlotFkRefno = Convert.ToInt32(drow["LocationMapSlotFKRefno"]);
+            }
+
+            var tasks = new List<Task<int>>
+            {
+                GetLocationMapRefnoAsync(
+                    conn,
+                    "SELECT * FROM tLocationMapSlot WHERE LocationMapSlotFKRefno = ?",
+                    locMapSlotFkRefno),
+                GetLocationMapRefnoAsync(
+                    conn,
+                    "SELECT * FROM tLocationMapSection WHERE LocationMapSectionFKRefno = ?",
+                    locMapSectFkRefno),
+                GetLocationMapRefnoAsync(
+                    conn,
+                    "SELECT * FROM tLocationMapWarehouse WHERE LocationMapWarehouseFKRefno = ?",
+                    locMapWhsFkRefno)
+            };
+
+            while (tasks.Count > 0)
+            {
+                var completedTask = await Task.WhenAny(tasks);
+                if (completedTask.Result != 0)
+                {
+                    return completedTask.Result;
+                }
+
+                tasks.Remove(completedTask);
+            }
+
+            var msg = $"Unable to identify the location map reference number. {Environment.NewLine}" +
+                      $"Whs FK Refno {locMapWhsFkRefno}{Environment.NewLine}Section" +
+                      $" FK Refno {locMapSectFkRefno}{Environment.NewLine} Slot FK Refno {locMapSlotFkRefno}";
+            throw new Exception(msg);
+
+            ///////////////////////////////////////////////////////////
+            static async Task<int> GetLocationMapRefnoAsync(SQLiteAsyncConnection conn, string query, int fkRefno)
+            {
+                if (fkRefno == 0)
+                {
+                    return 0;
+                }
+
+                var results = await conn.QueryAsync<LocationMapModel>(query, fkRefno);
+                return results.Count > 0 ? results[0].LocationMapRefno : 0;
+            }
         }
 
         /// <summary>
@@ -1134,64 +1229,73 @@ namespace dMobile.GroundWork
         /// </summary>
         /// <param name="drow"><see cref="DataRow"/> Data row.</param>
         /// <param name="conn">The conn<see cref="SQLiteConnection"/> SQL connection.</param>
+        /// <param name="useFNumberElements"><see cref="bool"/> Flag indicating whether to read 'F' XML element or a
+        /// more verbose field name element.</param>
         /// <returns>Found product unit reference number.</returns>
         protected static async Task<int> GetProductUnitRefnoFromDataRowAsync(
             DataRow drow,
-            SQLiteAsyncConnection conn)
+            SQLiteAsyncConnection conn,
+            bool useFNumberElements)
         {
-            var prodFkRefno = Convert.ToInt32(drow["ProductFKRefno"]);
-            var unitCode = Convert.ToString(drow["UnitCode"]);
-            var prodUnitIsBc = Convert.ToBoolean(drow["ProductUnitIsBC"]);
-            var productResults = await conn.QueryAsync<ProductModel>(
-                "SELECT * FROM tProduct WHERE ProductFKRefno = ?",
-                Convert.ToInt32(prodFkRefno));
-            int prodRefno;
-            if (productResults != null &&
-                productResults.Count > 0)
+            int prodFkRefno;
+            string unitCode;
+            bool prodUnitIsBc;
+            if (useFNumberElements)
             {
-                prodRefno = Convert.ToInt32(productResults[0].ProductRefno);
+                // Physical and Cycle counts mapping fields.
+                prodFkRefno = Convert.ToInt32(drow["f03"]);
+                unitCode = Convert.ToString(drow["f05"]);
+                prodUnitIsBc = Convert.ToBoolean(drow["f04"]);
             }
             else
+            {
+                prodFkRefno = Convert.ToInt32(drow["ProductFKRefno"]);
+                unitCode = Convert.ToString(drow["UnitCode"]);
+                prodUnitIsBc = Convert.ToBoolean(drow["ProductUnitIsBC"]);
+            }
+
+            var productTask = conn.QueryAsync<ProductModel>(
+                "SELECT tProduct.ProductRefno FROM tProduct WHERE ProductFKRefno = ?",
+                prodFkRefno);
+
+            var unitTask = conn.QueryAsync<UnitModel>(
+                "SELECT tUnit.UnitRefno FROM tUnit WHERE UnitCode = ?",
+                unitCode);
+
+            await Task.WhenAll(productTask, unitTask);
+
+            var productResults = productTask.Result;
+            var unitResults = unitTask.Result;
+
+            if (productResults == null || productResults.Count == 0)
             {
                 throw new Exception(
                     "drProduct.Read() failed. Unable to locate the product refno from the product foreign key" +
                     " reference number in tProduct.");
             }
 
-            var unitResults = await conn.QueryAsync<UnitModel>(
-                "SELECT * FROM tUnit WHERE UnitCode = ?",
-                unitCode);
-            int unitRefno;
-            if (unitResults != null &&
-                unitResults.Count > 0)
-            {
-                unitRefno = Convert.ToInt32(unitResults[0].UnitRefno);
-            }
-            else
+            if (unitResults == null || unitResults.Count == 0)
             {
                 throw new Exception("drUnit.Read() failed.");
             }
 
+            var prodRefno = productResults[0].ProductRefno;
+            var unitRefno = unitResults[0].UnitRefno;
             var productUnitResults = await conn.QueryAsync<ProductUnitModel>(
-                "SELECT * FROM tProductUnit WHERE ProductRefno = ? AND UnitRefno = ? AND" +
-                " ProductUnitIsBC = ?",
-                Convert.ToInt32(prodRefno),
-                Convert.ToInt32(unitRefno),
-                Convert.ToBoolean(prodUnitIsBc));
-            int prodUnitRefno;
-            if (productUnitResults != null &&
-                productUnitResults.Count > 0)
-            {
-                prodUnitRefno = Convert.ToInt32(productUnitResults[0].ProductUnitRefno);
-            }
-            else
+                "SELECT tProductUnit.ProductUnitRefno FROM tProductUnit WHERE ProductRefno = ? AND UnitRefno = ?" +
+                " AND ProductUnitIsBC = ?",
+                prodRefno,
+                unitRefno,
+                prodUnitIsBc);
+
+            if (productUnitResults == null || productUnitResults.Count == 0)
             {
                 throw new Exception(
-                    "drProdUnit.Read() failed. Unable to locate the product unit refno from the" +
-                    " product foreign key reference number, broken case and unit code in tProductUnit.");
+                    "Unable to locate the product unit refno from the product foreign key reference number, broken" +
+                    " case and unit code in tProductUnit.");
             }
 
-            return prodUnitRefno;
+            return productUnitResults[0].ProductUnitRefno;
         }
 
         /// <summary>
@@ -1227,16 +1331,6 @@ namespace dMobile.GroundWork
             string statusMessage,
             bool suppressStatusOutMessage)
         {
-            ////if (!this.SysEnv.SysSettings.IsDisconnectedMode && !suppressStatusOutMessage)
-            ////{
-            ////    if (this.OnDataAccessStatusOut != null)
-            ////    {
-            ////        this.DataEventArgs.StatusOutMsg = statusMessage;
-            ////        this.DataEventArgs.OverrideDisconnectedMode = suppressStatusOutMessage;
-            ////        this.OnDataAccessStatusOut(this, this.DataEventArgs);
-            ////    }
-            ////}
-
             if (!this.SysEnv.SysSettings.IsDisconnectedMode || suppressStatusOutMessage)
             {
                 if (this.OnDataAccessStatusOut != null)
@@ -1245,6 +1339,20 @@ namespace dMobile.GroundWork
                     this.DataEventArgs.OverrideDisconnectedMode = suppressStatusOutMessage;
                     this.OnDataAccessStatusOut(this, this.DataEventArgs);
                 }
+            }
+        }
+
+        /// <summary>
+        ///     Data access status out event handler.
+        /// </summary>
+        /// <param name="statusMessage">Status message.</param>
+        protected void StatusOut(string statusMessage)
+        {
+            if (!this.SysEnv.SysSettings.IsDisconnectedMode && this.OnDataAccessStatusOut != null)
+            {
+                this.DataEventArgs.StatusOutMsg = statusMessage;
+                this.DataEventArgs.OverrideDisconnectedMode = false;
+                this.OnDataAccessStatusOut(this, this.DataEventArgs);
             }
         }
 

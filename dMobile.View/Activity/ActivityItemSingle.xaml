@@ -2,7 +2,7 @@
 <modal:DMobileModal xmlns:modal="clr-namespace:dMobile.View.CustomPages.Modal"
                     xmlns="http://xamarin.com/schemas/2014/forms"
                     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-                    xmlns:Helpers="clr-namespace:dMobile.View.Helpers"
+                    xmlns:helpers="clr-namespace:dMobile.View.Helpers"
                     xmlns:customcontrols="clr-namespace:dMobile.View.CustomControls"
                     x:Class="dMobile.View.Activity.ActivityItemSingle">
     <ContentPage.Content>
@@ -34,7 +34,7 @@
                             Clicked="CmdSetLocation_Click"
                             Text="Select Location"
                             FontAttributes="Bold"
-                            IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}"/>
+                            IsEnabled="{Binding IsIndicatorRunning, Converter={helpers:BoolConverter}}"/>
                 </Grid>
                 <!--Default location-->
                 <Grid Grid.Row="1">
@@ -91,27 +91,27 @@
                             Clicked="CmdSetSkid_Click"
                             FontAttributes="Bold"
                             Text="Selected Skid"
-                            IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}"/>
+                            IsEnabled="{Binding IsIndicatorRunning, Converter={helpers:BoolConverter}}"/>
                     <Button x:Name="CmdAddSkid"
                             Grid.Row="0"
                             Grid.Column="1"
                             Clicked="CmdAddSkid_Clicked"
                             FontAttributes="Bold"
                             Text="Add"
-                            IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}"/>
+                            IsEnabled="{Binding IsIndicatorRunning, Converter={helpers:BoolConverter}}"/>
                     <Button x:Name="CmdClearSkid"
                             Grid.Row="0"
                             Grid.Column="2"
                             Clicked="CmdClearSkid_Clicked"
                             FontAttributes="Bold"
                             Text="Clr"
-                            IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}"/>
+                            IsEnabled="{Binding IsIndicatorRunning, Converter={helpers:BoolConverter}}"/>
                     <customcontrols:CustomPicker x:Name="BarCodeModifier1Picker"
                                                  Grid.Row="0"
                                                  Grid.Column="3"
                                                  Image="arrow_drop_down"
                                                  SelectedIndexChanged="BarCodeModifier1Picker_SelectedIndexChanged"
-                                                 IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}"/>
+                                                 IsEnabled="{Binding IsIndicatorRunning, Converter={helpers:BoolConverter}}"/>
                 </Grid>
                 <!--
                 Product, BC, Unit
@@ -136,7 +136,10 @@
                     <Label x:Name="LblProductBcUnitData"
                            Grid.Row="0"
                            Grid.Column="1"
-                           Text="Unknown"/>
+                           Text="Unknown"
+                           TextColor="Black"
+                           FontAttributes="Bold"
+                           />
                     <Label x:Name="LblDescriptionSize"
                            Grid.Row="1"
                            Grid.Column="0"
@@ -182,12 +185,11 @@
                            Grid.Row="1"
                            Grid.Column="0"
                            FontAttributes="Bold"
-                           TextColor="Purple"
                            Text="Shipped"/>
                     <Label x:Name="LblShippedReceivedCountedData"
                            Grid.Row="1"
                            Grid.Column="1"
-                           TextColor="Purple"
+                           TextColor="Green"
                            Text="0000000.000"/>
                 </Grid>
                 <!--Item Comment and Count-->
@@ -228,28 +230,36 @@
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <Button x:Name="CmdAddItem"
+                    <Button x:Name="CmdInvInquiry"
                             Grid.Row="0"
                             Grid.Column="0"
+                            Clicked="CmdInvInquiry_Click"
+                            FontAttributes="Bold"
+                            Text="Inq"
+                            IsEnabled="{Binding IsIndicatorRunning, Converter={helpers:BoolConverter}}"/>
+                    <Button x:Name="CmdAddItem"
+                            Grid.Row="0"
+                            Grid.Column="1"
                             Clicked="CmdAddItem_Click"
                             FontAttributes="Bold"
                             Text="Add Item"
-                            IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}"/>
+                            IsEnabled="{Binding IsIndicatorRunning, Converter={helpers:BoolConverter}}"/>
                     <Button x:Name="CmdAddDetail"
                             Grid.Row="0"
-                            Grid.Column="1"
+                            Grid.Column="2"
                             Clicked="CmdAddDetail_Clicked"
                             FontAttributes="Bold"
                             Text="Add Detail"
-                            IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}"/>
+                            IsEnabled="{Binding IsIndicatorRunning, Converter={helpers:BoolConverter}}"/>
                     <Button x:Name="CmdDetails"
                             Grid.Row="0"
-                            Grid.Column="2"
+                            Grid.Column="3"
                             Clicked="CmdDetails_Click"
                             FontAttributes="Bold"
                             Text="Details"
-                            IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}"/>
+                            IsEnabled="{Binding IsIndicatorRunning, Converter={helpers:BoolConverter}}"/>
                 </Grid>
 
                 <!--First, Previous, Next, Last-->
@@ -270,35 +280,35 @@
                             Clicked="CmdFirst_Click"
                             FontAttributes="Bold"
                             Text="First"
-                            IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}"/>
+                            IsEnabled="{Binding IsIndicatorRunning, Converter={helpers:BoolConverter}}"/>
                     <Button x:Name="CmdPrevious"
                             Grid.Row="0"
                             Grid.Column="1"
                             Clicked="CmdPrevious_Click"
                             FontAttributes="Bold"
                             Text="Prev"
-                            IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}"/>
+                            IsEnabled="{Binding IsIndicatorRunning, Converter={helpers:BoolConverter}}"/>
                     <Button x:Name="CmdItems"
                             Grid.Row="0"
                             Grid.Column="2"
                             Clicked="CmdItems_Click"
                             FontAttributes="Bold"
-                            Text="Inq"
-                            IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}"/>
+                            Text="List"
+                            IsEnabled="{Binding IsIndicatorRunning, Converter={helpers:BoolConverter}}"/>
                     <Button x:Name="CmdNext"
                             Grid.Row="0"
                             Grid.Column="3"
                             Clicked="CmdNext_Click"
                             FontAttributes="Bold"
                             Text="Next"
-                            IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}"/>
+                            IsEnabled="{Binding IsIndicatorRunning, Converter={helpers:BoolConverter}}"/>
                     <Button x:Name="CmdLast"
                             Grid.Row="0"
                             Grid.Column="4"
                             Clicked="CmdLast_Click"
                             FontAttributes="Bold"
                             Text="Last"
-                            IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}"/>
+                            IsEnabled="{Binding IsIndicatorRunning, Converter={helpers:BoolConverter}}"/>
                 </Grid>
             </Grid>
 

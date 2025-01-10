@@ -224,7 +224,7 @@ namespace dMobile.GroundWork
                                 parametersInsertDetail.Add(Convert.ToInt32(SysCommon.ActSubTypes.PhysicalCounts));
                                 parametersInsertDetail.Add(Convert.ToInt32(0));
                                 parametersInsertDetail.Add(actItemCountRefno);
-                                parametersInsertDetail.Add(GetDetailLocation(drow, transaction, true));
+                                parametersInsertDetail.Add(GetReceivedDataLocation(drow, transaction, true));
                                 parametersInsertDetail.Add(resultCountItems[0].ProductUnitRefno);
                                 parametersInsertDetail.AddRange(SaveDetail(drow, transaction, true));
 

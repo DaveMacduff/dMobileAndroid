@@ -6,7 +6,7 @@
 // See ActivityHdr, ActivityItem, ActivityDetail forms for examples.
 // In a form constructor place:
 //  private SysTimer Timer { get; set; }
-//  this.Timer = new SysTimer(this.TimerTickCallback, 1000);
+//  this.Timer = new SysTimer(this.TimerTickCallback, 200);
 //
 // Create a call back method:
 //  private void TimerTickCallback()
@@ -45,18 +45,13 @@ namespace dMobile.Bedrock
         /// </summary>
         /// <param name="callback"> Callback action.</param>
         /// <param name="millisecondsInterval"> Milliseconds interval.</param>
-        public SysTimer(Action callback, int millisecondsInterval = 1000)
+        public SysTimer(Action callback, int millisecondsInterval = 200)
         {
             this.Callback = callback;
             this.MillisecondsInterval = millisecondsInterval;
             this.IsEnabled = false;
             this.IsRunning = false;
         }
-
-        /// <summary>
-        ///    Gets a value indicating whether the timer is running.
-        /// </summary>
-        public bool IsRunning { get; private set; }
 
         /// <summary>
         ///    Gets or sets a value indicating whether the timer is enabled.
@@ -87,14 +82,19 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
+        ///    Gets or sets a value indicating whether the timer is running.
+        /// </summary>
+        private bool IsRunning { get; set; }
+
+        /// <summary>
         ///    Gets the callback.
         /// </summary>
-        public Action Callback { get; }
+        private Action Callback { get; }
 
         /// <summary>
         ///   Gets the milliseconds period.
         /// </summary>
-        public int MillisecondsInterval { get; }
+        private int MillisecondsInterval { get; }
 
         /// <summary>
         ///    Start the timer.
@@ -112,19 +112,21 @@ namespace dMobile.Bedrock
             else
             {
                 // Start the timer if it is not running.
-                Device.StartTimer(TimeSpan.FromMilliseconds(this.MillisecondsInterval), () =>
-                {
-                    this.IsRunning = this.isEnabled;
-
-                    // Check if the timer is still running, Stop() will set it to false.
-                    if (this.IsRunning)
+                Device.StartTimer(
+                    TimeSpan.FromMilliseconds(this.MillisecondsInterval),
+                    () =>
                     {
-                        this.Callback.Invoke();
-                    }
+                        this.IsRunning = this.isEnabled;
 
-                    // Return true to repeat counting, false to stop timer.
-                    return this.isEnabled;
-                });
+                        // Check if the timer is still running, Stop() will set it to false.
+                        if (this.IsRunning)
+                        {
+                            this.Callback.Invoke();
+                        }
+
+                        // Return true to repeat counting, false to stop timer.
+                        return this.isEnabled;
+                    });
             }
         }
 

@@ -1231,7 +1231,8 @@ namespace dMobile.Bedrock
         /// <returns><see cref="int"/> Warehouse location map reference number.</returns>
         public static async Task<int> GetWhsLocMapRefnoFromLocMapRefno(int locMapRefno)
         {
-            var locationSubType = Convert.ToInt32(await DatabaseConnection.GetInstance().SqlConn.
+            var locationSubType = Convert.ToInt32(
+                await DatabaseConnection.GetInstance().SqlConn.
                 ExecuteScalarAsync<int>(
                 "SELECT LocationMapSubType FROM tLocationMap WHERE LocationMapRefno = ?",
                 locMapRefno));

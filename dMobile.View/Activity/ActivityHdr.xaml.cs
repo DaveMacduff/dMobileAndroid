@@ -1227,18 +1227,17 @@ namespace dMobile.View.Activity
         private async Task DesignGrid()
         {
             // Bind the filtered activity items to the list view.
-            await Device.InvokeOnMainThreadAsync(() =>
-            {
-                this.MainActivityItems =
-                    this.ActHdr.DesignGrid(ref this.GridMainActivity, ref this.ListViewMainActivity);
-
-                if (!string.IsNullOrEmpty(this.txtSearchHdr.Text))
+            await Device.InvokeOnMainThreadAsync(
+                () =>
                 {
-                    this.MainActivityItems = this.ActHdr.Search(this.txtSearchHdr.Text);
-                }
+                    this.MainActivityItems = this.ActHdr.DesignGrid(ref this.GridMainActivity, ref this.ListViewMainActivity);
+                    if (!string.IsNullOrEmpty(this.txtSearchHdr.Text))
+                    {
+                        this.MainActivityItems = this.ActHdr.Search(this.txtSearchHdr.Text);
+                    }
 
-                this.ListViewMainActivity.ItemsSource = this.MainActivityItems;
-            });
+                    this.ListViewMainActivity.ItemsSource = this.MainActivityItems;
+                });
         }
 
         /// <summary>

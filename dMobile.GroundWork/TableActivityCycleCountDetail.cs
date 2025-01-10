@@ -300,7 +300,7 @@ namespace dMobile.GroundWork
                                             Convert.ToInt32(SysCommon.ActStatus.NoChange));
                                         detailParameterList.Add(actItemCountRefno);
                                         detailParameterList.Add(
-                                            GetDetailLocation(drow, transaction, true));
+                                            GetReceivedDataLocation(drow, transaction, true));
                                         detailParameterList.Add(countItems[0].ProductUnitRefno);
                                         detailParameterList.AddRange(
                                             SaveDetail(drow, transaction, true));

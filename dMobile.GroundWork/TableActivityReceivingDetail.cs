@@ -291,7 +291,7 @@ namespace dMobile.GroundWork
                                         Convert.ToInt32(SysCommon.ActSubTypes.Receiving),
                                         Convert.ToInt32(0),
                                         actItemRefno,
-                                        GetDetailLocation(row, transaction, false),
+                                        GetReceivedDataLocation(row, transaction, false),
                                         results[0].ProductUnitRefno
                                     };
 

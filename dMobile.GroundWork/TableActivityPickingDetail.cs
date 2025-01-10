@@ -293,7 +293,7 @@ namespace dMobile.GroundWork
                                         Convert.ToInt32(SysCommon.ActSubTypes.Picking),
                                         0,
                                         actItemPickRefno,
-                                        GetDetailLocation(drow, transaction, useFNo),
+                                        GetReceivedDataLocation(drow, transaction, useFNo),
                                         productUnitRefno
                                     };
                                     parametersInsertDetail.AddRange(
