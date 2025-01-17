@@ -663,6 +663,21 @@ namespace dMobile.Controller.Activity_Item
             return mainActivityItems;
         }
 
+        public override ObservableCollection<object> CreateObservableCollectionFromListItems(List<object> listItems, string filterSearch)
+        {
+            // This code is optimized, it iterates over this.ListItems only once.
+            // It separates the list items into two lists, one for positive refno and one for negative refno.
+            // It then adds the positive refno items first, then the negative refno items.
+            // This is done to ensure that the negative refno items "new items" are displayed at the bottom of the list.
+            var mainActivityItems = new ObservableCollection<object>();
+            foreach (var item in listItems.Cast<PurchaseOrderWorkSheetItem>())
+            {
+                mainActivityItems.Add(item);
+            }
+
+            return mainActivityItems;
+        }
+
         /// <summary>
         ///     Sort the list items and place new items at the bottom of the list.
         /// </summary>

@@ -425,6 +425,12 @@ namespace dMobile.Controller.Activity_Item
 
                         case SysCommon.ActPickingQtyOverValLevels.ValidateWarnAndStop:
                             throw new IsReadyToApplyException(msg, false, false);
+
+                        case SysCommon.ActPickingQtyOverValLevels.NoValidationOrWarning:
+                            break;
+
+                        default:
+                            throw new ArgumentOutOfRangeException();
                     }
                 }
             }
@@ -499,50 +505,43 @@ namespace dMobile.Controller.Activity_Item
                   string.Empty))
             {
                 tempSchemeData.LogisticUnitBestBeforeSellByDate = DateTime.Parse(
-                    xmlDoc.SelectSingleNode("/VFPData/seg/activitydetaillogisticunitbestbeforesellbydate").InnerText);
+                    xmlDoc.SelectSingleNode("/VFPData/seg/activitydetaillogisticunitbestbeforesellbydate") !.InnerText);
             }
 
-            if (!(xmlDoc.SelectSingleNode("/VFPData/seg/activitydetaillogisticunitproductiondate").InnerText ==
-                  string.Empty))
+            if (xmlDoc.SelectSingleNode("/VFPData/seg/activitydetaillogisticunitproductiondate") !.InnerText != string.Empty)
             {
                 tempSchemeData.LogisticUnitProductionDate = DateTime.Parse(
-                    xmlDoc.SelectSingleNode("/VFPData/seg/activitydetaillogisticunitproductiondate").InnerText);
+                    xmlDoc.SelectSingleNode("/VFPData/seg/activitydetaillogisticunitproductiondate") !.InnerText);
             }
 
-            if (!(xmlDoc.SelectSingleNode("/VFPData/seg/activitydetaillogisticunitexpiryusebydate").InnerText ==
-                  string.Empty))
+            if (xmlDoc.SelectSingleNode("/VFPData/seg/activitydetaillogisticunitexpiryusebydate") !.InnerText != string.Empty)
             {
                 tempSchemeData.LogisticUnitExpiryUseByDate = DateTime.Parse(
-                    xmlDoc.SelectSingleNode("/VFPData/seg/activitydetaillogisticunitexpiryusebydate").InnerText);
+                    xmlDoc.SelectSingleNode("/VFPData/seg/activitydetaillogisticunitexpiryusebydate") !.InnerText);
             }
 
-            if (!(xmlDoc.SelectSingleNode("/VFPData/seg/activitydetaillogisticunitduedate").InnerText == string.Empty))
+            if (xmlDoc.SelectSingleNode("/VFPData/seg/activitydetaillogisticunitduedate") !.InnerText != string.Empty)
             {
                 tempSchemeData.LogisticUnitDueDate = DateTime.Parse(
-                    xmlDoc.SelectSingleNode("/VFPData/seg/activitydetaillogisticunitduedate").InnerText);
+                    xmlDoc.SelectSingleNode("/VFPData/seg/activitydetaillogisticunitduedate") !.InnerText);
             }
 
-            if (!(xmlDoc.SelectSingleNode("/VFPData/seg/activitydetaillogisticunitpackagingdate").InnerText ==
-                  string.Empty))
+            if (xmlDoc.SelectSingleNode("/VFPData/seg/activitydetaillogisticunitpackagingdate") !.InnerText != string.Empty)
             {
                 tempSchemeData.LogisticUnitPackagingDate = DateTime.Parse(
-                    xmlDoc.SelectSingleNode("/VFPData/seg/activitydetaillogisticunitpackagingdate").InnerText);
+                    xmlDoc.SelectSingleNode("/VFPData/seg/activitydetaillogisticunitpackagingdate") !.InnerText);
             }
 
             itemSchemeData.ProdSchemeData = tempSchemeData;
-            itemSchemeData.ActDetailExtra.Text1 =
-                xmlDoc.SelectSingleNode("/VFPData/seg/activitydetailextra1").InnerText;
-            itemSchemeData.ActDetailExtra.Text2 =
-                xmlDoc.SelectSingleNode("/VFPData/seg/activitydetailextra2").InnerText;
-            itemSchemeData.ActDetailExtra.Text3 =
-                xmlDoc.SelectSingleNode("/VFPData/seg/activitydetailextra3").InnerText;
-            itemSchemeData.ActDetailExtra.Text4 =
-                xmlDoc.SelectSingleNode("/VFPData/seg/activitydetailextra4").InnerText;
+            itemSchemeData.ActDetailExtra.Text1 = xmlDoc.SelectSingleNode("/VFPData/seg/activitydetailextra1") !.InnerText;
+            itemSchemeData.ActDetailExtra.Text2 = xmlDoc.SelectSingleNode("/VFPData/seg/activitydetailextra2") !.InnerText;
+            itemSchemeData.ActDetailExtra.Text3 = xmlDoc.SelectSingleNode("/VFPData/seg/activitydetailextra3") !.InnerText;
+            itemSchemeData.ActDetailExtra.Text4 = xmlDoc.SelectSingleNode("/VFPData/seg/activitydetailextra4") !.InnerText;
 
-            if (!(xmlDoc.SelectSingleNode("/VFPData/seg/activitydetailextra5").InnerText == string.Empty))
+            if (xmlDoc.SelectSingleNode("/VFPData/seg/activitydetailextra5") !.InnerText != string.Empty)
             {
                 itemSchemeData.ActDetailExtra.DateTime1 = DateTime.Parse(
-                    xmlDoc.SelectSingleNode("/VFPData/seg/activitydetailextra5").InnerText);
+                    xmlDoc.SelectSingleNode("/VFPData/seg/activitydetailextra5") !.InnerText);
             }
 
             return itemSchemeData;
@@ -923,6 +922,22 @@ namespace dMobile.Controller.Activity_Item
             Grid.SetRow(gridColumns, 0);
 
             return gridColumns;
+        }
+
+        /// <summary>
+        ///     Create observable collection from list items.
+        /// </summary>
+        /// <param name="listItems">List of item objects.</param>
+        /// <returns>Created observable collection.</returns>
+        public override ObservableCollection<object> CreateObservableCollectionFromListItems(List<object> listItems)
+        {
+            var mainActivityItems = new ObservableCollection<object>();
+            foreach (var item in listItems.Cast<PickingItem>())
+            {
+                mainActivityItems.Add(item);
+            }
+
+            return mainActivityItems;
         }
 
         /// <summary>

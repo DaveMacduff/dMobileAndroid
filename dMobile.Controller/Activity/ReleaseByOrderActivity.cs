@@ -62,63 +62,81 @@ namespace dMobile.Controller.Activity
         /// Initializes a new instance of the <see cref="ReleaseByOrderActivity"/> class.
         /// </summary>
         public ReleaseByOrderActivity()
-          : base()
         {
             this.FullClassName = typeof(ReleaseByOrderActivity).FullName;
+            DefineInitialGridDataTemplate();
+            return;
 
-            // Data grid
-            var dataTemplate = new DataTemplate(() =>
+            void DefineInitialGridDataTemplate()
             {
-                // Header grid
-                var gridData = new Grid()
+                // Data grid
+                var dataTemplate = new DataTemplate(() =>
                 {
-                    Padding = new Thickness(5),
-                    ColumnDefinitions =
+                    // Header grid
+                    var gridData = new Grid()
                     {
-                        new ColumnDefinition { Width = new GridLength(this.columnWidth0, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(this.columnWidth1, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(this.columnWidth2, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(this.columnWidth3, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(this.columnWidth4, GridUnitType.Absolute) },
-                    },
-                };
+                        Padding = new Thickness(5),
+                        ColumnDefinitions =
+                        {
+                            new ColumnDefinition { Width = new GridLength(this.columnWidth0, GridUnitType.Absolute) },
+                            new ColumnDefinition { Width = new GridLength(this.columnWidth1, GridUnitType.Absolute) },
+                            new ColumnDefinition { Width = new GridLength(this.columnWidth2, GridUnitType.Absolute) },
+                            new ColumnDefinition { Width = new GridLength(this.columnWidth3, GridUnitType.Absolute) },
+                            new ColumnDefinition { Width = new GridLength(this.columnWidth4, GridUnitType.Absolute) },
+                        },
+                    };
 
-                var labelQty = new Label { VerticalOptions = LayoutOptions.Center };
-                var labelWeight = new Label { VerticalOptions = LayoutOptions.Center };
-                var labelUnitCode = new Label { VerticalOptions = LayoutOptions.Center };
-                var labelSchemeId = new Label { VerticalOptions = LayoutOptions.Center };
+                    var labelQty = new Label { VerticalOptions = LayoutOptions.Center };
+                    var labelWeight = new Label { VerticalOptions = LayoutOptions.Center };
+                    var labelUnitCode = new Label { VerticalOptions = LayoutOptions.Center };
+                    var labelSchemeId = new Label { VerticalOptions = LayoutOptions.Center };
 
-                labelQty.SetBinding(Label.TextProperty, new Binding("ActivityStringFKRefno"));
-                labelWeight.SetBinding(Label.TextProperty, new Binding("ActivityPickingOrderedDateTime", BindingMode.Default, null, null, "{0:MM/dd/yyyy}"));
-                labelUnitCode.SetBinding(Label.TextProperty, new Binding("ActivityPickingDeliveryDateTime", BindingMode.Default, null, null, "{0:MM/dd/yyyy}"));
-                labelSchemeId.SetBinding(Label.TextProperty, new Binding("RouteCode"));
-                labelSchemeId.SetBinding(Label.TextProperty, new Binding("RouteStop"));
+                    labelQty.SetBinding(Label.TextProperty, new Binding("ActivityStringFKRefno"));
+                    labelWeight.SetBinding(Label.TextProperty, new Binding("ActivityPickingOrderedDateTime", BindingMode.Default, null, null, "{0:MM/dd/yyyy}"));
+                    labelUnitCode.SetBinding(Label.TextProperty, new Binding("ActivityPickingDeliveryDateTime", BindingMode.Default, null, null, "{0:MM/dd/yyyy}"));
+                    labelSchemeId.SetBinding(Label.TextProperty, new Binding("RouteCode"));
+                    labelSchemeId.SetBinding(Label.TextProperty, new Binding("RouteStop"));
 
-                gridData.Children.Add(labelQty);
-                gridData.Children.Add(labelWeight);
-                gridData.Children.Add(labelUnitCode);
-                gridData.Children.Add(labelSchemeId);
+                    gridData.Children.Add(labelQty);
+                    gridData.Children.Add(labelWeight);
+                    gridData.Children.Add(labelUnitCode);
+                    gridData.Children.Add(labelSchemeId);
 
-                Grid.SetColumn(labelQty, 0);
-                Grid.SetColumn(labelWeight, 1);
-                Grid.SetColumn(labelUnitCode, 2);
-                Grid.SetColumn(labelSchemeId, 3);
+                    Grid.SetColumn(labelQty, 0);
+                    Grid.SetColumn(labelWeight, 1);
+                    Grid.SetColumn(labelUnitCode, 2);
+                    Grid.SetColumn(labelSchemeId, 3);
 
-                return new ViewCell { View = gridData };
-            });
+                    return new ViewCell { View = gridData };
+                });
 
-            var isAddKey = true;
-            foreach (var item in this.resourceDictionary)
-            {
-                if (item.Key == "dataTemplateReleaseByOrder")
+                var isAddKey = true;
+                foreach (var item in this.resourceDictionary)
                 {
-                    isAddKey = false;
+                    if (item.Key == "dataTemplateReleaseByOrder")
+                    {
+                        isAddKey = false;
+                    }
+                }
+
+                if (isAddKey)
+                {
+                    this.resourceDictionary.Add("dataTemplateReleaseByOrder", dataTemplate);
                 }
             }
+        }
 
-            if (isAddKey)
+        /// <summary>
+        /// Display the extra information for the selected activity.
+        /// </summary>
+        /// <param name="extraInfo">Extra information collection.</param>
+        public override void DisplayExtraInfo(ObservableCollection<string> extraInfo)
+        {
+            base.DisplayExtraInfo(extraInfo);
+            if (this.SelectedActivity is Picking activity)
             {
-                this.resourceDictionary.Add("dataTemplateReleaseByOrder", dataTemplate);
+                extraInfo.Add("Customer: " + activity.ActivityPickingCustomerContactName);
+                extraInfo.Add("Ship to:   " + activity.ActivityPickingCustomerShipToInfo);
             }
         }
 
@@ -559,22 +577,11 @@ namespace dMobile.Controller.Activity
         /// <returns>The <see cref="Task"/>.</returns>
         public override async Task Refresh(XDocument data)
         {
-            if (this.SysEnv.SysSettings.IsDisconnectedMode)
+            if (!this.SysEnv.SysSettings.IsDisconnectedMode)
             {
-                this.DataLayerProgressOutHandler(this, EventArgs.Empty, 5);
-            }
-            else
-            {
-                this.DataLayerProgressOutHandler(this, EventArgs.Empty, 2);
                 await this.Purge();
-
-                this.DataLayerProgressOutHandler(this, EventArgs.Empty, 5);
-
                 var tableActPicking = new TableActivityPicking();
-
-                tableActPicking.RegisterDataAccessListenerProgressOut(this);
                 await tableActPicking.RequestHeaderData(data);
-                tableActPicking.UnregisterDataAccessListenerProgressOut(this);
             }
         }
 
@@ -753,50 +760,6 @@ namespace dMobile.Controller.Activity
                     }
                 }
             }
-        }
-
-        /// <summary>
-        /// The Insert.
-        /// </summary>
-        /// <param name="xmlParams">The xmlParams<see cref="XDocument"/>.</param>
-        /// <returns>The <see cref="int"/>.</returns>
-        public override Task<int> Insert(XDocument xmlParams)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// The Delete.
-        /// </summary>
-        /// <returns>The <see cref="Task"/>.</returns>
-        public override Task Delete()
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// The PrintLabel.
-        /// </summary>
-        /// <param name="xmlParam">The xmlParam<see cref="XDocument"/>.</param>
-        /// <returns>The <see cref="Task"/>.</returns>
-        public override Task PrintLabel(XDocument xmlParam)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// The GetLabelQuantity.
-        /// </summary>
-        /// <param name="isRepackQuantityOnly">The isRepackQuantityOnly<see cref="bool"/>.</param>
-        /// <returns>The <see cref="Task{SLabelQuantity}"/>.</returns>
-        public override Task<SLabelQuantity> GetLabelQuantity(bool isRepackQuantityOnly)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override XDocument CreateDump()
-        {
-            throw new NotImplementedException();
         }
     }
 }

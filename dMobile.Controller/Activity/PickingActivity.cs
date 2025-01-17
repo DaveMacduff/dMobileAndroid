@@ -66,66 +66,99 @@ namespace dMobile.Controller.Activity
         {
             this.FullClassName = typeof(PickingActivity).FullName;
 
-            // Data grid
-            var dataTemplatePicking = new DataTemplate(() =>
+            DefineInitialGridDataTemplate();
+            return;
+
+            void DefineInitialGridDataTemplate()
             {
-                var gridData = new Grid
+                var dataTemplatePicking = new DataTemplate(() =>
                 {
-                    Padding = new Thickness(5),
-                    ColumnDefinitions =
+                    var gridData = new Grid
                     {
-                        new ColumnDefinition { Width = new GridLength(this.columnWidth0, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(this.columnWidth1, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(this.columnWidth2, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(this.columnWidth3, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(this.columnWidth4, GridUnitType.Absolute) },
-                    },
-                };
+                        Padding = new Thickness(5),
+                        ColumnDefinitions =
+                        {
+                            new ColumnDefinition { Width = new GridLength(this.columnWidth0, GridUnitType.Absolute) },
+                            new ColumnDefinition { Width = new GridLength(this.columnWidth1, GridUnitType.Absolute) },
+                            new ColumnDefinition { Width = new GridLength(this.columnWidth2, GridUnitType.Absolute) },
+                            new ColumnDefinition { Width = new GridLength(this.columnWidth3, GridUnitType.Absolute) },
+                            new ColumnDefinition { Width = new GridLength(this.columnWidth4, GridUnitType.Absolute) },
+                        },
+                    };
 
-                var labelActivityStringFkRefno = new Label { VerticalOptions = LayoutOptions.Center };
-                var labelActivityPickingDeliveryDateTime = new Label { VerticalOptions = LayoutOptions.Center };
-                var labelActivityPickingRouteCode = new Label { VerticalOptions = LayoutOptions.Center };
-                var labelActivityPickingRouteStop = new Label { VerticalOptions = LayoutOptions.Center };
-                var labelActivityPickingCustomerShipToInfo = new Label { VerticalOptions = LayoutOptions.Center };
+                    var labelActivityStringFkRefno = new Label { VerticalOptions = LayoutOptions.Center };
+                    var labelActivityPickingDeliveryDateTime = new Label { VerticalOptions = LayoutOptions.Center };
+                    var labelActivityPickingRouteCode = new Label { VerticalOptions = LayoutOptions.Center };
+                    var labelActivityPickingRouteStop = new Label { VerticalOptions = LayoutOptions.Center };
+                    var labelActivityPickingCustomerShipToInfo = new Label { VerticalOptions = LayoutOptions.Center };
 
-                labelActivityStringFkRefno.SetBinding(Label.TextProperty, new Binding("ActivityStringFKRefno"));
-                labelActivityPickingDeliveryDateTime.SetBinding(Label.TextProperty, new Binding("ActivityPickingDeliveryDateTime", BindingMode.Default, null, null, "{0:MM/dd/yyyy}"));
-                labelActivityPickingRouteCode.SetBinding(Label.TextProperty, new Binding("RouteCode"));
-                labelActivityPickingRouteStop.SetBinding(Label.TextProperty, new Binding("RouteStop"));
-                labelActivityPickingCustomerShipToInfo.SetBinding(Label.TextProperty, new Binding("ActivityPickingCustomerShipToInfo"));
+                    labelActivityStringFkRefno.SetBinding(Label.TextProperty, new Binding("ActivityStringFKRefno"));
+                    labelActivityPickingDeliveryDateTime.SetBinding(Label.TextProperty, new Binding("ActivityPickingDeliveryDateTime", BindingMode.Default, null, null, "{0:MM/dd/yyyy}"));
+                    labelActivityPickingRouteCode.SetBinding(Label.TextProperty, new Binding("RouteCode"));
+                    labelActivityPickingRouteStop.SetBinding(Label.TextProperty, new Binding("RouteStop"));
+                    labelActivityPickingCustomerShipToInfo.SetBinding(Label.TextProperty, new Binding("ActivityPickingCustomerShipToInfo"));
 
-                gridData.Children.Add(labelActivityStringFkRefno);
-                gridData.Children.Add(labelActivityPickingDeliveryDateTime);
+                    gridData.Children.Add(labelActivityStringFkRefno);
+                    gridData.Children.Add(labelActivityPickingDeliveryDateTime);
 
-                if (!this.SysEnv.SysSettings.IsPickHideRouteCol)
+                    if (!this.SysEnv.SysSettings.IsPickHideRouteCol)
+                    {
+                        gridData.Children.Add(labelActivityPickingRouteCode);
+                        gridData.Children.Add(labelActivityPickingRouteStop);
+                    }
+
+                    gridData.Children.Add(labelActivityPickingCustomerShipToInfo);
+
+                    Grid.SetColumn(labelActivityStringFkRefno, 0);
+                    Grid.SetColumn(labelActivityPickingDeliveryDateTime, 1);
+
+                    if (!this.SysEnv.SysSettings.IsPickHideRouteCol)
+                    {
+                        Grid.SetColumn(labelActivityPickingRouteCode, 2);
+                        Grid.SetColumn(labelActivityPickingRouteStop, 3);
+                    }
+
+                    Grid.SetColumn(labelActivityPickingCustomerShipToInfo, 4);
+
+                    return new ViewCell { View = gridData };
+                });
+
+                var isAddKey = true;
+                foreach (var item in this.resourceDictionary)
                 {
-                    gridData.Children.Add(labelActivityPickingRouteCode);
-                    gridData.Children.Add(labelActivityPickingRouteStop);
+                    if (item.Key == "dataTemplatePicking")
+                    {
+                        isAddKey = false;
+                    }
                 }
 
-                gridData.Children.Add(labelActivityPickingCustomerShipToInfo);
-
-                Grid.SetColumn(labelActivityStringFkRefno, 0);
-                Grid.SetColumn(labelActivityPickingDeliveryDateTime, 1);
-
-                if (!this.SysEnv.SysSettings.IsPickHideRouteCol)
+                if (isAddKey)
                 {
-                    Grid.SetColumn(labelActivityPickingRouteCode, 2);
-                    Grid.SetColumn(labelActivityPickingRouteStop, 3);
+                    this.resourceDictionary.Add("dataTemplatePicking", dataTemplatePicking);
                 }
-
-                Grid.SetColumn(labelActivityPickingCustomerShipToInfo, 4);
-
-                return new ViewCell { View = gridData };
-            });
-
-            this.resourceDictionary.Add("dataTemplatePicking", dataTemplatePicking);
+            }
         }
 
         /// <summary>
         /// Gets or sets the PickingLocationMapFilter.
         /// </summary>
         public SLocMap PickingLocationMapFilter { get; set; } = new SLocMap();
+
+        /// <summary>
+        /// Display the extra information for the selected activity.
+        /// </summary>
+        /// <param name="extraInfo">Extra information collection.</param>
+        public override void DisplayExtraInfo(ObservableCollection<string> extraInfo)
+        {
+            base.DisplayExtraInfo(extraInfo);
+            if (this.SelectedActivity is Picking activity)
+            {
+                extraInfo.Add("Customer: " + activity.ActivityPickingCustomerContactName);
+                extraInfo.Add("Ship to:   " + activity.ActivityPickingCustomerShipToInfo);
+                extraInfo.Add(
+                    $"Order warehouse:   {activity.LocationMapWarehouseFKRefno} - {activity.LocationMapWarehouseName}");
+            }
+        }
 
         /// <summary>
         /// The PrintLabel.
@@ -994,18 +1027,12 @@ namespace dMobile.Controller.Activity
         /// <returns>The <see cref="Task"/>.</returns>
         public override async Task Refresh(XDocument data)
         {
-            var actPicking = new TableActivityPicking();
-            actPicking.RegisterDataAccessListenerProgressOut(this);
-            this.DataLayerProgressOutHandler(this, EventArgs.Empty, 1);
             if (!this.SysEnv.SysSettings.IsDisconnectedMode)
             {
+                var actPicking = new TableActivityPicking();
                 await this.Purge();
+                await actPicking.RequestHeaderData(data);
             }
-
-            this.DataLayerProgressOutHandler(this, EventArgs.Empty, 3);
-            await actPicking.RequestHeaderData(data);
-            this.DataLayerProgressOutHandler(this, EventArgs.Empty, 5);
-            actPicking.UnregisterDataAccessListenerProgressOut(this);
         }
 
         /// <summary>
@@ -1170,30 +1197,6 @@ namespace dMobile.Controller.Activity
             }
 
             return isReleased;
-        }
-
-        /// <summary>
-        /// The Insert.
-        /// </summary>
-        /// <param name="xmlParams">The xmlParams<see cref="XDocument"/>.</param>
-        /// <returns>The <see cref="int"/>.</returns>
-        public override Task<int> Insert(XDocument xmlParams)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// The Delete.
-        /// </summary>
-        /// <returns>The <see cref="Task"/>.</returns>
-        public override Task Delete()
-        {
-            throw new NotImplementedException();
-        }
-
-        public override XDocument CreateDump()
-        {
-            throw new NotImplementedException();
         }
     }
 }

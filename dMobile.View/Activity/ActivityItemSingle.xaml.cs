@@ -8,7 +8,6 @@ namespace dMobile.View.Activity
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
-    using System.Xml;
     using System.Xml.Linq;
     using BarCodeScanner.BarCodeParsing;
     using BarCodeScanner.BarCodeScanners;
@@ -21,7 +20,7 @@ namespace dMobile.View.Activity
     using Resources.Types.Items;
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;
-    using Resource = dMobile.Resources.Properties.Resources;
+    using Resource = Resources.Properties.Resources;
 
     /// <summary>
     /// Defines the <see cref="ActivityItemSingle" />.
@@ -1960,7 +1959,7 @@ namespace dMobile.View.Activity
                     throw new MessageOnlyException(msg);
                 }
 
-                if (await this.DisplayAlert(
+                if (!await this.DisplayAlert(
                         "Add Skid",
                         "Add the available skid quantity to this activity?",
                         "Yes",

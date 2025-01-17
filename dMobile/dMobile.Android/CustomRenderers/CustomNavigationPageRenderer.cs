@@ -5,7 +5,6 @@
 using Android.Content;
 using Android.Support.V4.Widget;
 using Android.Views;
-using Android.Widget;
 using dMobile.Droid.CustomRenderers;
 using Xamarin.Forms;
 using Xamarin.Forms.Platform.Android;
@@ -14,6 +13,7 @@ using NavigationRenderer = Xamarin.Forms.Platform.Android.AppCompat.NavigationPa
 using Support = Android.Support.V7.Widget;
 
 [assembly: ExportRenderer(typeof(NavigationPage), typeof(CustomNavigationPageRenderer))]
+
 namespace dMobile.Droid.CustomRenderers
 {
     /// <summary>
@@ -25,7 +25,10 @@ namespace dMobile.Droid.CustomRenderers
         /// Initializes a new instance of the <see cref="CustomNavigationPageRenderer"/> class.
         /// </summary>
         /// <param name="context">The context<see cref="Context"/>.</param>
-        public CustomNavigationPageRenderer(Context context) : base(context) { }
+        public CustomNavigationPageRenderer(Context context) : base(context)
+        {
+        }
+
         /// <inheritdoc/>
         protected override void OnAttachedToWindow()
         {
@@ -36,9 +39,9 @@ namespace dMobile.Droid.CustomRenderers
 
             while (page != null)
             {
-                if (page is MasterDetailPage)
+                if (page is MasterDetailPage detailPage)
                 {
-                    masterDetailPage = page as MasterDetailPage;
+                    masterDetailPage = detailPage;
                     break;
                 }
 
@@ -50,9 +53,7 @@ namespace dMobile.Droid.CustomRenderers
                 return;
             }
 
-            var renderer = Platform.GetRenderer(masterDetailPage) as MasterDetailPageRenderer;
-
-            if (renderer == null)
+            if (!(Platform.GetRenderer(masterDetailPage) is MasterDetailPageRenderer renderer))
             {
                 return;
             }
@@ -65,8 +66,8 @@ namespace dMobile.Droid.CustomRenderers
 
         private class MenuClickListener : Java.Lang.Object, IOnClickListener
         {
-            readonly NavigationPage navigationPage;
-            private DrawerLayout layout;
+            private readonly NavigationPage navigationPage;
+            private readonly DrawerLayout layout;
 
             public MenuClickListener(NavigationPage navigationPage, DrawerLayout layout)
             {

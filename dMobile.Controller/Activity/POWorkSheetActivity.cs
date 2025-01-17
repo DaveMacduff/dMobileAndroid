@@ -51,55 +51,59 @@ namespace dMobile.Controller.Activity
         /// Initializes a new instance of the <see cref="PoWorkSheetActivity"/> class.
         /// </summary>
         public PoWorkSheetActivity()
-          : base()
         {
             this.FullClassName = typeof(PoWorkSheetActivity).FullName;
+            DefineInitialGridDataTemplate();
+            return;
 
-            // Data grid
-            var dataTemplate = new DataTemplate(() =>
+            void DefineInitialGridDataTemplate()
             {
-                var gridData = new Grid
+                // Data grid
+                var dataTemplate = new DataTemplate(() =>
                 {
-                    Padding = new Thickness(5),
-                    ColumnDefinitions =
+                    var gridData = new Grid
                     {
-                        new ColumnDefinition { Width = new GridLength(this.columnWidth0, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(this.columnWidth1, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(this.columnWidth2, GridUnitType.Absolute) },
-                    },
-                };
+                        Padding = new Thickness(5),
+                        ColumnDefinitions =
+                        {
+                            new ColumnDefinition { Width = new GridLength(this.columnWidth0, GridUnitType.Absolute) },
+                            new ColumnDefinition { Width = new GridLength(this.columnWidth1, GridUnitType.Absolute) },
+                            new ColumnDefinition { Width = new GridLength(this.columnWidth2, GridUnitType.Absolute) },
+                        },
+                    };
 
-                var labelActivityPoProductId = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
-                var labelActivityPoOrdered = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
-                var labelActivityPoWeight = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
+                    var labelActivityPoProductId = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
+                    var labelActivityPoOrdered = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
+                    var labelActivityPoWeight = new Label { VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Start };
 
-                labelActivityPoProductId.SetBinding(Label.TextProperty, new Binding("ProductCode"));
-                labelActivityPoOrdered.SetBinding(Label.TextProperty, new Binding("ActivityItemPurchaseOrderWorkSheetQuantityOrdered", BindingMode.Default, null, null, "{0:F3}"));
-                labelActivityPoWeight.SetBinding(Label.TextProperty, new Binding("ActivityItemPurchaseOrderWorkSheetWeightQuantityOrdered", BindingMode.Default, null, null, "{0:F3}"));
+                    labelActivityPoProductId.SetBinding(Label.TextProperty, new Binding("ProductCode"));
+                    labelActivityPoOrdered.SetBinding(Label.TextProperty, new Binding("ActivityItemPurchaseOrderWorkSheetQuantityOrdered", BindingMode.Default, null, null, "{0:F3}"));
+                    labelActivityPoWeight.SetBinding(Label.TextProperty, new Binding("ActivityItemPurchaseOrderWorkSheetWeightQuantityOrdered", BindingMode.Default, null, null, "{0:F3}"));
 
-                gridData.Children.Add(labelActivityPoProductId);
-                gridData.Children.Add(labelActivityPoOrdered);
-                gridData.Children.Add(labelActivityPoWeight);
+                    gridData.Children.Add(labelActivityPoProductId);
+                    gridData.Children.Add(labelActivityPoOrdered);
+                    gridData.Children.Add(labelActivityPoWeight);
 
-                Grid.SetColumn(labelActivityPoProductId, 0);
-                Grid.SetColumn(labelActivityPoOrdered, 1);
-                Grid.SetColumn(labelActivityPoWeight, 2);
+                    Grid.SetColumn(labelActivityPoProductId, 0);
+                    Grid.SetColumn(labelActivityPoOrdered, 1);
+                    Grid.SetColumn(labelActivityPoWeight, 2);
 
-                return new ViewCell { View = gridData };
-            });
+                    return new ViewCell { View = gridData };
+                });
 
-            var isAddKey = true;
-            foreach (var item in this.resourceDictionary)
-            {
-                if (item.Key == "dataTemplatePOWorkSheet")
+                var isAddKey = true;
+                foreach (var item in this.resourceDictionary)
                 {
-                    isAddKey = false;
+                    if (item.Key == "dataTemplatePOWorkSheet")
+                    {
+                        isAddKey = false;
+                    }
                 }
-            }
 
-            if (isAddKey)
-            {
-                this.resourceDictionary.Add("dataTemplatePOWorkSheet", dataTemplate);
+                if (isAddKey)
+                {
+                    this.resourceDictionary.Add("dataTemplatePOWorkSheet", dataTemplate);
+                }
             }
         }
 
@@ -366,15 +370,9 @@ namespace dMobile.Controller.Activity
         /// <returns>The <see cref="Task"/>.</returns>
         public override async Task Refresh(XDocument data)
         {
-            if (this.SysEnv.SysSettings.IsDisconnectedMode)
+            if (!this.SysEnv.SysSettings.IsDisconnectedMode)
             {
-                this.DataLayerProgressOutHandler(this, EventArgs.Empty, 5);
-            }
-            else
-            {
-                this.DataLayerProgressOutHandler(this, EventArgs.Empty, 2);
                 await this.Purge();
-                this.DataLayerProgressOutHandler(this, EventArgs.Empty, 5);
             }
         }
 
@@ -402,60 +400,6 @@ namespace dMobile.Controller.Activity
         /// </summary>
         /// <param name="data">The data<see cref="XDocument"/>.</param>
         public override void GetFilter(XDocument data)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// The Insert.
-        /// </summary>
-        /// <param name="xmlParams">The xmlParams<see cref="XDocument"/>.</param>
-        /// <returns>The <see cref="int"/>.</returns>
-        public override Task<int> Insert(XDocument xmlParams)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// The Delete.
-        /// </summary>
-        /// <returns>The <see cref="Task"/>.</returns>
-        public override Task Delete()
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// The PrintLabel.
-        /// </summary>
-        /// <param name="xmlParam">The xmlParam<see cref="XDocument"/>.</param>
-        /// <returns>The <see cref="Task"/>.</returns>
-        public override Task PrintLabel(XDocument xmlParam)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// The GetLabelQuantity.
-        /// </summary>
-        /// <param name="isRepackQuantityOnly">The isRepackQuantityOnly<see cref="bool"/>.</param>
-        /// <returns>The <see cref="Task{SLabelQuantity}"/>.</returns>
-        public override Task<SLabelQuantity> GetLabelQuantity(bool isRepackQuantityOnly)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// The ChangeStatus.
-        /// </summary>
-        /// <param name="selectedActivity">The selectedActivity<see cref="object"/>.</param>
-        /// <returns>The <see cref="Task{bool}"/>.</returns>
-        public override Task<bool> ChangeStatus(object selectedActivity)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override XDocument CreateDump()
         {
             throw new NotImplementedException();
         }

@@ -109,7 +109,6 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         protected override string IdentifyProductIdentifier(string barCodeData)
         {
             var tempData = barCodeData;
-
             if (!string.IsNullOrEmpty(this.Gtin))
             {
                 this.ProductIdentifier = this.Gtin;
@@ -137,7 +136,6 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         protected override string IdentifyLogisticUnitProductionDate(string barCodeData)
         {
             var tempData = barCodeData;
-
             if (tempData.StartsWith("11") && tempData.Length >= 8)
             {
                 // Remove the AI
@@ -169,11 +167,8 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
                         BarCodeExceptionReason.ProductionDate_InvalidDate,
                         new BarCodeParseException(
                             $"Cannot convert {barCodeData.Substring(2, 6)} to a valid DDMMYY DateTime.",
-#if MULTILANGUAGE
-                        Translator.GetInstance().Translate(TranslatorVocabulary.ProductionDatezz), e));
-#else
-                        "Production Date", e));
-#endif
+                        "Production Date",
+                        e));
                 }
                 finally
                 {

@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using System.Xml.Linq;
-using dMobile.Bedrock;
 using Xamarin.Forms;
 
 namespace dMobile.Controller.Activity
@@ -105,14 +104,6 @@ namespace dMobile.Controller.Activity
         }
 
         /// <summary>
-        /// ///// </summary>
-        ///// <remarks></remarks>
-        // public override void DesignDataGrid(DataGrid dg)
-        // {
-        //  throw new NotImplementedException();
-        // }
-
-        /// <summary>
         ///.
         /// </summary>
         /// <param name="data">The data<see cref="XDocument"/>.</param>
@@ -143,50 +134,6 @@ namespace dMobile.Controller.Activity
         /// </summary>
         /// <param name="data">The data<see cref="XDocument"/>.</param>
         public override void GetFilter(XDocument data)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// The Insert.
-        /// </summary>
-        /// <param name="xmlParams">The xmlParams<see cref="XDocument"/>.</param>
-        /// <returns>The <see cref="int"/>.</returns>
-        public override Task<int> Insert(XDocument xmlParams)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// The Delete.
-        /// </summary>
-        /// <returns>The <see cref="Task"/>.</returns>
-        public override Task Delete()
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// The PrintLabel.
-        /// </summary>
-        /// <param name="xmlParam">The xmlParam<see cref="XDocument"/>.</param>
-        /// <returns>The <see cref="Task"/>.</returns>
-        public override Task PrintLabel(XDocument xmlParam)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// The GetLabelQuantity.
-        /// </summary>
-        /// <param name="isRepackQuantityOnly">The isRepackQuantityOnly<see cref="bool"/>.</param>
-        /// <returns>The <see cref="Task{SLabelQuantity}"/>.</returns>
-        public override Task<SLabelQuantity> GetLabelQuantity(bool isRepackQuantityOnly)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override XDocument CreateDump()
         {
             throw new NotImplementedException();
         }

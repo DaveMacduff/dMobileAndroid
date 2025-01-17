@@ -450,7 +450,6 @@ namespace dMobile.Controller.Activity_Item
         /// <param name="itemsToMeasure">List of data items to measure in order to determine the max column width.</param>
         public virtual void CalcMaxDataColWidth(Grid definition, List<object> itemsToMeasure)
         {
-            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -461,7 +460,6 @@ namespace dMobile.Controller.Activity_Item
         /// <param name="columns">Column definitions to compare.</param>
         public virtual void CalcMaxDataColWidth(object item, IGridService gridService, ColumnDefinitionCollection columns)
         {
-            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -469,10 +467,7 @@ namespace dMobile.Controller.Activity_Item
         /// </summary>
         /// <param name="listItems">List of item objects.</param>
         /// <returns>Created observable collection.</returns>
-        public virtual ObservableCollection<object> CreateObservableCollectionFromListItems(List<object> listItems)
-        {
-            throw new NotImplementedException();
-        }
+        public abstract ObservableCollection<object> CreateObservableCollectionFromListItems(List<object> listItems);
 
         /// <summary>
         ///     Create observable collection from list items.
@@ -480,12 +475,9 @@ namespace dMobile.Controller.Activity_Item
         /// <param name="listItems">List of item objects.</param>
         /// <param name="filterSearch">Filter search text.</param>
         /// <returns>Created observable collection.</returns>
-        public virtual ObservableCollection<object> CreateObservableCollectionFromListItems(
+        public abstract ObservableCollection<object> CreateObservableCollectionFromListItems(
             List<object> listItems,
-            string filterSearch)
-        {
-            throw new NotImplementedException();
-        }
+            string filterSearch);
 
         /// <summary>
         ///     Sort the list items and place new items at the bottom of the list.
@@ -497,7 +489,6 @@ namespace dMobile.Controller.Activity_Item
         /// </remarks>
         public virtual void PlaceNewItemsAtBottomOfList(List<object> listItems)
         {
-            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -506,7 +497,7 @@ namespace dMobile.Controller.Activity_Item
         /// <returns>New grid layout.</returns>
         public virtual Grid DefineGrid()
         {
-            throw new NotImplementedException();
+            return new Grid();
         }
 
         /// <summary>

@@ -128,59 +128,5 @@ namespace dMobile.Controller.Activity
         public override void GetFilter(XDocument data)
         {
         }
-
-        /// <summary>
-        /// The Insert.
-        /// </summary>
-        /// <param name="xmlParams">The xmlParams<see cref="XDocument"/>.</param>
-        /// <returns>The <see cref="int"/>.</returns>
-        public override Task<int> Insert(XDocument xmlParams)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// The Delete.
-        /// </summary>
-        /// <returns>The <see cref="Task"/>.</returns>
-        public override Task Delete()
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// The PrintLabel.
-        /// </summary>
-        /// <param name="xmlParam">The xmlParam<see cref="XDocument"/>.</param>
-        /// <returns>The <see cref="Task"/>.</returns>
-        public override Task PrintLabel(XDocument xmlParam)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// The GetLabelQuantity.
-        /// </summary>
-        /// <param name="isRepackQuantityOnly">The isRepackQuantityOnly<see cref="bool"/>.</param>
-        /// <returns>The <see cref="Task{SLabelQuantity}"/>.</returns>
-        public override Task<SLabelQuantity> GetLabelQuantity(bool isRepackQuantityOnly)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// The ChangeStatus.
-        /// </summary>
-        /// <param name="selectedActivity">The selectedActivity<see cref="object"/>.</param>
-        /// <returns>The <see cref="Task{bool}"/>.</returns>
-        public override Task<bool> ChangeStatus(object selectedActivity)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override XDocument CreateDump()
-        {
-            throw new NotImplementedException();
-        }
     }
 }

@@ -1018,19 +1018,9 @@ namespace dMobile.View.Activity
             async Task RefreshData()
             {
                 // NOTE: So far all sub types will be refreshed.
-                try
-                {
-                    this.ActHdr.RegLayerListenerStatOut(this);
-                    this.ActHdr.RegLayerListenerProgOut(this);
-                    await this.ActHdr.Refresh(this.ActHdr.XmlDataCriteria);
-                    this.ActHdr.ListHeaders = await this.ActHdr.GetActivityList(false);
-                    await this.DesignGrid();
-                }
-                finally
-                {
-                    this.ActHdr.UnregLayerListenerStatOut(this);
-                    this.ActHdr.UnregLayerListenerProgOut(this);
-                }
+                await this.ActHdr.Refresh(this.ActHdr.XmlDataCriteria);
+                this.ActHdr.ListHeaders = await this.ActHdr.GetActivityList(false);
+                await this.DesignGrid();
             }
         }
 

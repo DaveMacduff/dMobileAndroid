@@ -11,12 +11,10 @@ namespace dMobile.Bedrock
     using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
-    using dMobile.Resources.Models.Details;
-    using dMobile.Resources.Models.Products;
-    using dMobile.Resources.Types.Products;
-    using Resources.Models;
+    using Resources.Models.Details;
+    using Resources.Models.Products;
     using Resources.QueryResults;
-    using Resources.Types;
+    using Resources.Types.Products;
 
     /// <summary>
     /// <see cref="ProductInfoTasks"/> Collection of product methods.
@@ -30,8 +28,8 @@ namespace dMobile.Bedrock
         /// <returns><see cref="string"/> Product, bc and unit information.</returns>
         public static string GetCurrReadableProdBcUnit(ProductInfo prodInfo)
         {
-            return prodInfo == null ? string.Empty : prodInfo.Code.TrimEnd() + (" " +
-                prodInfo.UnitBc).TrimEnd() + " " + prodInfo.UnitCode;
+            return prodInfo == null ? string.Empty : prodInfo.Code.TrimEnd() + (" " + prodInfo.UnitBc).TrimEnd() +
+                " " + prodInfo.UnitCode;
         }
 
         /// <summary>
@@ -102,8 +100,9 @@ namespace dMobile.Bedrock
                         FROM tProduct 
                         WHERE tProduct.ProductCode = ?";
 
-                var results = await DatabaseConnection.GetInstance().SqlConn.
-                    QueryAsync<ProductModel>(query, productCode);
+                var results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<ProductModel>(
+                    query,
+                    productCode);
 
                 if (results != null && results.Count > 0)
                 {
@@ -470,17 +469,17 @@ namespace dMobile.Bedrock
                         AND tUnit.UnitCode = ?
                         AND tBaseUnit.UnitCode = ?";
 
-                prodUnitFactor = Convert.ToDecimal(await DatabaseConnection.GetInstance().SqlConn.
-                    ExecuteScalarAsync<decimal>(
+                prodUnitFactor = Convert.ToDecimal(
+                    await DatabaseConnection.GetInstance().SqlConn.ExecuteScalarAsync<decimal>(
                     query,
                     Convert.ToInt32(productInfo.Refno),
                     Convert.ToString(productInfo.UnitCode),
                     Convert.ToString(productInfo.BaseUnitCode)));
-
                 if (prodUnitFactor == 0)
                 {
-                    throw new Exception($"Unable to find product '{productInfo.Code}' unit relation factor between" +
-                                        $" {productInfo.UnitCode} and {productInfo.BaseUnitCode}");
+                    throw new Exception(
+                        $"Unable to find product '{productInfo.Code}' unit relation factor between" +
+                        $" {productInfo.UnitCode} and {productInfo.BaseUnitCode}");
                 }
             }
 
@@ -494,9 +493,7 @@ namespace dMobile.Bedrock
         public static string GetProdSchemeSingleTradeItemSerialNumber()
         {
             var singleTradeItemSerialNumber = string.Empty;
-
             var sysEnv = SysEnvironment.GetInstance();
-
             if (!sysEnv.SysSettings.IsDisconnectedMode)
             {
                 var xmlString = new StringBuilder();

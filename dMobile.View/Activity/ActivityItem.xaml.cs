@@ -722,7 +722,7 @@ namespace dMobile.View.Activity
                             _ = base.OnBackButtonPressed();
                             await this.Close();
                         }
-                    }).Wait();
+                    });
             }
         }
 

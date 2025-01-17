@@ -574,6 +574,22 @@ namespace dMobile.Controller.Activity_Item
         ///     Create observable collection from list items.
         /// </summary>
         /// <param name="listItems">List of item objects.</param>
+        /// <returns>Created observable collection.</returns>
+        public override ObservableCollection<object> CreateObservableCollectionFromListItems(List<object> listItems)
+        {
+            var mainActivityItems = new ObservableCollection<object>();
+            foreach (var item in listItems.Cast<TransferItem>())
+            {
+                mainActivityItems.Add(item);
+            }
+
+            return mainActivityItems;
+        }
+
+        /// <summary>
+        ///     Create observable collection from list items.
+        /// </summary>
+        /// <param name="listItems">List of item objects.</param>
         /// <param name="filterSearch">Search filter text.</param>
         /// <returns>Created observable collection.</returns>
         public override ObservableCollection<object> CreateObservableCollectionFromListItems(

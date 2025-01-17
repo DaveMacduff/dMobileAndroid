@@ -6,7 +6,6 @@
 namespace dMobile.Bedrock
 {
     using System;
-    using System.Diagnostics.CodeAnalysis;
     using System.IO;
     using System.Xml.Serialization;
 
@@ -20,42 +19,42 @@ namespace dMobile.Bedrock
         /// Gets or sets a value indicating whether a product is allowed to be converted to another
         /// product. Part of ConvertProduct or ConvertLabel.
         /// </summary>
-        public bool IsAllowConvertProduct { get; set; } = false;
+        public bool IsAllowConvertProduct { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether a product is a catch ask product.
         /// </summary>
-        public bool IsCatchAskZero { get; set; } = false;
+        public bool IsCatchAskZero { get; set; }
 
         /// <summary>
         /// Gets or sets the box count quantity.
         /// </summary>
-        public decimal BoxCount { get; set; } = 0;
+        public decimal BoxCount { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether the product unit is a sell unit.
         /// </summary>
-        public bool UnitIsSellUnit { get; set; } = false;
+        public bool UnitIsSellUnit { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether the product unit is the default unit.
         /// </summary>
-        public bool UnitIsDefault { get; set; } = false;
+        public bool UnitIsDefault { get; set; }
 
         /// <summary>
         /// Gets or sets the product unit reference number.
         /// </summary>
-        public int UnitRefno { get; set; } = 0;
+        public int UnitRefno { get; set; }
 
         /// <summary>
         /// Gets or sets the product foreign key reference number. (iv_mast.refno).
         /// </summary>
-        public int FkRefno { get; set; } = 0;
+        public int FkRefno { get; set; }
 
         /// <summary>
         /// Gets or sets the product reference number.
         /// </summary>
-        public int Refno { get; set; } = 0;
+        public int Refno { get; set; }
 
         /// <summary>
         /// Gets or sets the product code.
@@ -75,7 +74,7 @@ namespace dMobile.Bedrock
         /// <summary>
         /// Gets or sets a value indicating whether the unit is broken case.
         /// </summary>
-        public bool UnitIsBc { get; set; } = false;
+        public bool UnitIsBc { get; set; }
 
         /// <summary>
         /// Gets or sets the product unit broken case string. "X".
@@ -110,32 +109,32 @@ namespace dMobile.Bedrock
         /// <summary>
         /// Gets or sets the product unit to base unit factor.
         /// </summary>
-        public decimal Unit2BaseUnitFactor { get; set; } = 0;
+        public decimal Unit2BaseUnitFactor { get; set; }
 
         /// <summary>
         /// Gets or sets the product unit gross weight.
         /// </summary>
-        public decimal UnitGrossWeight { get; set; } = 0;
+        public decimal UnitGrossWeight { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether the product is catch count.
         /// </summary>
-        public bool IsCatchCount { get; set; } = false;
+        public bool IsCatchCount { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether the product is catch weight.
         /// </summary>
-        public bool IsCatchWeight { get; set; } = false;
+        public bool IsCatchWeight { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether the product is catch ask.
         /// </summary>
-        public bool IsCatchAsk { get; set; } = false;
+        public bool IsCatchAsk { get; set; }
 
         /// <summary>
         /// Gets or sets a product units weight tolerance.
         /// </summary>
-        public decimal WeightTolerance { get; set; } = 0.00M;
+        public decimal WeightTolerance { get; set; }
 
         /// <summary>
         /// Gets a value indicating whether the base unit is a weight unit of measure unit.
@@ -145,7 +144,7 @@ namespace dMobile.Bedrock
         /// <summary>
         ///     Gets or sets the product accept days.
         /// </summary>
-        public int ProductAcceptDays { get; set; } = 0;
+        public int ProductAcceptDays { get; set; }
 
         /// <summary>
         /// Perform a product information deep copy.

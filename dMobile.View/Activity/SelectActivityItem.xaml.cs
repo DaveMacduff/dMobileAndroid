@@ -10,7 +10,6 @@ namespace dMobile.View.Activity
     using System.Threading.Tasks;
     using System.Xml.Linq;
     using Android.Views;
-    using BarCodeScanner.BarCodeParsing;
     using BarCodeScanner.BarCodeScanners;
     using Bedrock;
     using Controller.Activity_Item;
@@ -21,7 +20,6 @@ namespace dMobile.View.Activity
     using Xamarin.Forms.Xaml;
     using static Bedrock.SysCommon;
     using Resource = Resources.Properties.Resources;
-    using static Android.Content.ClipData;
 
     /// <summary>
     /// Perform selecting a product unit.
@@ -81,11 +79,9 @@ namespace dMobile.View.Activity
             }
         }
 
-        private int SelectedActivityItemFkRefno { get; set; }
+        private SysEnvironment SysEnv { get; }
 
-        private SysEnvironment SysEnv { get; set; }
-
-        private ActSubTypes ActSubType { get; set; }
+        private ActSubTypes ActSubType { get; }
 
         private bool IsSearchEntryFocused { get; set; }
 
@@ -95,13 +91,13 @@ namespace dMobile.View.Activity
 
         private string SearchTextOrig { get; set; } = string.Empty;
 
-        private SysTimer SearchTimer { get; set; }
+        private SysTimer SearchTimer { get; }
 
         private bool IsFirstAppearance { get; set; }
 
-        private bool IsChangesMade { get; set; } = false;
+        private bool IsChangesMade { get; set; }
 
-        private ActItem ActItem { get; set; }
+        private ActItem ActItem { get; }
 
         private BarCodeScanner Scanner { get; }
 
@@ -197,7 +193,7 @@ namespace dMobile.View.Activity
         /// <returns><see cref="bool"/> True if the save was successful, else false.</returns>
         public async Task<bool> SaveChanges()
         {
-            var saveComplete = false;
+            bool saveComplete;
 
             try
             {
@@ -266,7 +262,7 @@ namespace dMobile.View.Activity
                 await Device.InvokeOnMainThreadAsync(
                     async () =>
                     {
-                        var errRpt = new FormErrorReport(this.ActSubType, /*this,*/ ex);
+                        var errRpt = new FormErrorReport(this.ActSubType, ex);
                         _ = await errRpt.ShowDialog();
                     });
             }
@@ -340,7 +336,7 @@ namespace dMobile.View.Activity
                 await Device.InvokeOnMainThreadAsync(
                     async () =>
                     {
-                        var errRpt = new FormErrorReport(this.ActSubType, /*this,*/ ex);
+                        var errRpt = new FormErrorReport(this.ActSubType, ex);
                         _ = await errRpt.ShowDialog();
                     });
             }
@@ -370,7 +366,7 @@ namespace dMobile.View.Activity
                     await Device.InvokeOnMainThreadAsync(
                         async () =>
                         {
-                            var errRpt = new FormErrorReport(this.ActSubType, /*this,*/ ex);
+                            var errRpt = new FormErrorReport(this.ActSubType, ex);
                             _ = await errRpt.ShowDialog();
                         });
                 }
@@ -429,7 +425,7 @@ namespace dMobile.View.Activity
                     this.ListViewMainActivity.ItemTemplate = this.ActItem.GetDataTemplate();
                     this.ActivityItems = mainActivityItems;
                     this.ListViewMainActivity.ItemsSource = this.ActivityItems;
-                    await this.FindSelectedItemAsync(this.SelectedActivityItemFkRefno);
+                    await this.FindSelectedItemAsync(this.ActItem.ItemFkRefno);
                 }
             }
             catch (Exception ex)
@@ -772,34 +768,95 @@ namespace dMobile.View.Activity
         /// <param name="keyPressed"><see cref="string" /> Key pressed value.</param>
         private async void KeyUpHandlerCallback(string keyPressed)
         {
-            if (this.IsDataLoading)
-            {
-                return;
-            }
-
             try
             {
-                await this.ScannerDisable();
-                _ = Enum.TryParse(keyPressed, out Keycode keycode);
-
-                // ReSharper disable once SwitchStatementMissingSomeEnumCasesNoDefault
-                switch (keycode)
+                if (!this.IsDataLoading)
                 {
-                    case Keycode.DpadDown:
-                        AppearingDpadDown();
-                        break;
+                    await this.ScannerDisable();
+                    _ = Enum.TryParse(keyPressed, out Keycode keycode);
 
-                    case Keycode.DpadUp:
-                        AppearingDpadUp();
-                        break;
+                    // ReSharper disable once SwitchStatementMissingSomeEnumCasesNoDefault
+                    switch (keycode)
+                    {
+                        case Keycode.DpadDown:
+                            AppearingDpadDown();
+                            break;
 
-                    case Keycode.Enter:
-                        if (!(this.IsSearchEntryFocused || this.IsBarCodeModifierPickerFocus))
+                        case Keycode.DpadUp:
+                            AppearingDpadUp();
+                            break;
+
+                        case Keycode.Enter:
+                            if (!(this.IsSearchEntryFocused || this.IsBarCodeModifierPickerFocus))
+                            {
+                                await AppearingEnterKey();
+                            }
+
+                            break;
+                    }
+                }
+
+                return;
+
+                //////////////////////////////////////////////////////////////////////////
+                async Task AppearingEnterKey()
+                {
+                    if (this.ListViewMainActivity.SelectedItem == null ||
+                        Convert.ToInt32(this.ActivityItems.IndexOf(this.ListViewMainActivity.SelectedItem)) < 0)
+                    {
+                        await Device.InvokeOnMainThreadAsync(
+                            async () =>
+                                await Application.Current.MainPage.DisplayAlert(
+                                    this.GetControlDescription(),
+                                    "Please select an item.",
+                                    Resource.OK));
+                    }
+                    else
+                    {
+                        if (this.IsDataLoading ||
+                            this.ListViewMainActivity.SelectedItem == null ||
+                            Convert.ToInt32(this.ActivityItems.IndexOf(this.ListViewMainActivity.SelectedItem)) < 0)
                         {
-                            await AppearingEnterKey();
+                            return;
                         }
 
-                        break;
+                        this.ActItem.SelectedItem = this.ListViewMainActivity.SelectedItem;
+                        this.ResultItemRefno = this.ActItem.ItemRefno;
+                        await this.Close();
+                    }
+                }
+
+                //////////////////////////////////////////////////////////////////////////
+                void AppearingDpadDown()
+                {
+                    if (this.ListViewMainActivity.SelectedItem != null &&
+                        Convert.ToInt32(this.ActivityItems.IndexOf(this.ListViewMainActivity.SelectedItem)) <
+                        this.ActivityItems.Count - 1)
+                    {
+                        this.ListViewMainActivity.SelectedItem =
+                            this.ActivityItems[
+                                this.ActivityItems.IndexOf(this.ListViewMainActivity.SelectedItem) + 1];
+                        this.ListViewMainActivity.ScrollTo(
+                            this.ListViewMainActivity.SelectedItem,
+                            ScrollToPosition.MakeVisible,
+                            true);
+                    }
+                }
+
+                //////////////////////////////////////////////////////////////////////////
+                void AppearingDpadUp()
+                {
+                    if (this.ListViewMainActivity.SelectedItem != null &&
+                        Convert.ToInt32(this.ActivityItems.IndexOf(this.ListViewMainActivity.SelectedItem)) > 0)
+                    {
+                        this.ListViewMainActivity.SelectedItem =
+                            this.ActivityItems[
+                                this.ActivityItems.IndexOf(this.ListViewMainActivity.SelectedItem) - 1];
+                        this.ListViewMainActivity.ScrollTo(
+                            this.ListViewMainActivity.SelectedItem,
+                            ScrollToPosition.MakeVisible,
+                            true);
+                    }
                 }
             }
             catch (MessageOnlyException msgEx)
@@ -824,69 +881,6 @@ namespace dMobile.View.Activity
             finally
             {
                 await this.ScannerEnable();
-            }
-
-            return;
-
-            //////////////////////////////////////////////////////////////////////////
-            async Task AppearingEnterKey()
-            {
-                if (this.ListViewMainActivity.SelectedItem == null ||
-                    Convert.ToInt32(this.ActivityItems.IndexOf(this.ListViewMainActivity.SelectedItem)) < 0)
-                {
-                    await Device.InvokeOnMainThreadAsync(
-                        async () =>
-                            await Application.Current.MainPage.DisplayAlert(
-                                this.GetControlDescription(),
-                                "Please select an item.",
-                                Resource.OK));
-                }
-                else
-                {
-                    if (this.IsDataLoading ||
-                        this.ListViewMainActivity.SelectedItem == null ||
-                        Convert.ToInt32(this.ActivityItems.IndexOf(this.ListViewMainActivity.SelectedItem)) < 0)
-                    {
-                        return;
-                    }
-
-                    this.ActItem.SelectedItem = this.ListViewMainActivity.SelectedItem;
-                    this.ResultItemRefno = this.ActItem.ItemRefno;
-                    await this.Close();
-                }
-            }
-
-            //////////////////////////////////////////////////////////////////////////
-            void AppearingDpadDown()
-            {
-                if (this.ListViewMainActivity.SelectedItem != null &&
-                    Convert.ToInt32(this.ActivityItems.IndexOf(this.ListViewMainActivity.SelectedItem)) <
-                    this.ActivityItems.Count - 1)
-                {
-                    this.ListViewMainActivity.SelectedItem =
-                        this.ActivityItems[
-                            this.ActivityItems.IndexOf(this.ListViewMainActivity.SelectedItem) + 1];
-                    this.ListViewMainActivity.ScrollTo(
-                        this.ListViewMainActivity.SelectedItem,
-                        ScrollToPosition.MakeVisible,
-                        true);
-                }
-            }
-
-            //////////////////////////////////////////////////////////////////////////
-            void AppearingDpadUp()
-            {
-                if (this.ListViewMainActivity.SelectedItem != null &&
-                    Convert.ToInt32(this.ActivityItems.IndexOf(this.ListViewMainActivity.SelectedItem)) > 0)
-                {
-                    this.ListViewMainActivity.SelectedItem =
-                        this.ActivityItems[
-                            this.ActivityItems.IndexOf(this.ListViewMainActivity.SelectedItem) - 1];
-                    this.ListViewMainActivity.ScrollTo(
-                        this.ListViewMainActivity.SelectedItem,
-                        ScrollToPosition.MakeVisible,
-                        true);
-                }
             }
         }
     }

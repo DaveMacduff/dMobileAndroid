@@ -8,6 +8,7 @@ using Xamarin.Forms;
 using Xamarin.Forms.Platform.Android;
 
 [assembly: ExportRenderer(typeof(Entry), typeof(CustomEntryRenderer))]
+
 namespace dMobile.Droid.CustomRenderers
 {
     /// <summary>
@@ -19,7 +20,9 @@ namespace dMobile.Droid.CustomRenderers
         /// Initializes a new instance of the <see cref="CustomEntryRenderer"/> class.
         /// </summary>
         /// <param name="context">The context<see cref="Context"/>.</param>
-        public CustomEntryRenderer(Context context) : base(context) { }
+        public CustomEntryRenderer(Context context) : base(context)
+        {
+        }
 
         /// <summary>
         /// The OnElementChanged.

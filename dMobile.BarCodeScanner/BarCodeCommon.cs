@@ -28,7 +28,8 @@ namespace dMobile.BarCodeScanner
             // Determine the symbology prefix based on the provided symbology enum value.
             var symbologyPrefix = symbology switch
             {
-                BarCodeSymbology.UNDEFINED => "]01",    // or ']O4'
+                // or ']O4'
+                BarCodeSymbology.UNDEFINED => "]01",
                 BarCodeSymbology.UCC_12_UPC_E => "]X0",
                 BarCodeSymbology.EAN_UCC_14 => string.Empty,
                 BarCodeSymbology.EAN_UCC_13 => "]E0",

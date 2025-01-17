@@ -22,124 +22,132 @@ namespace dMobile.Controller.Activity
     /// </summary>
     public class CycleActivity : Activity
     {
-        /// <summary>
-        /// Defines the columnWidth0.
-        /// </summary>
-        private double columnWidth0 = 0;
+        private readonly ResourceDictionary resourceDictionary = new ResourceDictionary();
 
-        /// <summary>
-        /// Defines the columnWidth1.
-        /// </summary>
-        private double columnWidth1 = 0;
+        private double columnWidth0;
 
-        /// <summary>
-        /// Defines the columnWidth2.
-        /// </summary>
-        private double columnWidth2 = 0;
+        private double columnWidth1;
 
-        /// <summary>
-        /// Defines the resourceDictionary.
-        /// </summary>
-        private ResourceDictionary resourceDictionary = new ResourceDictionary();
+        private double columnWidth2;
 
-        /// <summary>
-        /// Defines the listCounts.
-        /// </summary>
         private List<Count> listCounts = new List<Count>();
-
-        /// <summary>
-        /// Gets or sets the CycleCountSettings.
-        /// </summary>
-        public CycleCountSettings CycleCountSettings { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CycleActivity"/> class.
         /// </summary>
         public CycleActivity()
-            : base()
         {
             this.FullClassName = typeof(CycleActivity).FullName;
             this.CycleCountSettings = new CycleCountSettings().LoadData();
+            DefineInitialGridDataTemplate();
+            return;
 
-            // Data grid
-            var dataTemplate = new DataTemplate(() =>
+            void DefineInitialGridDataTemplate()
             {
-                var gridData = new Grid
-                {
-                    Padding = new Thickness(5),
-                    ColumnDefinitions =
+                var dataTemplate = new DataTemplate(
+                    () =>
                     {
-                        new ColumnDefinition { Width = new GridLength(this.columnWidth0, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(this.columnWidth1, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(this.columnWidth2, GridUnitType.Absolute) },
-                    },
-                };
+                        var gridData = new Grid
+                        {
+                            Padding = new Thickness(5),
+                            ColumnDefinitions =
+                            {
+                                new ColumnDefinition { Width = new GridLength(this.columnWidth0, GridUnitType.Absolute) },
+                                new ColumnDefinition { Width = new GridLength(this.columnWidth1, GridUnitType.Absolute) },
+                                new ColumnDefinition { Width = new GridLength(this.columnWidth2, GridUnitType.Absolute) },
+                            },
+                        };
 
-                var labelActivityRefno = new Label { VerticalOptions = LayoutOptions.Center };
-                var labelActivityCountDateTime = new Label { VerticalOptions = LayoutOptions.Center };
-                var labelActivityCountTypeDescription = new Label { VerticalOptions = LayoutOptions.Center };
+                        var labelActivityRefno = new Label { VerticalOptions = LayoutOptions.Center };
+                        var labelActivityCountDateTime = new Label { VerticalOptions = LayoutOptions.Center };
+                        var labelActivityCountTypeDescription = new Label { VerticalOptions = LayoutOptions.Center };
 
-                labelActivityRefno.SetBinding(Label.TextProperty, new Binding("ActivityStringFKRefno"));
-                labelActivityCountDateTime.SetBinding(Label.TextProperty, new Binding("ActivityCountDateTime", BindingMode.Default, null, null, "{0:MM/dd/yyyy}"));
-                labelActivityCountTypeDescription.SetBinding(Label.TextProperty, new Binding("ActivityCountTypeDescription"));
+                        labelActivityRefno.SetBinding(Label.TextProperty, new Binding("ActivityStringFKRefno"));
+                        labelActivityCountDateTime.SetBinding(
+                            Label.TextProperty,
+                            new Binding("ActivityCountDateTime", BindingMode.Default, null, null, "{0:MM/dd/yyyy}"));
+                        labelActivityCountTypeDescription.SetBinding(
+                            Label.TextProperty,
+                            new Binding("ActivityCountTypeDescription"));
 
-                gridData.Children.Add(labelActivityRefno, 0, 0);
-                gridData.Children.Add(labelActivityCountDateTime, 0, 0);
-                gridData.Children.Add(labelActivityCountTypeDescription, 0, 0);
+                        gridData.Children.Add(labelActivityRefno, 0, 0);
+                        gridData.Children.Add(labelActivityCountDateTime, 0, 0);
+                        gridData.Children.Add(labelActivityCountTypeDescription, 0, 0);
 
-                Grid.SetColumn(labelActivityRefno, 0);
-                Grid.SetColumn(labelActivityCountDateTime, 1);
-                Grid.SetColumn(labelActivityCountTypeDescription, 2);
+                        Grid.SetColumn(labelActivityRefno, 0);
+                        Grid.SetColumn(labelActivityCountDateTime, 1);
+                        Grid.SetColumn(labelActivityCountTypeDescription, 2);
 
-                return new ViewCell { View = gridData };
-            });
+                        return new ViewCell { View = gridData };
+                    });
 
-            var isAddKey = true;
-            foreach (var item in this.resourceDictionary)
-            {
-                if (item.Key == "dataTemplateCycleCount")
+                var isAddKey = true;
+                foreach (var item in this.resourceDictionary)
                 {
-                    isAddKey = false;
+                    if (item.Key == "dataTemplateCycleCount")
+                    {
+                        isAddKey = false;
+                    }
                 }
-            }
 
-            if (isAddKey)
-            {
-                this.resourceDictionary.Add("dataTemplateCycleCount", dataTemplate);
+                if (isAddKey)
+                {
+                    this.resourceDictionary.Add("dataTemplateCycleCount", dataTemplate);
+                }
             }
         }
 
-        /// <summary>
-        /// The GetFKRefnoIdx.
-        /// </summary>
-        /// <returns>.</returns>
+        private CycleCountSettings CycleCountSettings { get; }
+
+        /// <inheritdoc />
+        public override void DisplayExtraInfo(ObservableCollection<string> extraInfo)
+        {
+            base.DisplayExtraInfo(extraInfo);
+            if (this.SelectedActivity is Count activity)
+            {
+                const int lineLength = 30;
+                var lines = SysCommon.WordWrap2List(activity.ActivityCountDescription.TrimEnd(), lineLength);
+                foreach (var line in lines)
+                {
+                    extraInfo.Add(line);
+                }
+            }
+        }
+
+        /// <inheritdoc />
         public override string GetFkRefnoIdx()
         {
             return "ActivityStringFKRefno";
         }
 
-        /// <summary>
-        /// The GetControlDescription.
-        /// </summary>
-        /// <returns>.</returns>
+        /// <inheritdoc />
         public override string GetControlDescription()
         {
             return "Cycle Counts";
         }
 
-        /// <summary>
-        /// The DesignGrid.
-        /// </summary>
-        /// <param name="gridMainActivity">The gridMainActivity<see cref="Grid"/>.</param>
-        /// <param name="listViewMainActivity">The listViewMainActivity<see cref="ListView"/>.</param>
-        /// <returns>The <see cref="ObservableCollection{object}"/>.</returns>
-        public override ObservableCollection<object> DesignGrid(ref Grid gridMainActivity, ref ListView listViewMainActivity)
+        /// <inheritdoc />
+        public override ObservableCollection<object> DesignGrid(ref Grid mainGrid, ref ListView mainListView)
         {
             var observableCollection = new ObservableCollection<object>();
-
-            var labelCountNumber = new Label { Text = "Count #", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            var labelCountDate = new Label { Text = "Date", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            var labelCountType = new Label { Text = "Count Type", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelCountNumber = new Label
+            {
+                Text = "Count #",
+                VerticalOptions = LayoutOptions.Center,
+                FontAttributes = FontAttributes.Bold
+            };
+            var labelCountDate = new Label
+            {
+                Text = "Date",
+                VerticalOptions = LayoutOptions.Center,
+                FontAttributes = FontAttributes.Bold
+            };
+            var labelCountType = new Label
+            {
+                Text = "Count Type",
+                VerticalOptions = LayoutOptions.Center,
+                FontAttributes = FontAttributes.Bold
+            };
 
             // Calculate text size
             this.columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelCountNumber.Text);
@@ -168,29 +176,17 @@ namespace dMobile.Controller.Activity
 
             Grid.SetRow(gridHeader, 0);
 
-            gridMainActivity.Children.Add(gridHeader);
+            mainGrid.Children.Add(gridHeader);
 
             foreach (var count in this.ListHeaders.Cast<Count>())
             {
-                var description = string.Empty;
-                var descriptionSubstring = Convert.ToString(count.ActivityCountTypeDescription).Split();
-
-                if (descriptionSubstring != null && descriptionSubstring.Length > 1)
-                {
-                    description = descriptionSubstring[0] + " " + descriptionSubstring[1];
-                }
-
-                // Count count = new Count
-                // {
-                //    ActivityStringFKRefno = Convert.ToString(row["ActivityStringFKRefno"] != DBNull.Value ? row["ActivityStringFKRefno"] : null),
-                //    ActivityCountDateTime = Convert.ToDateTime(row["ActivityCountDateTime"] != DBNull.Value ? row["ActivityCountDateTime"] : null),
-                //    ActivityCountTypeDescription = description,
-                // };
                 observableCollection.Add(count);
-
-                var dataColumnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(count.ActivityStringFKRefno);
-                var dataColumnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(Convert.ToString(count.ActivityCountDateTime.ToString("MM/dd/yyyy")));
-                var dataColumnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(count.ActivityCountTypeDescription);
+                var dataColumnWidth0 = DependencyService.Get<IGridService>()
+                    .CalculateTextWidth(count.ActivityStringFKRefno);
+                var dataColumnWidth1 = DependencyService.Get<IGridService>()
+                    .CalculateTextWidth(Convert.ToString(count.ActivityCountDateTime.ToString("MM/dd/yyyy")));
+                var dataColumnWidth2 = DependencyService.Get<IGridService>()
+                    .CalculateTextWidth(count.ActivityCountTypeDescription);
                 if (dataColumnWidth0 > this.columnWidth0)
                 {
                     this.columnWidth0 = dataColumnWidth0;
@@ -210,36 +206,32 @@ namespace dMobile.Controller.Activity
                 }
             }
 
-            listViewMainActivity.ItemTemplate = (DataTemplate)this.resourceDictionary["dataTemplateCycleCount"];
+            mainListView.ItemTemplate = (DataTemplate)this.resourceDictionary["dataTemplateCycleCount"];
 
             return observableCollection;
         }
 
-        /// <summary>
-        /// The GetActivityList.
-        /// </summary>
-        /// <param name="isSubmitBatch">.</param>
-        /// <returns>.</returns>
+        /// <inheritdoc />
         public override async Task<List<object>> GetActivityList(bool isSubmitBatch)
         {
             var sql = new StringBuilder();
 
+            sql.Append("SELECT tActivityCount.ActivityRefno,");
+            sql.Append("tActivityCount.ActivityFKRefno,");
+            sql.Append("tActivityCount.ActivityStringFKRefno,");
+            sql.Append("tLocationMapWarehouse.LocationMapRefno AS LocationMapRefno,");
+            sql.Append("tLocationMapWarehouse.LocationMapWarehouseFKRefno AS LocationMapWarehouseFKRefno,");
+            sql.Append("tLocationMapWarehouse.LocationMapWarehouseName AS LocationMapWarehouseName,");
+            sql.Append("tActivityCount.ActivityCountTypeDescription AS ActivityCountTypeDescription,");
+            sql.Append("tActivityCount.ActivityCountDescription AS ActivityCountDescription,");
+            sql.Append("tActivityCount.ActivityCountDateTime AS ActivityCountDateTime,");
+            sql.Append("tActivity.ActivityStatus AS ActivityStatus ");
+            sql.Append("FROM tActivityCount ");
+            sql.Append("INNER JOIN tActivity ON tActivity.ActivityRefno = tActivityCount.ActivityRefno ");
+            sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno = ");
+            sql.Append("tActivityCount.WarehouseLocationMapRefno ");
             if (isSubmitBatch)
             {
-                sql.Append("SELECT tActivityCount.ActivityRefno,");
-                sql.Append("tActivityCount.ActivityFKRefno,");
-                sql.Append("tActivityCount.ActivityStringFKRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapRefno AS LocationMapRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapWarehouseFKRefno AS LocationMapWarehouseFKRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapWarehouseName AS LocationMapWarehouseName,");
-                sql.Append("tActivityCount.ActivityCountTypeDescription AS ActivityCountTypeDescription,");
-                sql.Append("tActivityCount.ActivityCountDescription AS ActivityCountDescription,");
-                sql.Append("tActivityCount.ActivityCountDateTime AS ActivityCountDateTime,");
-                sql.Append("tActivity.ActivityStatus AS ActivityStatus ");
-                sql.Append("FROM tActivityCount ");
-                sql.Append("INNER JOIN tActivity ON tActivity.ActivityRefno = tActivityCount.ActivityRefno ");
-                sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno = ");
-                sql.Append("tActivityCount.WarehouseLocationMapRefno ");
                 sql.AppendFormat("WHERE tActivity.ActivitySubType = {0} ", Convert.ToInt32(SysCommon.ActSubTypes.CycleCounts));
                 sql.AppendFormat("AND tActivity.ActivityStatus <> {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
                 sql.Append("UNION ");
@@ -285,48 +277,21 @@ namespace dMobile.Controller.Activity
             }
             else
             {
-                sql.Append("SELECT tActivityCount.ActivityRefno,");
-                sql.Append("tActivityCount.ActivityFKRefno,");
-                sql.Append("tActivityCount.ActivityStringFKRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapRefno AS LocationMapRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapWarehouseFKRefno AS LocationMapWarehouseFKRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapWarehouseName AS LocationMapWarehouseName,");
-                sql.Append("tActivityCount.ActivityCountTypeDescription AS ActivityCountTypeDescription,");
-                sql.Append("tActivityCount.ActivityCountDescription AS ActivityCountDescription,");
-                sql.Append("tActivityCount.ActivityCountDateTime AS ActivityCountDateTime,");
-                sql.Append("tActivity.ActivityStatus AS ActivityStatus ");
-                sql.Append("FROM tActivityCount ");
-                sql.Append("INNER JOIN tActivity ON tActivity.ActivityRefno = tActivityCount.ActivityRefno ");
-                sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno = ");
-                sql.Append("tActivityCount.WarehouseLocationMapRefno ");
                 sql.AppendFormat("WHERE tActivityCount.ActivitySubType = {0}", Convert.ToInt32(SysCommon.ActSubTypes.CycleCounts));
             }
 
-            // using (SQLiteDataAdapter dataAdapterCycle = new SQLiteDataAdapter(sql.ToString(), DatabaseConnection.GetInstance().SQLConn))
-            // {
-            //    using (DataSet dataSetCycle = new DataSet())
-            //    {
-            //        dataAdapterCycle.Fill(dataSetCycle);
-            //        this.DataViewHdrs = dataSetCycle.Tables[0].DefaultView;
-            //        this.DataViewHdrs.Table.TableName = this.MainGridMappingName;
-
-            // // TODO: Fix sorting and filter
-            //        CycleCountSettings cycleCountSettings = new CycleCountSettings().LoadData();
-            //        this.DataViewHdrs.Sort = cycleCountSettings.GetDataViewSortBy();
-            //        this.DataViewHdrs.RowFilter = this.GetFilter();
-            //    }
-            // }
             this.listCounts = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<Count>(sql.ToString());
-
             foreach (var sort in this.CycleCountSettings.GetDataViewSortBy())
             {
                 if (sort.SortOrder == Resources.Enums.SortOrder.ASC)
                 {
-                    this.listCounts = this.listCounts.OrderBy(adj => adj.GetType().GetProperty(sort.SortValue).GetValue(adj)).ToList();
+                    this.listCounts = this.listCounts.OrderBy(
+                        adj => adj.GetType().GetProperty(sort.SortValue) !.GetValue(adj)).ToList();
                 }
                 else
                 {
-                    this.listCounts = this.listCounts.OrderByDescending(adj => adj.GetType().GetProperty(sort.SortValue).GetValue(adj)).ToList();
+                    this.listCounts = this.listCounts.OrderByDescending(
+                        adj => adj.GetType().GetProperty(sort.SortValue) !.GetValue(adj)).ToList();
                 }
             }
 
@@ -336,45 +301,24 @@ namespace dMobile.Controller.Activity
             return this.ListHeaders;
         }
 
-        /// <summary>
-        /// The Search.
-        /// </summary>
-        /// <param name="searchText">.</param>
-        /// <returns>.</returns>
+        /// <inheritdoc />
         public override ObservableCollection<object> Search(string searchText)
         {
             // TODO: verify filtering
             var observableCollection = new ObservableCollection<object>();
 
-            this.ListHeaders = this.listCounts.Where(count => count.ActivityStringFKRefno.ToLower().Contains(searchText.ToLower().Trim())).Cast<object>().ToList();
+            this.ListHeaders = this.listCounts.Where(count => count.ActivityStringFKRefno.ToLower().
+                Contains(searchText.ToLower().Trim())).Cast<object>().ToList();
 
             foreach (var count in this.ListHeaders.Cast<Count>())
             {
-                // string description = string.Empty;
-                // string[] descriptionSubstring = Convert.ToString(count.ActivityCountTypeDescription).Split();
-
-                // if (descriptionSubstring != null && descriptionSubstring.Length > 1)
-                // {
-                //    description = descriptionSubstring[0] + " " + descriptionSubstring[1];
-                // }
-
-                // Count count = new Count
-                // {
-                //    ActivityStringFKRefno = Convert.ToString(row["ActivityStringFKRefno"] != DBNull.Value ? row["ActivityStringFKRefno"] : null),
-                //    ActivityCountDateTime = Convert.ToDateTime(row["ActivityCountDateTime"] != DBNull.Value ? row["ActivityCountDateTime"] : null),
-                //    ActivityCountTypeDescription = description,
-                // };
                 observableCollection.Add(count);
             }
 
             return observableCollection;
         }
 
-        /// <summary>
-        /// The SelectActivity.
-        /// </summary>
-        /// <param name="selectedActivity">The selectedActivity<see cref="object"/>.</param>
-        /// <returns>The <see cref="Task"/>.</returns>
+        /// <inheritdoc />
         public override async Task SelectActivity(object selectedActivity)
         {
             if (selectedActivity is Count header)
@@ -413,10 +357,7 @@ namespace dMobile.Controller.Activity
             }
         }
 
-        /// <summary>
-        /// Get the activity reference number for the selected object.
-        /// </summary>
-        /// <param name="selectedItem"><see cref="object"/> Selected item.</param>
+        /// <inheritdoc />
         public override void AssignRefnoFromActivity(object selectedItem)
         {
             if (selectedItem is Count hdr)
@@ -426,35 +367,18 @@ namespace dMobile.Controller.Activity
             }
         }
 
-        /// <summary>
-        /// The Refresh.
-        /// </summary>
-        /// <param name="data">.</param>
-        /// <returns>The <see cref="Task"/>.</returns>
+        /// <inheritdoc />
         public override async Task Refresh(XDocument data)
         {
-            if (this.SysEnv.SysSettings.IsDisconnectedMode)
+            if (!this.SysEnv.SysSettings.IsDisconnectedMode)
             {
-                this.DataLayerProgressOutHandler(this, EventArgs.Empty, 5);
-            }
-            else
-            {
-                this.DataLayerProgressOutHandler(this, EventArgs.Empty, 2);
                 await this.Purge();
-
-                this.DataLayerProgressOutHandler(this, EventArgs.Empty, 5);
-
                 var cycleCount = new TableActivityCycleCount();
-                cycleCount.RegisterDataAccessListenerProgressOut(this);
                 await cycleCount.RequestHeaderData();
-                cycleCount.UnregisterDataAccessListenerProgressOut(this);
             }
         }
 
-        /// <summary>
-        /// The Purge.
-        /// </summary>
-        /// <returns>The <see cref="Task"/>.</returns>
+        /// <inheritdoc />
         public override async Task Purge()
         {
             var cycleCount = new TableActivityCycleCount();
@@ -466,9 +390,7 @@ namespace dMobile.Controller.Activity
             await cycleCount.PurgeData();
         }
 
-        /// <summary>
-        /// The GetFilter.
-        /// </summary>
+        /// <inheritdoc />
         public override void GetFilter()
         {
             var filter = string.Empty;
@@ -496,10 +418,7 @@ namespace dMobile.Controller.Activity
             }
         }
 
-        /// <summary>
-        /// The GetFilter.
-        /// </summary>
-        /// <param name="filterData">.</param>
+        /// <inheritdoc />
         public override void GetFilter(XDocument filterData)
         {
             var filter = string.Empty;
@@ -507,9 +426,9 @@ namespace dMobile.Controller.Activity
 
             if (cycleSettings.IsApplyCountDate)
             {
-                if (string.Compare(filterData.Root.Element("count_date").Value, string.Empty) > 0)
+                if (string.Compare(filterData.Root.Element("count_date")! .Value, string.Empty) > 0)
                 {
-                    var dt = DateTime.Parse(filterData.Root.Element("count_date").Value);
+                    var dt = DateTime.Parse(filterData.Root.Element("count_date") !.Value);
                     var minDate = new DateTime(dt.Year, dt.Month, dt.Day, 00, 00, 00);
                     var maxDate = new DateTime(dt.Year, dt.Month, dt.Day, 23, 59, 59);
 
@@ -525,60 +444,6 @@ namespace dMobile.Controller.Activity
                     this.listCounts = this.listCounts.Where(count => count.ActivityCountDateTime >= minDate && count.ActivityCountDateTime <= maxDate).ToList();
                 }
             }
-        }
-
-        /// <summary>
-        /// The Insert.
-        /// </summary>
-        /// <param name="xmlParams">The xmlParams<see cref="XDocument"/>.</param>
-        /// <returns>The <see cref="int"/>.</returns>
-        public override Task<int> Insert(XDocument xmlParams)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// The Delete.
-        /// </summary>
-        /// <returns>The <see cref="Task"/>.</returns>
-        public override Task Delete()
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// The PrintLabel.
-        /// </summary>
-        /// <param name="xmlParam">The xmlParam<see cref="XDocument"/>.</param>
-        /// <returns>The <see cref="Task"/>.</returns>
-        public override Task PrintLabel(XDocument xmlParam)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// The GetLabelQuantity.
-        /// </summary>
-        /// <param name="isRepackQuantityOnly">The isRepackQuantityOnly<see cref="bool"/>.</param>
-        /// <returns>The <see cref="Task{SLabelQuantity}"/>.</returns>
-        public override Task<SLabelQuantity> GetLabelQuantity(bool isRepackQuantityOnly)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// The ChangeStatus.
-        /// </summary>
-        /// <param name="selectedActivity">The selectedActivity<see cref="object"/>.</param>
-        /// <returns>The <see cref="Task{bool}"/>.</returns>
-        public override Task<bool> ChangeStatus(object selectedActivity)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override XDocument CreateDump()
-        {
-            throw new NotImplementedException();
         }
     }
 }

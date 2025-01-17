@@ -517,6 +517,22 @@ namespace dMobile.Controller.Activity_Item
         ///     Create observable collection from list items.
         /// </summary>
         /// <param name="listItems">List of item objects.</param>
+        /// <returns>Created observable collection.</returns>
+        public override ObservableCollection<object> CreateObservableCollectionFromListItems(List<object> listItems)
+        {
+            var mainActivityItems = new ObservableCollection<object>();
+            foreach (var item in listItems.Cast<ProductionTicketFinishedItem>())
+            {
+                mainActivityItems.Add(item);
+            }
+
+            return mainActivityItems;
+        }
+
+        /// <summary>
+        ///     Create observable collection from list items.
+        /// </summary>
+        /// <param name="listItems">List of item objects.</param>
         /// <param name="filterSearch">Search filter text.</param>
         /// <returns>Created observable collection.</returns>
         public override ObservableCollection<object> CreateObservableCollectionFromListItems(
@@ -695,29 +711,29 @@ namespace dMobile.Controller.Activity_Item
         {
             var sql = new StringBuilder();
 
+            sql.Append("SELECT tActivityItemProduction.ActivityItemRefno,");
+            sql.Append("tActivityItemProductionFinished.ActivityItemFKRefno,");
+            sql.Append("tActivityItemProductionFinished.ActivityItemStringFKRefno,");
+            sql.Append("tProductUnit.ProductUnitRefno AS ProductUnitRefno,");
+            sql.Append("tProduct.ProductRefno AS ProductRefno,");
+            sql.Append("tProduct.ProductCode AS ProductCode,");
+            sql.Append("tProduct.ProductDescription AS ProductDescription,");
+            sql.Append("tUnit.UnitCode AS BaseUnitCode,");
+            sql.Append("tProductUnit.ProductUnitBC AS ProductUnitBC,");
+            sql.Append("tProductUnit.ProductUnitSizeDescription AS ProductUnitSizeDescription,");
+            sql.Append("tActivityItemProduction.ActivityItemProductionQuantity AS ActivityItemProductionQuantity,");
+            sql.Append(
+                "tActivityItemProduction.ActivityItemProductionBaseQuantity AS ActivityItemProductionBaseQuantity,");
+            sql.Append(
+                "tActivityItemProduction.ActivityItemProductionWeightQuantity AS ActivityItemProductionWeightQuantity,");
+            sql.Append(
+                "tActivityItemProduction.ActivityItemProductionQuantityExpected AS ActivityItemProductionQuantityExpected,");
+            sql.Append(
+                "tActivityItemProduction.ActivityItemProductionBaseQuantityExpected AS ActivityItemProductionBaseQuantityExpected,");
+            sql.Append(
+                "tActivityItemProduction.ActivityItemProductionWeightQuantityExpected AS ActivityItemProductionWeightQuantityExpected,");
             if (isSubmitBatch)
             {
-                sql.Append("SELECT tActivityItemProduction.ActivityItemRefno,");
-                sql.Append("tActivityItemProductionFinished.ActivityItemFKRefno,");
-                sql.Append("tActivityItemProductionFinished.ActivityItemStringFKRefno,");
-                sql.Append("tProductUnit.ProductUnitRefno AS ProductUnitRefno,");
-                sql.Append("tProduct.ProductRefno AS ProductRefno,");
-                sql.Append("tProduct.ProductCode AS ProductCode,");
-                sql.Append("tProduct.ProductDescription AS ProductDescription,");
-                sql.Append("tUnit.UnitCode AS BaseUnitCode,");
-                sql.Append("tProductUnit.ProductUnitBC AS ProductUnitBC,");
-                sql.Append("tProductUnit.ProductUnitSizeDescription AS ProductUnitSizeDescription,");
-                sql.Append("tActivityItemProduction.ActivityItemProductionQuantity AS ActivityItemProductionQuantity,");
-                sql.Append(
-                    "tActivityItemProduction.ActivityItemProductionBaseQuantity AS ActivityItemProductionBaseQuantity,");
-                sql.Append(
-                    "tActivityItemProduction.ActivityItemProductionWeightQuantity AS ActivityItemProductionWeightQuantity,");
-                sql.Append(
-                    "tActivityItemProduction.ActivityItemProductionQuantityExpected AS ActivityItemProductionQuantityExpected,");
-                sql.Append(
-                    "tActivityItemProduction.ActivityItemProductionBaseQuantityExpected AS ActivityItemProductionBaseQuantityExpected,");
-                sql.Append(
-                    "tActivityItemProduction.ActivityItemProductionWeightQuantityExpected AS ActivityItemProductionWeightQuantityExpected,");
                 sql.Append("tLocationMapWarehouse.LocationMapRefno AS LocationMapRefno,");
                 sql.Append("tLocationMapWarehouse.LocationMapWarehouseCode AS LocationCode,");
                 sql.Append("tLocationMapWarehouse.LocationMapWarehouseName AS LocationName,");
@@ -787,27 +803,6 @@ namespace dMobile.Controller.Activity_Item
             }
             else
             {
-                sql.Append("SELECT tActivityItemProduction.ActivityItemRefno,");
-                sql.Append("tActivityItemProductionFinished.ActivityItemFKRefno,");
-                sql.Append("tActivityItemProductionFinished.ActivityItemStringFKRefno,");
-                sql.Append("tProductUnit.ProductUnitRefno AS ProductUnitRefno,");
-                sql.Append("tProduct.ProductRefno AS ProductRefno,");
-                sql.Append("tProduct.ProductCode AS ProductCode,");
-                sql.Append("tProduct.ProductDescription AS ProductDescription,");
-                sql.Append("tUnit.UnitCode AS BaseUnitCode,");
-                sql.Append("tProductUnit.ProductUnitBC AS ProductUnitBC,");
-                sql.Append("tProductUnit.ProductUnitSizeDescription AS ProductUnitSizeDescription,");
-                sql.Append("tActivityItemProduction.ActivityItemProductionQuantity AS ActivityItemProductionQuantity,");
-                sql.Append(
-                    "tActivityItemProduction.ActivityItemProductionBaseQuantity AS ActivityItemProductionBaseQuantity,");
-                sql.Append(
-                    "tActivityItemProduction.ActivityItemProductionWeightQuantity AS ActivityItemProductionWeightQuantity,");
-                sql.Append(
-                    "tActivityItemProduction.ActivityItemProductionQuantityExpected AS ActivityItemProductionQuantityExpected,");
-                sql.Append(
-                    "tActivityItemProduction.ActivityItemProductionBaseQuantityExpected AS ActivityItemProductionBaseQuantityExpected,");
-                sql.Append(
-                    "tActivityItemProduction.ActivityItemProductionWeightQuantityExpected AS ActivityItemProductionWeightQuantityExpected,");
                 sql.Append("tLocationMapSlot.LocationMapRefno AS LocationMapRefno,");
                 sql.Append(
                     "tLocationMapSection.LocationMapSectionCode + \'\\\' + tLocationMapSlot.LocationMapSlotCode ");

@@ -8,7 +8,7 @@ namespace dMobile.BarCodeScanner
     /// <summary>
     /// Represents the different barcode symbology.
     /// </summary>
-    public enum BarCodeSymbology : int
+    public enum BarCodeSymbology
     {
         /// <summary>
         /// Undefined barcode symbology.

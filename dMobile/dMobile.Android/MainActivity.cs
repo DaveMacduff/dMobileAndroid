@@ -8,17 +8,12 @@ using dMobile.View.Pages;
 namespace dMobile.Droid
 {
     using System;
-    using System.Runtime.CompilerServices;
     using Android.App;
     using Android.Content.PM;
     using Android.OS;
     using Android.Views;
     using Bedrock;
-    using dMobile.Resources.Enums;
-    using dMobile.View;
-    using dMobile.View.CustomPages;
-    using Java.Util;
-    using View.Helpers;
+    using Resources.Enums;
     using Xamarin.Forms;
 
     /// <summary>
@@ -62,7 +57,7 @@ namespace dMobile.Droid
             ToolbarResource = Resource.Layout.Toolbar;
 
             base.OnCreate(savedInstanceState);
-            global::Xamarin.Forms.Forms.Init(this, savedInstanceState);
+            Forms.Init(this, savedInstanceState);
             this.LoadApplication(new App());
         }
 

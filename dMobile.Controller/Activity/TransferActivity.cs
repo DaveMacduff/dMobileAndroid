@@ -25,22 +25,22 @@ namespace dMobile.Controller.Activity
         /// <summary>
         /// Defines the columnWidth0.
         /// </summary>
-        private double columnWidth0 = 0;
+        private double columnWidth0;
 
         /// <summary>
         /// Defines the columnWidth1.
         /// </summary>
-        private double columnWidth1 = 0;
+        private double columnWidth1;
 
         /// <summary>
         /// Defines the columnWidth2.
         /// </summary>
-        private double columnWidth2 = 0;
+        private double columnWidth2;
 
         /// <summary>
         /// Defines the columnWidth3.
         /// </summary>
-        private double columnWidth3 = 0;
+        private double columnWidth3;
 
         /// <summary>
         /// Defines the resourceDictionary.
@@ -56,61 +56,80 @@ namespace dMobile.Controller.Activity
         /// Initializes a new instance of the <see cref="TransferActivity"/> class.
         /// </summary>
         public TransferActivity()
-            : base()
         {
             this.FullClassName = typeof(TransferActivity).FullName;
             this.TransSettings = new TransferSettings().LoadData();
 
-            // Data grid
-            var dataTemplate = new DataTemplate(() =>
+            DefineInitialGridDataTemplate();
+            return;
+
+            void DefineInitialGridDataTemplate()
             {
-                var gridData = new Grid
-                {
-                    Padding = new Thickness(5),
-                    ColumnDefinitions =
+                // Data grid
+                var dataTemplate = new DataTemplate(
+                    () =>
                     {
-                        new ColumnDefinition { Width = new GridLength(this.columnWidth0, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(this.columnWidth1, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(this.columnWidth2, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(this.columnWidth3, GridUnitType.Absolute) },
-                    },
-                };
+                        var gridData = new Grid
+                        {
+                            Padding = new Thickness(5),
+                            ColumnDefinitions =
+                            {
+                                new ColumnDefinition
+                                    { Width = new GridLength(this.columnWidth0, GridUnitType.Absolute) },
+                                new ColumnDefinition
+                                    { Width = new GridLength(this.columnWidth1, GridUnitType.Absolute) },
+                                new ColumnDefinition
+                                    { Width = new GridLength(this.columnWidth2, GridUnitType.Absolute) },
+                                new ColumnDefinition
+                                    { Width = new GridLength(this.columnWidth3, GridUnitType.Absolute) }
+                            }
+                        };
 
-                var labelTransferNumber = new Label { VerticalOptions = LayoutOptions.Center };
-                var labelWhs = new Label { VerticalOptions = LayoutOptions.Center };
-                var labelDate = new Label { VerticalOptions = LayoutOptions.Center };
-                var labelArrived = new Label { VerticalOptions = LayoutOptions.Center };
+                        var labelTransferNumber = new Label { VerticalOptions = LayoutOptions.Center };
+                        var labelWhs = new Label { VerticalOptions = LayoutOptions.Center };
+                        var labelDate = new Label { VerticalOptions = LayoutOptions.Center };
+                        var labelArrived = new Label { VerticalOptions = LayoutOptions.Center };
 
-                labelTransferNumber.SetBinding(Label.TextProperty, new Binding("ActivityStringFKRefno"));
-                labelWhs.SetBinding(Label.TextProperty, new Binding("LocationMapWarehouseFKRefno"));
-                labelDate.SetBinding(Label.TextProperty, new Binding("ActivityTransferDateTime", BindingMode.Default, null, null, "{0:MM/dd/yyyy}"));
-                labelArrived.SetBinding(Label.TextProperty, new Binding("ActivityTransferArrivalDateTime", BindingMode.Default, null, null, "{0:MM/dd/yyyy}"));
+                        labelTransferNumber.SetBinding(Label.TextProperty, new Binding("ActivityStringFKRefno"));
+                        labelWhs.SetBinding(Label.TextProperty, new Binding("LocationMapWarehouseFKRefno"));
+                        labelDate.SetBinding(
+                            Label.TextProperty,
+                            new Binding("ActivityTransferDateTime", BindingMode.Default, null, null, "{0:MM/dd/yyyy}"));
+                        labelArrived.SetBinding(
+                            Label.TextProperty,
+                            new Binding(
+                                "ActivityTransferArrivalDateTime",
+                                BindingMode.Default,
+                                null,
+                                null,
+                                "{0:MM/dd/yyyy}"));
 
-                gridData.Children.Add(labelTransferNumber);
-                gridData.Children.Add(labelWhs);
-                gridData.Children.Add(labelDate);
-                gridData.Children.Add(labelArrived);
+                        gridData.Children.Add(labelTransferNumber);
+                        gridData.Children.Add(labelWhs);
+                        gridData.Children.Add(labelDate);
+                        gridData.Children.Add(labelArrived);
 
-                Grid.SetColumn(labelTransferNumber, 0);
-                Grid.SetColumn(labelWhs, 1);
-                Grid.SetColumn(labelDate, 2);
-                Grid.SetColumn(labelArrived, 3);
+                        Grid.SetColumn(labelTransferNumber, 0);
+                        Grid.SetColumn(labelWhs, 1);
+                        Grid.SetColumn(labelDate, 2);
+                        Grid.SetColumn(labelArrived, 3);
 
-                return new ViewCell { View = gridData };
-            });
+                        return new ViewCell { View = gridData };
+                    });
 
-            var isAddKey = true;
-            foreach (var item in this.resourceDictionary)
-            {
-                if (item.Key == "dataTemplateTransfer")
+                var isAddKey = true;
+                foreach (var item in this.resourceDictionary)
                 {
-                    isAddKey = false;
+                    if (item.Key == "dataTemplateTransfer")
+                    {
+                        isAddKey = false;
+                    }
                 }
-            }
 
-            if (isAddKey)
-            {
-                this.resourceDictionary.Add("dataTemplateTransfer", dataTemplate);
+                if (isAddKey)
+                {
+                    this.resourceDictionary.Add("dataTemplateTransfer", dataTemplate);
+                }
             }
         }
 
@@ -118,6 +137,23 @@ namespace dMobile.Controller.Activity
         /// Gets or sets the TransSettings.
         /// </summary>
         public TransferSettings TransSettings { get; set; }
+
+        /// <summary>
+        /// Display the extra information for the selected activity.
+        /// </summary>
+        /// <param name="extraInfo">Extra information collection.</param>
+        public override void DisplayExtraInfo(ObservableCollection<string> extraInfo)
+        {
+            base.DisplayExtraInfo(extraInfo);
+            if (this.SelectedActivity is Transfer activity)
+            {
+                extraInfo.Add(activity.ActivityTransferDescription);
+                if (this.ActSubType == SysCommon.ActSubTypes.TransferFrom)
+                {
+                    extraInfo.Add("To Warehouse:  " + activity.LocationMapWarehouseDescription);
+                }
+            }
+        }
 
         /// <summary>
         /// The GetFKRefnoIdx.
@@ -134,7 +170,7 @@ namespace dMobile.Controller.Activity
         /// <returns>.</returns>
         public override string GetControlDescription()
         {
-            return $"Transfers Whse {SysEnv.ContactLog.WarehouseLocationMapFKRefno}";
+            return $"Transfers Whse {this.SysEnv.ContactLog.WarehouseLocationMapFKRefno}";
         }
 
         /// <summary>
@@ -143,7 +179,9 @@ namespace dMobile.Controller.Activity
         /// <param name="gridMainActivity">The gridMainActivity<see cref="Grid"/>.</param>
         /// <param name="listViewMainActivity">The listViewMainActivity<see cref="ListView"/>.</param>
         /// <returns>The <see cref="ObservableCollection{object}"/>.</returns>
-        public override ObservableCollection<object> DesignGrid(ref Grid gridMainActivity, ref ListView listViewMainActivity)
+        public override ObservableCollection<object> DesignGrid(
+            ref Grid gridMainActivity,
+            ref ListView listViewMainActivity)
         {
             var observableCollection = new ObservableCollection<object>();
 
@@ -165,12 +203,17 @@ namespace dMobile.Controller.Activity
                 observableCollection.Add(transfer);
             }
 
-            var labelTransferNumberHeader = new Label { Text = "Transfer #", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            var labelWhsHeader = new Label { Text = "Whs", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            var labelDateHeader = new Label { Text = "Date", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            var labelArrivedHeader = new Label { Text = "Arrived", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelTransferNumberHeader = new Label
+                { Text = "Transfer #", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelWhsHeader = new Label
+                { Text = "Whs", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelDateHeader = new Label
+                { Text = "Date", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelArrivedHeader = new Label
+                { Text = "Arrived", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
 
-            this.columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelTransferNumberHeader.Text);
+            this.columnWidth0 =
+                DependencyService.Get<IGridService>().CalculateTextWidth(labelTransferNumberHeader.Text);
             this.columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelWhsHeader.Text);
             this.columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelDateHeader.Text);
             this.columnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelArrivedHeader.Text);
@@ -184,8 +227,8 @@ namespace dMobile.Controller.Activity
                     new ColumnDefinition { Width = new GridLength(this.columnWidth0, GridUnitType.Absolute) },
                     new ColumnDefinition { Width = new GridLength(this.columnWidth1, GridUnitType.Absolute) },
                     new ColumnDefinition { Width = new GridLength(this.columnWidth2, GridUnitType.Absolute) },
-                    new ColumnDefinition { Width = new GridLength(this.columnWidth3, GridUnitType.Absolute) },
-                },
+                    new ColumnDefinition { Width = new GridLength(this.columnWidth3, GridUnitType.Absolute) }
+                }
             };
 
             gridHeader.SetDynamicResource(VisualElement.BackgroundColorProperty, "HeaderColor");
@@ -206,10 +249,14 @@ namespace dMobile.Controller.Activity
 
             foreach (var transfer in observableCollection.Cast<Transfer>())
             {
-                var detailWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(transfer.ActivityStringFKRefno);
-                var detailWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(Convert.ToString(transfer.LocationMapWarehouseFKRefno));
-                var detailWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(transfer.ActivityTransferDateTime.ToString("MM/dd/yyyy"));
-                var detailWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(transfer.ActivityTransferArrivalDateTime.ToString("MM/dd/yyyy"));
+                var detailWidth0 = DependencyService.Get<IGridService>()
+                    .CalculateTextWidth(transfer.ActivityStringFKRefno);
+                var detailWidth1 = DependencyService.Get<IGridService>()
+                    .CalculateTextWidth(Convert.ToString(transfer.LocationMapWarehouseFKRefno));
+                var detailWidth2 = DependencyService.Get<IGridService>()
+                    .CalculateTextWidth(transfer.ActivityTransferDateTime.ToString("MM/dd/yyyy"));
+                var detailWidth3 = DependencyService.Get<IGridService>()
+                    .CalculateTextWidth(transfer.ActivityTransferArrivalDateTime.ToString("MM/dd/yyyy"));
 
                 if (detailWidth0 > this.columnWidth0)
                 {
@@ -250,26 +297,29 @@ namespace dMobile.Controller.Activity
         {
             var sql = new StringBuilder();
 
+            sql.Append("SELECT tActivityTransfer.ActivityRefno,");
+            sql.Append("tActivityTransfer.ActivityFKRefno,");
+            sql.Append("tActivityTransfer.ActivityStringFKRefno,");
+            sql.Append("tActivityTransfer.TransferWarehouseLocationMapFKRefno AS LocationMapWarehouseFKRefno,");
+            sql.Append("tActivityTransfer.TransferWarehouseLocationMapDescription AS LocationMapWarehouseDescription,");
+            sql.Append("tActivityTransfer.ActivityTransferArrivalDateTime,");
+            sql.Append("tActivityTransfer.ActivityTransferDateTime,");
+            sql.Append("tActivityTransfer.ActivityTransferDescription,");
+            sql.Append("tActivity.ActivityStatus AS ActivityStatus ");
+            sql.Append("FROM tActivityTransfer ");
             if (isSubmitBatch)
             {
-                sql.Append("SELECT tActivityTransfer.ActivityRefno,");
-                sql.Append("tActivityTransfer.ActivityFKRefno,");
-                sql.Append("tActivityTransfer.ActivityStringFKRefno,");
-                sql.Append("tActivityTransfer.TransferWarehouseLocationMapFKRefno AS LocationMapWarehouseFKRefno,");
-                sql.Append("tActivityTransfer.TransferWarehouseLocationMapDescription AS LocationMapWarehouseDescription,");
-                sql.Append("tActivityTransfer.ActivityTransferArrivalDateTime,");
-                sql.Append("tActivityTransfer.ActivityTransferDateTime,");
-                sql.Append("tActivityTransfer.ActivityTransferDescription,");
-                sql.Append("tActivity.ActivityStatus AS ActivityStatus ");
-                sql.Append("FROM tActivityTransfer ");
                 sql.Append("INNER JOIN tActivity ON tActivity.ActivityRefno = tActivityTransfer.ActivityRefno ");
-                sql.AppendFormat("WHERE tActivity.ActivityStatus <> {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
+                sql.AppendFormat(
+                    "WHERE tActivity.ActivityStatus <> {0} ",
+                    Convert.ToInt32(SysCommon.ActStatus.NoChange));
                 sql.Append("UNION ");
                 sql.Append("SELECT tActivityTransfer.ActivityRefno,");
                 sql.Append("tActivityTransfer.ActivityFKRefno,");
                 sql.Append("tActivityTransfer.ActivityStringFKRefno,");
                 sql.Append("tActivityTransfer.TransferWarehouseLocationMapFKRefno AS LocationMapWarehouseFKRefno,");
-                sql.Append("tActivityTransfer.TransferWarehouseLocationMapDescription AS LocationMapWarehouseDescription,");
+                sql.Append(
+                    "tActivityTransfer.TransferWarehouseLocationMapDescription AS LocationMapWarehouseDescription,");
                 sql.Append("tActivityTransfer.ActivityTransferArrivalDateTime,");
                 sql.Append("tActivityTransfer.ActivityTransferDateTime,");
                 sql.Append("tActivityTransfer.ActivityTransferDescription,");
@@ -277,13 +327,16 @@ namespace dMobile.Controller.Activity
                 sql.Append("FROM tActivityTransfer ");
                 sql.Append("INNER JOIN tActivity ON tActivity.ActivityRefno = tActivityTransfer.ActivityRefno ");
                 sql.Append("INNER JOIN tActivityItem ON tActivityItem.ActivityRefno = tActivity.ActivityRefno ");
-                sql.AppendFormat("WHERE tActivityItem.ActivityItemStatus <> {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
+                sql.AppendFormat(
+                    "WHERE tActivityItem.ActivityItemStatus <> {0} ",
+                    Convert.ToInt32(SysCommon.ActStatus.NoChange));
                 sql.Append("UNION ");
                 sql.Append("SELECT tActivityTransfer.ActivityRefno,");
                 sql.Append("tActivityTransfer.ActivityFKRefno,");
                 sql.Append("tActivityTransfer.ActivityStringFKRefno,");
                 sql.Append("tActivityTransfer.TransferWarehouseLocationMapFKRefno AS LocationMapWarehouseFKRefno,");
-                sql.Append("tActivityTransfer.TransferWarehouseLocationMapDescription AS LocationMapWarehouseDescription,");
+                sql.Append(
+                    "tActivityTransfer.TransferWarehouseLocationMapDescription AS LocationMapWarehouseDescription,");
                 sql.Append("tActivityTransfer.ActivityTransferArrivalDateTime,");
                 sql.Append("tActivityTransfer.ActivityTransferDateTime,");
                 sql.Append("tActivityTransfer.ActivityTransferDescription,");
@@ -293,21 +346,13 @@ namespace dMobile.Controller.Activity
                 sql.Append("INNER JOIN tActivityItem ON tActivityItem.ActivityRefno = tActivity.ActivityRefno ");
                 sql.Append("INNER JOIN tActivityDetail ON tActivityDetail.ActivityItemRefno ");
                 sql.Append("= tActivityItem.ActivityItemRefno ");
-                sql.AppendFormat("WHERE tActivityDetail.ActivityDetailStatus <> {0}", Convert.ToInt32(SysCommon.ActStatus.NoChange));
+                sql.AppendFormat(
+                    "WHERE tActivityDetail.ActivityDetailStatus <> {0}",
+                    Convert.ToInt32(SysCommon.ActStatus.NoChange));
                 sql.AppendFormat(" AND tActivityTransfer.ActivitySubType = {0}", Convert.ToInt32(this.ActSubType));
             }
             else
             {
-                sql.Append("SELECT tActivityTransfer.ActivityRefno,");
-                sql.Append("tActivityTransfer.ActivityFKRefno,");
-                sql.Append("tActivityTransfer.ActivityStringFKRefno,");
-                sql.Append("tActivityTransfer.TransferWarehouseLocationMapFKRefno AS LocationMapWarehouseFKRefno,");
-                sql.Append("tActivityTransfer.TransferWarehouseLocationMapDescription AS LocationMapWarehouseDescription,");
-                sql.Append("tActivityTransfer.ActivityTransferArrivalDateTime,");
-                sql.Append("tActivityTransfer.ActivityTransferDateTime,");
-                sql.Append("tActivityTransfer.ActivityTransferDescription,");
-                sql.Append("tActivity.ActivityStatus AS ActivityStatus ");
-                sql.Append("FROM tActivityTransfer ");
                 sql.Append("INNER JOIN tActivity ON tActivity.ActivityRefno = tActivityTransfer.ActivityRefno");
                 sql.AppendFormat(" AND tActivityTransfer.ActivitySubType = {0}", Convert.ToInt32(this.ActSubType));
             }
@@ -337,11 +382,15 @@ namespace dMobile.Controller.Activity
             {
                 if (sort.SortOrder == Resources.Enums.SortOrder.ASC)
                 {
-                    this.listTransfers = this.listTransfers.OrderBy(transfer => transfer.GetType().GetProperty(sort.SortValue).GetValue(transfer)).ToList();
+                    this.listTransfers = this.listTransfers.OrderBy(
+                            transfer => transfer.GetType().GetProperty(sort.SortValue).GetValue(transfer))
+                        .ToList();
                 }
                 else
                 {
-                    this.listTransfers = this.listTransfers.OrderByDescending(transfer => transfer.GetType().GetProperty(sort.SortValue).GetValue(transfer)).ToList();
+                    this.listTransfers = this.listTransfers.OrderByDescending(
+                            transfer => transfer.GetType().GetProperty(sort.SortValue).GetValue(transfer))
+                        .ToList();
                 }
             }
 
@@ -360,7 +409,10 @@ namespace dMobile.Controller.Activity
         {
             var observableCollection = new ObservableCollection<object>();
 
-            this.ListHeaders = this.listTransfers.Where(transfer => transfer.ActivityStringFKRefno.ToLower().Contains(searchText.ToLower().Trim())).Cast<object>().ToList();
+            this.ListHeaders = this.listTransfers
+                .Where(transfer => transfer.ActivityStringFKRefno.ToLower().Contains(searchText.ToLower().Trim()))
+                .Cast<object>()
+                .ToList();
 
             foreach (var transfer in this.ListHeaders.Cast<Transfer>())
             {
@@ -401,7 +453,7 @@ namespace dMobile.Controller.Activity
                 {
                     // Set the current location to the header.
                     if (LocationMap.GetInstance().CurrLocMap.WhsLocMapRefno != header.LocationMapRefno &&
-                            await LocationMapTasks.IsCompleteLocMap(header.LocationMapRefno))
+                        await LocationMapTasks.IsCompleteLocMap(header.LocationMapRefno))
                     {
                         LocationMap.GetInstance().CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
                             header.LocationMapRefno);
@@ -409,13 +461,14 @@ namespace dMobile.Controller.Activity
 
                     // Override and set the chosen location to the current location.
                     if (LocationMap.GetInstance().ChosenLocMap.WhsLocMapRefno != header.LocationMapRefno &&
-                            await LocationMapTasks.IsCompleteLocMap(header.LocationMapRefno))
+                        await LocationMapTasks.IsCompleteLocMap(header.LocationMapRefno))
                     {
                         LocationMap.GetInstance().ChosenLocMap = LocationMap.GetInstance().CurrLocMap.Clone();
                     }
 
                     // Override and set any selected skid location to the current location.
-                    if (this.SkidInfo.CurrSkid != null && this.SkidInfo.CurrSkid.SkidFkRefno > 0 &&
+                    if (this.SkidInfo.CurrSkid != null &&
+                        this.SkidInfo.CurrSkid.SkidFkRefno > 0 &&
                         this.SkidInfo.CurrSkid.LocMapRefno != header.LocationMapRefno &&
                         await LocationMapTasks.IsCompleteLocMap(header.LocationMapRefno))
                     {
@@ -447,30 +500,18 @@ namespace dMobile.Controller.Activity
         /// <returns>The <see cref="Task"/>.</returns>
         public override async Task Refresh(XDocument data)
         {
-            if (this.SysEnv.SysSettings.IsDisconnectedMode)
+            if (!this.SysEnv.SysSettings.IsDisconnectedMode)
             {
-                this.DataLayerProgressOutHandler(this, EventArgs.Empty, 5);
-            }
-            else
-            {
-                this.DataLayerProgressOutHandler(this, EventArgs.Empty, 2);
                 await this.Purge();
-
-                this.DataLayerProgressOutHandler(this, EventArgs.Empty, 5);
-
                 if (this.ActSubType == SysCommon.ActSubTypes.TransferFrom)
                 {
                     var tableActTransfer = new TableActivityTransferFrom();
-                    tableActTransfer.RegisterDataAccessListenerProgressOut(this);
                     await tableActTransfer.RequestHeaderData();
-                    tableActTransfer.UnregisterDataAccessListenerProgressOut(this);
                 }
                 else
                 {
                     var tableActTransfer = new TableActivityTransferTo();
-                    tableActTransfer.RegisterDataAccessListenerProgressOut(this);
                     await tableActTransfer.RequestHeaderData();
-                    tableActTransfer.UnregisterDataAccessListenerProgressOut(this);
                 }
             }
         }
@@ -516,7 +557,10 @@ namespace dMobile.Controller.Activity
                     var minDate = new DateTime(dt.Year, dt.Month, dt.Day, 00, 00, 00);
                     var maxDate = new DateTime(dt.Year, dt.Month, dt.Day, 23, 59, 59);
 
-                    this.listTransfers = this.listTransfers.Where(transfer => transfer.ActivityTransferDateTime >= minDate && transfer.ActivityTransferDateTime <= maxDate).ToList();
+                    this.listTransfers = this.listTransfers.Where(
+                            transfer => transfer.ActivityTransferDateTime >= minDate &&
+                                        transfer.ActivityTransferDateTime <= maxDate)
+                        .ToList();
                 }
             }
         }
@@ -537,63 +581,12 @@ namespace dMobile.Controller.Activity
                     var minDate = new DateTime(dt.Year, dt.Month, dt.Day, 00, 00, 00);
                     var maxDate = new DateTime(dt.Year, dt.Month, dt.Day, 23, 59, 59);
 
-                    this.listTransfers = this.listTransfers.Where(transfer => transfer.ActivityTransferDateTime >= minDate && transfer.ActivityTransferDateTime <= maxDate).ToList();
+                    this.listTransfers = this.listTransfers.Where(
+                            transfer => transfer.ActivityTransferDateTime >= minDate &&
+                                        transfer.ActivityTransferDateTime <= maxDate)
+                        .ToList();
                 }
             }
-        }
-
-        /// <summary>
-        /// The Insert.
-        /// </summary>
-        /// <param name="xmlParams">The xmlParams<see cref="XDocument"/>.</param>
-        /// <returns>The <see cref="int"/>.</returns>
-        public override Task<int> Insert(XDocument xmlParams)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// The Delete.
-        /// </summary>
-        /// <returns>The <see cref="Task"/>.</returns>
-        public override Task Delete()
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// The PrintLabel.
-        /// </summary>
-        /// <param name="xmlParam">The xmlParam<see cref="XDocument"/>.</param>
-        /// <returns>The <see cref="Task"/>.</returns>
-        public override Task PrintLabel(XDocument xmlParam)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// The GetLabelQuantity.
-        /// </summary>
-        /// <param name="isRepackQuantityOnly">The isRepackQuantityOnly<see cref="bool"/>.</param>
-        /// <returns>The <see cref="Task{SLabelQuantity}"/>.</returns>
-        public override Task<SLabelQuantity> GetLabelQuantity(bool isRepackQuantityOnly)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// The ChangeStatus.
-        /// </summary>
-        /// <param name="selectedActivity">The selectedActivity<see cref="object"/>.</param>
-        /// <returns>The <see cref="Task{bool}"/>.</returns>
-        public override Task<bool> ChangeStatus(object selectedActivity)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override XDocument CreateDump()
-        {
-            throw new NotImplementedException();
         }
     }
 }

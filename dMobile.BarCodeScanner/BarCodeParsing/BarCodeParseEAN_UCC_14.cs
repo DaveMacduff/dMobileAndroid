@@ -23,12 +23,15 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         /// <param name="barCodeData">The barcode data to parse.</param>
         public override void ParseBarCodeData(string barCodeData)
         {
-            barCodeData = this.IdentifyProductIdentifier(barCodeData);   // does not remove data
+            // does not remove data
+            barCodeData = this.IdentifyProductIdentifier(barCodeData);
 
-            barCodeData = this.IdentifyGtin(barCodeData);   // does not remove data
+            // does not remove data
+            barCodeData = this.IdentifyGtin(barCodeData);
 
             // parse the GTIN
-            barCodeData = barCodeData.Remove(0, 2);   // remove the UPC numbering system or EAN prefix
+            // remove the UPC numbering system or EAN prefix
+            barCodeData = barCodeData.Remove(0, 2);
 
             barCodeData = this.IdentifyCompanyPrefix(barCodeData);
             barCodeData = this.IdentifyItemReference(barCodeData);
@@ -36,7 +39,8 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
             // remove the check digit if it is there
             if (barCodeData.Length > 0)
             {
-                barCodeData = barCodeData.Remove(0, 1);    // remove the check digit
+                // remove the check digit
+                barCodeData = barCodeData.Remove(0, 1);
             }
 
             // end parse GTIN

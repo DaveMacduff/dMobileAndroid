@@ -26,58 +26,75 @@ namespace dMobile.Controller.Activity
         /// Initializes a new instance of the <see cref="ReplenishmentActivity"/> class.
         /// </summary>
         public ReplenishmentActivity()
-          : base()
         {
             this.FullClassName = typeof(ReplenishmentActivity).FullName;
             ////this.ReplenSettings = new ReplenishmentSettings().LoadData();
-            var dataFromTemplate = new DataTemplate(() =>
+            DefineInitialGridDataTemplate();
+            return;
+
+            void DefineInitialGridDataTemplate()
             {
-                var gridData = new Grid
+                var dataTemplate = new DataTemplate(() =>
                 {
-                    Padding = new Thickness(5),
-                    ColumnDefinitions =
+                    var gridData = new Grid
                     {
-                        new ColumnDefinition { Width = new GridLength(this.FromColWidth0, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(this.FromColWidth1, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(this.FromColWidth2, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(this.FromColWidth3, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(this.FromColWidth4, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(this.FromColWidth5, GridUnitType.Absolute) },
-                    },
-                };
+                        Padding = new Thickness(5),
+                        ColumnDefinitions =
+                        {
+                            new ColumnDefinition { Width = new GridLength(this.FromColWidth0, GridUnitType.Absolute) },
+                            new ColumnDefinition { Width = new GridLength(this.FromColWidth1, GridUnitType.Absolute) },
+                            new ColumnDefinition { Width = new GridLength(this.FromColWidth2, GridUnitType.Absolute) },
+                            new ColumnDefinition { Width = new GridLength(this.FromColWidth3, GridUnitType.Absolute) },
+                            new ColumnDefinition { Width = new GridLength(this.FromColWidth4, GridUnitType.Absolute) },
+                            new ColumnDefinition { Width = new GridLength(this.FromColWidth5, GridUnitType.Absolute) },
+                        },
+                    };
 
-                var labelMoveTypeString = new Label { VerticalOptions = LayoutOptions.Center };
-                var labelFromLocation = new Label { VerticalOptions = LayoutOptions.Center };
-                var labelProductCode = new Label { VerticalOptions = LayoutOptions.Center };
-                var labelProductBC = new Label { VerticalOptions = LayoutOptions.Center };
-                var labelProductUnit = new Label { VerticalOptions = LayoutOptions.Center };
-                var labelProductAltQty = new Label { VerticalOptions = LayoutOptions.Center };
+                    var labelMoveTypeString = new Label { VerticalOptions = LayoutOptions.Center };
+                    var labelFromLocation = new Label { VerticalOptions = LayoutOptions.Center };
+                    var labelProductCode = new Label { VerticalOptions = LayoutOptions.Center };
+                    var labelProductBc = new Label { VerticalOptions = LayoutOptions.Center };
+                    var labelProductUnit = new Label { VerticalOptions = LayoutOptions.Center };
+                    var labelProductAltQty = new Label { VerticalOptions = LayoutOptions.Center };
 
-                labelMoveTypeString.SetBinding(Label.TextProperty, new Binding("MoveTypeString"));
-                labelFromLocation.SetBinding(Label.TextProperty, new Binding("ReadableLocationMap"));
-                labelProductCode.SetBinding(Label.TextProperty, new Binding("ProductCode"));
-                labelProductBC.SetBinding(Label.TextProperty, new Binding("ProductUnitBC"));
-                labelProductUnit.SetBinding(Label.TextProperty, new Binding("ProductUnitCode"));
-                labelProductAltQty.SetBinding(Label.TextProperty, new Binding("ActivityItemReplenishmentQuantity"));
+                    labelMoveTypeString.SetBinding(Label.TextProperty, new Binding("MoveTypeString"));
+                    labelFromLocation.SetBinding(Label.TextProperty, new Binding("ReadableLocationMap"));
+                    labelProductCode.SetBinding(Label.TextProperty, new Binding("ProductCode"));
+                    labelProductBc.SetBinding(Label.TextProperty, new Binding("ProductUnitBC"));
+                    labelProductUnit.SetBinding(Label.TextProperty, new Binding("ProductUnitCode"));
+                    labelProductAltQty.SetBinding(Label.TextProperty, new Binding("ActivityItemReplenishmentQuantity"));
 
-                gridData.Children.Add(labelMoveTypeString, 0, 0);
-                gridData.Children.Add(labelFromLocation, 0, 0);
-                gridData.Children.Add(labelProductCode, 0, 0);
-                gridData.Children.Add(labelProductBC, 0, 0);
-                gridData.Children.Add(labelProductUnit, 0, 0);
-                gridData.Children.Add(labelProductAltQty, 0, 0);
+                    gridData.Children.Add(labelMoveTypeString, 0, 0);
+                    gridData.Children.Add(labelFromLocation, 0, 0);
+                    gridData.Children.Add(labelProductCode, 0, 0);
+                    gridData.Children.Add(labelProductBc, 0, 0);
+                    gridData.Children.Add(labelProductUnit, 0, 0);
+                    gridData.Children.Add(labelProductAltQty, 0, 0);
 
-                Grid.SetColumn(labelMoveTypeString, 0);
-                Grid.SetColumn(labelFromLocation, 1);
-                Grid.SetColumn(labelProductCode, 2);
-                Grid.SetColumn(labelProductBC, 3);
-                Grid.SetColumn(labelProductUnit, 4);
-                Grid.SetColumn(labelProductAltQty, 5);
+                    Grid.SetColumn(labelMoveTypeString, 0);
+                    Grid.SetColumn(labelFromLocation, 1);
+                    Grid.SetColumn(labelProductCode, 2);
+                    Grid.SetColumn(labelProductBc, 3);
+                    Grid.SetColumn(labelProductUnit, 4);
+                    Grid.SetColumn(labelProductAltQty, 5);
 
-                return new ViewCell { View = gridData };
-            });
+                    return new ViewCell { View = gridData };
+                });
 
-            this.ResDict.Add("dataTemplateFromReplenish", dataFromTemplate);
+                var isAddKey = true;
+                foreach (var item in this.ResDict)
+                {
+                    if (item.Key == "dataTemplateFromReplenish")
+                    {
+                        isAddKey = false;
+                    }
+                }
+
+                if (isAddKey)
+                {
+                    this.ResDict.Add("dataTemplateFromReplenish", dataTemplate);
+                }
+            }
         }
 
         /// <summary>
@@ -439,51 +456,12 @@ namespace dMobile.Controller.Activity
         /// <returns>The <see cref="Task"/> Task operation.</returns>
         public override async Task Refresh(XDocument data)
         {
-            if (this.SysEnv.SysSettings.IsDisconnectedMode)
+            if (!this.SysEnv.SysSettings.IsDisconnectedMode)
             {
-                this.DataLayerProgressOutHandler(this, EventArgs.Empty, 5);
-            }
-            else
-            {
-                this.DataLayerProgressOutHandler(this, EventArgs.Empty, 2);
                 await this.Purge();
-
-                this.DataLayerProgressOutHandler(this, EventArgs.Empty, 5);
-
                 var replen = new TableActivityReplenishment();
-                replen.RegisterDataAccessListenerProgressOut(this);
                 await replen.RequestHeaderData();
-                replen.UnregisterDataAccessListenerProgressOut(this);
             }
-        }
-
-        /// <summary>
-        /// Insert, create a new activity replenishment header.
-        /// </summary>
-        /// <param name="xmlParams">The xmlParams<see cref="XDocument"/>.</param>
-        /// <returns>The <see cref="int"/>.</returns>
-        public override Task<int> Insert(XDocument xmlParams)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// Delete the replenishment activity header.
-        /// </summary>
-        /// <returns>The <see cref="Task"/>.</returns>
-        public override Task Delete()
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// Get shipping label quantity.
-        /// </summary>
-        /// <param name="isRepackQuantityOnly">The isRepackQuantityOnly<see cref="bool"/>.</param>
-        /// <returns>The <see cref="Task{SLabelQuantity}"/>.</returns>
-        public override Task<SLabelQuantity> GetLabelQuantity(bool isRepackQuantityOnly)
-        {
-            throw new NotImplementedException();
         }
 
         public override ObservableCollection<object> Search(string searchText)
@@ -506,33 +484,6 @@ namespace dMobile.Controller.Activity
         /// <param name="data"><see cref="XDocument"/> Prefilter criteria.</param>
         /// <exception cref="NotImplementedException"> Not implemented exception.</exception>
         public override void GetFilter(XDocument data)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// Print labels.
-        /// </summary>
-        /// <param name="xmlParam"></param>
-        /// <returns></returns>
-        /// <exception cref="NotImplementedException"> Not implemented exception.</exception>
-        public override Task PrintLabel(XDocument xmlParam)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// Change activity status.
-        /// </summary>
-        /// <param name="selectedActivity"></param>
-        /// <returns></returns>
-        /// <exception cref="NotImplementedException"> Not implemented exception.</exception>
-        public override Task<bool> ChangeStatus(object selectedActivity)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override XDocument CreateDump()
         {
             throw new NotImplementedException();
         }

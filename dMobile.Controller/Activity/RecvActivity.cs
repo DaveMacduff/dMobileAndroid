@@ -54,70 +54,75 @@ namespace dMobile.Controller.Activity
           : base()
         {
             this.FullClassName = typeof(RecvActivity).FullName;
+            DefineInitialGridDataTemplate();
+            return;
 
-            // Data grid
-            var dataTemplate = new DataTemplate(() =>
+            void DefineInitialGridDataTemplate()
             {
-                var gridData = new Grid
+                // Data grid
+                var dataTemplate = new DataTemplate(() =>
                 {
-                    Padding = new Thickness(5),
-                    ColumnDefinitions =
+                    var gridData = new Grid
                     {
-                        new ColumnDefinition { Width = new GridLength(this.columnWidth0, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(this.columnWidth1, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(this.columnWidth2, GridUnitType.Absolute) },
-                    },
-                };
+                        Padding = new Thickness(5),
+                        ColumnDefinitions =
+                        {
+                            new ColumnDefinition { Width = new GridLength(this.columnWidth0, GridUnitType.Absolute) },
+                            new ColumnDefinition { Width = new GridLength(this.columnWidth1, GridUnitType.Absolute) },
+                            new ColumnDefinition { Width = new GridLength(this.columnWidth2, GridUnitType.Absolute) },
+                        },
+                    };
 
-                var labelActivityReceivingPoNumber = new Label
+                    var labelActivityReceivingPoNumber = new Label
+                    {
+                        VerticalOptions = LayoutOptions.Center,
+                        HorizontalOptions = LayoutOptions.Start,
+                    };
+
+                    var labelActivityReceivingIssuedDateTime = new Label
+                    {
+                        VerticalOptions = LayoutOptions.Center,
+                        HorizontalOptions = LayoutOptions.Start,
+                    };
+
+                    var labelActivityReceivingArrivalDateTime = new Label
+                    {
+                        VerticalOptions = LayoutOptions.Center,
+                        HorizontalOptions = LayoutOptions.Start,
+                    };
+
+                    labelActivityReceivingPoNumber.SetBinding(Label.TextProperty, new Binding("ActivityReceivingPONumber"));
+                    labelActivityReceivingIssuedDateTime.SetBinding(
+                        Label.TextProperty,
+                        new Binding("ActivityReceivingIssuedDateTime", BindingMode.Default, null, null, "{0:MM/dd/yyyy}"));
+                    labelActivityReceivingArrivalDateTime.SetBinding(
+                        Label.TextProperty,
+                        new Binding("ActivityReceivingArrivalDateTime", BindingMode.Default, null, null, "{0:MM/dd/yyyy}"));
+
+                    gridData.Children.Add(labelActivityReceivingPoNumber);
+                    gridData.Children.Add(labelActivityReceivingIssuedDateTime);
+                    gridData.Children.Add(labelActivityReceivingArrivalDateTime);
+
+                    Grid.SetColumn(labelActivityReceivingPoNumber, 0);
+                    Grid.SetColumn(labelActivityReceivingIssuedDateTime, 1);
+                    Grid.SetColumn(labelActivityReceivingArrivalDateTime, 2);
+
+                    return new ViewCell { View = gridData };
+                });
+
+                var isAddKey = true;
+                foreach (var item in this.resourceDictionary)
                 {
-                    VerticalOptions = LayoutOptions.Center,
-                    HorizontalOptions = LayoutOptions.Start,
-                };
-
-                var labelActivityReceivingIssuedDateTime = new Label
-                {
-                    VerticalOptions = LayoutOptions.Center,
-                    HorizontalOptions = LayoutOptions.Start,
-                };
-
-                var labelActivityReceivingArrivalDateTime = new Label
-                {
-                    VerticalOptions = LayoutOptions.Center,
-                    HorizontalOptions = LayoutOptions.Start,
-                };
-
-                labelActivityReceivingPoNumber.SetBinding(Label.TextProperty, new Binding("ActivityReceivingPONumber"));
-                labelActivityReceivingIssuedDateTime.SetBinding(
-                    Label.TextProperty,
-                    new Binding("ActivityReceivingIssuedDateTime", BindingMode.Default, null, null, "{0:MM/dd/yyyy}"));
-                labelActivityReceivingArrivalDateTime.SetBinding(
-                    Label.TextProperty,
-                    new Binding("ActivityReceivingArrivalDateTime", BindingMode.Default, null, null, "{0:MM/dd/yyyy}"));
-
-                gridData.Children.Add(labelActivityReceivingPoNumber);
-                gridData.Children.Add(labelActivityReceivingIssuedDateTime);
-                gridData.Children.Add(labelActivityReceivingArrivalDateTime);
-
-                Grid.SetColumn(labelActivityReceivingPoNumber, 0);
-                Grid.SetColumn(labelActivityReceivingIssuedDateTime, 1);
-                Grid.SetColumn(labelActivityReceivingArrivalDateTime, 2);
-
-                return new ViewCell { View = gridData };
-            });
-
-            var isAddKey = true;
-            foreach (var item in this.resourceDictionary)
-            {
-                if (item.Key == "dataTemplateReceiving")
-                {
-                    isAddKey = false;
+                    if (item.Key == "dataTemplateReceiving")
+                    {
+                        isAddKey = false;
+                    }
                 }
-            }
 
-            if (isAddKey)
-            {
-                this.resourceDictionary.Add("dataTemplateReceiving", dataTemplate);
+                if (isAddKey)
+                {
+                    this.resourceDictionary.Add("dataTemplateReceiving", dataTemplate);
+                }
             }
         }
 
@@ -142,6 +147,20 @@ namespace dMobile.Controller.Activity
         public override string GetControlDescription()
         {
             return "Receiving";
+        }
+
+        /// <summary>
+        /// Display the extra information for the selected activity.
+        /// </summary>
+        /// <param name="extraInfo">Extra information collection.</param>
+        public override void DisplayExtraInfo(ObservableCollection<string> extraInfo)
+        {
+            base.DisplayExtraInfo(extraInfo);
+            if (this.SelectedActivity is Receive activity)
+            {
+                extraInfo.Add("Vendor:  " + activity.ActivityReceivingVendorContactName);
+                extraInfo.Add("Supplier:  " + activity.ActivityReceivingVendorSupplierContactName);
+            }
         }
 
         /// <summary>
@@ -255,25 +274,25 @@ namespace dMobile.Controller.Activity
 
             var sql = new StringBuilder();
 
+            sql.Append("SELECT tActivityReceiving.ActivityRefno,");
+            sql.Append("tActivityReceiving.ActivityFKRefno,");
+            sql.Append("tActivityReceiving.ActivityStringFKRefno,");
+            sql.Append("tLocationMapWarehouse.LocationMapRefno AS LocationMapRefno,");
+            sql.Append("tLocationMapWarehouse.LocationMapWarehouseFKRefno AS LocationMapWarehouseFKRefno,");
+            sql.Append("tLocationMapWarehouse.LocationMapWarehouseName AS LocationMapWarehouseName,");
+            sql.Append("tActivityReceiving.ActivityReceivingPONumber AS ActivityReceivingPONumber,");
+            sql.Append("tActivityReceiving.ActivityReceivingIssuedDateTime AS ActivityReceivingIssuedDateTime,");
+            sql.Append("tActivityReceiving.ActivityReceivingArrivalDateTime AS ActivityReceivingArrivalDateTime,");
+            sql.Append("tActivityReceiving.ActivityReceivingVendorContactName AS ActivityReceivingVendorContactName,");
+            sql.Append("tActivityReceiving.ActivityReceivingVendorSupplierContactName AS ActivityReceivingVendorSupplierContactName,");
+            sql.Append("tActivityReceiving.ActivityReceivingVendorSupplierGTINCompanyPrefix AS ActivityReceivingVendorSupplierGTINCompanyPrefix,");
+            sql.Append("tActivity.ActivityStatus AS ActivityStatus ");
+            sql.Append("FROM tActivityReceiving ");
+            sql.Append("INNER JOIN tActivity ON tActivity.ActivityRefno = tActivityReceiving.ActivityRefno ");
+            sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno ");
+            sql.Append("= tActivityReceiving.WarehouseLocationMapRefno ");
             if (isSubmitBatch)
             {
-                sql.Append("SELECT tActivityReceiving.ActivityRefno,");
-                sql.Append("tActivityReceiving.ActivityFKRefno,");
-                sql.Append("tActivityReceiving.ActivityStringFKRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapRefno AS LocationMapRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapWarehouseFKRefno AS LocationMapWarehouseFKRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapWarehouseName AS LocationMapWarehouseName,");
-                sql.Append("tActivityReceiving.ActivityReceivingPONumber AS ActivityReceivingPONumber,");
-                sql.Append("tActivityReceiving.ActivityReceivingIssuedDateTime AS ActivityReceivingIssuedDateTime,");
-                sql.Append("tActivityReceiving.ActivityReceivingArrivalDateTime AS ActivityReceivingArrivalDateTime,");
-                sql.Append("tActivityReceiving.ActivityReceivingVendorContactName AS ActivityReceivingVendorContactName,");
-                sql.Append("tActivityReceiving.ActivityReceivingVendorSupplierContactName AS ActivityReceivingVendorSupplierContactName,");
-                sql.Append("tActivityReceiving.ActivityReceivingVendorSupplierGTINCompanyPrefix AS ActivityReceivingVendorSupplierGTINCompanyPrefix,");
-                sql.Append("tActivity.ActivityStatus AS ActivityStatus ");
-                sql.Append("FROM tActivityReceiving ");
-                sql.Append("INNER JOIN tActivity ON tActivity.ActivityRefno = tActivityReceiving.ActivityRefno ");
-                sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno ");
-                sql.Append("= tActivityReceiving.WarehouseLocationMapRefno ");
                 sql.AppendFormat("WHERE tActivity.ActivityStatus <> {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
                 sql.AppendFormat("AND tActivity.ActivitySubType = {0} ", Convert.ToInt32(SysCommon.ActSubTypes.Receiving));
                 sql.Append("UNION ");
@@ -329,23 +348,6 @@ namespace dMobile.Controller.Activity
             }
             else
             {
-                sql.Append("SELECT tActivityReceiving.ActivityRefno,");
-                sql.Append("tActivityReceiving.ActivityFKRefno,");
-                sql.Append("tActivityReceiving.ActivityStringFKRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapRefno AS LocationMapRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapWarehouseFKRefno AS LocationMapWarehouseFKRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapWarehouseName AS LocationMapWarehouseName,");
-                sql.Append("tActivityReceiving.ActivityReceivingPONumber AS ActivityReceivingPONumber,");
-                sql.Append("tActivityReceiving.ActivityReceivingIssuedDateTime AS ActivityReceivingIssuedDateTime,");
-                sql.Append("tActivityReceiving.ActivityReceivingArrivalDateTime AS ActivityReceivingArrivalDateTime,");
-                sql.Append("tActivityReceiving.ActivityReceivingVendorContactName AS ActivityReceivingVendorContactName,");
-                sql.Append("tActivityReceiving.ActivityReceivingVendorSupplierContactName AS ActivityReceivingVendorSupplierContactName,");
-                sql.Append("tActivityReceiving.ActivityReceivingVendorSupplierGTINCompanyPrefix AS ActivityReceivingVendorSupplierGTINCompanyPrefix,");
-                sql.Append("tActivity.ActivityStatus AS ActivityStatus ");
-                sql.Append("FROM tActivityReceiving ");
-                sql.Append("INNER JOIN tActivity ON tActivity.ActivityRefno = tActivityReceiving.ActivityRefno ");
-                sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno ");
-                sql.Append("= tActivityReceiving.WarehouseLocationMapRefno ");
                 sql.AppendFormat("WHERE tActivityReceiving.WarehouseLocationMapRefno = {0} ", locMap.LoginWhsLocMapRefno);
                 sql.AppendFormat("AND tActivity.ActivitySubType = {0}", Convert.ToInt32(SysCommon.ActSubTypes.Receiving));
             }
@@ -469,21 +471,11 @@ namespace dMobile.Controller.Activity
         /// <returns>The <see cref="Task"/>.</returns>
         public override async Task Refresh(XDocument data)
         {
-            if (this.SysEnv.SysSettings.IsDisconnectedMode)
+            if (!this.SysEnv.SysSettings.IsDisconnectedMode)
             {
-                this.DataLayerProgressOutHandler(this, EventArgs.Empty, 5);
-            }
-            else
-            {
-                this.DataLayerProgressOutHandler(this, EventArgs.Empty, 2);
                 await this.Purge();
-                this.DataLayerProgressOutHandler(this, EventArgs.Empty, 5);
-
                 var tableActReceiving = new TableActivityReceiving();
-
-                tableActReceiving.RegisterDataAccessListenerProgressOut(this);
                 await tableActReceiving.RequestHeaderData();
-                tableActReceiving.UnregisterDataAccessListenerProgressOut(this);
             }
         }
 
@@ -569,60 +561,6 @@ namespace dMobile.Controller.Activity
                         >= minDate && receive.ActivityReceivingArrivalDateTime <= maxDate).ToList();
                 }
             }
-        }
-
-        /// <summary>
-        /// The Insert.
-        /// </summary>
-        /// <param name="xmlParams">The xmlParams<see cref="XDocument"/>.</param>
-        /// <returns>The <see cref="int"/>.</returns>
-        public override Task<int> Insert(XDocument xmlParams)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// The Delete.
-        /// </summary>
-        /// <returns>The <see cref="Task"/>.</returns>
-        public override Task Delete()
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// The PrintLabel.
-        /// </summary>
-        /// <param name="xmlParam">The xmlParam<see cref="XDocument"/>.</param>
-        /// <returns>The <see cref="Task"/>.</returns>
-        public override Task PrintLabel(XDocument xmlParam)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// The GetLabelQuantity.
-        /// </summary>
-        /// <param name="isRepackQuantityOnly">The isRepackQuantityOnly<see cref="bool"/>.</param>
-        /// <returns>The <see cref="Task{SLabelQuantity}"/>.</returns>
-        public override Task<SLabelQuantity> GetLabelQuantity(bool isRepackQuantityOnly)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// The ChangeStatus.
-        /// </summary>
-        /// <param name="selectedActivity">The selectedActivity<see cref="object"/>.</param>
-        /// <returns>The <see cref="Task{bool}"/>.</returns>
-        public override Task<bool> ChangeStatus(object selectedActivity)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override XDocument CreateDump()
-        {
-            throw new NotImplementedException();
         }
     }
 }

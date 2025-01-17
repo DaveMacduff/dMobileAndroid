@@ -14,26 +14,35 @@ using Xamarin.Forms;
 using BarcodeReader = Com.Honeywell.Aidc.BarcodeReader;
 
 [assembly: Dependency(typeof(HoneywellScannerService))]
+
 namespace dMobile.Droid.Services
 {
+    using Java.Lang;
+    using Exception = System.Exception;
+
+    /// <summary>
+    /// Defines the <see cref="HoneywellScannerService" />.
+    /// </summary>
     public class HoneywellScannerService : IHoneywellScannerService
     {
-        private Dictionary<string, object> barcodeReaderSettings = new Dictionary<string, object>();
-        private event EventHandler OnProfileInfoRecieved;
+        private readonly string packageProfileName = Android.App.Application.Context.PackageName;
+
         /// <inheritdoc/>
         public event EventHandler ProfileDataReady;
-        public BarcodeReader BarcodeReader { get; set; }
+
+        private event EventHandler OnProfileInfoReceived;
+
         /// <inheritdoc/>
-        public Dictionary<string, object> BarcodeReaderSettings { get => this.barcodeReaderSettings; set => this.barcodeReaderSettings = value; }
-        private string packageProfileName = Android.App.Application.Context.PackageName;
-        private string defaultProfileName = "DEFAULT";
+        public Dictionary<string, object> BarcodeReaderSettings { get; set; } = new Dictionary<string, object>();
+
+        private BarcodeReader BarcodeReader { get; set; }
 
         /// <inheritdoc/>
         public void GetScannerProfile()
         {
             try
             {
-                this.OnProfileInfoRecieved += this.HoneywellScannerService_OnProfileInfoReceived;
+                this.OnProfileInfoReceived += this.HoneywellScannerService_OnProfileInfoReceived;
                 var callback = new Callback();
                 callback.OnCreatedComplete += ScannerProfileRetrieved;
                 AidcManager.Create(Android.App.Application.Context, callback);
@@ -41,13 +50,16 @@ namespace dMobile.Droid.Services
                 void ScannerProfileRetrieved(object sender, EventArgs e)
                 {
                     this.BarcodeReader = callback.BarcodeReader;
-                    this.OnProfileInfoRecieved?.Invoke(this, EventArgs.Empty);
+                    this.OnProfileInfoReceived?.Invoke(this, EventArgs.Empty);
                 }
             }
             catch (Exception ex)
             {
                 Log.Error("GetScannerProfile", ex.Message);
-                Toast.MakeText(Android.App.Application.Context, "GetScannerProfile error " + ex.Message, ToastLength.Short);
+                Toast.MakeText(
+                    Android.App.Application.Context,
+                    "GetScannerProfile error " + ex.Message,
+                    ToastLength.Short);
             }
         }
 
@@ -57,34 +69,47 @@ namespace dMobile.Droid.Services
             {
                 if (this.BarcodeReader.LoadProfile(this.packageProfileName))
                 {
-                    foreach (var property in this.BarcodeReader.AllProperties)
+                    foreach (var (s, val) in this.BarcodeReader.AllProperties)
                     {
-                        var val = property.Value;
-
                         if (val != null)
                         {
                             try
                             {
-                                if (val.GetType() == typeof(Java.Lang.Boolean))
+                                switch (val)
                                 {
-                                    this.BarcodeReaderSettings.TryAdd(property.Key, (bool)val);
-                                }
-                                else if (val.GetType() == typeof(Java.Lang.String))
-                                {
-                                    this.BarcodeReaderSettings.TryAdd(property.Key, (string)val);
-                                }
-                                else if (val.GetType() == typeof(Java.Lang.Integer))
-                                {
-                                    this.BarcodeReaderSettings.TryAdd(property.Key, (int)val);
-                                }
-                                else
-                                {
-                                    Log.Debug("BARCODE READER PROPERTIES", "Invalid type in bar code reader properties. " + val != null ? val.GetType().ToString() : string.Empty);
+                                    case Boolean _:
+                                        this.BarcodeReaderSettings.TryAdd(s, (bool)val);
+                                        break;
+
+                                    case String _:
+                                        this.BarcodeReaderSettings.TryAdd(s, (string)val);
+                                        break;
+
+                                    case Integer _:
+                                        this.BarcodeReaderSettings.TryAdd(s, (int)val);
+                                        break;
+
+                                    default:
+                                        Log.Debug(
+                                            "BARCODE READER PROPERTIES",
+                                            "Invalid type in bar code reader properties. " + val != null
+                                                ? val.GetType().ToString()
+                                                : string.Empty);
+                                        break;
                                 }
                             }
                             catch (Exception ex)
                             {
-                                Toast.MakeText(Android.App.Application.Context, "Error loading " + Android.App.Application.Context.PackageName + " barcode reader profile. " + val != null ? val.ToString() : string.Empty + " " + ex.Message, ToastLength.Short);
+                                Toast.MakeText(
+                                    Android.App.Application.Context,
+                                    "Error loading " +
+                                    Android.App.Application.Context.PackageName +
+                                    " barcode reader profile. " +
+                                    val !=
+                                    null
+                                        ? val.ToString()
+                                        : string.Empty + " " + ex.Message,
+                                    ToastLength.Short);
                             }
                         }
                     }
@@ -131,17 +156,28 @@ namespace dMobile.Droid.Services
             }
         }
 
-        class Callback : Java.Lang.Object, AidcManager.ICreatedCallback
+        private class Callback : Java.Lang.Object, AidcManager.ICreatedCallback
         {
             private AidcManager manager;
+
             public IntPtr Handle => throw new NotImplementedException();
+
             public int JniIdentityHashCode => throw new NotImplementedException();
+
             public JniObjectReference PeerReference => throw new NotImplementedException();
+
             public JniPeerMembers JniPeerMembers => throw new NotImplementedException();
+
             public JniManagedPeerStates JniManagedPeerState => throw new NotImplementedException();
 
             public BarcodeReader BarcodeReader { get; set; }
-            public AidcManager Manager { get => this.manager; set => this.manager = value; }
+
+            public AidcManager Manager
+            {
+                get => this.manager;
+                set => this.manager = value;
+            }
+
             public EventHandler OnCreatedComplete;
 
             public void Dispose()

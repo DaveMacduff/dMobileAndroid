@@ -7,7 +7,6 @@ using Android.Graphics;
 using Android.Graphics.Drawables;
 using Android.Support.V4.Content;
 using Android.Views;
-using Android.Widget;
 using dMobile.Droid.CustomRenderers;
 using dMobile.View.CustomControls;
 using Xamarin.Forms;
@@ -15,6 +14,7 @@ using Xamarin.Forms.Platform.Android;
 using PickerRenderer = Xamarin.Forms.Platform.Android.AppCompat.PickerRenderer;
 
 [assembly: ExportRenderer(typeof(CustomPicker), typeof(CustomPickerRenderer))]
+
 namespace dMobile.Droid.CustomRenderers
 {
     /// <summary>
@@ -23,10 +23,12 @@ namespace dMobile.Droid.CustomRenderers
     public class CustomPickerRenderer : PickerRenderer
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="CustomPicker"/> class.
+        /// Initializes a new instance of the <see cref="CustomPickerRenderer"/> class.
         /// </summary>
         /// <param name="context">The context<see cref="Context"/>.</param>
-        public CustomPickerRenderer(Context context) : base(context) { }
+        public CustomPickerRenderer(Context context) : base(context)
+        {
+        }
 
         /// <inheritdoc/>
         protected override void OnElementChanged(ElementChangedEventArgs<Picker> e)
@@ -40,7 +42,10 @@ namespace dMobile.Droid.CustomRenderers
                 this.Control.Focusable = true;
                 this.Control.FocusableInTouchMode = true;
                 this.Control.SetCursorVisible(true);
-                this.Control.Background = this.AddPickerStyles(!string.IsNullOrEmpty((this.Element as CustomPicker).Image) ? (this.Element as CustomPicker).Image : "arrow_drop_down");
+                this.Control.Background = this.AddPickerStyles(
+                    !string.IsNullOrEmpty(
+                    (this.Element as CustomPicker)?.Image)
+                    ? (this.Element as CustomPicker)?.Image : "arrow_drop_down");
             }
         }
 
@@ -48,11 +53,11 @@ namespace dMobile.Droid.CustomRenderers
         {
             if (this.Control != null && this.Element != null)
             {
-                (this.Element as CustomPicker).Text = this.Control.Text;
+                ((CustomPicker)this.Element).Text = this.Control.Text;
             }
         }
 
-        public LayerDrawable AddPickerStyles(string imagePath)
+        private LayerDrawable AddPickerStyles(string imagePath)
         {
             Drawable[] layers = { this.Control.Background, this.GetDrawable(imagePath) };
             var layerDrawable = new LayerDrawable(layers);
@@ -63,8 +68,8 @@ namespace dMobile.Droid.CustomRenderers
 
         private BitmapDrawable GetDrawable(string imagePath)
         {
-            var resID = this.Resources.GetIdentifier(imagePath, "drawable", this.Context.PackageName);
-            var drawable = ContextCompat.GetDrawable(this.Context, resID);
+            var resId = this.Resources!.GetIdentifier(imagePath, "drawable", this.Context!.PackageName);
+            var drawable = ContextCompat.GetDrawable(this.Context, resId);
             var bitmap = ((BitmapDrawable)drawable).Bitmap;
 
             var result = new BitmapDrawable(this.Resources, Bitmap.CreateScaledBitmap(bitmap, 20, 20, true))

@@ -35,147 +35,151 @@ namespace dMobile.Controller.Activity
         /// Initializes a new instance of the <see cref="SkidInfoActivity"/> class.
         /// </summary>
         public SkidInfoActivity()
-            : base()
         {
             this.FullClassName = typeof(SkidInfoActivity).FullName;
             this.LocMap = LocationMap.GetInstance();
+            DefineInitialGridDataTemplate();
+            return;
 
-            var labelHeader1 = new Label
+            void DefineInitialGridDataTemplate()
             {
-                Text = "Code",
-                VerticalOptions = LayoutOptions.Center,
-                FontAttributes = FontAttributes.Bold,
-            };
-
-            var labelHeader2 = new Label
-            {
-                Text = string.Empty,
-                VerticalOptions = LayoutOptions.Center,
-                FontAttributes = FontAttributes.Bold,
-            };
-
-            var labelHeader3 = new Label
-            {
-                Text = string.Empty,
-                VerticalOptions = LayoutOptions.Center,
-                FontAttributes = FontAttributes.Bold,
-            };
-
-            var labelHeader4 = new Label
-            {
-                Text = "Qty",
-                VerticalOptions = LayoutOptions.Center,
-                FontAttributes = FontAttributes.Bold,
-            };
-
-            var labelHeader5 = new Label
-            {
-                Text = string.Empty,
-                VerticalOptions = LayoutOptions.Center,
-                FontAttributes = FontAttributes.Bold,
-            };
-
-            var labelHeader6 = new Label
-            {
-                Text = "Weight",
-                VerticalOptions = LayoutOptions.Center,
-                FontAttributes = FontAttributes.Bold,
-            };
-
-            var labelHeader7 = new Label
-            {
-                Text = string.Empty,
-                VerticalOptions = LayoutOptions.Center,
-                FontAttributes = FontAttributes.Bold,
-            };
-
-            var labelHeader8 = new Label
-            {
-                Text = string.Empty,
-                VerticalOptions = LayoutOptions.Center,
-                FontAttributes = FontAttributes.Bold,
-            };
-
-            // Data grid
-            var dataTemplate = new DataTemplate(() =>
-            {
-                var columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelHeader1.Text);
-                var columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelHeader2.Text);
-                var columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelHeader3.Text);
-                var columnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelHeader4.Text);
-                var columnWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(labelHeader5.Text);
-                var columnWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(labelHeader6.Text);
-                var columnWidth6 = DependencyService.Get<IGridService>().CalculateTextWidth(labelHeader7.Text);
-                var columnWidth7 = DependencyService.Get<IGridService>().CalculateTextWidth(labelHeader8.Text);
-
-                var gridData = new Grid
+                var labelHeader1 = new Label
                 {
-                    Padding = new Thickness(5),
-                    ColumnDefinitions =
-                    {
-                        new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(columnWidth2, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(columnWidth3, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(columnWidth4, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(columnWidth5, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(columnWidth6, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(columnWidth7, GridUnitType.Absolute) },
-                    },
+                    Text = "Code",
+                    VerticalOptions = LayoutOptions.Center,
+                    FontAttributes = FontAttributes.Bold,
                 };
 
-                var label1 = new Label { VerticalOptions = LayoutOptions.Center };
-                var label2 = new Label { VerticalOptions = LayoutOptions.Center };
-                var label3 = new Label { VerticalOptions = LayoutOptions.Center };
-                var label4 = new Label { VerticalOptions = LayoutOptions.Center };
-                var label5 = new Label { VerticalOptions = LayoutOptions.Center };
-                var label6 = new Label { VerticalOptions = LayoutOptions.Center };
-                var label7 = new Label { VerticalOptions = LayoutOptions.Center };
-                var label8 = new Label { VerticalOptions = LayoutOptions.Center };
-
-                label1.SetBinding(Label.TextProperty, new Binding("SkidCode"));
-                label2.SetBinding(Label.TextProperty, new Binding("ProductCode"));
-                label3.SetBinding(Label.TextProperty, new Binding("ProductUnitBC"));
-                label4.SetBinding(Label.TextProperty, new Binding("Quantity", BindingMode.Default, null, null, "{0:F3}"));
-                label5.SetBinding(Label.TextProperty, new Binding("UnitCode"));
-                label6.SetBinding(Label.TextProperty, new Binding("WeightQuantity", BindingMode.Default, null, null, "{0:F3}"));
-                label7.SetBinding(Label.TextProperty, new Binding("WeightUnitCode"));
-                label8.SetBinding(Label.TextProperty, new Binding("LocationName"));
-
-                gridData.Children.Add(label1);
-                gridData.Children.Add(label2);
-                gridData.Children.Add(label3);
-                gridData.Children.Add(label4);
-                gridData.Children.Add(label5);
-                gridData.Children.Add(label6);
-                gridData.Children.Add(label7);
-                gridData.Children.Add(label8);
-
-                Grid.SetColumn(label1, 0);
-                Grid.SetColumn(label2, 1);
-                Grid.SetColumn(label3, 2);
-                Grid.SetColumn(label4, 3);
-                Grid.SetColumn(label5, 4);
-                Grid.SetColumn(label6, 5);
-                Grid.SetColumn(label7, 6);
-                Grid.SetColumn(label8, 7);
-
-                return new ViewCell { View = gridData };
-            });
-
-
-            var isAddKey = true;
-            foreach (var item in this.resourceDictionary)
-            {
-                if (item.Key == "dataTemplateSkidInfo")
+                var labelHeader2 = new Label
                 {
-                    isAddKey = false;
-                }
-            }
+                    Text = string.Empty,
+                    VerticalOptions = LayoutOptions.Center,
+                    FontAttributes = FontAttributes.Bold,
+                };
 
-            if (isAddKey)
-            {
-                this.resourceDictionary.Add("dataTemplateSkidInfo", dataTemplate);
+                var labelHeader3 = new Label
+                {
+                    Text = string.Empty,
+                    VerticalOptions = LayoutOptions.Center,
+                    FontAttributes = FontAttributes.Bold,
+                };
+
+                var labelHeader4 = new Label
+                {
+                    Text = "Qty",
+                    VerticalOptions = LayoutOptions.Center,
+                    FontAttributes = FontAttributes.Bold,
+                };
+
+                var labelHeader5 = new Label
+                {
+                    Text = string.Empty,
+                    VerticalOptions = LayoutOptions.Center,
+                    FontAttributes = FontAttributes.Bold,
+                };
+
+                var labelHeader6 = new Label
+                {
+                    Text = "Weight",
+                    VerticalOptions = LayoutOptions.Center,
+                    FontAttributes = FontAttributes.Bold,
+                };
+
+                var labelHeader7 = new Label
+                {
+                    Text = string.Empty,
+                    VerticalOptions = LayoutOptions.Center,
+                    FontAttributes = FontAttributes.Bold,
+                };
+
+                var labelHeader8 = new Label
+                {
+                    Text = string.Empty,
+                    VerticalOptions = LayoutOptions.Center,
+                    FontAttributes = FontAttributes.Bold,
+                };
+
+                // Data grid
+                var dataTemplate = new DataTemplate(() =>
+                {
+                    var columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelHeader1.Text);
+                    var columnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelHeader2.Text);
+                    var columnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(labelHeader3.Text);
+                    var columnWidth3 = DependencyService.Get<IGridService>().CalculateTextWidth(labelHeader4.Text);
+                    var columnWidth4 = DependencyService.Get<IGridService>().CalculateTextWidth(labelHeader5.Text);
+                    var columnWidth5 = DependencyService.Get<IGridService>().CalculateTextWidth(labelHeader6.Text);
+                    var columnWidth6 = DependencyService.Get<IGridService>().CalculateTextWidth(labelHeader7.Text);
+                    var columnWidth7 = DependencyService.Get<IGridService>().CalculateTextWidth(labelHeader8.Text);
+
+                    var gridData = new Grid
+                    {
+                        Padding = new Thickness(5),
+                        ColumnDefinitions =
+                        {
+                            new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
+                            new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
+                            new ColumnDefinition { Width = new GridLength(columnWidth2, GridUnitType.Absolute) },
+                            new ColumnDefinition { Width = new GridLength(columnWidth3, GridUnitType.Absolute) },
+                            new ColumnDefinition { Width = new GridLength(columnWidth4, GridUnitType.Absolute) },
+                            new ColumnDefinition { Width = new GridLength(columnWidth5, GridUnitType.Absolute) },
+                            new ColumnDefinition { Width = new GridLength(columnWidth6, GridUnitType.Absolute) },
+                            new ColumnDefinition { Width = new GridLength(columnWidth7, GridUnitType.Absolute) },
+                        },
+                    };
+
+                    var label1 = new Label { VerticalOptions = LayoutOptions.Center };
+                    var label2 = new Label { VerticalOptions = LayoutOptions.Center };
+                    var label3 = new Label { VerticalOptions = LayoutOptions.Center };
+                    var label4 = new Label { VerticalOptions = LayoutOptions.Center };
+                    var label5 = new Label { VerticalOptions = LayoutOptions.Center };
+                    var label6 = new Label { VerticalOptions = LayoutOptions.Center };
+                    var label7 = new Label { VerticalOptions = LayoutOptions.Center };
+                    var label8 = new Label { VerticalOptions = LayoutOptions.Center };
+
+                    label1.SetBinding(Label.TextProperty, new Binding("SkidCode"));
+                    label2.SetBinding(Label.TextProperty, new Binding("ProductCode"));
+                    label3.SetBinding(Label.TextProperty, new Binding("ProductUnitBC"));
+                    label4.SetBinding(Label.TextProperty, new Binding("Quantity", BindingMode.Default, null, null, "{0:F3}"));
+                    label5.SetBinding(Label.TextProperty, new Binding("UnitCode"));
+                    label6.SetBinding(Label.TextProperty, new Binding("WeightQuantity", BindingMode.Default, null, null, "{0:F3}"));
+                    label7.SetBinding(Label.TextProperty, new Binding("WeightUnitCode"));
+                    label8.SetBinding(Label.TextProperty, new Binding("LocationName"));
+
+                    gridData.Children.Add(label1);
+                    gridData.Children.Add(label2);
+                    gridData.Children.Add(label3);
+                    gridData.Children.Add(label4);
+                    gridData.Children.Add(label5);
+                    gridData.Children.Add(label6);
+                    gridData.Children.Add(label7);
+                    gridData.Children.Add(label8);
+
+                    Grid.SetColumn(label1, 0);
+                    Grid.SetColumn(label2, 1);
+                    Grid.SetColumn(label3, 2);
+                    Grid.SetColumn(label4, 3);
+                    Grid.SetColumn(label5, 4);
+                    Grid.SetColumn(label6, 5);
+                    Grid.SetColumn(label7, 6);
+                    Grid.SetColumn(label8, 7);
+
+                    return new ViewCell { View = gridData };
+                });
+
+
+                var isAddKey = true;
+                foreach (var item in this.resourceDictionary)
+                {
+                    if (item.Key == "dataTemplateSkidInfo")
+                    {
+                        isAddKey = false;
+                    }
+                }
+
+                if (isAddKey)
+                {
+                    this.resourceDictionary.Add("dataTemplateSkidInfo", dataTemplate);
+                }
             }
         }
 
@@ -544,51 +548,6 @@ namespace dMobile.Controller.Activity
         /// </summary>
         /// <param name="data">.</param>
         public override void GetFilter(XDocument data)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// The Insert.
-        /// </summary>
-        /// <param name="xmlParams">The xmlParams<see cref="XDocument"/>.</param>
-        /// <returns>The <see cref="int"/>.</returns>
-        public override Task<int> Insert(XDocument xmlParams)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// The PrintLabel.
-        /// </summary>
-        /// <param name="xmlParam">The xmlParam<see cref="XDocument"/>.</param>
-        /// <returns>The <see cref="Task"/>.</returns>
-        public override Task PrintLabel(XDocument xmlParam)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// The GetLabelQuantity.
-        /// </summary>
-        /// <param name="isRepackQuantityOnly">The isRepackQuantityOnly<see cref="bool"/>.</param>
-        /// <returns>The <see cref="Task{SLabelQuantity}"/>.</returns>
-        public override Task<SLabelQuantity> GetLabelQuantity(bool isRepackQuantityOnly)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// The ChangeStatus.
-        /// </summary>
-        /// <param name="selectedActivity">The selectedActivity<see cref="object"/>.</param>
-        /// <returns>The <see cref="Task{bool}"/>.</returns>
-        public override Task<bool> ChangeStatus(object selectedActivity)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override XDocument CreateDump()
         {
             throw new NotImplementedException();
         }

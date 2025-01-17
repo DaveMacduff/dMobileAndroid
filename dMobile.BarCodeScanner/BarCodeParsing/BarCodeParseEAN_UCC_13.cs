@@ -85,7 +85,8 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
 
                 if (barCodeData.Length > 0)
                 {
-                    barCodeData = barCodeData.Remove(0, 1);   // remove check digit
+                    // remove check digit
+                    barCodeData = barCodeData.Remove(0, 1);
                 }
 
                 this.Remainder = barCodeData;

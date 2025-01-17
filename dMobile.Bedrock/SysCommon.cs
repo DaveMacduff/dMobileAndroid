@@ -14,8 +14,7 @@ namespace dMobile.Bedrock
     using System.Text;
     using System.Threading.Tasks;
     using System.Xml;
-    using dMobile.Resources.Models.Headers;
-    using Resources.Models;
+    using Resources.Models.Headers;
 
     /// <summary>
     /// Defines the <see cref="SysCommon" />.
@@ -1100,81 +1099,31 @@ namespace dMobile.Bedrock
 
             switch (adjustmentType)
             {
-                case AdjTypes.CycleCount:
-                    break;
-
                 case AdjTypes.Disposal:
-                    isNegateQuantity = true;
-                    break;
-
                 case AdjTypes.Fresh2Frozen:
-                    isNegateQuantity = true;
-                    break;
-
-                case AdjTypes.Inventory:
-                    break;
-
-                case AdjTypes.LostFound:
-                    break;
-
-                case AdjTypes.Manufacture:
-                    break;
-
-                case AdjTypes.MoveToDeli:
-                    break;
-
-                case AdjTypes.PackOff:
-                    break;
-
-                case AdjTypes.PartialProduction:
-                    break;
-
                 case AdjTypes.PartialRework:
-                    isNegateQuantity = true;
-                    break;
-
-                case AdjTypes.PeriodicCount:
-                    break;
-
-                case AdjTypes.Production:
-                    break;
-
                 case AdjTypes.Rework:
-                    isNegateQuantity = true;
-                    break;
-
-                case AdjTypes.Transfer:
-                    break;
-
                 case AdjTypes.UnitConversion:
-                    isNegateQuantity = true;
-                    break;
-
                 case AdjTypes.Requisition:
-                    isNegateQuantity = true;
-                    break;
-
                 case AdjTypes.AutoConvertTo:
-                    isNegateQuantity = true;
-                    break;
-
-                case AdjTypes.AutoCreateFrom:
-                    break;
-
                 case AdjTypes.SkidPutaway:
-                    isNegateQuantity = true;
-                    break;
-
                 case AdjTypes.ConvertProduct:
-                    isNegateQuantity = true;
-                    break;
-
                 case AdjTypes.Debox:
-                    isNegateQuantity = true;
-                    break;
-
                 case AdjTypes.ConvertSkid:
                     isNegateQuantity = true;
+                    break;
+
+                case AdjTypes.CycleCount:
+                case AdjTypes.Inventory:
+                case AdjTypes.LostFound:
+                case AdjTypes.Manufacture:
+                case AdjTypes.MoveToDeli:
+                case AdjTypes.PackOff:
+                case AdjTypes.PartialProduction:
+                case AdjTypes.PeriodicCount:
+                case AdjTypes.Production:
+                case AdjTypes.Transfer:
+                case AdjTypes.AutoCreateFrom:
                     break;
 
                 default:
@@ -1272,7 +1221,7 @@ namespace dMobile.Bedrock
             var fill = default(SFillQuantity);
             if (quantity == 0)
             {
-                if (prodInfo.UnitCode == "LB" | prodInfo.UnitCode == "KG")
+                if ((prodInfo.UnitCode == "LB") | (prodInfo.UnitCode == "KG"))
                 {
                     fill.Quantity = prodInfo.UnitGrossWeight;
                 }
@@ -1290,35 +1239,33 @@ namespace dMobile.Bedrock
             if (prodInfo.UnitCode == prodInfo.BaseUnitCode && prodInfo.Unit2BaseUnitFactor <= 1)
             {
                 baseQty = fill.Quantity;
-                fill.BaseQuantity = Math.Round(baseQty, 3);
             }
             else if (prodInfo.BaseUnitCode == "LB" || prodInfo.BaseUnitCode == "KG")
             {
                 baseQty = fill.Quantity * prodInfo.UnitGrossWeight;
-                fill.BaseQuantity = Math.Round(baseQty, 3);
             }
             else
             {
                 baseQty = fill.Quantity * prodInfo.Unit2BaseUnitFactor;
-                fill.BaseQuantity = Math.Round(baseQty, 3);
             }
+
+            fill.BaseQuantity = Math.Round(baseQty, 3);
 
             decimal weightQty;
             if (prodInfo.UnitCode == prodInfo.WeightUnitCode)
             {
                 weightQty = fill.Quantity;
-                fill.WeightQuantity = Math.Round(weightQty, 3);
             }
             else if (prodInfo.BaseUnitCode == prodInfo.WeightUnitCode)
             {
                 weightQty = baseQty;
-                fill.WeightQuantity = Math.Round(weightQty, 3);
             }
             else
             {
                 weightQty = fill.Quantity * prodInfo.UnitGrossWeight;
-                fill.WeightQuantity = Math.Round(weightQty, 3);
             }
+
+            fill.WeightQuantity = Math.Round(weightQty, 3);
 
             return fill;
         }
@@ -1337,7 +1284,7 @@ namespace dMobile.Bedrock
             const int numberOfPasses = 2;
             var success = false;
             var maxAttempts = sysEnv.SysSock.MaxPorts * numberOfPasses;
-            maxAttempts = (maxAttempts > 1) ? maxAttempts - 1 : 1;
+            maxAttempts = maxAttempts > 1 ? maxAttempts - 1 : 1;
             for (var attempt = 1; attempt <= maxAttempts; attempt++)
             {
                 try

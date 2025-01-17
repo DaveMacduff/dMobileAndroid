@@ -256,7 +256,7 @@ namespace dMobile.Controller.Activity_Item
         /// The GetUnableToParseItemFKRefnoMessage.
         /// </summary>
         /// <param name="actItemStringFkRefno">.</param>
-        /// <returns>.</returns>
+        /// <returns>Unable to parse message.</returns>
         public override string GetUnableToParseItemFkRefnoMessage(string actItemStringFkRefno)
         {
             return $"Unable To Parse Count Item# {actItemStringFkRefno}";
@@ -266,7 +266,7 @@ namespace dMobile.Controller.Activity_Item
         /// The GetUnableToFindItemFKRefnoMessage.
         /// </summary>
         /// <param name="actItemStringFkRefno">.</param>
-        /// <returns>.</returns>
+        /// <returns>Unable to find item for foreign key reference number.</returns>
         public override string GetUnableToFindItemFkRefnoMessage(string actItemStringFkRefno)
         {
             return $"Unable To Find Count Item# {actItemStringFkRefno}";
@@ -530,6 +530,22 @@ namespace dMobile.Controller.Activity_Item
             this.ColumnWidth3 = columnWidths[3];
             this.ColumnWidth4 = columnWidths[4];
             this.ColumnWidth5 = columnWidths[5];
+        }
+
+        /// <summary>
+        ///     Create observable collection from list items.
+        /// </summary>
+        /// <param name="listItems">List of item objects.</param>
+        /// <returns>Created observable collection.</returns>
+        public override ObservableCollection<object> CreateObservableCollectionFromListItems(List<object> listItems)
+        {
+            var mainActivityItems = new ObservableCollection<object>();
+            foreach (var item in listItems.Cast<CountItem>())
+            {
+                mainActivityItems.Add(item);
+            }
+
+            return mainActivityItems;
         }
 
         /// <summary>

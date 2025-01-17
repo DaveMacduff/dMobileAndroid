@@ -28,80 +28,95 @@ namespace dMobile.Controller.Activity
         /// Initializes a new instance of the <see cref="AdjActivity"/> class.
         /// </summary>
         public AdjActivity()
-          : base()
         {
             this.FullClassName = typeof(AdjActivity).FullName;
             this.AdjSettings = new AdjustmentSettings().LoadData();
-            var dataTemplate = new DataTemplate(() =>
+            DefineInitialGridDataTemplate();
+            return;
+
+            void DefineInitialGridDataTemplate()
             {
-                var gridData = new Grid
-                {
-                    Padding = new Thickness(5),
-                    ColumnDefinitions =
+                var dataTemplate = new DataTemplate(
+                    () =>
                     {
-                        new ColumnDefinition { Width = new GridLength(this.ColumnWidth0, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(this.ColumnWidth1, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(this.ColumnWidth2, GridUnitType.Absolute) },
-                    },
-                };
+                        var gridData = new Grid
+                        {
+                            Padding = new Thickness(5),
+                            ColumnDefinitions =
+                            {
+                                new ColumnDefinition { Width = new GridLength(this.ColumnWidth0, GridUnitType.Absolute) },
+                                new ColumnDefinition { Width = new GridLength(this.ColumnWidth1, GridUnitType.Absolute) },
+                                new ColumnDefinition { Width = new GridLength(this.ColumnWidth2, GridUnitType.Absolute) },
+                            },
+                        };
 
-                var labelActivityStringFkRefno = new Label { VerticalOptions = LayoutOptions.Center };
-                var labelActivityAdjustmentDateTime = new Label { VerticalOptions = LayoutOptions.Center };
-                var labelActivityAdjustmentDescription = new Label { VerticalOptions = LayoutOptions.Center };
+                        var labelActivityStringFkRefno = new Label { VerticalOptions = LayoutOptions.Center };
+                        var labelActivityAdjustmentDateTime = new Label { VerticalOptions = LayoutOptions.Center };
+                        var labelActivityAdjustmentDescription = new Label { VerticalOptions = LayoutOptions.Center };
 
-                labelActivityStringFkRefno.SetBinding(
-                    Label.TextProperty,
-                    new Binding("ActivityStringFKRefno"));
-                labelActivityAdjustmentDateTime.SetBinding(
-                    Label.TextProperty,
-                    new Binding("ActivityAdjustmentDateTime", BindingMode.Default, null, null, "{0:MM/dd/yyyy}"));
-                labelActivityAdjustmentDescription.SetBinding(
-                    Label.TextProperty,
-                    new Binding("ActivityAdjustmentDescription"));
+                        labelActivityStringFkRefno.SetBinding(Label.TextProperty, new Binding("ActivityStringFKRefno"));
+                        labelActivityAdjustmentDateTime.SetBinding(
+                            Label.TextProperty,
+                            new Binding("ActivityAdjustmentDateTime", BindingMode.Default, null, null, "{0:MM/dd/yyyy}"));
+                        labelActivityAdjustmentDescription.SetBinding(
+                            Label.TextProperty,
+                            new Binding("ActivityAdjustmentDescription"));
 
-                gridData.Children.Add(labelActivityStringFkRefno, 0, 0);
-                gridData.Children.Add(labelActivityAdjustmentDateTime, 0, 0);
-                gridData.Children.Add(labelActivityAdjustmentDescription, 0, 0);
+                        gridData.Children.Add(labelActivityStringFkRefno, 0, 0);
+                        gridData.Children.Add(labelActivityAdjustmentDateTime, 0, 0);
+                        gridData.Children.Add(labelActivityAdjustmentDescription, 0, 0);
 
-                Grid.SetColumn(labelActivityStringFkRefno, 0);
-                Grid.SetColumn(labelActivityAdjustmentDateTime, 1);
-                Grid.SetColumn(labelActivityAdjustmentDescription, 2);
+                        Grid.SetColumn(labelActivityStringFkRefno, 0);
+                        Grid.SetColumn(labelActivityAdjustmentDateTime, 1);
+                        Grid.SetColumn(labelActivityAdjustmentDescription, 2);
 
-                return new ViewCell { View = gridData };
-            });
+                        return new ViewCell { View = gridData };
+                    });
 
-            this.ResDict.Add("dataTemplateAdjustment", dataTemplate);
+                var isAddKey = true;
+                foreach (var item in this.ResDict)
+                {
+                    if (item.Key == "dataTemplateAdjustment")
+                    {
+                        isAddKey = false;
+                    }
+                }
+
+                if (isAddKey)
+                {
+                    this.ResDict.Add("dataTemplateAdjustment", dataTemplate);
+                }
+            }
         }
 
         /// <summary>
-        /// Gets or sets the adjustment settings.
+        /// Gets the adjustment settings.
         /// </summary>
-        public AdjustmentSettings AdjSettings { get; set; }
+        public AdjustmentSettings AdjSettings { get; private set; }
+
+        private double ColumnWidth0 { get; set; }
+
+        private double ColumnWidth1 { get; set; }
+
+        private double ColumnWidth2 { get; set; }
+
+        private ResourceDictionary ResDict { get; } = new ResourceDictionary();
+
+        private List<Adjustment> ListAdjustments { get; set; } = new List<Adjustment>();
 
         /// <summary>
-        /// Gets or sets the list view / grid column 0 width.
+        /// Display the extra information for the selected activity.
         /// </summary>
-        public double ColumnWidth0 { get; set; } = 0;
-
-        /// <summary>
-        /// Gets or sets the list view / grid column 1 width.
-        /// </summary>
-        public double ColumnWidth1 { get; set; } = 0;
-
-        /// <summary>
-        /// Gets or sets the list view / grid column 2 width.
-        /// </summary>
-        public double ColumnWidth2 { get; set; } = 0;
-
-        /// <summary>
-        /// Gets or sets the resource dictionary of string for resource objects.
-        /// </summary>
-        public ResourceDictionary ResDict { get; set; } = new ResourceDictionary();
-
-        /// <summary>
-        /// Gets or sets a list of adjustment headers.
-        /// </summary>
-        public List<Adjustment> ListAdjustments { get; set; } = new List<Adjustment>();
+        /// <param name="extraInfo">Extra information collection.</param>
+        public override void DisplayExtraInfo(ObservableCollection<string> extraInfo)
+        {
+            base.DisplayExtraInfo(extraInfo);
+            if (this.SelectedActivity is Adjustment activity)
+            {
+                extraInfo.Add("Adjustment type: " + activity.ActivityAdjustmentTypeDescription);
+                extraInfo.Add("Warehouse:  " + activity.LocationMapWarehouseName);
+            }
+        }
 
         /// <summary>
         /// Purge adjustment headers, items and detail.
@@ -110,13 +125,11 @@ namespace dMobile.Controller.Activity
         public override async Task Purge()
         {
             var adj = new TableActivityAdjustment();
-            var adjItem = new TableActivityAdjustmentItem();
-            var adjDetail = new TableActivityAdjustmentDetail();
-
-            // NOTE: This should be in a transaction.
-            await adjDetail.PurgeData();
-            await adjItem.PurgeData();
             await adj.PurgeData();
+            var adjItem = new TableActivityAdjustmentItem();
+            await adjItem.PurgeData();
+            var adjDetail = new TableActivityAdjustmentDetail();
+            await adjDetail.PurgeData();
         }
 
         /// <summary>
@@ -142,7 +155,7 @@ namespace dMobile.Controller.Activity
         /// </summary>
         /// <param name="gridMainActivity"><see cref="Grid"/> Main activity header grid.</param>
         /// <param name="listViewMainActivity"><see cref="ListView"/> Main activity list.</param>
-        /// <returns><see cref="ObservableCollection{object}"/> List of activity headers.</returns>
+        /// <returns>List of activity headers.</returns>
         public override ObservableCollection<object> DesignGrid(
             ref Grid gridMainActivity,
             ref ListView listViewMainActivity)
@@ -238,26 +251,26 @@ namespace dMobile.Controller.Activity
         /// Get list of activity headers.
         /// </summary>
         /// <param name="isSubmitBatch"><see cref="bool"/> Is submitting batch mode.</param>
-        /// <returns><see cref="List{object}"/> List of headers.</returns>
+        /// <returns>List of headers.</returns>
         public override async Task<List<object>> GetActivityList(bool isSubmitBatch)
         {
             var adjSettings = new AdjustmentSettings().LoadData();
             var sql = new StringBuilder();
 
+            _ = sql.Append("SELECT tActivityAdjustment.ActivityRefno,");
+            _ = sql.Append("tActivityAdjustment.ActivityFKRefno,");
+            _ = sql.Append("tActivityAdjustment.ActivityStringFKRefno,");
+            _ = sql.Append("tLocationMapWarehouse.LocationMapWarehouseFKRefno AS LocationMapWarehouseFKRefno,");
+            _ = sql.Append("tLocationMapWarehouse.LocationMapRefno AS LocationMapRefno,");
+            _ = sql.Append("tLocationMapWarehouse.LocationMapWarehouseName AS LocationMapWarehouseName,");
+            _ = sql.Append("tActivityAdjustment.ActivityAdjustmentDateTime AS ActivityAdjustmentDateTime,");
+            _ = sql.Append("tActivityAdjustment.ActivityAdjustmentDescription AS ActivityAdjustmentDescription,");
+            _ = sql.Append("tActivityAdjustment.ActivityAdjustmentType AS ActivityAdjustmentType,");
+            _ = sql.Append("tActivityAdjustment.ActivityAdjustmentTypeDescription AS ActivityAdjustmentTypeDescription,");
+            _ = sql.Append("tActivity.ActivityStatus AS ActivityStatus");
+            _ = sql.Append(" FROM tActivityAdjustment");
             if (isSubmitBatch)
             {
-                _ = sql.Append("SELECT tActivityAdjustment.ActivityRefno,");
-                _ = sql.Append("tActivityAdjustment.ActivityFKRefno,");
-                _ = sql.Append("tActivityAdjustment.ActivityStringFKRefno,");
-                _ = sql.Append("tLocationMapWarehouse.LocationMapWarehouseFKRefno AS LocationMapWarehouseFKRefno,");
-                _ = sql.Append("tLocationMapWarehouse.LocationMapRefno AS LocationMapRefno,");
-                _ = sql.Append("tLocationMapWarehouse.LocationMapWarehouseName AS LocationMapWarehouseName,");
-                _ = sql.Append("tActivityAdjustment.ActivityAdjustmentDateTime AS ActivityAdjustmentDateTime,");
-                _ = sql.Append("tActivityAdjustment.ActivityAdjustmentDescription AS ActivityAdjustmentDescription,");
-                _ = sql.Append("tActivityAdjustment.ActivityAdjustmentType AS ActivityAdjustmentType,");
-                _ = sql.Append("tActivityAdjustment.ActivityAdjustmentTypeDescription AS ActivityAdjustmentTypeDescription,");
-                _ = sql.Append("tActivity.ActivityStatus AS ActivityStatus");
-                _ = sql.Append(" FROM tActivityAdjustment");
                 _ = sql.Append(" INNER JOIN tActivity ON tActivity.ActivityRefno = tActivityAdjustment.ActivityRefno");
                 _ = sql.Append(" INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno = ");
                 _ = sql.Append("tActivityAdjustment.WarehouseLocationMapRefno");
@@ -306,18 +319,6 @@ namespace dMobile.Controller.Activity
             }
             else
             {
-                _ = sql.Append("SELECT tActivityAdjustment.ActivityRefno,");
-                _ = sql.Append("tActivityAdjustment.ActivityFKRefno,");
-                _ = sql.Append("tActivityAdjustment.ActivityStringFKRefno,");
-                _ = sql.Append("tLocationMapWarehouse.LocationMapWarehouseFKRefno AS LocationMapWarehouseFKRefno,");
-                _ = sql.Append("tLocationMapWarehouse.LocationMapRefno AS LocationMapRefno,");
-                _ = sql.Append("tLocationMapWarehouse.LocationMapWarehouseName AS LocationMapWarehouseName,");
-                _ = sql.Append("tActivityAdjustment.ActivityAdjustmentDateTime AS ActivityAdjustmentDateTime,");
-                _ = sql.Append("tActivityAdjustment.ActivityAdjustmentDescription AS ActivityAdjustmentDescription,");
-                _ = sql.Append("tActivityAdjustment.ActivityAdjustmentType AS ActivityAdjustmentType,");
-                _ = sql.Append("tActivityAdjustment.ActivityAdjustmentTypeDescription AS ActivityAdjustmentTypeDescription,");
-                _ = sql.Append("tActivity.ActivityStatus AS ActivityStatus");
-                _ = sql.Append(" FROM tActivityAdjustment");
                 _ = sql.Append(" INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno = ");
                 _ = sql.Append("tActivityAdjustment.WarehouseLocationMapRefno");
                 _ = sql.Append(" INNER JOIN tActivity ON tActivity.ActivityRefno = tActivityAdjustment.ActivityRefno");
@@ -329,18 +330,17 @@ namespace dMobile.Controller.Activity
             {
                 if (sort.SortOrder == Resources.Enums.SortOrder.ASC)
                 {
-                    this.ListAdjustments = this.ListAdjustments.OrderBy(adj => adj.GetType().
-                        GetProperty(sort.SortValue).GetValue(adj)).ToList();
+                    this.ListAdjustments = this.ListAdjustments.OrderBy(
+                        adj => adj.GetType().GetProperty(sort.SortValue) !.GetValue(adj)).ToList();
                 }
                 else
                 {
-                    this.ListAdjustments = this.ListAdjustments.OrderByDescending(adj => adj.GetType().
-                        GetProperty(sort.SortValue).GetValue(adj)).ToList();
+                    this.ListAdjustments = this.ListAdjustments.OrderByDescending(
+                        adj => adj.GetType().GetProperty(sort.SortValue) !.GetValue(adj)).ToList();
                 }
             }
 
             this.GetFilter();
-
             this.ListHeaders = this.ListAdjustments.Cast<object>().ToList();
             return this.ListHeaders;
         }
@@ -349,16 +349,13 @@ namespace dMobile.Controller.Activity
         /// Perform a search for a text match and return a list of matched headers.
         /// </summary>
         /// <param name="searchText"><see cref="string"/> String to search for.</param>
-        /// <returns><see cref="ObservableCollection{object}"/> List of matched headers.</returns>
+        /// <returns>List of matched headers.</returns>
         public override ObservableCollection<object> Search(string searchText)
         {
-            // TODO: Test search
             var activityHeaders = new ObservableCollection<object>();
-
-            this.ListHeaders = this.ListAdjustments.Where(adjustment =>
-                adjustment.ActivityStringFKRefno.ToLower().Contains(
+            this.ListHeaders = this.ListAdjustments.Where(
+                adjustment => adjustment.ActivityStringFKRefno.ToLower().Contains(
                     searchText.ToLower().Trim())).Cast<object>().ToList();
-
             foreach (var adjustment in this.ListHeaders.Cast<Adjustment>())
             {
                 activityHeaders.Add(adjustment);
@@ -450,21 +447,11 @@ namespace dMobile.Controller.Activity
         /// <returns>The <see cref="Task"/> Task operation.</returns>
         public override async Task Refresh(XDocument data)
         {
-            if (this.SysEnv.SysSettings.IsDisconnectedMode)
+            if (!this.SysEnv.SysSettings.IsDisconnectedMode)
             {
-                this.DataLayerProgressOutHandler(this, EventArgs.Empty, 5);
-            }
-            else
-            {
-                this.DataLayerProgressOutHandler(this, EventArgs.Empty, 2);
                 await this.Purge();
-
-                this.DataLayerProgressOutHandler(this, EventArgs.Empty, 5);
-
                 var adj = new TableActivityAdjustment();
-                adj.RegisterDataAccessListenerProgressOut(this);
                 await adj.RequestHeaderData();
-                adj.UnregisterDataAccessListenerProgressOut(this);
             }
         }
 
@@ -473,13 +460,11 @@ namespace dMobile.Controller.Activity
         /// </summary>
         public override void GetFilter()
         {
-            var filter = string.Empty;
             var adjSettings = new AdjustmentSettings().LoadData();
-
             if (adjSettings.IsApplyAdjustmentType)
             {
-                this.ListAdjustments = this.ListAdjustments.Where(adj => adj.ActivityAdjustmentType == Convert.ToInt32(
-                    adjSettings.AdjustmentType)).ToList();
+                this.ListAdjustments = this.ListAdjustments.Where(
+                    adj => adj.ActivityAdjustmentType == Convert.ToInt32(adjSettings.AdjustmentType)).ToList();
             }
 
             if (adjSettings.IsApplyAdjustmentDate && !SysCommon.IsEmptyDate(adjSettings.AdjustmentDate))
@@ -499,15 +484,14 @@ namespace dMobile.Controller.Activity
         /// <param name="xmlDoc"><see cref="XDocument"/> Adjustment header extra filter criteria.</param>
         public override void GetFilter(XDocument xmlDoc)
         {
-            var filter = string.Empty;
             var adjSettings = new AdjustmentSettings().LoadData();
-
             if (adjSettings.IsApplyAdjustmentType)
             {
                 if (string.CompareOrdinal(xmlDoc.Root!.Element("adjustment_type") !.Value, string.Empty) > 0)
                 {
                     var adjType = Convert.ToInt32(xmlDoc.Root.Element("adjustment_type") !.Value);
-                    this.ListAdjustments = this.ListAdjustments.Where(adj => adj.ActivityAdjustmentType == adjType).ToList();
+                    this.ListAdjustments = this.ListAdjustments.Where(
+                        adj => adj.ActivityAdjustmentType == adjType).ToList();
                 }
             }
 
@@ -517,8 +501,9 @@ namespace dMobile.Controller.Activity
                 var dt = DateTime.Parse(xmlDoc.Root.Element("adjustment_date") !.Value);
                 var minDate = new DateTime(dt.Year, dt.Month, dt.Day, 00, 00, 00);
                 var maxDate = new DateTime(dt.Year, dt.Month, dt.Day, 23, 59, 59);
-                this.ListAdjustments = this.ListAdjustments.Where(adj => adj.ActivityAdjustmentDateTime >= minDate &&
-                                                                         adj.ActivityAdjustmentDateTime <= maxDate).ToList();
+                this.ListAdjustments = this.ListAdjustments.Where(
+                    adj => adj.ActivityAdjustmentDateTime >= minDate &&
+                    adj.ActivityAdjustmentDateTime <= maxDate).ToList();
             }
         }
 
@@ -532,14 +517,14 @@ namespace dMobile.Controller.Activity
             if (this.AdjSettings.AdjustmentType == SysCommon.AdjTypes.Debox && !this.SysEnv.SysSettings.IsDisconnectedMode)
             {
                 var sLocMapAndRefno = await LocationMapTasks.GetSLocMapFromLocMapFkRefno(
-                    int.Parse(this.XmlDataCriteria.Root.Element("whs_id").Value),
-                    int.Parse(this.XmlDataCriteria.Root.Element("sect_refno").Value),
+                    int.Parse(this.XmlDataCriteria.Root!.Element("whs_id") !.Value),
+                    int.Parse(this.XmlDataCriteria.Root!.Element("sect_refno") !.Value),
                     slotLocMapFkRefno: 0);
                 var locMap = sLocMapAndRefno.SLocMap;
                 var prnSettings = new PrinterSettings().LoadData();
 
                 // Don't even bother sending in a print request if no quantity was entered.
-                var labelQuantity = int.Parse(data.Root.Value);
+                var labelQuantity = int.Parse(data.Root!.Value);
 
                 // Used abs for handling the freaky event that a negative label quantity was requested.
                 if (labelQuantity > 0)
@@ -568,66 +553,27 @@ namespace dMobile.Controller.Activity
         /// Change the activity header status.
         /// </summary>
         /// <param name="selectedActivity"><see cref="object"/> Selected activity to change the status on.</param>
-        /// <returns><see cref="Task{bool}"/> True if successful else false.</returns>
+        /// <returns>True if successful else false.</returns>
         public override async Task<bool> ChangeStatus(object selectedActivity)
         {
             var result = false;
-            if (this.AdjSettings.AdjustmentType == SysCommon.AdjTypes.Debox && !this.SysEnv.SysSettings.IsDisconnectedMode)
+            if (this.AdjSettings.AdjustmentType == SysCommon.AdjTypes.Debox &&
+                !this.SysEnv.SysSettings.IsDisconnectedMode)
             {
                 // do xml request to debox
-                var xml =
-                    "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
-                      + "<imclient>"
-                      + "<command>"
-                      + "<action>COMPLETE DEBOX ADJUSTMENT</action>"
-                      + "</command>"
-                      + await SysCommon.GetRequestDefaults(false)
-                      + "<refno>" + this.HdrFkRefno + "</refno>"
-                      + "</imclient>";
-
+                var xml = "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
+                    + "<imclient>"
+                    + "<command>"
+                    + "<action>COMPLETE DEBOX ADJUSTMENT</action>"
+                    + "</command>"
+                    + await SysCommon.GetRequestDefaults(false)
+                    + "<refno>" + this.HdrFkRefno + "</refno>"
+                    + "</imclient>";
                 _ = SysCommon.SubmitComm(xml);
                 result = true;
             }
 
             return result;
-        }
-
-        /// <summary>
-        ///     Create a dump of the activity header data
-        /// </summary>
-        /// <returns><see cref="XDocument"/> XML of activity data.</returns>
-        public override XDocument CreateDump()
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// Insert, create a new activity adjustment header.
-        /// </summary>
-        /// <param name="xmlParams">The xmlParams<see cref="XDocument"/>.</param>
-        /// <returns>The <see cref="int"/>.</returns>
-        public override Task<int> Insert(XDocument xmlParams)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// Delete the adjustment activity header.
-        /// </summary>
-        /// <returns>The <see cref="Task"/>.</returns>
-        public override Task Delete()
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// Get shipping label quantity.
-        /// </summary>
-        /// <param name="isRepackQuantityOnly">The isRepackQuantityOnly<see cref="bool"/>.</param>
-        /// <returns>The <see cref="Task{SLabelQuantity}"/>.</returns>
-        public override Task<SLabelQuantity> GetLabelQuantity(bool isRepackQuantityOnly)
-        {
-            throw new NotImplementedException();
         }
     }
 }

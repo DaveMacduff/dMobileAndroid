@@ -8,7 +8,6 @@ using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using dMobile.Bedrock;
-using dMobile.GroundWork;
 using SQLite;
 using Xamarin.Forms;
 
@@ -17,14 +16,13 @@ namespace dMobile.Controller.Activity
     /// <summary>
     /// Defines the <see cref="Activity" /> Activity header base class.
     /// </summary>
-    public abstract class Activity : IDataLayerEventPublisher, IDataAccess
+    public abstract class Activity
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="Activity"/> class.
         /// </summary>
         protected Activity()
         {
-
             this.HdrFkRefno = 0;
             this.HdrRefno = 0;
             this.SelectedListItemIdx = -1;
@@ -37,34 +35,6 @@ namespace dMobile.Controller.Activity
             this.SelectedActivity = null;
             this.XmlDataCriteria = null;
         }
-
-        /// <summary>
-        /// The on data layer status out event handler.
-        /// </summary>
-        /// <param name="publisher"><see cref="IDataLayerEventPublisher"/> Data layer event publisher.</param>
-        /// <param name="eventArgs"><see cref="DataLayerEventArgs"/> Data layer event arguments.</param>
-        public delegate void DataLayerStatusOutEventHandler(
-            IDataLayerEventPublisher publisher,
-            DataLayerEventArgs eventArgs);
-
-        /// <summary>
-        /// The on data layer progress out event handler.
-        /// </summary>
-        /// <param name="publisher"><see cref="IDataLayerEventPublisher"/> Data layer event publisher.</param>
-        /// <param name="eventArgs"><see cref="DataLayerEventArgs"/> Data layer event arguments.</param>
-        public delegate void DataLayerProgressOutEventHandler(
-            IDataLayerEventPublisher publisher,
-            DataLayerEventArgs eventArgs);
-
-        /// <summary>
-        /// On data layer status out event handler.
-        /// </summary>
-        public event DataLayerStatusOutEventHandler OnDataLayerStatusOut;
-
-        /// <summary>
-        /// On data layer progress out event handler.
-        /// </summary>
-        public event DataLayerProgressOutEventHandler OnDataLayerProgressOut;
 
         /// <summary>
         /// Gets or sets the full class name. Used for error reporting.
@@ -108,7 +78,7 @@ namespace dMobile.Controller.Activity
         /// <summary>
         /// Gets or sets the location map reference number.
         /// </summary>
-        public int LocationMapRefno { get; set; } = 0;
+        public int LocationMapRefno { get; set; }
 
         /// <summary>
         /// Gets or sets the Refno.
@@ -118,7 +88,7 @@ namespace dMobile.Controller.Activity
         /// <summary>
         /// Gets or sets the SysEnv.
         /// </summary>
-        public SysEnvironment SysEnv { get; set; }
+        protected SysEnvironment SysEnv { get; set; }
 
         /// <summary>
         /// Gets or sets the DataEventArgs.
@@ -223,31 +193,52 @@ namespace dMobile.Controller.Activity
         }
 
         /// <summary>
+        /// Construct the display extra information collection.
+        /// </summary>
+        /// <param name="extraInfo">Collection to add to.</param>
+        public virtual void DisplayExtraInfo(ObservableCollection<string> extraInfo)
+        {
+            extraInfo.Clear();
+        }
+
+        /// <summary>
         /// Perform an activity header insert.
         /// </summary>
         /// <param name="xmlParams"><see cref="XDocument"/> Activity insert detail.</param>
         /// <returns><see cref="int"/> Activity reference number.</returns>
-        public abstract Task<int> Insert(XDocument xmlParams);
+        public virtual Task<int> Insert(XDocument xmlParams)
+        {
+            throw new NotImplementedException();
+        }
 
         /// <summary>
         /// Perform an activity deletion.
         /// </summary>
         /// <returns>The <see cref="Task"/> Task operation.</returns>
-        public abstract Task Delete();
+        public virtual Task Delete()
+        {
+            throw new NotImplementedException();
+        }
 
         /// <summary>
         /// Print an activity label. Could be a shipping label for example.
         /// </summary>
         /// <param name="xmlParam"><see cref="XDocument"/> Label criteria.</param>
         /// <returns>The <see cref="Task"/> Task operation.</returns>
-        public abstract Task PrintLabel(XDocument xmlParam);
+        public virtual Task PrintLabel(XDocument xmlParam)
+        {
+            throw new NotImplementedException();
+        }
 
         /// <summary>
         /// Get the label quantity.
         /// </summary>
         /// <param name="isRepackQuantityOnly"><see cref="bool"/> Print repack quantity only.</param>
         /// <returns><see cref="SLabelQuantity"/> Structure containing the label quantities.</returns>
-        public abstract Task<SLabelQuantity> GetLabelQuantity(bool isRepackQuantityOnly);
+        public virtual Task<SLabelQuantity> GetLabelQuantity(bool isRepackQuantityOnly)
+        {
+            throw new NotImplementedException();
+        }
 
         /// <summary>
         /// Check if all items have been reviewed.
@@ -255,13 +246,10 @@ namespace dMobile.Controller.Activity
         /// </summary>
         /// <param name="selectedActivity">The selectedActivity<see cref="object"/>.</param>
         /// <returns><see cref="bool"/> True if status was changed.</returns>
-        public abstract Task<bool> ChangeStatus(object selectedActivity);
-
-        /// <summary>
-        ///     Create an activity data dump.
-        /// </summary>
-        /// <returns><see cref="XDocument"/> XML data dump.</returns>
-        public abstract XDocument CreateDump();
+        public virtual Task<bool> ChangeStatus(object selectedActivity)
+        {
+            throw new NotImplementedException();
+        }
 
         /// <summary>
         /// Create an activity header. Insert a tActivity record and assign this.Refno.
@@ -272,7 +260,7 @@ namespace dMobile.Controller.Activity
         {
             try
             {
-                var sql = "insert into tActivity (ActivityStatus, ActivitySubType) values (?, ?)";
+                const string sql = "insert into tActivity (ActivityStatus, ActivitySubType) values (?, ?)";
                 _ = await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync(
                     sql,
                     Convert.ToInt32(SysCommon.ActStatus.Inserted),
@@ -286,186 +274,6 @@ namespace dMobile.Controller.Activity
             {
                 throw new Exception("Database exception occurred. Create activity failed.", ex);
             }
-        }
-
-        /// <summary>
-        /// The data layer status out handler.
-        /// </summary>
-        /// <param name="sender"><see cref="object"/> Object that generated the event.</param>
-        /// <param name="e"><see cref="EventArgs"/> Sender object event arguments.</param>
-        /// <param name="statusOutMessage"><see cref="string"/> Status out message.</param>
-        /// <param name="overrideDisconnectedMode"><see cref="bool"/> Override disconnected mode.</param>
-        public void DataLayerStatusOutHandler(
-            object sender,
-            EventArgs e,
-            string statusOutMessage,
-            bool overrideDisconnectedMode)
-        {
-            if (sender is null)
-            {
-                throw new ArgumentNullException(nameof(sender));
-            }
-
-            if (e is null)
-            {
-                throw new ArgumentNullException(nameof(e));
-            }
-
-            if (string.IsNullOrEmpty(statusOutMessage))
-            {
-                throw new ArgumentException($@"'{nameof(statusOutMessage)}' cannot be null or empty.", nameof(statusOutMessage));
-            }
-
-            if (!this.SysEnv.SysSettings.IsDisconnectedMode || overrideDisconnectedMode)
-            {
-                if (this.OnDataLayerStatusOut != null)
-                {
-                    this.DataEventArgs.OverrideDisconnectedMode = overrideDisconnectedMode;
-                    this.DataEventArgs.StatusOutMsg = statusOutMessage;
-                    this.OnDataLayerStatusOut(this, this.DataEventArgs);
-                }
-            }
-        }
-
-        /// <summary>
-        /// The data layer progress out handler.
-        /// </summary>
-        /// <param name="sender"><see cref="object"/> Object that generated the event.</param>
-        /// <param name="e"><see cref="EventArgs"/> Sender object event arguments.</param>
-        /// <param name="currentValue"><see cref="int"/> Current progress value.</param>
-        /// <param name="minValue"><see cref="int"/> Minimum progress value.</param>
-        /// <param name="maxValue"><see cref="int"/> Maximum progress value.</param>
-        public void DataLayerProgressOutHandler(
-            object sender,
-            EventArgs e,
-            int currentValue,
-            int minValue,
-            int maxValue)
-        {
-            if (sender is null)
-            {
-                throw new ArgumentNullException(nameof(sender));
-            }
-
-            if (e is null)
-            {
-                throw new ArgumentNullException(nameof(e));
-            }
-
-            if (this.OnDataLayerProgressOut != null)
-            {
-                this.DataEventArgs.CurrentValue = currentValue;
-                this.DataEventArgs.MinValue = minValue;
-                this.DataEventArgs.MaxValue = maxValue;
-                this.DataEventArgs.SetMinMaxValue = true;
-                this.OnDataLayerProgressOut(this, this.DataEventArgs);
-            }
-        }
-
-        /// <summary>
-        /// The data layer progress out handler.
-        /// </summary>
-        /// <param name="sender"><see cref="object"/> Object that generated the event.</param>
-        /// <param name="e"><see cref="EventArgs"/> Sender object event arguments.</param>
-        /// <param name="currentValue"><see cref="int"/> Current progress value.</param>
-        public void DataLayerProgressOutHandler(object sender, EventArgs e, int currentValue)
-        {
-            if (sender is null)
-            {
-                throw new ArgumentNullException(nameof(sender));
-            }
-
-            if (e is null)
-            {
-                throw new ArgumentNullException(nameof(e));
-            }
-
-            if (this.OnDataLayerProgressOut != null)
-            {
-                this.DataEventArgs.CurrentValue = currentValue;
-                this.DataEventArgs.SetMinMaxValue = false;
-                this.OnDataLayerProgressOut(this, this.DataEventArgs);
-            }
-        }
-
-        /// <summary>
-        /// Data access status out event publisher.
-        /// </summary>
-        /// <param name="publisher"><see cref="IDataAccessEventPublisher"/> Event publisher.</param>
-        /// <param name="args"><see cref="DataAccessEventArgs"/> Publisher event arguments.</param>
-        public void OnDataAccessStatusOut(
-            IDataAccessEventPublisher publisher,
-            DataAccessEventArgs args)
-        {
-            if (!this.SysEnv.SysSettings.IsDisconnectedMode || args.OverrideDisconnectedMode)
-            {
-                if (this.OnDataLayerStatusOut != null)
-                {
-                    this.DataEventArgs.OverrideDisconnectedMode = args.OverrideDisconnectedMode;
-                    this.DataEventArgs.StatusOutMsg = args.StatusOutMsg;
-                    this.OnDataLayerStatusOut(this, this.DataEventArgs);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Data access progress out event publisher.
-        /// </summary>
-        /// <param name="publisher"><see cref="IDataAccessEventPublisher"/> Event publisher.</param>
-        /// <param name="args"><see cref="DataAccessEventArgs"/> Publisher event arguments.</param>
-        public void OnDataAccessProgressOut(
-            IDataAccessEventPublisher publisher,
-            DataAccessEventArgs args)
-        {
-            if (this.OnDataLayerProgressOut != null)
-            {
-                this.DataEventArgs.OverrideDisconnectedMode = args.OverrideDisconnectedMode;
-                this.DataEventArgs.CurrentValue = args.CurrentValue;
-                this.DataEventArgs.MinValue = args.MinValue;
-                this.DataEventArgs.MaxValue = args.MaxValue;
-                this.DataEventArgs.SetMinMaxValue = args.SetMinMaxValue;
-                this.OnDataLayerProgressOut(this, this.DataEventArgs);
-            }
-        }
-
-        /// <summary>
-        /// Register data layer status out listener.
-        /// </summary>
-        /// <param name="listener"><see cref="IDataAccess"/> Data access
-        /// status out listener.</param>
-        public void RegLayerListenerStatOut(IDataLayerEventListener listener)
-        {
-            this.OnDataLayerStatusOut += listener.OnLayerStatOut;
-        }
-
-        /// <summary>
-        /// Unregister data layer status out listener.
-        /// </summary>
-        /// <param name="listener"><see cref="IDataAccess"/> Data access
-        /// status out listener.</param>
-        public void UnregLayerListenerStatOut(IDataLayerEventListener listener)
-        {
-            this.OnDataLayerStatusOut -= listener.OnLayerStatOut;
-        }
-
-        /// <summary>
-        /// Register data layer progress out listener.
-        /// </summary>
-        /// <param name="listener"><see cref="IDataAccess"/> Data access
-        /// status out listener.</param>
-        public void RegLayerListenerProgOut(IDataLayerEventListener listener)
-        {
-            this.OnDataLayerProgressOut += listener.OnLayerProgressOut;
-        }
-
-        /// <summary>
-        /// Unregister data layer progress out listener.
-        /// </summary>
-        /// <param name="listener"><see cref="IDataAccess"/> Data access
-        /// status out listener.</param>
-        public void UnregLayerListenerProgOut(IDataLayerEventListener listener)
-        {
-            this.OnDataLayerProgressOut -= listener.OnLayerProgressOut;
         }
     }
 }

@@ -26,62 +26,67 @@ namespace dMobile.Controller.Activity
         /// Initializes a new instance of the <see cref="ReturnsActivity"/> class.
         /// </summary>
         public ReturnsActivity()
-          : base()
         {
             this.FullClassName = typeof(ReturnsActivity).FullName;
+            DefineInitialGridDataTemplate();
+            return;
 
-            // Data grid
-            var dataTemplate = new DataTemplate(() =>
+            void DefineInitialGridDataTemplate()
             {
-                var gridData = new Grid
-                {
-                    Padding = new Thickness(5),
-                    ColumnDefinitions =
+                // Data grid
+                var dataTemplate = new DataTemplate(
+                    () =>
                     {
-                        new ColumnDefinition { Width = new GridLength(this.ColumnWidth0, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(this.ColumnWidth1, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(this.ColumnWidth2, GridUnitType.Absolute) },
-                    },
-                };
+                        var gridData = new Grid
+                        {
+                            Padding = new Thickness(5),
+                            ColumnDefinitions =
+                            {
+                                new ColumnDefinition { Width = new GridLength(this.ColumnWidth0, GridUnitType.Absolute) },
+                                new ColumnDefinition { Width = new GridLength(this.ColumnWidth1, GridUnitType.Absolute) },
+                                new ColumnDefinition { Width = new GridLength(this.ColumnWidth2, GridUnitType.Absolute) },
+                            },
+                        };
 
-                var stringFkRefno = new Label { VerticalOptions = LayoutOptions.Center };
-                var orderedDateTime = new Label { VerticalOptions = LayoutOptions.Center };
-                var deliveryDateTime = new Label { VerticalOptions = LayoutOptions.Center };
+                        var stringFkRefno = new Label { VerticalOptions = LayoutOptions.Center };
+                        var orderedDateTime = new Label { VerticalOptions = LayoutOptions.Center };
+                        var deliveryDateTime = new Label { VerticalOptions = LayoutOptions.Center };
 
-                stringFkRefno.SetBinding(Label.TextProperty, new Binding("ActivityStringFKRefno"));
-                orderedDateTime.SetBinding(Label.TextProperty, new Binding(
-                    "ActivityReturnsOrderedDateTime",
-                    BindingMode.Default,
-                    null,
-                    null,
-                    "{0:MM/dd/yyyy}"));
-                deliveryDateTime.SetBinding(
-                    Label.TextProperty,
-                    new Binding("ActivityReturnsDeliveryDateTime", BindingMode.Default, null, null, "{0:MM/dd/yyyy}"));
+                        stringFkRefno.SetBinding(Label.TextProperty, new Binding("ActivityStringFKRefno"));
+                        orderedDateTime.SetBinding(Label.TextProperty, new Binding(
+                            "ActivityReturnsOrderedDateTime",
+                            BindingMode.Default,
+                            null,
+                            null,
+                            "{0:MM/dd/yyyy}"));
+                        deliveryDateTime.SetBinding(
+                            Label.TextProperty,
+                            new Binding("ActivityReturnsDeliveryDateTime", BindingMode.Default, null, null, "{0:MM/dd/yyyy}"));
 
-                gridData.Children.Add(stringFkRefno);
-                gridData.Children.Add(orderedDateTime);
-                gridData.Children.Add(deliveryDateTime);
+                        gridData.Children.Add(stringFkRefno);
+                        gridData.Children.Add(orderedDateTime);
+                        gridData.Children.Add(deliveryDateTime);
 
-                Grid.SetColumn(stringFkRefno, 0);
-                Grid.SetColumn(orderedDateTime, 1);
-                Grid.SetColumn(deliveryDateTime, 2);
+                        Grid.SetColumn(stringFkRefno, 0);
+                        Grid.SetColumn(orderedDateTime, 1);
+                        Grid.SetColumn(deliveryDateTime, 2);
 
-                return new ViewCell { View = gridData };
-            });
+                        return new ViewCell { View = gridData };
+                    });
 
-            var isAddKey = true;
-            foreach (var item in this.ResourceDictionary)
-            {
-                if (item.Key == "dataTemplateReturns")
+                var isAddKey = true;
+                foreach (var item in this.ResourceDictionary)
                 {
-                    isAddKey = false;
+                    if (item.Key == "dataTemplateReturns")
+                    {
+                        isAddKey = false;
+                    }
                 }
-            }
 
-            if (isAddKey)
-            {
-                this.ResourceDictionary.Add("dataTemplateReturns", dataTemplate);
+                if (isAddKey)
+                {
+                    this.ResourceDictionary.Add("dataTemplateReturns", dataTemplate);
+                }
             }
         }
 
@@ -117,6 +122,20 @@ namespace dMobile.Controller.Activity
         public override string GetControlDescription()
         {
             return "Returns";
+        }
+
+        /// <summary>
+        /// Display the extra information for the selected activity.
+        /// </summary>
+        /// <param name="extraInfo">Extra information collection.</param>
+        public override void DisplayExtraInfo(ObservableCollection<string> extraInfo)
+        {
+            base.DisplayExtraInfo(extraInfo);
+            if (this.SelectedActivity is Return activity)
+            {
+                extraInfo.Add("Customer: " + activity.ActivityReturnsCustomerContactName);
+                extraInfo.Add("Ship to:   " + activity.ActivityReturnsCustomerShipToInfo);
+            }
         }
 
         /// <summary>
@@ -228,20 +247,20 @@ namespace dMobile.Controller.Activity
         {
             var sql = new StringBuilder();
 
+            sql.Append("SELECT tActivityReturns.ActivityRefno,");
+            sql.Append("tActivityReturns.ActivityFKRefno,");
+            sql.Append("tActivityReturns.ActivityStringFKRefno,");
+            sql.Append("tActivityReturns.ActivityReturnsOrderedDateTime AS ActivityReturnsOrderedDateTime,");
+            sql.Append("tActivityReturns.ActivityReturnsDeliveryDateTime AS ActivityReturnsDeliveryDateTime,");
+            sql.Append("tLocationMapWarehouse.LocationMapRefno AS LocationMapRefno,");
+            sql.Append("tLocationMapWarehouse.LocationMapWarehouseFKRefno AS LocationMapWarehouseFKRefno,");
+            sql.Append("tLocationMapWarehouse.LocationMapWarehouseName AS LocationMapWarehouseName,");
+            sql.Append("tActivityReturns.ActivityReturnsCustomerContactName AS ActivityReturnsCustomerContactName,");
+            sql.Append("tActivityReturns.ActivityReturnsCustomerShipToInfo AS ActivityReturnsCustomerShipToInfo,");
+            sql.Append("tActivity.ActivityStatus AS ActivityStatus");
+            sql.Append(" FROM tActivityReturns");
             if (isSubmitBatch)
             {
-                sql.Append("SELECT tActivityReturns.ActivityRefno,");
-                sql.Append("tActivityReturns.ActivityFKRefno,");
-                sql.Append("tActivityReturns.ActivityStringFKRefno,");
-                sql.Append("tActivityReturns.ActivityReturnsOrderedDateTime AS ActivityReturnsOrderedDateTime,");
-                sql.Append("tActivityReturns.ActivityReturnsDeliveryDateTime AS ActivityReturnsDeliveryDateTime,");
-                sql.Append("tLocationMapWarehouse.LocationMapRefno AS LocationMapRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapWarehouseFKRefno AS LocationMapWarehouseFKRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapWarehouseName AS LocationMapWarehouseName,");
-                sql.Append("tActivityReturns.ActivityReturnsCustomerContactName AS ActivityReturnsCustomerContactName,");
-                sql.Append("tActivityReturns.ActivityReturnsCustomerShipToInfo AS ActivityReturnsCustomerShipToInfo,");
-                sql.Append("tActivity.ActivityStatus AS ActivityStatus");
-                sql.Append(" FROM tActivityReturns");
                 sql.Append(" INNER JOIN tActivity ON tActivity.ActivityRefno = tActivityReturns.ActivityRefno");
                 sql.Append(" INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno = ");
                 sql.Append("tActivityReturns.WarehouseLocationMapRefno");
@@ -286,18 +305,6 @@ namespace dMobile.Controller.Activity
             }
             else
             {
-                sql.Append("SELECT tActivityReturns.ActivityRefno,");
-                sql.Append("tActivityReturns.ActivityFKRefno,");
-                sql.Append("tActivityReturns.ActivityStringFKRefno,");
-                sql.Append("tActivityReturns.ActivityReturnsOrderedDateTime AS ActivityReturnsOrderedDateTime,");
-                sql.Append("tActivityReturns.ActivityReturnsDeliveryDateTime AS ActivityReturnsDeliveryDateTime,");
-                sql.Append("tLocationMapWarehouse.LocationMapRefno AS LocationMapRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapWarehouseFKRefno AS LocationMapWarehouseFKRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapWarehouseName AS LocationMapWarehouseName,");
-                sql.Append("tActivityReturns.ActivityReturnsCustomerContactName AS ActivityReturnsCustomerContactName,");
-                sql.Append("tActivityReturns.ActivityReturnsCustomerShipToInfo AS ActivityReturnsCustomerShipToInfo,");
-                sql.Append("tActivity.ActivityStatus AS ActivityStatus");
-                sql.Append(" FROM tActivityReturns");
                 sql.Append(" INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno = ");
                 sql.Append("tActivityReturns.WarehouseLocationMapRefno");
                 sql.Append(" INNER JOIN tActivity ON tActivity.ActivityRefno = tActivityReturns.ActivityRefno");
@@ -408,21 +415,11 @@ namespace dMobile.Controller.Activity
         /// <returns>The <see cref="Task"/>.</returns>
         public override async Task Refresh(XDocument data)
         {
-            if (this.SysEnv.SysSettings.IsDisconnectedMode)
+            if (!this.SysEnv.SysSettings.IsDisconnectedMode)
             {
-                this.DataLayerProgressOutHandler(this, EventArgs.Empty, 5);
-            }
-            else
-            {
-                this.DataLayerProgressOutHandler(this, EventArgs.Empty, 2);
                 await this.Purge();
-                this.DataLayerProgressOutHandler(this, EventArgs.Empty, 5);
-
                 var tableActReturns = new TableActivityReturns();
-
-                tableActReturns.RegisterDataAccessListenerProgressOut(this);
                 await tableActReturns.RequestHeaderData();
-                tableActReturns.UnregisterDataAccessListenerProgressOut(this);
             }
         }
 
@@ -475,60 +472,6 @@ namespace dMobile.Controller.Activity
                         DateTime.Parse(data.Root.Element("entered_date").Value)).ToList();
                 }
             }
-        }
-
-        /// <summary>
-        /// The Insert.
-        /// </summary>
-        /// <param name="xmlParams">The xmlParams<see cref="XDocument"/>.</param>
-        /// <returns>The <see cref="int"/>.</returns>
-        public override Task<int> Insert(XDocument xmlParams)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// The Delete.
-        /// </summary>
-        /// <returns>The <see cref="Task"/>.</returns>
-        public override Task Delete()
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// The PrintLabel.
-        /// </summary>
-        /// <param name="xmlParam">The xmlParam<see cref="XDocument"/>.</param>
-        /// <returns>The <see cref="Task"/>.</returns>
-        public override Task PrintLabel(XDocument xmlParam)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// The GetLabelQuantity.
-        /// </summary>
-        /// <param name="isRepackQuantityOnly">The isRepackQuantityOnly<see cref="bool"/>.</param>
-        /// <returns>The <see cref="Task{SLabelQuantity}"/>.</returns>
-        public override Task<SLabelQuantity> GetLabelQuantity(bool isRepackQuantityOnly)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// The ChangeStatus.
-        /// </summary>
-        /// <param name="selectedActivity">The selectedActivity<see cref="object"/>.</param>
-        /// <returns>The <see cref="Task{bool}"/>.</returns>
-        public override Task<bool> ChangeStatus(object selectedActivity)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override XDocument CreateDump()
-        {
-            throw new NotImplementedException();
         }
     }
 }

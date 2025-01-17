@@ -51,55 +51,74 @@ namespace dMobile.Controller.Activity
         /// Initializes a new instance of the <see cref="TicketByProdActivity"/> class.
         /// </summary>
         public TicketByProdActivity()
-          : base()
         {
             this.FullClassName = typeof(TicketByProdActivity).FullName;
+            DefineInitialGridDataTemplate();
+            return;
 
-            // Data grid
-            var dataTemplate = new DataTemplate(() =>
+            void DefineInitialGridDataTemplate()
             {
-                var gridData = new Grid
-                {
-                    Padding = new Thickness(5),
-                    ColumnDefinitions =
+                // Data grid
+                var dataTemplate = new DataTemplate(
+                    () =>
                     {
-                        new ColumnDefinition { Width = new GridLength(this.columnWidth0, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(this.columnWidth1, GridUnitType.Absolute) },
-                        new ColumnDefinition { Width = new GridLength(this.columnWidth2, GridUnitType.Absolute) },
-                    },
-                };
+                        var gridData = new Grid
+                        {
+                            Padding = new Thickness(5),
+                            ColumnDefinitions =
+                            {
+                                new ColumnDefinition { Width = new GridLength(this.columnWidth0, GridUnitType.Absolute) },
+                                new ColumnDefinition { Width = new GridLength(this.columnWidth1, GridUnitType.Absolute) },
+                                new ColumnDefinition { Width = new GridLength(this.columnWidth2, GridUnitType.Absolute) },
+                            },
+                        };
 
-                var labelActivityRefno = new Label { VerticalOptions = LayoutOptions.Center };
-                var labelActivityDateTime = new Label { VerticalOptions = LayoutOptions.Center };
-                var labelActivityDescription = new Label { VerticalOptions = LayoutOptions.Center };
+                        var labelActivityRefno = new Label { VerticalOptions = LayoutOptions.Center };
+                        var labelActivityDateTime = new Label { VerticalOptions = LayoutOptions.Center };
+                        var labelActivityDescription = new Label { VerticalOptions = LayoutOptions.Center };
 
-                labelActivityRefno.SetBinding(Label.TextProperty, new Binding("ActivityStringFKRefno"));
-                labelActivityDateTime.SetBinding(Label.TextProperty, new Binding("ActivityProductionDateTime", BindingMode.Default, null, null, "{0:MM/dd/yyyy}"));
-                labelActivityDescription.SetBinding(Label.TextProperty, new Binding("ActivityProductionDescription"));
+                        labelActivityRefno.SetBinding(Label.TextProperty, new Binding("ActivityStringFKRefno"));
+                        labelActivityDateTime.SetBinding(Label.TextProperty, new Binding("ActivityProductionDateTime", BindingMode.Default, null, null, "{0:MM/dd/yyyy}"));
+                        labelActivityDescription.SetBinding(Label.TextProperty, new Binding("ActivityProductionDescription"));
 
-                gridData.Children.Add(labelActivityRefno, 0, 0);
-                gridData.Children.Add(labelActivityDateTime, 0, 0);
-                gridData.Children.Add(labelActivityDescription, 0, 0);
+                        gridData.Children.Add(labelActivityRefno, 0, 0);
+                        gridData.Children.Add(labelActivityDateTime, 0, 0);
+                        gridData.Children.Add(labelActivityDescription, 0, 0);
 
-                Grid.SetColumn(labelActivityRefno, 0);
-                Grid.SetColumn(labelActivityDateTime, 1);
-                Grid.SetColumn(labelActivityDescription, 2);
+                        Grid.SetColumn(labelActivityRefno, 0);
+                        Grid.SetColumn(labelActivityDateTime, 1);
+                        Grid.SetColumn(labelActivityDescription, 2);
 
-                return new ViewCell { View = gridData };
-            });
+                        return new ViewCell { View = gridData };
+                    });
 
-            var isAddKey = true;
-            foreach (var item in this.resourceDictionary)
-            {
-                if (item.Key == "dataTemplateByProduct")
+                var isAddKey = true;
+                foreach (var item in this.resourceDictionary)
                 {
-                    isAddKey = false;
+                    if (item.Key == "dataTemplateByProduct")
+                    {
+                        isAddKey = false;
+                    }
+                }
+
+                if (isAddKey)
+                {
+                    this.resourceDictionary.Add("dataTemplateByProduct", dataTemplate);
                 }
             }
+        }
 
-            if (isAddKey)
+        /// <summary>
+        /// Display the extra information for the selected activity.
+        /// </summary>
+        /// <param name="extraInfo">Extra information collection.</param>
+        public override void DisplayExtraInfo(ObservableCollection<string> extraInfo)
+        {
+            base.DisplayExtraInfo(extraInfo);
+            if (this.SelectedActivity is ProductionTicketByProduct activity)
             {
-                this.resourceDictionary.Add("dataTemplateByProduct", dataTemplate);
+                extraInfo.Add(activity.ActivityProductionDescription);
+                extraInfo.Add("Warehouse:  " + activity.LocationMapWarehouseName);
             }
         }
 
@@ -222,18 +241,18 @@ namespace dMobile.Controller.Activity
             var ticketSettings = new ProductionTicketSettings().LoadData();
             var sql = new StringBuilder();
 
+            sql.Append("SELECT tActivityProduction.ActivityRefno,");
+            sql.Append("tActivityProductionByProduct.ActivityFKRefno,");
+            sql.Append("tActivityProductionByProduct.ActivityStringFKRefno,");
+            sql.Append("tLocationMapWarehouse.LocationMapRefno AS LocationMapRefno,");
+            sql.Append("tLocationMapWarehouse.LocationMapWarehouseFKRefno AS LocationMapWarehouseFKRefno,");
+            sql.Append("tLocationMapWarehouse.LocationMapWarehouseName AS LocationMapWarehouseName,");
+            sql.Append("tActivityProduction.ActivityProductionDateTime AS ActivityProductionDateTime,");
+            sql.Append("tActivityProduction.ActivityProductionDescription AS ActivityProductionDescription,");
+            sql.Append("tActivity.ActivityStatus AS ActivityStatus ");
+            sql.Append("FROM tActivityProduction ");
             if (isSubmitBatch)
             {
-                sql.Append("SELECT tActivityProduction.ActivityRefno,");
-                sql.Append("tActivityProductionByProduct.ActivityFKRefno,");
-                sql.Append("tActivityProductionByProduct.ActivityStringFKRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapRefno AS LocationMapRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapWarehouseFKRefno AS LocationMapWarehouseFKRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapWarehouseName AS LocationMapWarehouseName,");
-                sql.Append("tActivityProduction.ActivityProductionDateTime AS ActivityProductionDateTime,");
-                sql.Append("tActivityProduction.ActivityProductionDescription AS ActivityProductionDescription,");
-                sql.Append("tActivity.ActivityStatus AS ActivityStatus ");
-                sql.Append("FROM tActivityProduction ");
                 sql.Append("INNER JOIN tActivity ON tActivity.ActivityRefno = tActivityProduction.ActivityRefno ");
                 sql.Append("INNER JOIN tActivityProductionByProduct ON tActivityProductionByProduct.ActivityRefno ");
                 sql.Append("= tActivityProduction.ActivityRefno ");
@@ -284,16 +303,6 @@ namespace dMobile.Controller.Activity
             }
             else
             {
-                sql.Append("SELECT tActivityProduction.ActivityRefno,");
-                sql.Append("tActivityProductionByProduct.ActivityFKRefno,");
-                sql.Append("tActivityProductionByProduct.ActivityStringFKRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapRefno AS LocationMapRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapWarehouseFKRefno AS LocationMapWarehouseFKRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapWarehouseName AS LocationMapWarehouseName,");
-                sql.Append("tActivityProduction.ActivityProductionDateTime AS ActivityProductionDateTime,");
-                sql.Append("tActivityProduction.ActivityProductionDescription AS ActivityProductionDescription,");
-                sql.Append("tActivity.ActivityStatus AS ActivityStatus ");
-                sql.Append("FROM tActivityProduction ");
                 sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno ");
                 sql.Append("= tActivityProduction.WarehouseLocationMapRefno ");
                 sql.Append("INNER JOIN tActivity ON tActivity.ActivityRefno = tActivityProduction.ActivityRefno ");
@@ -427,22 +436,11 @@ namespace dMobile.Controller.Activity
         /// <returns>The <see cref="Task"/>.</returns>
         public override async Task Refresh(XDocument data)
         {
-            if (this.SysEnv.SysSettings.IsDisconnectedMode)
+            if (!this.SysEnv.SysSettings.IsDisconnectedMode)
             {
-                this.DataLayerProgressOutHandler(this, EventArgs.Empty, 5);
-            }
-            else
-            {
-                this.DataLayerProgressOutHandler(this, EventArgs.Empty, 2);
                 await this.Purge();
-
-                this.DataLayerProgressOutHandler(this, EventArgs.Empty, 5);
-
                 var tableActTicketByProduct = new TableActivityProductionTicketByProduct();
-
-                tableActTicketByProduct.RegisterDataAccessListenerProgressOut(this);
                 await tableActTicketByProduct.RequestHeaderData();
-                tableActTicketByProduct.UnregisterDataAccessListenerProgressOut(this);
             }
         }
 
@@ -501,60 +499,6 @@ namespace dMobile.Controller.Activity
                     this.listProductionTicketByProducts = this.listProductionTicketByProducts.Where(prodTicket => prodTicket.ActivityProductionDateTime >= minDate && prodTicket.ActivityProductionDateTime <= maxDate).ToList();
                 }
             }
-        }
-
-        /// <summary>
-        /// The Insert.
-        /// </summary>
-        /// <param name="xmlParams">The xmlParams<see cref="XDocument"/>.</param>
-        /// <returns>The <see cref="int"/>.</returns>
-        public override Task<int> Insert(XDocument xmlParams)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// The Delete.
-        /// </summary>
-        /// <returns>The <see cref="Task"/>.</returns>
-        public override Task Delete()
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// The PrintLabel.
-        /// </summary>
-        /// <param name="xmlParam">The xmlParam<see cref="XDocument"/>.</param>
-        /// <returns>The <see cref="Task"/>.</returns>
-        public override Task PrintLabel(XDocument xmlParam)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// The GetLabelQuantity.
-        /// </summary>
-        /// <param name="isRepackQuantityOnly">The isRepackQuantityOnly<see cref="bool"/>.</param>
-        /// <returns>The <see cref="Task{SLabelQuantity}"/>.</returns>
-        public override Task<SLabelQuantity> GetLabelQuantity(bool isRepackQuantityOnly)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// The ChangeStatus.
-        /// </summary>
-        /// <param name="selectedActivity">The selectedActivity<see cref="object"/>.</param>
-        /// <returns>The <see cref="Task{bool}"/>.</returns>
-        public override Task<bool> ChangeStatus(object selectedActivity)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override XDocument CreateDump()
-        {
-            throw new NotImplementedException();
         }
     }
 }

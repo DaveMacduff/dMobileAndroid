@@ -1,1 +1,0 @@
-﻿:: Automatically checks out language.txt and .tt w/ .cs files

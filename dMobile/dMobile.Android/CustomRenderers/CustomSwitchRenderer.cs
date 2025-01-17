@@ -11,6 +11,7 @@ using Xamarin.Forms.Platform.Android;
 using Switch = Xamarin.Forms.Switch;
 
 [assembly: ExportRenderer(typeof(CustomSwitch), typeof(CustomSwitchRenderer))]
+
 namespace dMobile.Droid.CustomRenderers
 {
     /// <summary>

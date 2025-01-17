@@ -28,14 +28,6 @@
   <ItemGroup>
     <Content Include="buzzh.wav" />
     <Content Include="Images\dMobile.png" />
-    <Content Include="Language\dMobileTranslation.ENU.txt" />
-    <Content Include="Language\dMobileTranslation.FRC.txt" />
-    <Content Include="Language\HelperTools\Copy240x320Viewsto320x240.exe" />
-    <Content Include="Language\HelperTools\ExcelWriter.exe" />
-    <Content Include="Language\HelperTools\README.txt" />
-    <Content Include="PreBuild\ConvertFormToMultilanguage.exe" />
-    <Content Include="PreBuild\README.txt" />
-    <Content Include="PreBuild\Translator.exe" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />

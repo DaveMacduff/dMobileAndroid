@@ -656,5 +656,15 @@ namespace dMobile.Controller.Activity_Item
         {
             throw new NotImplementedException();
         }
+
+        public override ObservableCollection<object> CreateObservableCollectionFromListItems(List<object> listItems)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override ObservableCollection<object> CreateObservableCollectionFromListItems(List<object> listItems, string filterSearch)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -2,19 +2,18 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
-using Android.Content;
-using Android.Graphics;
-using Android.Runtime;
-using Android.Util;
-using Android.Views;
 using Android.Widget;
 using dMobile.Droid.Services;
 using dMobile.Resources.Services;
 using Xamarin.Forms;
 
 [assembly: Dependency(typeof(GridService))]
+
 namespace dMobile.Droid.Services
 {
+    /// <summary>
+    /// Defines the <see cref="GridService" />.
+    /// </summary>
     public class GridService : IGridService
     {
         /// <inheritdoc/>
@@ -22,7 +21,7 @@ namespace dMobile.Droid.Services
         {
             var bounds = new Android.Graphics.Rect();
             var textView = new TextView(Forms.Context);
-            textView.Paint.GetTextBounds(text, 0, text.Length, bounds);
+            textView.Paint!.GetTextBounds(text, 0, text.Length, bounds);
 
             // Adding 10 to accommodate cases where last letter being cut off
             var length = bounds.Width() + 10;
