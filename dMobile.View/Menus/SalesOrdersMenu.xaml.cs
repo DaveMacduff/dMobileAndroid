@@ -429,17 +429,8 @@ namespace dMobile.View.Menus
         {
             this.DisableControls();
 
-            if (this.SysEnv.SysSettings.IsSingleActivityItem)
-            {
-                var releaseByOrder = new ActivityHdrReleaseByOrder(SysCommon.ActSubTypes.Picking);
-                await releaseByOrder.Show();
-            }
-            else
-            {
-                var releaseByOrder = new ActivityHdrReleaseByOrder(SysCommon.ActSubTypes.Picking);
-                await releaseByOrder.Show();
-            }
-
+            var releaseByOrder = new ActivityHdrReleaseByOrder(SysCommon.ActSubTypes.Picking);
+            await releaseByOrder.Show();
             this.IsControlLoaded = false;
         }
 

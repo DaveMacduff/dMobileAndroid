@@ -1158,10 +1158,7 @@ namespace dMobile.Controller.Activity_Item
 
             var sql = new StringBuilder();
 
-            sql.Append("SELECT tActivityItem.ActivityItemRefno,");
-            sql.Append("tActivityItemCount.ActivityItemFKRefno,");
-            sql.Append("tActivityItemCount.ProductUnitRefno AS ProductUnitRefno,");
-            sql.Append("tLocationMapSlot.LocationMapRefno AS LocationMapRefno ");
+            sql.Append("SELECT tActivityItem.ActivityItemRefno ");
             sql.Append("FROM tActivityItemCount ");
             sql.Append("INNER JOIN tActivityItem ON tActivityItem.ActivityItemRefno ");
             sql.Append("= tActivityItemCount.ActivityItemRefno ");
@@ -1173,10 +1170,7 @@ namespace dMobile.Controller.Activity_Item
             sql.AppendFormat("AND tActivityItemCount.LocationMapRefno = {0} ", locMap.SlotLocMapRefno);
             sql.AppendFormat("AND tActivityItemCount.ProductUnitRefno = {0} ", prodUnitRefno);
             sql.Append("UNION ");
-            sql.Append("SELECT tActivityItem.ActivityItemRefno,");
-            sql.Append("tActivityItemCount.ActivityItemFKRefno,");
-            sql.Append("tActivityItemCount.ProductUnitRefno,");
-            sql.Append("tLocationMapSection.LocationMapRefno ");
+            sql.Append("SELECT tActivityItem.ActivityItemRefno ");
             sql.Append("FROM tActivityItemCount ");
             sql.Append("INNER JOIN tActivityItem ON tActivityItem.ActivityItemRefno ");
             sql.Append("= tActivityItemCount.ActivityItemRefno ");
@@ -1186,10 +1180,7 @@ namespace dMobile.Controller.Activity_Item
             sql.AppendFormat("AND tActivityItemCount.LocationMapRefno = {0} ", locMap.SectLocMapRefno);
             sql.AppendFormat("AND tActivityItemCount.ProductUnitRefno = {0} ", prodUnitRefno);
             sql.Append("UNION ");
-            sql.Append("SELECT tActivityItem.ActivityItemRefno,");
-            sql.Append("tActivityItemCount.ActivityItemFKRefno,");
-            sql.Append("tActivityItemCount.ProductUnitRefno,");
-            sql.Append("tLocationMapWarehouse.LocationMapRefno ");
+            sql.Append("SELECT tActivityItem.ActivityItemRefno ");
             sql.Append("FROM tActivityItemCount ");
             sql.Append("INNER JOIN tActivityItem ON tActivityItem.ActivityItemRefno ");
             sql.Append("= tActivityItemCount.ActivityItemRefno ");
@@ -1200,18 +1191,15 @@ namespace dMobile.Controller.Activity_Item
             sql.AppendFormat("AND tActivityItemCount.ProductUnitRefno = {0}", prodUnitRefno);
 
             var results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<CountItem>(sql.ToString());
-
-            if (results != null &&
-                results.Count > 0)
+            if (results != null && results.Count > 0)
             {
-                foundActItemRefno = this.ItemRefno;
+                foundActItemRefno = Convert.ToInt32(results[0].ActivityItemRefno);
             }
             else
             {
                 foreach (var item in this.ListCountItems)
                 {
-                    if (item.LocationMapRefno == locMap.WhsLocMapRefno &&
-                        item.ProductUnitRefno == prodUnitRefno)
+                    if (item.LocationMapRefno == locMap.WhsLocMapRefno && item.ProductUnitRefno == prodUnitRefno)
                     {
                         foundActItemRefno = this.ItemRefno;
                         break;

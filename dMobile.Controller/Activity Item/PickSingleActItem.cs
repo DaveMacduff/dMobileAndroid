@@ -1136,10 +1136,7 @@ namespace dMobile.Controller.Activity_Item
             var foundActItemRefno = 0;
 
             var sql = $@"
-                SELECT tActivityItem.ActivityItemRefno,
-                        tActivityItemPicking.ActivityItemFKRefno,
-                        tActivityItemPicking.ProductUnitRefno,
-                        tLocationMapWarehouse.LocationMapRefno 
+                SELECT tActivityItem.ActivityItemRefno
                     FROM tActivityItemPicking 
                     INNER JOIN tActivityItem ON tActivityItem.ActivityItemRefno = tActivityItemPicking.ActivityItemRefno 
                     INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno = tActivityItemPicking.WarehouseLocationMapRefno 
@@ -1148,11 +1145,9 @@ namespace dMobile.Controller.Activity_Item
                         AND tActivityItemPicking.ProductUnitRefno = {prodUnitRefno}";
 
             var results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<PickingItem>(sql);
-            if (results != null &&
-                results.Count > 0)
+            if (results != null && results.Count > 0)
             {
-                await this.AssignActivityItem(results[0]);
-                foundActItemRefno = this.ItemRefno;
+                foundActItemRefno = Convert.ToInt32(results[0].ActivityItemRefno);
             }
             else
             {
@@ -1163,7 +1158,6 @@ namespace dMobile.Controller.Activity_Item
                         if (pickItem.LocationMapRefno == locMap.WhsLocMapRefno
                             && pickItem.ProductUnitRefno == prodUnitRefno)
                         {
-                            await this.AssignActivityItem(pickItem);
                             foundActItemRefno = this.ItemRefno;
                             break;
                         }
@@ -1175,13 +1169,10 @@ namespace dMobile.Controller.Activity_Item
                 // on it for the same product and different warehouse.
                 // Picking is the only activity that could have this sort of problem. All other activities are
                 // warehouse friend because they can't mix warehouses or are created by the mobile itself.
-                if (foundActItemRefno == 0 &&
-                    this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc)
+                if (foundActItemRefno == 0 && this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc)
                 {
                     sql = $@"
                         SELECT tActivityItem.ActivityItemRefno,
-                                tActivityItemPicking.ActivityItemFKRefno,
-                                tActivityItemPicking.ProductUnitRefno,
                                 tLocationMapWarehouse.LocationMapRefno 
                             FROM tActivityItemPicking 
                             INNER JOIN tActivityItem ON tActivityItem.ActivityItemRefno = tActivityItemPicking.ActivityItemRefno 
@@ -1190,14 +1181,12 @@ namespace dMobile.Controller.Activity_Item
                             AND tActivityItemPicking.ProductUnitRefno = {prodUnitRefno}";
 
                     results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<PickingItem>(sql);
-                    if (results != null &&
-                        results.Count > 0)
+                    if (results != null && results.Count > 0)
                     {
                         var locMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(
                             Convert.ToInt32(results[0].LocationMapRefno),
                             prodUnitRefno,
                             SysCommon.ProdLocMapTypes.Picking);
-
                         if (!await LocationMapTasks.IsCompleteLocMap(locMapRefno))
                         {
                             // Default location to the floor.
@@ -1212,8 +1201,7 @@ namespace dMobile.Controller.Activity_Item
                             LocationMap.GetInstance().CurrLocMap =
                                 await LocationMapTasks.GetSLocMapFromLocMapRefno(locMapRefno);
                             LocationMap.GetInstance().ChosenLocMap = LocationMap.GetInstance().CurrLocMap;
-                            await this.AssignActivityItem(results[0]);
-                            foundActItemRefno = this.ItemRefno;
+                            foundActItemRefno = Convert.ToInt32(results[0].ActivityItemRefno);
                         }
                     }
                     else
@@ -1224,7 +1212,6 @@ namespace dMobile.Controller.Activity_Item
                             {
                                 if (pickItem.ProductUnitRefno == prodUnitRefno)
                                 {
-                                    await this.AssignActivityItem(pickItem);
                                     foundActItemRefno = this.ItemRefno;
                                     break;
                                 }

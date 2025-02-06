@@ -42,8 +42,6 @@ namespace dMobile.View.Activity
             this.IsCallerSkidLoaded = false;
             this.IsNewSkid = false;
             this.CallingActSubType = SysCommon.ActSubTypes.SkidInfo;
-            this.CallingActFkRefno = 0;
-            this.CallingActItemFkRefno = 0;
             this.ActivityType = activityType;
             this.SkidInfo = new SysSkidInfo();
             this.ProdInfo = new ProductInfo();
@@ -55,8 +53,7 @@ namespace dMobile.View.Activity
 
             this.ParseAndSeedBarCodeModifier();
             _ = Device.InvokeOnMainThreadAsync(
-                () =>
-                    this.BarCodeModifier1Picker.SelectedItem = this.SysEnv.CurrentBarCodeModifier1);
+                () => this.BarCodeModifier1Picker.SelectedItem = this.SysEnv.CurrentBarCodeModifier1);
             this.DisplaySkidInfo().FireAndForgetSafeAsync();
             this.ScannerEnable().FireAndForgetSafeAsync();
         }
@@ -78,8 +75,6 @@ namespace dMobile.View.Activity
             // Set changes have not been made flag. Loading a skid information should not trigger the
             // save changes dialog in the IdentifyChangesMade event.
             this.CallingActSubType = callingActSubType;
-            this.CallingActFkRefno = activity.HdrFkRefno;
-            this.CallingActItemFkRefno = 0;
             this.ActivityType = activityType;
             if (activity.SkidInfo.CurrSkid.SkidFkRefno <= 0)
             {
@@ -91,7 +86,6 @@ namespace dMobile.View.Activity
                 this.LocMap = LocationMap.GetInstance().CurrLocMap.Clone();
                 this.SkidInfo.CurrSkid.LocMap = this.LocMap;
                 this.SkidInfo.CurrSkid.ProdInfo = this.ProdInfo;
-                this.CallingSkidInfo = SysSkidInfo.DeepCopy(this.SkidInfo);
             }
             else
             {
@@ -101,16 +95,15 @@ namespace dMobile.View.Activity
                 this.SkidInfo = activity.SkidInfo;
                 this.ProdInfo = this.SkidInfo.CurrSkid.ProdInfo;
                 this.LocMap = this.SkidInfo.CurrSkid.LocMap;
-                this.CallingSkidInfo = SysSkidInfo.DeepCopy(this.SkidInfo);
             }
 
+            this.CallingSkidInfo = SysSkidInfo.DeepCopy(this.SkidInfo);
             this.CallingWarehouseLocMapRefno = this.LocMap.WhsLocMapRefno;
 
             // Load control data.
             this.ParseAndSeedBarCodeModifier();
             _ = Device.InvokeOnMainThreadAsync(
-                () =>
-                    this.BarCodeModifier1Picker.SelectedItem = this.SysEnv.CurrentBarCodeModifier1);
+                () => this.BarCodeModifier1Picker.SelectedItem = this.SysEnv.CurrentBarCodeModifier1);
             this.DisplaySkidInfo().FireAndForgetSafeAsync();
             this.ScannerEnable().FireAndForgetSafeAsync();
         }
@@ -132,8 +125,6 @@ namespace dMobile.View.Activity
             // Set changes have not been made flag. Loading a skid information should not trigger the
             // save changes dialog in the IdentifyChangesMade event.
             this.CallingActSubType = callingActSubType;
-            this.CallingActFkRefno = actItem.ActHdr.HdrFkRefno;
-            this.CallingActItemFkRefno = actItem.ItemFkRefno;
             this.ActivityType = activityType;
             if (actItem.ActHdr.SkidInfo.CurrSkid.SkidFkRefno <= 0)
             {
@@ -163,97 +154,38 @@ namespace dMobile.View.Activity
 
             this.ParseAndSeedBarCodeModifier();
             _ = Device.InvokeOnMainThreadAsync(
-                () =>
-                    this.BarCodeModifier1Picker.SelectedItem = this.SysEnv.CurrentBarCodeModifier1);
+                () => this.BarCodeModifier1Picker.SelectedItem = this.SysEnv.CurrentBarCodeModifier1);
             this.DisplaySkidInfo().FireAndForgetSafeAsync();
             this.ScannerEnable().FireAndForgetSafeAsync();
         }
 
-        /// <summary>
-        ///     Gets the calling activity type.
-        /// </summary>
         private SysShared.ActivityType ActivityType { get; }
 
-        /// <summary>
-        ///     Gets the calling activity subtype.
-        /// </summary>
         private SysCommon.ActSubTypes CallingActSubType { get; }
 
-        /// <summary>
-        ///     Gets a value indicating whether the skid has quantity.
-        /// </summary>
         private bool IsSkidHasQuantity => this.SkidInfo.CurrSkid.Quantity > 0;
 
-        /// <summary>
-        ///     Gets or sets a value indicating whether the skid code has changed.
-        /// </summary>
-        private bool IsSkidCodeChanged { get; set; }
-
-        /// <summary>
-        ///     Gets or sets the calling activity foreign key reference number.
-        /// </summary>
-        private int CallingActFkRefno { get; set; }
-
-        /// <summary>
-        ///     Gets or sets the calling activity item foreign key reference number.
-        /// </summary>
-        private int CallingActItemFkRefno { get; set; }
-
-        /// <summary>
-        ///     Gets or sets the calling warehouse location map reference number.
-        /// </summary>
         private int CallingWarehouseLocMapRefno { get; }
 
-        /// <summary>
-        ///     Gets or sets the saved skid information.
-        /// </summary>
         private SysSkidInfo CallingSkidInfo { get; set; }
 
-        /// <summary>
-        ///     Gets the bar code scanner.
-        /// </summary>
         private BarCodeScanner Scanner { get; } = ScannerEngine.GetInstance().Scanner;
 
-        /// <summary>
-        ///     Gets or sets a value indicating whether the skid was loaded from the calling activity.
-        /// </summary>
         private bool IsCallerSkidLoaded { get; set; }
 
-        /// <summary>
-        ///     Gets or sets a value indicating whether the skid is a new skid.
-        /// </summary>
         private bool IsNewSkid { get; set; }
 
-        /// <summary>
-        ///     Gets or sets the saved location map.
-        /// </summary>
         private SLocMap LocMap { get; set; }
 
-        /// <summary>
-        ///     Gets or sets the product unit information.
-        /// </summary>
         private ProductInfo ProdInfo { get; set; }
 
-        /// <summary>
-        ///     Gets the system environment.
-        /// </summary>
         private SysEnvironment SysEnv { get; } = SysEnvironment.GetInstance();
 
-        /// <summary>
-        ///     Gets or sets a value indicating whether changes have been made.
-        /// </summary>
         private bool IsChangesMade { get; set; }
 
-        /// <summary>
-        ///     Gets or sets the skid information.
-        /// </summary>
         private SysSkidInfo SkidInfo { get; set; }
 
-        /// <summary>
-        ///     Gets the items list.
-        /// </summary>
-        private ObservableCollection<string> ExtraInfoItems { get; } =
-            new ObservableCollection<string>();
+        private ObservableCollection<string> ExtraInfoItems { get; } = new ObservableCollection<string>();
 
         /// <summary>
         ///     Un-register the bar code scan event handler and disable the scanner.
@@ -338,7 +270,6 @@ namespace dMobile.View.Activity
                 {
                     // Expect the control to close.
                     cancelChanges = true;
-                    this.DialogResult = DialogResult.OK;
                 }
                 else
                 {
@@ -349,7 +280,6 @@ namespace dMobile.View.Activity
                             "No"))
                     {
                         cancelChanges = true;
-                        this.DialogResult = DialogResult.OK;
                     }
                 }
             }
@@ -624,30 +554,54 @@ namespace dMobile.View.Activity
         protected override bool OnBackButtonPressed()
         {
             Device.BeginInvokeOnMainThread(PerformCancelChanges);
-
             return true;
 
             //////////////////////////////////////////////////////////////////////////
             async void PerformCancelChanges()
             {
-                if (await this.CancelChanges())
+                try
                 {
-                    // Set the dialog result to OK to force the line item total to recalculate.
-                    // Even though the back button is meant to be a cancel we need to update
-                    // because data still could have changed.
-                    this.DialogResult = DialogResult.OK;
-                    BackButtonCallback();
+                    if (await this.CancelChanges())
+                    {
+                        // Set the dialog result to OK to force the line item total to recalculate.
+                        // Even though the back button is meant to be a cancel we need to update
+                        // because data still could have changed.
+                        this.DialogResult = this.SysEnv.IsActivityItemSingleMode
+                            ? DialogResult.Cancel : DialogResult.OK;
+                        BackButtonCallback();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    await Device.InvokeOnMainThreadAsync(
+                        async () =>
+                        {
+                            var errRpt = new FormErrorReport(SysCommon.ActSubTypes.SkidInfo, ex);
+                            _ = await errRpt.ShowDialog();
+                        });
                 }
             }
 
             //////////////////////////////////////////////////////////////////////////
             async void BackButtonCallback()
             {
-                this.SysEnv.SysSettings.IsShowActivityFilterSelection = true;
-                this.SysEnv.SysSettings.IsNewActivityDetailsAdded = false;
-                await this.ScannerDisable();
-                _ = base.OnBackButtonPressed();
-                await this.Close();
+                try
+                {
+                    this.SysEnv.SysSettings.IsShowActivityFilterSelection = true;
+                    this.SysEnv.SysSettings.IsNewActivityDetailsAdded = false;
+                    await this.ScannerDisable();
+                    _ = base.OnBackButtonPressed();
+                    await this.Close();
+                }
+                catch (Exception ex)
+                {
+                    await Device.InvokeOnMainThreadAsync(
+                        async () =>
+                        {
+                            var errRpt = new FormErrorReport(SysCommon.ActSubTypes.SkidInfo, ex);
+                            _ = await errRpt.ShowDialog();
+                        });
+                }
             }
         }
 
@@ -1504,7 +1458,6 @@ namespace dMobile.View.Activity
                 }
 
                 this.IsChangesMade = false;
-                this.IsSkidCodeChanged = false;
 
                 // The calling skid info is updated to the current skid info.
                 this.CallingSkidInfo = SysSkidInfo.DeepCopy(this.SkidInfo);
@@ -1537,8 +1490,7 @@ namespace dMobile.View.Activity
                 if (this.IsChangesMade ||
                     this.IsNewSkid)
                 {
-                    const string msg =
-                        "Please save the skid information before attempting to see the details.";
+                    const string msg = "Please save the skid information before attempting to see the details.";
                     throw new MessageOnlyException(msg);
                 }
 
@@ -1728,21 +1680,16 @@ namespace dMobile.View.Activity
                         break;
 
                     case SysShared.ActivityType.Items:
-                        if (this.IsNewSkid)
+                        if (this.IsNewSkid && !this.SysEnv.IsActivityItemSingleMode)
                         {
-                            const string msg =
-                                "Creating a new skid is not allowed on the line item level.";
+                            const string msg = "Creating a new skid is not allowed on the line item level.";
                             throw new MessageOnlyException(msg);
                         }
 
                         break;
 
                     case SysShared.ActivityType.Details:
-                        break;
-
                     case SysShared.ActivityType.DetailsEdit:
-                        break;
-
                     case SysShared.ActivityType.HeaderFilter:
                         break;
 

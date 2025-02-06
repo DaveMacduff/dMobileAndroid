@@ -970,10 +970,7 @@ namespace dMobile.Controller.Activity_Item
             var foundActItemRefno = 0;
 
             var query = $@"
-                SELECT tActivityItem.ActivityItemRefno,
-                        tActivityItemAdjustment.ActivityItemFKRefno,
-                        tActivityItemAdjustment.ProductUnitRefno,
-                        tLocationMapWarehouse.LocationMapRefno 
+                SELECT tActivityItem.ActivityItemRefno
                     FROM tActivityItemAdjustment 
                     INNER JOIN tActivityItem ON tActivityItem.ActivityItemRefno = tActivityItemAdjustment.ActivityItemRefno 
                     INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno = tActivityItemAdjustment.WarehouseLocationMapRefno 
@@ -984,14 +981,13 @@ namespace dMobile.Controller.Activity_Item
             var results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<AdjustmentItem>(query);
             if (results != null && results.Count > 0)
             {
-                foundActItemRefno = this.ItemRefno;
+                foundActItemRefno = Convert.ToInt32(results[0].ActivityItemRefno);
             }
             else
             {
                 foreach (var item in this.ListAdjustmentItems)
                 {
-                    if (item.LocationMapRefno == locMap.WhsLocMapRefno &&
-                        item.ProductUnitRefno == prodUnitRefno)
+                    if (item.LocationMapRefno == locMap.WhsLocMapRefno && item.ProductUnitRefno == prodUnitRefno)
                     {
                         foundActItemRefno = this.ItemRefno;
                         break;

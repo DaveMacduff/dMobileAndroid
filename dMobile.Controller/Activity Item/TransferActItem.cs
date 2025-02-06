@@ -1007,11 +1007,8 @@ namespace dMobile.Controller.Activity_Item
         /// <returns><see cref="int"/> Found activity item reference number else 0.</returns>
         public override async Task<int> GetActivityItemRefno(int prodUnitRefno, SLocMap locMap)
         {
-            var foundItemRefno = 0;
-
+            var foundActItemRefno = 0;
             const string query = "SELECT tActivityItem.ActivityItemRefno," +
-                                 "tActivityItemTransfer.ActivityItemFKRefno," +
-                                 "tActivityItemTransfer.ProductUnitRefno," +
                                  "tLocationMapWarehouse.LocationMapRefno " +
                                  "FROM tActivityItemTransfer " +
                                  "INNER JOIN tActivityItem ON tActivityItem.ActivityItemRefno = tActivityItemTransfer.ActivityItemRefno " +
@@ -1020,16 +1017,26 @@ namespace dMobile.Controller.Activity_Item
                                  "WHERE tActivityItem.ActivityRefno = ? " +
                                  "AND tActivityItemTransfer.TransferFromWarehouseLocationMapRefno = ? " +
                                  "AND tActivityItemTransfer.ProductUnitRefno = ?";
-
-            var results = await DatabaseConnection.GetInstance()
-                .SqlConn.QueryAsync<TransferItem>(query, this.ActHdr.HdrRefno, locMap.WhsLocMapRefno, prodUnitRefno);
-
-            if (results?.Count > 0)
+            var results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<TransferItem>(
+                query, this.ActHdr.HdrRefno, locMap.WhsLocMapRefno, prodUnitRefno);
+            if (results != null && results.Count > 0)
             {
-                foundItemRefno = this.ItemRefno;
+                foundActItemRefno = Convert.ToInt32(results[0].ActivityItemRefno);
+            }
+            else
+            {
+                foreach (var item in this.listTransferItems)
+                {
+                    if (item.LocationMapRefno == locMap.WhsLocMapRefno && item.ProductUnitRefno == prodUnitRefno)
+                    {
+                        foundActItemRefno = this.ItemRefno;
+                        break;
+                    }
+                }
             }
 
-            return foundItemRefno;
+
+            return foundActItemRefno;
         }
 
         /// <summary>

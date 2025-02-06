@@ -839,8 +839,6 @@ namespace dMobile.Controller.Activity_Item
             var foundActItemRefno = 0;
             var whsLocMapRefno = locMap.WhsLocMapRefno;
             var query = "SELECT tActivityItem.ActivityItemRefno, " +
-                        "tActivityItemReturns.ActivityItemFKRefno, " +
-                        "tActivityItemReturns.ProductUnitRefno, " +
                         "tLocationMapWarehouse.LocationMapRefno " +
                         "FROM tActivityItemReturns " +
                         "INNER JOIN tActivityItem ON tActivityItem.ActivityItemRefno = " +
@@ -851,11 +849,77 @@ namespace dMobile.Controller.Activity_Item
                         "AND tActivityItemReturns.WarehouseLocationMapRefno = ? " +
                         "AND tActivityItemReturns.ProductUnitRefno = ?";
 
-            var results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<ReturnItem>(query, this.ActHdr.HdrRefno, whsLocMapRefno, prodUnitRefno);
-
+            var results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<ReturnItem>(
+                query, this.ActHdr.HdrRefno, whsLocMapRefno, prodUnitRefno);
             if (results != null && results.Count > 0)
             {
                 foundActItemRefno = this.ItemRefno;
+            }
+            else
+            {
+                foreach (var item in this.listReturnItems)
+                {
+                    if (item.LocationMapRefno == locMap.WhsLocMapRefno && item.ProductUnitRefno == prodUnitRefno)
+                    {
+                        foundActItemRefno = this.ItemRefno;
+                        break;
+                    }
+                }
+
+                // If location defaulting is on, attempt to find a matching line item by ignoring the line item
+                // warehouse location. Yes this will be a problem if the sales order has multiple item lines
+                // on it for the same product and different warehouse.
+                // Picking is the only activity that could have this sort of problem. All other activities are
+                // warehouse friend because they can't mix warehouses or are created by the mobile itself.
+                if (foundActItemRefno == 0 && this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc)
+                {
+                    query = $@"
+                        SELECT tActivityItem.ActivityItemRefno,
+                                tLocationMapWarehouse.LocationMapRefno 
+                            FROM tActivityItemReturns 
+                            INNER JOIN tActivityItem ON tActivityItem.ActivityItemRefno = tActivityItemReturns.ActivityItemRefno 
+                            INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno = tActivityItemReturns.WarehouseLocationMapRefno 
+                            WHERE tActivityItem.ActivityRefno = {this.ActHdr.HdrRefno} 
+                            AND tActivityItemPicking.ProductUnitRefno = {prodUnitRefno}";
+
+                    results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<ReturnItem>(query);
+                    if (results != null && results.Count > 0)
+                    {
+                        var locMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(
+                            Convert.ToInt32(results[0].LocationMapRefno),
+                            prodUnitRefno,
+                            SysCommon.ProdLocMapTypes.Picking);
+                        if (!await LocationMapTasks.IsCompleteLocMap(locMapRefno))
+                        {
+                            // Default location to the floor.
+                            locMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(
+                                Convert.ToInt32(results[0].LocationMapRefno),
+                                prodUnitRefno,
+                                SysCommon.ProdLocMapTypes.Floor);
+                        }
+
+                        if (await LocationMapTasks.IsCompleteLocMap(locMapRefno))
+                        {
+                            LocationMap.GetInstance().CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(locMapRefno);
+                            LocationMap.GetInstance().ChosenLocMap = LocationMap.GetInstance().CurrLocMap;
+                            foundActItemRefno = Convert.ToInt32(results[0].ActivityItemRefno);
+                        }
+                    }
+                    else
+                    {
+                        foreach (var item in this.ListItems)
+                        {
+                            if (item is ReturnItem pickItem)
+                            {
+                                if (pickItem.ProductUnitRefno == prodUnitRefno)
+                                {
+                                    foundActItemRefno = this.ItemRefno;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
             }
 
             return foundActItemRefno;

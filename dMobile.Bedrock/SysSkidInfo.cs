@@ -435,7 +435,11 @@ namespace dMobile.Bedrock
             var root = skidData.Document.Root;
             var sysEnv = SysEnvironment.GetInstance();
             var xmlString = new StringBuilder();
-            using var writer = XmlWriter.Create(xmlString);
+            var settings = new XmlWriterSettings
+            {
+                Async = true
+            };
+            using var writer = XmlWriter.Create(xmlString, settings);
             var revDateTime = sysEnv.RefreshOpt.RefreshedDataLast.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
             var currDateTime = DateTime.Now.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
             var prodInfo = await ProductInfoTasks.GetInfoFromUnitRefno(

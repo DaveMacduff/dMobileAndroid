@@ -957,8 +957,6 @@ namespace dMobile.Controller.Activity_Item
             var foundActItemRefno = 0;
             var sql = new StringBuilder();
             sql.Append("SELECT tActivityItem.ActivityItemRefno,");
-            sql.Append("tActivityItemPurchaseOrderWorkSheet.ActivityItemFKRefno,");
-            sql.Append("tActivityItemPurchaseOrderWorkSheet.ProductUnitRefno,");
             sql.Append("tLocationMapWarehouse.LocationMapRefno ");
             sql.Append("FROM tActivityItemPurchaseOrderWorkSheet ");
             sql.Append("INNER JOIN tActivityItem ON tActivityItem.ActivityItemRefno ");
@@ -975,7 +973,7 @@ namespace dMobile.Controller.Activity_Item
 
             if (results != null && results.Count > 0)
             {
-                foundActItemRefno = this.ItemRefno;
+                foundActItemRefno = Convert.ToInt32(results[0].ActivityItemRefno);
             }
 
             return foundActItemRefno;

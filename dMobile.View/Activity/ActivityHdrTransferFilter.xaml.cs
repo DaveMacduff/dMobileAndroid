@@ -95,86 +95,30 @@ namespace dMobile.View.Activity
             this.cboSortBy4.SelectedIndex = this.TransSettings.iSortBy4Index;
 
             this.filters.Add(string.Empty, null);
-            this.filters.Add("Transfer # Ascending", new Sort() { SortValue = "ActivityFKRefno", SortOrder = SortOrder.ASC });
-            this.filters.Add("Transfer # Descending", new Sort() { SortValue = "ActivityFKRefno", SortOrder = SortOrder.DESC });
-            this.filters.Add("Date Ascending", new Sort() { SortValue = "ActivityTransferDateTime", SortOrder = SortOrder.ASC });
-            this.filters.Add("Date Descending", new Sort() { SortValue = "ActivityTransferDateTime", SortOrder = SortOrder.DESC });
-            this.filters.Add("Whs # Ascending", new Sort() { SortValue = "LocationMapWarehouseFKRefno", SortOrder = SortOrder.ASC });
-            this.filters.Add("Whs # Descending", new Sort() { SortValue = "LocationMapWarehouseFKRefno", SortOrder = SortOrder.DESC });
-            this.filters.Add("Arrival Ascending", new Sort() { SortValue = "LocationMapArrivalDateTime", SortOrder = SortOrder.ASC });
-            this.filters.Add("Arrival Descending", new Sort() { SortValue = "LocationMapArrivalDateTime", SortOrder = SortOrder.DESC });
-        }
-
-        /// <summary>
-        /// The OnAppearing.
-        /// </summary>
-        protected override async void OnAppearing()
-        {
-            base.OnAppearing();
-
-            MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
-            {
-                _ = Enum.TryParse(keyPressed, out Keycode keycode);
-
-                if (!this.IsIndicatorRunning)
-                {
-                    if (keycode == Keycode.F1)
-                    {
-                        if (await this.SaveChanges())
-                        {
-                            this.DialogResult = DialogResult.OK;
-                        }
-                        else
-                        {
-                            this.DialogResult = DialogResult.None;
-                            _ = await this.CancelChanges();
-                        }
-                    }
-                }
-            });
-
-            try
-            {
-                this.ucActivityFilter_GotFocus(this, EventArgs.Empty);
-            }
-            catch (Exception ex)
-            {
-                await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert("Error", "this.ucActivityFilter_GotFocus threw an error " + ex, "OK"));
-            }
-        }
-
-        /// <summary>
-        /// The OnDisappearing.
-        /// </summary>
-        protected override async void OnDisappearing()
-        {
-            MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
-            await this.ScannerDisable();
-            base.OnDisappearing();
-            GC.Collect();
-            GC.WaitForPendingFinalizers();
-        }
-
-        /// <inheritdoc/>
-        protected override bool OnBackButtonPressed()
-        {
-            Device.BeginInvokeOnMainThread(async () =>
-            {
-                _ = base.OnBackButtonPressed();
-
-                if (await this.SaveChanges())
-                {
-                    this.DialogResult = DialogResult.OK;
-                    await this.Close();
-                }
-                else if (await this.CancelChanges())
-                {
-                    this.DialogResult = DialogResult.None;
-                    await this.Close();
-                }
-            });
-
-            return true;
+            this.filters.Add(
+                "Transfer # Ascending",
+                new Sort() { SortValue = "ActivityFKRefno", SortOrder = SortOrder.ASC });
+            this.filters.Add(
+                "Transfer # Descending",
+                new Sort() { SortValue = "ActivityFKRefno", SortOrder = SortOrder.DESC });
+            this.filters.Add(
+                "Date Ascending",
+                new Sort() { SortValue = "ActivityTransferDateTime", SortOrder = SortOrder.ASC });
+            this.filters.Add(
+                "Date Descending",
+                new Sort() { SortValue = "ActivityTransferDateTime", SortOrder = SortOrder.DESC });
+            this.filters.Add(
+                "Whs # Ascending",
+                new Sort() { SortValue = "LocationMapWarehouseFKRefno", SortOrder = SortOrder.ASC });
+            this.filters.Add(
+                "Whs # Descending",
+                new Sort() { SortValue = "LocationMapWarehouseFKRefno", SortOrder = SortOrder.DESC });
+            this.filters.Add(
+                "Arrival Ascending",
+                new Sort() { SortValue = "LocationMapArrivalDateTime", SortOrder = SortOrder.ASC });
+            this.filters.Add(
+                "Arrival Descending",
+                new Sort() { SortValue = "LocationMapArrivalDateTime", SortOrder = SortOrder.DESC });
         }
 
         public ArrayList aSortBy1 { get; set; } = new ArrayList();
@@ -197,6 +141,86 @@ namespace dMobile.View.Activity
 
         public bool bChangesMade { get; set; } = false;
 
+        /// <summary>
+        /// The OnAppearing.
+        /// </summary>
+        protected override async void OnAppearing()
+        {
+            base.OnAppearing();
+
+            MessagingCenter.Subscribe<string>(
+                this,
+                EventTypes.OnKeyUp.ToString(),
+                async (keyPressed) =>
+                {
+                    _ = Enum.TryParse(keyPressed, out Keycode keycode);
+
+                    if (!this.IsIndicatorRunning)
+                    {
+                        if (keycode == Keycode.F1)
+                        {
+                            if (await this.SaveChanges())
+                            {
+                                this.DialogResult = DialogResult.OK;
+                            }
+                            else
+                            {
+                                this.DialogResult = DialogResult.None;
+                                _ = await this.CancelChanges();
+                            }
+                        }
+                    }
+                });
+
+            try
+            {
+                this.ucActivityFilter_GotFocus(this, EventArgs.Empty);
+            }
+            catch (Exception ex)
+            {
+                await Device.InvokeOnMainThreadAsync(
+                    async () => await this.DisplayAlert(
+                        "Error",
+                        "this.ucActivityFilter_GotFocus threw an error " + ex,
+                        "OK"));
+            }
+        }
+
+        /// <summary>
+        /// The OnDisappearing.
+        /// </summary>
+        protected override async void OnDisappearing()
+        {
+            MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
+            await this.ScannerDisable();
+            base.OnDisappearing();
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+        }
+
+        /// <inheritdoc/>
+        protected override bool OnBackButtonPressed()
+        {
+            Device.BeginInvokeOnMainThread(
+                async () =>
+                {
+                    _ = base.OnBackButtonPressed();
+
+                    if (await this.SaveChanges())
+                    {
+                        this.DialogResult = DialogResult.OK;
+                        await this.Close();
+                    }
+                    else if (await this.CancelChanges())
+                    {
+                        this.DialogResult = DialogResult.None;
+                        await this.Close();
+                    }
+                });
+
+            return true;
+        }
+
         private void MakeSQLSortBy()
         {
             this.strSQLSortBy = this.filters[this.cboSortBy1.Items[this.cboSortBy1.SelectedIndex]].SortValue;
@@ -206,7 +230,8 @@ namespace dMobile.View.Activity
             {
                 this.TransSettings.SortBy2Value = this.filters[this.cboSortBy2.Items[this.cboSortBy2.SelectedIndex]];
 
-                if (this.TransSettings.SortBy2Value != null && !string.IsNullOrEmpty(this.TransSettings.SortBy2Value.SortValue))
+                if (this.TransSettings.SortBy2Value != null &&
+                    !string.IsNullOrEmpty(this.TransSettings.SortBy2Value.SortValue))
                 {
                     this.strSQLSortBy = this.strSQLSortBy + ", " + this.TransSettings.SortBy2Value;
                 }
@@ -216,7 +241,8 @@ namespace dMobile.View.Activity
             {
                 this.TransSettings.SortBy3Value = this.filters[this.cboSortBy3.Items[this.cboSortBy3.SelectedIndex]];
 
-                if (this.TransSettings.SortBy3Value != null && !string.IsNullOrEmpty(this.TransSettings.SortBy3Value.SortValue))
+                if (this.TransSettings.SortBy3Value != null &&
+                    !string.IsNullOrEmpty(this.TransSettings.SortBy3Value.SortValue))
                 {
                     this.strSQLSortBy = this.strSQLSortBy + ", " + this.TransSettings.SortBy3Value;
                 }
@@ -226,7 +252,8 @@ namespace dMobile.View.Activity
             {
                 this.TransSettings.SortBy4Value = this.filters[this.cboSortBy4.Items[this.cboSortBy4.SelectedIndex]];
 
-                if (this.TransSettings.SortBy4Value != null && !string.IsNullOrEmpty(this.TransSettings.SortBy4Value.SortValue))
+                if (this.TransSettings.SortBy4Value != null &&
+                    !string.IsNullOrEmpty(this.TransSettings.SortBy4Value.SortValue))
                 {
                     this.strSQLSortBy = this.strSQLSortBy + ", " + this.TransSettings.SortBy4Value;
                 }
@@ -372,7 +399,11 @@ namespace dMobile.View.Activity
                 }
                 else
                 {
-                    await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(this.GetControlDescription(), "Data Failed Validation. Check Your Data.", "OK"));
+                    await Device.InvokeOnMainThreadAsync(
+                        async () => await this.DisplayAlert(
+                            this.GetControlDescription(),
+                            "Data Failed Validation. Check Your Data.",
+                            "OK"));
                 }
             }
             catch (Exception Ex)
@@ -436,11 +467,16 @@ namespace dMobile.View.Activity
         /// <inheritdoc/>
         public Task<XDocument> GetXml()
         {
-            var request = XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" +
-                                          "<params>" +
-                                          "<transfer_date>" + this.TransSettings.TransferDateFilter.ToShortDateString() + "</transfer_date>" +
-                                          "<sortby>" + this.strSQLSortBy + "</sortby>" +
-                                          "</params>");
+            var request = XDocument.Parse(
+                "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" +
+                "<params>" +
+                "<transfer_date>" +
+                this.TransSettings.TransferDateFilter.ToShortDateString() +
+                "</transfer_date>" +
+                "<sortby>" +
+                this.strSQLSortBy +
+                "</sortby>" +
+                "</params>");
 
             return Task.FromResult(request);
         }

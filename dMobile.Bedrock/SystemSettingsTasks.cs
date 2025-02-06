@@ -466,6 +466,7 @@ namespace dMobile.Bedrock
             settings.DoesSelectingADifferentProductClearSkid = Convert.ToBoolean(drow["IsClearSkidUponChangeLineItemProductEnabled"]);
             settings.CanPrintProductLabelTransfers = Convert.ToBoolean(drow["CanPrintProductLabelTransfers"]);
             settings.IsProductLabelCatchAsk = Convert.ToBoolean(drow["IsProductLabelCatchAsk"]);
+            settings.EnableAndroidSingleActivityItemMode = Convert.ToBoolean(drow["EnableAndroidSingleActivityItemMode"]);
 
             // WO 15547 conflicting with old WO 13770. Huer wants section slot filter, Sysco doesn't
             if (drow.Table.Columns.Contains("InventoryInquirySearchEntireWarehouse"))

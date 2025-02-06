@@ -879,7 +879,7 @@ namespace dMobile.View.Activity
                     async Task KeyUpEnterHandler()
                     {
                         this.ActHdr.AssignRefnoFromActivity(this.ListViewMainActivity.SelectedItem);
-                        if (this.SysEnv.SysSettings.IsSingleActivityItem)
+                        if (this.SysEnv.SysSettings.EnableAndroidSingleActivityItemMode)
                         {
                             if (this.ActSubType == SysCommon.ActSubTypes.Picking)
                             {
@@ -1095,7 +1095,7 @@ namespace dMobile.View.Activity
                     {
                         this.NumTaps = 0;
                         this.ActHdr.AssignRefnoFromActivity(this.ListViewMainActivity.SelectedItem);
-                        if (this.SysEnv.SysSettings.IsSingleActivityItem)
+                        if (this.SysEnv.SysSettings.EnableAndroidSingleActivityItemMode)
                         {
                             if (this.ActSubType == SysCommon.ActSubTypes.Picking)
                             {

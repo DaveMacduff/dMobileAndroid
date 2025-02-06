@@ -944,10 +944,20 @@ namespace dMobile.Controller.Activity_Item
             sql.AppendFormat("AND tActivityItem.ActivityItemSubType = {0}", Convert.ToInt32(SysCommon.ActSubTypes.TicketMaterial));
 
             var results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<ProductionTicketMaterialItem>(sql.ToString());
-
             if (results != null && results.Count > 0)
             {
-                foundActItemRefno = this.ItemRefno;
+                foundActItemRefno = Convert.ToInt32(results[0].ActivityItemRefno);
+            }
+            else
+            {
+                foreach (var item in this.ListProductionTicketMaterialItems)
+                {
+                    if (item.LocationMapRefno == locMap.WhsLocMapRefno && item.ProductUnitRefno == prodUnitRefno)
+                    {
+                        foundActItemRefno = this.ItemRefno;
+                        break;
+                    }
+                }
             }
 
             return foundActItemRefno;

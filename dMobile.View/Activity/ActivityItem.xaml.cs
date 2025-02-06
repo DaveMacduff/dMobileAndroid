@@ -1924,12 +1924,39 @@ namespace dMobile.View.Activity
                                 var xmlParam = XDocument.Parse(xmlString);
 
                                 await this.ActItem.IsReadyToApply(xmlParam);
-                                await actDetail.InsertSkid(this.ActItem.ActHdr.SkidInfo);
+
                                 this.ActItem = actDetail.ActItem;
                                 this.SelectedActivityItemFkRefno = this.ActItem.ItemFkRefno;
                                 this.ActItem.SelectedItem = this.ActItem;
                                 selectedItem = this.ActItem.SelectedItem;
                                 actItemFoundRefno = this.ActItem.ItemRefno;
+
+                                Device.BeginInvokeOnMainThread(async () =>
+                                    {
+                                        var isAddAllSkidDetail = false;
+                                        var skidMsg = "Do you wish to add all the available skid quantity?";
+                                        var result = await this.DisplayAlert("Skid", skidMsg, "Yes", "No");
+                                        if (result)
+                                        {
+                                            isAddAllSkidDetail = true;
+                                        }
+
+                                        if (isAddAllSkidDetail)
+                                        {
+                                            await actDetail.InsertSkid(this.ActItem.ActHdr.SkidInfo);
+                                            if (selectedItem != null)
+                                            {
+                                                this.ActItem.AddToQuantityInActivityItem(
+                                                    selectedItem,
+                                                    actDetail.Quantity,
+                                                    actDetail.BaseQuantity,
+                                                    actDetail.WeightQuantity);
+                                                await this.ActItem.UpdateItemTableQuantity(selectedItem);
+                                                this.ActItem.SelectedItem = selectedItem;
+                                                await this.LoadAndBind();
+                                            }
+                                        }
+                                    });
 
                                 ////if (actDetail.Quantity == 0)
                                 ////{
@@ -3955,7 +3982,7 @@ namespace dMobile.View.Activity
                             // this.ActItem.ProdInfo.Scheme assigned in Insert();
                             await this.ActItem.Insert(xmlDoc);
                             this.ActItem.SetSelectedActivityItemFromList(this.ActItem.ItemRefno);
-                            this.ActItem.AssignActivityItem(this.ActItem.SelectedItem);
+                            await this.ActItem.AssignActivityItem(this.ActItem.SelectedItem);
 
                             if (actItemFoundRefno == 0)
                             {
