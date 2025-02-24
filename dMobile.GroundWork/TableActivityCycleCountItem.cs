@@ -151,61 +151,57 @@ namespace dMobile.GroundWork
                 using var ds = new DataSet();
                 ds.ReadXml(SysCommon.GetXmlReader(ref responseData), XmlReadMode.Auto);
                 this.StatusOut("Saving cycle count items.");
-
                 var conn = DatabaseConnection.GetInstance().SqlConn;
-                if (ds.Tables.Count == 0)
+                if (ds.Tables.Count > 0)
                 {
-                    throw new Exception("No data was received.");
-                }
-
-                var rows = ds.Tables["tActivityItemCount"].Rows;
-                if (rows.Count > 0)
-                {
-                    var countItems = new List<Seg>();
-                    foreach (DataRow drow in rows)
+                    var rows = ds.Tables["tActivityItemCount"].Rows;
+                    if (rows.Count > 0)
                     {
-                        var itemRefno = await GetActivityItemRefno();
-                        var seg = new Seg
+                        var countItems = new List<Seg>();
+                        foreach (DataRow drow in rows)
                         {
-                            ActivityItemRefno = itemRefno,
-                            ActivityItemSubType = Convert.ToInt32(SysCommon.ActSubTypes.CycleCounts),
-                            ActivityItemFKRefno = Convert.ToInt32(drow["f02"]),
-                            ActivityItemStringFKRefno = Convert.ToString(drow["f02"]),
-                            LocationMapRefno = await GetReceivedDataLocationAsync(
-                                drow,
-                                conn,
-                                true,
-                                SysCommon.ActSubTypes.CycleCounts),
-                            ProductUnitRefno = await GetProductUnitRefnoFromDataRowAsync(drow, conn, true),
-                            ActivityItemCountQuantityOnHand = Convert.ToDecimal(drow["f09"]),
-                            ActivityItemCountBaseQuantityOnHand = Convert.ToDecimal(drow["f10"]),
-                            ActivityItemCountWeightQuantityOnHand = Convert.ToDecimal(drow["f11"]),
-                            ActivityItemCountQuantity = Convert.ToDecimal(drow["f12"]),
-                            ActivityItemCountBaseQuantity = Convert.ToDecimal(drow["f13"]),
-                            ActivityItemCountWeightQuantity = Convert.ToDecimal(drow["f14"]),
-                        };
-                        countItems.Add(seg);
-                    }
+                            var itemRefno = await GetActivityItemRefno();
+                            var seg = new Seg
+                            {
+                                ActivityItemRefno = itemRefno,
+                                ActivityItemSubType = Convert.ToInt32(SysCommon.ActSubTypes.CycleCounts),
+                                ActivityItemFKRefno = Convert.ToInt32(drow["f02"]),
+                                ActivityItemStringFKRefno = Convert.ToString(drow["f02"]),
+                                LocationMapRefno = await GetReceivedDataLocationAsync(
+                                    drow,
+                                    conn,
+                                    true,
+                                    SysCommon.ActSubTypes.CycleCounts),
+                                ProductUnitRefno = await GetProductUnitRefnoFromDataRowAsync(drow, conn, true),
+                                ActivityItemCountQuantityOnHand = Convert.ToDecimal(drow["f09"]),
+                                ActivityItemCountBaseQuantityOnHand = Convert.ToDecimal(drow["f10"]),
+                                ActivityItemCountWeightQuantityOnHand = Convert.ToDecimal(drow["f11"]),
+                                ActivityItemCountQuantity = Convert.ToDecimal(drow["f12"]),
+                                ActivityItemCountBaseQuantity = Convert.ToDecimal(drow["f13"]),
+                                ActivityItemCountWeightQuantity = Convert.ToDecimal(drow["f14"]),
+                            };
+                            countItems.Add(seg);
+                        }
 
-                    var query = "CREATE TEMP TABLE Seg " +
-                        "(" +
-                        "ActivityItemRefno INTEGER NOT NULL," +
-                        "ActivityItemSubType INTEGER NOT NULL," +
-                        "ActivityItemFKRefno INTEGER NOT NULL," +
-                        "ActivityItemStringFKRefno VARCHAR(10) NOT NULL," +
-                        "ProductUnitRefno INTEGER NOT NULL," +
-                        "LocationMapRefno INTEGER NOT NULL," +
-                        "ActivityItemCountQuantityOnHand DECIMAL(11, 3) NOT NULL," +
-                        "ActivityItemCountBaseQuantityOnHand DECIMAL(11, 3) NOT NULL," +
-                        "ActivityItemCountWeightQuantityOnHand DECIMAL(11, 3) NOT NULL," +
-                        "ActivityItemCountQuantity DECIMAL(11, 3) NOT NULL," +
-                        "ActivityItemCountBaseQuantity DECIMAL(11, 3) NOT NULL," +
-                        "ActivityItemCountWeightQuantity DECIMAL(11, 3) NOT NULL" +
-                        ")";
-                    await conn.ExecuteAsync(query);
-                    await conn.InsertAllAsync(countItems);
+                        var query = "CREATE TEMP TABLE Seg " +
+                            "(" +
+                            "ActivityItemRefno INTEGER NOT NULL," +
+                            "ActivityItemSubType INTEGER NOT NULL," +
+                            "ActivityItemFKRefno INTEGER NOT NULL," +
+                            "ActivityItemStringFKRefno VARCHAR(10) NOT NULL," +
+                            "ProductUnitRefno INTEGER NOT NULL," +
+                            "LocationMapRefno INTEGER NOT NULL," +
+                            "ActivityItemCountQuantityOnHand DECIMAL(11, 3) NOT NULL," +
+                            "ActivityItemCountBaseQuantityOnHand DECIMAL(11, 3) NOT NULL," +
+                            "ActivityItemCountWeightQuantityOnHand DECIMAL(11, 3) NOT NULL," +
+                            "ActivityItemCountQuantity DECIMAL(11, 3) NOT NULL," +
+                            "ActivityItemCountBaseQuantity DECIMAL(11, 3) NOT NULL," +
+                            "ActivityItemCountWeightQuantity DECIMAL(11, 3) NOT NULL" +
+                            ")";
+                        await conn.ExecuteAsync(query);
+                        await conn.InsertAllAsync(countItems);
 
-                    query = @"
+                        query = @"
                     INSERT INTO tActivityItemCount (
                         ActivityItemRefno, 
                         ActivityItemSubType, 
@@ -234,17 +230,18 @@ namespace dMobile.GroundWork
                         Seg.ActivityItemCountBaseQuantity, 
                         Seg.ActivityItemCountWeightQuantity
                     FROM Seg";
-                    var rowsAffected = await conn.ExecuteAsync(query);
-                    if (countItems.Count != rowsAffected)
-                    {
-                        throw new Exception("Failed to insert all rows into tActivityItemCount");
+                        var rowsAffected = await conn.ExecuteAsync(query);
+                        if (countItems.Count != rowsAffected)
+                        {
+                            throw new Exception("Failed to insert all rows into tActivityItemCount");
+                        }
+
+                        // Drop the temporary table
+                        const string dropTempTableQuery = "DROP TABLE IF EXISTS Seg";
+                        await conn.ExecuteAsync(dropTempTableQuery);
+
+                        this.StatusOut("Request cycle count items complete.");
                     }
-
-                    // Drop the temporary table
-                    const string dropTempTableQuery = "DROP TABLE IF EXISTS Seg";
-                    await conn.ExecuteAsync(dropTempTableQuery);
-
-                    this.StatusOut("Request cycle count items complete.");
                 }
 
                 ///////////////////////////////////////////////////////////
