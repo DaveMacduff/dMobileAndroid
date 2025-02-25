@@ -14,6 +14,7 @@ using dMobile.Bedrock;
 using dMobile.GroundWork;
 using dMobile.Resources.Models.Items;
 using dMobile.Resources.Services;
+using dMobile.Resources.Types;
 using dMobile.Resources.Types.Details;
 using dMobile.Resources.Types.Items;
 using SQLite;
@@ -40,7 +41,6 @@ namespace dMobile.Controller.Activity_Item
             DefineInitialGrid();
             return;
 
-            ///////////////////////////////////////////////////////////
             void DefineInitialGrid()
             {
                 var dataTemplate = new DataTemplate(
@@ -992,8 +992,8 @@ namespace dMobile.Controller.Activity_Item
         {
             var sortedItems = listItems
                 .Cast<PickingItem>()
-                .OrderBy(item => item.ActivityItemFKRefno >= 0 ? 0 : 1)
-                .ThenBy(item => item.ActivityItemFKRefno)
+                .OrderBy(item => item.ActivityItemRefno >= 0 ? 0 : 1)
+                .ThenBy(item => item.ActivityItemRefno)
                 .Cast<object>()
                 .ToList();
 
@@ -1214,7 +1214,7 @@ namespace dMobile.Controller.Activity_Item
                             THEN ' '
                             ELSE '*'
                             END AS IsActivityItemPickingComment,
-                        tActivityItem.ActivityItemStatus AS ActivityItemStatus 
+                        tActivityItem.ActivityItemStatus AS ActivityItemStatus
                     FROM tActivityItemPicking 
                     INNER JOIN tActivityItem ON tActivityItem.ActivityItemRefno = tActivityItemPicking.ActivityItemRefno 
                     INNER JOIN tProductUnit ON tProductUnit.ProductUnitRefno = tActivityItemPicking.ProductUnitRefno 
@@ -1225,10 +1225,10 @@ namespace dMobile.Controller.Activity_Item
                     WHERE tActivityItem.ActivityRefno = {this.ActHdr.HdrRefno}";
             }
 
-            this.ListPickingItems =
-                await DatabaseConnection.GetInstance().SqlConn.QueryAsync<PickingItem>(sql);
-            this.ListPickingItems = this.ListPickingItems.OrderBy(x => x.ActivityItemRefno).ToList();
+            this.ListPickingItems = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<PickingItem>(sql);
+            this.ListPickingItems = this.ListPickingItems.ToList();
             this.ListItems = this.ListPickingItems.Cast<object>().ToList();
+
             return this.ListItems;
         }
 
@@ -1711,7 +1711,7 @@ namespace dMobile.Controller.Activity_Item
 
                 if (results != null)
                 {
-                    foreach (dynamic pickingItem in results.Cast<PickingDetail>())
+                    foreach (dynamic pickingItem in results)
                     {
                         // Because an aggregate sum function is used in a query. There will always be a result record.
                         // This causes problems detecting if there is nothing to sum, resulting in null.

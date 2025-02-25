@@ -18,9 +18,9 @@
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="6*"/>
-                    <RowDefinition Height="66*"/>
+                    <RowDefinition Height="62*"/>
                     <RowDefinition Height="20*"/>
-                    <RowDefinition Height="8*"/>
+                    <RowDefinition Height="12*"/>
                 </Grid.RowDefinitions>
 
                 <Label x:Name="lblSelectedLocation" Grid.Row="0" FontAttributes="Bold"/>

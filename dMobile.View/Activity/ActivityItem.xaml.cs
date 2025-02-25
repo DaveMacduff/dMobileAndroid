@@ -926,8 +926,7 @@ namespace dMobile.View.Activity
                     selectedItem = this.ActItem.ListItems[selectedIndex];
                 }
 
-                if (selectedItem == null &&
-                    this.SelectedActivityItemFkRefno > 0)
+                if (selectedItem == null && this.SelectedActivityItemFkRefno > 0)
                 {
                     selectedIndex = 0;
                     foreach (var item in this.ActItem.ListItems)
@@ -979,8 +978,7 @@ namespace dMobile.View.Activity
                     selectedItem = this.ActItem.ListItems[selectedIndex];
                 }
 
-                if (selectedItem == null &&
-                    activityItemFkRefno > 0)
+                if (selectedItem == null && activityItemFkRefno > 0)
                 {
                     selectedIndex = 0;
                     foreach (var item in this.ActItem.ListItems)
@@ -1931,31 +1929,10 @@ namespace dMobile.View.Activity
                                 selectedItem = this.ActItem.SelectedItem;
                                 actItemFoundRefno = this.ActItem.ItemRefno;
 
-                                Device.BeginInvokeOnMainThread(async () =>
+                                await Device.InvokeOnMainThreadAsync(
+                                    async () =>
                                     {
-                                        var isAddAllSkidDetail = false;
-                                        var skidMsg = "Do you wish to add all the available skid quantity?";
-                                        var result = await this.DisplayAlert("Skid", skidMsg, "Yes", "No");
-                                        if (result)
-                                        {
-                                            isAddAllSkidDetail = true;
-                                        }
-
-                                        if (isAddAllSkidDetail)
-                                        {
-                                            await actDetail.InsertSkid(this.ActItem.ActHdr.SkidInfo);
-                                            if (selectedItem != null)
-                                            {
-                                                this.ActItem.AddToQuantityInActivityItem(
-                                                    selectedItem,
-                                                    actDetail.Quantity,
-                                                    actDetail.BaseQuantity,
-                                                    actDetail.WeightQuantity);
-                                                await this.ActItem.UpdateItemTableQuantity(selectedItem);
-                                                this.ActItem.SelectedItem = selectedItem;
-                                                await this.LoadAndBind();
-                                            }
-                                        }
+                                        await AskToAddAvailableSkidQuantity(selectedItem, actDetail);
                                     });
 
                                 ////if (actDetail.Quantity == 0)
@@ -2043,6 +2020,33 @@ namespace dMobile.View.Activity
                             }
 
                             this.ActItem.SelectedItem = selectedItem;
+                        }
+
+                        async Task AskToAddAvailableSkidQuantity(object selectedItem, ActDetail actDetail)
+                        {
+                            var isAddAllSkidDetail = false;
+                            var skidMsg = "Do you wish to add all the available skid quantity?";
+                            var result = await this.DisplayAlert("Skid", skidMsg, "Yes", "No");
+                            if (result)
+                            {
+                                isAddAllSkidDetail = true;
+                            }
+
+                            if (isAddAllSkidDetail)
+                            {
+                                await actDetail.InsertSkid(this.ActItem.ActHdr.SkidInfo);
+                                if (selectedItem != null)
+                                {
+                                    this.ActItem.AddToQuantityInActivityItem(
+                                        selectedItem,
+                                        actDetail.Quantity,
+                                        actDetail.BaseQuantity,
+                                        actDetail.WeightQuantity);
+                                    await this.ActItem.UpdateItemTableQuantity(selectedItem);
+                                    this.ActItem.SelectedItem = selectedItem;
+                                    await this.LoadAndBind();
+                                }
+                            }
                         }
                     }
                     catch (TaskCanceledException)
