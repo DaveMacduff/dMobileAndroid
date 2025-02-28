@@ -110,6 +110,8 @@ namespace dMobile.View.Activity
 
         private List<object> ListItems { get; set; } = new List<object>();
 
+        private bool IsScanningPartialSkid { get; set; } = true;
+
         /// <summary>
         ///     Unregister the bar code scan event handler and disable the scanner.
         /// </summary>
@@ -427,6 +429,43 @@ namespace dMobile.View.Activity
                 if (isSkidScanned)
                 {
                     await FindOrCreateSkidLineItem(scanArgs.ParseInfo);
+                    var isAddAllSkidDetail = true;
+                    if (this.IsScanningPartialSkid)
+                    {
+                        await Device.InvokeOnMainThreadAsync(
+                        async () =>
+                        {
+                            this.IsScanningPartialSkid = await AskIfScanningParitalSkidsForSession();
+                            if (this.IsScanningPartialSkid)
+                            {
+                                isAddAllSkidDetail = await AskToAddAvailableSkidQuantity();
+                            }
+                        });
+                    }
+
+                    if (isAddAllSkidDetail)
+                    {
+                        await Device.InvokeOnMainThreadAsync(
+                        async () =>
+                        {
+                            var actDetail = ActDetailFacade.GetActDetail(this.ActItem, this.ActSubType);
+                            await actDetail.InsertSkid(this.ActItem.ActHdr.SkidInfo);
+                            this.ActItem.AddToQuantityInActivityItem(
+                                this.ActItem.SelectedItem,
+                                actDetail.Quantity,
+                                actDetail.BaseQuantity,
+                                actDetail.WeightQuantity);
+                            await this.ActItem.UpdateItemTableQuantity(this.ActItem.SelectedItem);
+                            await this.AssignAndDisplayLineItem(this.ActItem.ItemRefno);
+                        });
+                    }
+
+                    await Device.InvokeOnMainThreadAsync(
+                    async () =>
+                    {
+                        this.DisplayCmdSetSkidData();
+                        await this.DisplaySkidLocationData();
+                    });
                 }
 
                 var isProductScanned = !string.IsNullOrEmpty(scanArgs.ParseInfo.ProductIdentifier);
@@ -490,6 +529,32 @@ namespace dMobile.View.Activity
 
             return;
 
+            async Task<bool> AskIfScanningParitalSkidsForSession()
+            {
+                bool isScanningPartialSkid = false;
+                var msg = "Do you wish to scan partial skids for this session?";
+                var result = await this.DisplayAlert("Skid", msg, "Yes", "No");
+                if (result)
+                {
+                    isScanningPartialSkid = true;
+                }
+
+                return isScanningPartialSkid;
+            }
+
+            async Task<bool> AskToAddAvailableSkidQuantity()
+            {
+                bool isAddAllSkidDetail = false;
+                var skidMsg = "Do you wish to add all the available skid quantity?";
+                var result = await this.DisplayAlert("Skid", skidMsg, "Yes", "No");
+                if (result)
+                {
+                    isAddAllSkidDetail = true;
+                }
+
+                return isAddAllSkidDetail;
+            }
+
             async Task FindOrCreateSkidLineItem(BarCodeParse parse)
             {
                 if (!this.SysEnv.SysSettings.IsSkidTrackingModule)
@@ -517,7 +582,7 @@ namespace dMobile.View.Activity
                     // lacking inventory or transactions.
                     if (await LocationMapTasks.IsCompleteLocMap(tempSkidInfo.CurrSkid.LocMap))
                     {
-                        tempLocMap = this.ActItem.ActHdr.SkidInfo.CurrSkid.LocMap;
+                        tempLocMap = tempSkidInfo.CurrSkid.LocMap;
                     }
                 }
 
@@ -1006,6 +1071,8 @@ namespace dMobile.View.Activity
                                         Resource.OK));
                         }
                     }
+
+                    this.DisplayCmdSetLocationData();
                 }
             }
             catch (MessageOnlyException msgEx)

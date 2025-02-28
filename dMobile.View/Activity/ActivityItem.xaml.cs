@@ -33,64 +33,17 @@ namespace dMobile.View.Activity
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class ActivityItem : IAppArea
     {
-        /// <summary>
-        ///     Define a value indicating whether adding a product is enabled.
-        /// </summary>
         private bool cmdAddProductIsEnabled;
-
-        /// <summary>
-        ///     Define the add a product text information.
-        /// </summary>
         private string cmdAddProductText = string.Empty;
-
-        /// <summary>
-        ///     Define a value indicating whether adding a skid is enabled.
-        /// </summary>
         private bool cmdAddSkidIsEnabled;
-
-        /// <summary>
-        ///     Define the add skid text information.
-        /// </summary>
         private string cmdAddSkidText = string.Empty;
-
-        /// <summary>
-        ///     Define a value indicating whether clear selected a skid is enabled.
-        /// </summary>
         private bool cmdClearSelectedSkidIsEnabled;
-
-        /// <summary>
-        ///     Define the clear selected skid text information.
-        /// </summary>
         private string cmdClearSelectedSkidText = string.Empty;
-
-        /// <summary>
-        ///     Define a value indicating whether the filter selection is enabled.
-        /// </summary>
         private bool cmdFilterIsEnabled;
-
-        /// <summary>
-        ///     Define the activity filter text information.
-        /// </summary>
         private string cmdFilterText = string.Empty;
-
-        /// <summary>
-        ///     Define a value indicating whether the location selection is enabled.
-        /// </summary>
         private bool cmdLocationIsEnabled;
-
-        /// <summary>
-        ///     Define the warehouse map location text information.
-        /// </summary>
         private string cmdLocationText = string.Empty;
-
-        /// <summary>
-        ///     Define a value indicating whether the skid selection is enabled.
-        /// </summary>
         private bool cmdSelectSkidIsEnabled;
-
-        /// <summary>
-        ///     Define the select skid text information.
-        /// </summary>
         private string cmdSelectSkidText = string.Empty;
 
         /// <summary>
@@ -133,7 +86,6 @@ namespace dMobile.View.Activity
             this.IsFirstAppearance = true;
             return;
 
-            //////////////////////////////////////////////////////////////////////////
             void ParseAndSeedBarCodeModifier()
             {
                 this.BarCodeModifier1Picker.IsVisible = false;
@@ -161,64 +113,28 @@ namespace dMobile.View.Activity
             }
         }
 
-        /// <summary>
-        ///     Gets or sets the selected activity item foreign key reference number.
-        /// </summary>
         private int SelectedActivityItemFkRefno { get; set; }
 
-        /// <summary>
-        ///     Gets or sets a value indicating whether to show a data valid message or raise an error.
-        /// </summary>
         private bool IsShowDataValidMsg { get; set; } = true;
 
-        /// <summary>
-        ///     Gets or sets a value indicating whether data changes have been made.
-        /// </summary>
         private bool IsChangesMade { get; set; }
 
-        /// <summary>
-        ///     Gets the warehouse location map instance.
-        /// </summary>
         private LocationMap LocMap { get; } = LocationMap.GetInstance();
 
-        /// <summary>
-        ///     Gets or sets the activity item instance.
-        /// </summary>
         private ActItem ActItem { get; set; }
 
-        /// <summary>
-        ///     Gets the activity subtype.
-        /// </summary>
         private SysCommon.ActSubTypes ActSubType { get; }
 
-        /// <summary>
-        ///     Gets the system environment instance.
-        /// </summary>
         private SysEnvironment SysEnv { get; } = SysEnvironment.GetInstance();
 
-        /// <summary>
-        ///     Gets the bar code scanner instance.
-        /// </summary>
         private BarCodeScanner Scanner { get; } = ScannerEngine.GetInstance().Scanner;
 
-        /// <summary>
-        ///     Gets a list of extra information items.
-        /// </summary>
         private ObservableCollection<string> ExtraLineItemInfo { get; } = new ObservableCollection<string>();
 
-        /// <summary>
-        ///     Gets a list of line item detail.
-        /// </summary>
         private ObservableCollection<string> LineItemInfo { get; } = new ObservableCollection<string>();
 
-        /// <summary>
-        ///     Gets or sets a list of list view activity items.
-        /// </summary>
         private ObservableCollection<object> ActivityItems { get; set; } = new ObservableCollection<object>();
 
-        /// <summary>
-        ///     Gets the options menu items list.
-        /// </summary>
         private List<string> OptionsMenuItems { get; } = new List<string>();
 
         /// <summary>
@@ -226,14 +142,8 @@ namespace dMobile.View.Activity
         /// </summary>
         private int NumberOfScreenTapsForDoubleClick { get; set; }
 
-        /// <summary>
-        ///     Gets or sets the sender for tracking the number of screen taps, for double click.
-        /// </summary>
         private object PreviousSenderForDoubleClick { get; set; }
 
-        /// <summary>
-        ///     Gets or sets the command location text.
-        /// </summary>
         private string CmdLocationText
         {
             get => this.cmdLocationText;
@@ -244,9 +154,6 @@ namespace dMobile.View.Activity
             }
         }
 
-        /// <summary>
-        ///     Gets or sets a value indicating whether command location is enabled.
-        /// </summary>
         private bool CmdLocationIsEnabled
         {
             get => this.cmdLocationIsEnabled;
@@ -257,9 +164,6 @@ namespace dMobile.View.Activity
             }
         }
 
-        /// <summary>
-        ///     Gets or sets the command filter text.
-        /// </summary>
         private string CmdFilterText
         {
             get => this.cmdFilterText;
@@ -270,9 +174,6 @@ namespace dMobile.View.Activity
             }
         }
 
-        /// <summary>
-        ///     Gets or sets a value indicating whether the command filter is enabled.
-        /// </summary>
         private bool CmdFilterIsEnabled
         {
             get => this.cmdFilterIsEnabled;
@@ -283,9 +184,6 @@ namespace dMobile.View.Activity
             }
         }
 
-        /// <summary>
-        ///     Gets or sets the command select skid text.
-        /// </summary>
         private string CmdSelectSkidText
         {
             get => this.cmdSelectSkidText;
@@ -296,9 +194,6 @@ namespace dMobile.View.Activity
             }
         }
 
-        /// <summary>
-        ///     Gets or sets a value indicating whether the command select skid is enabled.
-        /// </summary>
         private bool CmdSelectSkidIsEnabled
         {
             get => this.cmdSelectSkidIsEnabled;
@@ -309,9 +204,6 @@ namespace dMobile.View.Activity
             }
         }
 
-        /// <summary>
-        ///     Gets or sets the command add product text.
-        /// </summary>
         private string CmdAddProductText
         {
             get => this.cmdAddProductText;
@@ -322,9 +214,6 @@ namespace dMobile.View.Activity
             }
         }
 
-        /// <summary>
-        ///     Gets or sets a value indicating whether the command add product is enabled.
-        /// </summary>
         private bool CmdAddProductIsEnabled
         {
             get => this.cmdAddProductIsEnabled;
@@ -335,9 +224,6 @@ namespace dMobile.View.Activity
             }
         }
 
-        /// <summary>
-        ///     Gets or sets the command add skid text.
-        /// </summary>
         private string CmdAddSkidText
         {
             get => this.cmdAddSkidText;
@@ -348,9 +234,6 @@ namespace dMobile.View.Activity
             }
         }
 
-        /// <summary>
-        ///     Gets or sets a value indicating whether the command add skid is enabled.
-        /// </summary>
         private bool CmdAddSkidIsEnabled
         {
             get => this.cmdAddSkidIsEnabled;
@@ -361,9 +244,6 @@ namespace dMobile.View.Activity
             }
         }
 
-        /// <summary>
-        ///     Gets or sets the command clear selected skid text.
-        /// </summary>
         private string CmdClearSelectedSkidText
         {
             get => this.cmdClearSelectedSkidText;
@@ -374,9 +254,6 @@ namespace dMobile.View.Activity
             }
         }
 
-        /// <summary>
-        ///     Gets or sets a value indicating whether the command clear selected skid is enabled.
-        /// </summary>
         private bool CmdClearSelectedSkidIsEnabled
         {
             get => this.cmdClearSelectedSkidIsEnabled;
@@ -387,35 +264,19 @@ namespace dMobile.View.Activity
             }
         }
 
-        /// <summary>
-        ///     Gets or sets a value indicating whether the search text box is in focus.
-        /// </summary>
         private bool IsSearchEntryFocused { get; set; }
 
-        /// <summary>
-        ///     Gets or sets a value indicating whether the bar code modifier picker is in focus.
-        /// </summary>
         private bool IsBarCodeModifierPickerFocus { get; set; }
 
-        /// <summary>
-        /// Gets or sets a value indicating whether the data is being loaded.
-        /// </summary>
         private bool IsDataLoading { get; set; }
 
-        /// <summary>
-        ///     Gets or sets the search text box original text.
-        /// </summary>
         private string SearchTextOrig { get; set; } = string.Empty;
 
-        /// <summary>
-        /// Gets or sets the system timer.
-        /// </summary>
         private SysTimer SearchTimer { get; set; }
 
-        /// <summary>
-        ///     Gets or sets a value indicating whether this is the first appearance of the form.
-        /// </summary>
         private bool IsFirstAppearance { get; set; }
+
+        private bool IsScanningPartialSkid { get; set; } = true;
 
         /// <summary>
         ///     Check if the activity item is ready to save.
@@ -1929,11 +1790,39 @@ namespace dMobile.View.Activity
                                 selectedItem = this.ActItem.SelectedItem;
                                 actItemFoundRefno = this.ActItem.ItemRefno;
 
-                                await Device.InvokeOnMainThreadAsync(
+                                var isAddAllSkidDetail = true;
+                                if (this.IsScanningPartialSkid)
+                                {
+                                    await Device.InvokeOnMainThreadAsync(
                                     async () =>
                                     {
-                                        await AskToAddAvailableSkidQuantity(selectedItem, actDetail);
+                                        this.IsScanningPartialSkid = await AskIfScanningParitalSkidsForSession();
+                                        if (this.IsScanningPartialSkid)
+                                        {
+                                            isAddAllSkidDetail = await AskToAddAvailableSkidQuantity();
+                                        }
                                     });
+                                }
+
+                                if (isAddAllSkidDetail)
+                                {
+                                    await Device.InvokeOnMainThreadAsync(
+                                    async () =>
+                                    {
+                                        await actDetail.InsertSkid(this.ActItem.ActHdr.SkidInfo);
+                                        if (selectedItem != null)
+                                        {
+                                            this.ActItem.AddToQuantityInActivityItem(
+                                                selectedItem,
+                                                actDetail.Quantity,
+                                                actDetail.BaseQuantity,
+                                                actDetail.WeightQuantity);
+                                            await this.ActItem.UpdateItemTableQuantity(selectedItem);
+                                            this.ActItem.SelectedItem = selectedItem;
+                                            await this.LoadAndBind();
+                                        }
+                                    });
+                                }
 
                                 ////if (actDetail.Quantity == 0)
                                 ////{
@@ -2022,9 +1911,22 @@ namespace dMobile.View.Activity
                             this.ActItem.SelectedItem = selectedItem;
                         }
 
-                        async Task AskToAddAvailableSkidQuantity(object selectedItem, ActDetail actDetail)
+                        async Task<bool> AskIfScanningParitalSkidsForSession()
                         {
-                            var isAddAllSkidDetail = false;
+                            bool isScanningPartialSkid = false;
+                            var msg = "Do you wish to scan partial skids for this session?";
+                            var result = await this.DisplayAlert("Skid", msg, "Yes", "No");
+                            if (result)
+                            {
+                                isScanningPartialSkid = true;
+                            }
+
+                            return isScanningPartialSkid;
+                        }
+
+                        async Task<bool> AskToAddAvailableSkidQuantity()
+                        {
+                            bool isAddAllSkidDetail = false;
                             var skidMsg = "Do you wish to add all the available skid quantity?";
                             var result = await this.DisplayAlert("Skid", skidMsg, "Yes", "No");
                             if (result)
@@ -2032,21 +1934,7 @@ namespace dMobile.View.Activity
                                 isAddAllSkidDetail = true;
                             }
 
-                            if (isAddAllSkidDetail)
-                            {
-                                await actDetail.InsertSkid(this.ActItem.ActHdr.SkidInfo);
-                                if (selectedItem != null)
-                                {
-                                    this.ActItem.AddToQuantityInActivityItem(
-                                        selectedItem,
-                                        actDetail.Quantity,
-                                        actDetail.BaseQuantity,
-                                        actDetail.WeightQuantity);
-                                    await this.ActItem.UpdateItemTableQuantity(selectedItem);
-                                    this.ActItem.SelectedItem = selectedItem;
-                                    await this.LoadAndBind();
-                                }
-                            }
+                            return isAddAllSkidDetail;
                         }
                     }
                     catch (TaskCanceledException)
