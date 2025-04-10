@@ -753,7 +753,11 @@ namespace dMobile.View.Options
                                             {
                                                 var detail = (ActivityDetail)actDetail.ListDetails[detailIdx];
                                                 await actDetail.AssignActivityDetail(detail);
-                                                await actDetail.Submit(actDetail.ListDetails[detailIdx], null);
+                                                var request = XDocument.Parse(
+                                                    "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
+                                                    + "<params>"
+                                                    + "</params>");
+                                                await actDetail.Submit(actDetail.ListDetails[detailIdx], request);
                                             }
                                         }
                                     }
