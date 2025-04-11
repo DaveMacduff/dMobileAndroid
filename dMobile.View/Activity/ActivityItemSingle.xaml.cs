@@ -951,6 +951,51 @@ namespace dMobile.View.Activity
                     }
                 }
 
+                if (this.ActSubType == SysCommon.ActSubTypes.TransferFrom ||
+                    this.ActSubType == SysCommon.ActSubTypes.TransferTo)
+                {
+                    if (this.ActItem.SelectedItem != null &&
+                        ((TransferItem)this.ActItem.SelectedItem).ActivityItemTransferRequiredQuantity ==
+                        ((TransferItem)this.ActItem.SelectedItem).ActivityItemTransferQuantity)
+                    {
+                        this.LblShippedReceivedCountedData.TextColor = Color.Green;
+                    }
+                    else
+                    {
+                        this.LblShippedReceivedCountedData.TextColor = Color.Red;
+                    }
+                }
+
+                if (this.ActSubType == SysCommon.ActSubTypes.Receiving)
+                {
+                    if (this.ActItem.SelectedItem != null &&
+                        ((ReceiveItem)this.ActItem.SelectedItem).ActivityItemReceivingQuantityOrdered ==
+                        ((ReceiveItem)this.ActItem.SelectedItem).ActivityItemReceivingQuantityReceived)
+                    {
+                        this.LblShippedReceivedCountedData.TextColor = Color.Green;
+                    }
+                    else
+                    {
+                        this.LblShippedReceivedCountedData.TextColor = Color.Red;
+                    }
+                }
+
+                if (this.ActSubType == SysCommon.ActSubTypes.TicketFinished ||
+                    this.ActSubType == SysCommon.ActSubTypes.TicketMaterial ||
+                    this.ActSubType == SysCommon.ActSubTypes.TicketAddProduct)
+                {
+                    if (this.ActItem.SelectedItem != null &&
+                        ((ProductionTicketFinishedItem)this.ActItem.SelectedItem).ActivityItemProductionQuantityExpected ==
+                        ((ProductionTicketFinishedItem)this.ActItem.SelectedItem).ActivityItemProductionQuantity)
+                    {
+                        this.LblShippedReceivedCountedData.TextColor = Color.Green;
+                    }
+                    else
+                    {
+                        this.LblShippedReceivedCountedData.TextColor = Color.Red;
+                    }
+                }
+
                 this.LblShippedReceivedCountedData.Text = this.ActItem.GetShippedReceivedCountedQuantity();
             }
 

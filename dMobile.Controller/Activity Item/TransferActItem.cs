@@ -1340,10 +1340,10 @@ namespace dMobile.Controller.Activity_Item
         public override string GetOrderedExpectedOnHandQuantity()
         {
             var quantity = "0.000";
-            if (this.SelectedItem is ProductionTicketMaterialItem item)
+            if (this.SelectedItem is TransferItem item)
             {
-                quantity = $"{item.ActivityItemProductionQuantityExpected:F3} {this.ProdInfo.UnitCode} @ " +
-                           $"{item.ActivityItemProductionWeightQuantityExpected:F3} {this.ProdInfo.WeightUnitCode}";
+                quantity = $"{item.ActivityItemTransferRequiredQuantity:F3} {this.ProdInfo.UnitCode} @ " +
+                    $"{item.ActivityItemTransferRequiredQuantity * this.ProdInfo.UnitGrossWeight:F3} {this.ProdInfo.WeightUnitCode}";
             }
 
             return quantity;
@@ -1353,10 +1353,10 @@ namespace dMobile.Controller.Activity_Item
         public override string GetShippedReceivedCountedQuantity()
         {
             var quantity = "0.000";
-            if (this.SelectedItem is ProductionTicketMaterialItem item)
+            if (this.SelectedItem is TransferItem item)
             {
-                quantity = $"{item.ActivityItemProductionQuantity:F3} {this.ProdInfo.UnitCode} @ " +
-                           $"{item.ActivityItemProductionWeightQuantity:F3} {this.ProdInfo.WeightUnitCode}";
+                quantity = $"{item.ActivityItemTransferQuantity:F3} {this.ProdInfo.UnitCode} @ " +
+                           $"{item.ActivityItemTransferWeightQuantity:F3} {this.ProdInfo.WeightUnitCode}";
             }
 
             return quantity;
