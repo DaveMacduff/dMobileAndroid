@@ -1,48 +1,59 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<modal:DMobileModal  xmlns:modal="clr-namespace:dMobile.View.CustomPages.Modal"
-                     xmlns="http://xamarin.com/schemas/2014/forms"
-                     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-                     xmlns:Helpers="clr-namespace:dMobile.View.Helpers"
-                     x:Class="dMobile.View.Activity.ActivityItemInventoryInquirySummary">
-    <ContentPage.Content>
-        <AbsoluteLayout VerticalOptions="Center">
-            <Grid x:Name="gridContainer" Padding="10" AbsoluteLayout.LayoutFlags="All" AbsoluteLayout.LayoutBounds="0,0,1,1">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="70*"/>
-                    <RowDefinition Height="30*"/>
-                </Grid.RowDefinitions>
+<modal:DMobileModal  xmlns:modal="clr-namespace:dMobile.View.CustomPages.Modal"  
+                    xmlns="http://xamarin.com/schemas/2014/forms"  
+                    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"  
+                    xmlns:Helpers="clr-namespace:dMobile.View.Helpers"  
+                    x:Class="dMobile.View.Activity.ActivityItemInventoryInquirySummary">  
+   <ContentPage.Content>  
+       <AbsoluteLayout VerticalOptions="Center">  
+           <Grid x:Name="gridContainer"
+                 Padding="10"
+                 AbsoluteLayout.LayoutFlags="All"
+                 AbsoluteLayout.LayoutBounds="0,0,1,1">  
+               <Grid.RowDefinitions>  
+                   <RowDefinition Height="70*"/>  
+                   <RowDefinition Height="30*"/>  
+               </Grid.RowDefinitions>  
 
-                <Frame VerticalOptions="Start" Grid.Row="0" OutlineColor="{DynamicResource BorderColor}">
-                    <ScrollView Orientation="Horizontal">
-                        <Grid x:Name="GridMainActivity">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
+               <Frame VerticalOptions="Start" Grid.Row="0" BorderColor="{DynamicResource BorderColor}">  
+                   <ScrollView Orientation="Horizontal">  
+                       <Grid x:Name="GridMainActivity">  
+                           <Grid.RowDefinitions>  
+                               <RowDefinition Height="Auto"/>  
+                           </Grid.RowDefinitions>  
 
-                            <ListView x:Name="ListViewMainActivity" ItemSelected="ListViewMainActivity_ItemSelected" HasUnevenRows="true" IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}" Grid.Row="1"/>
-                        </Grid>
-                    </ScrollView>
-                </Frame>
+                           <ListView x:Name="ListViewMainActivity"
+                                     ItemSelected="ListViewMainActivity_ItemSelected"
+                                     HasUnevenRows="true"
+                                     IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}"
+                                     Grid.Row="1"/>  
+                       </Grid>  
+                   </ScrollView>  
+               </Frame>  
 
-                <Frame VerticalOptions="Start" Grid.Row="1" OutlineColor="{DynamicResource BorderColor}">
-                    <ListView x:Name="ListViewDisplayExtraInfo" SelectionMode="None" HasUnevenRows="true" IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}" SeparatorVisibility="None" >
-                        <ListView.ItemTemplate>
-                            <DataTemplate>
-                                <ViewCell>
-                                    <StackLayout Padding="5,1,5,1">
-                                        <Label Text="{Binding}" VerticalTextAlignment="Center"/>
-                                    </StackLayout>
-                                </ViewCell>
-                            </DataTemplate>
-                        </ListView.ItemTemplate>
-                    </ListView>
-                </Frame>
-            </Grid>
+               <Frame VerticalOptions="Start" Grid.Row="1" BorderColor="{DynamicResource BorderColor}">  
+                   <ListView x:Name="ListViewDisplayExtraInfo"
+                             SelectionMode="None"
+                             HasUnevenRows="true"
+                             IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}"
+                             SeparatorVisibility="None" >  
+                       <ListView.ItemTemplate>  
+                           <DataTemplate>  
+                               <ViewCell>  
+                                   <StackLayout Padding="5,1,5,1">  
+                                       <Label Text="{Binding}" VerticalTextAlignment="Center"/>  
+                                   </StackLayout>  
+                               </ViewCell>  
+                           </DataTemplate>  
+                       </ListView.ItemTemplate>  
+                   </ListView>  
+               </Frame>  
+           </Grid>  
 
-            <ActivityIndicator IsVisible="{Binding IsIndicatorRunning}" 
-                               IsRunning="{Binding IsIndicatorRunning}"
-                               AbsoluteLayout.LayoutFlags="All" 
-                               AbsoluteLayout.LayoutBounds="0.5,0.5,0.3,0.3"/>
-        </AbsoluteLayout>
-    </ContentPage.Content>
+           <ActivityIndicator IsVisible="{Binding IsIndicatorRunning}"   
+                              IsRunning="{Binding IsIndicatorRunning}"  
+                              AbsoluteLayout.LayoutFlags="All"   
+                              AbsoluteLayout.LayoutBounds="0.5,0.5,0.3,0.3"/>  
+       </AbsoluteLayout>  
+   </ContentPage.Content>  
 </modal:DMobileModal>

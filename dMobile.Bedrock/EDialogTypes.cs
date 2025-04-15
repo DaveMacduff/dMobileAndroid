@@ -155,6 +155,11 @@ namespace dMobile.Bedrock
         ActivityInventoryInquiryDetail,
 
         /// <summary>
+        /// Activity inventory inquiry single item.
+        /// </summary>
+        ActivityInventoryInquirySingleItem,
+
+        /// <summary>
         /// Select product.
         /// </summary>
         SelectProduct,

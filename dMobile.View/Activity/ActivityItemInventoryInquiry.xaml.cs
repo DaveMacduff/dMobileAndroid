@@ -8,7 +8,6 @@ namespace dMobile.View.Activity
     using System.Collections.ObjectModel;
     using System.Threading.Tasks;
     using System.Xml.Linq;
-    using Android;
     using Android.Views;
     using BarCodeScanner.BarCodeParsing;
     using BarCodeScanner.BarCodeScanners;
@@ -21,15 +20,17 @@ namespace dMobile.View.Activity
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;
 
+    /// <summary>
+    /// This is the activity item inventory inquiry class.
+    /// </summary>
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class ActivityItemInventoryInquiry : DMobileModal, IAppArea
     {
-
         /// <summary>
         /// Initializes a new instance of the <see cref="ActivityItemInventoryInquiry"/> class.
         /// </summary>
-        /// <param name="actItem"></param>
-        /// <param name="actSubTypes"></param>
+        /// <param name="actItem">Activity item instance.</param>
+        /// <param name="actSubTypes">Activity sub type.</param>
         public ActivityItemInventoryInquiry(ActItem actItem, SysCommon.ActSubTypes actSubTypes)
         {
             this.InitializeComponent();
@@ -43,6 +44,26 @@ namespace dMobile.View.Activity
 
             this.Title = this.GetControlDescription();
         }
+
+        private bool IsEnterTrapped { get; set; } = false;
+
+        private SysEnvironment SysEnv { get; set; }
+
+        private bool IsBarCodeHandlerRegistered { get; set; } = false;
+
+        private ActItem ActItem { get; set; }
+
+        private SysCommon.ActSubTypes ActSubType { get; set; }
+
+        private BarCodeParse BarParse { get; set; }
+
+        private BarCodeScanner Scanner { get; set; }
+
+        private int TotalTicks { get; set; } = 0;
+
+        private ObservableCollection<string> ExtraInfoItems { get; set; } = new ObservableCollection<string>();
+
+        private ObservableCollection<object> MainActivityItems { get; set; } = new ObservableCollection<object>();
 
         /// <summary>
         /// The OnAppearing.
@@ -164,25 +185,6 @@ namespace dMobile.View.Activity
 
             return true;
         }
-
-        public bool IsEnterTrapped { get; set; } = false;
-
-        public SysEnvironment SysEnv { get; set; }
-
-        public bool IsBarCodeHandlerRegistered { get; set; } = false;
-
-        public ActItem ActItem { get; set; }
-
-        public SysCommon.ActSubTypes ActSubType { get; set; }
-
-        private BarCodeParse BarParse { get; set; }
-
-        private BarCodeScanner Scanner { get; set; }
-
-        private int TotalTicks { get; set; } = 0;
-
-        public ObservableCollection<string> ExtraInfoItems { get; set; } = new ObservableCollection<string>();
-        public ObservableCollection<object> MainActivityItems { get; set; } = new ObservableCollection<object>();
 
         /// <summary>
         /// Unregister the bar code scan event handler and disable the scanner.

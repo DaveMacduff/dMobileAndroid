@@ -114,6 +114,52 @@ namespace dMobile.View.Views
         }
 
         /// <summary>
+        ///     Initializes a new instance of the <see cref="SetLocationMap" /> class.
+        /// </summary>
+        /// <param name="defLocWhsMap"><see cref="int" /> Default warehouse location map.</param>
+        /// <param name="isInquiryScreenMode"><see cref="bool" /> Allow incomplete map selection for inquiry screen.</param>
+        public SetLocationMap(SLocMap defLocWhsMap, bool isInquiryScreenMode)
+        {
+            this.InitializeComponent();
+
+            this.IsIndicatorRunning = false;
+            this.Title = this.GetControlDescription();
+            this.TabWarehouse.Text = "Warehouse";
+            this.TabSection.Text = "Section";
+            this.LblSearch.Text = "Search";
+            this.TabSlot.Text = "Slot";
+            this.LblSlotCoordinate1.Text = "Coord 1";
+            this.LblSlotCoordinate2.Text = "Coord 2";
+            this.LblSlotCoordinate3.Text = "Coord 3";
+            this.WarehouseTab.Title = "Warehouse";
+            this.SectionTab.Title = "Section";
+            this.SlotTab.Title = "Slot";
+            this.CboSectionSearch.Items.Add("Code");
+            this.CboSectionSearch.Items.Add("Description");
+            this.CboSectionSearch.SelectedItem = "Code";
+
+            this.Scanner = ScannerEngine.GetInstance().Scanner;
+            this.Warehouses = new ObservableCollection<Warehouse>();
+            this.Sections = new ObservableCollection<Section>();
+            this.Slot1Coordinates = new ObservableCollection<Slot>();
+            this.Slot2Coordinates = new ObservableCollection<Slot>();
+            this.Slot3Coordinates = new ObservableCollection<Slot>();
+            this.LocMap = LocationMap.GetInstance();
+            this.LocMapInfo = this.LocMap.CurrLocMap.Clone();
+            this.LocMap.ChosenLocMap = this.LocMap.CurrLocMap.Clone();
+            this.LocMap.ChosenLocMapRefno = this.LocMap.CurrLocMapRefno;
+            this.DefaultWhsLocMapRefno = defLocWhsMap.LocMapRefno;
+            this.LockWhsSelection = false;
+
+            if (this.LockWhsSelection)
+            {
+                this.WarehousesView.IsEnabled = false;
+            }
+
+            this.ApplyEvents();
+        }
+
+        /// <summary>
         ///     Gets or sets a value indicating whether the warehouse selection is locked from change.
         /// </summary>
         private bool LockWhsSelection { get; }

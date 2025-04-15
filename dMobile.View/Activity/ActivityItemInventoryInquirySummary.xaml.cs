@@ -8,23 +8,22 @@ namespace dMobile.View.Activity
     using System.Collections.ObjectModel;
     using System.Threading.Tasks;
     using System.Xml.Linq;
-    using Android;
     using Android.Views;
     using BarCodeScanner.BarCodeParsing;
     using BarCodeScanner.BarCodeScanners;
     using Bedrock;
     using Controller;
-    using dMobile.Controller.Activity;
     using Controller.Activity_Detail;
     using Controller.Activity_Item;
-    using Resources.Enums;
     using CustomPages.Modal;
+    using dMobile.Controller.Activity;
     using Forms;
+    using Resources.Enums;
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;
 
     /// <summary>
-    /// Defines the <see cref="ActivityItemInventoryInquirySummary" />.
+    /// Defines the <see cref="ActivityItemInventoryInquirySummary" />
     /// </summary>
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class ActivityItemInventoryInquirySummary : DMobileModal, IAppArea,
@@ -33,7 +32,7 @@ namespace dMobile.View.Activity
         /// <summary>
         /// Initializes a new instance of the <see cref="ActivityItemInventoryInquirySummary"/> class.
         /// </summary>
-        /// <param name="actItem">.</param>
+        /// <param name="actItem">Activity item instance.</param>
         public ActivityItemInventoryInquirySummary(ActItem actItem)
         {
             this.InitializeComponent();
@@ -50,9 +49,7 @@ namespace dMobile.View.Activity
                 this.Activity.SkidInfo = new SysSkidInfo();
             }
 
-            this.ActItem = ActItemFacade.GetActItem(
-                this.Activity,
-                SysCommon.ActSubTypes.InventoryInquirySummary);
+            this.ActItem = ActItemFacade.GetActItem(this.Activity, SysCommon.ActSubTypes.InventoryInquirySummary);
             this.ActItem.SysEnv = this.SysEnv;
             this.ActItem.ProdInfo = actItem.ProdInfo;
             this.ActItem.LocMap = actItem.LocMap;
@@ -64,52 +61,28 @@ namespace dMobile.View.Activity
             }
         }
 
-        /// <summary>
-        /// Gets or sets the SysEnv.
-        /// </summary>
         private SysEnvironment SysEnv { get; set; }
 
-        /// <summary>
-        /// Gets or sets the ActItem.
-        /// </summary>
         private ActItem ActItem { get; set; }
 
-        /// <summary>
-        /// Gets or sets the Activity.
-        /// </summary>
         private Activity Activity { get; set; }
 
-        /// <summary>
-        /// Gets or sets the ActSubType.
-        /// </summary>
         private SysCommon.ActSubTypes ActSubType { get; set; }
 
-        /// <summary>
-        /// Gets or sets the BarParse.
-        /// </summary>
         private BarCodeParse BarParse { get; set; }
 
-        /// <summary>
-        /// Gets or sets the Scanner.
-        /// </summary>
         private BarCodeScanner Scanner { get; set; }
 
-        /// <summary>
-        /// Gets or sets the extra information items.
-        /// </summary>
         private ObservableCollection<string> ExtraInfoItems { get; set; } =
             new ObservableCollection<string>();
 
-        /// <summary>
-        /// Gets or sets the main activity items.
-        /// </summary>
         private ObservableCollection<object> MainActivityItems { get; set; } =
             new ObservableCollection<object>();
 
         /// <summary>
-        /// Unregister the bar code scan event handler and disable the scanner.
+        /// Unregister the bar code scan event handler and disable the scanner
         /// </summary>
-        /// <returns><see cref="Task"/> Task operation.</returns>
+        /// <returns><see cref="Task"/> Task operation</returns>
         public async Task ScannerDisable()
         {
             if (this.Scanner != null)
@@ -127,9 +100,9 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// Registers the bar code scan event handler and enables the scanner.
+        /// Registers the bar code scan event handler and enables the scanner
         /// </summary>
-        /// <returns><see cref="Task"/> Task operation.</returns>
+        /// <returns><see cref="Task"/> Task operation</returns>
         public async Task ScannerEnable()
         {
             if (this.Scanner != null)
@@ -147,27 +120,18 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// ///// </summary>
-        ///// <returns></returns>
-        ///// <remarks></remarks>
-        // public UserControl GetCallingControl()
-        // {
-        //    return this.CallingControl;
-        // }
-
-        /// <summary>
-        ///.
+        /// The GetControlDescription
         /// </summary>
-        /// <returns>.</returns>
+        /// <returns></returns>
         public string GetControlDescription()
         {
             return "Inventory Inquiry Summary";
         }
 
         /// <summary>
-        /// The GetXml.
+        /// The GetXml
         /// </summary>
-        /// <returns>.</returns>
+        /// <returns></returns>
         public Task<XDocument> GetXml()
         {
             var xmldocParams = XDocument.Parse(
@@ -179,18 +143,18 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// The IsReadyToSave.
+        /// The IsReadyToSave
         /// </summary>
-        /// <returns>.</returns>
+        /// <returns></returns>
         public Task<bool> IsReadyToSave()
         {
             return Task.FromResult(this.IsValidData());
         }
 
         /// <summary>
-        /// The IsReadyToClose.
+        /// The IsReadyToClose
         /// </summary>
-        /// <returns>.</returns>
+        /// <returns></returns>
         public async Task<bool> IsReadyToClose()
         {
             var isReadyToClose = true;
@@ -209,9 +173,9 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// The SaveChanges.
+        /// The SaveChanges
         /// </summary>
-        /// <returns>.</returns>
+        /// <returns></returns>
         public async Task<bool> SaveChanges()
         {
             try
@@ -236,9 +200,9 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// The CancelChanges.
+        /// The CancelChanges
         /// </summary>
-        /// <returns>.</returns>
+        /// <returns></returns>
         public async Task<bool> CancelChanges()
         {
             var cancelChanges = true;
@@ -282,9 +246,18 @@ namespace dMobile.View.Activity
         /// /// </summary>
         /// <remarks></remarks>
         /// <summary>
-        ///.
         /// </summary>
-        /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
+        /// <remarks></remarks>
+        /// <summary>
+        /// </summary>
+        /// <remarks></remarks>
+        /// <summary>
+        /// </summary>
+        /// <remarks></remarks>
+        /// <summary>
+        ///
+        /// </summary>
+        /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation</returns>
         public async Task RefreshData()
         {
             try
@@ -329,7 +302,7 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// The OnAppearing.
+        /// The OnAppearing
         /// </summary>
         protected override async void OnAppearing()
         {
@@ -501,7 +474,7 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// The OnDisappearing.
+        /// The OnDisappearing
         /// </summary>
         protected override async void OnDisappearing()
         {
@@ -514,9 +487,9 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// The OnBackButtonPressed.
+        /// The OnBackButtonPressed
         /// </summary>
-        /// <returns>The <see cref="bool"/>.</returns>
+        /// <returns>The <see cref="bool"/></returns>
         protected override bool OnBackButtonPressed()
         {
             Device.BeginInvokeOnMainThread(
@@ -542,7 +515,7 @@ namespace dMobile.View.Activity
 
         /// <summary>
         /// Adds data to the bottom list box to show
-        /// Product ID, Qty and Weight.
+        /// Product ID, Qty and Weight
         /// </summary>
         private void DisplaySummaryData()
         {
@@ -581,32 +554,31 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// The ActItemInventoryInquiry_GotFocus.
+        /// The ActItemInventoryInquiry_GotFocus
         /// </summary>
-        /// <param name="sender">.</param>
-        /// <param name="e">.</param>
-        /// <returns>The <see cref="Task"/>.</returns>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        /// <returns>The <see cref="Task"/></returns>
         private Task ActItemInventoryInquiry_GotFocus(object sender, EventArgs e)
         {
             return Task.CompletedTask;
-            ////await this.ScannerEnable();
         }
 
         /// <summary>
-        /// The IsValidData.
+        /// The IsValidData
         /// </summary>
-        /// <returns>.</returns>
+        /// <returns></returns>
         private bool IsValidData()
         {
             return true;
         }
 
         /// <summary>
-        /// The BarCodeHandler.
+        /// The BarCodeHandler
         /// </summary>
-        /// <param name="sender">.</param>
-        /// <param name="scanArgs">The scanArgs<see cref="BarCodeScannerEventArgs"/>.</param>
-        /// <returns>The <see cref="Task"/>.</returns>
+        /// <param name="sender"></param>
+        /// <param name="scanArgs">The scanArgs<see cref="BarCodeScannerEventArgs"/></param>
+        /// <returns>The <see cref="Task"/></returns>
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
             try
@@ -671,10 +643,10 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// The OnLayerStatOut.
+        /// The OnLayerStatOut
         /// </summary>
-        /// <param name="publisher">The publisher<see cref="IDataLayerEventPublisher"/>.</param>
-        /// <param name="dataLayerEventArgs">The dataLayerEventArgs<see cref="DataLayerEventArgs"/>.</param>
+        /// <param name="publisher">The publisher<see cref="IDataLayerEventPublisher"/></param>
+        /// <param name="dataLayerEventArgs">The dataLayerEventArgs<see cref="DataLayerEventArgs"/></param>
         public void OnLayerStatOut(
             IDataLayerEventPublisher publisher,
             DataLayerEventArgs dataLayerEventArgs)
@@ -682,10 +654,10 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// The OnLayerProgressOut.
+        /// The OnLayerProgressOut
         /// </summary>
-        /// <param name="publisher">.</param>
-        /// <param name="dataLayerEventArgs">.</param>
+        /// <param name="publisher"></param>
+        /// <param name="dataLayerEventArgs"></param>
         public void OnLayerProgressOut(
             IDataLayerEventPublisher publisher,
             DataLayerEventArgs dataLayerEventArgs)
@@ -693,10 +665,10 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        /// The ListViewMainActivity_ItemSelected.
+        /// The ListViewMainActivity_ItemSelected
         /// </summary>
-        /// <param name="sender">The sender<see cref="object"/>.</param>
-        /// <param name="e">The e<see cref="SelectedItemChangedEventArgs"/>.</param>
+        /// <param name="sender">The sender<see cref="object"/></param>
+        /// <param name="e">The e<see cref="SelectedItemChangedEventArgs"/></param>
         private void ListViewMainActivity_ItemSelected(
             object sender,
             SelectedItemChangedEventArgs e)

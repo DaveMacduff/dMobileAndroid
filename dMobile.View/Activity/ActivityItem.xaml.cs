@@ -292,7 +292,6 @@ namespace dMobile.View.Activity
 
             return isReadyToSave;
 
-            //////////////////////////////////////////////////////////////////////////
             async Task<bool> IsReadyToSavePicking()
             {
                 var isReadyToSavePicking = true;
@@ -569,7 +568,6 @@ namespace dMobile.View.Activity
             Device.BeginInvokeOnMainThread(BackButtonCallback);
             return true;
 
-            //////////////////////////////////////////////////////////////////////////
             void BackButtonCallback()
             {
                 Task.Run(
@@ -758,7 +756,6 @@ namespace dMobile.View.Activity
 
             return;
 
-            ///////////////////////////////////////////////////////////
             async Task RefreshData()
             {
                 // If not in disconnected mode, refresh data from the communication server.
@@ -1029,7 +1026,6 @@ namespace dMobile.View.Activity
 
             return;
 
-            //////////////////////////////////////////////////////////////////////////
             async Task AppearingEnterKey()
             {
                 if (this.ListViewMainActivity.SelectedItem == null ||
@@ -1048,7 +1044,6 @@ namespace dMobile.View.Activity
                 }
             }
 
-            //////////////////////////////////////////////////////////////////////////
             async Task AppearingClearKey()
             {
                 if (await this.CancelChanges())
@@ -1064,7 +1059,6 @@ namespace dMobile.View.Activity
                 }
             }
 
-            //////////////////////////////////////////////////////////////////////////
             async Task AppearingF1Key()
             {
                 if (await this.SaveChanges())
@@ -1080,7 +1074,6 @@ namespace dMobile.View.Activity
                 }
             }
 
-            //////////////////////////////////////////////////////////////////////////
             void AppearingDpadDown()
             {
                 if (this.ListViewMainActivity.SelectedItem != null &&
@@ -1097,7 +1090,6 @@ namespace dMobile.View.Activity
                 }
             }
 
-            //////////////////////////////////////////////////////////////////////////
             void AppearingDpadUp()
             {
                 if (this.ListViewMainActivity.SelectedItem != null &&
@@ -1113,7 +1105,6 @@ namespace dMobile.View.Activity
                 }
             }
 
-            //////////////////////////////////////////////////////////////////////////
             async Task AppearingDelKey()
             {
                 var isItemSelected =
@@ -1195,7 +1186,6 @@ namespace dMobile.View.Activity
                 }
             }
 
-            //////////////////////////////////////////////////////////////////////////
             async Task AppearingF2Key()
             {
                 try
@@ -1239,7 +1229,6 @@ namespace dMobile.View.Activity
                 }
             }
 
-            //////////////////////////////////////////////////////////////////////////
             async Task AppearingF3Key()
             {
                 try
@@ -1278,7 +1267,6 @@ namespace dMobile.View.Activity
                 }
             }
 
-            //////////////////////////////////////////////////////////////////////////
             async Task AppearingF4Key()
             {
                 try
@@ -1326,12 +1314,6 @@ namespace dMobile.View.Activity
             }
         }
 
-        /// <summary>
-        ///     Check if there are any skids to print.
-        /// </summary>
-        /// <returns><see cref="bool" /> True if there are skids to be printed, else alse.</returns>
-        /// <exception cref="MessageOnlyException"> Request skid check failed.</exception>
-        /// <exception cref="Exception"> Error returned request skid check.</exception>
         private async Task<bool> CheckIfSkids2Print()
         {
             var isExist2Print = false;
@@ -1363,11 +1345,6 @@ namespace dMobile.View.Activity
             return isExist2Print;
         }
 
-        /// <summary>
-        ///     Double-click on list view item event handler.
-        /// </summary>
-        /// <param name="sender"><see cref="object" /> Sender object.</param>
-        /// <param name="e"><see cref="ItemTappedEventArgs" /> Item tapped event arguments.</param>
         private async void ListViewMainActivity_ItemTapped(object sender, ItemTappedEventArgs e)
         {
             try
@@ -1422,9 +1399,6 @@ namespace dMobile.View.Activity
             }
         }
 
-        /// <summary>
-        ///     Perform quantity under check for ALL line items.
-        /// </summary>
         private void AllItemsQuantityUnderCheck()
         {
             if (this.SysEnv.SysSettings.PickQtyUnderWarn != SysCommon.ActPickingQtyUnderValLevels.NoValidationOrWarning)
@@ -1460,10 +1434,6 @@ namespace dMobile.View.Activity
             }
         }
 
-        /// <summary>
-        ///     Perform quantity under check for one line item.
-        /// </summary>
-        /// <remarks>Line items must exist, one needs to be selected.</remarks>
         private async Task ItemQuantityUnderCheck()
         {
             if (this.ActItem.ListItems != null &&
@@ -1516,10 +1486,6 @@ namespace dMobile.View.Activity
             }
         }
 
-        /// <summary>
-        ///     Main data grid key up enter event handler.
-        /// </summary>
-        /// <returns>The <see cref="Task" /> Task operation.</returns>
         private async Task ListViewMainActivity_KeyUpEnter()
         {
             if (this.IsDataLoading ||
@@ -1595,11 +1561,6 @@ namespace dMobile.View.Activity
             }
         }
 
-        /// <summary>
-        ///     Bar code scan event handler.
-        /// </summary>
-        /// <param name="sender"><see cref="object" /> Object that generated the event.</param>
-        /// <param name="scanArgs"><see cref="BarCodeScannerEventArgs" /> Sender bar code scanner event arguments.</param>
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
             await Task.Run(
@@ -1786,7 +1747,7 @@ namespace dMobile.View.Activity
 
                                 this.ActItem = actDetail.ActItem;
                                 this.SelectedActivityItemFkRefno = this.ActItem.ItemFkRefno;
-                                this.ActItem.SelectedItem = this.ActItem;
+                                this.ActItem.SetSelectedActivityItemFromList(this.ActItem.ItemRefno);
                                 selectedItem = this.ActItem.SelectedItem;
                                 actItemFoundRefno = this.ActItem.ItemRefno;
 
@@ -2005,7 +1966,6 @@ namespace dMobile.View.Activity
 
             return;
 
-            //////////////////////////////////////////////////////////////////////////
             async Task BarCodeHandlerLocationIdentifier(BarCodeParse parse)
             {
                 // If section filtering was set in the activity header. Do we want to enforce
@@ -2025,7 +1985,6 @@ namespace dMobile.View.Activity
                 await CheckIfScannedSectionMatchesFilteredOne(tmpLoc);
                 return;
 
-                //////////////////////////////////////////////////////////////////////////
                 async Task CheckIfScannedSectionMatchesFilteredOne(SLocMap scannedLocMap)
                 {
                     // Special validation for picking and filtering by section.
@@ -2051,7 +2010,6 @@ namespace dMobile.View.Activity
                 }
             }
 
-            //////////////////////////////////////////////////////////////////////////
             async Task<(int, object)> HandleSkidScanned(BarCodeParse parse)
             {
                 if (!this.SysEnv.SysSettings.IsSkidTrackingModule)
@@ -2152,7 +2110,6 @@ namespace dMobile.View.Activity
                 return (actItemFoundRefno, selectedItem);
             }
 
-            ///////////////////////////////////////////////////////////
             async Task CheckIfSkidProductMatchesScanned(int prodUnitRefno, ProductInfo scannedProdInfo)
             {
                 if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFkRefno != 0)
@@ -2182,7 +2139,6 @@ namespace dMobile.View.Activity
                 }
             }
 
-            ///////////////////////////////////////////////////////////
             async Task AssignDefaultProductLocation()
             {
                 if (this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc &&
@@ -2198,7 +2154,6 @@ namespace dMobile.View.Activity
                 }
             }
 
-            ///////////////////////////////////////////////////////////
             async Task AssignSkidLocation()
             {
                 if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFkRefno != 0 &&
@@ -2289,7 +2244,6 @@ namespace dMobile.View.Activity
 
             return;
 
-            //////////////////////////////////////////////////////////////////////////
             // Set the current location with the chosen location.
             void SetCurrentLocationWithChosen()
             {
@@ -2938,7 +2892,6 @@ namespace dMobile.View.Activity
                 });
             return;
 
-            //////////////////////////////////////////////////////////////////////////
             async Task DisplayDataItemTransferTo()
             {
                 if (this.ListViewMainActivity.SelectedItem is TransferItem transferItemTo)
@@ -2962,7 +2915,6 @@ namespace dMobile.View.Activity
                 }
             }
 
-            //////////////////////////////////////////////////////////////////////////
             async Task DisplayDataItemTransferFrom()
             {
                 if (this.ListViewMainActivity.SelectedItem is TransferItem transferItemFrom)
@@ -2988,7 +2940,6 @@ namespace dMobile.View.Activity
                 }
             }
 
-            //////////////////////////////////////////////////////////////////////////
             async Task DisplayDataItemReturns()
             {
                 if (this.ListViewMainActivity.SelectedItem is ReturnItem returnItem)
@@ -3040,7 +2991,6 @@ namespace dMobile.View.Activity
                 }
             }
 
-            //////////////////////////////////////////////////////////////////////////
             async Task DisplayDataItemReceiving()
             {
                 if (this.ListViewMainActivity.SelectedItem is ReceiveItem receiveItem)
@@ -3066,7 +3016,6 @@ namespace dMobile.View.Activity
                 }
             }
 
-            //////////////////////////////////////////////////////////////////////////
             async Task DisplayDataItemPurchaseOrderWorkSheet()
             {
                 if (this.ListViewMainActivity.SelectedItem is PurchaseOrderWorkSheetItem
@@ -3093,7 +3042,6 @@ namespace dMobile.View.Activity
                 }
             }
 
-            //////////////////////////////////////////////////////////////////////////
             async Task DisplayDataItemTicketMaterial()
             {
                 if (this.ListViewMainActivity.SelectedItem is ProductionTicketMaterialItem
@@ -3120,7 +3068,6 @@ namespace dMobile.View.Activity
                 }
             }
 
-            //////////////////////////////////////////////////////////////////////////
             async Task DisplayDataItemTicketFinished()
             {
                 if (this.ListViewMainActivity.SelectedItem is ProductionTicketFinishedItem
@@ -3147,7 +3094,6 @@ namespace dMobile.View.Activity
                 }
             }
 
-            //////////////////////////////////////////////////////////////////////////
             async Task DisplayDataItemTicketAddProduct()
             {
                 if (this.ListViewMainActivity.SelectedItem is ProductionTicketByProductItem
@@ -3174,7 +3120,6 @@ namespace dMobile.View.Activity
                 }
             }
 
-            //////////////////////////////////////////////////////////////////////////
             async Task DisplayDataItemPicking()
             {
                 if (this.ListViewMainActivity.SelectedItem is PickingItem pickingItem)
@@ -3231,7 +3176,6 @@ namespace dMobile.View.Activity
                 }
             }
 
-            //////////////////////////////////////////////////////////////////////////
             async Task DisplayDataItemPhysicalCount()
             {
                 if (this.ListViewMainActivity.SelectedItem is CountItem physicalCountItem)
@@ -3258,7 +3202,6 @@ namespace dMobile.View.Activity
                 }
             }
 
-            //////////////////////////////////////////////////////////////////////////
             void DisplayDataItemInventoryInquiry()
             {
                 this.ExtraLineItemInfo.Add(
@@ -3269,7 +3212,6 @@ namespace dMobile.View.Activity
                 this.ExtraLineItemInfo.Add($"LOCATION: {LocationMapTasks.GetCurrentReadableLocation()}");
             }
 
-            //////////////////////////////////////////////////////////////////////////
             async Task DisplayDataItemCycleCount()
             {
                 if (this.ListViewMainActivity.SelectedItem is CountItem cycleCountItem)
@@ -3302,7 +3244,6 @@ namespace dMobile.View.Activity
                 }
             }
 
-            //////////////////////////////////////////////////////////////////////////
             async Task DisplayDataItemAdjustment()
             {
                 if (this.ListViewMainActivity.SelectedItem is AdjustmentItem adjustmentItem)
@@ -3327,10 +3268,6 @@ namespace dMobile.View.Activity
             }
         }
 
-        /// <summary>
-        ///     Enable menu items.
-        /// </summary>
-        /// <returns><see cref="Task" /> Task operation.</returns>
         private async Task EnableMenuItems()
         {
             await Device.InvokeOnMainThreadAsync(
@@ -3375,12 +3312,6 @@ namespace dMobile.View.Activity
                 });
         }
 
-        /// <summary>
-        ///     Option menu click event handler.
-        /// </summary>
-        /// <param name="sender"><see cref="object" /> Object that generated the event.</param>
-        /// <param name="e"><see cref="EventArgs" /> Sender object event arguments.</param>
-        /// <remarks>Code lens reports no references yet this event does fire.</remarks>
         private async void OptionsMenu_Clicked(object sender, EventArgs e)
         {
             if (this.IsDataLoading)
@@ -3467,7 +3398,6 @@ namespace dMobile.View.Activity
 
             return;
 
-            //////////////////////////////////////////////////////////////////////////
             async Task CmdLocationMenuClicked()
             {
                 var dspOverrideMsg = false;
@@ -3523,7 +3453,6 @@ namespace dMobile.View.Activity
                 }
             }
 
-            //////////////////////////////////////////////////////////////////////////
             async Task CmdSelectSkidClicked()
             {
                 try
@@ -3623,7 +3552,6 @@ namespace dMobile.View.Activity
                 }
             }
 
-            //////////////////////////////////////////////////////////////////////////
             void CmdClearSelectedSkidClicked()
             {
                 this.ActItem.ActHdr.SkidInfo.CurrSkid = new SSkidInfo();
@@ -3635,7 +3563,6 @@ namespace dMobile.View.Activity
                 this.CmdSelectSkidText = "Select Skid";
             }
 
-            //////////////////////////////////////////////////////////////////////////
             async Task CmdAddProductClicked()
             {
                 // Needed to check if the enter key was pressed last, because it seems that
@@ -3809,7 +3736,6 @@ namespace dMobile.View.Activity
                 }
             }
 
-            //////////////////////////////////////////////////////////////////////////
             async Task CmdAddSkidClicked()
             {
                 try

@@ -570,37 +570,16 @@ namespace dMobile.View.Activity
                 }
 
                 var tempSkidInfo = await SysSkidInfo.GetSkidInfoFromBarCodeOrCode(parse.Sscc18);
-
-                // The current location should supersede the skid location on counts.
-                // Otherwise, the skid location will override the current location.
-                // Remember the skid location may not be set because of lacking inventory or transactions.
-                var tempLocMap = this.LocMap.CurrLocMap;
-                if (!(this.ActItem.ActSubType == SysCommon.ActSubTypes.PhysicalCounts ||
-                      this.ActItem.ActSubType == SysCommon.ActSubTypes.CycleCounts))
-                {
-                    // Only assign the skid location if it is complete. It may be incomplete because of
-                    // lacking inventory or transactions.
-                    if (await LocationMapTasks.IsCompleteLocMap(tempSkidInfo.CurrSkid.LocMap))
-                    {
-                        tempLocMap = tempSkidInfo.CurrSkid.LocMap;
-                    }
-                }
-
-                if (!await LocationMapTasks.IsCompleteLocMap(tempLocMap))
-                {
-                    const string msg = "The current location must be complete.";
-                    throw new MessageOnlyException(msg);
-                }
-
-                var tempProdInfo = this.ActItem.ActHdr.SkidInfo.CurrSkid.ProdInfo;
+                SLocMap tempSkidLocMap = await ChangeTheSkidLocationIfRequired(tempSkidInfo);
+                var tempProdInfo = tempSkidInfo.CurrSkid.ProdInfo;
                 if (tempProdInfo.UnitRefno == 0)
                 {
                     tempProdInfo = this.ActItem.ProdInfo;
                 }
 
                 tempSkidInfo.CurrSkid.ProdInfo = tempProdInfo;
-                tempSkidInfo.CurrSkid.LocMap = tempLocMap;
-                this.LocMap.CurrLocMap = tempLocMap;
+                tempSkidInfo.CurrSkid.LocMap = tempSkidLocMap;
+                this.LocMap.CurrLocMap = tempSkidLocMap;
                 this.ActHdr.SkidInfo = tempSkidInfo;
 
                 // Does the skid product and location exist as a line item.
@@ -650,6 +629,32 @@ namespace dMobile.View.Activity
                         await this.DisplaySkidLocationData();
                         throw new MessageOnlyException(msg);
                     }
+                }
+
+                async Task<SLocMap> ChangeTheSkidLocationIfRequired(SysSkidInfo tempSkidInfo)
+                {
+                    // The current location should supersede the skid location on counts.
+                    // Otherwise, the skid location will override the current location.
+                    // Remember the skid location may not be set because of lacking inventory or transactions.
+                    var tempLocMap = this.LocMap.CurrLocMap;
+                    if (!(this.ActItem.ActSubType == SysCommon.ActSubTypes.PhysicalCounts ||
+                          this.ActItem.ActSubType == SysCommon.ActSubTypes.CycleCounts))
+                    {
+                        // Only assign the skid location if it is complete. It may be incomplete because of
+                        // lacking inventory or transactions.
+                        if (await LocationMapTasks.IsCompleteLocMap(tempSkidInfo.CurrSkid.LocMap))
+                        {
+                            tempLocMap = tempSkidInfo.CurrSkid.LocMap;
+                        }
+                    }
+
+                    if (!await LocationMapTasks.IsCompleteLocMap(tempLocMap))
+                    {
+                        const string msg = "The current location must be complete.";
+                        throw new MessageOnlyException(msg);
+                    }
+
+                    return tempLocMap;
                 }
             }
 
@@ -2157,7 +2162,7 @@ namespace dMobile.View.Activity
                 actDetail.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
                     this.ActItem.LocMap.WhsLocMapRefno);
                 var form = new FormDialogContainer(
-                    EDialogTypes.ActivityInventoryInquiryDetail,
+                    EDialogTypes.ActivityInventoryInquirySingleItem,
                     actDetail,
                     SysCommon.ActSubTypes.InventoryInquiry);
                 await form.DisplayControl.ShowDialog();

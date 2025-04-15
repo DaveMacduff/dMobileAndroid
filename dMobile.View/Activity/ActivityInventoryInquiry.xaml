@@ -1,59 +1,86 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <custompages:DMobileModal  
-    xmlns:custompages="clr-namespace:dMobile.View.CustomPages.Modal"
-    xmlns="http://xamarin.com/schemas/2014/forms"
-    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:Helpers="clr-namespace:dMobile.View.Helpers" 
-    xmlns:customcontrols="clr-namespace:dMobile.View.CustomControls"
-    x:Class="dMobile.View.Activity.ActivityInventoryInquiry">
-    <!--<ContentPage.ToolbarItems>
-        <ToolbarItem x:Name="optionsMenu" IconImageSource="{Binding OptionsIconSource}" Clicked="OptionsMenu_Clicked" />
-    </ContentPage.ToolbarItems>-->
-    <ContentPage.Content>
-        <AbsoluteLayout VerticalOptions="Center">
-            <Grid x:Name="gridContainer" Padding="10" AbsoluteLayout.LayoutFlags="All" AbsoluteLayout.LayoutBounds="0,0,1,1">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
+   xmlns:custompages="clr-namespace:dMobile.View.CustomPages.Modal"  
+   xmlns="http://xamarin.com/schemas/2014/forms"  
+   xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"  
+   xmlns:Helpers="clr-namespace:dMobile.View.Helpers"   
+   xmlns:customcontrols="clr-namespace:dMobile.View.CustomControls" x:DataType="custompages:DMobileTabbedModal"
+    x:Class="dMobile.View.Activity.ActivityInventoryInquiry">  
+   <ContentPage.Content>  
+       <AbsoluteLayout VerticalOptions="Center">  
+           <Grid x:Name="gridContainer"
+                 Padding="10"
+                 AbsoluteLayout.LayoutFlags="All"
+                 AbsoluteLayout.LayoutBounds="0,0,1,1">  
+               <Grid.RowDefinitions>  
+                   <RowDefinition Height="*"/>  
+                   <RowDefinition Height="Auto"/>  
+               </Grid.RowDefinitions>  
 
-                <Frame VerticalOptions="Start" Grid.Row="0" OutlineColor="{DynamicResource BorderColor}">
-                    <ScrollView Orientation="Horizontal">
-                        <Grid x:Name="dataGridMainHeader">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
+               <Frame VerticalOptions="Start" Grid.Row="0" BorderColor="{DynamicResource BorderColor}">  
+                   <ScrollView Orientation="Horizontal">  
+                       <Grid x:Name="dataGridMainHeader">  
+                           <Grid.RowDefinitions>  
+                               <RowDefinition Height="Auto"/>  
+                           </Grid.RowDefinitions>  
 
-                            <ListView x:Name="dataGridMain" HasUnevenRows="true" IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}" Grid.Row="1" SelectionMode="None"/>
-                        </Grid>
-                    </ScrollView>
-                </Frame>
+                           <ListView x:Name="dataGridMain"  
+                                     HasUnevenRows="true"  
+                                     IsEnabled="{  
+                                       Binding IsIndicatorRunning,  
+                                       Converter={Helpers:BoolConverter}}"  
+                                     Grid.Row="1"  
+                                     SelectionMode="None"/>  
+                       </Grid>  
+                   </ScrollView>  
+               </Frame>  
 
-                <Grid Grid.Row="1">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                    </Grid.RowDefinitions>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="70*"/>
-                        <ColumnDefinition Width="30*"/>
-                    </Grid.ColumnDefinitions>
+               <Grid Grid.Row="1">  
+                   <Grid.RowDefinitions>  
+                       <RowDefinition Height="Auto"/>  
+                       <RowDefinition Height="Auto"/>  
+                       <RowDefinition Height="Auto"/>  
+                   </Grid.RowDefinitions>  
+                   <Grid.ColumnDefinitions>  
+                       <ColumnDefinition Width="70*"/>  
+                       <ColumnDefinition Width="30*"/>  
+                   </Grid.ColumnDefinitions>  
 
-                    <Button x:Name="cmdLocation" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Clicked="CmdLocation_Click" IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}"/>
+                   <Button x:Name="cmdLocation"
+                           Grid.Row="0"
+                           Grid.Column="0"
+                           Grid.ColumnSpan="2"
+                           Clicked="CmdLocation_Click"
+                           IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}"/>  
 
-                    <Button x:Name="cmdSelectProduct" Grid.Row="1" Grid.Column="0" Clicked="CmdSelectProduct_Click" IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}"/>
-                    <customcontrols:CustomPicker x:Name="BarCodeModifier1Picker" Grid.Row="1" Grid.Column="1" Image="arrow_drop_down" SelectedIndexChanged="BarCodeModifier1Picker_SelectedIndexChanged" IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}"/>
+                   <Button x:Name="cmdSelectProduct"
+                           Grid.Row="1"
+                           Grid.Column="0"
+                           Clicked="CmdSelectProduct_Click"
+                           IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}"/>  
+                   <customcontrols:CustomPicker x:Name="BarCodeModifier1Picker"
+                                                Grid.Row="1"
+                                                Grid.Column="1"
+                                                Image="arrow_drop_down"
+                                                SelectedIndexChanged="BarCodeModifier1Picker_SelectedIndexChanged"
+                                                IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}"/>  
 
-                    <Button x:Name="cmdDisplayDefault" Grid.Row="2" Grid.Column="0" Clicked="CmdDisplayDefault_Click" IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}"/>
-                    <Button x:Name="cmdView" Grid.Row="2" Grid.Column="1" Clicked="CmdView_Clicked" IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}"/>
-                </Grid>
-            </Grid>
+                   <Button x:Name="cmdDisplayDefault"
+                           Grid.Row="2" Grid.Column="0"
+                           Clicked="CmdDisplayDefault_Click"
+                           IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}"/>  
+                   <Button x:Name="cmdView"
+                           Grid.Row="2"
+                           Grid.Column="1"
+                           Clicked="CmdView_Clicked"
+                           IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}"/>  
+               </Grid>  
+           </Grid>  
 
-            <ActivityIndicator IsVisible="{Binding IsIndicatorRunning}" 
-                               IsRunning="{Binding IsIndicatorRunning}"
-                               AbsoluteLayout.LayoutFlags="All" 
-                               AbsoluteLayout.LayoutBounds="0.5,0.5,0.3,0.3"/>
-        </AbsoluteLayout>
-    </ContentPage.Content>
+           <ActivityIndicator IsVisible="{Binding IsIndicatorRunning}"   
+                              IsRunning="{Binding IsIndicatorRunning}"  
+                              AbsoluteLayout.LayoutFlags="All"   
+                              AbsoluteLayout.LayoutBounds="0.5,0.5,0.3,0.3"/>  
+       </AbsoluteLayout>  
+   </ContentPage.Content>  
 </custompages:DMobileModal>

@@ -2,8 +2,6 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
-using dMobile.Resources.Types.LocationMap;
-
 namespace dMobile.View.Activity
 {
     using System;
@@ -16,15 +14,14 @@ namespace dMobile.View.Activity
     using BarCodeScanner.BarCodeParsing;
     using BarCodeScanner.BarCodeScanners;
     using Bedrock;
+    using dMobile.Resources.Types.LocationMap;
     using dMobile.Controller.Activity;
     using Controller.Activity_Item;
     using Resources.Enums;
     using Resources.Services;
-    using Resources.Types;
     using Forms;
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;
-    using Location = Location;
     using Resources.Types.Products;
 
     /// <summary>
@@ -51,9 +48,7 @@ namespace dMobile.View.Activity
             this.Activity.SkidInfo ??= new SysSkidInfo();
 
             // Initialize activity item instance.
-            this.ActItem = ActItemFacade.GetActItem(
-                this.Activity,
-                SysCommon.ActSubTypes.InventoryInquiry);
+            this.ActItem = ActItemFacade.GetActItem(this.Activity, SysCommon.ActSubTypes.InventoryInquiry);
             this.ActItem.ProdInfo = new ProductInfo();
             this.ActItem.LocMap = this.LocMap.CurrLocMap;
             this.ActItem.SysEnv = this.SysEnv;
@@ -89,9 +84,7 @@ namespace dMobile.View.Activity
             this.Activity.SkidInfo ??= new SysSkidInfo();
 
             // Initialize activity item instance.
-            this.ActItem = ActItemFacade.GetActItem(
-                this.Activity,
-                SysCommon.ActSubTypes.InventoryInquiry);
+            this.ActItem = ActItemFacade.GetActItem(this.Activity, SysCommon.ActSubTypes.InventoryInquiry);
             this.ActItem.ProdInfo = prodInfo;
             this.ActItem.LocMap = this.LocMap.CurrLocMap;
             this.ActItem.SysEnv = this.SysEnv;
@@ -114,60 +107,27 @@ namespace dMobile.View.Activity
             this.IsFirstAppearance = true;
         }
 
-        /// <summary>
-        /// Gets or sets the bar code parse information.
-        /// </summary>
         private BarCodeParse BarParse { get; set; }
 
-        /// <summary>
-        /// Gets or sets the scanner engine instance.
-        /// </summary>
         private BarCodeScanner Scanner { get; set; }
 
-        /// <summary>
-        /// Gets or sets the activity item.
-        /// </summary>
         private ActItem ActItem { get; set; }
 
-        /// <summary>
-        /// Gets or sets the location map.
-        /// </summary>
         private LocationMap LocMap { get; set; }
 
-        /// <summary>
-        /// Gets or sets the system environment.
-        /// </summary>
         private SysEnvironment SysEnv { get; set; }
 
-        /// <summary>
-        /// Gets or sets a value indicating whether the bar code handler is registered.
-        /// </summary>
         private bool IsBarCodeHandlerRegistered { get; set; }
 
-        /// <summary>
-        /// Gets or sets the activity header.
-        /// </summary>
         private Activity Activity { get; set; }
 
-        /// <summary>
-        /// Gets or sets the activity subtype.
-        /// </summary>
         private SysCommon.ActSubTypes ActSubType { get; set; }
 
-        /// <summary>
-        /// Gets or sets the list items.
-        /// </summary>
         private List<object> ListItems { get; set; } = new List<object>();
 
-        /// <summary>
-        /// Gets or sets the data grid main extra information items.
-        /// </summary>
         private ObservableCollection<object> DataGridMainExtraInfoItems { get; set; } =
             new ObservableCollection<object>();
 
-        /// <summary>
-        ///     Gets or sets a value indicating whether this is the first appearance of the form.
-        /// </summary>
         private bool IsFirstAppearance { get; set; }
 
         /// <summary>
@@ -180,8 +140,7 @@ namespace dMobile.View.Activity
                 this.Scanner != null)
             {
                 await this.Scanner.EnableScanning();
-                this.Scanner.OnBarCodeScan +=
-                    new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
+                this.Scanner.OnBarCodeScan += new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
                 this.IsBarCodeHandlerRegistered = true;
             }
         }
@@ -194,8 +153,7 @@ namespace dMobile.View.Activity
         {
             if (this.Scanner != null)
             {
-                this.Scanner.OnBarCodeScan -=
-                    new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
+                this.Scanner.OnBarCodeScan -= new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
                 await this.Scanner.DisableScanning();
             }
 
@@ -338,28 +296,23 @@ namespace dMobile.View.Activity
             try
             {
                 await this.ScannerDisable();
-
-                var form = new FormDialogContainer(
-                    EDialogTypes.SelectLocationMap,
-                    SysCommon.ActSubTypes.NotApplicable);
+                var form = new FormDialogContainer(EDialogTypes.SelectLocationMap, this.ActSubType);
                 if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
                 {
                     this.LocMap.CurrLocMap = this.LocMap.ChosenLocMap.Clone();
 
                     if (this.LocMap.CurrLocMap.WhsLocMapRefno <= 0)
                     {
-                        this.LocMap.CurrLocMap =
-                            await LocationMapTasks.GetSLocMapFromLocMapRefno(
-                                this.LocMap.LoginWhsLocMapRefno);
+                        this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
+                            this.LocMap.LoginWhsLocMapRefno);
                     }
 
                     this.cmdLocation.Text = LocationMapTasks.GetCurrentReadableLocation();
                 }
                 else
                 {
-                    this.LocMap.CurrLocMap =
-                        await LocationMapTasks.GetSLocMapFromLocMapRefno(
-                            this.LocMap.LoginWhsLocMapRefno);
+                    this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
+                        this.LocMap.LoginWhsLocMapRefno);
                     this.cmdLocation.Text = LocationMapTasks.GetCurrentReadableLocation();
                 }
 
@@ -368,11 +321,10 @@ namespace dMobile.View.Activity
             catch (MessageOnlyException msgEx)
             {
                 var msg = SysCommon.GetMessageFromMessageException(msgEx);
-                await Device.InvokeOnMainThreadAsync(async () =>
-                    await Application.Current.MainPage.DisplayAlert(
-                        this.GetControlDescription(),
-                        msg,
-                        "OK"));
+                await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert(
+                    this.GetControlDescription(),
+                    msg,
+                    "OK"));
             }
             catch (Exception ex)
             {
@@ -398,10 +350,7 @@ namespace dMobile.View.Activity
             try
             {
                 await this.ScannerDisable();
-                var form = new FormDialogContainer(
-                    EDialogTypes.SelectProduct,
-                    SysCommon.ActSubTypes.NotApplicable);
-
+                var form = new FormDialogContainer(EDialogTypes.SelectProduct, SysCommon.ActSubTypes.NotApplicable);
                 if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
                 {
                     var xmlArgs = await form.GetXml();
@@ -453,18 +402,13 @@ namespace dMobile.View.Activity
                 await this.ScannerEnable();
             }
 
-            return;
-
-            //////////////////////////////////////////////////////////////////////////
             void SubscribeKeyUpHandlers()
             {
                 MessagingCenter.Subscribe<string>(
                     this,
                     EventTypes.OnKeyUp.ToString(),
                     KeyUpHandlerCallback);
-                return;
 
-                ///////////////////////////////////////////////////////////
                 async void KeyUpHandlerCallback(string keyPressed)
                 {
                     try
@@ -526,7 +470,6 @@ namespace dMobile.View.Activity
             Device.BeginInvokeOnMainThread(BackButtonCallback);
             return true;
 
-            //////////////////////////////////////////////////////////////////////////
             async void BackButtonCallback()
             {
                 if (await this.CancelChanges())
@@ -537,12 +480,6 @@ namespace dMobile.View.Activity
                 }
             }
         }
-
-        /// <summary>
-        ///     Bar code scan event handler.
-        /// </summary>
-        /// <param name="sender"><see cref="object" /> Object that generated the event.</param>
-        /// <param name="scanArgs"><see cref="BarCodeScannerEventArgs" /> Sender bar code scanner event arguments.</param>
 
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
@@ -568,13 +505,11 @@ namespace dMobile.View.Activity
                 }
                 else if (!string.IsNullOrEmpty(this.BarParse.ActItemFkRefno))
                 {
-                    throw new Exception(
-                        "Scanning an activity item reference # is not supported here.");
+                    throw new Exception("Scanning an activity item reference # is not supported here.");
                 }
                 else if (!string.IsNullOrEmpty(this.BarParse.ProductIdentifier))
                 {
-                    var prodUnitRefno = 0;
-                    prodUnitRefno = await SysShared.IdentifyProductScanned(
+                    var prodUnitRefno = await SysShared.IdentifyProductScanned(
                         this.ActSubType,
                         this.BarParse);
 
@@ -609,8 +544,7 @@ namespace dMobile.View.Activity
                     if (this.LocMap.CurrLocMap.WhsLocMapRefno != 0)
                     {
                         _ = await Device.InvokeOnMainThreadAsync(
-                            () => this.cmdLocation.Text =
-                                LocationMapTasks.GetCurrentReadableLocation());
+                            () => this.cmdLocation.Text = LocationMapTasks.GetCurrentReadableLocation());
                     }
                     else
                     {
@@ -642,9 +576,6 @@ namespace dMobile.View.Activity
             }
         }
 
-        /// <summary>
-        /// Initialize bar code modifier control.
-        /// </summary>
         private void InitializeBarCodeModifierControl()
         {
             this.BarCodeModifier1Picker.Items.Clear();
@@ -668,10 +599,6 @@ namespace dMobile.View.Activity
                 Convert.ToString(this.SysEnv.CurrentBarCodeModifier1);
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="dataGridMain"></param>
         private void DesignDataGridProductOnly()
         {
             this.DataGridMainExtraInfoItems = new ObservableCollection<object>();
@@ -702,8 +629,7 @@ namespace dMobile.View.Activity
                 FontAttributes = FontAttributes.Bold
             };
 
-            var columnWidth0 = DependencyService.Get<IGridService>()
-                .CalculateTextWidth(labelProductCodeHeader.Text);
+            var columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelProductCodeHeader.Text);
             var columnWidth1 = DependencyService.Get<IGridService>()
                 .CalculateTextWidth(labelLocationMapTypeHeader.Text);
             var columnWidth2 = DependencyService.Get<IGridService>()
@@ -711,20 +637,15 @@ namespace dMobile.View.Activity
             var columnWidth3 = DependencyService.Get<IGridService>()
                 .CalculateTextWidth(labelProductBrandDescriptionHeader.Text);
 
-            // Header grid
             var gridHeader = new Grid
             {
                 Padding = new Thickness(5),
                 ColumnDefinitions =
                 {
-                    new ColumnDefinition
-                        { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
-                    new ColumnDefinition
-                        { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
-                    new ColumnDefinition
-                        { Width = new GridLength(columnWidth2, GridUnitType.Absolute) },
-                    new ColumnDefinition
-                        { Width = new GridLength(columnWidth3, GridUnitType.Absolute) }
+                    new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(columnWidth2, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(columnWidth3, GridUnitType.Absolute) }
                 }
             };
 
@@ -780,44 +701,30 @@ namespace dMobile.View.Activity
                 }
             }
 
-            // Data grid
-            var dataTemplate = new DataTemplate(
+            this.dataGridMain.ItemTemplate = new DataTemplate(
                 () =>
                 {
-                    // Header grid
                     var gridData = new Grid()
                     {
                         Padding = new Thickness(5),
                         ColumnDefinitions =
                         {
-                            new ColumnDefinition
-                                { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
-                            new ColumnDefinition
-                                { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
-                            new ColumnDefinition
-                                { Width = new GridLength(columnWidth2, GridUnitType.Absolute) },
-                            new ColumnDefinition
-                                { Width = new GridLength(columnWidth3, GridUnitType.Absolute) }
+                            new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
+                            new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
+                            new ColumnDefinition { Width = new GridLength(columnWidth2, GridUnitType.Absolute) },
+                            new ColumnDefinition { Width = new GridLength(columnWidth3, GridUnitType.Absolute) }
                         }
                     };
 
                     var labelProductCode = new Label { VerticalOptions = LayoutOptions.Center };
                     var labelLocationMapType = new Label { VerticalOptions = LayoutOptions.Center };
-                    var labelProductDescription = new Label
-                        { VerticalOptions = LayoutOptions.Center };
-                    var labelProductBrandDescription = new Label
-                        { VerticalOptions = LayoutOptions.Center };
+                    var labelProductDescription = new Label { VerticalOptions = LayoutOptions.Center };
+                    var labelProductBrandDescription = new Label { VerticalOptions = LayoutOptions.Center };
 
                     labelProductCode.SetBinding(Label.TextProperty, new Binding("ProductCode"));
-                    labelLocationMapType.SetBinding(
-                        Label.TextProperty,
-                        new Binding("LocationMapType"));
-                    labelProductDescription.SetBinding(
-                        Label.TextProperty,
-                        new Binding("ProductDescription"));
-                    labelProductBrandDescription.SetBinding(
-                        Label.TextProperty,
-                        new Binding("ProductBrandDescription"));
+                    labelLocationMapType.SetBinding(Label.TextProperty, new Binding("LocationMapType"));
+                    labelProductDescription.SetBinding(Label.TextProperty, new Binding("ProductDescription"));
+                    labelProductBrandDescription.SetBinding(Label.TextProperty, new Binding("ProductBrandDescription"));
 
                     gridData.Children.Add(labelProductCode);
                     gridData.Children.Add(labelLocationMapType);
@@ -831,14 +738,8 @@ namespace dMobile.View.Activity
 
                     return new ViewCell { View = gridData };
                 });
-
-            this.dataGridMain.ItemTemplate = dataTemplate;
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="dataGridMain"></param>
         private void DesignDataGridLocationOnly()
         {
             this.DataGridMainExtraInfoItems = new ObservableCollection<object>();
@@ -878,20 +779,15 @@ namespace dMobile.View.Activity
             var columnWidth3 = DependencyService.Get<IGridService>()
                 .CalculateTextWidth(labelLocationMapTypeHeader.Text);
 
-            // Header grid
             var gridHeader = new Grid
             {
                 Padding = new Thickness(5),
                 ColumnDefinitions =
                 {
-                    new ColumnDefinition
-                        { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
-                    new ColumnDefinition
-                        { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
-                    new ColumnDefinition
-                        { Width = new GridLength(columnWidth2, GridUnitType.Absolute) },
-                    new ColumnDefinition
-                        { Width = new GridLength(columnWidth3, GridUnitType.Absolute) }
+                    new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(columnWidth2, GridUnitType.Absolute) },
+                    new ColumnDefinition { Width = new GridLength(columnWidth3, GridUnitType.Absolute) }
                 }
             };
 
@@ -947,8 +843,7 @@ namespace dMobile.View.Activity
                 }
             }
 
-            // Data grid
-            var dataTemplate = new DataTemplate(
+            this.dataGridMain.ItemTemplate = new DataTemplate(
                 () =>
                 {
                     // Header grid
@@ -957,23 +852,16 @@ namespace dMobile.View.Activity
                         Padding = new Thickness(5),
                         ColumnDefinitions =
                         {
-                            new ColumnDefinition
-                                { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
-                            new ColumnDefinition
-                                { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
-                            new ColumnDefinition
-                                { Width = new GridLength(columnWidth2, GridUnitType.Absolute) },
-                            new ColumnDefinition
-                                { Width = new GridLength(columnWidth3, GridUnitType.Absolute) }
+                            new ColumnDefinition { Width = new GridLength(columnWidth0, GridUnitType.Absolute) },
+                            new ColumnDefinition { Width = new GridLength(columnWidth1, GridUnitType.Absolute) },
+                            new ColumnDefinition { Width = new GridLength(columnWidth2, GridUnitType.Absolute) },
+                            new ColumnDefinition { Width = new GridLength(columnWidth3, GridUnitType.Absolute) }
                         }
                     };
 
-                    var labelLocationMapWarehouseCode = new Label
-                        { VerticalOptions = LayoutOptions.Center };
-                    var labelLocationMapSectionName = new Label
-                        { VerticalOptions = LayoutOptions.Center };
-                    var labelLocationMapSlotName = new Label
-                        { VerticalOptions = LayoutOptions.Center };
+                    var labelLocationMapWarehouseCode = new Label { VerticalOptions = LayoutOptions.Center };
+                    var labelLocationMapSectionName = new Label { VerticalOptions = LayoutOptions.Center };
+                    var labelLocationMapSlotName = new Label { VerticalOptions = LayoutOptions.Center };
                     var labelLocationMapType = new Label { VerticalOptions = LayoutOptions.Center };
 
                     labelLocationMapWarehouseCode.SetBinding(
@@ -1001,14 +889,8 @@ namespace dMobile.View.Activity
 
                     return new ViewCell { View = gridData };
                 });
-
-            this.dataGridMain.ItemTemplate = dataTemplate;
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <returns></returns>
         private string GetDataViewProductOnlyPickingQuery()
         {
             var sql = string.Empty;
@@ -1075,25 +957,20 @@ namespace dMobile.View.Activity
             return sql;
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <returns></returns>
         private string GetDataViewProductOnlyReceivingQuery()
         {
-            var sql = string.Empty;
+            var query = string.Empty;
 
             if (this.LocMap.CurrLocMap.IsSlotTracked &&
                 this.LocMap.CurrLocMap.SlotLocMapRefno > 0)
             {
                 // find all the products for the selected slot location
-                sql = "SELECT tProduct.ProductCode," +
+                query = "SELECT tProduct.ProductCode," +
                       "tProduct.ProductDescription," +
                       "tProduct.ProductBrandDescription " +
                       "FROM tProductLocationMapType " +
                       "INNER JOIN tProduct ON tProduct.ProductRefno = tProductLocationMapType.ProductRefno " +
-                      "WHERE tProductLocationMapType.LocationMapRefno = " +
-                      this.LocMap.CurrLocMapRefno +
+                      "WHERE tProductLocationMapType.LocationMapRefno = " + this.LocMap.CurrLocMapRefno +
                       " AND tProductLocationMapType.ProductLocationMapTypeEnum = " +
                       (int)SysCommon.ProdLocMapTypes.Receiving;
             }
@@ -1103,12 +980,11 @@ namespace dMobile.View.Activity
                 // find all the slots for the selected section
                 var sub = "(SELECT tLocationMapSlot.LocationMapRefno " +
                           "FROM tLocationMapSlot " +
-                          "WHERE (tLocationMapSlot.SectionLocationMapRefno = " +
-                          this.LocMap.CurrLocMapRefno +
+                          "WHERE (tLocationMapSlot.SectionLocationMapRefno = " + this.LocMap.CurrLocMapRefno +
                           "))";
 
                 // find all the products for the selected section slot locations
-                sql = "SELECT tProduct.ProductCode," +
+                query = "SELECT tProduct.ProductCode," +
                       "tProduct.ProductDescription," +
                       "tProduct.ProductBrandDescription " +
                       "FROM tProductLocationMapType " +
@@ -1125,30 +1001,25 @@ namespace dMobile.View.Activity
                      this.LocMap.CurrLocMap.SectLocMapRefno > 0)
             {
                 // find all the products for the selected slot location
-                sql = "SELECT tProduct.ProductCode," +
+                query = "SELECT tProduct.ProductCode," +
                       "tProduct.ProductDescription," +
                       "tProduct.ProductBrandDescription " +
                       "FROM tProductLocationMapType " +
                       "INNER JOIN tProduct ON tProduct.ProductRefno = tProductLocationMapType.ProductRefno " +
-                      "WHERE tProductLocationMapType.LocationMapRefno = " +
-                      this.LocMap.CurrLocMapRefno +
+                      "WHERE tProductLocationMapType.LocationMapRefno = " + this.LocMap.CurrLocMapRefno +
                       " AND tProductLocationMapType.ProductLocationMapTypeEnum = " +
                       (int)SysCommon.ProdLocMapTypes.Receiving;
             }
 
             if (this.ActItem.ProdInfo.Refno > 0)
             {
-                sql += " AND tProductLocationMapType.ProductRefno = " +
+                query += " AND tProductLocationMapType.ProductRefno = " +
                        this.ActItem.ProdInfo.Refno;
             }
 
-            return sql;
+            return query;
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <returns></returns>
         private async Task<List<object>> GetDataViewProductOnly()
         {
             var listLocationMapTypes = new List<ProductLocationMapType>();
@@ -1192,17 +1063,9 @@ namespace dMobile.View.Activity
                 .ThenBy(obj => obj.LocationMapType)
                 .ToList();
             this.ListItems = listLocationMapTypes.Cast<object>().ToList();
-
-            ////this.ListItems = (List<object>)listLocationMapTypes
-            ////    .OrderBy(locMapType => locMapType.ProductCode)
-            ////    .ThenBy(locMapType => locMapType.LocationMapType);
             return this.ListItems;
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <returns></returns>
         private async Task<List<object>> GetDataViewLocationOnly()
         {
             var locations = new List<Location>();
@@ -1236,13 +1099,6 @@ namespace dMobile.View.Activity
 
             locations.Add(pickingLocation);
             locations.Add(receivingLocation);
-
-            // this.DataViewItems = dataTableItems.DefaultView;
-            // this.DataViewItems.Table.TableName = this.MainGridMappingName;
-            // this.DataViewItems.AllowNew = false;
-            // this.DataViewItems.AllowEdit = false;
-            // this.DataViewItems.AllowDelete = false;
-            // this.DataViewItems.Sort = "LocationMapWarehouseCode,LocationMapSectionName,LocationMapSlotName,LocationMapType";
             locations = locations.OrderBy(obj => obj.LocationMapWarehouseCode)
                 .ThenBy(obj => obj.LocationMapSectionName)
                 .ThenBy(obj => obj.LocationMapSlotName)
@@ -1252,19 +1108,11 @@ namespace dMobile.View.Activity
             return this.ListItems;
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private async void CmdDisplayDefault_Click(object sender, EventArgs e)
         {
             await this.DisplayLocationDefaults();
         }
 
-        /// <summary>
-        ///
-        /// </summary>
         private async Task DisplayLocationDefaults()
         {
             await Task.Run(
@@ -1288,15 +1136,13 @@ namespace dMobile.View.Activity
                             // A warehouse only query will result in to much data. Restrict it to at least a section.
                             if (this.LocMap.CurrLocMap.WhsLocMapRefno <= 0)
                             {
-                                throw new Exception(
-                                    "The set location must have a warehouse selected.");
+                                throw new Exception("The location must have a warehouse selected.");
                             }
 
                             if (this.LocMap.CurrLocMap.IsSectionTracked &&
                                 this.LocMap.CurrLocMap.SectLocMapRefno <= 0)
                             {
-                                throw new Exception(
-                                    "The set location must have a section selected.");
+                                throw new Exception("The location must have a section selected.");
                             }
 
                             this.ActItem.ListItems = await this.GetDataViewProductOnly();
@@ -1327,11 +1173,6 @@ namespace dMobile.View.Activity
                 Convert.ToString(this.BarCodeModifier1Picker.SelectedItem);
         }
 
-        /// <summary>
-        ///     View button click event handler.
-        /// </summary>
-        /// <param name="sender">Object that generated this event.</param>
-        /// <param name="e">Event argument data.</param>
         private async void CmdView_Clicked(object sender, EventArgs e)
         {
             if (await this.SaveChanges())

@@ -27,8 +27,8 @@ namespace dMobile.View.Activity
         /// <summary>
         ///     Initializes a new instance of the <see cref="ActivityDetailInventoryInquiry" /> class.
         /// </summary>
-        /// <param name="actDetail">.</param>
-        /// <param name="actSubType">.</param>
+        /// <param name="actDetail">Activity detail instance.</param>
+        /// <param name="actSubType">Activity sub type.</param>
         public ActivityDetailInventoryInquiry(ActDetail actDetail, SysCommon.ActSubTypes actSubType)
         {
             this.InitializeComponent();
@@ -41,45 +41,21 @@ namespace dMobile.View.Activity
             this.Title = this.GetControlDescription();
         }
 
-        /// <summary>
-        ///     Gets or sets the SysEnv.
-        /// </summary>
-        public SysEnvironment SysEnv { get; set; }
+        private ObservableCollection<string> ExtraInfoItems { get; set; } = new ObservableCollection<string>();
 
-        /// <summary>
-        ///     Gets or sets a value indicating whether IsBarCodeHandlerRegistered.
-        /// </summary>
-        public bool IsBarCodeHandlerRegistered { get; set; }
+        private ObservableCollection<object> MainActivityItems { get; set; } = new ObservableCollection<object>();
 
-        /// <summary>
-        ///     Gets or sets the ActSubType.
-        /// </summary>
-        public SysCommon.ActSubTypes ActSubType { get; set; }
+        private SysEnvironment SysEnv { get; set; }
 
-        /// <summary>
-        ///     Gets or sets the BarParse.
-        /// </summary>
+        private bool IsBarCodeHandlerRegistered { get; set; }
+
+        private SysCommon.ActSubTypes ActSubType { get; set; }
+
         private BarCodeParse BarParse { get; set; }
 
-        /// <summary>
-        ///     Gets the Scanner.
-        /// </summary>
         private BarCodeScanner Scanner { get; }
 
-        /// <summary>
-        ///     Gets the ActDetail.
-        /// </summary>
         private ActDetail ActDetail { get; }
-
-        /// <summary>
-        ///     Gets or sets the ExtraInfoItems.
-        /// </summary>
-        public ObservableCollection<string> ExtraInfoItems { get; set; } = new ObservableCollection<string>();
-
-        /// <summary>
-        ///     Gets or sets the MainActivityItems.
-        /// </summary>
-        public ObservableCollection<object> MainActivityItems { get; set; } = new ObservableCollection<object>();
 
         /// <summary>
         ///     Unregister the bar code scan event handler and disable the scanner.
@@ -233,46 +209,7 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        ///     The OnAppearing.
-        /// </summary>
-        protected override async void OnAppearing()
-        {
-            if (!this.IsIndicatorRunning)
-            {
-                try
-                {
-                    this.IsIndicatorRunning = true;
-                    base.OnAppearing();
-                    await this.ucActivityDetailInventoryInquiry_GotFocus(this, EventArgs.Empty);
-                    await this.tmrActivityItemInventoryInquiry_Tick(this, EventArgs.Empty);
-                }
-                catch (Exception ex)
-                {
-                    await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert("Error",
-                        "ucActivityDetailInventoryInquiry_GotFocus/tmrActivityItemInventoryInquiry_Tick error: " +
-                        ex.Message, "OK"));
-                }
-                finally
-                {
-                    this.IsIndicatorRunning = false;
-                }
-            }
-        }
-
-        /// <summary>
-        ///     The OnDisappearing.
-        /// </summary>
-        protected override async void OnDisappearing()
-        {
-            await this.ScannerDisable();
-            base.OnDisappearing();
-            this.IsIndicatorRunning = false;
-            GC.Collect();
-            GC.WaitForPendingFinalizers();
-        }
-
-        /// <summary>
-        ///     The GetControlDescription.
+        /// Get the control description.
         /// </summary>
         /// <returns>.</returns>
         public string GetControlDescription()
@@ -281,11 +218,7 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        ///     ///
-        /// </summary>
-        /// <remarks></remarks>
-        /// <summary>
-        ///     .
+        /// Refreshes the data in the activity detail inventory inquiry control.
         /// </summary>
         /// <returns>A <see cref="Task" /> representing the result of the asynchronous operation.</returns>
         public async Task RefreshData()
@@ -316,7 +249,6 @@ namespace dMobile.View.Activity
                 catch (NotImplementedException)
                 {
                     // Handle this.ActDetail.SelectActivityDetail not implemented
-
                     Console.WriteLine(this.GetControlDescription() + " Not implemented exception");
                 }
                 catch (CommunicationException commEx)
@@ -356,28 +288,55 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        ///     ///
+        /// Activity item inventory inquiry timer tick event.
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        /// <remarks></remarks>
-        /// <summary>
-        ///     .
-        /// </summary>
-        /// <param name="sender">.</param>
-        /// <param name="e">.</param>
+        /// <param name="sender">Object that generated this event.</param>
+        /// <param name="e">Event argument data.</param>
         /// <returns>A <see cref="Task" /> representing the result of the asynchronous operation.</returns>
-        public async Task tmrActivityItemInventoryInquiry_Tick(object sender, EventArgs e)
+        public async Task ActivityItemInventoryInquiry_Tick(object sender, EventArgs e)
         {
             await this.RefreshData();
         }
 
         /// <summary>
-        ///     The BarCodeHandler.
+        ///     The OnAppearing.
         /// </summary>
-        /// <param name="sender">.</param>
-        /// <param name="scanArgs">.</param>
-        /// <returns>The <see cref="Task" />.</returns>
+        protected override async void OnAppearing()
+        {
+            if (!this.IsIndicatorRunning)
+            {
+                try
+                {
+                    this.IsIndicatorRunning = true;
+                    base.OnAppearing();
+                    await this.ActivityDetailInventoryInquiry_GotFocus(this, EventArgs.Empty);
+                    await this.ActivityItemInventoryInquiry_Tick(this, EventArgs.Empty);
+                }
+                catch (Exception ex)
+                {
+                    await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert("Error",
+                        "ucActivityDetailInventoryInquiry_GotFocus/tmrActivityItemInventoryInquiry_Tick error: " +
+                        ex.Message, "OK"));
+                }
+                finally
+                {
+                    this.IsIndicatorRunning = false;
+                }
+            }
+        }
+
+        /// <summary>
+        ///     The OnDisappearing.
+        /// </summary>
+        protected override async void OnDisappearing()
+        {
+            await this.ScannerDisable();
+            base.OnDisappearing();
+            this.IsIndicatorRunning = false;
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+        }
+
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
             try
@@ -397,7 +356,7 @@ namespace dMobile.View.Activity
                 this.BarParse = scanArgs.ParseInfo;
 
                 // <issue="13609" author="RD" date="2016/02/22"/>
-                if (this.ActDetail != null && this.ActDetail.ActItem != null)
+                if (this.ActDetail?.ActItem != null)
                 {
                     SysShared.AssertSuppressedErrorsAgainstScheme(this.ActDetail.ActItem.ProdInfo, this.BarParse);
                 }
@@ -448,31 +407,16 @@ namespace dMobile.View.Activity
             }
         }
 
-        /// <summary>
-        ///     The IsValidData.
-        /// </summary>
-        /// <returns>.</returns>
         private bool IsValidData()
         {
             return true;
         }
 
-        /// <summary>
-        ///     The ucActivityDetailInventoryInquiry_GotFocus.
-        /// </summary>
-        /// <param name="sender">.</param>
-        /// <param name="e">.</param>
-        /// <returns>The <see cref="Task" />.</returns>
-        private async Task ucActivityDetailInventoryInquiry_GotFocus(object sender, EventArgs e)
+        private async Task ActivityDetailInventoryInquiry_GotFocus(object sender, EventArgs e)
         {
             await this.ScannerEnable();
         }
 
-        /// <summary>
-        ///     The ListViewMainActivity_ItemSelected.
-        /// </summary>
-        /// <param name="sender">The sender<see cref="object" />.</param>
-        /// <param name="e">The e<see cref="SelectedItemChangedEventArgs" />.</param>
         private void ListViewMainActivity_ItemSelected(object sender, SelectedItemChangedEventArgs e)
         {
         }
