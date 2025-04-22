@@ -214,7 +214,7 @@ namespace dMobile.View.Activity
         /// <returns>.</returns>
         public string GetControlDescription()
         {
-            return "Inventory Inquiry Detail";
+            return "Inventory Inquiry";
         }
 
         /// <summary>
@@ -229,10 +229,7 @@ namespace dMobile.View.Activity
                 {
                     this.IsIndicatorRunning = true;
                     await this.ScannerDisable();
-                    await Device.InvokeOnMainThreadAsync(() => this.ExtraInfoItems.Clear());
-
                     await this.ActDetail.Refresh();
-
                     await Device.InvokeOnMainThreadAsync(async () =>
                     {
                         this.MainActivityItems =
@@ -417,8 +414,23 @@ namespace dMobile.View.Activity
             await this.ScannerEnable();
         }
 
-        private void ListViewMainActivity_ItemSelected(object sender, SelectedItemChangedEventArgs e)
+        private async void ListViewMainActivity_ItemSelected(object sender, SelectedItemChangedEventArgs e)
         {
+            this.ExtraInfoItems.Clear();
+            if (e.SelectedItem != null)
+            {
+                await this.ActDetail.AssignActivityDetail(e.SelectedItem);
+
+                var prodInfo = this.ActDetail.ActItem.ProdInfo;
+                this.ExtraInfoItems.Add("Product " + prodInfo.Code + (" " + prodInfo.UnitBc).Trim() + " " + prodInfo.UnitCode);
+                this.ExtraInfoItems.Add("Description " + prodInfo.Desc);
+                this.ExtraInfoItems.Add("Brand " + prodInfo.BrandDesc);
+                var locIdx = this.ActDetail.SchemeId.IndexOf("BL:", StringComparison.Ordinal) + 3;
+                var location = this.ActDetail.SchemeId.Substring(locIdx);
+                this.ExtraInfoItems.Add("Location " + location);
+            }
+
+            this.ListViewDisplayExtraInfo.ItemsSource = this.ExtraInfoItems;
         }
     }
 }

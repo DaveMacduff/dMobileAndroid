@@ -105,6 +105,10 @@ namespace dMobile.Controller.Activity_Detail
                     actDetailFactory = new InventoryInquiryActDetailFactory();
                     break;
 
+                case SysCommon.ActSubTypes.InventoryInquiryActivitySingle:
+                    actDetailFactory = new InvInquiryActDetailSingleFactory();
+                    break;
+
                 case SysCommon.ActSubTypes.ConvertProduct:
                     actDetailFactory = new ConvertProductActDetailFactory();
                     break;

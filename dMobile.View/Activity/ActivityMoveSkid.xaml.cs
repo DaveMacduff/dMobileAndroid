@@ -16,7 +16,6 @@ namespace dMobile.View.Activity
     using Controller.Activity_Item;
     using CustomPages;
     using Forms;
-    using Helpers;
     using Resources.Enums;
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;
@@ -55,49 +54,22 @@ namespace dMobile.View.Activity
             this.SkidCodeEnter().FireAndForgetSafeAsync();
         }
 
-        /// <summary>
-        ///     Gets the activity subtype.
-        /// </summary>
         private SysCommon.ActSubTypes ActSubType { get; }
 
-        /// <summary>
-        ///     Gets or sets the skid information.
-        /// </summary>
         private SysSkidInfo SkidInfo { get; set; }
 
-        /// <summary>
-        ///     Gets the bar code scanner instance.
-        /// </summary>
         private BarCodeScanner Scanner { get; }
 
-        /// <summary>
-        ///     Gets the activity detail.
-        /// </summary>
         private ActDetail ActDetail { get; }
 
-        /// <summary>
-        ///     Gets the activity item.
-        /// </summary>
         private ActItem ActItem { get; }
 
-        /// <summary>
-        ///     Gets the activity header.
-        /// </summary>
         private Activity Activity { get; }
 
-        /// <summary>
-        ///     Gets the location map.
-        /// </summary>
         private LocationMap LocMap { get; }
 
-        /// <summary>
-        ///     Gets the items list.
-        /// </summary>
         private ObservableCollection<string> ExtraInfoItems { get; } = new ObservableCollection<string>();
 
-        /// <summary>
-        ///     Gets or sets a value indicating whether data is loading.
-        /// </summary>
         private bool IsDataLoading { get; set; } = true;
 
         /// <summary>
@@ -129,34 +101,8 @@ namespace dMobile.View.Activity
         /// <returns><see cref="bool" /> True if it is ready to save, else false.</returns>
         public async Task<bool> IsReadyToSave()
         {
-            var isReadyToSave = true;
-
-            // NOTE: Do not need to set scanner off or on. Caller will handle.
-            try
-            {
-                isReadyToSave = await LocationMapTasks.IsCompleteLocMap(this.LocMap.CurrLocMapRefno);
-                isReadyToSave = isReadyToSave && this.SkidInfo.CurrSkid.SkidFkRefno != 0;
-            }
-            catch (MessageOnlyException msgEx)
-            {
-                var msg = SysCommon.GetMessageFromMessageException(msgEx);
-                await Device.InvokeOnMainThreadAsync(async () =>
-                    await Application.Current.MainPage.DisplayAlert(
-                        this.ActDetail.GetControlDescription(),
-                        msg,
-                        Resource.OK));
-            }
-            catch (Exception ex)
-            {
-                isReadyToSave = false;
-                await Device.InvokeOnMainThreadAsync(async () =>
-                {
-                    var errRpt = new FormErrorReport(this.ActSubType, ex);
-                    _ = await errRpt.ShowDialog();
-                });
-            }
-
-            return isReadyToSave;
+            bool isReadyToSave = await LocationMapTasks.IsCompleteLocMap(this.LocMap.CurrLocMapRefno);
+            return isReadyToSave && this.SkidInfo.CurrSkid.SkidFkRefno != 0;
         }
 
         /// <summary>
@@ -277,15 +223,7 @@ namespace dMobile.View.Activity
                 if (await this.IsReadyToSave())
                 {
                     this.SkidInfo = await SysSkidInfo.Move(this.SkidInfo, this.LocMap.CurrLocMap);
-
-                    if (await Device.InvokeOnMainThreadAsync(async () => !await this.DisplayAlert(
-                            this.GetControlDescription(),
-                            "Do you wish to move any more skid(s)?",
-                            "Yes",
-                            "No")))
-                    {
-                        saveComplete = true;
-                    }
+                    saveComplete = true;
                 }
             }
             catch (MessageOnlyException msgEx)
@@ -329,10 +267,7 @@ namespace dMobile.View.Activity
         {
             try
             {
-                var form = new FormDialogContainer(
-                    EDialogTypes.SelectLocationMap,
-                    SysCommon.ActSubTypes.NotApplicable);
-
+                var form = new FormDialogContainer(EDialogTypes.SelectLocationMap, SysCommon.ActSubTypes.NotApplicable);
                 if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
                 {
                     this.LocMap.CurrLocMap = this.LocMap.ChosenLocMap.Clone();
@@ -359,7 +294,7 @@ namespace dMobile.View.Activity
             {
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    var msg = "This activity unexpectedly failed to initialize correctly." +
+                    const string msg = "This activity unexpectedly failed to initialize correctly." +
                               " Please exit and try again.";
                     var errorReport = new FormErrorReport(msg, ex);
                     _ = await errorReport.ShowDialog();
@@ -376,15 +311,11 @@ namespace dMobile.View.Activity
             SubscribeKeyUpHandlers();
             this.lstSkidStats.ItemsSource = this.ExtraInfoItems;
             this.txtSkidCode.Focus();
-            return;
 
-            //////////////////////////////////////////////////////////////////////////
             void SubscribeKeyUpHandlers()
             {
                 MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), KeyUpHandler);
-                return;
 
-                //////////////////////////////////////////////////////////////////////////
                 async void KeyUpHandler(string keyPressed)
                 {
                     if (this.IsIndicatorRunning)
@@ -429,9 +360,6 @@ namespace dMobile.View.Activity
                         await this.ScannerEnable();
                     }
 
-                    return;
-
-                    //////////////////////////////////////////////////////////////////////////
                     async Task AppearingF1Key()
                     {
                         try
@@ -490,20 +418,12 @@ namespace dMobile.View.Activity
             Device.BeginInvokeOnMainThread(BackButtonHandler);
             return true;
 
-            //////////////////////////////////////////////////////////////////////////
             async void BackButtonHandler()
             {
                 try
                 {
                     _ = base.OnBackButtonPressed();
-
-                    if (await this.SaveChanges())
-                    {
-                        await this.ScannerDisable();
-                        _ = base.OnBackButtonPressed();
-                        await this.Close();
-                    }
-                    else if (await this.CancelChanges())
+                    if (await this.CancelChanges())
                     {
                         await this.ScannerDisable();
                         _ = base.OnBackButtonPressed();
@@ -529,11 +449,6 @@ namespace dMobile.View.Activity
             }
         }
 
-        /// <summary>
-        ///     Bar code scan handler.
-        /// </summary>
-        /// <param name="sender"><see cref="object" /> Sender object.</param>
-        /// <param name="scanArgs"><see cref="BarCodeScannerEventArgs" /> Scan event arguments.</param>
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
             try
@@ -631,9 +546,6 @@ namespace dMobile.View.Activity
             }
         }
 
-        /// <summary>
-        ///     Display the identified skid to move information.
-        /// </summary>
         private void DisplaySkidInfo()
         {
             this.ExtraInfoItems.Clear();
@@ -667,9 +579,6 @@ namespace dMobile.View.Activity
             }
         }
 
-        /// <summary>
-        ///     Handle Enter press.
-        /// </summary>
         private async Task SkidCodeEnter()
         {
             try
@@ -705,14 +614,41 @@ namespace dMobile.View.Activity
             }
         }
 
-        /// <summary>
-        ///     Skid code completed event handler.
-        /// </summary>
-        /// <param name="sender"><see cref="object" /> Object that generated the event.</param>
-        /// <param name="e"><see cref="EventArgs" /> Event arguments.</param>
         private async void TxtSkidCode_Completed(object sender, EventArgs e)
         {
             await this.SkidCodeEnter();
+        }
+
+        private async void CmdApplyMove_Clicked(object sender, EventArgs e)
+        {
+            try
+            {
+                await this.SaveChanges();
+
+                await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(
+                    this.GetControlDescription(),
+                    "Move completed.",
+                    Resource.OK));
+                this.SkidInfo = new SysSkidInfo();
+                this.txtSkidCode.Text = string.Empty;
+                this.ExtraInfoItems.Clear();
+            }
+            catch (MessageOnlyException msgEx)
+            {
+                var msg = SysCommon.GetMessageFromMessageException(msgEx);
+                await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert(
+                    this.ActDetail.GetControlDescription(),
+                    msg,
+                    Resource.OK));
+            }
+            catch (Exception ex)
+            {
+                await Device.InvokeOnMainThreadAsync(async () =>
+                {
+                    var errRpt = new FormErrorReport(this.ActSubType, ex);
+                    _ = await errRpt.ShowDialog();
+                });
+            }
         }
     }
 }

@@ -766,6 +766,11 @@ namespace dMobile.Bedrock
             /// Defines the TransferTo.
             /// </summary>
             TransferTo = 40,
+
+            /// <summary>
+            /// Deifned the activity item inquiry single.
+            /// </summary>
+            InventoryInquiryActivitySingle = 41,
         }
 
         /// <summary>

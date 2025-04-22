@@ -267,7 +267,7 @@ namespace dMobile.View.Activity
 
         private string GetControlDescription()
         {
-            var desc = this.ActSubType switch
+            return this.ActSubType switch
             {
                 SysCommon.ActSubTypes.PhysicalCounts => $"Count # {this.ActItem.ActHdr.HdrFkRefno}",
                 SysCommon.ActSubTypes.CycleCounts => $"Count # {this.ActItem.ActHdr.HdrFkRefno}",
@@ -282,8 +282,6 @@ namespace dMobile.View.Activity
                 SysCommon.ActSubTypes.TicketAddProduct => $"Ticket Add-Product # {this.ActItem.ActHdr.HdrFkRefno}",
                 _ => "Activity Items"
             };
-
-            return desc;
         }
 
         private void TimerTickCallback()
@@ -2158,7 +2156,9 @@ namespace dMobile.View.Activity
         {
             try
             {
-                var actDetail = ActDetailFacade.GetActDetail(this.ActItem, SysCommon.ActSubTypes.InventoryInquiry);
+                var actDetail = ActDetailFacade.GetActDetail(
+                    this.ActItem,
+                    SysCommon.ActSubTypes.InventoryInquiryActivitySingle);
                 actDetail.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
                     this.ActItem.LocMap.WhsLocMapRefno);
                 var form = new FormDialogContainer(

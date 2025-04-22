@@ -68,13 +68,14 @@ namespace dMobile.View.Forms
                 EDialogTypes.ActivityItemSingle => this.GetModel(modelType, actSubType, activityType),
                 EDialogTypes.ActivityInventoryInquiryItem => this.GetModel(modelType, actSubType, activityType),
                 EDialogTypes.ActivityInventoryInquiryDetail => this.GetModel(modelType, actSubType, activityType),
-                EDialogTypes.ActivityInventoryInquirySingleItem => this.GetModel(modelType, actSubType, activityType),
                 EDialogTypes.SelectProduct => this.GetModel(modelType, actSubType, activityType),
                 EDialogTypes.ActivityProductLabelQuantity => this.GetModel(modelType, actSubType, activityType),
                 EDialogTypes.ActivityProductLabel => this.GetModel(modelType, actSubType, activityType),
                 EDialogTypes.ActivityConvertProductDetail => this.GetModel(modelType, actSubType, activityType),
                 EDialogTypes.ActivityInventoryInquirySummary => this.GetModel(modelType, actSubType, activityType),
                 EDialogTypes.ActivityRemoveFromSkid => this.GetModel(modelType, actSubType, activityType),
+                EDialogTypes.ActivityConvertUnitEditCatch => throw new NotImplementedException(),
+                EDialogTypes.ActivityConvertUnitDetail => throw new NotImplementedException(),
                 _ => this.GetModel(modelType, actSubType, activityType)
             };
 
@@ -98,7 +99,7 @@ namespace dMobile.View.Forms
             this.InitializeComponent();
 
             var msg = $"Model object for {SysCommon.SourceEnum2String(modelType)}.";
-            IDMobileModal model = modelType switch
+            this.DisplayControl = modelType switch
             {
                 EDialogTypes.ActivityShippingLabelEdit => new ActivityShippingLabelEdit(
                     SysCommon.ActSubTypes.Picking, // Override the subtype to Picking
@@ -144,8 +145,6 @@ namespace dMobile.View.Forms
                 EDialogTypes.ActivityDeboxLabelCount => throw new NotSupportedException(msg),
                 _ => throw new NotSupportedException(msg)
             };
-
-            this.DisplayControl = model;
         }
 
         /// <summary>
@@ -162,7 +161,7 @@ namespace dMobile.View.Forms
             SysShared.ActivityType activityType = SysShared.ActivityType.Header)
         {
             this.InitializeComponent();
-            var model = modelType switch
+            this.DisplayControl = modelType switch
             {
                 EDialogTypes.RefreshDataStatus => new RefreshDatabaseStatus(actSubType),
                 EDialogTypes.ActivityInventoryInquiry => new ActivityInventoryInquiry(),
@@ -204,8 +203,6 @@ namespace dMobile.View.Forms
                 EDialogTypes.ActivityDeboxLabelCount => this.GetModel(modelType, activity, actSubType, activityType),
                 _ => this.GetModel(modelType, activity, actSubType, activityType)
             };
-
-            this.DisplayControl = model;
         }
 
         /// <summary>
@@ -224,7 +221,7 @@ namespace dMobile.View.Forms
             SysShared.ActivityType activityType = SysShared.ActivityType.Header)
         {
             this.InitializeComponent();
-            var model = modelType switch
+            this.DisplayControl = modelType switch
             {
                 EDialogTypes.RefreshDataStatus => new RefreshDatabaseStatus(actSubType),
                 EDialogTypes.ActivityInventoryInquiry => new ActivityInventoryInquiry(actItem.ProdInfo),
@@ -266,8 +263,6 @@ namespace dMobile.View.Forms
                 EDialogTypes.ActivityDeboxLabelCount => this.GetModel(modelType, actItem, actSubType, callingActSubType, activityType),
                 _ => this.GetModel(modelType, actItem, actSubType, callingActSubType, activityType)
             };
-
-            this.DisplayControl = model;
         }
 
         /// <summary>
@@ -284,7 +279,7 @@ namespace dMobile.View.Forms
             SysShared.ActivityType activityType = SysShared.ActivityType.Header)
         {
             this.InitializeComponent();
-            var model = modelType switch
+            this.DisplayControl = modelType switch
             {
                 EDialogTypes.RefreshDataStatus => new RefreshDatabaseStatus(actSubType),
                 EDialogTypes.ActivityInventoryInquiry => new ActivityInventoryInquiry(actDetail.ActItem.ProdInfo),
@@ -328,8 +323,6 @@ namespace dMobile.View.Forms
                 EDialogTypes.ActivityConvertUnitDetail => this.GetModel(modelType, actDetail, actSubType, activityType),
                 _ => this.GetModel(modelType, actDetail, actSubType, activityType)
             };
-
-            this.DisplayControl = model;
         }
 
         /// <summary>
@@ -343,13 +336,12 @@ namespace dMobile.View.Forms
             this.InitializeComponent();
 
             var msg = $"Model object for {SysCommon.SourceEnum2String(modelType)}.";
-            IDMobileModal model = modelType switch
+            this.DisplayControl = modelType switch
             {
                 EDialogTypes.SelectLocationMap => new SetLocationMap(defaultWhsLocMapRefno, lockWhsSelection),
                 EDialogTypes.RefreshDataStatus => throw new NotSupportedException(msg),
                 EDialogTypes.SelectProductUnit => throw new NotSupportedException(msg),
                 EDialogTypes.SelectProductUnitFilterToProduct => throw new NotSupportedException(msg),
-
                 EDialogTypes.ActivityHdrPickingFilter => throw new NotSupportedException(msg),
                 EDialogTypes.ActivityHdrReceivingFilter => throw new NotSupportedException(msg),
                 EDialogTypes.ActivityHdrTransferFilter => throw new NotSupportedException(msg),
@@ -387,8 +379,6 @@ namespace dMobile.View.Forms
                 EDialogTypes.ActivityConvertUnitDetail => throw new NotSupportedException(msg),
                 _ => throw new NotSupportedException(msg)
             };
-
-            this.DisplayControl = model;
         }
 
         /// <summary>
@@ -484,7 +474,7 @@ namespace dMobile.View.Forms
             SysCommon.ActSubTypes actSubType,
             SysShared.ActivityType activityType = SysShared.ActivityType.Header)
         {
-            IDMobileModal model = modelType switch
+            return modelType switch
             {
                 EDialogTypes.ActivityItem => new ActivityItem(activity, actSubType),
                 EDialogTypes.SelectActivityItem => new SelectActivityItem(activity, actSubType),
@@ -527,8 +517,6 @@ namespace dMobile.View.Forms
                 EDialogTypes.ActivityConvertUnitDetail => null,
                 _ => null
             };
-
-            return model;
         }
 
         /// <summary>
@@ -545,7 +533,7 @@ namespace dMobile.View.Forms
             SysCommon.ActSubTypes actSubType,
             SysShared.ActivityType activityType)
         {
-            IDMobileModal model = modelType switch
+            return modelType switch
             {
                 EDialogTypes.ActivityDetailEdit => new ActivityDetailEdit(actDetail, actSubType),
                 EDialogTypes.ActivityProductLabelQuantity => new ActivityProductLabelQuantity(actDetail.Quantity),
@@ -591,8 +579,6 @@ namespace dMobile.View.Forms
                 EDialogTypes.ActivityConvertUnitDetail => null,
                 _ => null
             };
-
-            return model;
         }
 
         /// <summary>
@@ -611,7 +597,7 @@ namespace dMobile.View.Forms
             SysCommon.ActSubTypes callingActSubType = SysCommon.ActSubTypes.SkidInfo,
             SysShared.ActivityType activityType = SysShared.ActivityType.Header)
         {
-            IDMobileModal model = modelType switch
+            return modelType switch
             {
                 EDialogTypes.ActivityDetail => new ActivityDetail(actItem, actSubType),
                 EDialogTypes.SelectProductUnitFilterToProduct => new SelectProductUnit(
@@ -657,8 +643,6 @@ namespace dMobile.View.Forms
                 EDialogTypes.ActivityConvertUnitDetail => new ActivityConvertUnitDetail(actItem, actSubType),
                 _ => null
             };
-
-            return model;
         }
 
         /// <summary>
@@ -673,7 +657,7 @@ namespace dMobile.View.Forms
             SysCommon.ActSubTypes actSubType,
             SysShared.ActivityType activityType = SysShared.ActivityType.Header)
         {
-            IDMobileModal model = modelType switch
+            return modelType switch
             {
                 EDialogTypes.SelectProductUnit => new SelectProductUnit(actSubType),
                 EDialogTypes.RefreshDataStatus => null,
@@ -716,8 +700,6 @@ namespace dMobile.View.Forms
                 EDialogTypes.ActivityConvertUnitDetail => null,
                 _ => null
             };
-
-            return model;
         }
 
         /// <summary>
@@ -730,7 +712,7 @@ namespace dMobile.View.Forms
             EDialogTypes modelType,
             SysShared.ActivityType activityType = SysShared.ActivityType.Header)
         {
-            IDMobileModal model = modelType switch
+            return modelType switch
             {
                 EDialogTypes.SelectProduct => new SelectProduct(),
                 EDialogTypes.SelectLocationMap => new SetLocationMap(),
@@ -773,8 +755,6 @@ namespace dMobile.View.Forms
                 EDialogTypes.ActivityConvertUnitDetail => null,
                 _ => null
             };
-
-            return model;
         }
     }
 }

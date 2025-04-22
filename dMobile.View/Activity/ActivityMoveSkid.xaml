@@ -9,8 +9,9 @@
             <Grid Padding="10" AbsoluteLayout.LayoutFlags="All" AbsoluteLayout.LayoutBounds="0,0,1,1">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="30*"/>
-                    <RowDefinition Height="55*"/>
-                    <RowDefinition Height="15*"/>
+                    <RowDefinition Height="50*"/>
+                    <RowDefinition Height="10*"/>
+                    <RowDefinition Height="10*"/>
                 </Grid.RowDefinitions>
 
                 <Grid Grid.Row="0">
@@ -19,15 +20,32 @@
                         <ColumnDefinition Width="80*"/>
                     </Grid.ColumnDefinitions>
 
-                    <Label x:Name="lblSkidCode" Grid.Row="0" Grid.Column="0" FontAttributes="Bold" VerticalOptions="Center"/>
-                    <Entry x:Name="txtSkidCode" Grid.Row="0" Grid.Column="1" Completed="TxtSkidCode_Completed"/>
+                    <Label x:Name="lblSkidCode"
+                           Grid.Row="0"
+                           Grid.Column="0"
+                           FontAttributes="Bold"
+                           VerticalOptions="Center"/>
+                    
+                    <Entry x:Name="txtSkidCode"
+                           Grid.Row="0"
+                           Grid.Column="1"
+                           Completed="TxtSkidCode_Completed"/>
 
-                    <Label x:Name="lblProductBCUnit" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" FontAttributes="Bold" VerticalOptions="Center"/>
+                    <Label x:Name="lblProductBCUnit"
+                           Grid.Row="1"
+                           Grid.Column="0"
+                           Grid.ColumnSpan="2"
+                           FontAttributes="Bold"
+                           VerticalOptions="Center"/>
 
                 </Grid>
 
-                <Frame Grid.Row="1" OutlineColor="{DynamicResource BorderColor}">
-                    <ListView x:Name="lstSkidStats" SelectionMode="None" HasUnevenRows="True" IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}" SeparatorVisibility="None">
+                <Frame Grid.Row="1" BorderColor="{DynamicResource BorderColor}">
+                    <ListView x:Name="lstSkidStats"
+                              SelectionMode="None"
+                              HasUnevenRows="True"
+                              IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}"
+                              SeparatorVisibility="None">
                         <ListView.ItemTemplate>
                             <DataTemplate>
                                 <ViewCell>
@@ -40,7 +58,17 @@
                     </ListView>
                 </Frame>
 
-                <Button x:Name="cmdToLocation" Grid.Row="2" Clicked="CmdToLocation_Click"/>
+                <Button x:Name="cmdToLocation"
+                        Grid.Row="2"
+                        Text="Set To Location"
+                        IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}"
+                        Clicked="CmdToLocation_Click"/>
+
+                <Button x:Name="cmdApplyMove"
+                        Grid.Row="3"
+                        Text="Apply Move"
+                        IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}"
+                        Clicked="CmdApplyMove_Clicked"/>
             </Grid>
 
             <ActivityIndicator IsVisible="{Binding IsIndicatorRunning}" 
