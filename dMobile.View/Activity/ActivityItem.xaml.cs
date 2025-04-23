@@ -467,7 +467,6 @@ namespace dMobile.View.Activity
 
             return isReadyToClose;
 
-            //////////////////////////////////////////////////////////////////////////
             async Task<bool> IsReadyToClosePicking()
             {
                 var isReadyToClosePicking = true;

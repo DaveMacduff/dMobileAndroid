@@ -407,14 +407,24 @@ namespace dMobile.View.Menus
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        /// <remarks></remarks>
-        public async void cmdInquiry_Click(object sender, EventArgs e)
+        public async void CmdInquiry_Click(object sender, EventArgs e)
         {
             this.DisableControls();
             this.IsControlLoaded = false;
 
-            var inquiry = new ActivityInventoryInquiry();
-            _ = await inquiry.ShowDialog();
+            if (this.SysEnv.SysSettings.IsDisconnectedMode)
+            {
+                await Device.InvokeOnMainThreadAsync(
+                    async () => await this.DisplayAlert(
+                        "Inventory Inquiry",
+                        "Quantity inquiry is not supported in disconnected mode.",
+                        "OK"));
+            }
+            else
+            {
+                var inquiry = new ActivityInventoryInquiry();
+                _ = await inquiry.ShowDialog();
+            }
         }
 
         /// <summary>

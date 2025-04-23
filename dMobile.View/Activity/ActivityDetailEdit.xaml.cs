@@ -79,9 +79,6 @@ namespace dMobile.View.Activity
             this.ScannerEnable().FireAndForgetSafeAsync();
             this.LoadAndBindData().FireAndForgetSafeAsync();
 
-            return;
-
-            //////////////////////////////////////////////////////////////////////////
             void InitControlState()
             {
                 var prodInfo = this.ActDetail.ActItem.ProdInfo;
@@ -105,9 +102,7 @@ namespace dMobile.View.Activity
 
                 InitControlStateScheme();
                 InitControlStateExtra();
-                return;
 
-                //////////////////////////////////////////////////////////////////////////
                 // Enable scheme controls state.
                 void InitControlStateScheme()
                 {
@@ -123,6 +118,8 @@ namespace dMobile.View.Activity
 
                     this.dtBestBeforeDate.Date = DateTime.Now;
                     this.dtProductionDate.Date = DateTime.Now;
+                    ////this.dtBestBeforeDate.Date = SysCommon.EmptyDateTime;
+                    ////this.dtProductionDate.Date = SysCommon.EmptyDateTime;
                     this.dtExtraDetail5.Date = DateTime.Now;
                     if (this.SysEnv.SysSettings.DetailDateMinMaxValidYearRange != 0)
                     {
@@ -153,7 +150,6 @@ namespace dMobile.View.Activity
                     }
                 }
 
-                /////////////////////////////////////////////////////////////////////////
                 // Enable extra data controls state.
                 void InitControlStateExtra()
                 {
@@ -276,11 +272,13 @@ namespace dMobile.View.Activity
             try
             {
                 await IsValidData();
+                this.SysEnv.LastEnteredSchemeData = (ProductSchemeData)this.ActDetailEdit.SchemeData.Clone();
             }
             catch (IsReadyToApplyException ex)
             {
                 if (ex.SuppressError && ex.IsOverContinue)
                 {
+                    this.SysEnv.LastEnteredSchemeData = (ProductSchemeData)this.ActDetailEdit.SchemeData.Clone();
                     isReadyToSave = true;
                 }
                 else if (ex.SuppressError && !ex.IsOverContinue)
@@ -319,7 +317,6 @@ namespace dMobile.View.Activity
 
             return isReadyToSave;
 
-            //////////////////////////////////////////////////////////////////////////
             async Task IsValidData()
             {
                 await ValidateQuantity();
@@ -346,7 +343,6 @@ namespace dMobile.View.Activity
                 await this.ActDetail.ActItem.IsReadyToApply(xmlParam);
                 return;
 
-                //////////////////////////////////////////////////////////////////////////
                 async Task ValidateQuantity()
                 {
                     // Round captured screen quantity to 3 decimals.
@@ -394,7 +390,6 @@ namespace dMobile.View.Activity
 
                     return;
 
-                    //////////////////////////////////////////////////////////////////////////
                     // Check the quantity if the UOM match.
                     void CheckEqualQuantity()
                     {
@@ -420,7 +415,6 @@ namespace dMobile.View.Activity
                         }
                     }
 
-                    //////////////////////////////////////////////////////////////////////////
                     async Task ValidateBaseAndWeightAsync()
                     {
                         // Base and weight quantity sign check.
@@ -541,7 +535,6 @@ namespace dMobile.View.Activity
                         }
                     }
 
-                    //////////////////////////////////////////////////////////////////////////
                     async Task ValidateAltBaseAndWeightAsync()
                     {
                         // Alt, base and weight quantity sign check.
@@ -734,7 +727,6 @@ namespace dMobile.View.Activity
                     }
                 }
 
-                //////////////////////////////////////////////////////////////////////////
                 async Task ValidateScheme()
                 {
                     await AssignScheme();
@@ -745,7 +737,6 @@ namespace dMobile.View.Activity
                     ValidateSchemeIsVariantTracked();
                     return;
 
-                    //////////////////////////////////////////////////////////////////////////
                     async Task AssignScheme()
                     {
                         var scheme = this.ActDetailEdit.SchemeData;
@@ -767,7 +758,6 @@ namespace dMobile.View.Activity
                         this.ActDetailEdit.SchemeData = scheme;
                     }
 
-                    //////////////////////////////////////////////////////////////////////////
                     void ValidateSchemeSerialTracked()
                     {
                         if (this.ActDetail.ActItem.ProdInfo.Scheme.IsSerialTracked &&
@@ -777,7 +767,6 @@ namespace dMobile.View.Activity
                         }
                     }
 
-                    //////////////////////////////////////////////////////////////////////////
                     void ValidateSchemeLotTracked()
                     {
                         if (this.ActDetail.ActItem.ProdInfo.Scheme.IsLotTracked &&
@@ -787,7 +776,6 @@ namespace dMobile.View.Activity
                         }
                     }
 
-                    //////////////////////////////////////////////////////////////////////////
                     void ValidateSchemeBestBeforeDateTracked()
                     {
                         // Validate best before date empty.
@@ -816,7 +804,6 @@ namespace dMobile.View.Activity
                         CheckBestBeforeAcceptedDays();
                     }
 
-                    //////////////////////////////////////////////////////////////////////////
                     void ValidateSchemeProductionDateTracked()
                     {
                         // Validate production date empty.
@@ -845,7 +832,6 @@ namespace dMobile.View.Activity
                         CheckProductionAcceptedDays();
                     }
 
-                    //////////////////////////////////////////////////////////////////////////
                     void ValidateSchemeIsVariantTracked()
                     {
                         if (this.ActDetail.ActItem.ProdInfo.Scheme.IsVariantTracked &&
@@ -855,7 +841,6 @@ namespace dMobile.View.Activity
                         }
                     }
 
-                    //////////////////////////////////////////////////////////////////////////
                     async Task<ProductSchemeData> AssignSchemeVariant(ProductSchemeData scheme)
                     {
                         if (this.ActDetail.ActItem.ProdInfo.Scheme.IsVariantTracked)
@@ -868,7 +853,6 @@ namespace dMobile.View.Activity
                     }
                 }
 
-                //////////////////////////////////////////////////////////////////////////
                 void ValidateSchemeExtra()
                 {
                     var scheme = this.ActDetail.ActItem.ProdInfo.Scheme;
@@ -882,7 +866,6 @@ namespace dMobile.View.Activity
                     ValidateSchemeExtra5Required();
                     return;
 
-                    //////////////////////////////////////////////////////////////////////////
                     void ValidateSchemeExtra1Required()
                     {
                         if (scheme.Extra1Type != (int)SysCommon.SchemeExtraTypes.Disabled && scheme.Extra1IsRequired &&
@@ -892,7 +875,6 @@ namespace dMobile.View.Activity
                         }
                     }
 
-                    //////////////////////////////////////////////////////////////////////////
                     void ValidateSchemeExtra2Required()
                     {
                         if (scheme.Extra2Type != (int)SysCommon.SchemeExtraTypes.Disabled && scheme.Extra2IsRequired &&
@@ -902,7 +884,6 @@ namespace dMobile.View.Activity
                         }
                     }
 
-                    //////////////////////////////////////////////////////////////////////////
                     void ValidateSchemeExtra3Required()
                     {
                         if (scheme.Extra3Type != (int)SysCommon.SchemeExtraTypes.Disabled && scheme.Extra3IsRequired &&
@@ -912,7 +893,6 @@ namespace dMobile.View.Activity
                         }
                     }
 
-                    //////////////////////////////////////////////////////////////////////////
                     void ValidateSchemeExtra4Required()
                     {
                         if (scheme.Extra4Type != (int)SysCommon.SchemeExtraTypes.Disabled && scheme.Extra4IsRequired &&
@@ -922,7 +902,6 @@ namespace dMobile.View.Activity
                         }
                     }
 
-                    //////////////////////////////////////////////////////////////////////////
                     void ValidateSchemeExtra5Required()
                     {
                         if (scheme.Extra5Type != (int)SysCommon.SchemeExtraTypes.Disabled && scheme.Extra5IsRequired &&
@@ -932,7 +911,6 @@ namespace dMobile.View.Activity
                         }
                     }
 
-                    //////////////////////////////////////////////////////////////////////////
                     void AssignSchemeExtraDefault()
                     {
                         this.ActDetailEdit.ActExtra.Text1 = this.txtExtraDetail1.Text ?? string.Empty;
@@ -1154,15 +1132,10 @@ namespace dMobile.View.Activity
                 await this.SetStartingFocus();
             }
 
-            return;
-
-            //////////////////////////////////////////////////////////////////////////
             void SubscribeKeyUpHandlers()
             {
                 MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), KeyUpHandlerCallback);
-                return;
 
-                //////////////////////////////////////////////////////////////////////////
                 async void KeyUpHandlerCallback(string keyPressed)
                 {
                     if (this.IsDataLoading)
@@ -1183,7 +1156,6 @@ namespace dMobile.View.Activity
                     await this.ScannerEnable();
                 }
 
-                //////////////////////////////////////////////////////////////////////////
                 async Task AppearingEnterKey()
                 {
                     if (await this.SaveChanges())
@@ -1201,7 +1173,6 @@ namespace dMobile.View.Activity
 
                     return;
 
-                    //////////////////////////////////////////////////////////////////////////
                     async Task AskToPrintProductLabels()
                     {
                         if (await Device.InvokeOnMainThreadAsync(async () =>
@@ -1265,7 +1236,6 @@ namespace dMobile.View.Activity
             Device.BeginInvokeOnMainThread(CancelAndClose);
             return true;
 
-            //////////////////////////////////////////////////////////////////////////
             async void CancelAndClose()
             {
                 if (await this.CancelChanges())
@@ -1278,19 +1248,11 @@ namespace dMobile.View.Activity
             }
         }
 
-        /// <summary>
-        ///     Get the control description.
-        /// </summary>
-        /// <returns><see cref="string" /> Control description.</returns>
         private static string GetControlDescription()
         {
             return "Activity Detail Editing";
         }
 
-        /// <summary>
-        ///     Load and bind the data.
-        /// </summary>
-        /// <returns><see cref="Task" /> Task operation.</returns>
         private async Task LoadAndBindData()
         {
             try
@@ -1326,7 +1288,6 @@ namespace dMobile.View.Activity
 
             return;
 
-            //////////////////////////////////////////////////////////////////////////
             void AssignExtraInfoControl()
             {
                 this.ExtraInfoItems.Clear();
@@ -1338,7 +1299,6 @@ namespace dMobile.View.Activity
                 this.ListViewDisplayExtraInfo.ItemsSource = this.ExtraInfoItems;
             }
 
-            //////////////////////////////////////////////////////////////////////////
             // Load the extra detail controls with the activity detail extra values.
             void AssignExtraDetailToControls()
             {
@@ -1368,7 +1328,6 @@ namespace dMobile.View.Activity
                 }
             }
 
-            //////////////////////////////////////////////////////////////////////////
             // Load the scheme controls with the activity detail scheme values.
             void AssignSchemeDataToControls()
             {
@@ -1377,7 +1336,13 @@ namespace dMobile.View.Activity
 
                 if (prodInfo.Scheme.IsBestBeforeDateTracked)
                 {
-                    if (!SysCommon.IsEmptyDateTime(schemeData.LogisticUnitBestBeforeSellByDate))
+                    if (schemeData.LogisticUnitBestBeforeSellByDate.Date == DateTime.Now.Date &&
+                        !SysCommon.IsEmptyDate(SysEnv.LastEnteredSchemeData.LogisticUnitBestBeforeSellByDate))
+                    {
+                        schemeData.LogisticUnitBestBeforeSellByDate = SysEnv.LastEnteredSchemeData.LogisticUnitBestBeforeSellByDate;
+                        this.dtBestBeforeDate.Date = schemeData.LogisticUnitBestBeforeSellByDate;
+                    }
+                    else
                     {
                         this.dtBestBeforeDate.Date = schemeData.LogisticUnitBestBeforeSellByDate;
                     }
@@ -1385,7 +1350,13 @@ namespace dMobile.View.Activity
 
                 if (prodInfo.Scheme.IsProductionDateTracked)
                 {
-                    if (!SysCommon.IsEmptyDate(this.ActDetailEdit.SchemeData.LogisticUnitProductionDate))
+                    if (schemeData.LogisticUnitProductionDate.Date == DateTime.Now.Date &&
+                        !SysCommon.IsEmptyDate(SysEnv.LastEnteredSchemeData.LogisticUnitProductionDate))
+                    {
+                        schemeData.LogisticUnitProductionDate = SysEnv.LastEnteredSchemeData.LogisticUnitProductionDate;
+                        this.dtProductionDate.Date = schemeData.LogisticUnitProductionDate;
+                    }
+                    else
                     {
                         this.dtProductionDate.Date = schemeData.LogisticUnitProductionDate;
                     }
@@ -1393,36 +1364,47 @@ namespace dMobile.View.Activity
 
                 if (prodInfo.Scheme.IsSerialTracked)
                 {
-                    GetNextDefaultSerialNumber();
-                    this.txtSerialNo.Text = schemeData.SingleTradeItemSerialNumber;
-                }
-
-                if (prodInfo.Scheme.IsLotTracked)
-                {
-                    this.txtLotNo.Text = schemeData.LogisticUnitBatchLotNumber;
-                }
-
-                if (prodInfo.Scheme.IsVariantTracked)
-                {
-                    this.txtVariantCode.Text = schemeData.VariantNumber.ToString();
-                }
-
-                return;
-
-                //////////////////////////////////////////////////////////////////////////
-                // Get the default serial number and assign it to the activity edit detail scheme data.
-                void GetNextDefaultSerialNumber()
-                {
                     if (string.IsNullOrEmpty(schemeData.SingleTradeItemSerialNumber))
                     {
                         schemeData.SingleTradeItemSerialNumber =
                             ProductInfoTasks.GetProdSchemeSingleTradeItemSerialNumber();
                         this.ActDetailEdit.SchemeData = schemeData;
                     }
+
+                    this.txtSerialNo.Text = schemeData.SingleTradeItemSerialNumber;
+                }
+
+                if (prodInfo.Scheme.IsLotTracked)
+                {
+                    if (string.IsNullOrEmpty(schemeData.LogisticUnitBatchLotNumber) &&
+                        !string.IsNullOrEmpty(SysEnv.LastEnteredSchemeData.LogisticUnitBatchLotNumber))
+                    {
+                        schemeData.LogisticUnitBatchLotNumber = SysEnv.LastEnteredSchemeData.LogisticUnitBatchLotNumber;
+                        this.txtLotNo.Text = schemeData.LogisticUnitBatchLotNumber;
+                    }
+                    else
+                    {
+                        this.txtLotNo.Text = schemeData.LogisticUnitBatchLotNumber;
+                    }
+                }
+
+                if (prodInfo.Scheme.IsVariantTracked)
+                {
+                    if (string.IsNullOrEmpty(schemeData.VariantCode) &&
+                        !string.IsNullOrEmpty(SysEnv.LastEnteredSchemeData.VariantCode))
+                    {
+                        schemeData.VariantNumber = SysEnv.LastEnteredSchemeData.VariantNumber;
+                        schemeData.VariantDescription = SysEnv.LastEnteredSchemeData.VariantDescription;
+                        schemeData.VariantCode = SysEnv.LastEnteredSchemeData.VariantCode;
+                        this.txtLotNo.Text = schemeData.VariantCode;
+                    }
+                    else
+                    {
+                        this.txtVariantCode.Text = schemeData.VariantCode;
+                    }
                 }
             }
 
-            //////////////////////////////////////////////////////////////////////////
             void AssignAltQuantityToControls()
             {
                 var prodInfo = this.ActDetail.ActItem.ProdInfo;
@@ -1471,7 +1453,6 @@ namespace dMobile.View.Activity
                 this.txtAltQty.Text = this.ActDetailEdit.AltQuantity.ToString(CultureInfo.CurrentCulture);
             }
 
-            //////////////////////////////////////////////////////////////////////////
             void AssignBaseQuantityToControls()
             {
                 var prodInfo = this.ActDetail.ActItem.ProdInfo;
@@ -1525,7 +1506,6 @@ namespace dMobile.View.Activity
                 this.txtBaseQty.Text = this.ActDetailEdit.BaseQuantity.ToString(CultureInfo.CurrentCulture);
             }
 
-            //////////////////////////////////////////////////////////////////////////
             void AssignWeightQuantityToControls()
             {
                 var prodInfo = this.ActDetail.ActItem.ProdInfo;
@@ -1569,10 +1549,6 @@ namespace dMobile.View.Activity
             }
         }
 
-        /// <summary>
-        ///     Set the starting focus.
-        /// </summary>
-        /// <returns><see cref="Task" /> Task operation.</returns>
         private async Task SetStartingFocus()
         {
             await Device.InvokeOnMainThreadAsync(() =>
@@ -1586,10 +1562,6 @@ namespace dMobile.View.Activity
             });
         }
 
-        /// <summary>
-        ///     Print product labels.
-        /// </summary>
-        /// <returns><see cref="Task" /> Task operation.</returns>
         private async Task PrintProductLabels()
         {
             GC.Collect();
@@ -1643,14 +1615,6 @@ namespace dMobile.View.Activity
             }
         }
 
-        /// <summary>
-        ///     Bar code scan event handler.
-        /// </summary>
-        /// <param name="sender"><see cref="object" /> Object that generated the event.</param>
-        /// <param name="scanArgs">
-        ///     <see cref="BarCodeScannerEventArgs" /> Sender bar code scanner
-        ///     event arguments.
-        /// </param>
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
             var message = string.Empty;
@@ -1723,9 +1687,6 @@ namespace dMobile.View.Activity
             }
         }
 
-        /// <summary>
-        ///     Check the accepted days for production date and best before date.
-        /// </summary>
         private void CheckProductionAcceptedDays()
         {
             if (this.ActSubType == SysCommon.ActSubTypes.Receiving && this.ActDetail.ActItem.ProdInfo.ProductAcceptDays > 0)
@@ -1744,9 +1705,6 @@ namespace dMobile.View.Activity
             }
         }
 
-        /// <summary>
-        ///     Check the accepted days for best before date.
-        /// </summary>
         private void CheckBestBeforeAcceptedDays()
         {
             if (this.ActSubType == SysCommon.ActSubTypes.Receiving && this.ActDetail.ActItem.ProdInfo.ProductAcceptDays > 0)
@@ -1765,11 +1723,6 @@ namespace dMobile.View.Activity
             }
         }
 
-        /// <summary>
-        ///     Button save click event handler.
-        /// </summary>
-        /// <param name="sender"><see cref="object" /> Sender object.</param>
-        /// <param name="e"><see cref="EventArgs" /> Event arguments.</param>
         private async void BtnSave_Clicked(object sender, EventArgs e)
         {
             if (await this.SaveChanges())
@@ -1821,11 +1774,6 @@ namespace dMobile.View.Activity
             }
         }
 
-        /// <summary>
-        ///     Button cancel click handler.
-        /// </summary>
-        /// <param name="sender"><see cref="object" /> Sender object.</param>
-        /// <param name="e"><see cref="EventArgs" /> Event arguments.</param>
         private async void BtnCancel_Clicked(object sender, EventArgs e)
         {
             if (await this.CancelChanges())
@@ -1836,12 +1784,6 @@ namespace dMobile.View.Activity
             }
         }
 
-        /// <summary>
-        ///     Text box alt quantity changed handler.
-        /// </summary>
-        /// <param name="sender"><see cref="object" /> Sender object.</param>
-        /// <param name="e"><see cref="TextChangedEventArgs" /> Event arguments.</param>
-        /// <remarks>Catch weight or catch ask is checked upon save validation.</remarks>
         private void TxtAltQty_TextChanged(object sender, TextChangedEventArgs e)
         {
             var prodInfo = this.ActDetail.ActItem.ProdInfo;
@@ -1895,11 +1837,6 @@ namespace dMobile.View.Activity
             }
         }
 
-        /// <summary>
-        ///     Text box base quantity changed handler.
-        /// </summary>
-        /// <param name="sender"><see cref="object" /> Sender object.</param>
-        /// <param name="e"><see cref="TextChangedEventArgs" /> Event arguments.</param>
         private void TxtBaseQty_TextChanged(object sender, TextChangedEventArgs e)
         {
             var prodInfo = this.ActDetail.ActItem.ProdInfo;

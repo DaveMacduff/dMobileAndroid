@@ -66,6 +66,11 @@ namespace dMobile.Bedrock
         private static bool isEnableAllModuleBypassLicense;
 
         /// <summary>
+        /// Contains the product scheme data for keeping last used data entered.
+        /// </summary>
+        private static ProductSchemeData lastEnteredSchemeData = new ProductSchemeData();
+
+        /// <summary>
         /// Prevents a default instance of the <see cref="SysEnvironment"/>
         /// class from being created.
         /// </summary>
@@ -74,6 +79,16 @@ namespace dMobile.Bedrock
         /// </remarks>
         private SysEnvironment()
         {
+        }
+
+        /// <summary>
+        /// Gets or sets the last entered scheme data.
+        /// </summary>
+        public ProductSchemeData LastEnteredSchemeData
+        {
+            get => lastEnteredSchemeData;
+
+            set => lastEnteredSchemeData = value;
         }
 
         /// <summary>

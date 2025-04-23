@@ -38,29 +38,20 @@ namespace dMobile.View.Activity
             this.InitializeComponent();
 
             this.IsIndicatorRunning = false;
-            this.SysEnv = SysEnvironment.GetInstance();
-            this.LocMap = LocationMap.GetInstance();
-            this.Scanner = ScannerEngine.GetInstance().Scanner;
-            this.ActSubType = SysCommon.ActSubTypes.InventoryInquiry;
-
-            // Initialize activity header instance.
             this.Activity = ActivityFacade.GetActivity(this.ActSubType);
             this.Activity.SkidInfo ??= new SysSkidInfo();
-
-            // Initialize activity item instance.
             this.ActItem = ActItemFacade.GetActItem(this.Activity, SysCommon.ActSubTypes.InventoryInquiry);
             this.ActItem.ProdInfo = new ProductInfo();
-            this.ActItem.LocMap = this.LocMap.CurrLocMap;
             this.ActItem.SysEnv = this.SysEnv;
+            this.ActItem.LocMap = this.LocMap.CurrLocMap;
+            if (this.ActItem.LocMap.LocMapRefno <= 0)
+            {
+                this.ActItem.LocMap.WhsLocMapRefno = this.LocMap.LoginWhsLocMapRefno;
+            }
 
-            this.InitializeBarCodeModifierControl();
-
-            // Set control texts.
-            this.cmdSelectProduct.Text = "Select Product";
-            this.cmdLocation.Text = "Set Location";
-            this.cmdDisplayDefault.Text = "Display Defaults";
-            this.cmdView.Text = "View";
+            this.ParseAndSeedBarCodeModifier();
             this.Title = this.GetControlDescription();
+            this.cmdLocation.Text = LocationMapTasks.GetCurrentReadableLocation();
             this.IsFirstAppearance = true;
         }
 
@@ -72,92 +63,67 @@ namespace dMobile.View.Activity
         {
             this.InitializeComponent();
 
-            // Initialize
             this.IsIndicatorRunning = false;
-            this.SysEnv = SysEnvironment.GetInstance();
-            this.LocMap = LocationMap.GetInstance();
-            this.Scanner = ScannerEngine.GetInstance().Scanner;
-            this.ActSubType = SysCommon.ActSubTypes.InventoryInquiry;
-
-            // Initialize activity header instance.
             this.Activity = ActivityFacade.GetActivity(this.ActSubType);
             this.Activity.SkidInfo ??= new SysSkidInfo();
-
-            // Initialize activity item instance.
             this.ActItem = ActItemFacade.GetActItem(this.Activity, SysCommon.ActSubTypes.InventoryInquiry);
             this.ActItem.ProdInfo = prodInfo;
-            this.ActItem.LocMap = this.LocMap.CurrLocMap;
             this.ActItem.SysEnv = this.SysEnv;
+            this.ActItem.LocMap = this.LocMap.CurrLocMap;
+            if (this.ActItem.LocMap.LocMapRefno <= 0)
+            {
+                this.ActItem.LocMap.WhsLocMapRefno = this.LocMap.LoginWhsLocMapRefno;
+            }
 
-            this.InitializeBarCodeModifierControl();
-
-            // Set control texts.
-            this.cmdSelectProduct.Text = "Select Product";
-            this.cmdLocation.Text = "Set Location";
-            this.cmdDisplayDefault.Text = "Display Defaults";
-            this.cmdView.Text = "View";
-            this.cmdSelectProduct.Text = prodInfo.Code;
+            this.ParseAndSeedBarCodeModifier();
             this.Title = this.GetControlDescription();
-
             this.cmdLocation.Text = LocationMapTasks.GetCurrentReadableLocation();
-            this.cmdLocation.IsEnabled = true;
-            this.cmdSelectProduct.IsEnabled = true;
-            this.cmdDisplayDefault.IsEnabled = true;
-            this.BarCodeModifier1Picker.IsEnabled = true;
-            this.IsFirstAppearance = true;
+            this.cmdSelectProduct.Text = prodInfo.Code;
         }
 
         private BarCodeParse BarParse { get; set; }
 
-        private BarCodeScanner Scanner { get; set; }
+        private BarCodeScanner Scanner { get; set; } = ScannerEngine.GetInstance().Scanner;
 
         private ActItem ActItem { get; set; }
 
-        private LocationMap LocMap { get; set; }
+        private LocationMap LocMap { get; set; } = LocationMap.GetInstance();
 
-        private SysEnvironment SysEnv { get; set; }
-
-        private bool IsBarCodeHandlerRegistered { get; set; }
+        private SysEnvironment SysEnv { get; set; } = SysEnvironment.GetInstance();
 
         private Activity Activity { get; set; }
 
-        private SysCommon.ActSubTypes ActSubType { get; set; }
+        private SysCommon.ActSubTypes ActSubType { get; set; } = SysCommon.ActSubTypes.InventoryInquiry;
 
         private List<object> ListItems { get; set; } = new List<object>();
 
         private ObservableCollection<object> DataGridMainExtraInfoItems { get; set; } =
             new ObservableCollection<object>();
 
-        private bool IsFirstAppearance { get; set; }
+        private bool IsFirstAppearance { get; set; } = true;
 
         /// <summary>
-        /// Registers the bar code scan event handler and enables the scanner.
+        ///     Unregister the bar code scan event handler and disable the scanner.
         /// </summary>
-        /// <returns><see cref="Task"/> Task operation.</returns>
-        public async Task ScannerEnable()
+        /// <returns><see cref="Task" /> Task operation.</returns>
+        public async Task ScannerDisable()
         {
-            if (!this.IsBarCodeHandlerRegistered &&
-                this.Scanner != null)
-            {
-                await this.Scanner.EnableScanning();
-                this.Scanner.OnBarCodeScan += new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
-                this.IsBarCodeHandlerRegistered = true;
-            }
+            this.Scanner.ClearBarCodeScanEventHandlers();
+            await this.Scanner.DisableScanning();
         }
 
         /// <summary>
-        /// Unregister the bar code scan event handler and disable the scanner.
+        ///     Registers the bar code scan event handler and enables the scanner.
         /// </summary>
-        /// <returns><see cref="Task"/> Task operation.</returns>
-        public async Task ScannerDisable()
+        /// <returns><see cref="Task" /> Task operation.</returns>
+        public async Task ScannerEnable()
         {
-            if (this.Scanner != null)
+            if (!this.Scanner.IsBarCodeScanEventHandlerAdded())
             {
-                this.Scanner.OnBarCodeScan -= new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
-                await this.Scanner.DisableScanning();
+                this.Scanner.OnBarCodeScan += this.BarCodeHandler;
             }
 
-            this.IsBarCodeHandlerRegistered = false;
+            await this.Scanner.EnableScanning();
         }
 
         /// <summary>
@@ -189,20 +155,7 @@ namespace dMobile.View.Activity
         /// <returns><see cref="bool"/> True if is ready to save, else false.</returns>
         public async Task<bool> IsReadyToSave()
         {
-            var isReadyToSave = true;
-
-            if (this.SysEnv.SysSettings.IsDisconnectedMode)
-            {
-                isReadyToSave = false;
-
-                await Device.InvokeOnMainThreadAsync(
-                    async () => await this.DisplayAlert(
-                        "Inventory Inquiry",
-                        "Quantity inquiry is not supported in disconnected mode.",
-                        "OK"));
-            }
-
-            return isReadyToSave;
+            return true;
         }
 
         /// <summary>
@@ -221,30 +174,7 @@ namespace dMobile.View.Activity
         /// <returns><see cref="bool"/> True for success, else false.</returns>
         public async Task<bool> SaveChanges()
         {
-            try
-            {
-                await this.ScannerDisable();
-                var form = new FormDialogContainer(
-                    EDialogTypes.ActivityInventoryInquirySummary,
-                    this.ActItem,
-                    this.ActSubType);
-                _ = await form.DisplayControl.ShowDialog();
-            }
-            catch (Exception ex)
-            {
-                await Device.InvokeOnMainThreadAsync(
-                    async () =>
-                    {
-                        var errRpt = new FormErrorReport(this.ActSubType, ex);
-                        _ = await errRpt.ShowDialog();
-                    });
-            }
-            finally
-            {
-                await this.ScannerEnable();
-            }
-
-            return false;
+            return true;
         }
 
         /// <summary>
@@ -300,23 +230,20 @@ namespace dMobile.View.Activity
                 if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
                 {
                     this.LocMap.CurrLocMap = this.LocMap.ChosenLocMap.Clone();
-
                     if (this.LocMap.CurrLocMap.WhsLocMapRefno <= 0)
                     {
                         this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
                             this.LocMap.LoginWhsLocMapRefno);
                     }
-
-                    this.cmdLocation.Text = LocationMapTasks.GetCurrentReadableLocation();
                 }
                 else
                 {
                     this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
                         this.LocMap.LoginWhsLocMapRefno);
-                    this.cmdLocation.Text = LocationMapTasks.GetCurrentReadableLocation();
                 }
 
                 this.ActItem.LocMap = this.LocMap.CurrLocMap;
+                this.cmdLocation.Text = LocationMapTasks.GetCurrentReadableLocation();
             }
             catch (MessageOnlyException msgEx)
             {
@@ -483,120 +410,123 @@ namespace dMobile.View.Activity
 
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
-            try
+            await Task.Run(
+            async () =>
             {
-                await this.ScannerDisable();
-                if (scanArgs == null)
+                try
                 {
-                    const string msg = "Scanner event fired but no data was received.";
+                    await this.ScannerDisable();
+                    if (scanArgs == null)
+                    {
+                        const string msg = "Scanner event fired but no data was received.";
+                        await Device.InvokeOnMainThreadAsync(
+                            async () => await Application.Current.MainPage.DisplayAlert(
+                                this.ActItem.GetControlDescription(),
+                                msg,
+                                "OK"));
+                        throw new TaskCanceledException();
+                    }
+
+                    this.BarParse = scanArgs.ParseInfo;
+
+                    if (!string.IsNullOrEmpty(this.BarParse.ActFkRefno))
+                    {
+                        throw new Exception("Scanning an activity reference # is not supported here.");
+                    }
+                    else if (!string.IsNullOrEmpty(this.BarParse.ActItemFkRefno))
+                    {
+                        throw new Exception("Scanning an activity item reference # is not supported here.");
+                    }
+                    else if (!string.IsNullOrEmpty(this.BarParse.ProductIdentifier))
+                    {
+                        var prodUnitRefno = await SysShared.IdentifyProductScanned(this.ActSubType, this.BarParse);
+                        if (prodUnitRefno != 0)
+                        {
+                            this.ActItem.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
+
+                            ////// <issue="13609" author="RD" date="2016/02/22"/>
+                            ////SysShared.AssertSuppressedErrorsAgainstScheme(
+                            ////    this.ActItem.ProdInfo,
+                            ////    this.BarParse);
+                            _ = await Device.InvokeOnMainThreadAsync(
+                                () => this.cmdSelectProduct.Text = this.ActItem.ProdInfo.Code);
+                        }
+                        else
+                        {
+                            _ = await Device.InvokeOnMainThreadAsync(
+                                () => this.cmdSelectProduct.Text = "Select Product");
+                        }
+                    }
+                    else if (!string.IsNullOrEmpty(this.BarParse.Sscc18))
+                    {
+                        throw new Exception(
+                            "Scanning a shipping container bar code is not supported here.");
+                    }
+                    else if (!string.IsNullOrEmpty(this.BarParse.LocationIdentifier))
+                    {
+                        this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
+                            await LocationMapTasks.GetLocMapRefnoFromBarCodeGlobalLocIdentifier(
+                                this.BarParse.LocationIdentifier));
+                        if (this.LocMap.CurrLocMap.WhsLocMapRefno != 0)
+                        {
+                            _ = await Device.InvokeOnMainThreadAsync(
+                                () => this.cmdLocation.Text = LocationMapTasks.GetCurrentReadableLocation());
+                        }
+                        else
+                        {
+                            _ = await Device.InvokeOnMainThreadAsync(
+                                () => this.cmdLocation.Text = "Set Location");
+                        }
+                    }
+                    else
+                    {
+                        throw new Exception("Scanned bar code type is not supported here.");
+                    }
+                }
+                catch (TaskCanceledException)
+                {
+                    // Do nothing, task cancelled by user
+                }
+                catch (Exception ex)
+                {
                     await Device.InvokeOnMainThreadAsync(
-                        async () => await Application.Current.MainPage.DisplayAlert(
-                            this.ActItem.GetControlDescription(),
-                            msg,
-                            "OK"));
-                    throw new TaskCanceledException();
+                        async () =>
+                        {
+                            var errRpt = new FormErrorReport(this.ActSubType, ex);
+                            _ = await errRpt.ShowDialog();
+                        });
                 }
-
-                this.BarParse = scanArgs.ParseInfo;
-
-                if (!string.IsNullOrEmpty(this.BarParse.ActFkRefno))
+                finally
                 {
-                    throw new Exception("Scanning an activity reference # is not supported here.");
+                    await this.ScannerEnable();
                 }
-                else if (!string.IsNullOrEmpty(this.BarParse.ActItemFkRefno))
-                {
-                    throw new Exception("Scanning an activity item reference # is not supported here.");
-                }
-                else if (!string.IsNullOrEmpty(this.BarParse.ProductIdentifier))
-                {
-                    var prodUnitRefno = await SysShared.IdentifyProductScanned(
-                        this.ActSubType,
-                        this.BarParse);
-
-                    if (prodUnitRefno != 0)
-                    {
-                        var tempProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
-                        this.ActItem.ProdInfo = tempProdInfo;
-
-                        // <issue="13609" author="RD" date="2016/02/22"/>
-                        SysShared.AssertSuppressedErrorsAgainstScheme(
-                            this.ActItem.ProdInfo,
-                            this.BarParse);
-                        _ = await Device.InvokeOnMainThreadAsync(
-                            () => this.cmdSelectProduct.Text = this.ActItem.ProdInfo.Code);
-                    }
-                    else
-                    {
-                        _ = await Device.InvokeOnMainThreadAsync(
-                            () => this.cmdSelectProduct.Text = "Select Product");
-                    }
-                }
-                else if (!string.IsNullOrEmpty(this.BarParse.Sscc18))
-                {
-                    throw new Exception(
-                        "Scanning a shipping container bar code is not supported here.");
-                }
-                else if (!string.IsNullOrEmpty(this.BarParse.LocationIdentifier))
-                {
-                    this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
-                        await LocationMapTasks.GetLocMapRefnoFromBarCodeGlobalLocIdentifier(
-                            this.BarParse.LocationIdentifier));
-                    if (this.LocMap.CurrLocMap.WhsLocMapRefno != 0)
-                    {
-                        _ = await Device.InvokeOnMainThreadAsync(
-                            () => this.cmdLocation.Text = LocationMapTasks.GetCurrentReadableLocation());
-                    }
-                    else
-                    {
-                        _ = await Device.InvokeOnMainThreadAsync(
-                            () => this.cmdLocation.Text = "Set Location");
-                    }
-                }
-                else
-                {
-                    throw new Exception("Scanned bar code type is not supported here.");
-                }
-            }
-            catch (TaskCanceledException)
-            {
-                // Do nothing, task cancelled by user
-            }
-            catch (Exception ex)
-            {
-                await Device.InvokeOnMainThreadAsync(
-                    async () =>
-                    {
-                        var errRpt = new FormErrorReport(this.ActSubType, ex);
-                        _ = await errRpt.ShowDialog();
-                    });
-            }
-            finally
-            {
-                await this.ScannerEnable();
-            }
+            });
         }
 
-        private void InitializeBarCodeModifierControl()
+        private void ParseAndSeedBarCodeModifier()
         {
+            this.BarCodeModifier1Picker.IsVisible = false;
+            this.BarCodeModifier1Picker.IsEnabled = false;
             this.BarCodeModifier1Picker.Items.Clear();
-            if (this.SysEnv.SysSettings.IsProductUnitBarCodeModifier1)
+            if (!this.SysEnv.SysSettings.IsProductUnitBarCodeModifier1)
             {
-                this.BarCodeModifier1Picker.Items.Add(string.Empty);
-                var modifiers = this.SysEnv.SysSettings.ProductUnitBarCodeModifier1Codes.Split(',');
-
-                foreach (var item in modifiers)
-                {
-                    this.BarCodeModifier1Picker.Items.Add(item);
-                }
-            }
-            else
-            {
-                this.BarCodeModifier1Picker.IsVisible = false;
-                this.BarCodeModifier1Picker.IsEnabled = false;
+                return;
             }
 
-            this.BarCodeModifier1Picker.SelectedItem =
-                Convert.ToString(this.SysEnv.CurrentBarCodeModifier1);
+            this.BarCodeModifier1Picker.Items.Add(string.Empty);
+            var modifiers = this.SysEnv.SysSettings.ProductUnitBarCodeModifier1Codes.Split(',');
+            foreach (var item in modifiers)
+            {
+                this.BarCodeModifier1Picker.Items.Add(item);
+            }
+
+            if (this.BarCodeModifier1Picker.Items.Count > 0)
+            {
+                this.BarCodeModifier1Picker.IsVisible = true;
+                this.BarCodeModifier1Picker.IsEnabled = true;
+            }
+
+            this.BarCodeModifier1Picker.SelectedItem = this.SysEnv.CurrentBarCodeModifier1;
         }
 
         private void DesignDataGridProductOnly()
@@ -893,13 +823,11 @@ namespace dMobile.View.Activity
 
         private string GetDataViewProductOnlyPickingQuery()
         {
-            var sql = string.Empty;
-
-            if (this.LocMap.CurrLocMap.IsSlotTracked &&
-                this.LocMap.CurrLocMap.SlotLocMapRefno > 0)
+            var query = string.Empty;
+            if (this.LocMap.CurrLocMap.SlotLocMapRefno > 0)
             {
-                // find all the products for the selected slot location
-                sql = "SELECT tProduct.ProductCode," +
+                // if slot selected show all products for the slot location.
+                query = "SELECT tProduct.ProductCode," +
                       "tProduct.ProductDescription," +
                       "tProduct.ProductBrandDescription " +
                       "FROM tProductLocationMapType " +
@@ -909,106 +837,190 @@ namespace dMobile.View.Activity
                       " AND tProductLocationMapType.ProductLocationMapTypeEnum = " +
                       (int)SysCommon.ProdLocMapTypes.Picking;
             }
-            else if (this.LocMap.CurrLocMap.IsSlotTracked &&
-                     this.LocMap.CurrLocMap.SlotLocMapRefno <= 0)
+            else if (this.LocMap.CurrLocMap.IsSectionTracked && !this.LocMap.CurrLocMap.IsSlotTracked && this.LocMap.CurrLocMap.SectLocMapRefno > 0)
             {
-                // find all the slots for the selected section
+                // if section selected and not slot tracked show all products for the section location.
+                query = "SELECT tProduct.ProductCode, " +
+                      "tProduct.ProductDescription," +
+                      "tProduct.ProductBrandDescription " +
+                      "FROM tProductLocationMapType " +
+                      "INNER JOIN tProduct ON tProduct.ProductRefno = tProductLocationMapType.ProductRefno " +
+                      "WHERE tProductLocationMapType.LocationMapRefno = " + this.LocMap.CurrLocMapRefno +
+                      " AND tProductLocationMapType.ProductLocationMapTypeEnum = " + (int)SysCommon.ProdLocMapTypes.Picking;
+            }
+            else if (this.LocMap.CurrLocMap.IsSlotTracked && this.LocMap.CurrLocMap.SectLocMapRefno > 0)
+            {
+                // if section selected but is slot tracked select all slots for the section first before showing products.
                 var sub = "(SELECT tLocationMapSlot.LocationMapRefno " +
                           "FROM tLocationMapSlot " +
-                          "WHERE (tLocationMapSlot.SectionLocationMapRefno = " +
-                          this.LocMap.CurrLocMapRefno +
+                          "WHERE (tLocationMapSlot.SectionLocationMapRefno = " + this.LocMap.CurrLocMap.SectLocMapRefno +
                           "))";
 
-                // find all the products for the selected section slot locations
-                sql = "SELECT tProduct.ProductCode," +
+                query = "SELECT tProduct.ProductCode," +
                       "tProduct.ProductDescription," +
                       "tProduct.ProductBrandDescription " +
                       "FROM tProductLocationMapType " +
                       "INNER JOIN tProduct ON tProduct.ProductRefno = tProductLocationMapType.ProductRefno " +
-                      "WHERE (tProductLocationMapType.LocationMapRefno IN " +
-                      sub +
-                      ") " +
-                      "AND (tProductLocationMapType.ProductLocationMapTypeEnum = " +
-                      (int)SysCommon.ProdLocMapTypes.Picking +
+                      "WHERE (tProductLocationMapType.LocationMapRefno IN " + sub + ") " +
+                      "AND (tProductLocationMapType.ProductLocationMapTypeEnum = " + (int)SysCommon.ProdLocMapTypes.Picking +
                       ")";
             }
-            else if (this.LocMap.CurrLocMap.IsSectionTracked &&
-                     !this.LocMap.CurrLocMap.IsSlotTracked &&
-                     this.LocMap.CurrLocMap.SectLocMapRefno > 0)
+            else if (this.LocMap.CurrLocMap.IsSlotTracked && this.LocMap.CurrLocMap.WhsLocMapRefno > 0)
             {
-                // find all the products for the selected slot location
-                sql = "SELECT tProduct.ProductCode, " +
+                // if warehouse selected and slot tracked select all slots for that warehouse first before showing products.
+                var sub = "(SELECT tLocationMapSlot.LocationMapRefno " +
+                          "FROM tLocationMapSlot " +
+                          "WHERE (tLocationMapSlot.WarehouseLocationMapRefno = " + this.LocMap.CurrLocMap.WhsLocMapRefno +
+                          "))";
+
+                query = "SELECT tProduct.ProductCode," +
                       "tProduct.ProductDescription," +
                       "tProduct.ProductBrandDescription " +
                       "FROM tProductLocationMapType " +
                       "INNER JOIN tProduct ON tProduct.ProductRefno = tProductLocationMapType.ProductRefno " +
-                      "WHERE tProductLocationMapType.LocationMapRefno = " +
-                      this.LocMap.CurrLocMapRefno +
-                      " AND tProductLocationMapType.ProductLocationMapTypeEnum = " +
-                      (int)SysCommon.ProdLocMapTypes.Picking;
+                      "WHERE (tProductLocationMapType.LocationMapRefno IN " + sub + ") " +
+                      "AND (tProductLocationMapType.ProductLocationMapTypeEnum = " + (int)SysCommon.ProdLocMapTypes.Picking +
+                      ")";
+            }
+            else if (this.LocMap.CurrLocMap.IsSectionTracked && this.LocMap.CurrLocMap.WhsLocMapRefno > 0)
+            {
+                // if warehouse selected and section tracked select all sections for that warehouse first before showing products.
+                var sub = "(SELECT tLocationMapSection.LocationMapRefno " +
+                          "FROM tLocationMapSection " +
+                          "WHERE (tLocationMapSection.WarehouseLocationMapRefno = " + this.LocMap.CurrLocMap.WhsLocMapRefno +
+                          "))";
+
+                query = "SELECT tProduct.ProductCode," +
+                      "tProduct.ProductDescription," +
+                      "tProduct.ProductBrandDescription " +
+                      "FROM tProductLocationMapType " +
+                      "INNER JOIN tProduct ON tProduct.ProductRefno = tProductLocationMapType.ProductRefno " +
+                      "WHERE (tProductLocationMapType.LocationMapRefno IN " + sub + ") " +
+                      "AND (tProductLocationMapType.ProductLocationMapTypeEnum = " + (int)SysCommon.ProdLocMapTypes.Picking +
+                      ")";
+            }
+            else if (this.LocMap.CurrLocMap.WhsLocMapRefno > 0)
+            {
+                // if warehouse selected and not section tracked show all products for the warehouse.
+                var sub = "(SELECT tLocationMapWarehouse.LocationMapRefno " +
+                          "FROM tLocationMapWarehouse " +
+                          "WHERE (tLocationMapWarehouse.LocationMapRefno = " + this.LocMap.CurrLocMap.WhsLocMapRefno +
+                          "))";
+
+                query = "SELECT tProduct.ProductCode," +
+                      "tProduct.ProductDescription," +
+                      "tProduct.ProductBrandDescription " +
+                      "FROM tProductLocationMapType " +
+                      "INNER JOIN tProduct ON tProduct.ProductRefno = tProductLocationMapType.ProductRefno " +
+                      "WHERE (tProductLocationMapType.LocationMapRefno IN " + sub + ") " +
+                      "AND (tProductLocationMapType.ProductLocationMapTypeEnum = " + (int)SysCommon.ProdLocMapTypes.Picking +
+                      ")";
             }
 
             if (this.ActItem.ProdInfo.Refno > 0)
             {
-                sql += " AND tProductLocationMapType.ProductRefno = " +
+                query += " AND tProductLocationMapType.ProductRefno = " +
                        this.ActItem.ProdInfo.Refno;
             }
 
-            return sql;
+            return query;
         }
 
         private string GetDataViewProductOnlyReceivingQuery()
         {
             var query = string.Empty;
 
-            if (this.LocMap.CurrLocMap.IsSlotTracked &&
-                this.LocMap.CurrLocMap.SlotLocMapRefno > 0)
+            if (this.LocMap.CurrLocMap.SlotLocMapRefno > 0)
             {
-                // find all the products for the selected slot location
+                // if slot selected show all products for the slot location.
                 query = "SELECT tProduct.ProductCode," +
                       "tProduct.ProductDescription," +
                       "tProduct.ProductBrandDescription " +
                       "FROM tProductLocationMapType " +
                       "INNER JOIN tProduct ON tProduct.ProductRefno = tProductLocationMapType.ProductRefno " +
-                      "WHERE tProductLocationMapType.LocationMapRefno = " + this.LocMap.CurrLocMapRefno +
+                      "WHERE tProductLocationMapType.LocationMapRefno = " +
+                      this.LocMap.CurrLocMapRefno +
                       " AND tProductLocationMapType.ProductLocationMapTypeEnum = " +
                       (int)SysCommon.ProdLocMapTypes.Receiving;
             }
-            else if (this.LocMap.CurrLocMap.IsSlotTracked &&
-                     this.LocMap.CurrLocMap.SlotLocMapRefno <= 0)
+            else if (this.LocMap.CurrLocMap.IsSectionTracked && !this.LocMap.CurrLocMap.IsSlotTracked && this.LocMap.CurrLocMap.SectLocMapRefno > 0)
             {
-                // find all the slots for the selected section
+                // if section selected and not slot tracked show all products for the section location.
+                query = "SELECT tProduct.ProductCode, " +
+                      "tProduct.ProductDescription," +
+                      "tProduct.ProductBrandDescription " +
+                      "FROM tProductLocationMapType " +
+                      "INNER JOIN tProduct ON tProduct.ProductRefno = tProductLocationMapType.ProductRefno " +
+                      "WHERE tProductLocationMapType.LocationMapRefno = " + this.LocMap.CurrLocMapRefno +
+                      " AND tProductLocationMapType.ProductLocationMapTypeEnum = " + (int)SysCommon.ProdLocMapTypes.Receiving;
+            }
+            else if (this.LocMap.CurrLocMap.IsSlotTracked && this.LocMap.CurrLocMap.SectLocMapRefno > 0)
+            {
+                // if section selected but is slot tracked select all slots for the section first before showing products.
                 var sub = "(SELECT tLocationMapSlot.LocationMapRefno " +
                           "FROM tLocationMapSlot " +
-                          "WHERE (tLocationMapSlot.SectionLocationMapRefno = " + this.LocMap.CurrLocMapRefno +
+                          "WHERE (tLocationMapSlot.SectionLocationMapRefno = " + this.LocMap.CurrLocMap.SectLocMapRefno +
                           "))";
 
-                // find all the products for the selected section slot locations
                 query = "SELECT tProduct.ProductCode," +
                       "tProduct.ProductDescription," +
                       "tProduct.ProductBrandDescription " +
                       "FROM tProductLocationMapType " +
                       "INNER JOIN tProduct ON tProduct.ProductRefno = tProductLocationMapType.ProductRefno " +
-                      "WHERE (tProductLocationMapType.LocationMapRefno IN " +
-                      sub +
-                      ") " +
-                      "AND (tProductLocationMapType.ProductLocationMapTypeEnum = " +
-                      (int)SysCommon.ProdLocMapTypes.Receiving +
+                      "WHERE (tProductLocationMapType.LocationMapRefno IN " + sub + ") " +
+                      "AND (tProductLocationMapType.ProductLocationMapTypeEnum = " + (int)SysCommon.ProdLocMapTypes.Receiving +
                       ")";
             }
-            else if (this.LocMap.CurrLocMap.IsSectionTracked &&
-                     !this.LocMap.CurrLocMap.IsSlotTracked &&
-                     this.LocMap.CurrLocMap.SectLocMapRefno > 0)
+            else if (this.LocMap.CurrLocMap.IsSlotTracked && this.LocMap.CurrLocMap.WhsLocMapRefno > 0)
             {
-                // find all the products for the selected slot location
+                // if warehouse selected and slot tracked select all slots for that warehouse first before showing products.
+                var sub = "(SELECT tLocationMapSlot.LocationMapRefno " +
+                          "FROM tLocationMapSlot " +
+                          "WHERE (tLocationMapSlot.WarehouseLocationMapRefno = " + this.LocMap.CurrLocMap.WhsLocMapRefno +
+                          "))";
+
                 query = "SELECT tProduct.ProductCode," +
                       "tProduct.ProductDescription," +
                       "tProduct.ProductBrandDescription " +
                       "FROM tProductLocationMapType " +
                       "INNER JOIN tProduct ON tProduct.ProductRefno = tProductLocationMapType.ProductRefno " +
-                      "WHERE tProductLocationMapType.LocationMapRefno = " + this.LocMap.CurrLocMapRefno +
-                      " AND tProductLocationMapType.ProductLocationMapTypeEnum = " +
-                      (int)SysCommon.ProdLocMapTypes.Receiving;
+                      "WHERE (tProductLocationMapType.LocationMapRefno IN " + sub + ") " +
+                      "AND (tProductLocationMapType.ProductLocationMapTypeEnum = " + (int)SysCommon.ProdLocMapTypes.Receiving +
+                      ")";
+            }
+            else if (this.LocMap.CurrLocMap.IsSectionTracked && this.LocMap.CurrLocMap.WhsLocMapRefno > 0)
+            {
+                // if warehouse selected and section tracked select all sections for that warehouse first before showing products.
+                var sub = "(SELECT tLocationMapSection.LocationMapRefno " +
+                          "FROM tLocationMapSection " +
+                          "WHERE (tLocationMapSection.WarehouseLocationMapRefno = " + this.LocMap.CurrLocMap.WhsLocMapRefno +
+                          "))";
+
+                query = "SELECT tProduct.ProductCode," +
+                      "tProduct.ProductDescription," +
+                      "tProduct.ProductBrandDescription " +
+                      "FROM tProductLocationMapType " +
+                      "INNER JOIN tProduct ON tProduct.ProductRefno = tProductLocationMapType.ProductRefno " +
+                      "WHERE (tProductLocationMapType.LocationMapRefno IN " + sub + ") " +
+                      "AND (tProductLocationMapType.ProductLocationMapTypeEnum = " + (int)SysCommon.ProdLocMapTypes.Receiving +
+                      ")";
+            }
+            else if (this.LocMap.CurrLocMap.WhsLocMapRefno > 0)
+            {
+                // if warehouse selected and not section tracked show all products for the warehouse.
+                var sub = "(SELECT tLocationMapWarehouse.LocationMapRefno " +
+                          "FROM tLocationMapWarehouse " +
+                          "WHERE (tLocationMapWarehouse.LocationMapRefno = " + this.LocMap.CurrLocMap.WhsLocMapRefno +
+                          "))";
+
+                query = "SELECT tProduct.ProductCode," +
+                      "tProduct.ProductDescription," +
+                      "tProduct.ProductBrandDescription " +
+                      "FROM tProductLocationMapType " +
+                      "INNER JOIN tProduct ON tProduct.ProductRefno = tProductLocationMapType.ProductRefno " +
+                      "WHERE (tProductLocationMapType.LocationMapRefno IN " + sub + ") " +
+                      "AND (tProductLocationMapType.ProductLocationMapTypeEnum = " + (int)SysCommon.ProdLocMapTypes.Receiving +
+                      ")";
             }
 
             if (this.ActItem.ProdInfo.Refno > 0)
@@ -1110,7 +1122,7 @@ namespace dMobile.View.Activity
 
         private async void CmdDisplayDefault_Click(object sender, EventArgs e)
         {
-            await this.DisplayLocationDefaults();
+            await DisplayLocationDefaults();
         }
 
         private async Task DisplayLocationDefaults()
@@ -1118,39 +1130,40 @@ namespace dMobile.View.Activity
             await Task.Run(
                 async () =>
                 {
-                    try
+                try
+                {
+                    // If location only selected display the picking and receiving locations for every product
+                    // Group by location and then product.
+                    if (this.ActItem.ProdInfo.Refno == 0)
                     {
-                        if (this.ActItem.ProdInfo.Refno == 0)
+                            var isContinueResult = true;
+                            if (this.LocMap.CurrLocMap.SectLocMapRefno == 0)
+                            {
+                                await Device.InvokeOnMainThreadAsync(async () =>
+                                {
+                                    const string msg = "All products in a warehouse could be a large result. Are you sure?";
+                                    isContinueResult = await this.DisplayAlert(this.ActItem.GetControlDescription(), msg, "Yes", "No");
+                                });
+                            }
+
+                            if (isContinueResult)
+                            {
+                                this.ActItem.ListItems = await this.GetDataViewProductOnly();
+                                await Device.InvokeOnMainThreadAsync(
+                                    () =>
+                                    {
+                                        this.DesignDataGridProductOnly();
+                                        this.dataGridMain.ItemsSource = this.DataGridMainExtraInfoItems;
+                                    });
+                            }
+                        }
+                        else
                         {
                             this.ActItem.ListItems = await this.GetDataViewLocationOnly();
-
                             await Device.InvokeOnMainThreadAsync(
                                 () =>
                                 {
                                     this.DesignDataGridLocationOnly();
-                                    this.dataGridMain.ItemsSource = this.DataGridMainExtraInfoItems;
-                                });
-                        }
-                        else
-                        {
-                            // A warehouse only query will result in to much data. Restrict it to at least a section.
-                            if (this.LocMap.CurrLocMap.WhsLocMapRefno <= 0)
-                            {
-                                throw new Exception("The location must have a warehouse selected.");
-                            }
-
-                            if (this.LocMap.CurrLocMap.IsSectionTracked &&
-                                this.LocMap.CurrLocMap.SectLocMapRefno <= 0)
-                            {
-                                throw new Exception("The location must have a section selected.");
-                            }
-
-                            this.ActItem.ListItems = await this.GetDataViewProductOnly();
-
-                            await Device.InvokeOnMainThreadAsync(
-                                () =>
-                                {
-                                    this.DesignDataGridProductOnly();
                                     this.dataGridMain.ItemsSource = this.DataGridMainExtraInfoItems;
                                 });
                         }
@@ -1179,6 +1192,26 @@ namespace dMobile.View.Activity
             {
                 this.DialogResult = DialogResult.OK;
             }
+        }
+
+        private async void CmdClearLocation_Clicked(object sender, EventArgs e)
+        {
+            this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
+                this.LocMap.LoginWhsLocMapRefno);
+            this.ActItem.LocMap = this.LocMap.CurrLocMap;
+            this.cmdLocation.Text = LocationMapTasks.GetCurrentReadableLocation();
+            this.ListItems = new List<object>();
+            this.DataGridMainExtraInfoItems.Clear();
+            this.dataGridMain.ItemsSource = this.DataGridMainExtraInfoItems;
+        }
+
+        private void CmdClearProduct_Clicked(object sender, EventArgs e)
+        {
+            this.ActItem.ProdInfo = new ProductInfo();
+            this.cmdSelectProduct.Text = "Select Product";
+            this.ListItems = new List<object>();
+            this.DataGridMainExtraInfoItems.Clear();
+            this.dataGridMain.ItemsSource = this.DataGridMainExtraInfoItems;
         }
     }
 }

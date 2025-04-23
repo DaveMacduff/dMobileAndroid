@@ -41,38 +41,63 @@
                        <RowDefinition Height="Auto"/>  
                        <RowDefinition Height="Auto"/>  
                    </Grid.RowDefinitions>  
-                   <Grid.ColumnDefinitions>  
-                       <ColumnDefinition Width="70*"/>  
-                       <ColumnDefinition Width="30*"/>  
+                   <Grid.ColumnDefinitions>
+                       <ColumnDefinition Width="20*"/>
+                       <ColumnDefinition Width="60*"/>
+                       <ColumnDefinition Width="20*"/>  
                    </Grid.ColumnDefinitions>  
 
                    <Button x:Name="cmdLocation"
                            Grid.Row="0"
                            Grid.Column="0"
                            Grid.ColumnSpan="2"
+                           Text="Set Location"
                            Clicked="CmdLocation_Click"
-                           IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}"/>  
+                           IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}"/>
 
-                   <Button x:Name="cmdSelectProduct"
+                    <Button x:Name="cmdClearLocation"
+                           Grid.Row="0"
+                           Grid.Column="2"
+                           Grid.ColumnSpan="1"
+                           Text="CLR"
+                           Clicked="CmdClearLocation_Clicked"
+                           IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}"/>
+
+                    <Button x:Name="cmdClearProduct"
                            Grid.Row="1"
                            Grid.Column="0"
+                           Grid.ColumnSpan="1"
+                           Text="CLR"
+                           Clicked="CmdClearProduct_Clicked"
+                           IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}"/>
+
+                    <Button x:Name="cmdSelectProduct"
+                           Grid.Row="1"
+                           Grid.Column="1"
+                            Text="Select Product"
                            Clicked="CmdSelectProduct_Click"
                            IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}"/>  
+                   
                    <customcontrols:CustomPicker x:Name="BarCodeModifier1Picker"
                                                 Grid.Row="1"
-                                                Grid.Column="1"
+                                                Grid.Column="2"
                                                 Image="arrow_drop_down"
                                                 SelectedIndexChanged="BarCodeModifier1Picker_SelectedIndexChanged"
                                                 IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}"/>  
 
                    <Button x:Name="cmdDisplayDefault"
-                           Grid.Row="2" Grid.Column="0"
+                           Grid.Row="2"
+                           Grid.Column="0"
+                           Grid.ColumnSpan="2"
                            Clicked="CmdDisplayDefault_Click"
+                           Text = "Display Defaults"
                            IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}"/>  
+
                    <Button x:Name="cmdView"
                            Grid.Row="2"
-                           Grid.Column="1"
+                           Grid.Column="2"
                            Clicked="CmdView_Clicked"
+                           Text = "View"
                            IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}"/>  
                </Grid>  
            </Grid>  

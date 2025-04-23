@@ -426,6 +426,11 @@ namespace dMobile.View.Activity
                 var isSkidScanned = !string.IsNullOrEmpty(scanArgs.ParseInfo.Sscc18);
                 if (isSkidScanned)
                 {
+                    if (this.SysEnv.SysSettings.IsDisconnectedMode)
+                    {
+                        throw new MessageOnlyException("Skid tracking is not supported in disconnected mode.");
+                    }
+
                     await FindOrCreateSkidLineItem(scanArgs.ParseInfo);
                     var isAddAllSkidDetail = true;
                     if (this.IsScanningPartialSkid)
@@ -1179,6 +1184,11 @@ namespace dMobile.View.Activity
         {
             try
             {
+                if (this.SysEnv.SysSettings.IsDisconnectedMode)
+                {
+                    throw new MessageOnlyException("Skid tracking is not supported in disconnected mode.");
+                }
+
                 this.CmdSetSkid.IsEnabled = false;
                 var form = new FormDialogContainer(
                     EDialogTypes.SkidInfo,
@@ -2026,6 +2036,11 @@ namespace dMobile.View.Activity
         {
             try
             {
+                if (this.SysEnv.SysSettings.IsDisconnectedMode)
+                {
+                    throw new MessageOnlyException("Skid tracking is not supported in disconnected mode.");
+                }
+
                 this.CmdAddSkid.IsEnabled = false;
                 await this.ScannerEnable();
                 await PerformAddSkid();
@@ -2156,6 +2171,11 @@ namespace dMobile.View.Activity
         {
             try
             {
+                if (this.SysEnv.SysSettings.IsDisconnectedMode)
+                {
+                    throw new MessageOnlyException("Inventory inquiry is not supported in disconnected mode.");
+                }
+
                 var actDetail = ActDetailFacade.GetActDetail(
                     this.ActItem,
                     SysCommon.ActSubTypes.InventoryInquiryActivitySingle);
@@ -2170,6 +2190,16 @@ namespace dMobile.View.Activity
                 {
                     throw new CancelOperationException();
                 }
+            }
+            catch (MessageOnlyException msgEx)
+            {
+                var msg = SysCommon.GetMessageFromMessageException(msgEx);
+                await Device.InvokeOnMainThreadAsync(
+                    async () =>
+                        await Application.Current.MainPage.DisplayAlert(
+                            this.GetControlDescription(),
+                            msg,
+                            Resource.OK));
             }
             catch (Exception ex)
             {

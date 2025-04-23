@@ -437,6 +437,25 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
+        /// Get the location map sub type from a location map reference number.
+        /// </summary>
+        /// <param name="locMapRefno">Location map reference number.</param>
+        /// <returns>Location map sub type.</returns>
+        public static SysCommon.LocMapSubTypes GetLocMapSubType(int locMapRefno)
+        {
+            var locMapType = SysCommon.LocMapSubTypes.None;
+            var results = DatabaseConnection.GetInstance().SqlConn.QueryAsync<LocationMapModel>(
+                "SELECT LocationMapSubType FROM tLocationMap WHERE LocationMapRefno = ?",
+                Convert.ToInt32(locMapRefno)).Result;
+            if (results?.Count > 0)
+            {
+                locMapType = (SysCommon.LocMapSubTypes)results[0].LocationMapSubType;
+            }
+
+            return locMapType;
+        }
+
+        /// <summary>
         /// Get the location map from a location map reference number.
         /// </summary>
         /// <param name="locMapRefno"><see cref="int"/> Location map reference number.</param>

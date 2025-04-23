@@ -10,7 +10,7 @@ namespace dMobile.Bedrock
     /// <summary>
     ///     Define the product scheme data.
     /// </summary>
-    public class ProductSchemeData : IEquatable<ProductSchemeData>
+    public class ProductSchemeData : IEquatable<ProductSchemeData>, ICloneable
     {
         /// <summary>
         ///     Gets or sets the single trade item serial number.
@@ -66,6 +66,12 @@ namespace dMobile.Bedrock
         ///     Gets or sets variant description.
         /// </summary>
         public string VariantDescription { get; set; } = string.Empty;
+
+        /// <inheritdoc/>
+        public object Clone()
+        {
+            return MemberwiseClone();
+        }
 
         /// <inheritdoc/>
         public bool Equals(ProductSchemeData other)
