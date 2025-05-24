@@ -794,7 +794,7 @@ namespace dMobile.View.Activity
                         else
                         {
                             var message = string.Format(
-                                "Item Not Found For " + Environment.NewLine + "Location {0} " +
+                                "Item not found on this activity for " + Environment.NewLine + "Location {0} " +
                                 Environment.NewLine + "Product {1} BC {2} Unit {3}",
                                 LocationMapTasks.GetCurrentReadableLocation(), this.ActItem.ProdInfo.Code,
                                 this.ActItem.ProdInfo.UnitBc, this.ActItem.ProdInfo.UnitCode);

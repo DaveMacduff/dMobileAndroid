@@ -274,25 +274,26 @@ namespace dMobile.View.Activity
                 await IsValidData();
                 this.SysEnv.LastEnteredSchemeData = (ProductSchemeData)this.ActDetailEdit.SchemeData.Clone();
             }
-            catch (IsReadyToApplyException ex)
+            catch (IsReadyToApplyException applyEx)
             {
-                if (ex.SuppressError && ex.IsOverContinue)
+                if (applyEx.SuppressError && applyEx.IsOverContinue)
                 {
                     this.SysEnv.LastEnteredSchemeData = (ProductSchemeData)this.ActDetailEdit.SchemeData.Clone();
                     isReadyToSave = true;
                 }
-                else if (ex.SuppressError && !ex.IsOverContinue)
+                else if (applyEx.SuppressError && !applyEx.IsOverContinue)
                 {
                     isReadyToSave = false;
                 }
                 else
                 {
                     isReadyToSave = false;
+                    var msg = SysCommon.GetMessageFromIsReadyToApplyException(applyEx);
                     await Device.InvokeOnMainThreadAsync(async () =>
-                    {
-                        var errRpt = new FormErrorReport(this.ActSubType, ex);
-                        _ = await errRpt.ShowDialog();
-                    });
+                        await Application.Current.MainPage.DisplayAlert(
+                            this.ActDetail.GetControlDescription(),
+                            msg,
+                            Resource.OK));
                 }
             }
             catch (MessageOnlyException msgEx)

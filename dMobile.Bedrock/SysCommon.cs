@@ -1744,6 +1744,19 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
+        /// Get message string from is ready to apply exception.
+        /// </summary>
+        /// <param name="applyEx"><see cref="IsReadyToApplyException"/> Is ready to apply only exception.</param>
+        /// <returns><see cref="string"/> Create message string.</returns>
+        public static string GetMessageFromIsReadyToApplyException(IsReadyToApplyException applyEx)
+        {
+            var msg = (applyEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1)
+                ? applyEx.Message
+                : applyEx.Message["MSGBOX-".Length..];
+            return msg;
+        }
+
+        /// <summary>
         /// The GetAssemblyVersion.
         /// </summary>
         /// <returns>.</returns>

@@ -17,18 +17,16 @@ namespace dMobile.View.Activity
     using Controller.Activity;
     using Controller.Activity_Detail;
     using Controller.Activity_Item;
-    using Resources.Types.Products;
     using Forms;
-    using Helpers;
     using Resources.Enums;
-    using Resources.Types;
+    using Resources.Types.Products;
     using SQLite;
     using Views;
     using Xamarin.Forms;
     using Resource = Resources.Properties.Resources;
 
     /// <summary>
-    ///     Activity convert product.
+    /// Activity convert product.
     /// </summary>
     public partial class ActivityConvertProduct : IAppArea
     {
@@ -40,7 +38,7 @@ namespace dMobile.View.Activity
         private ProductInfo toProductInfo;
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="ActivityConvertProduct" /> class.
+        /// Initializes a new instance of the <see cref="ActivityConvertProduct"/> class.
         /// </summary>
         public ActivityConvertProduct()
         {
@@ -87,84 +85,54 @@ namespace dMobile.View.Activity
             }
 
             this.DisplaySummary();
-
             this.ListViewDisplayExtraInfo.ItemsSource = this.ExtraInfoItems;
-            this.ScannerEnable().FireAndForgetSafeAsync();
-            return;
+            this.IsFirstAppearance = true;
 
-            //////////////////////////////////////////////////////////////////////////
             void ParseAndSeedBarCodeModifier()
             {
+                this.BarCodeModifier1Picker.IsVisible = false;
+                this.BarCodeModifier1Picker.IsEnabled = false;
                 this.BarCodeModifier1Picker.Items.Clear();
-
-                if (this.SysEnv.SysSettings.IsProductUnitBarCodeModifier1)
+                if (!this.SysEnv.SysSettings.IsProductUnitBarCodeModifier1)
                 {
-                    this.BarCodeModifier1Picker.Items.Add(string.Empty);
-                    var modifiers = this.SysEnv.SysSettings.ProductUnitBarCodeModifier1Codes.Split(',');
-
-                    foreach (var item in modifiers)
-                    {
-                        this.BarCodeModifier1Picker.Items.Add(item);
-                    }
+                    return;
                 }
-                else
+
+                this.BarCodeModifier1Picker.Items.Add(string.Empty);
+                var modifiers = this.SysEnv.SysSettings.ProductUnitBarCodeModifier1Codes.Split(',');
+                foreach (var item in modifiers)
                 {
-                    this.BarCodeModifier1Picker.IsVisible = false;
-                    this.BarCodeModifier1Picker.IsEnabled = false;
+                    this.BarCodeModifier1Picker.Items.Add(item);
+                }
+
+                if (this.BarCodeModifier1Picker.Items.Count > 0)
+                {
+                    this.BarCodeModifier1Picker.IsVisible = true;
+                    this.BarCodeModifier1Picker.IsEnabled = true;
                 }
 
                 this.BarCodeModifier1Picker.SelectedItem = this.SysEnv.CurrentBarCodeModifier1;
             }
         }
 
-        /// <summary>
-        ///     Gets the bar code scanner engine instance.
-        /// </summary>
         private BarCodeScanner Scanner { get; } = ScannerEngine.GetInstance().Scanner;
 
-        /// <summary>
-        ///     Gets the activity subtype.
-        /// </summary>
         private SysCommon.ActSubTypes ActSubType { get; } = SysCommon.ActSubTypes.ConvertProduct;
 
-        /// <summary>
-        ///     Gets or sets the activity detail.
-        /// </summary>
         private ActDetail ActDetail { get; set; }
 
-        /// <summary>
-        ///     Gets or sets the activity item.
-        /// </summary>
         private ActItem ActItem { get; set; }
 
-        /// <summary>
-        ///     Gets or sets the activity.
-        /// </summary>
         private Activity Activity { get; set; }
 
-        /// <summary>
-        ///     Gets or sets the location map.
-        /// </summary>
         private LocationMap LocMap { get; set; }
 
-        /// <summary>
-        ///     Gets or sets the system environment settings.
-        /// </summary>
         private SysEnvironment SysEnv { get; }
 
-        /// <summary>
-        ///     Gets or sets a value indicating whether the data is loaded.
-        /// </summary>
         private bool IsDataLoading { get; set; }
 
-        /// <summary>
-        ///     Gets or sets a value indicating whether changes to data has been made.
-        /// </summary>
         private bool IsChangesMade { get; set; }
 
-        /// <summary>
-        ///     Gets or sets the convert from product reference number.
-        /// </summary>
         private int FromProdRefno
         {
             get => this.fromProdRefno;
@@ -176,9 +144,6 @@ namespace dMobile.View.Activity
             }
         }
 
-        /// <summary>
-        ///     Gets or sets the convert to product reference number.
-        /// </summary>
         private int ToProdRefno
         {
             get => this.toProdRefno;
@@ -190,9 +155,6 @@ namespace dMobile.View.Activity
             }
         }
 
-        /// <summary>
-        ///     Gets or sets the convert from product information.
-        /// </summary>
         private ProductInfo FromProdInfo
         {
             get => this.fromProductInfo;
@@ -203,9 +165,6 @@ namespace dMobile.View.Activity
             }
         }
 
-        /// <summary>
-        ///     Gets or sets the convert to product information.
-        /// </summary>
         private ProductInfo ToProdInfo
         {
             get => this.toProductInfo;
@@ -216,18 +175,14 @@ namespace dMobile.View.Activity
             }
         }
 
-        /// <summary>
-        ///     Gets the extra information items.
-        /// </summary>
         private ObservableCollection<string> ExtraInfoItems { get; } = new ObservableCollection<string>();
 
-        /// <summary>
-        ///     Gets the options menu items.
-        /// </summary>
         private List<string> OptionsMenuItems { get; } = new List<string>();
 
+        private bool IsFirstAppearance { get; set; }
+
         /// <summary>
-        ///     Un-register the bar code scan event handler and disable the scanner.
+        /// Un-register the bar code scan event handler and disable the scanner.
         /// </summary>
         /// <returns><see cref="Task" /> Task operation.</returns>
         public async Task ScannerDisable()
@@ -242,95 +197,38 @@ namespace dMobile.View.Activity
         /// <returns><see cref="Task" /> Task operation.</returns>
         public async Task ScannerEnable()
         {
-            await this.Scanner.EnableScanning();
             if (!this.Scanner.IsBarCodeScanEventHandlerAdded())
             {
-                if (!this.Scanner.IsBarCodeScanEventHandlerAdded())
-                {
-                    this.Scanner.OnBarCodeScan += this.BarCodeHandler;
-                }
+                this.Scanner.OnBarCodeScan += this.BarCodeHandler;
             }
+
+            await this.Scanner.EnableScanning();
         }
 
         /// <summary>
-        ///     Check if the activity item is ready to save.
+        /// Check if the activity item is ready to save.
         /// </summary>
         /// <returns><see cref="bool" /> True if it is ready to save, else false.</returns>
-        /// <remarks>
-        ///     Used for post validation of all control combinations. Not an individual, use ValidateEntry.
-        ///     Must have a try catch block.
-        /// </remarks>
         public async Task<bool> IsReadyToSave()
         {
-            var isReadyToSave = true;
-
-            try
-            {
-                await this.AssertLocationSet();
-                this.AssertFromProductSet();
-
-                this.AssertToProductSet();
-                this.AssertDetailsSet();
-            }
-            catch (MessageOnlyException msgEx)
-            {
-                var msg = SysCommon.GetMessageFromMessageException(msgEx);
-                isReadyToSave = false;
-                await Device.InvokeOnMainThreadAsync(async () =>
-                    await Application.Current.MainPage.DisplayAlert(
-                        GetControlDescription(),
-                        msg,
-                        Resource.OK));
-            }
-            catch (Exception ex)
-            {
-                isReadyToSave = false;
-                await Device.InvokeOnMainThreadAsync(async () =>
-                {
-                    var errRpt = new FormErrorReport(this.ActSubType, ex);
-                    _ = await errRpt.ShowDialog();
-                });
-            }
-
-            return isReadyToSave;
+            await this.AssertLocationSet();
+            this.AssertFromProductSet();
+            this.AssertToProductSet();
+            this.AssertDetailsSet();
+            return true;
         }
 
         /// <summary>
-        ///     Check if the activity item is ready to close.
+        /// Check if the activity item is ready to close.
         /// </summary>
         /// <returns><see cref="bool" /> True if the activity item is ready to close, else false.</returns>
         public async Task<bool> IsReadyToClose()
         {
-            var isReadyToClose = !this.IsChangesMade;
-
-            try
-            {
-            }
-            catch (MessageOnlyException msgEx)
-            {
-                var msg = SysCommon.GetMessageFromMessageException(msgEx);
-                isReadyToClose = false;
-                await Device.InvokeOnMainThreadAsync(async () =>
-                    await Application.Current.MainPage.DisplayAlert(
-                        GetControlDescription(),
-                        msg,
-                        Resource.OK));
-            }
-            catch (Exception ex)
-            {
-                isReadyToClose = false;
-                await Device.InvokeOnMainThreadAsync(async () =>
-                {
-                    var errRpt = new FormErrorReport(this.ActSubType, ex);
-                    _ = await errRpt.ShowDialog();
-                });
-            }
-
-            return isReadyToClose;
+            return !this.IsChangesMade;
         }
 
         /// <summary>
-        ///     Save any activity item data changes.
+        /// Save any activity item data changes.
         /// </summary>
         /// <returns><see cref="bool" /> True if the save was successful, else false.</returns>
         public async Task<bool> SaveChanges()
@@ -339,21 +237,19 @@ namespace dMobile.View.Activity
 
             try
             {
-                if (await this.IsReadyToSave())
+                await this.IsReadyToSave();
+                if (this.FromProdRefno != 0 && this.ActItem.ListItems.Count != 0 &&
+                    this.ActDetail.ListDetails.Count != 0)
                 {
-                    if (this.FromProdRefno != 0 && this.ActItem.ListItems.Count != 0 &&
-                        this.ActDetail.ListDetails.Count != 0)
-                    {
-                        saveComplete = true;
-                        this.IsChangesMade = false;
-                    }
-                    else
-                    {
-                        await this.AssertLocationSet();
-                        this.AssertFromProductSet();
-                        this.AssertToProductSet();
-                        this.AssertDetailsSet();
-                    }
+                    saveComplete = true;
+                    this.IsChangesMade = false;
+                }
+                else
+                {
+                    await this.AssertLocationSet();
+                    this.AssertFromProductSet();
+                    this.AssertToProductSet();
+                    this.AssertDetailsSet();
                 }
             }
             catch (MessageOnlyException msgEx)
@@ -381,7 +277,7 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        ///     Cancel any pending activity item changes.
+        /// Cancel any pending activity item changes.
         /// </summary>
         /// <returns><see cref="bool" /> True if the pending changes where canceled, else false.</returns>
         public async Task<bool> CancelChanges()
@@ -391,25 +287,8 @@ namespace dMobile.View.Activity
             try
             {
                 // IsReadyToClose checks if any changes where made.
-                if (await this.IsReadyToClose())
-                {
-                    // Clear any properties.
-                    await this.ClearContents();
-
-                    // Expect the control to close.
-                }
-                else
-                {
-                    // If changes where made.
-                    // By reloading, restoring the last valid state we should be able to close the control
-                    // on the second CancelChanges attempt.
-                    // Methods that could be called to restore the control to a closable state.
-                    // ClearProperties();
-                    // DisplayData();
-                    // this.LoadData();
-                    cancelChanges = false;
-                    //// this.IsChangesMade = false;
-                }
+                await this.IsReadyToClose();
+                await this.ClearContents();
             }
             catch (MessageOnlyException msgEx)
             {
@@ -435,14 +314,12 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        ///     Get the activity item return XDocument information.
+        /// Get the activity item return XDocument information.
         /// </summary>
         /// <returns><see cref="XDocument" /> Activity item return information.</returns>
-#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
         public async Task<XDocument> GetXml()
-#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
         {
-            var xmlDoc = XDocument.Parse(
+            return XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                 + "<params>"
                 + "<from_prod_fk_refno>" +
@@ -452,26 +329,26 @@ namespace dMobile.View.Activity
                 "</to_prod_fk_refno>"
                 + "<location_map_refno>" + this.LocMap.CurrLocMapRefno + "</location_map_refno>"
                 + "</params>");
-
-            return xmlDoc;
         }
 
         /// <summary>
-        ///     Fires just before the page is displayed.
+        /// Fires just before the page is displayed.
         /// </summary>
-        protected override void OnAppearing()
+        protected override async void OnAppearing()
         {
             base.OnAppearing();
             SubscribeKeyUpHandlers();
-            return;
+            if (this.IsFirstAppearance)
+            {
+                this.IsFirstAppearance = false;
+                await this.ScannerEnable();
+            }
 
-            //////////////////////////////////////////////////////////////////////////
             void SubscribeKeyUpHandlers()
             {
                 MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), KeyUpHandlerCallback);
             }
 
-            //////////////////////////////////////////////////////////////////////////
             async void KeyUpHandlerCallback(string keyPressed)
             {
                 if (this.IsDataLoading)
@@ -535,7 +412,7 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        ///     Back button pressed handler.
+        /// Back button pressed handler.
         /// </summary>
         /// <returns><see cref="bool" /> Always true.</returns>
         protected override bool OnBackButtonPressed()
@@ -543,7 +420,6 @@ namespace dMobile.View.Activity
             Device.BeginInvokeOnMainThread(BackButtonPressedCallback);
             return true;
 
-            //////////////////////////////////////////////////////////////////////////
             async void BackButtonPressedCallback()
             {
                 _ = await this.CancelChanges();
@@ -554,9 +430,9 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        ///     Fires just before the page disappears.
+        /// Fires just before the page disappears.
         /// </summary>
-        protected override async void OnDisappearing()
+        protected override void OnDisappearing()
         {
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
             base.OnDisappearing();
@@ -564,23 +440,11 @@ namespace dMobile.View.Activity
             GC.WaitForPendingFinalizers();
         }
 
-        /// <summary>
-        ///     Get the control form description.
-        /// </summary>
-        /// <returns><see cref="string" /> Control form description.</returns>
         private static string GetControlDescription()
         {
             return "Convert Product";
         }
 
-        /// <summary>
-        ///     Bar code scan event handler.
-        /// </summary>
-        /// <param name="sender"><see cref="object" /> Object that generated the event.</param>
-        /// <param name="scanArgs">
-        ///     <see cref="BarCodeScannerEventArgs" /> Sender bar code scanner
-        ///     event arguments.
-        /// </param>
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
             try
@@ -606,7 +470,45 @@ namespace dMobile.View.Activity
                 {
                     if (!string.IsNullOrEmpty(parse.ProductIdentifier))
                     {
-                        throw new MessageOnlyException("Scanning a product identifier bar code is not supported here.");
+                        var prodUnitRefno = await SysShared.IdentifyProductScanned(this.ActSubType, parse);
+                        var scannedProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
+                        scannedProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(scannedProdInfo.Refno);
+
+                        await this.SetDefaultLocationBeforeKnownActivityItem(scannedProdInfo);
+                        if (this.LocMap.CurrLocMap.WhsLocMapRefno != 0)
+                        {
+                            _ = await Device.InvokeOnMainThreadAsync(() =>
+                                this.CmdLocation.Text = LocationMapTasks.GetCurrentReadableLocation());
+                        }
+                        else
+                        {
+                            _ = await Device.InvokeOnMainThreadAsync(() => this.CmdLocation.Text = "Set Location");
+                        }
+
+                        var result = await Device.InvokeOnMainThreadAsync(async () =>
+                            await Application.Current.MainPage.DisplayAlert(
+                                this.ActItem.GetControlDescription(),
+                                "Are you scanning the 'To' product?",
+                                "Yes", "No"));
+                        if (result)
+                        {
+                            this.ToProdInfo = scannedProdInfo;
+                            await AssignToProductText();
+                        }
+                        else
+                        {
+                            if (!scannedProdInfo.IsAllowConvertProduct)
+                            {
+                                this.FromProdRefno = 0;
+                                this.FromProdInfo = new ProductInfo();
+                                const string msg = "Cannot convert a product without the product plag: Convert Label" +
+                                    " Adjustment Allow Product Change enabled.";
+                                throw new MessageOnlyException(msg);
+                            }
+
+                            this.FromProdInfo = scannedProdInfo;
+                            await AssignFromProductText();
+                        }
                     }
 
                     if (!string.IsNullOrEmpty(parse.ActItemFkRefno))
@@ -673,7 +575,6 @@ namespace dMobile.View.Activity
 
             return;
 
-            //////////////////////////////////////////////////////////////////////////
             async Task BarCodeHandlerLocationIdentifier(BarCodeParse parse)
             {
                 // If section filtering was set in the activity header. Do we want to enforce
@@ -697,8 +598,86 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        ///     Populates a string array to be used in DisplayActionSheet.
+        ///     Set the activity item location for adding new or identify line items.
         /// </summary>
+        /// <param name="prodInfo"><see cref="ProductInfo" /> Product information.</param>
+        /// <returns><see cref="Task" /> Task operation.</returns>
+        private async Task SetDefaultLocationBeforeKnownActivityItem(ProductInfo prodInfo)
+        {
+            // Need to get a warehouse to determine default location if turned on, we don't
+            // have the line item warehouse yet. We could assume the header warehouse or even
+            // the login warehouse.
+            // We can't determine the default location until after identifying the line item.
+            if (this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc)
+            {
+                // This will be the default location if the line item location is not complete.
+                var whsLocMapRefno = await LocationMapTasks.GetWhsLocMapRefnoFromLocMapRefno(this.LocMap.CurrLocMapRefno);
+                var defLocMapRefno = await this.ActItem.GetDefaultLocMapRefno(whsLocMapRefno, prodInfo.Refno);
+                if (this.IsAllowedDefaultLocationOverride())
+                {
+                    if (await LocationMapTasks.IsCompleteLocMap(this.LocMap.ChosenLocMap))
+                    {
+                        SetCurrentLocationWithChosen();
+                    }
+                    else
+                    {
+                        if (!await LocationMapTasks.IsCompleteLocMap(defLocMapRefno))
+                        {
+                            const string msg = "Default locations is enabled, and for this activity and product" +
+                                                " the location is not fully complete.";
+                            throw new MessageOnlyException(msg);
+                        }
+
+                        this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(defLocMapRefno);
+                        this.LocMap.ChosenLocMap = this.LocMap.CurrLocMap.Clone();
+                    }
+                }
+                else
+                {
+                    if (!await LocationMapTasks.IsCompleteLocMap(defLocMapRefno))
+                    {
+                        const string msg = "Default locations is enabled, and for this activity and product" +
+                                            " the location is not fully complete.";
+                        throw new MessageOnlyException(msg);
+                    }
+
+                    this.LocMap.CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(defLocMapRefno);
+                    this.LocMap.ChosenLocMap = this.LocMap.CurrLocMap.Clone();
+                }
+            }
+            else
+            {
+                SetCurrentLocationWithChosen();
+            }
+
+            if (!await LocationMapTasks.IsCompleteLocMap(this.LocMap.CurrLocMapRefno))
+            {
+                throw new MessageOnlyException("Location must be set first!");
+            }
+
+            return;
+
+            // Set the current location with the chosen location.
+            void SetCurrentLocationWithChosen()
+            {
+                // This should not be needed, current location should have been already set using the location picker.
+                if (this.LocMap.CurrLocMapRefno != this.LocMap.ChosenLocMapRefno)
+                {
+                    // Set the current location to the chosen one, overriding and defaulting location behaviour.
+                    this.LocMap.CurrLocMap = this.LocMap.ChosenLocMap.Clone();
+                }
+            }
+        }
+
+        /// <summary>
+        ///     Check if default location is allowed to be overridden.
+        /// </summary>
+        /// <returns><see cref="bool" /> True if the location override is allowed else false.</returns>
+        private bool IsAllowedDefaultLocationOverride()
+        {
+            return this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc;
+        }
+
         private void PopulateOptionsMenu()
         {
             this.OptionsMenuItems.Clear();
@@ -706,9 +685,6 @@ namespace dMobile.View.Activity
             this.OptionsMenuItems.Add(CancelText);
         }
 
-        /// <summary>
-        ///     Clear the move from and to settings.
-        /// </summary>
         private async Task ClearContents()
         {
             this.FromProdRefno = 0;
@@ -724,11 +700,6 @@ namespace dMobile.View.Activity
             this.CmdDetail.Text = "Detail";
         }
 
-        /// <summary>
-        ///     Make the product label submit XML string.
-        /// </summary>
-        /// <param name="listDetailIndex"><see cref="int" /> List detail index.</param>
-        /// <returns><see cref="string" /> Created product label request string.</returns>
         private async Task<string> MakeProductLabelsSubmitString(int listDetailIndex)
         {
             var detail = this.ActDetail.ListDetails;
@@ -802,11 +773,6 @@ namespace dMobile.View.Activity
             return req.ToString();
         }
 
-        /// <summary>
-        ///     Set location click event handler.
-        /// </summary>
-        /// <param name="sender"><see cref="object" /> Sender object.</param>
-        /// <param name="e"><see cref="EventArgs" /> Event arguments.</param>
         private async void CmdLocation_Click(object sender, EventArgs e)
         {
             try
@@ -848,15 +814,11 @@ namespace dMobile.View.Activity
             }
             finally
             {
-                await this.ScannerDisable();
+                await this.ScannerEnable();
                 this.DisplaySummary();
             }
         }
 
-        /// <summary>
-        ///     Throws an exception if Location is not set.
-        /// </summary>
-        /// <exception cref="MessageOnlyException"> Raised if location is not set.</exception>
         private async Task AssertLocationSet()
         {
             if (!await IsLocationSet())
@@ -866,17 +828,12 @@ namespace dMobile.View.Activity
 
             return;
 
-            //////////////////////////////////////////////////////////////////////////
             async Task<bool> IsLocationSet()
             {
                 return await LocationMapTasks.IsCompleteLocMap(this.LocMap.CurrLocMapRefno);
             }
         }
 
-        /// <summary>
-        ///     Throws an exception if FROM Product is not set.
-        /// </summary>
-        /// <exception cref="MessageOnlyException"> Raised if the product unit is not set.</exception>
         private void AssertFromProductSet()
         {
             if (!this.IsFromProductSet())
@@ -885,20 +842,11 @@ namespace dMobile.View.Activity
             }
         }
 
-        /// <summary>
-        ///     Checks if the FROM product is selected.
-        /// </summary>
-        /// <returns><see cref="bool" /> True if the from product has been selected, else false.</returns>
         private bool IsFromProductSet()
         {
             return this.FromProdRefno != 0;
         }
 
-        /// <summary>
-        ///     Checks if the convert TO product item is set.
-        ///     Throws if not set.
-        /// </summary>
-        /// <exception cref="MessageOnlyException"> Raised if convert to product is not set.</exception>
         private void AssertToProductSet()
         {
             if (!this.IsToProductSet())
@@ -907,20 +855,11 @@ namespace dMobile.View.Activity
             }
         }
 
-        /// <summary>
-        ///     Checks if the TO product is selected.
-        /// </summary>
-        /// <returns><see cref="bool" /> True if the convert product has been set.</returns>
         private bool IsToProductSet()
         {
             return this.ToProdRefno != 0;
         }
 
-        /// <summary>
-        ///     Checks if the convert TO product item details is set.
-        ///     Throws if not set.
-        /// </summary>
-        /// <exception cref="MessageOnlyException"> Raised if convert to product details exist.</exception>
         private void AssertDetailsSet()
         {
             if (this.ActDetail.ListDetails.Count <= 0)
@@ -929,11 +868,6 @@ namespace dMobile.View.Activity
             }
         }
 
-        /// <summary>
-        ///     Selects a Product and returns the ProdRefno if found.
-        /// </summary>
-        /// <param name="filterAllowChangeProduct">True to filter the list to only products with AllowChangeProduct.</param>
-        /// <returns>ProdRefno if found; otherwise 0.</returns>
         private async Task<int> SelectProduct(bool filterAllowChangeProduct)
         {
             var prodRefno = 0;
@@ -957,7 +891,7 @@ namespace dMobile.View.Activity
                         throw new NullReferenceException("xmlDocProduct.Root == null");
                     }
 
-                    prodRefno = Convert.ToInt32(xmlDocProduct.Root.Element("ProductRefno")!.Value);
+                    prodRefno = Convert.ToInt32(xmlDocProduct.Root.Element("ProductRefno") !.Value);
                 }
             }
             catch (FormatException)
@@ -999,11 +933,6 @@ namespace dMobile.View.Activity
             return prodRefno;
         }
 
-        /// <summary>
-        ///     Select from product unit click event handler.
-        /// </summary>
-        /// <param name="sender"><see cref="object" /> Object that generated the event.</param>
-        /// <param name="e"><see cref="EventArgs" /> Event arguments.</param>
         private async void CmdSelectFromUnit_Click(object sender, EventArgs e)
         {
             try
@@ -1032,7 +961,7 @@ namespace dMobile.View.Activity
                             "Cannot convert a product without the Product Flag: Convert Label Adjustment Allow Product Change.");
                     }
 
-                    await AssignFromProductText();
+                    await this.AssignFromProductText();
                 }
             }
             catch (SQLiteException ex)
@@ -1065,38 +994,30 @@ namespace dMobile.View.Activity
                 await this.ScannerEnable();
                 this.DisplaySummary();
             }
+        }
 
-            return;
+        private async Task AssignFromProductText()
+        {
+            const string query = "SELECT tProduct.ProductCode,"
+                                 + "tProduct.ProductDescription,"
+                                 + "tProductUnit.ProductUnitBC,"
+                                 + "tUnit.UnitCode "
+                                 + "FROM tProductUnit "
+                                 + "INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno "
+                                 + "INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno "
+                                 + "WHERE tProductUnit.ProductUnitRefno = ?";
 
-            //////////////////////////////////////////////////////////////////////////
-            async Task AssignFromProductText()
+            var results = await DatabaseConnection.GetInstance()
+                .SqlConn.QueryAsync<ProductUnit>(query, this.FromProdInfo.UnitRefno);
+
+            if (results?.Count > 0)
             {
-                const string query = "SELECT tProduct.ProductCode,"
-                                     + "tProduct.ProductDescription,"
-                                     + "tProductUnit.ProductUnitBC,"
-                                     + "tUnit.UnitCode "
-                                     + "FROM tProductUnit "
-                                     + "INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno "
-                                     + "INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno "
-                                     + "WHERE tProductUnit.ProductUnitRefno = ?";
-
-                var results = await DatabaseConnection.GetInstance()
-                    .SqlConn.QueryAsync<ProductUnit>(query, this.FromProdInfo.UnitRefno);
-
-                if (results?.Count > 0)
-                {
-                    _ = await Device.InvokeOnMainThreadAsync(() =>
-                        this.CmdSelectFromProduct.Text = Convert.ToString(results[0].ProductCode).TrimEnd() + " " +
-                                                         Convert.ToString(results[0].ProductDescription).TrimEnd());
-                }
+                _ = await Device.InvokeOnMainThreadAsync(() =>
+                    this.CmdSelectFromProduct.Text = Convert.ToString(results[0].ProductCode).TrimEnd() + " " +
+                                                     Convert.ToString(results[0].ProductDescription).TrimEnd());
             }
         }
 
-        /// <summary>
-        ///     Select To product unit click event handler.
-        /// </summary>
-        /// <param name="sender"><see cref="object" /> Object that generated the event.</param>
-        /// <param name="e"><see cref="EventArgs" /> Event arguments.</param>
         private async void CmdSelectToUnit_Click(object sender, EventArgs e)
         {
             try
@@ -1122,9 +1043,8 @@ namespace dMobile.View.Activity
                 {
                     var prodInfo = await ProductInfoTasks.GetInfoFromRefno(this.ToProdRefno);
                     this.ToProdInfo = prodInfo;
-                    await AssignToProductText();
+                    await this.AssignToProductText();
                 }
-
             }
             catch (SQLiteException ex)
             {
@@ -1157,35 +1077,30 @@ namespace dMobile.View.Activity
             }
 
             this.DisplaySummary();
-            return;
+        }
 
-            //////////////////////////////////////////////////////////////////////////
-            async Task AssignToProductText()
+        private async Task AssignToProductText()
+        {
+            const string query = "SELECT tProduct.ProductCode,"
+                                 + "tProduct.ProductDescription,"
+                                 + "tProductUnit.ProductUnitBC,"
+                                 + "tUnit.UnitCode "
+                                 + "FROM tProductUnit "
+                                 + "INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno "
+                                 + "INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno "
+                                 + "WHERE tProductUnit.ProductUnitRefno = ?";
+
+            var results = await DatabaseConnection.GetInstance().SqlConn
+                .QueryAsync<ProductUnit>(query, this.ToProdInfo.UnitRefno);
+
+            if (results?.Count > 0)
             {
-                const string query = "SELECT tProduct.ProductCode,"
-                                     + "tProduct.ProductDescription,"
-                                     + "tProductUnit.ProductUnitBC,"
-                                     + "tUnit.UnitCode "
-                                     + "FROM tProductUnit "
-                                     + "INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno "
-                                     + "INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno "
-                                     + "WHERE tProductUnit.ProductUnitRefno = ?";
-
-                var results = await DatabaseConnection.GetInstance().SqlConn
-                    .QueryAsync<ProductUnit>(query, this.ToProdInfo.UnitRefno);
-
-                if (results?.Count > 0)
-                {
-                    _ = await Device.InvokeOnMainThreadAsync(() =>
-                        this.CmdSelectToProduct.Text = Convert.ToString(results[0].ProductCode).TrimEnd() + " " +
-                                                       Convert.ToString(results[0].ProductDescription).TrimEnd());
-                }
+                _ = await Device.InvokeOnMainThreadAsync(() =>
+                    this.CmdSelectToProduct.Text = Convert.ToString(results[0].ProductCode).TrimEnd() + " " +
+                                                   Convert.ToString(results[0].ProductDescription).TrimEnd());
             }
         }
 
-        /// <summary>
-        ///     Displays the listbox summary data.
-        /// </summary>
         private void DisplaySummary()
         {
             // DataRowCollection rows = this.ActDetail.DataViewDetails.Table.Rows;
@@ -1205,12 +1120,6 @@ namespace dMobile.View.Activity
             }
         }
 
-        /// <summary>
-        ///     Get the activity item quantity.
-        /// </summary>
-        /// <returns>
-        ///     <see cref="SFillQuantity" />
-        /// </returns>
         private SFillQuantity GetActivityItemQuantity()
         {
             var fillQty = new SFillQuantity
@@ -1246,11 +1155,6 @@ namespace dMobile.View.Activity
             return fillQty;
         }
 
-        /// <summary>
-        ///     Identify changes made.
-        /// </summary>
-        /// <param name="sender"><see cref="object" /> Object that generated the event.</param>
-        /// <param name="e"><see cref="EventArgs" /> Event arguments.</param>
         private void IdentifyChangesMade(object sender, EventArgs e)
         {
             if (this.IsDataLoading)
@@ -1264,11 +1168,6 @@ namespace dMobile.View.Activity
             }
         }
 
-        /// <summary>
-        ///     Activity detail click event handler.
-        /// </summary>
-        /// <param name="sender"><see cref="object" /> Object that generated the event.</param>
-        /// <param name="e"><see cref="EventArgs" /> Events arguments.</param>
         private async void CmdDetail_Click(object sender, EventArgs e)
         {
             try
@@ -1313,9 +1212,6 @@ namespace dMobile.View.Activity
                 this.DisplaySummary();
             }
 
-            return;
-
-            //////////////////////////////////////////////////////////////////////////
             // Validate whether allowed to perform the click detail event.
             async Task ValidateCanPerformClick()
             {
@@ -1325,7 +1221,6 @@ namespace dMobile.View.Activity
                 AssertToDoesNotEqualFrom();
             }
 
-            //////////////////////////////////////////////////////////////////////////
             // Check if the 'to' product and 'from' product are NOT the same.
             void AssertToDoesNotEqualFrom()
             {
@@ -1335,7 +1230,6 @@ namespace dMobile.View.Activity
                 }
             }
 
-            //////////////////////////////////////////////////////////////////////////
             // Fill the activity item.
             async Task FillActivityItem()
             {
@@ -1345,7 +1239,6 @@ namespace dMobile.View.Activity
                 await this.ActItem.Insert(await this.GetXml());
             }
 
-            //////////////////////////////////////////////////////////////////////////
             // Create new detail instance and fill it.
             Task CreateAndFillActivityDetail()
             {
@@ -1355,21 +1248,11 @@ namespace dMobile.View.Activity
             }
         }
 
-        /// <summary>
-        ///     Bar code modifier picker selected index changed handler.
-        /// </summary>
-        /// <param name="sender"><see cref="object" /> Object that generated the event.</param>
-        /// <param name="e"><see cref="EventArgs" /> Event arguments.</param>
         private void BarCodeModifier1Picker_SelectedIndexChanged(object sender, EventArgs e)
         {
             this.IdentifyChangesMade(sender, e);
         }
 
-        /// <summary>
-        ///     Options menu clicked event handler.
-        /// </summary>
-        /// <param name="sender"><see cref="object" /> Object that generated the event.</param>
-        /// <param name="e"><see cref="EventArgs" /> Event arguments.</param>
         private async void OptionsMenu_Clicked(object sender, EventArgs e)
         {
             if (this.IsIndicatorRunning)
@@ -1386,23 +1269,23 @@ namespace dMobile.View.Activity
             switch (result)
             {
                 case SaveText:
-                {
-                    if (await this.SaveChanges())
                     {
-                        await this.ScannerDisable();
-                        await this.Close();
+                        if (await this.SaveChanges())
+                        {
+                            await this.ScannerDisable();
+                            await this.Close();
+                        }
+
+                        break;
                     }
 
-                    break;
-                }
-
                 case CancelText:
-                {
-                    _ = await this.CancelChanges();
-                    await this.ScannerDisable();
-                    await this.Close();
-                    break;
-                }
+                    {
+                        _ = await this.CancelChanges();
+                        await this.ScannerDisable();
+                        await this.Close();
+                        break;
+                    }
             }
         }
     }

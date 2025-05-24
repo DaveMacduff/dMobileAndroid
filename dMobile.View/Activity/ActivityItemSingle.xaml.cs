@@ -42,7 +42,6 @@ namespace dMobile.View.Activity
             this.IsIndicatorRunning = false;
             this.LocMap = LocationMap.GetInstance();
             this.SysEnv = SysEnvironment.GetInstance();
-            actSubType = actSubType == SysCommon.ActSubTypes.PickingSingle ? SysCommon.ActSubTypes.Picking : actSubType;
             this.ActSubType = actSubType;
 
             // Init activity header object
@@ -55,13 +54,14 @@ namespace dMobile.View.Activity
             // Init activity detail object
             this.ActDetail = ActDetailFacade.GetActDetail(this.ActItem, this.ActSubType);
 
+            this.ActSubType = actSubType == SysCommon.ActSubTypes.PickingSingle ? SysCommon.ActSubTypes.Picking : actSubType;
+
             InitBarCodeModifiers();
             this.Title = this.GetControlDescription();
             this.LoadAndBind().FireAndForgetSafeAsync();
             this.SearchTimer = new SysTimer(this.TimerTickCallback);
             return;
 
-            ///////////////////////////////////////////////////////////
             void InitBarCodeModifiers()
             {
                 // Init bar code modifier
@@ -535,7 +535,7 @@ namespace dMobile.View.Activity
             async Task<bool> AskIfScanningParitalSkidsForSession()
             {
                 bool isScanningPartialSkid = false;
-                var msg = "Do you wish to scan partial skids for this session?";
+                const string msg = "Do you wish to scan partial skids for this session?";
                 var result = await this.DisplayAlert("Skid", msg, "Yes", "No");
                 if (result)
                 {
@@ -548,7 +548,7 @@ namespace dMobile.View.Activity
             async Task<bool> AskToAddAvailableSkidQuantity()
             {
                 bool isAddAllSkidDetail = false;
-                var skidMsg = "Do you wish to add all the available skid quantity?";
+                const string skidMsg = "Do you wish to add all the available skid quantity?";
                 var result = await this.DisplayAlert("Skid", skidMsg, "Yes", "No");
                 if (result)
                 {
@@ -741,32 +741,6 @@ namespace dMobile.View.Activity
                 return isAssignProductToSkid;
             }
 
-            async Task CheckIfSkidProductMatchesScanned(int prodUnitRefno, ProductInfo scannedProdInfo)
-            {
-                if (this.ActItem.ActHdr.SkidInfo.CurrSkid.ProdInfo.UnitRefno > 0)
-                {
-                    if (this.ActItem.ActHdr.SkidInfo.CurrSkid.ProdInfo.UnitRefno != prodUnitRefno)
-                    {
-                        const string msg = "Selected skid product does not match" +
-                                           " the scanned product. Please scan the skid assigned" +
-                                           " product or clear the selected skid.";
-                        throw new MessageOnlyException(msg);
-                    }
-                }
-                else
-                {
-                    // If the skid product is not set, then set it.
-                    if (!await AskToAssignProductToSkid(scannedProdInfo))
-                    {
-                        const string msg = "Assigning product to a skid cancelled. Scan aborted.";
-                        throw new MessageOnlyException(msg);
-                    }
-
-                    this.ActItem.ActHdr.SkidInfo.CurrSkid.ProdInfo = scannedProdInfo;
-                    SysSkidInfo.SendUpdate(this.ActItem.ActHdr.SkidInfo);
-                }
-            }
-
             async Task FindOrCreateProductLineItem(BarCodeParse parse)
             {
                 {
@@ -777,7 +751,7 @@ namespace dMobile.View.Activity
                     // If there is a skid selected, then the product scanned must match the skid product.
                     if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFkRefno != 0)
                     {
-                        await CheckIfSkidProductMatchesScanned(prodUnitRefno, scannedProdInfo);
+                        await CheckIfSkidProductMatchesScanned(scannedProdInfo);
                     }
 
                     await this.SetDefaultLocationBeforeKnownActivityItem(scannedProdInfo);
@@ -809,6 +783,33 @@ namespace dMobile.View.Activity
                         await this.ActItem.Insert(ProductInfoTasks.GetXml(scannedProdInfo));
                         await this.AssignAndDisplayLineItem(this.ActItem.ItemRefno);
                     }
+                }
+            }
+
+            async Task CheckIfSkidProductMatchesScanned(ProductInfo scannedProdInfo)
+            {
+                var skidProdUnitRefno = this.ActItem.ActHdr.SkidInfo.CurrSkid.ProdInfo.UnitRefno;
+                if (skidProdUnitRefno > 0)
+                {
+                    if (skidProdUnitRefno != scannedProdInfo.UnitRefno)
+                    {
+                        const string msg = "Selected skid product does not match" +
+                                           " the scanned product. Please scan the skid assigned" +
+                                           " product or clear the selected skid.";
+                        throw new MessageOnlyException(msg);
+                    }
+                }
+                else
+                {
+                    // If the skid product is not set, then set it.
+                    if (!await AskToAssignProductToSkid(scannedProdInfo))
+                    {
+                        const string msg = "Assigning product to a skid cancelled. Scan aborted.";
+                        throw new MessageOnlyException(msg);
+                    }
+
+                    this.ActItem.ActHdr.SkidInfo.CurrSkid.ProdInfo = scannedProdInfo;
+                    SysSkidInfo.SendUpdate(this.ActItem.ActHdr.SkidInfo);
                 }
             }
 
@@ -1046,9 +1047,6 @@ namespace dMobile.View.Activity
                 var xmlDoc = await form.GetXml();
                 await AssignAndDisplayDetail();
 
-                return;
-
-                ///////////////////////////////////////////////////////////
                 async Task AssignAndDisplayDetail()
                 {
                     this.ActItem.ReplaceQuantityInActivityItem(

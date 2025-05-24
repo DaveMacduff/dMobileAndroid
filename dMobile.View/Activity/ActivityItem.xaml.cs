@@ -84,7 +84,6 @@ namespace dMobile.View.Activity
             this.Title = this.ActItem.GetControlDescription();
             this.SearchTimer = new SysTimer(this.SearchTimerTickCallback);
             this.IsFirstAppearance = true;
-            return;
 
             void ParseAndSeedBarCodeModifier()
             {
@@ -567,20 +566,16 @@ namespace dMobile.View.Activity
             Device.BeginInvokeOnMainThread(BackButtonCallback);
             return true;
 
-            void BackButtonCallback()
+            async void BackButtonCallback()
             {
-                Task.Run(
-                    async () =>
-                    {
-                        if (await this.CancelChanges())
-                        {
-                            this.SysEnv.SysSettings.IsCountActivityItemRefreshData = true;
-                            this.SysEnv.SysSettings.IsShowActivityFilterSelection = true;
-                            await this.ScannerDisable();
-                            _ = base.OnBackButtonPressed();
-                            await this.Close();
-                        }
-                    });
+                if (await this.CancelChanges())
+                {
+                    this.SysEnv.SysSettings.IsCountActivityItemRefreshData = true;
+                    this.SysEnv.SysSettings.IsShowActivityFilterSelection = true;
+                    await this.ScannerDisable();
+                    _ = base.OnBackButtonPressed();
+                    await this.Close();
+                }
             }
         }
 

@@ -1061,17 +1061,41 @@ namespace dMobile.View.Activity
                 if (selectedActivity != null)
                 {
                     this.ActHdr.AssignRefnoFromActivity(selectedActivity);
-                    await Device.InvokeOnMainThreadAsync(
-                        async () =>
+                    if (this.SysEnv.SysSettings.EnableAndroidSingleActivityItemMode)
+                    {
+                        if (this.ActSubType == SysCommon.ActSubTypes.Picking)
                         {
-                            var form = new FormDialogContainer(
-                                EDialogTypes.ActivityItem,
-                                this.ActHdr,
-                                this.ActSubType);
-                            this.IsChangesMade = false;
-                            _ = await form.DisplayControl.ShowDialog();
-                        });
-                    await this.FindSelectedItemAsync(this.ActHdr.HdrRefno);
+                            await this.ListViewMainActivity_KeyUpEnter_PickingSingle();
+                        }
+                        else
+                        {
+                            await Device.InvokeOnMainThreadAsync(
+                                async () =>
+                                {
+                                    var form = new FormDialogContainer(
+                                    EDialogTypes.ActivityItemSingle,
+                                    this.ActHdr,
+                                    this.ActSubType);
+                                    this.IsChangesMade = false;
+                                    _ = await form.DisplayControl.ShowDialog();
+                                });
+                            await this.FindSelectedItemAsync(this.ActHdr.HdrRefno);
+                        }
+                    }
+                    else
+                    {
+                        await Device.InvokeOnMainThreadAsync(
+                            async () =>
+                            {
+                                var form = new FormDialogContainer(
+                                    EDialogTypes.ActivityItem,
+                                    this.ActHdr,
+                                    this.ActSubType);
+                                this.IsChangesMade = false;
+                                _ = await form.DisplayControl.ShowDialog();
+                            });
+                        await this.FindSelectedItemAsync(this.ActHdr.HdrRefno);
+                    }
                 }
                 else
                 {

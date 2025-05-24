@@ -644,7 +644,7 @@ namespace dMobile.Controller.Activity_Item
         {
             var currLoc = LocationMap.GetInstance().CurrLocMap;
             var whs = $"{currLoc.WhsFkRefno} - {currLoc.WhsName}";
-            var message = $"Item not found for {Environment.NewLine}Warehouse {whs}" +
+            var message = $"Item not found on this activity for {Environment.NewLine}Warehouse {whs}" +
                 $"{Environment.NewLine}Product {prodInfo.Code} BC {prodInfo.UnitBc}" +
                 $" Unit {prodInfo.UnitCode}";
             return message;

@@ -361,36 +361,7 @@ namespace dMobile.Controller.Activity_Item
             await base.IsReadyToApply(data);
 
             // Weight tolerance within percentage check.
-            if (this.SysEnv.SysSettings.ProdWeightUnitTolerancePercent != 0)
-            {
-                var weight = decimal.Parse(data.Root.Element("wt_qty").Value);
-                var qty = decimal.Parse(data.Root.Element("alt_qty").Value);
-
-                decimal per;
-
-                // Check weight tolerance
-                if (this.ProdInfo.WeightTolerance != 0)
-                {
-                    per = this.ProdInfo.WeightTolerance / 100;
-                }
-                else
-                {
-                    per = this.SysEnv.SysSettings.ProdWeightUnitTolerancePercent / 100;
-                }
-
-                var weightUpper = (this.ProdInfo.UnitGrossWeight + (this.ProdInfo.UnitGrossWeight * per)) * qty;
-                var weightLower = (this.ProdInfo.UnitGrossWeight - (this.ProdInfo.UnitGrossWeight * per)) * qty;
-
-                if (weight < weightLower ||
-                    weight > weightUpper)
-                {
-                    // clsPickingSingleAcivityitem is different, it only raises a message box as a warning, but continues.
-                    // Lekker changed its mind again and only wanting a warning rather than stop.
-                    // TODO: Figure out why raising a MessageOnlyException is not being caught as such, but rather
-                    // as a System.Exception.
-                    throw new MessageOnlyException("Item is outside of expected weight.");
-                }
-            }
+            CheckValidWeightRange(data);
 
             // New items are identified with 0 < this.FkRefno, do not validate.
             if (this.SysEnv.SysSettings.PickQtyOverWarn != SysCommon.ActPickingQtyOverValLevels.NoValidationOrWarning &&
@@ -431,6 +402,40 @@ namespace dMobile.Controller.Activity_Item
 
                         default:
                             throw new ArgumentOutOfRangeException();
+                    }
+                }
+            }
+
+            void CheckValidWeightRange(XDocument data)
+            {
+                if (this.SysEnv.SysSettings.ProdWeightUnitTolerancePercent != 0)
+                {
+                    var weight = decimal.Parse(data.Root.Element("wt_qty").Value);
+                    var qty = decimal.Parse(data.Root.Element("alt_qty").Value);
+
+                    decimal per;
+
+                    // Check weight tolerance
+                    if (this.ProdInfo.WeightTolerance != 0)
+                    {
+                        per = this.ProdInfo.WeightTolerance / 100;
+                    }
+                    else
+                    {
+                        per = this.SysEnv.SysSettings.ProdWeightUnitTolerancePercent / 100;
+                    }
+
+                    var weightUpper = (this.ProdInfo.UnitGrossWeight + (this.ProdInfo.UnitGrossWeight * per)) * qty;
+                    var weightLower = (this.ProdInfo.UnitGrossWeight - (this.ProdInfo.UnitGrossWeight * per)) * qty;
+
+                    if (weight < weightLower ||
+                        weight > weightUpper)
+                    {
+                        // clsPickingSingleAcivityitem is different, it only raises a message box as a warning, but continues.
+                        // Lekker changed its mind again and only wanting a warning rather than stop.
+                        // TODO: Figure out why raising a MessageOnlyException is not being caught as such, but rather
+                        // as a System.Exception.
+                        throw new MessageOnlyException("Item is outside of expected weight.");
                     }
                 }
             }
@@ -1578,9 +1583,9 @@ namespace dMobile.Controller.Activity_Item
         /// The RefreshQuantity.
         /// </summary>
         /// <param name="selectedActivityItem">The selectedActivityItem<see cref="object"/>.</param>
-        /// <param name="quantity">.</param>
-        /// <param name="baseQuantity">.</param>
-        /// <param name="weightQuantity">.</param>
+        /// <param name="quantity">Alt quantity.</param>
+        /// <param name="baseQuantity">Base quantity.</param>
+        /// <param name="weightQuantity">Weight quantity.</param>
         public override void ReplaceQuantityInActivityItem(
             object selectedActivityItem,
             decimal quantity,
@@ -1614,9 +1619,9 @@ namespace dMobile.Controller.Activity_Item
                 this.ListPickingItems.First(x => x.ActivityItemFKRefno == pickingItem.ActivityItemFKRefno)
                     .ActivityItemPickingQuantityShipped += quantity;
                 this.ListPickingItems.First(x => x.ActivityItemFKRefno == pickingItem.ActivityItemFKRefno)
-                    .ActivityItemPickingBaseQuantityShipped += quantity;
+                    .ActivityItemPickingBaseQuantityShipped += baseQuantity;
                 this.ListPickingItems.First(x => x.ActivityItemFKRefno == pickingItem.ActivityItemFKRefno)
-                    .ActivityItemPickingWeightQuantityShipped += quantity;
+                    .ActivityItemPickingWeightQuantityShipped += weightQuantity;
 
                 this.ListItems = this.ListPickingItems.Cast<object>().ToList();
             }
@@ -1632,7 +1637,8 @@ namespace dMobile.Controller.Activity_Item
             if (activityItem is PickingItem pickingItem)
             {
                 var query = "UPDATE tActivityItemPicking SET ActivityItemPickingQuantityShipped = ?," +
-                            " ActivityItemPickingBaseQuantityShipped = ?, ActivityItemPickingWeightQuantityShipped = ?" +
+                            " ActivityItemPickingBaseQuantityShipped = ?," +
+                            " ActivityItemPickingWeightQuantityShipped = ?" +
                             " WHERE tActivityItemPicking.ActivityItemRefno = ?";
                 var parameters = new object[]
                 {
@@ -1646,10 +1652,6 @@ namespace dMobile.Controller.Activity_Item
             }
         }
 
-        /// <summary>
-        /// /// </summary>
-        /// <param name="actFkRefno"></param>
-        /// <returns></returns>
         /// <summary>
         ///.
         /// </summary>

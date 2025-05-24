@@ -1188,9 +1188,23 @@ namespace dMobile.View.Activity
 
         private async void CmdView_Clicked(object sender, EventArgs e)
         {
-            if (await this.SaveChanges())
+            try
             {
-                this.DialogResult = DialogResult.OK;
+                await this.ScannerDisable();
+                var form = new FormDialogContainer(EDialogTypes.ActivityInventoryInquirySummary, this.ActItem, this.ActSubType);
+                _ = await form.DisplayControl.ShowDialog();
+            }
+            catch (Exception ex)
+            {
+                await Device.InvokeOnMainThreadAsync(async () =>
+                {
+                    var errRpt = new FormErrorReport(this.ActSubType, ex);
+                    _ = await errRpt.ShowDialog();
+                });
+            }
+            finally
+            {
+                await this.ScannerEnable();
             }
         }
 

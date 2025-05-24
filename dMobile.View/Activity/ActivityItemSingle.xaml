@@ -105,6 +105,7 @@
                             Clicked="CmdClearSkid_Clicked"
                             FontAttributes="Bold"
                             Text="Clr"
+                            IsVisible="True"
                             IsEnabled="{Binding IsIndicatorRunning, Converter={helpers:BoolConverter}}"/>
                     <customcontrols:CustomPicker x:Name="BarCodeModifier1Picker"
                                                  Grid.Row="0"

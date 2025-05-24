@@ -12,11 +12,9 @@ namespace dMobile.View.Activity
     using BarCodeScanner.BarCodeScanners;
     using Bedrock;
     using Controller.Activity_Detail;
-    using Resources.Types.Items;
     using Forms;
-    using Helpers;
     using Resources.Enums;
-    using Resources.Types;
+    using Resources.Types.Items;
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;
     using Resource = Resources.Properties.Resources;
@@ -50,68 +48,32 @@ namespace dMobile.View.Activity
             this.LoadAndBind().FireAndForgetSafeAsync();
         }
 
-        /// <summary>
-        ///     Gets or sets the product we are changing out of.
-        /// </summary>
         private int FromProdRefno { get; set; }
 
-        /// <summary>
-        ///     Gets or sets the desired product to change into.
-        /// </summary>
         private int ToProdRefno { get; set; }
 
-        /// <summary>
-        ///     Gets or sets or set the to product information.
-        /// </summary>
         private ProductInfo ToProduct { get; set; }
 
-        /// <summary>
-        ///     Gets or sets the from product information.
-        /// </summary>
         private ProductInfo FromProduct { get; set; }
 
-        /// <summary>
-        ///     Gets the system environment.
-        /// </summary>
         private SysEnvironment SysEnv { get; }
 
-        /// <summary>
-        ///     Gets the bar code scanner engine.
-        /// </summary>
         private BarCodeScanner Scanner { get; } = ScannerEngine.GetInstance().Scanner;
 
-        /// <summary>
-        ///     Gets the activity sub type.
-        /// </summary>
         private SysCommon.ActSubTypes ActSubType { get; }
 
-        /// <summary>
-        ///    Gets or sets a value indicating whether data is being loaded.
-        /// </summary>
         private bool IsDataLoading { get; set; }
 
-        /// <summary>
-        ///     Gets or sets a value indicating whether changes have been made.
-        /// </summary>
         private bool IsChangesMade { get; set; }
 
-        /// <summary>
-        ///     Gets the convert product activity detail.
-        /// </summary>
         private ActDetail ActDetail { get; }
 
-        /// <summary>
-        ///     Gets the activity convert product extra info items.
-        /// </summary>
         private ObservableCollection<string> ExtraInfoItems { get; } = new ObservableCollection<string>();
 
-        /// <summary>
-        ///     Gets or sets the main activity items.
-        /// </summary>
         private ObservableCollection<object> MainActivityItems { get; set; } = new ObservableCollection<object>();
 
         /// <summary>
-        ///     Un-register the bar code scan event handler and disable the scanner.
+        ///     Unregister the bar code scan event handler and disable the scanner.
         /// </summary>
         /// <returns><see cref="Task" /> Task operation.</returns>
         public async Task ScannerDisable()
@@ -126,8 +88,12 @@ namespace dMobile.View.Activity
         /// <returns><see cref="Task" /> Task operation.</returns>
         public async Task ScannerEnable()
         {
+            if (!this.Scanner.IsBarCodeScanEventHandlerAdded())
+            {
+                this.Scanner.OnBarCodeScan += this.BarCodeHandler;
+            }
+
             await this.Scanner.EnableScanning();
-            this.Scanner.OnBarCodeScan += this.BarCodeHandler;
         }
 
         /// <summary>
@@ -136,33 +102,7 @@ namespace dMobile.View.Activity
         /// <returns><see cref="bool" /> True if it is ready to save, else false.</returns>
         public async Task<bool> IsReadyToSave()
         {
-            var isReadyToSave = true;
-
-            try
-            {
-                // Currently no reason to validate detail, because the detail was already submitted.
-            }
-            catch (MessageOnlyException msgEx)
-            {
-                var msg = SysCommon.GetMessageFromMessageException(msgEx);
-                isReadyToSave = false;
-                await Device.InvokeOnMainThreadAsync(async () =>
-                    await Application.Current.MainPage.DisplayAlert(
-                        this.GetControlDescription(),
-                        msg,
-                        Resource.OK));
-            }
-            catch (Exception ex)
-            {
-                isReadyToSave = false;
-                await Device.InvokeOnMainThreadAsync(async () =>
-                {
-                    var errRpt = new FormErrorReport(this.ActSubType, ex);
-                    _ = await errRpt.ShowDialog();
-                });
-            }
-
-            return isReadyToSave;
+            return true;
         }
 
         /// <summary>
@@ -171,47 +111,21 @@ namespace dMobile.View.Activity
         /// <returns><see cref="bool" /> True if the activity item is ready to close, else false.</returns>
         public async Task<bool> IsReadyToClose()
         {
-            var isReadyToClose = true;
-
-            try
+            const bool isReadyToClose = true;
+            if (this.IsChangesMade)
             {
-                if (this.IsChangesMade)
-                {
-                    // Perform any checks or changes needed to allow a rollback or form close.
-                    // Set IsReadyToClose = false if checks fail.
-                }
-
-                if (isReadyToClose)
-                {
-                    // NOTE: This code is needed to clean up the scanner driver.
-                    // Symbol had threading issues without this call when dMobile was terminating.
-                    // All user controls that initialize a bar code need this code.
-                    // The parent form (not a user control) will call scanner.terminate and dispose
-                    // of the scanner instance upon exiting dMobile.
-                    await this.ScannerDisable();
-                }
+                // Perform any checks or changes needed to allow a rollback or form close.
+                // Set IsReadyToClose = false if checks fail.
             }
-            catch (MessageOnlyException msgEx)
-            {
-                var msg = SysCommon.GetMessageFromMessageException(msgEx);
-                isReadyToClose = false;
-                await Device.InvokeOnMainThreadAsync(async () =>
-                    await Application.Current.MainPage.DisplayAlert(
-                        this.GetControlDescription(),
-                        msg,
-                        Resource.OK));
-            }
-            catch (Exception ex)
-            {
-                // Non message only exceptions will allow the close to continue.
-                // We do not want to get caught not being able to 'escape' the control.
-                isReadyToClose = true;
 
-                await Device.InvokeOnMainThreadAsync(async () =>
-                {
-                    var errRpt = new FormErrorReport(this.ActSubType, ex);
-                    _ = await errRpt.ShowDialog();
-                });
+            if (isReadyToClose)
+            {
+                // NOTE: This code is needed to clean up the scanner driver.
+                // Symbol had threading issues without this call when dMobile was terminating.
+                // All user controls that initialize a bar code need this code.
+                // The parent form (not a user control) will call scanner.terminate and dispose
+                // of the scanner instance upon exiting dMobile.
+                await this.ScannerDisable();
             }
 
             return isReadyToClose;
@@ -352,9 +266,7 @@ namespace dMobile.View.Activity
             base.OnAppearing();
             this.ListViewDisplayExtraInfo.ItemsSource = this.ExtraInfoItems;
             MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), KeyUpHandlerCallback);
-            return;
 
-            //////////////////////////////////////////////////////////////////////////
             async void KeyUpHandlerCallback(string keyPressed)
             {
                 try
@@ -415,7 +327,6 @@ namespace dMobile.View.Activity
             Device.BeginInvokeOnMainThread(PerformBackPress);
             return true;
 
-            //////////////////////////////////////////////////////////////////////////
             async void PerformBackPress()
             {
                 _ = await this.CancelChanges();
@@ -436,10 +347,6 @@ namespace dMobile.View.Activity
             GC.WaitForPendingFinalizers();
         }
 
-        /// <summary>
-        ///     Load and Bind the data.
-        /// </summary>
-        /// <returns>Task completed.</returns>
         private async Task LoadAndBind()
         {
             try
@@ -492,10 +399,6 @@ namespace dMobile.View.Activity
             }
         }
 
-        /// <summary>
-        ///     Add manually new activity detail.
-        /// </summary>
-        /// <returns><see cref="Task" /> Task operation.</returns>
         private async Task AddManually()
         {
             var form = new FormDialogContainer(
@@ -532,20 +435,11 @@ namespace dMobile.View.Activity
             }
         }
 
-        /// <summary>
-        ///     Get the control description.
-        /// </summary>
-        /// <returns><see cref="string" /> Control description.</returns>
         private string GetControlDescription()
         {
             return "Convert Products";
         }
 
-        /// <summary>
-        ///     Bar code scan event handler.
-        /// </summary>
-        /// <param name="sender"><see cref="object" /> Object that generated the event.</param>
-        /// <param name="scanArgs"><see cref="BarCodeScannerEventArgs" /> Sender bar code scanner event arguments.</param>
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
             try
@@ -636,9 +530,6 @@ namespace dMobile.View.Activity
             }
         }
 
-        /// <summary>
-        /// </summary>
-        /// <remarks></remarks>
         private void DisplaySummary()
         {
             this.ExtraInfoItems.Clear();
@@ -653,26 +544,11 @@ namespace dMobile.View.Activity
             }
         }
 
-        /// <summary>
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        /// <remarks></remarks>
         private void IdentifyChangesMade(object sender, EventArgs e)
         {
             this.IsChangesMade = true;
         }
 
-        /// <summary>
-        ///     Creates an adjustment for the product.
-        /// </summary>
-        /// <remarks>
-        ///     This sends what we wish to be an activity detail to the
-        ///     COM server. The COM server sees it doesn't exist and creates it,
-        ///     then it sends back three fk_refnos for activity, activity item, and activity detail.
-        ///     Once received it will then need to update the table values with the fk_refnos.
-        /// </remarks>
-        /// <param name="data">Data used for the row to be created.</param>
         private async Task CreateAdjustment(XDocument data)
         {
             try
@@ -714,12 +590,6 @@ namespace dMobile.View.Activity
             }
         }
 
-        /// <summary>
-        ///     Removes the adjustment from happening.
-        /// </summary>
-        /// <remarks>
-        ///     Sends the fk_refno of the detail to remove to the COM server.
-        /// </remarks>
         private async Task DeleteAdjustment()
         {
             if (this.NoData())
@@ -775,9 +645,6 @@ namespace dMobile.View.Activity
             }
         }
 
-        /// <summary>
-        ///     Prints all product labels if batch.
-        /// </summary>
         private async Task PrintBatchProductLabels()
         {
             if (!this.SysEnv.SysSettings.IsPrintProductLabelsAsBatch)
@@ -795,12 +662,6 @@ namespace dMobile.View.Activity
             }
         }
 
-        /// <summary>
-        ///     Causes all current adjustments to print product labels.
-        /// </summary>
-        /// <remarks>
-        ///     Sends an xml string to the COM server to print the product labels.
-        /// </remarks>
         private async Task PrintProductLabel()
         {
             if (this.NoData())
@@ -834,27 +695,16 @@ namespace dMobile.View.Activity
             }
         }
 
-        /// <summary>
-        ///     Checks if the Activity Detail has 0 data rows.
-        /// </summary>
-        /// <returns>True if there are no data rows.</returns>
         private bool NoData()
         {
             return this.ActDetail.ListDetails.Count == 0;
         }
 
-        /// <summary>
-        ///     Check if there is any activity detail exists.
-        /// </summary>
-        /// <returns><see cref="bool" /> True if activity detail exists.</returns>
         private bool HasData()
         {
             return !this.NoData();
         }
 
-        /// <summary>
-        ///     Saves or cancels changes and exits.
-        /// </summary>
         private async Task CloseForm()
         {
             if (await this.SaveChanges())
@@ -868,11 +718,6 @@ namespace dMobile.View.Activity
             }
         }
 
-        /// <summary>
-        ///     Click handler for the Add button.
-        /// </summary>
-        /// <param name="sender"><see cref="object" /> Object that generated the event.</param>
-        /// <param name="e"><see cref="EventArgs" /> Event arguments.</param>
         private async void CmdAdd_Click(object sender, EventArgs e)
         {
             try
@@ -925,7 +770,6 @@ namespace dMobile.View.Activity
                     ScrollToPosition.MakeVisible,
                     false);
             });
-
 
             this.DisplaySummary();
         }

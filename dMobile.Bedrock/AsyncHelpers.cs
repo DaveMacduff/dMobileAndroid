@@ -15,18 +15,6 @@ namespace dMobile.Bedrock
     public static class AsyncHelpers
     {
         /// <summary>
-        /// Fire and forget error handler interface.
-        /// </summary>
-        public interface IFireAndForgetErrorHandler
-        {
-            /// <summary>
-            /// Handle error.
-            /// </summary>
-            /// <param name="ex"><see cref="Exception"/> Exception.</param>
-            void FireAndForgetHandleError(Exception ex);
-        }
-
-        /// <summary>
         /// Force asynchronous task to run synchronously.
         /// </summary>
         /// <param name="task"><see cref="Task"/> Task to run synchronously.</param>
@@ -56,9 +44,7 @@ namespace dMobile.Bedrock
             syncContext.Post(SendOrPostCallback, null);
             syncContext.BeginMessageLoop();
             SynchronizationContext.SetSynchronizationContext(oldContext);
-            return;
 
-            //////////////////////////////////////////////////////////////////////////
             async void SendOrPostCallback(object state)
             {
                 try
@@ -95,7 +81,6 @@ namespace dMobile.Bedrock
             SynchronizationContext.SetSynchronizationContext(oldContext);
             return result;
 
-            //////////////////////////////////////////////////////////////////////////
             async void SendOrPostCallback(object status)
             {
                 try
