@@ -100,9 +100,9 @@ namespace dMobile.View.Activity
         ///     Check if the activity item is ready to save.
         /// </summary>
         /// <returns><see cref="bool" /> True if it is ready to save, else false.</returns>
-        public async Task<bool> IsReadyToSave()
+        public Task<bool> IsReadyToSave()
         {
-            return true;
+            return Task.FromResult(true);
         }
 
         /// <summary>
@@ -261,11 +261,11 @@ namespace dMobile.View.Activity
         /// <summary>
         ///     Fires just before the page is displayed.
         /// </summary>
-        protected override async void OnAppearing()
+        protected override void OnAppearing()
         {
             base.OnAppearing();
             this.ListViewDisplayExtraInfo.ItemsSource = this.ExtraInfoItems;
-            MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), KeyUpHandlerCallback);
+            MessagingCenter.Subscribe<string>(this, nameof(EventTypes.OnKeyUp), KeyUpHandlerCallback);
 
             async void KeyUpHandlerCallback(string keyPressed)
             {
@@ -339,9 +339,9 @@ namespace dMobile.View.Activity
         /// <summary>
         ///     Fires just before the page disappears.
         /// </summary>
-        protected override async void OnDisappearing()
+        protected override void OnDisappearing()
         {
-            MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
+            MessagingCenter.Unsubscribe<string>(this, nameof(EventTypes.OnKeyUp));
             base.OnDisappearing();
             GC.Collect();
             GC.WaitForPendingFinalizers();

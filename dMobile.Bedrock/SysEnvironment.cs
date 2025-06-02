@@ -134,7 +134,9 @@ namespace dMobile.Bedrock
                 {
                     sysSettings = new SystemSettings();
                     SystemSettingsTasks.LoadData(ref sysSettings);
+
                     sysEnv.IsActivityItemSingleMode = sysSettings.IsSingleActivityItem;
+                    sysEnv.SysSettings.EnableAndroidSingleActivityItemMode = sysSettings.IsSingleActivityItem;
                 }
 
                 return sysSettings;

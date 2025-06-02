@@ -1713,6 +1713,8 @@ namespace dMobile.View.Activity
                 {
                     throw new MessageOnlyException("Could not create a skid.");
                 }
+
+                await this.DisplaySkidInfo();
             }
             catch (MessageOnlyException msgEx)
             {
@@ -1730,7 +1732,6 @@ namespace dMobile.View.Activity
             finally
             {
                 await this.ScannerEnable();
-                await this.DisplaySkidInfo();
             }
         }
 

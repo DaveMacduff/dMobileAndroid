@@ -222,9 +222,11 @@ namespace dMobile.View.Activity
         /// Check if the activity item is ready to close.
         /// </summary>
         /// <returns><see cref="bool" /> True if the activity item is ready to close, else false.</returns>
-        public async Task<bool> IsReadyToClose()
+        public Task<bool> IsReadyToClose()
         {
-            return !this.IsChangesMade;
+            // Since this method does not perform any asynchronous operations,
+            // it does not need to be marked as 'async'. Removing 'async' resolves the CS1998 warning.
+            return Task.FromResult(!this.IsChangesMade);
         }
 
         /// <summary>
@@ -319,7 +321,7 @@ namespace dMobile.View.Activity
         /// <returns><see cref="XDocument" /> Activity item return information.</returns>
         public async Task<XDocument> GetXml()
         {
-            return XDocument.Parse(
+            return await Task.FromResult(XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                 + "<params>"
                 + "<from_prod_fk_refno>" +
@@ -328,7 +330,7 @@ namespace dMobile.View.Activity
                 + "<to_prod_fk_refno>" + (this.ToProdInfo != null ? this.ToProdInfo.Refno.ToString() : string.Empty) +
                 "</to_prod_fk_refno>"
                 + "<location_map_refno>" + this.LocMap.CurrLocMapRefno + "</location_map_refno>"
-                + "</params>");
+                + "</params>"));
         }
 
         /// <summary>
@@ -346,7 +348,7 @@ namespace dMobile.View.Activity
 
             void SubscribeKeyUpHandlers()
             {
-                MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), KeyUpHandlerCallback);
+                MessagingCenter.Subscribe<string>(this, nameof(EventTypes.OnKeyUp), KeyUpHandlerCallback);
             }
 
             async void KeyUpHandlerCallback(string keyPressed)
@@ -434,7 +436,7 @@ namespace dMobile.View.Activity
         /// </summary>
         protected override void OnDisappearing()
         {
-            MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
+            MessagingCenter.Unsubscribe<string>(this, nameof(EventTypes.OnKeyUp));
             base.OnDisappearing();
             GC.Collect();
             GC.WaitForPendingFinalizers();
@@ -862,7 +864,7 @@ namespace dMobile.View.Activity
 
         private void AssertDetailsSet()
         {
-            if (this.ActDetail.ListDetails.Count <= 0)
+            if (this.ActDetail.ListDetails.Count == 0)
             {
                 throw new MessageOnlyException("No convert to product details have be set.");
             }
