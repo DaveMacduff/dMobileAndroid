@@ -35,12 +35,13 @@
     <EnableLLVM>false</EnableLLVM>
     <BundleAssemblies>false</BundleAssemblies>
     <AndroidUseSharedRuntime>true</AndroidUseSharedRuntime>
-    <EmbedAssembliesIntoApk>false</EmbedAssembliesIntoApk>
+    <EmbedAssembliesIntoApk>true</EmbedAssembliesIntoApk>
     <UseVSHostingProcess>false</UseVSHostingProcess>
     <AndroidDexTool>d8</AndroidDexTool>
     <JavaMaximumHeapSize>1G</JavaMaximumHeapSize>
     <AndroidLinkMode>None</AndroidLinkMode>
     <AndroidEnableProfiledAot>false</AndroidEnableProfiledAot>
+    <AndroidKeyStore>false</AndroidKeyStore>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -215,7 +216,7 @@
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties XamarinHotReloadDebuggerTimeoutExceptiondMobileAndroidHideInfoBar="True" TriggeredFromHotReload="False" XamarinHotReloadGenericExceptionInfoBardMobileAndroidHideInfoBar="True" />
+      <UserProperties XamarinHotReloadGenericExceptionInfoBardMobileAndroidHideInfoBar="True" TriggeredFromHotReload="False" XamarinHotReloadDebuggerTimeoutExceptiondMobileAndroidHideInfoBar="True" />
     </VisualStudio>
   </ProjectExtensions>
 </Project>

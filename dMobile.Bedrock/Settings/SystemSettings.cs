@@ -2582,11 +2582,6 @@ namespace dMobile.Bedrock
         public bool IsNewActivityDetailsAdded { get; set; } = false;
 
         /// <summary>
-        ///     Gets or sets a value indicating whether the activity item single mode is enabled.
-        /// </summary>
-        public bool EnableAndroidSingleActivityItemMode { get; set; } = false;
-
-        /// <summary>
         /// The RegisterSysSettingsListenerStatusOut.
         /// </summary>
         /// <param name="sysSettingsListener">The sysSettingsListener<see cref="ISysSettingsEventListener"/>.</param>

@@ -134,9 +134,6 @@ namespace dMobile.Bedrock
                 {
                     sysSettings = new SystemSettings();
                     SystemSettingsTasks.LoadData(ref sysSettings);
-
-                    sysEnv.IsActivityItemSingleMode = sysSettings.IsSingleActivityItem;
-                    sysEnv.SysSettings.EnableAndroidSingleActivityItemMode = sysSettings.IsSingleActivityItem;
                 }
 
                 return sysSettings;
@@ -265,11 +262,6 @@ namespace dMobile.Bedrock
         /// Gets or sets the inserted detail foreign key reference number.
         /// </summary>
         public int InsertedDetailFkRefno { get; set; }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether the activity item is in single mode.
-        /// </summary>
-        public bool IsActivityItemSingleMode { get; set; }
 
         // METHODS
 

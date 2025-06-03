@@ -4,11 +4,6 @@
 
 namespace dMobile.View.Activity
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Threading.Tasks;
-    using System.Xml.Linq;
     using BarCodeScanner.BarCodeParsing;
     using BarCodeScanner.BarCodeScanners;
     using Bedrock;
@@ -18,8 +13,15 @@ namespace dMobile.View.Activity
     using Forms;
     using Resources.Enums;
     using Resources.Types.Items;
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Threading.Tasks;
+    using System.Xml.Linq;
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;
+    using static dMobile.Bedrock.SysCommon;
+    using static dMobile.View.SysShared;
     using Resource = Resources.Properties.Resources;
 
     /// <summary>
@@ -1188,12 +1190,8 @@ namespace dMobile.View.Activity
                 }
 
                 this.CmdSetSkid.IsEnabled = false;
-                var form = new FormDialogContainer(
-                    EDialogTypes.SkidInfo,
-                    this.ActItem.ActHdr,
-                    this.ActSubType,
-                    SysShared.ActivityType.Items);
-                var result = await form.DisplayControl.ShowDialog();
+                var form = new ActivityHdrSkidInfo(this.ActSubType, this.ActItem, ActivityType.Items);
+                var result = await form.ShowDialog();
                 if (result != DialogResult.OK)
                 {
                     throw new CancelOperationException();

@@ -440,9 +440,7 @@ namespace dMobile.View.Activity
             base.OnAppearing();
             this.ListViewDisplayExtraInfo.ItemsSource = this.ExtraInfoItems;
             SubscribeKeyUpHandlers();
-            return;
 
-            //////////////////////////////////////////////////////////////////////////
             void SubscribeKeyUpHandlers()
             {
                 MessagingCenter.Subscribe<string>(
@@ -451,7 +449,6 @@ namespace dMobile.View.Activity
                     KeyUpHandlerCallback);
                 return;
 
-                //////////////////////////////////////////////////////////////////////////
                 async void KeyUpHandlerCallback(string keyPressed)
                 {
                     try
@@ -498,7 +495,6 @@ namespace dMobile.View.Activity
                 }
             }
 
-            //////////////////////////////////////////////////////////////////////////
             async Task BreakSkid()
             {
                 if (string.IsNullOrEmpty(this.SkidInfo.CurrSkid.SkidCode))
@@ -556,7 +552,6 @@ namespace dMobile.View.Activity
             Device.BeginInvokeOnMainThread(PerformCancelChanges);
             return true;
 
-            //////////////////////////////////////////////////////////////////////////
             async void PerformCancelChanges()
             {
                 try
@@ -566,8 +561,7 @@ namespace dMobile.View.Activity
                         // Set the dialog result to OK to force the line item total to recalculate.
                         // Even though the back button is meant to be a cancel we need to update
                         // because data still could have changed.
-                        this.DialogResult = this.SysEnv.IsActivityItemSingleMode
-                            ? DialogResult.Cancel : DialogResult.OK;
+                        this.DialogResult = DialogResult.Cancel;
                         BackButtonCallback();
                     }
                 }
@@ -582,7 +576,6 @@ namespace dMobile.View.Activity
                 }
             }
 
-            //////////////////////////////////////////////////////////////////////////
             async void BackButtonCallback()
             {
                 try
@@ -605,20 +598,11 @@ namespace dMobile.View.Activity
             }
         }
 
-        /// <summary>
-        ///     Get the activity description.
-        /// </summary>
-        /// <returns><see cref="string" /> Activity description.</returns>
         private static string GetControlDescription()
         {
             return "Skid Info";
         }
 
-        /// <summary>
-        ///     Check if a skid exists and set the IsNewSkid flag to true if it does not.
-        /// </summary>
-        /// <param name="skidCode">The skid code.</param>
-        /// <returns><see cref="Task" /> Task.</returns>
         private async Task SetIsNewSkid(string skidCode)
         {
             try
@@ -637,9 +621,6 @@ namespace dMobile.View.Activity
             }
         }
 
-        /// <summary>
-        ///     Initialize the skid information.
-        /// </summary>
         private async Task InitSkidInfo()
         {
             if (this.SkidInfo.CurrSkid.SkidFkRefno <= 0)
@@ -695,12 +676,10 @@ namespace dMobile.View.Activity
                     case SysShared.ActivityType.DetailsEdit:
                         throw new NotImplementedException(
                             "ActivityHdrSkidInfo: ActivityType.DetailsEdit not implemented.");
-                        break;
 
                     case SysShared.ActivityType.HeaderFilter:
                         throw new NotImplementedException(
                             "ActivityHdrSkidInfo: ActivityType.HeaderFilter not implemented.");
-                        break;
 
                     default:
                         throw new ArgumentOutOfRangeException();
@@ -708,10 +687,6 @@ namespace dMobile.View.Activity
             }
         }
 
-        /// <summary>
-        ///     Display skid information.
-        /// </summary>
-        /// <returns><see cref="Task" /> Task complete.</returns>
         private Task DisplaySkidInfo()
         {
             switch (this.ActivityType)
@@ -723,14 +698,15 @@ namespace dMobile.View.Activity
                             this.txtSkidCode.IsEnabled = true;
                             this.txtSkidCode.Text = this.SkidInfo.CurrSkid.SkidCode;
 
-                            this.cmdSkidProduct.IsEnabled = true;
                             if (this.ProdInfo.Refno > 0)
                             {
+                                this.cmdSkidProduct.IsEnabled = false;
                                 this.cmdSkidProduct.Text =
                                     ProductInfoTasks.GetCurrReadableProdBcUnit(this.ProdInfo);
                             }
                             else
                             {
+                                this.cmdSkidProduct.IsEnabled = true;
                                 this.cmdSkidProduct.Text = "Select Product";
                             }
 
@@ -787,15 +763,16 @@ namespace dMobile.View.Activity
                             this.txtSkidCode.IsEnabled = true;
                             this.txtSkidCode.Text = this.SkidInfo.CurrSkid.SkidCode;
                             this.cmdSaveSkid.IsEnabled = true;
-                            this.cmdSkidProduct.IsEnabled = true;
 
                             if (this.ProdInfo.Refno > 0)
                             {
                                 this.cmdSkidProduct.Text =
                                     ProductInfoTasks.GetCurrReadableProdBcUnit(this.ProdInfo);
+                                this.cmdSkidProduct.IsEnabled = false;
                             }
                             else
                             {
+                                this.cmdSkidProduct.IsEnabled = true;
                                 this.cmdSkidProduct.Text = "SELECT PRODUCT";
                             }
 
@@ -923,9 +900,6 @@ namespace dMobile.View.Activity
             return Task.CompletedTask;
         }
 
-        /// <summary>
-        ///     Initialize the bar code modifier items.
-        /// </summary>
         private void ParseAndSeedBarCodeModifier()
         {
             this.BarCodeModifier1Picker.Items.Clear();
@@ -949,14 +923,6 @@ namespace dMobile.View.Activity
             this.BarCodeModifier1Picker.SelectedItem = this.SysEnv.CurrentBarCodeModifier1;
         }
 
-        /// <summary>
-        ///     Bar code scan event handler.
-        /// </summary>
-        /// <param name="sender"><see cref="object" /> Object that generated the event.</param>
-        /// <param name="scanArgs">
-        ///     <see cref="BarCodeScannerEventArgs" /> Sender bar code scanner
-        ///     event arguments.
-        /// </param>
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
             try
@@ -1045,7 +1011,6 @@ namespace dMobile.View.Activity
 
             return;
 
-            //////////////////////////////////////////////////////////////////////////
             async Task HandleSkidScanned(BarCodeParse codeParse)
             {
                 try
@@ -1150,7 +1115,6 @@ namespace dMobile.View.Activity
                 }
             }
 
-            //////////////////////////////////////////////////////////////////////////
             async Task HandleLocationScanned(BarCodeParse codeParse)
             {
                 var locMapRefno =
@@ -1188,7 +1152,6 @@ namespace dMobile.View.Activity
                 this.IsChangesMade = true;
             }
 
-            //////////////////////////////////////////////////////////////////////////
             async Task HandleProductScanned(BarCodeParse codeParse)
             {
                 var prodUnitRefno = await SysShared.IdentifyProductScanned(
@@ -1287,11 +1250,6 @@ namespace dMobile.View.Activity
             }
         }
 
-        /// <summary>
-        ///     Set location click event handler.
-        /// </summary>
-        /// <param name="sender"><see cref="object" /> Object that generated the event.</param>
-        /// <param name="e"><see cref="EventArgs" /> Event arguments.</param>
         private async void CmdLocation_Click(object sender, EventArgs e)
         {
             try
@@ -1364,11 +1322,6 @@ namespace dMobile.View.Activity
             }
         }
 
-        /// <summary>
-        ///     Print skid label click event handler.
-        /// </summary>
-        /// <param name="sender"><see cref="object" /> Object that generated the event.</param>
-        /// <param name="e"><see cref="EventArgs" /> Event arguments.</param>
         private async void PictureBoxPrintLabel_Click(object sender, EventArgs e)
         {
             try
@@ -1407,10 +1360,6 @@ namespace dMobile.View.Activity
             }
         }
 
-        /// <summary>
-        ///     Fill skid information.
-        /// </summary>
-        /// <returns><see cref="SSkidInfo" /> Filled skid information.</returns>
         private async Task<SSkidInfo> FillSkidInfo()
         {
             var tempSkidInfo = this.SkidInfo.CurrSkid;
@@ -1464,11 +1413,6 @@ namespace dMobile.View.Activity
             }
         }
 
-        /// <summary>
-        ///     Skid detail click event handler.
-        /// </summary>
-        /// <param name="sender"><see cref="object" /> Object that generated the event.</param>
-        /// <param name="e"><see cref="EventArgs" /> Event arguments.</param>
         private async void CmdDetail_Click(object sender, EventArgs e)
         {
             try
@@ -1548,11 +1492,6 @@ namespace dMobile.View.Activity
             }
         }
 
-        /// <summary>
-        ///     Complete the skid click event handler.
-        /// </summary>
-        /// <param name="sender"><see cref="object" /> Object that generated the event.</param>
-        /// <param name="e"><see cref="EventArgs" /> Event arguments.</param>
         private async void CmdComplete_Click(object sender, EventArgs e)
         {
             try
@@ -1586,11 +1525,6 @@ namespace dMobile.View.Activity
             }
         }
 
-        /// <summary>
-        ///     Select the skid product click event handler.
-        /// </summary>
-        /// <param name="sender"><see cref="object" /> Object that generated the event.</param>
-        /// <param name="e"><see cref="EventArgs" /> Event arguments.</param>
         private async void CmdSkidProduct_Click(object sender, EventArgs e)
         {
             try
@@ -1664,46 +1598,22 @@ namespace dMobile.View.Activity
             }
         }
 
-        /// <summary>
-        ///     The cmdNewSkid_Click.
-        /// </summary>
-        /// <param name="sender"><see cref="object" /> Sender object.</param>
-        /// <param name="e"><see cref="EventArgs" /> Event arguments.</param>
         private async void CmdSaveSkid_Click(object sender, EventArgs e)
         {
             try
             {
                 await this.ScannerDisable();
-                switch (this.ActivityType)
-                {
-                    case SysShared.ActivityType.Header:
-                        break;
-
-                    case SysShared.ActivityType.Items:
-                        if (this.IsNewSkid && !this.SysEnv.IsActivityItemSingleMode)
-                        {
-                            const string msg = "Creating a new skid is not allowed on the line item level.";
-                            throw new MessageOnlyException(msg);
-                        }
-
-                        break;
-
-                    case SysShared.ActivityType.Details:
-                    case SysShared.ActivityType.DetailsEdit:
-                    case SysShared.ActivityType.HeaderFilter:
-                        break;
-
-                    default:
-                        throw new ArgumentOutOfRangeException();
-                }
-
                 this.IsNewSkid = string.IsNullOrEmpty(this.txtSkidCode.Text);
                 if (await this.IsReadyToSave())
                 {
                     var msg = this.IsNewSkid ? "Skid created." : "Skid updated.";
+
                     await this.SaveSkid(this.SkidInfo.CurrSkid);
+
                     this.IsNewSkid = false;
+
                     this.IsChangesMade = false;
+
                     await Application.Current.MainPage.DisplayAlert(
                         GetControlDescription(),
                         msg,
@@ -1715,6 +1625,8 @@ namespace dMobile.View.Activity
                 }
 
                 await this.DisplaySkidInfo();
+                this.DialogResult = DialogResult.OK;
+                await this.Close();
             }
             catch (MessageOnlyException msgEx)
             {
@@ -1735,9 +1647,6 @@ namespace dMobile.View.Activity
             }
         }
 
-        /// <summary>
-        ///     Initialize the controls text.
-        /// </summary>
         private void InitControlText()
         {
             this.Title = GetControlDescription();
@@ -1757,41 +1666,21 @@ namespace dMobile.View.Activity
             this.pictureBoxPrintLabel.Text = "Print";
         }
 
-        /// <summary>
-        ///     The BarCodeModifier1Picker_SelectedIndexChanged.
-        /// </summary>
-        /// <param name="sender"><see cref="object" /> Sender object.</param>
-        /// <param name="e"><see cref="EventArgs" /> Event arguments.</param>
         private void UpdnBarCodeModifier1_SelectedIndexChanged(object sender, EventArgs e)
         {
             this.IsChangesMade = true;
         }
 
-        /// <summary>
-        ///     The chkIsPutAway_Toggled.
-        /// </summary>
-        /// <param name="sender"><see cref="object" /> Sender object.</param>
-        /// <param name="e"><see cref="EventArgs" /> Event arguments.</param>
         private void ChkIsPutAway_Toggled(object sender, ToggledEventArgs e)
         {
             this.IsChangesMade = true;
             this.SkidInfo.CurrSkid.IsPutAway = this.chkIsPutAway.IsToggled;
         }
 
-        /// <summary>
-        ///     TxtSkidCode on focused event handler.
-        /// </summary>
-        /// <param name="sender"><see cref="object" /> Object that generated this event.</param>
-        /// <param name="e"><see cref="FocusEventArgs" /> Focus event argument data.</param>
         private void TxtSkidCode_OnFocused(object sender, FocusEventArgs e)
         {
         }
 
-        /// <summary>
-        ///     TxtSkidCode on unfocused event handler.
-        /// </summary>
-        /// <param name="sender"><see cref="object" /> Object that generated this event.</param>
-        /// <param name="e"><see cref="FocusEventArgs" /> Focus event argument data.</param>
         private async void TxtSkidCode_OnUnfocused(object sender, FocusEventArgs e)
         {
             try
@@ -1860,20 +1749,10 @@ namespace dMobile.View.Activity
             }
         }
 
-        /// <summary>
-        ///     TxtTi on focused event handler.
-        /// </summary>
-        /// <param name="sender"><see cref="object" /> Object that generated this event.</param>
-        /// <param name="e"><see cref="FocusEventArgs" /> Focus event argument data.</param>
         private void TxtTi_OnFocused(object sender, FocusEventArgs e)
         {
         }
 
-        /// <summary>
-        ///     TxtTi on unfocused event handler.
-        /// </summary>
-        /// <param name="sender"><see cref="object" /> Object that generated this event.</param>
-        /// <param name="e"><see cref="FocusEventArgs" /> Focus event argument data.</param>
         private async void TxtTi_OnUnfocused(object sender, FocusEventArgs e)
         {
             try
@@ -1904,20 +1783,10 @@ namespace dMobile.View.Activity
             }
         }
 
-        /// <summary>
-        ///     TxtHi on focused event handler.
-        /// </summary>
-        /// <param name="sender"><see cref="object" /> Object that generated this event.</param>
-        /// <param name="e"><see cref="FocusEventArgs" /> Focus event argument data.</param>
         private void TxtHi_OnFocused(object sender, FocusEventArgs e)
         {
         }
 
-        /// <summary>
-        ///     TxtHi on unfocused event handler.
-        /// </summary>
-        /// <param name="sender"><see cref="object" /> Object that generated this event.</param>
-        /// <param name="e"><see cref="FocusEventArgs" /> Focus event argument data.</param>
         private async void TxtHi_OnUnfocused(object sender, FocusEventArgs e)
         {
             try
@@ -1948,20 +1817,10 @@ namespace dMobile.View.Activity
             }
         }
 
-        /// <summary>
-        ///     TxtHeight on focused event handler.
-        /// </summary>
-        /// <param name="sender"><see cref="object" /> Object that generated this event.</param>
-        /// <param name="e"><see cref="FocusEventArgs" /> Focus event argument data.</param>
         private void TxtHeight_OnFocused(object sender, FocusEventArgs e)
         {
         }
 
-        /// <summary>
-        ///     TxtHeight on unfocused event handler.
-        /// </summary>
-        /// <param name="sender"><see cref="object" /> Object that generated this event.</param>
-        /// <param name="e"><see cref="FocusEventArgs" /> Focus event argument data.</param>
         private async void TxtHeight_OnUnfocused(object sender, FocusEventArgs e)
         {
             try
@@ -1992,20 +1851,10 @@ namespace dMobile.View.Activity
             }
         }
 
-        /// <summary>
-        ///     TxtCube on focused event handler.
-        /// </summary>
-        /// <param name="sender"><see cref="object" /> Object that generated this event.</param>
-        /// <param name="e"><see cref="FocusEventArgs" /> Focus event argument data.</param>
         private void TxtCube_OnFocused(object sender, FocusEventArgs e)
         {
         }
 
-        /// <summary>
-        ///     TxtCube on unfocused event handler.
-        /// </summary>
-        /// <param name="sender"><see cref="object" /> Object that generated this event.</param>
-        /// <param name="e"><see cref="FocusEventArgs" /> Focus event argument data.</param>
         private async void TxtCube_OnUnfocused(object sender, FocusEventArgs e)
         {
             try

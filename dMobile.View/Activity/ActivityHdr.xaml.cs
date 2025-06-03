@@ -879,28 +879,14 @@ namespace dMobile.View.Activity
                     async Task KeyUpEnterHandler()
                     {
                         this.ActHdr.AssignRefnoFromActivity(this.ListViewMainActivity.SelectedItem);
-                        if (this.SysEnv.SysSettings.EnableAndroidSingleActivityItemMode)
+                        if (this.ActSubType == SysCommon.ActSubTypes.Picking)
                         {
-                            if (this.ActSubType == SysCommon.ActSubTypes.Picking)
-                            {
-                                await this.ListViewMainActivity_KeyUpEnter_PickingSingle();
-                            }
-                            else
-                            {
-                                var form = new FormDialogContainer(
-                                    EDialogTypes.ActivityItemSingle,
-                                    this.ActHdr,
-                                    this.ActSubType);
-                                this.IsChangesMade = false;
-                                _ = await Device.InvokeOnMainThreadAsync(
-                                    async () => await form.DisplayControl.ShowDialog());
-                                await this.FindSelectedItemAsync(this.ActHdr.HdrRefno);
-                            }
+                            await this.ListViewMainActivity_KeyUpEnter_PickingSingle();
                         }
                         else
                         {
                             var form = new FormDialogContainer(
-                                EDialogTypes.ActivityItem,
+                                EDialogTypes.ActivityItemSingle,
                                 this.ActHdr,
                                 this.ActSubType);
                             this.IsChangesMade = false;
@@ -1061,26 +1047,9 @@ namespace dMobile.View.Activity
                 if (selectedActivity != null)
                 {
                     this.ActHdr.AssignRefnoFromActivity(selectedActivity);
-                    if (this.SysEnv.SysSettings.EnableAndroidSingleActivityItemMode)
+                    if (this.ActSubType == SysCommon.ActSubTypes.Picking)
                     {
-                        if (this.ActSubType == SysCommon.ActSubTypes.Picking)
-                        {
-                            await this.ListViewMainActivity_KeyUpEnter_PickingSingle();
-                        }
-                        else
-                        {
-                            await Device.InvokeOnMainThreadAsync(
-                                async () =>
-                                {
-                                    var form = new FormDialogContainer(
-                                    EDialogTypes.ActivityItemSingle,
-                                    this.ActHdr,
-                                    this.ActSubType);
-                                    this.IsChangesMade = false;
-                                    _ = await form.DisplayControl.ShowDialog();
-                                });
-                            await this.FindSelectedItemAsync(this.ActHdr.HdrRefno);
-                        }
+                        await this.ListViewMainActivity_KeyUpEnter_PickingSingle();
                     }
                     else
                     {
@@ -1088,9 +1057,9 @@ namespace dMobile.View.Activity
                             async () =>
                             {
                                 var form = new FormDialogContainer(
-                                    EDialogTypes.ActivityItem,
-                                    this.ActHdr,
-                                    this.ActSubType);
+                                EDialogTypes.ActivityItemSingle,
+                                this.ActHdr,
+                                this.ActSubType);
                                 this.IsChangesMade = false;
                                 _ = await form.DisplayControl.ShowDialog();
                             });
@@ -1119,30 +1088,17 @@ namespace dMobile.View.Activity
                     {
                         this.NumTaps = 0;
                         this.ActHdr.AssignRefnoFromActivity(this.ListViewMainActivity.SelectedItem);
-                        if (this.SysEnv.SysSettings.EnableAndroidSingleActivityItemMode)
+                        if (this.ActSubType == SysCommon.ActSubTypes.Picking)
                         {
-                            if (this.ActSubType == SysCommon.ActSubTypes.Picking)
-                            {
-                                await this.ListViewMainActivity_KeyUpEnter_PickingSingle();
-                            }
-                            else
-                            {
-                                this.IsChangesMade = false;
-                                var form = new FormDialogContainer(
-                                    EDialogTypes.ActivityItemSingle,
-                                    this.ActHdr,
-                                    this.ActSubType);
-                                _ = await Device.InvokeOnMainThreadAsync(
-                                    async () => await form.DisplayControl.ShowDialog());
-                            }
+                            await this.ListViewMainActivity_KeyUpEnter_PickingSingle();
                         }
                         else
                         {
+                            this.IsChangesMade = false;
                             var form = new FormDialogContainer(
-                                EDialogTypes.ActivityItem,
+                                EDialogTypes.ActivityItemSingle,
                                 this.ActHdr,
                                 this.ActSubType);
-                            this.IsChangesMade = false;
                             _ = await Device.InvokeOnMainThreadAsync(
                                 async () => await form.DisplayControl.ShowDialog());
                         }
