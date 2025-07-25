@@ -2,7 +2,9 @@
 <modal:DMobileModal  xmlns:modal="clr-namespace:dMobile.View.CustomPages.Modal"
                      xmlns="http://xamarin.com/schemas/2014/forms"
                      xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" 
-                     xmlns:Helpers="clr-namespace:dMobile.View.Helpers" xmlns:customcontrols="clr-namespace:dMobile.View.CustomControls"
+                     xmlns:Helpers="clr-namespace:dMobile.View.Helpers"
+                     xmlns:customcontrols="clr-namespace:dMobile.View.CustomControls"
+                     x:DataType="modal:DMobileTabbedModal"
                      x:Class="dMobile.View.Activity.ActivityProductLabel">
     <ContentPage.Content>
         <AbsoluteLayout VerticalOptions="Center">
@@ -31,33 +33,83 @@
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
 
-                        <Label x:Name="lblQuantity" Grid.Row="0" Grid.Column="0"/>
-                        <Entry x:Name="txtAltQuantity" Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" Keyboard="Numeric"/>
+                        <Label x:Name="lblQuantity"
+                               Grid.Row="0"
+                               Grid.Column="0"
+                               Text="Quantity"/>
+                        <Entry x:Name="txtAltQuantity"
+                               Grid.Row="0"
+                               Grid.Column="1"
+                               Grid.ColumnSpan="2"
+                               Keyboard="Numeric"/>
 
-                        <Label x:Name="lblWeight" Grid.Row="1" Grid.Column="0"/>
-                        <Entry x:Name="txtWtQty" Grid.Row="1" Grid.Column="1" Keyboard="Numeric"/>
-                        <Label x:Name="lblWtUnit" Grid.Row="1" Grid.Column="2"/>
+                        <Label x:Name="lblWeight"
+                               Grid.Row="1"
+                               Grid.Column="0"
+                               Text="Weight"/>
+                        <Entry x:Name="txtWtQty"
+                               Grid.Row="1"
+                               Grid.Column="1"
+                               Keyboard="Numeric"/>
+                        <Label x:Name="lblWtUnit"
+                               Grid.Row="1"
+                               Grid.Column="2"
+                               Text="KG"/>
 
-                        <Label x:Name="lblSerialNo" Grid.Row="2" Grid.Column="0"/>
-                        <customcontrols:CustomPicker x:Name="cboSerialNo" Image="arrow_drop_down" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2"/>
+                        <Label x:Name="lblSerialNo"
+                               Grid.Row="2"
+                               Grid.Column="0"
+                               Text="Serial No"/>
+                        <Entry x:Name="txtSerialNo"
+                               Grid.Row="2"
+                               Grid.Column="1"
+                               Grid.ColumnSpan="2"/>                        
 
-                        <Label x:Name="lblProductionDate" Grid.Row="3" Grid.Column="0"/>
-                        <DatePicker x:Name="dtProductionDate" Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2"/>
+                        <Label x:Name="lblProductionDate"
+                               Grid.Row="3"
+                               Grid.Column="0"
+                               Text="Production"/>
+                        <DatePicker x:Name="dtProductionDate"
+                                    Grid.Row="3"
+                                    Grid.Column="1"
+                                    Grid.ColumnSpan="2"/>
 
-                        <Label x:Name="lblLotNo" Grid.Row="4" Grid.Column="0"/>
-                        <customcontrols:CustomPicker x:Name="cboLotNo" Image="arrow_drop_down" Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="2"/>
+                        <Label x:Name="lblLotNo"
+                               Grid.Row="4"
+                               Grid.Column="0"
+                               Text="LotNo"/>
+                        <Entry x:Name="txtLotNo"
+                               Grid.Row="4"
+                               Grid.Column="1"
+                               Grid.ColumnSpan="2"/>
 
-                        <Label x:Name="lblBestBeforeDate" Grid.Row="5" Grid.Column="0"/>
-                        <DatePicker x:Name="dtBestBeforeDate" Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="2"/>
+                        <Label x:Name="lblBestBeforeDate"
+                               Grid.Row="5"
+                               Grid.Column="0"
+                               Text="Best Before"/>
+                        <DatePicker x:Name="dtBestBeforeDate"
+                                    Grid.Row="5"
+                                    Grid.Column="1"
+                                    Grid.ColumnSpan="2"/>
                         
-                        <Label x:Name="lblVariantCode" Grid.Row="6" Grid.Column="0"/>
-                        <customcontrols:CustomPicker x:Name="cboVariantCode" Image="arrow_drop_down" Grid.Row="6" Grid.Column="1" Grid.ColumnSpan="2"/>
+                        <Label x:Name="lblVariantCode"
+                               Grid.Row="6"
+                               Grid.Column="0"
+                               Text="Variant"/>
+                        <Entry x:Name="txtVariantCode"
+                               Grid.Row="6"
+                               Grid.Column="1"
+                               Grid.ColumnSpan="2"/>
                     </Grid>
                 </ScrollView>
 
                 <!--Row 1-->
-                <Frame Grid.Row="1" OutlineColor="{DynamicResource BorderColor}">
-                    <ListView x:Name="ListViewDisplayExtraInfo" SelectionMode="None" HasUnevenRows="True" IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}" SeparatorVisibility="None">
+                <Frame Grid.Row="1" BorderColor="{DynamicResource BorderColor}">
+                    <ListView x:Name="ListViewDisplayExtraInfo"
+                              SelectionMode="None"
+                              HasUnevenRows="True"
+                              IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}"
+                              SeparatorVisibility="None">
                         <ListView.ItemTemplate>
                             <DataTemplate>
                                 <ViewCell>
@@ -72,12 +124,22 @@
                 
                 <!--Row 2-->
                 <Grid Grid.Row="2">
-                    <Button x:Name="cmdSave" Grid.Row="0" Grid.Column="0" Clicked="cmdSave_Clicked"/>
-                    <Button x:Name="cmdSelectProduct" Grid.Row="0" Grid.Column="1"/>
+                    <Button x:Name="cmdSave"
+                            Grid.Row="0"
+                            Grid.Column="0"
+                            Clicked="CmdSave_Clicked"
+                            Text="Save"/>
+                    <Button x:Name="cmdSelectProduct"
+                            Grid.Row="0"
+                            Grid.Column="1"
+                            Text="Select Product"/>
                 </Grid>
             </Grid>
 
-            <ActivityIndicator IsVisible="{Binding IsIndicatorRunning}" IsRunning="{Binding IsIndicatorRunning}" AbsoluteLayout.LayoutFlags="All" AbsoluteLayout.LayoutBounds="0.5,0.5,0.3,0.3"/>
+            <ActivityIndicator IsVisible="{Binding IsIndicatorRunning}"
+                               IsRunning="{Binding IsIndicatorRunning}"
+                               AbsoluteLayout.LayoutFlags="All"
+                               AbsoluteLayout.LayoutBounds="0.5,0.5,0.3,0.3"/>
         </AbsoluteLayout>
     </ContentPage.Content>
 </modal:DMobileModal>

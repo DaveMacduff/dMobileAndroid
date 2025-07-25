@@ -54,7 +54,7 @@ namespace dMobile.View.Activity
             this.actDetailEdit = new ActDetailEdit();
             this.ActDetail = _actDetail;
 
-            this.actDetailEdit.AltQuantity = this.ActDetail.Quantity;
+            this.actDetailEdit.Quantity = this.ActDetail.Quantity;
             this.actDetailEdit.BaseQuantity = this.ActDetail.BaseQuantity;
             this.actDetailEdit.WeightQuantity = this.ActDetail.WeightQuantity;
 
@@ -205,7 +205,7 @@ namespace dMobile.View.Activity
                 {
                     // Clear any properties.
                     this.actDetailEdit.SchemeData = this.ActDetail.SchemeData;
-                    this.actDetailEdit.AltQuantity = this.ActDetail.Quantity;
+                    this.actDetailEdit.Quantity = this.ActDetail.Quantity;
                     this.actDetailEdit.WeightQuantity = this.ActDetail.WeightQuantity;
                     this.actDetailEdit.BaseQuantity = this.ActDetail.BaseQuantity;
 
@@ -248,7 +248,7 @@ namespace dMobile.View.Activity
             var request = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" +
                 "<params>" +
-                "<alt_qty>" + this.actDetailEdit.AltQuantity + "</alt_qty>" +
+                "<alt_qty>" + this.actDetailEdit.Quantity + "</alt_qty>" +
                 "<wt_qty>" + this.actDetailEdit.WeightQuantity + "</wt_qty>" +
                 "<base_qty>" + this.actDetailEdit.BaseQuantity + "</base_qty>" +
                 "</params>");
@@ -350,11 +350,11 @@ namespace dMobile.View.Activity
             var sQuantity =
                 SysCommon.FillQuantityStructureFromQuantity(this.ActDetail.ActItem.ProdInfo, this.ActDetail.Quantity);
 
-            this.actDetailEdit.AltQuantity = decimal.Round(sQuantity.Quantity, 3);
+            this.actDetailEdit.Quantity = decimal.Round(sQuantity.Quantity, 3);
             this.actDetailEdit.BaseQuantity = decimal.Round(sQuantity.BaseQuantity, 3);
             this.actDetailEdit.WeightQuantity = decimal.Round(sQuantity.WeightQuantity, 3);
 
-            this.txtAltQty.Text = this.actDetailEdit.AltQuantity.ToString();
+            this.txtAltQty.Text = this.actDetailEdit.Quantity.ToString();
         }
 
         /// <summary>
@@ -374,10 +374,10 @@ namespace dMobile.View.Activity
             }
             else
             {
-                this.actDetailEdit.AltQuantity = decimal.Parse(this.txtAltQty.Text);
+                this.actDetailEdit.Quantity = decimal.Parse(this.txtAltQty.Text);
                 var sQuantity = SysCommon.FillQuantityStructureFromQuantity(this.ActDetail.ActItem.ProdInfo,
-                    this.actDetailEdit.AltQuantity);
-                this.actDetailEdit.AltQuantity = decimal.Round(sQuantity.Quantity, 3);
+                    this.actDetailEdit.Quantity);
+                this.actDetailEdit.Quantity = decimal.Round(sQuantity.Quantity, 3);
                 this.actDetailEdit.BaseQuantity = decimal.Round(sQuantity.BaseQuantity, 3);
                 this.actDetailEdit.WeightQuantity = decimal.Round(sQuantity.WeightQuantity, 3);
             }

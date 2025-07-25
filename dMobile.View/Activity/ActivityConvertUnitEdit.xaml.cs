@@ -52,7 +52,7 @@ namespace dMobile.View.Activity
             this.ActDetail.ActItem.ActHdr.ActSubType = this.ActSubType;
 
             this.ActDetailEdit.SchemeData = this.ActDetail.SchemeData;
-            this.ActDetailEdit.AltQuantity = this.ActDetail.Quantity;
+            this.ActDetailEdit.Quantity = this.ActDetail.Quantity;
             this.ActDetailEdit.BaseQuantity = this.ActDetail.BaseQuantity;
             this.ActDetailEdit.WeightQuantity = this.ActDetail.WeightQuantity;
         }
@@ -240,7 +240,7 @@ namespace dMobile.View.Activity
                 if (await this.IsReadyToClose())
                 {
                     this.ActDetailEdit.SchemeData = this.ActDetail.SchemeData;
-                    this.ActDetailEdit.AltQuantity = this.ActDetail.Quantity;
+                    this.ActDetailEdit.Quantity = this.ActDetail.Quantity;
                     this.ActDetailEdit.WeightQuantity = this.ActDetail.WeightQuantity;
                     this.ActDetailEdit.BaseQuantity = this.ActDetail.BaseQuantity;
                 }
@@ -291,7 +291,7 @@ namespace dMobile.View.Activity
                                           + "<bdate>" + schemeData.LogisticUnitBestBeforeSellByDate + "</bdate>"
                                           + "<variant_code>" + schemeData.VariantCode + "</variant_code>"
                                           + "<variant_no>" + schemeData.VariantNumber + "</variant_no>"
-                                          + "<alt_qty>" + this.ActDetailEdit.AltQuantity + "</alt_qty>"
+                                          + "<alt_qty>" + this.ActDetailEdit.Quantity + "</alt_qty>"
                                           + "<wt_qty>" + this.ActDetailEdit.WeightQuantity + "</wt_qty>"
                                           + "<base_qty>" + this.ActDetailEdit.BaseQuantity + "</base_qty>"
                                           + "<scheme_id>" + scheme + "</scheme_id>"
@@ -384,7 +384,7 @@ namespace dMobile.View.Activity
         {
             var isRetVal = true;
 
-            this.ActDetailEdit.AltQuantity = decimal.Parse(this.TxtAltQty.Text);
+            this.ActDetailEdit.Quantity = decimal.Parse(this.TxtAltQty.Text);
             this.ActDetailEdit.WeightQuantity = decimal.Parse(this.TxtWtQty.Text);
 
             if (this.ActDetail.ActItem.ProdInfo.BaseUnitCode == "LB" ||
@@ -394,14 +394,14 @@ namespace dMobile.View.Activity
             }
             else
             {
-                if (this.ActDetailEdit.AltQuantity != 0 && this.ActDetail.ActItem.ProdInfo.Unit2BaseUnitFactor != 0)
+                if (this.ActDetailEdit.Quantity != 0 && this.ActDetail.ActItem.ProdInfo.Unit2BaseUnitFactor != 0)
                 {
-                    this.ActDetailEdit.BaseQuantity = this.ActDetailEdit.AltQuantity *
+                    this.ActDetailEdit.BaseQuantity = this.ActDetailEdit.Quantity *
                                                       this.ActDetail.ActItem.ProdInfo.Unit2BaseUnitFactor;
                 }
                 else
                 {
-                    this.ActDetailEdit.BaseQuantity = this.ActDetailEdit.AltQuantity;
+                    this.ActDetailEdit.BaseQuantity = this.ActDetailEdit.Quantity;
                 }
             }
 
@@ -455,21 +455,21 @@ namespace dMobile.View.Activity
                 {
                     if (this.ActDetail.WeightQuantity != 0)
                     {
-                        this.ActDetailEdit.AltQuantity = this.ActDetail.WeightQuantity;
+                        this.ActDetailEdit.Quantity = this.ActDetail.WeightQuantity;
                     }
                     else
                     {
-                        this.ActDetailEdit.AltQuantity = this.ActDetail.ActItem.ProdInfo.UnitGrossWeight;
+                        this.ActDetailEdit.Quantity = this.ActDetail.ActItem.ProdInfo.UnitGrossWeight;
                     }
                 }
                 else
                 {
-                    this.ActDetailEdit.AltQuantity = 1;
+                    this.ActDetailEdit.Quantity = 1;
                 }
             }
             else
             {
-                this.ActDetailEdit.AltQuantity = this.ActDetail.Quantity;
+                this.ActDetailEdit.Quantity = this.ActDetail.Quantity;
             }
 
             if (this.ActDetail.WeightQuantity == 0)
@@ -529,11 +529,11 @@ namespace dMobile.View.Activity
                 this.ActDetailEdit.BaseQuantity = this.ActDetail.BaseQuantity;
             }
 
-            this.ActDetailEdit.AltQuantity = decimal.Round(this.ActDetailEdit.AltQuantity, 3);
+            this.ActDetailEdit.Quantity = decimal.Round(this.ActDetailEdit.Quantity, 3);
             this.ActDetailEdit.BaseQuantity = decimal.Round(this.ActDetailEdit.BaseQuantity, 3);
             this.ActDetailEdit.WeightQuantity = decimal.Round(this.ActDetailEdit.WeightQuantity, 3);
 
-            this.TxtAltQty.Text = this.ActDetailEdit.AltQuantity.ToString();
+            this.TxtAltQty.Text = this.ActDetailEdit.Quantity.ToString();
             this.TxtWtQty.Text = this.ActDetailEdit.WeightQuantity.ToString();
         }
 

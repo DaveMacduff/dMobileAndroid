@@ -188,6 +188,20 @@ namespace dMobile.Controller.Activity_Item
         /// </summary>
         private List<ReceiveItem> ListReceiveItems { get; set; } = new List<ReceiveItem>();
 
+        /// <inheritdoc/>
+        public override Color GetShippedReceivedCountedDisplayTextColor()
+        {
+            var displayColor = base.GetShippedReceivedCountedDisplayTextColor();
+            if (this.SelectedItem is ReceiveItem item)
+            {
+                displayColor = item.ActivityItemReceivingQuantityOrdered == item.ActivityItemReceivingQuantityReceived
+                    ? Color.Green
+                    : Color.Red;
+            }
+
+            return displayColor;
+        }
+
         /// <summary>
         /// Set the activity item selected activity item.
         /// </summary>

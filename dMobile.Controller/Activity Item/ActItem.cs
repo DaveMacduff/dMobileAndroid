@@ -554,7 +554,6 @@ namespace dMobile.Controller.Activity_Item
             await IfNothingSelectedAssignTheChosenLocation();
             return selectedLocMap;
 
-            ///////////////////////////////////////////////////////////
             bool CheckIfTheActivityShouldGetTheDefaultLocation()
             {
                 if ((this.ActSubType == ActSubTypes.PhysicalCounts &&
@@ -572,7 +571,6 @@ namespace dMobile.Controller.Activity_Item
                 return isGetDefault;
             }
 
-            ///////////////////////////////////////////////////////////
             async Task IfNothingSelectedAssignTheChosenLocation()
             {
                 // Current location is not considered because it is a result of the default rather
@@ -587,7 +585,6 @@ namespace dMobile.Controller.Activity_Item
                 }
             }
 
-            ///////////////////////////////////////////////////////////
             async Task DefaultToCompleteSkidLocation()
             {
                 var skidInfo = this.ActHdr.SkidInfo.CurrSkid;
@@ -602,7 +599,6 @@ namespace dMobile.Controller.Activity_Item
                 }
             }
 
-            ///////////////////////////////////////////////////////////
             int IfNoItemLocationDefaultToLoginWarehouse()
             {
                 // No location map reference number, so we will default to the login warehouse location.
@@ -619,7 +615,6 @@ namespace dMobile.Controller.Activity_Item
                 return itemLocMapRefno;
             }
 
-            ///////////////////////////////////////////////////////////
             async Task<SLocMap> AssignLocationIfItemLocationIsComplete()
             {
                 var sLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(itemLocMapRefno);
@@ -663,7 +658,6 @@ namespace dMobile.Controller.Activity_Item
             await IfDisconnectedCheckForDuplicate();
             return;
 
-            ///////////////////////////////////////////////////////////
             async Task IfDisconnectedCheckForDuplicate()
             {
                 if (this.SysEnv.SysSettings.IsDisconnectedMode)
@@ -689,6 +683,15 @@ namespace dMobile.Controller.Activity_Item
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// Get the shipped received counted quantity display color.
+        /// </summary>
+        /// <returns>Shipped received counted quantity display color.</returns>
+        public virtual Color GetShippedReceivedCountedDisplayTextColor()
+        {
+            return Color.Black;
         }
 
         /// <summary>

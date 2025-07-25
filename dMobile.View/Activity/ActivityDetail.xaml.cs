@@ -429,7 +429,6 @@ namespace dMobile.View.Activity
 
             return isSaveComplete;
 
-            //////////////////////////////////////////////////////////////////////////
             async Task PrintBatchedProductLabels()
             {
                 // For each detail marked for printing
@@ -1747,23 +1746,23 @@ namespace dMobile.View.Activity
                 // A skid may contain 'default' scheme data, fill the activity detail
                 // with the default skid schema.
                 var tempItemProdSchemeData = new ActItemSchemeData();
-                var schemeData = this.ActDetail.SchemeData;
+                var skidSchemeData = this.ActDetail.SchemeData;
                 if (currSkid.SkidFkRefno != 0)
                 {
-                    schemeData.LogisticUnitSkidNumber = currSkid.SkidCode;
-                    schemeData.LogisticUnitBatchLotNumber =
+                    skidSchemeData.LogisticUnitSkidNumber = currSkid.SkidCode;
+                    skidSchemeData.LogisticUnitBatchLotNumber =
                         currSkid.SchemeData.LogisticUnitBatchLotNumber;
-                    schemeData.LogisticUnitBestBeforeSellByDate =
+                    skidSchemeData.LogisticUnitBestBeforeSellByDate =
                         currSkid.SchemeData.LogisticUnitBestBeforeSellByDate;
-                    schemeData.LogisticUnitProductionDate =
+                    skidSchemeData.LogisticUnitProductionDate =
                         currSkid.SchemeData.LogisticUnitProductionDate;
-                    schemeData.VariantCode = currSkid.SchemeData.VariantCode;
-                    schemeData.VariantNumber = currSkid.SchemeData.VariantNumber;
-                    schemeData.VariantDescription = currSkid.SchemeData.VariantDescription;
+                    skidSchemeData.VariantCode = currSkid.SchemeData.VariantCode;
+                    skidSchemeData.VariantNumber = currSkid.SchemeData.VariantNumber;
+                    skidSchemeData.VariantDescription = currSkid.SchemeData.VariantDescription;
                 }
 
-                tempItemProdSchemeData.ProdSchemeData = schemeData;
-                this.ActDetail.SchemeData = schemeData;
+                tempItemProdSchemeData.ProdSchemeData = skidSchemeData;
+                this.ActDetail.SchemeData = skidSchemeData;
 
                 // Gather data is the meat and potatoes of collecting and assembling
                 // the product scheme data.

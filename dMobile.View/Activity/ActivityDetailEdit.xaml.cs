@@ -14,6 +14,7 @@ namespace dMobile.View.Activity
     using BarCodeScanner.BarCodeScanners;
     using Bedrock;
     using Controller.Activity_Detail;
+    using dMobile.Controller.Activity_Item;
     using Forms;
     using Resources.Enums;
     using Xamarin.Forms;
@@ -62,7 +63,7 @@ namespace dMobile.View.Activity
             this.ActDetailEdit = new ActDetailEdit
             {
                 SchemeData = this.ActDetail.SchemeData,
-                AltQuantity = this.ActDetail.Quantity,
+                Quantity = this.ActDetail.Quantity,
                 BaseQuantity = this.ActDetail.BaseQuantity,
                 WeightQuantity = this.ActDetail.WeightQuantity,
                 ActExtra =
@@ -106,13 +107,23 @@ namespace dMobile.View.Activity
                 // Enable scheme controls state.
                 void InitControlStateScheme()
                 {
-                    if (!scheme.IsBestBeforeDateTracked)
+                    if (scheme.IsBestBeforeDateTracked)
                     {
+                        this.lblBestBeforeDate.FontAttributes = FontAttributes.Bold;
+                    }
+                    else
+                    {
+                        this.lblBestBeforeDate.FontAttributes = FontAttributes.None;
                         this.dtBestBeforeDate.IsEnabled = false;
                     }
 
-                    if (!scheme.IsProductionDateTracked)
+                    if (scheme.IsProductionDateTracked)
                     {
+                       this.lblProductionDate.FontAttributes = FontAttributes.Bold;
+                    }
+                    else
+                    {
+                        this.lblProductionDate.FontAttributes = FontAttributes.None;
                         this.dtProductionDate.IsEnabled = false;
                     }
 
@@ -134,18 +145,33 @@ namespace dMobile.View.Activity
                         this.dtExtraDetail5.MaximumDate = upper;
                     }
 
-                    if (!scheme.IsLotTracked)
+                    if (scheme.IsLotTracked)
                     {
+                        this.lblLotNo.FontAttributes = FontAttributes.Bold;
+                    }
+                    else
+                    {
+                        this.lblLotNo.FontAttributes = FontAttributes.None;
                         this.txtLotNo.IsEnabled = false;
                     }
 
-                    if (!scheme.IsSerialTracked)
+                    if (scheme.IsSerialTracked)
                     {
+                       this.lblSerialNo.FontAttributes = FontAttributes.Bold;
+                    }
+                    else
+                    {
+                        this.lblSerialNo.FontAttributes = FontAttributes.None;
                         this.txtSerialNo.IsEnabled = false;
                     }
 
-                    if (!scheme.IsVariantTracked)
+                    if (scheme.IsVariantTracked)
                     {
+                        this.lblVariantCode.FontAttributes = FontAttributes.Bold;
+                    }
+                    else
+                    {
+                        this.lblVariantCode.FontAttributes = FontAttributes.None;
                         this.txtVariantCode.IsEnabled = false;
                     }
                 }
@@ -155,27 +181,52 @@ namespace dMobile.View.Activity
                 {
                     if (scheme.Extra1Type == (int)SysCommon.SchemeExtraTypes.Disabled)
                     {
+                        this.lbl1.FontAttributes = FontAttributes.None;
                         this.txtExtraDetail1.IsEnabled = false;
+                    }
+                    else
+                    {
+                        this.lbl1.FontAttributes = FontAttributes.Bold;
                     }
 
                     if (scheme.Extra2Type == (int)SysCommon.SchemeExtraTypes.Disabled)
                     {
+                        this.lbl2.FontAttributes = FontAttributes.None;
                         this.txtExtraDetail2.IsEnabled = false;
+                    }
+                    else
+                    {
+                        this.lbl2.FontAttributes = FontAttributes.Bold;
                     }
 
                     if (scheme.Extra3Type == (int)SysCommon.SchemeExtraTypes.Disabled)
                     {
+                        this.lbl3.FontAttributes = FontAttributes.None;
                         this.txtExtraDetail3.IsEnabled = false;
+                    }
+                    else
+                    {
+                        this.lbl3.FontAttributes = FontAttributes.Bold;
                     }
 
                     if (scheme.Extra4Type == (int)SysCommon.SchemeExtraTypes.Disabled)
                     {
+                        this.lbl4.FontAttributes = FontAttributes.None;
                         this.txtExtraDetail4.IsEnabled = false;
+                    }
+                    else
+                    {
+                        this.lbl4.FontAttributes = FontAttributes.Bold;
                     }
 
                     if (scheme.Extra5Type == (int)SysCommon.SchemeExtraTypes.Disabled)
                     {
+                        this.lbl5.FontAttributes = FontAttributes.None;
                         this.dtExtraDetail5.IsEnabled = false;
+                    }
+                    else
+                    {
+                        this.lbl5.FontAttributes = FontAttributes.Bold;
                     }
                 }
             }
@@ -335,7 +386,7 @@ namespace dMobile.View.Activity
                 var xml = $@"<?xml version=""1.0"" encoding=""utf-16"" standalone=""yes""?>
                     <imclient>
                     <itm_refno>{this.ActDetail.ActItem.ItemFkRefno}</itm_refno>
-                    <alt_qty>{this.ActDetailEdit.AltQuantity}</alt_qty>
+                    <alt_qty>{this.ActDetailEdit.Quantity}</alt_qty>
                     <wt_qty>{this.ActDetailEdit.WeightQuantity}</wt_qty>
                     <ActivityDetailUniqueSchemeID>{uniqueSchemeId}</ActivityDetailUniqueSchemeID>
                     </imclient>";
@@ -347,7 +398,7 @@ namespace dMobile.View.Activity
                 async Task ValidateQuantity()
                 {
                     // Round captured screen quantity to 3 decimals.
-                    this.ActDetailEdit.AltQuantity = Math.Round(decimal.Parse(this.txtAltQty.Text), 3);
+                    this.ActDetailEdit.Quantity = Math.Round(decimal.Parse(this.txtAltQty.Text), 3);
                     this.ActDetailEdit.BaseQuantity = Math.Round(decimal.Parse(this.txtBaseQty.Text), 3);
                     this.ActDetailEdit.WeightQuantity = Math.Round(decimal.Parse(this.txtWtQty.Text), 3);
 
@@ -374,10 +425,10 @@ namespace dMobile.View.Activity
                     else
                     {
                         ////expectedWeightQty = Math.Round(this.ActDetailEdit.BaseQuantity * productInfo.UnitGrossWeight, 3);
-                        expectedWeightQty = Math.Round(this.ActDetailEdit.AltQuantity * productInfo.UnitGrossWeight, 3);
+                        expectedWeightQty = Math.Round(this.ActDetailEdit.Quantity * productInfo.UnitGrossWeight, 3);
                     }
 
-                    if (Math.Sign(this.ActDetailEdit.AltQuantity) == 0 &&
+                    if (Math.Sign(this.ActDetailEdit.Quantity) == 0 &&
                         (this.ActDetail.ActSubType == SysCommon.ActSubTypes.Adjustment ||
                          this.ActDetail.ActSubType == SysCommon.ActSubTypes.TicketMaterial))
                     {
@@ -395,14 +446,14 @@ namespace dMobile.View.Activity
                     void CheckEqualQuantity()
                     {
                         if (productInfo.UnitCode == productInfo.BaseUnitCode &&
-                            this.ActDetailEdit.AltQuantity != this.ActDetailEdit.BaseQuantity)
+                            this.ActDetailEdit.Quantity != this.ActDetailEdit.BaseQuantity)
                         {
                             throw new MessageOnlyException("Quantity and base quantity are expected" +
                                                            " to be the same, because the units are the same.");
                         }
 
                         if (productInfo.UnitCode == productInfo.WeightUnitCode &&
-                            this.ActDetailEdit.AltQuantity != this.ActDetailEdit.WeightQuantity)
+                            this.ActDetailEdit.Quantity != this.ActDetailEdit.WeightQuantity)
                         {
                             throw new MessageOnlyException("Quantity and weight quantity are expected" +
                                                            " to be the same, because the units are the same.");
@@ -540,7 +591,7 @@ namespace dMobile.View.Activity
                     {
                         // Alt, base and weight quantity sign check.
                         const int totalSignQtyBaseWeight = 3;
-                        var totalSign = Math.Sign(this.ActDetailEdit.AltQuantity) +
+                        var totalSign = Math.Sign(this.ActDetailEdit.Quantity) +
                                         Math.Sign(this.ActDetailEdit.BaseQuantity) +
                                         Math.Sign(this.ActDetailEdit.WeightQuantity);
                         if (totalSign != totalSignQtyBaseWeight && totalSign != -totalSignQtyBaseWeight)
@@ -641,7 +692,7 @@ namespace dMobile.View.Activity
                                     // TODO: Add weight tolerance check warning.
                                 }
                             }
-                            else if (Math.Abs(this.ActDetailEdit.AltQuantity) != this.ActDetailEdit.AltQuantity)
+                            else if (Math.Abs(this.ActDetailEdit.Quantity) != this.ActDetailEdit.Quantity)
                             {
                                 // Warn with message box, do not raise message info exception.
                                 await Device.InvokeOnMainThreadAsync(async () =>
@@ -705,7 +756,7 @@ namespace dMobile.View.Activity
                             else
                             {
                                 var expectedBaseQty = Math.Round(
-                                    this.ActDetailEdit.AltQuantity * productInfo.Unit2BaseUnitFactor, 3);
+                                    this.ActDetailEdit.Quantity * productInfo.Unit2BaseUnitFactor, 3);
                                 if (this.ActDetailEdit.BaseQuantity != expectedBaseQty)
                                 {
                                     throw new MessageOnlyException($"Base quantity {this.ActDetailEdit.BaseQuantity}" +
@@ -847,7 +898,7 @@ namespace dMobile.View.Activity
                         if (this.ActDetail.ActItem.ProdInfo.Scheme.IsVariantTracked)
                         {
                             scheme.VariantNumber = Convert.ToInt32(this.txtVariantCode.Text);
-                            scheme = await this.ActDetail.FillSchemeDataVarInfoFromSchemeDataVarNo(scheme);
+                            scheme = await ActDetail.FillSchemeDataVarInfoFromSchemeDataVarNo(scheme);
                         }
 
                         return scheme;
@@ -989,7 +1040,7 @@ namespace dMobile.View.Activity
                     this.ActDetail.UniqueSchemeId = uniqueSchemeId;
                     this.ActDetail.SchemeId = schemeId;
                     this.ActDetail.SchemeData = this.ActDetailEdit.SchemeData;
-                    this.ActDetail.Quantity = this.ActDetailEdit.AltQuantity;
+                    this.ActDetail.Quantity = this.ActDetailEdit.Quantity;
                     this.ActDetail.BaseQuantity = this.ActDetailEdit.BaseQuantity;
                     this.ActDetail.WeightQuantity = this.ActDetailEdit.WeightQuantity;
                     this.ActDetail.ActExtra.Text1 = this.ActDetailEdit.ActExtra.Text1;
@@ -1056,7 +1107,7 @@ namespace dMobile.View.Activity
                 if (await this.IsReadyToClose())
                 {
                     this.ActDetailEdit.SchemeData = this.ActDetail.SchemeData;
-                    this.ActDetailEdit.AltQuantity = this.ActDetail.Quantity;
+                    this.ActDetailEdit.Quantity = this.ActDetail.Quantity;
                     this.ActDetailEdit.WeightQuantity = this.ActDetail.WeightQuantity;
                     this.ActDetailEdit.BaseQuantity = this.ActDetail.BaseQuantity;
                     this.ActDetailEdit.ActExtra.Text1 = this.ActDetail.ActExtra.Text1;
@@ -1101,7 +1152,7 @@ namespace dMobile.View.Activity
         /// <returns><see cref="XDocument" /> Activity item return information.</returns>
         public async Task<XDocument> GetXml()
         {
-            return await this.ActDetailEdit.GetXmlFromActivityDetailEdit(this.ActDetailEdit);
+            return await SysShared.GetXmlFromActivityDetailEdit(this.ActDetailEdit);
         }
 
         /// <summary>
@@ -1332,76 +1383,76 @@ namespace dMobile.View.Activity
             // Load the scheme controls with the activity detail scheme values.
             void AssignSchemeDataToControls()
             {
-                var schemeData = this.ActDetailEdit.SchemeData;
+                var editSchemeData = this.ActDetailEdit.SchemeData;
                 var prodInfo = this.ActDetail.ActItem.ProdInfo;
 
                 if (prodInfo.Scheme.IsBestBeforeDateTracked)
                 {
-                    if (schemeData.LogisticUnitBestBeforeSellByDate.Date == DateTime.Now.Date &&
+                    if (editSchemeData.LogisticUnitBestBeforeSellByDate.Date == DateTime.Now.Date &&
                         !SysCommon.IsEmptyDate(SysEnv.LastEnteredSchemeData.LogisticUnitBestBeforeSellByDate))
                     {
-                        schemeData.LogisticUnitBestBeforeSellByDate = SysEnv.LastEnteredSchemeData.LogisticUnitBestBeforeSellByDate;
-                        this.dtBestBeforeDate.Date = schemeData.LogisticUnitBestBeforeSellByDate;
+                        editSchemeData.LogisticUnitBestBeforeSellByDate = SysEnv.LastEnteredSchemeData.LogisticUnitBestBeforeSellByDate;
+                        this.dtBestBeforeDate.Date = editSchemeData.LogisticUnitBestBeforeSellByDate;
                     }
                     else
                     {
-                        this.dtBestBeforeDate.Date = schemeData.LogisticUnitBestBeforeSellByDate;
+                        this.dtBestBeforeDate.Date = editSchemeData.LogisticUnitBestBeforeSellByDate;
                     }
                 }
 
                 if (prodInfo.Scheme.IsProductionDateTracked)
                 {
-                    if (schemeData.LogisticUnitProductionDate.Date == DateTime.Now.Date &&
+                    if (editSchemeData.LogisticUnitProductionDate.Date == DateTime.Now.Date &&
                         !SysCommon.IsEmptyDate(SysEnv.LastEnteredSchemeData.LogisticUnitProductionDate))
                     {
-                        schemeData.LogisticUnitProductionDate = SysEnv.LastEnteredSchemeData.LogisticUnitProductionDate;
-                        this.dtProductionDate.Date = schemeData.LogisticUnitProductionDate;
+                        editSchemeData.LogisticUnitProductionDate = SysEnv.LastEnteredSchemeData.LogisticUnitProductionDate;
+                        this.dtProductionDate.Date = editSchemeData.LogisticUnitProductionDate;
                     }
                     else
                     {
-                        this.dtProductionDate.Date = schemeData.LogisticUnitProductionDate;
+                        this.dtProductionDate.Date = editSchemeData.LogisticUnitProductionDate;
                     }
                 }
 
                 if (prodInfo.Scheme.IsSerialTracked)
                 {
-                    if (string.IsNullOrEmpty(schemeData.SingleTradeItemSerialNumber))
+                    if (string.IsNullOrEmpty(editSchemeData.SingleTradeItemSerialNumber))
                     {
-                        schemeData.SingleTradeItemSerialNumber =
+                        editSchemeData.SingleTradeItemSerialNumber =
                             ProductInfoTasks.GetProdSchemeSingleTradeItemSerialNumber();
-                        this.ActDetailEdit.SchemeData = schemeData;
+                        this.ActDetailEdit.SchemeData = editSchemeData;
                     }
 
-                    this.txtSerialNo.Text = schemeData.SingleTradeItemSerialNumber;
+                    this.txtSerialNo.Text = editSchemeData.SingleTradeItemSerialNumber;
                 }
 
                 if (prodInfo.Scheme.IsLotTracked)
                 {
-                    if (string.IsNullOrEmpty(schemeData.LogisticUnitBatchLotNumber) &&
+                    if (string.IsNullOrEmpty(editSchemeData.LogisticUnitBatchLotNumber) &&
                         !string.IsNullOrEmpty(SysEnv.LastEnteredSchemeData.LogisticUnitBatchLotNumber))
                     {
-                        schemeData.LogisticUnitBatchLotNumber = SysEnv.LastEnteredSchemeData.LogisticUnitBatchLotNumber;
-                        this.txtLotNo.Text = schemeData.LogisticUnitBatchLotNumber;
+                        editSchemeData.LogisticUnitBatchLotNumber = SysEnv.LastEnteredSchemeData.LogisticUnitBatchLotNumber;
+                        this.txtLotNo.Text = editSchemeData.LogisticUnitBatchLotNumber;
                     }
                     else
                     {
-                        this.txtLotNo.Text = schemeData.LogisticUnitBatchLotNumber;
+                        this.txtLotNo.Text = editSchemeData.LogisticUnitBatchLotNumber;
                     }
                 }
 
                 if (prodInfo.Scheme.IsVariantTracked)
                 {
-                    if (string.IsNullOrEmpty(schemeData.VariantCode) &&
+                    if (string.IsNullOrEmpty(editSchemeData.VariantCode) &&
                         !string.IsNullOrEmpty(SysEnv.LastEnteredSchemeData.VariantCode))
                     {
-                        schemeData.VariantNumber = SysEnv.LastEnteredSchemeData.VariantNumber;
-                        schemeData.VariantDescription = SysEnv.LastEnteredSchemeData.VariantDescription;
-                        schemeData.VariantCode = SysEnv.LastEnteredSchemeData.VariantCode;
-                        this.txtLotNo.Text = schemeData.VariantCode;
+                        editSchemeData.VariantNumber = SysEnv.LastEnteredSchemeData.VariantNumber;
+                        editSchemeData.VariantDescription = SysEnv.LastEnteredSchemeData.VariantDescription;
+                        editSchemeData.VariantCode = SysEnv.LastEnteredSchemeData.VariantCode;
+                        this.txtLotNo.Text = editSchemeData.VariantCode;
                     }
                     else
                     {
-                        this.txtVariantCode.Text = schemeData.VariantCode;
+                        this.txtVariantCode.Text = editSchemeData.VariantCode;
                     }
                 }
             }
@@ -1418,40 +1469,40 @@ namespace dMobile.View.Activity
 
                 if (this.ActDetail.ActItem.IsCatchAskZero())
                 {
-                    this.ActDetailEdit.AltQuantity = 0;
+                    this.ActDetailEdit.Quantity = 0;
                 }
                 else if (isSetCatchWeightZero)
                 {
-                    this.ActDetailEdit.AltQuantity = 0;
+                    this.ActDetailEdit.Quantity = 0;
                 }
                 else if (isSetCatchCountZero)
                 {
-                    this.ActDetailEdit.AltQuantity = 0;
+                    this.ActDetailEdit.Quantity = 0;
                 }
                 else if (this.ActDetail.Quantity == 0)
                 {
                     if (prodInfo.UnitCode == "LB" || prodInfo.UnitCode == "KG")
                     {
-                        this.ActDetailEdit.AltQuantity = this.ActDetail.WeightQuantity != 0
+                        this.ActDetailEdit.Quantity = this.ActDetail.WeightQuantity != 0
                             ? this.ActDetail.WeightQuantity
                             : prodInfo.UnitGrossWeight;
                     }
                     else if (prodInfo.UnitCode == prodInfo.BaseUnitCode && this.ActDetailEdit.BaseQuantity != 0)
                     {
-                        this.ActDetailEdit.AltQuantity = this.ActDetailEdit.BaseQuantity;
+                        this.ActDetailEdit.Quantity = this.ActDetailEdit.BaseQuantity;
                     }
                     else
                     {
-                        this.ActDetailEdit.AltQuantity = 1;
+                        this.ActDetailEdit.Quantity = 1;
                     }
                 }
                 else
                 {
-                    this.ActDetailEdit.AltQuantity = this.ActDetail.Quantity;
+                    this.ActDetailEdit.Quantity = this.ActDetail.Quantity;
                 }
 
-                this.ActDetailEdit.AltQuantity = decimal.Round(this.ActDetailEdit.AltQuantity, 3);
-                this.txtAltQty.Text = this.ActDetailEdit.AltQuantity.ToString(CultureInfo.CurrentCulture);
+                this.ActDetailEdit.Quantity = decimal.Round(this.ActDetailEdit.Quantity, 3);
+                this.txtAltQty.Text = this.ActDetailEdit.Quantity.ToString(CultureInfo.CurrentCulture);
             }
 
             void AssignBaseQuantityToControls()
@@ -1481,20 +1532,20 @@ namespace dMobile.View.Activity
                             ? this.ActDetail.WeightQuantity
                             : prodInfo.UnitGrossWeight;
                     }
-                    else if (prodInfo.UnitCode == prodInfo.BaseUnitCode && this.ActDetailEdit.AltQuantity != 0)
+                    else if (prodInfo.UnitCode == prodInfo.BaseUnitCode && this.ActDetailEdit.Quantity != 0)
                     {
-                        this.ActDetailEdit.BaseQuantity = this.ActDetailEdit.AltQuantity;
+                        this.ActDetailEdit.BaseQuantity = this.ActDetailEdit.Quantity;
                     }
                     else
                     {
-                        if (this.ActDetailEdit.AltQuantity != 0 && prodInfo.Unit2BaseUnitFactor != 0)
+                        if (this.ActDetailEdit.Quantity != 0 && prodInfo.Unit2BaseUnitFactor != 0)
                         {
                             this.ActDetailEdit.BaseQuantity =
-                                this.ActDetailEdit.AltQuantity * prodInfo.Unit2BaseUnitFactor;
+                                this.ActDetailEdit.Quantity * prodInfo.Unit2BaseUnitFactor;
                         }
                         else
                         {
-                            this.ActDetailEdit.BaseQuantity = this.ActDetailEdit.AltQuantity;
+                            this.ActDetailEdit.BaseQuantity = this.ActDetailEdit.Quantity;
                         }
                     }
                 }
@@ -1527,17 +1578,17 @@ namespace dMobile.View.Activity
                     {
                         this.ActDetailEdit.WeightQuantity = this.ActDetailEdit.BaseQuantity;
                     }
-                    else if (this.ActDetailEdit.AltQuantity != 0 &&
+                    else if (this.ActDetailEdit.Quantity != 0 &&
                              (prodInfo.UnitCode == "LB" || prodInfo.UnitCode == "KG"))
                     {
-                        this.ActDetailEdit.WeightQuantity = this.ActDetailEdit.AltQuantity;
+                        this.ActDetailEdit.WeightQuantity = this.ActDetailEdit.Quantity;
                     }
                     else if (this.ActDetailEdit.BaseQuantity != 0)
                     {
                         ////this.ActDetailEdit.WeightQuantity =
                         ////    this.ActDetailEdit.BaseQuantity * prodInfo.UnitGrossWeight;
                         this.ActDetailEdit.WeightQuantity =
-                            this.ActDetailEdit.AltQuantity * prodInfo.UnitGrossWeight;
+                            this.ActDetailEdit.Quantity * prodInfo.UnitGrossWeight;
                     }
                 }
                 else
@@ -1572,26 +1623,41 @@ namespace dMobile.View.Activity
                 this.ActDetail.ActSubType == SysCommon.ActSubTypes.TransferFrom ||
                 this.ActDetail.ActSubType == SysCommon.ActSubTypes.TransferTo)
             {
+                var actDetailLabel = ActDetailFacade.GetActDetail(
+                    this.ActDetail.ActItem,
+                    this.ActSubType);
+
+                actDetailLabel.DetailRefno = this.ActDetail.DetailRefno;
+                actDetailLabel.FullClassName = this.ActDetail.FullClassName;
+                actDetailLabel.ActItem = this.ActDetail.ActItem;
+                actDetailLabel.ActSubType = this.ActSubType;
+                actDetailLabel.DetailFkRefno = this.ActDetail.DetailFkRefno;
+                actDetailLabel.SelectedLocMap = this.ActDetail.SelectedLocMap;
+
+                actDetailLabel.Quantity = this.ActDetailEdit.Quantity;
+                actDetailLabel.BaseQuantity = this.ActDetailEdit.BaseQuantity;
+                actDetailLabel.WeightQuantity = this.ActDetailEdit.WeightQuantity;
+                actDetailLabel.ActExtra = this.ActDetailEdit.ActExtra;
+
+                var defaultSchemeData = new ActItemSchemeData();
+                var defaultSchemeDataAssigned = false;
+
+                var labelSchemeData = new ParseLabelSchemeData(
+                    this.ActDetail.ActItem.ProdInfo.Scheme,
+                    this.BarParse,
+                    defaultSchemeData,
+                    this.ActDetail.ActItem.ActHdr.SkidInfo.CurrSkid);
+                actDetailLabel.SchemeData = labelSchemeData.GatherLabelSchemeData(
+                    actDetailLabel.SchemeData,
+                    ref defaultSchemeDataAssigned);
+
                 var editLabelBeforePrint = !this.ActDetail.IsLabelSchemeComplete(
                     this.ActDetailEdit.SchemeData) || this.SysEnv.SysSettings.IsProductLabelCatchAsk;
                 if (editLabelBeforePrint)
                 {
-                    var actDetailLabel = ActDetailFacade.GetActDetail(
-                        this.ActDetail.ActItem,
-                        this.ActSubType);
-
-                    actDetailLabel.DetailRefno = this.ActDetail.DetailRefno;
-                    actDetailLabel.FullClassName = this.ActDetail.FullClassName;
-                    actDetailLabel.ActItem = this.ActDetail.ActItem;
-                    actDetailLabel.ActSubType = this.ActSubType;
-                    actDetailLabel.DetailFkRefno = this.ActDetail.DetailFkRefno;
-                    actDetailLabel.SelectedLocMap = this.ActDetail.SelectedLocMap;
-
-                    actDetailLabel.Quantity = this.ActDetailEdit.AltQuantity;
-                    actDetailLabel.BaseQuantity = this.ActDetailEdit.BaseQuantity;
-                    actDetailLabel.WeightQuantity = this.ActDetailEdit.WeightQuantity;
+                    // Merge of scheme data and label scheme data.
                     actDetailLabel.SchemeData = this.ActDetailEdit.SchemeData;
-                    actDetailLabel.ActExtra = this.ActDetailEdit.ActExtra;
+                    actDetailLabel.LabelSchemeData = this.ActDetailEdit.SchemeData;
 
                     var form = new FormDialogContainer(
                         EDialogTypes.ActivityProductLabel,
@@ -1610,7 +1676,7 @@ namespace dMobile.View.Activity
                     ////_ = await form.DisplayControl.ShowDialog();
 
                     var sendReq = await this.ActDetail.CreateSubmitProductLabelXml(
-                        await this.ActDetailEdit.GetXmlFromActivityDetailEdit(this.ActDetailEdit));
+                        await SysShared.GetXmlFromActivityDetailEdit(this.ActDetailEdit));
                     _ = SysCommon.SubmitComm(sendReq);
                 }
             }

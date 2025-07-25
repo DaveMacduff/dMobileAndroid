@@ -355,11 +355,11 @@ namespace dMobile.View.Activity
                 this.IsIndicatorRunning = true;
                 this.BarParse = scanArgs.ParseInfo;
 
-                // <issue="13609" author="RD" date="2016/02/22"/>
-                if (this.ActDetail?.ActItem != null)
-                {
-                    SysShared.AssertSuppressedErrorsAgainstScheme(this.ActDetail.ActItem.ProdInfo, this.BarParse);
-                }
+                ////// <issue="13609" author="RD" date="2016/02/22"/>
+                ////if (this.ActDetail?.ActItem != null)
+                ////{
+                ////    SysShared.AssertSuppressedErrorsAgainstScheme(this.ActDetail.ActItem.ProdInfo.Scheme, this.BarParse);
+                ////}
 
                 if (!string.IsNullOrEmpty(this.BarParse.ActFkRefno))
                 {

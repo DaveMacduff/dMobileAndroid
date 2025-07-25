@@ -4,18 +4,20 @@
 
 namespace dMobile.Controller.Activity_Detail
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Collections.ObjectModel;
-    using System.Linq;
-    using System.Threading.Tasks;
-    using System.Xml.Linq;
     using Activity_Item;
     using Bedrock;
     using GroundWork;
     using Resources.Models.Products;
     using Resources.Types.Details;
     using SQLite;
+    using System;
+    using System.Collections.Generic;
+    using System.Collections.ObjectModel;
+    using System.Linq;
+    using System.Text;
+    using System.Threading.Tasks;
+    using System.Xml;
+    using System.Xml.Linq;
     using Xamarin.Forms;
 
     /// <summary>
@@ -106,6 +108,11 @@ namespace dMobile.Controller.Activity_Detail
         public ProductSchemeData SchemeData { get; set; } = new ProductSchemeData();
 
         /// <summary>
+        ///     Gets or sets the product label scheme data.
+        /// </summary>
+        public ProductSchemeData LabelSchemeData { get; set; } = new ProductSchemeData();
+
+        /// <summary>
         ///     Gets or sets the unique scheme id.
         /// </summary>
         public string UniqueSchemeId { get; set; } = string.Empty;
@@ -164,6 +171,66 @@ namespace dMobile.Controller.Activity_Detail
         ///     Gets or sets the list item current index.
         /// </summary>
         public int SelectedListIdx { get; set; } = -1;
+
+        /// <summary>
+        ///     Get the scheme data variant information from the scheme data variant number.
+        /// </summary>
+        /// <param name="prodSchemeData"><see cref="ActItemSchemeData" /> Product scheme data.</param>
+        /// <returns><see cref="Task{SProductSchemeData}" /> ProductSchemeData.</returns>
+        public static async Task<ProductSchemeData> FillSchemeDataVarInfoFromSchemeDataVarNo(
+            ProductSchemeData prodSchemeData)
+        {
+            if (prodSchemeData.VariantNumber > 0)
+            {
+                var conn = DatabaseConnection.GetInstance().SqlConn;
+                var results = await conn.QueryAsync<ProductSchemeVariantModel>(
+                    "SELECT * FROM tProductSchemeVariant WHERE ProductSchemeVariantNo = ?",
+                    Convert.ToInt32(prodSchemeData.VariantNumber));
+
+                if (results != null && results.Count > 0)
+                {
+                    prodSchemeData.VariantCode = results[0].ProductSchemeVariantCode;
+                    prodSchemeData.VariantDescription = results[0].ProductSchemeVariantDescription;
+                }
+                else
+                {
+                    throw new Exception("FillSchemeDataVarInfoFromSchemeDataVarNo in" +
+                                        " clsActivityDetail returned no results");
+                }
+            }
+
+            return prodSchemeData;
+        }
+
+        /// <summary>
+        ///     Get the scheme data variant information from the scheme data variant code.
+        /// </summary>
+        /// <param name="prodSchemeData"><see cref="ActItemSchemeData" /> Product scheme data.</param>
+        /// <returns><see cref="Task{SProductSchemeData}" /> ProductSchemeData.</returns>
+        public async Task<ProductSchemeData> FillSchemeDataVarInfoFromSchemeDataVarCode(
+            ProductSchemeData prodSchemeData)
+        {
+            if (string.IsNullOrEmpty(prodSchemeData.VariantCode))
+            {
+                var conn = DatabaseConnection.GetInstance().SqlConn;
+                var results = await conn.QueryAsync<ProductSchemeVariantModel>(
+                    "SELECT * FROM tProductSchemeVariant WHERE ProductSchemeVariantCode = ?",
+                    prodSchemeData.VariantCode);
+
+                if (results?.Count > 0)
+                {
+                    prodSchemeData.VariantNumber = results[0].ProductSchemeVariantNo;
+                    prodSchemeData.VariantDescription = results[0].ProductSchemeVariantDescription;
+                }
+                else
+                {
+                    throw new Exception("FillSchemeDataVarInfoFromSchemeDataVarCode in" +
+                                        " ActDetail returned no results");
+                }
+            }
+
+            return prodSchemeData;
+        }
 
         /// <summary>
         ///     On data access status out event.
@@ -592,11 +659,77 @@ namespace dMobile.Controller.Activity_Detail
         /// <summary>
         ///     Create a submit product label XML request.
         /// </summary>
-        /// <param name="data"><see cref="XDocument" /> Data to use to populate label.</param>
+        /// <param name="detailData"><see cref="XDocument" /> Data to use to populate label.</param>
         /// <returns><see cref="string" /> Submission string.</returns>
-        public virtual Task<string> CreateSubmitProductLabelXml(XDocument data)
+        public virtual async Task<string> CreateSubmitProductLabelXml(XDocument detailData)
         {
-            throw new NotImplementedException();
+            var xmlString = new StringBuilder();
+            var settings = new XmlWriterSettings
+            {
+                Async = true,
+                Indent = false,
+            };
+            var xml = XmlWriter.Create(xmlString, settings);
+
+            // Init the production and best before date as empty intentional.
+            // We want to send a 'blank' date if it is not tracked rather than {01/01/1900} as the empty date.
+            var bestBefore = string.Empty;
+
+            if (this.ActItem.ProdInfo.Scheme.LabelInfo.IsBestBeforeDateTracked)
+            {
+                bestBefore = DateTime.Parse(detailData.Root.Element("bdate").Value).ToString("MM/dd/yyyy");
+            }
+
+            var production = string.Empty;
+
+            if (this.ActItem.ProdInfo.Scheme.LabelInfo.IsProductionDateTracked)
+            {
+                production = DateTime.Parse(detailData.Root.Element("pdate").Value).ToString("MM/dd/yyyy");
+            }
+
+            var prnSettings = new PrinterSettings().LoadData();
+
+            decimal altQty = Convert.ToInt32(detailData.Root.Element("alt_qty").Value);
+            var wtQty = Convert.ToDecimal(detailData.Root.Element("wt_qty").Value);
+
+            var request = XDocument.Parse(
+                "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
+                + "<imclient>"
+                + "<command>"
+                + "<action>SUBMIT PRINT PRODUCT LABEL</action>"
+                + "<whs_id>0</whs_id>"
+                + "<sect_refno>0</sect_refno>"
+                + "</command>"
+                + await SysCommon.GetRequestDefaults(false)
+                + "<prod_id>" + this.ActItem.ProdInfo.Code + "</prod_id>"
+                + "<is_bc>" + this.ActItem.ProdInfo.UnitIsBc + "</is_bc>"
+                + "<whs_id>" + this.LocMap.CurrLocMap.WhsFkRefno + "</whs_id>"
+                + "<sect_refno>" + this.LocMap.CurrLocMap.SectFkRefno + "</sect_refno>"
+                + "<slot_refno>" + this.LocMap.CurrLocMap.SlotFkRefno + "</slot_refno>"
+                + "<refno>" + this.ActItem.ActHdr.HdrFkRefno + "</refno>"
+                + "<itm_refno>" + this.ActItem.ItemFkRefno + "</itm_refno>"
+                + "<alt_qty>" + altQty + "</alt_qty>"
+                + "<alt_unit>" + this.ActItem.ProdInfo.UnitCode + "</alt_unit>"
+                + "<base_qty>" + detailData.Root.Element("base_qty").Value + "</base_qty>"
+                + "<base_unit>" + this.ActItem.ProdInfo.BaseUnitCode + "</base_unit>"
+                + "<wt_qty>" + wtQty + "</wt_qty>"
+                + "<wt_unit>" + this.ActItem.ProdInfo.WeightUnitCode + "</wt_unit>"
+                + "<serial>" + detailData.Root.Element("serial").Value + "</serial>"
+                + "<lot_no>" + detailData.Root.Element("lot_no").Value + "</lot_no>"
+                + "<pdate>" + production + "</pdate>"
+                + "<bdate>" + bestBefore + "</bdate>"
+                + "<variant_no>" + detailData.Root.Element("variant_no").Value + "</variant_no>"
+                + "<variant_code>" + detailData.Root.Element("variant_code").Value + "</variant_code>"
+                + "<mobile_printer_name>"
+                + (prnSettings.IsEnabledProductLabelPrinter ? prnSettings.ProductLabelPrinterName : string.Empty)
+                + "</mobile_printer_name>"
+                + "</imclient>");
+
+            request.Save(xml);
+            await xml.FlushAsync();
+            xml.Close();
+
+            return xmlString.ToString();
         }
 
         /// <summary>
@@ -713,36 +846,6 @@ namespace dMobile.Controller.Activity_Detail
         }
 
         /// <summary>
-        ///     Get the scheme data variant information from the scheme data variant number.
-        /// </summary>
-        /// <param name="prodSchemeData"><see cref="ActItemSchemeData" /> Product scheme data.</param>
-        /// <returns><see cref="Task{SProductSchemeData}" /> ProductSchemeData.</returns>
-        public async Task<ProductSchemeData> FillSchemeDataVarInfoFromSchemeDataVarNo(
-            ProductSchemeData prodSchemeData)
-        {
-            if (prodSchemeData.VariantNumber > 0)
-            {
-                var conn = DatabaseConnection.GetInstance().SqlConn;
-                var results = await conn.QueryAsync<ProductSchemeVariantModel>(
-                    "SELECT * FROM tProductSchemeVariant WHERE ProductSchemeVariantNo = ?",
-                    Convert.ToInt32(prodSchemeData.VariantNumber));
-
-                if (results != null && results.Count > 0)
-                {
-                    prodSchemeData.VariantCode = results[0].ProductSchemeVariantCode;
-                    prodSchemeData.VariantDescription = results[0].ProductSchemeVariantDescription;
-                }
-                else
-                {
-                    throw new Exception("FillSchemeDataVarInfoFromSchemeDataVarNo in" +
-                                        " clsActivityDetail returned no results");
-                }
-            }
-
-            return prodSchemeData;
-        }
-
-        /// <summary>
         ///     Fill the activity detail object from XML data.
         /// </summary>
         /// <param name="data"><see cref="XDocument" /> Activity detail data.</param>
@@ -818,7 +921,7 @@ namespace dMobile.Controller.Activity_Detail
                 tmpSchemeData.VariantNumber = int.Parse(data.Root.Element("variant_no") !.Value);
             }
 
-            tmpSchemeData = await this.FillSchemeDataVarInfoFromSchemeDataVarNo(tmpSchemeData);
+            tmpSchemeData = FillSchemeDataVarInfoFromSchemeDataVarNo(tmpSchemeData).GetAwaiter().GetResult();
             this.SchemeData = tmpSchemeData;
 
             this.SchemeId = ProductInfoTasks.GetActSchemeIdFromSProdSchemeData(

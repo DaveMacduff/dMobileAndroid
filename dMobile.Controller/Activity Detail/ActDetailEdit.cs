@@ -25,7 +25,7 @@ namespace dMobile.Controller.Activity_Detail
         /// <summary>
         /// Gets or sets the quantity.
         /// </summary>
-        public decimal AltQuantity { get; set; } = 0;
+        public decimal Quantity { get; set; } = 0;
 
         /// <summary>
         /// Gets or sets the base quantity.
@@ -52,7 +52,7 @@ namespace dMobile.Controller.Activity_Detail
             var currLocMap = LocationMap.GetInstance().CurrLocMap;
 
             var query = new StringBuilder();
-            query.Append("SELECT tProductSchemeVariant.ProductSchemeVariantCode AS ProductSchemeVariantCode,");
+            query.Append("SELECT tProductSchemeVariant.ProductSchemeVariantCode,");
             query.Append("tProductSchemeVariant.ProductSchemeVariantNo AS ProductSchemeVariantNo,");
             query.Append("tProductSchemeVariant.ProductSchemeVariantCode + \'  \' ");
             query.Append("+ tProductSchemeVariant.ProductSchemeVariantDescription AS ProductSchemeVariantDisplay ");
@@ -80,7 +80,7 @@ namespace dMobile.Controller.Activity_Detail
             // tProductSchemeLotNumber the exception would be receiving. The supplier Lot needs to exist in the list for
             // a lookup match.
             var query = new StringBuilder();
-            query.Append("SELECT DISTINCT tActivityDetail.ActivityDetailLogisticUnitBatchLotNumber AS ActivityDetailLogisticUnitBatchLotNumber ");
+            query.Append("SELECT DISTINCT tActivityDetail.ActivityDetailLogisticUnitBatchLotNumber ");
             query.Append("FROM tActivityDetail ");
             query.Append("INNER JOIN tProductUnit ON tProductUnit.ProductUnitRefno = tActivityDetail.ProductUnitRefno ");
             query.Append("INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno ");
@@ -102,7 +102,7 @@ namespace dMobile.Controller.Activity_Detail
         public async Task<List<SerialNumber>> GetSerialNumberList(int prodRefno)
         {
             var query = new StringBuilder();
-            query.Append("SELECT DISTINCT tActivityDetail.ActivityDetailSingleTradeItemSerialNumber AS ActivityDetailSingleTradeItemSerialNumber ");
+            query.Append("SELECT DISTINCT tActivityDetail.ActivityDetailSingleTradeItemSerialNumber ");
             query.Append("FROM tActivityDetail ");
             query.Append("INNER JOIN tProductUnit ON tProductUnit.ProductUnitRefno = tActivityDetail.ProductUnitRefno ");
             query.Append("INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno ");
@@ -110,40 +110,6 @@ namespace dMobile.Controller.Activity_Detail
             query.Append("ORDER BY tActivityDetail.ActivityDetailSingleTradeItemSerialNumber");
 
             return await DatabaseConnection.GetInstance().SqlConn.QueryAsync<SerialNumber>(query.ToString());
-        }
-
-        /// <summary>
-        /// Get XML data from the activity detail edit.
-        /// </summary>
-        /// <param name="detailEdit"><see cref="ActDetailEdit"/> Activity detail edit object.</param>
-        /// <returns><see cref="XDocument"/> Activity detail edit XML data.</returns>
-        public Task<XDocument> GetXmlFromActivityDetailEdit(ActDetailEdit detailEdit)
-        {
-            var isBatchPrintProductLabel = SysEnvironment.GetInstance().SysSettings.IsPrintProductLabelsAsBatch;
-
-            var xmlDoc = XDocument.Parse(
-                "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
-                + "<params>"
-                + "<ser_refno>0</ser_refno>"
-                + "<refno>0</refno>"
-                + "<serial>" + detailEdit.SchemeData.SingleTradeItemSerialNumber + "</serial>"
-                + "<pdate>" + detailEdit.SchemeData.LogisticUnitProductionDate + "</pdate>"
-                + "<lot_no>" + detailEdit.SchemeData.LogisticUnitBatchLotNumber + "</lot_no>"
-                + "<bdate>" + detailEdit.SchemeData.LogisticUnitBestBeforeSellByDate + "</bdate>"
-                + "<variant_code>" + detailEdit.SchemeData.VariantCode + "</variant_code>"
-                + "<variant_no>" + detailEdit.SchemeData.VariantNumber + "</variant_no>"
-                + "<alt_qty>" + detailEdit.AltQuantity + "</alt_qty>"
-                + "<wt_qty>" + detailEdit.WeightQuantity + "</wt_qty>"
-                + "<base_qty>" + detailEdit.BaseQuantity + "</base_qty>"
-                + "<is_batch_print_product_label>" + isBatchPrintProductLabel + "</is_batch_print_product_label>"
-                + "<extra1>" + detailEdit.ActExtra.Text1 + "</extra1>"
-                + "<extra2>" + detailEdit.ActExtra.Text2 + "</extra2>"
-                + "<extra3>" + detailEdit.ActExtra.Text3 + "</extra3>"
-                + "<extra4>" + detailEdit.ActExtra.Text4 + "</extra4>"
-                + "<extra5>" + detailEdit.ActExtra.DateTime1 + "</extra5>"
-                + "</params>");
-
-            return Task.FromResult(xmlDoc);
         }
     }
 }

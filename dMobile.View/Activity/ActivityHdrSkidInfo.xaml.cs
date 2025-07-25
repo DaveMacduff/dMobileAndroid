@@ -270,6 +270,7 @@ namespace dMobile.View.Activity
                 {
                     // Expect the control to close.
                     cancelChanges = true;
+                    this.SkidInfo = SysSkidInfo.DeepCopy(this.CallingSkidInfo);
                 }
                 else
                 {
@@ -280,6 +281,7 @@ namespace dMobile.View.Activity
                             "No"))
                     {
                         cancelChanges = true;
+                        this.SkidInfo = SysSkidInfo.DeepCopy(this.CallingSkidInfo);
                     }
                 }
             }
@@ -633,11 +635,11 @@ namespace dMobile.View.Activity
                 this.ProdInfo.Unit2BaseUnitFactor =
                     await ProductInfoTasks.GetUnitRelationFactor(this.ProdInfo);
                 this.LocMap = this.SkidInfo.CurrSkid.LocMap;
-                this.CallingSkidInfo = (SysSkidInfo)this.SkidInfo.ShallowCopy();
+                this.CallingSkidInfo = SysSkidInfo.DeepCopy(this.SkidInfo);
             }
             else
             {
-                this.CallingSkidInfo = (SysSkidInfo)this.SkidInfo.ShallowCopy();
+                this.CallingSkidInfo = SysSkidInfo.DeepCopy(this.SkidInfo);
                 switch (this.ActivityType)
                 {
                     case SysShared.ActivityType.Header:

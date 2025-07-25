@@ -365,16 +365,16 @@ namespace dMobile.Bedrock
             var labelScheme = new ProdSchemeLabelSettings().LoadData();
 
             const string query = @"
-                SELECT tProductScheme.ProductSchemeRefno AS ProductSchemeRefno
-                        ,tProductScheme.ProductSchemeIsSerialTracked AS ProductSchemeIsSerialTracked
-                        ,tProductScheme.ProductSchemeIsProductionDateTracked AS ProductSchemeIsProductionDateTracked
-                        ,tProductScheme.ProductSchemeIsLotTracked AS ProductSchemeIsLotTracked
-                        ,tProductScheme.ProductSchemeIsBestBeforeDateTracked AS ProductSchemeIsBestBeforeDateTracked
-                        ,tProductScheme.ProductSchemeIsVariantTracked AS ProductSchemeIsVariantTracked
-                        ,tProductScheme.ProductSchemeIsLotUniqueComponent AS ProductSchemeIsLotUniqueComponent
-                        ,tProductScheme.ProductSchemeIsProductionDateUniqueComponent AS ProductSchemeIsProductionDateUniqueComponent
-                        ,tProductScheme.ProductSchemeIsBestBeforeDateUniqueComponent AS ProductSchemeIsBestBeforeDateUniqueComponent
-                        ,tProductScheme.ProductSchemeIsVariantUniqueComponent AS ProductSchemeIsVariantUniqueComponent
+                SELECT tProductScheme.ProductSchemeRefno
+                        ,tProductScheme.ProductSchemeIsSerialTracked
+                        ,tProductScheme.ProductSchemeIsProductionDateTracked
+                        ,tProductScheme.ProductSchemeIsLotTracked
+                        ,tProductScheme.ProductSchemeIsBestBeforeDateTracked
+                        ,tProductScheme.ProductSchemeIsVariantTracked
+                        ,tProductScheme.ProductSchemeIsLotUniqueComponent
+                        ,tProductScheme.ProductSchemeIsProductionDateUniqueComponent
+                        ,tProductScheme.ProductSchemeIsBestBeforeDateUniqueComponent
+                        ,tProductScheme.ProductSchemeIsVariantUniqueComponent
                         ,tProductScheme.ProductSchemeExtra1Type AS ProductSchemeExtra1Type
                         ,tProductScheme.ProductSchemeExtra2Type AS ProductSchemeExtra2Type
                         ,tProductScheme.ProductSchemeExtra3Type AS ProductSchemeExtra3Type
@@ -391,8 +391,8 @@ namespace dMobile.Bedrock
                         ,tProductScheme.ProductSchemeExtra4IsRequired AS ProductSchemeExtra4IsRequired
                         ,tProductScheme.ProductSchemeExtra5IsRequired AS ProductSchemeExtra5IsRequired
                         ,tProductScheme.ProductSchemeIsLotTrackedDefault AS ProductSchemeIsLotTrackedDefault
-                        ,tProductScheme.ProductSchemeIsProductionDateTrackedDefault AS ProductSchemeIsProductionDateTrackedDefault
-                        ,tProductScheme.ProductSchemeIsBestBeforeDateTrackedDefault AS ProductSchemeIsBestBeforeDateTrackedDefault
+                        ,tProductScheme.ProductSchemeIsProductionDateTrackedDefault
+                        ,tProductScheme.ProductSchemeIsBestBeforeDateTrackedDefault
                     FROM tProduct
                     INNER JOIN tLocationMapWarehouseProductScheme ON tLocationMapWarehouseProductScheme.ProductRefno = tProduct.ProductRefno
                         AND tLocationMapWarehouseProductScheme.WarehouseLocationMapRefno = ?
@@ -405,7 +405,7 @@ namespace dMobile.Bedrock
                 LocationMap.GetInstance().CurrLocMap.WhsLocMapRefno),
                 Convert.ToInt32(productRefno));
 
-            if (prodSchemes != null && prodSchemes.Count > 0)
+            if (prodSchemes?.Count > 0)
             {
                 scheme.SchemeRefno = Convert.ToInt32(prodSchemes[0].ProductSchemeRefno);
 

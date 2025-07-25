@@ -156,6 +156,20 @@ namespace dMobile.Controller.Activity_Item
             }
         }
 
+        /// <inheritdoc/>
+        public override Color GetShippedReceivedCountedDisplayTextColor()
+        {
+            var displayColor = base.GetShippedReceivedCountedDisplayTextColor();
+            if (this.SelectedItem is PickingItem item)
+            {
+                displayColor = item.ActivityItemPickingQuantityOrdered == item.ActivityItemPickingQuantityShipped
+                    ? Color.Green
+                    : Color.Red;
+            }
+
+            return displayColor;
+        }
+
         /// <summary>
         /// Set the activity item selected activity item.
         /// </summary>

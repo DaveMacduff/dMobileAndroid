@@ -133,6 +133,20 @@ namespace dMobile.Controller.Activity_Item
         private List<ProductionTicketMaterialItem> ListProductionTicketMaterialItems { get; set; } =
             new List<ProductionTicketMaterialItem>();
 
+        /// <inheritdoc/>
+        public override Color GetShippedReceivedCountedDisplayTextColor()
+        {
+            var displayColor = base.GetShippedReceivedCountedDisplayTextColor();
+            if (this.SelectedItem is ProductionTicketMaterialItem item)
+            {
+                displayColor = item.ActivityItemProductionQuantityExpected == item.ActivityItemProductionQuantity
+                    ? Color.Green
+                    : Color.Red;
+            }
+
+            return displayColor;
+        }
+
         /// <summary>
         /// Set the activity item selected activity item.
         /// </summary>

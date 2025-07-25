@@ -762,7 +762,7 @@ namespace dMobile.View.Activity
                             await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ActItem.ProdInfo.Refno);
 
                         // <issue="13609" author="RD" date="2016/02/22"/>
-                        SysShared.AssertSuppressedErrorsAgainstScheme(this.ActItem.ProdInfo, this.BarParse);
+                        ////SysShared.AssertSuppressedErrorsAgainstScheme(this.ActItem.ProdInfo.Scheme, this.BarParse);
 
                         if (this.ActItem.IsAllowAddItem)
                         {

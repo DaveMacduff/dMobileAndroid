@@ -815,6 +815,40 @@ namespace dMobile.View.Activity
                 }
             }
 
+            async Task CreateDetail(BarCodeParse parse)
+            {
+                var actDetail = ActDetailFacade.GetActDetail(this.ActItem, this.ActSubType);
+
+                // If a skid is selected, then the scheme data will be set from the last assigned
+                // skid scheme data detail. Otherwise, the scheme data will be set from the product scheme data.
+                var schemeData = DefaultSchemeDataFromCurrentSkidSchemeDetail(actDetail);
+                actDetail.SchemeData = schemeData;
+                var tempItemProdSchemeData = new ActItemSchemeData
+                {
+                    ProdSchemeData = schemeData
+                };
+
+                var isInsertReady = await SysShared.GatherProductData(
+                    parse,
+                    this.ActSubType,
+                    this.ActItem,
+                    tempItemProdSchemeData,
+                    actDetail,
+                    isForceStopForEditing: false);
+                if (isInsertReady)
+                {
+                    var xmlDoc = actDetail.GetXml(actDetail);
+                    await actDetail.Insert(xmlDoc);
+                    this.ActItem.AddToQuantityInActivityItem(
+                        this.ActItem.SelectedItem,
+                        actDetail.Quantity,
+                        actDetail.BaseQuantity,
+                        actDetail.WeightQuantity);
+                    await this.ActItem.UpdateItemTableQuantity(this.ActItem.SelectedItem);
+                    await this.AssignAndDisplayLineItem(this.ActItem.ItemRefno);
+                }
+            }
+
             ProductSchemeData DefaultSchemeDataFromCurrentSkidSchemeDetail(ActDetail actDetail)
             {
                 // Did not use this.ActItem.ActHdr.SkidInfo.CurrSkid.LogisticUnitSkidCode
@@ -833,38 +867,6 @@ namespace dMobile.View.Activity
                 }
 
                 return schemeData;
-            }
-
-            async Task CreateDetail(BarCodeParse parse)
-            {
-                {
-                    var actDetail = ActDetailFacade.GetActDetail(this.ActItem, this.ActSubType);
-                    var schemeData = DefaultSchemeDataFromCurrentSkidSchemeDetail(actDetail);
-                    actDetail.SchemeData = schemeData;
-                    var tempItemProdSchemeData = new ActItemSchemeData
-                    {
-                        ProdSchemeData = schemeData
-                    };
-
-                    var isInsertReady = await SysShared.GatherProductData(
-                        parse,
-                        this.ActSubType,
-                        this.ActItem,
-                        tempItemProdSchemeData,
-                        actDetail);
-                    if (isInsertReady)
-                    {
-                        var xmlDoc = actDetail.GetXml(actDetail);
-                        await actDetail.Insert(xmlDoc);
-                        this.ActItem.AddToQuantityInActivityItem(
-                            this.ActItem.SelectedItem,
-                            actDetail.Quantity,
-                            actDetail.BaseQuantity,
-                            actDetail.WeightQuantity);
-                        await this.ActItem.UpdateItemTableQuantity(this.ActItem.SelectedItem);
-                        await this.AssignAndDisplayLineItem(this.ActItem.ItemRefno);
-                    }
-                }
             }
         }
 
@@ -938,83 +940,10 @@ namespace dMobile.View.Activity
                     this.DisplayCmdSetSkidData();
                     DisplayProductData();
                     DisplayQuantityData();
-                    DisplayItemIndex();
+                    DisplayItemCountIndex();
                     this.LblCommentData.Text = this.ActItem.ItemComment;
                 });
             return;
-
-            void DisplayQuantityData()
-            {
-                this.LblOrderedExpectedOnHand.Text = this.ActItem.GetOrderedExpectedOnHandTitle();
-                this.LblOrderedExpectedOnHandData.Text = this.ActItem.GetOrderedExpectedOnHandQuantity();
-                this.LblShippedReceivedCounted.Text = this.ActItem.GetShippedReceivedCountedTitle();
-                if (this.ActSubType == SysCommon.ActSubTypes.Picking)
-                {
-                    if (this.ActItem.SelectedItem != null &&
-                        ((PickingItem)this.ActItem.SelectedItem).ActivityItemPickingQuantityOrdered ==
-                        ((PickingItem)this.ActItem.SelectedItem).ActivityItemPickingQuantityShipped)
-                    {
-                        this.LblShippedReceivedCountedData.TextColor = Color.Green;
-                    }
-                    else
-                    {
-                        this.LblShippedReceivedCountedData.TextColor = Color.Red;
-                    }
-                }
-
-                if (this.ActSubType == SysCommon.ActSubTypes.TransferFrom ||
-                    this.ActSubType == SysCommon.ActSubTypes.TransferTo)
-                {
-                    if (this.ActItem.SelectedItem != null &&
-                        ((TransferItem)this.ActItem.SelectedItem).ActivityItemTransferRequiredQuantity ==
-                        ((TransferItem)this.ActItem.SelectedItem).ActivityItemTransferQuantity)
-                    {
-                        this.LblShippedReceivedCountedData.TextColor = Color.Green;
-                    }
-                    else
-                    {
-                        this.LblShippedReceivedCountedData.TextColor = Color.Red;
-                    }
-                }
-
-                if (this.ActSubType == SysCommon.ActSubTypes.Receiving)
-                {
-                    if (this.ActItem.SelectedItem != null &&
-                        ((ReceiveItem)this.ActItem.SelectedItem).ActivityItemReceivingQuantityOrdered ==
-                        ((ReceiveItem)this.ActItem.SelectedItem).ActivityItemReceivingQuantityReceived)
-                    {
-                        this.LblShippedReceivedCountedData.TextColor = Color.Green;
-                    }
-                    else
-                    {
-                        this.LblShippedReceivedCountedData.TextColor = Color.Red;
-                    }
-                }
-
-                if (this.ActSubType == SysCommon.ActSubTypes.TicketFinished ||
-                    this.ActSubType == SysCommon.ActSubTypes.TicketMaterial ||
-                    this.ActSubType == SysCommon.ActSubTypes.TicketAddProduct)
-                {
-                    if (this.ActItem.SelectedItem != null &&
-                        ((ProductionTicketFinishedItem)this.ActItem.SelectedItem).ActivityItemProductionQuantityExpected ==
-                        ((ProductionTicketFinishedItem)this.ActItem.SelectedItem).ActivityItemProductionQuantity)
-                    {
-                        this.LblShippedReceivedCountedData.TextColor = Color.Green;
-                    }
-                    else
-                    {
-                        this.LblShippedReceivedCountedData.TextColor = Color.Red;
-                    }
-                }
-
-                this.LblShippedReceivedCountedData.Text = this.ActItem.GetShippedReceivedCountedQuantity();
-            }
-
-            void DisplayItemIndex()
-            {
-                this.LblItemCountData.Text = this.ActItem.ListItems.Count > 0
-                    ? $"{this.ActItem.SelectedListIdx + 1} of {this.ActItem.ListItems.Count}" : "0 of 0";
-            }
 
             void DisplayProductData()
             {
@@ -1026,12 +955,26 @@ namespace dMobile.View.Activity
                 }
                 else
                 {
-                    var prodBcUn = ProductInfoTasks.GetCurrReadableProdBcUnit(this.ActItem.ProdInfo);
-                    this.LblProductBcUnitData.Text = prodBcUn;
-                    var prodDescSize = this.ActItem.ProdInfo.Desc.TrimEnd() + " " + this.ActItem.ProdInfo.UnitSizeDesc;
-                    this.LblDescriptionSizeData.Text = prodDescSize;
+                    this.LblProductBcUnitData.Text = ProductInfoTasks.GetCurrReadableProdBcUnit(this.ActItem.ProdInfo);
+                    this.LblDescriptionSizeData.Text = this.ActItem.ProdInfo.Desc.TrimEnd() + " " + this.ActItem.ProdInfo.UnitSizeDesc;
                     this.LblBrandData.Text = this.ActItem.ProdInfo.BrandDesc;
                 }
+            }
+
+            void DisplayQuantityData()
+            {
+                this.LblOrderedExpectedOnHand.Text = this.ActItem.GetOrderedExpectedOnHandTitle();
+                this.LblOrderedExpectedOnHandData.Text = this.ActItem.GetOrderedExpectedOnHandQuantity();
+                this.LblShippedReceivedCounted.Text = this.ActItem.GetShippedReceivedCountedTitle();
+                this.LblShippedReceivedCountedData.TextColor = this.ActItem.GetShippedReceivedCountedDisplayTextColor();
+                this.LblShippedReceivedCountedData.Text = this.ActItem.GetShippedReceivedCountedQuantity();
+            }
+
+            // Show the item count index in the list of items. (1 of 10)
+            void DisplayItemCountIndex()
+            {
+                this.LblItemCountData.Text = this.ActItem.ListItems.Count > 0
+                    ? $"{this.ActItem.SelectedListIdx + 1} of {this.ActItem.ListItems.Count}" : "0 of 0";
             }
         }
 

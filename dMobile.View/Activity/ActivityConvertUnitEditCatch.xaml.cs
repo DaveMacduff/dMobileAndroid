@@ -55,7 +55,7 @@ namespace dMobile.View.Activity
             this.ActDetailEdit = new ActDetailEdit
             {
                 SchemeData = this.ActDetail.SchemeData,
-                AltQuantity = this.ActDetail.Quantity,
+                Quantity = this.ActDetail.Quantity,
                 BaseQuantity = this.ActDetail.BaseQuantity,
                 WeightQuantity = this.ActDetail.WeightQuantity
             };
@@ -157,7 +157,7 @@ namespace dMobile.View.Activity
                     "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                     + "<imclient>"
                     + "<itm_refno>" + this.ActDetail.ActItem.ItemFkRefno + "</itm_refno>"
-                    + "<alt_qty>" + this.ActDetailEdit.AltQuantity + "</alt_qty>"
+                    + "<alt_qty>" + this.ActDetailEdit.Quantity + "</alt_qty>"
                     + "<wt_qty>" + this.ActDetailEdit.WeightQuantity + "</wt_qty>"
                     + "<ActivityDetailUniqueSchemeID>" +
                     this.ActDetail.UniqueSchemeId +
@@ -171,7 +171,7 @@ namespace dMobile.View.Activity
                 async Task ValidateQuantity()
                 {
                     // Round captured screen quantity to 3 decimals.
-                    this.ActDetailEdit.AltQuantity = this.AltQuantityEntered;
+                    this.ActDetailEdit.Quantity = this.AltQuantityEntered;
                     this.ActDetailEdit.BaseQuantity = Math.Round(decimal.Parse(this.TxtBaseQty.Text), 3);
                     this.ActDetailEdit.WeightQuantity = Math.Round(decimal.Parse(this.TxtWtQty.Text), 3);
 
@@ -199,10 +199,10 @@ namespace dMobile.View.Activity
                     else
                     {
                         ////expectedWeightQty = Math.Round(this.ActDetailEdit.BaseQuantity * productInfo.UnitGrossWeight, 3);
-                        expectedWeightQty = Math.Round(this.ActDetailEdit.AltQuantity * productInfo.UnitGrossWeight, 3);
+                        expectedWeightQty = Math.Round(this.ActDetailEdit.Quantity * productInfo.UnitGrossWeight, 3);
                     }
 
-                    if (Math.Sign(this.ActDetailEdit.AltQuantity) == 0 &&
+                    if (Math.Sign(this.ActDetailEdit.Quantity) == 0 &&
                         (this.ActDetail.ActSubType == SysCommon.ActSubTypes.Adjustment ||
                          this.ActDetail.ActSubType == SysCommon.ActSubTypes.TicketMaterial))
                     {
@@ -221,14 +221,14 @@ namespace dMobile.View.Activity
                     void CheckEqualQuantity(ProductInfo prodQtyCheck)
                     {
                         if (prodQtyCheck.UnitCode == prodQtyCheck.BaseUnitCode &&
-                            this.ActDetailEdit.AltQuantity != this.ActDetailEdit.BaseQuantity)
+                            this.ActDetailEdit.Quantity != this.ActDetailEdit.BaseQuantity)
                         {
                             throw new MessageOnlyException("Quantity and base quantity are expected" +
                                                            " to be the same, because the units are the same.");
                         }
 
                         if (prodQtyCheck.UnitCode == prodQtyCheck.WeightUnitCode &&
-                            this.ActDetailEdit.AltQuantity != this.ActDetailEdit.WeightQuantity)
+                            this.ActDetailEdit.Quantity != this.ActDetailEdit.WeightQuantity)
                         {
                             throw new MessageOnlyException("Quantity and weight quantity are expected" +
                                                            " to be the same, because the units are the same.");
@@ -368,7 +368,7 @@ namespace dMobile.View.Activity
                     {
                         // Alt, base and weight quantity sign check.
                         const int totalSignQtyBaseWeight = 3;
-                        var totalSign = Math.Sign(this.ActDetailEdit.AltQuantity) +
+                        var totalSign = Math.Sign(this.ActDetailEdit.Quantity) +
                                         Math.Sign(this.ActDetailEdit.BaseQuantity) +
                                         Math.Sign(this.ActDetailEdit.WeightQuantity);
                         if (totalSign != totalSignQtyBaseWeight && totalSign != -totalSignQtyBaseWeight)
@@ -469,7 +469,7 @@ namespace dMobile.View.Activity
                                     // TODO: Add weight tolerance check warning.
                                 }
                             }
-                            else if (Math.Abs(this.ActDetailEdit.AltQuantity) != this.ActDetailEdit.AltQuantity)
+                            else if (Math.Abs(this.ActDetailEdit.Quantity) != this.ActDetailEdit.Quantity)
                             {
                                 // Warn with message box, do not raise message info exception.
                                 await Device.InvokeOnMainThreadAsync(async () =>
@@ -533,7 +533,7 @@ namespace dMobile.View.Activity
                             else
                             {
                                 var expectedBaseQty = Math.Round(
-                                    this.ActDetailEdit.AltQuantity / productInfo.Unit2BaseUnitFactor, 3);
+                                    this.ActDetailEdit.Quantity / productInfo.Unit2BaseUnitFactor, 3);
                                 if (this.ActDetailEdit.BaseQuantity != expectedBaseQty)
                                 {
                                     throw new MessageOnlyException($"Base quantity {this.ActDetailEdit.BaseQuantity}" +
@@ -663,7 +663,7 @@ namespace dMobile.View.Activity
                 if (await this.IsReadyToClose())
                 {
                     this.ActDetailEdit.SchemeData = this.ActDetail.SchemeData;
-                    this.ActDetailEdit.AltQuantity = this.ActDetail.Quantity;
+                    this.ActDetailEdit.Quantity = this.ActDetail.Quantity;
                     this.ActDetailEdit.WeightQuantity = this.ActDetail.WeightQuantity;
                     this.ActDetailEdit.BaseQuantity = this.ActDetail.BaseQuantity;
                 }
@@ -713,7 +713,7 @@ namespace dMobile.View.Activity
                                           + "<bdate>" + schemeData.LogisticUnitBestBeforeSellByDate + "</bdate>"
                                           + "<variant_code>" + schemeData.VariantCode + "</variant_code>"
                                           + "<variant_no>" + schemeData.VariantNumber + "</variant_no>"
-                                          + "<alt_qty>" + this.ActDetailEdit.AltQuantity + "</alt_qty>"
+                                          + "<alt_qty>" + this.ActDetailEdit.Quantity + "</alt_qty>"
                                           + "<wt_qty>" + this.ActDetailEdit.WeightQuantity + "</wt_qty>"
                                           + "<base_qty>" + this.ActDetailEdit.BaseQuantity + "</base_qty>"
                                           + "<scheme_id>" + scheme + "</scheme_id>"
@@ -844,21 +844,21 @@ namespace dMobile.View.Activity
                 {
                     if (this.ActDetail.WeightQuantity != 0)
                     {
-                        this.ActDetailEdit.AltQuantity = this.ActDetail.WeightQuantity;
+                        this.ActDetailEdit.Quantity = this.ActDetail.WeightQuantity;
                     }
                     else
                     {
-                        this.ActDetailEdit.AltQuantity = this.ActDetail.ActItem.ProdInfo.UnitGrossWeight;
+                        this.ActDetailEdit.Quantity = this.ActDetail.ActItem.ProdInfo.UnitGrossWeight;
                     }
                 }
                 else
                 {
-                    this.ActDetailEdit.AltQuantity = 1;
+                    this.ActDetailEdit.Quantity = 1;
                 }
             }
             else
             {
-                this.ActDetailEdit.AltQuantity = this.ActDetail.Quantity;
+                this.ActDetailEdit.Quantity = this.ActDetail.Quantity;
             }
 
             if (this.ActDetail.WeightQuantity == 0)
@@ -918,7 +918,7 @@ namespace dMobile.View.Activity
                 this.ActDetailEdit.BaseQuantity = this.ActDetail.BaseQuantity;
             }
 
-            this.ActDetailEdit.AltQuantity = decimal.Round(this.ActDetailEdit.AltQuantity, 3);
+            this.ActDetailEdit.Quantity = decimal.Round(this.ActDetailEdit.Quantity, 3);
             this.ActDetailEdit.BaseQuantity = decimal.Round(this.ActDetailEdit.BaseQuantity, 3);
             this.ActDetailEdit.WeightQuantity = decimal.Round(this.ActDetailEdit.WeightQuantity, 3);
 
