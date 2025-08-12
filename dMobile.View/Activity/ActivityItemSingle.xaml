@@ -2,6 +2,7 @@
 <modal:DMobileModal xmlns:modal="clr-namespace:dMobile.View.CustomPages.Modal"
                     xmlns="http://xamarin.com/schemas/2014/forms"
                     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                    xmlns:Custom="clr-namespace:dMobile.View.CustomControls"
                     xmlns:helpers="clr-namespace:dMobile.View.Helpers"
                     xmlns:customcontrols="clr-namespace:dMobile.View.CustomControls"
                     x:Class="dMobile.View.Activity.ActivityItemSingle">
@@ -9,6 +10,7 @@
         <AbsoluteLayout VerticalOptions="Center">
             <Grid Padding="10" AbsoluteLayout.LayoutFlags="All" AbsoluteLayout.LayoutBounds="0,0,1,1">
                 <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
@@ -114,12 +116,45 @@
                                                  SelectedIndexChanged="BarCodeModifier1Picker_SelectedIndexChanged"
                                                  IsEnabled="{Binding IsIndicatorRunning, Converter={helpers:BoolConverter}}"/>
                 </Grid>
+                <Grid Grid.Row="4">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="100"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Label x:Name="LblSkidQtyScanned"
+                           Grid.Row="0"
+                           Grid.Column="0"
+                           FontAttributes="Bold"
+                           Text="Skid Qty Scanned"/>
+                    <Label x:Name="LblSkidQtyScannedData"
+                           Grid.Row="0"
+                           Grid.Column="1"
+                           Text="Unknown"
+                           TextColor="Black"
+                           FontAttributes="Bold"
+                           />
+                    <Label x:Name="LblPartialSkid"
+                           Grid.Row="0"
+                           Grid.Column="2"
+                           FontAttributes="Bold"
+                           Text = "Part. Skid"/>
+                    <Custom:CustomSwitch x:Name="ChkPartialSkid"
+                                         Grid.Row="0"
+                                         Grid.Column="3"
+                                         Toggled="ChkPartialSkid_Toggled"/>
+                </Grid>
+
                 <!--
                 Product, BC, Unit
                 Description, Size
                 Brand
                 -->
-                <Grid Grid.Row="4">
+                <Grid Grid.Row="5">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*"/>
                         <RowDefinition Height="*"/>
@@ -164,7 +199,7 @@
                 Ordered / Expected / On hand
                 Shipped / Received / Counted
                 -->                
-                <Grid Grid.Row="5">
+                <Grid Grid.Row="6">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*"/>
                         <RowDefinition Height="*"/>
@@ -194,7 +229,7 @@
                            Text="0000000.000"/>
                 </Grid>
                 <!--Item Comment and Count-->
-                <Grid Grid.Row="6">
+                <Grid Grid.Row="7">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*"/>
                         <RowDefinition Height="*"/>
@@ -223,7 +258,7 @@
                            Text="0 of 0"/>
                 </Grid>
                 <!--Items, AddItem, Details-->
-                <Grid Grid.Row="7">
+                <Grid Grid.Row="8">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
@@ -264,7 +299,7 @@
                 </Grid>
 
                 <!--First, Previous, Next, Last-->
-                <Grid Grid.Row="8">
+                <Grid Grid.Row="9">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>

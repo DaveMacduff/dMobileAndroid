@@ -4,6 +4,11 @@
 
 namespace dMobile.View.Activity
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Threading.Tasks;
+    using System.Xml.Linq;
     using BarCodeScanner.BarCodeParsing;
     using BarCodeScanner.BarCodeScanners;
     using Bedrock;
@@ -12,15 +17,8 @@ namespace dMobile.View.Activity
     using dMobile.Controller.Activity;
     using Forms;
     using Resources.Enums;
-    using Resources.Types.Items;
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Threading.Tasks;
-    using System.Xml.Linq;
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;
-    using static dMobile.Bedrock.SysCommon;
     using static dMobile.View.SysShared;
     using Resource = Resources.Properties.Resources;
 
@@ -62,7 +60,10 @@ namespace dMobile.View.Activity
             this.Title = this.GetControlDescription();
             this.LoadAndBind().FireAndForgetSafeAsync();
             this.SearchTimer = new SysTimer(this.TimerTickCallback);
-            return;
+
+            // All other subtypes are defaulted to false, full skid scanning.
+            IsScanningPartialSkid = this.ActSubType == SysCommon.ActSubTypes.Receiving;
+            this.ChkPartialSkid.IsToggled = IsScanningPartialSkid;
 
             void InitBarCodeModifiers()
             {
@@ -113,6 +114,8 @@ namespace dMobile.View.Activity
         private List<object> ListItems { get; set; } = new List<object>();
 
         private bool IsScanningPartialSkid { get; set; } = true;
+
+        private decimal ScannedSkidQuantity { get; set; } = 0;
 
         /// <summary>
         ///     Unregister the bar code scan event handler and disable the scanner.
@@ -434,27 +437,14 @@ namespace dMobile.View.Activity
                     }
 
                     await FindOrCreateSkidLineItem(scanArgs.ParseInfo);
-                    var isAddAllSkidDetail = true;
-                    if (this.IsScanningPartialSkid)
-                    {
-                        await Device.InvokeOnMainThreadAsync(
-                        async () =>
-                        {
-                            this.IsScanningPartialSkid = await AskIfScanningParitalSkidsForSession();
-                            if (this.IsScanningPartialSkid)
-                            {
-                                isAddAllSkidDetail = await AskToAddAvailableSkidQuantity();
-                            }
-                        });
-                    }
-
-                    if (isAddAllSkidDetail)
+                    if (!this.IsScanningPartialSkid)
                     {
                         await Device.InvokeOnMainThreadAsync(
                         async () =>
                         {
                             var actDetail = ActDetailFacade.GetActDetail(this.ActItem, this.ActSubType);
                             await actDetail.InsertSkid(this.ActItem.ActHdr.SkidInfo);
+                            this.ScannedSkidQuantity += actDetail.Quantity;
                             this.ActItem.AddToQuantityInActivityItem(
                                 this.ActItem.SelectedItem,
                                 actDetail.Quantity,
@@ -533,32 +523,6 @@ namespace dMobile.View.Activity
             }
 
             return;
-
-            async Task<bool> AskIfScanningParitalSkidsForSession()
-            {
-                bool isScanningPartialSkid = false;
-                const string msg = "Do you wish to scan partial skids for this session?";
-                var result = await this.DisplayAlert("Skid", msg, "Yes", "No");
-                if (result)
-                {
-                    isScanningPartialSkid = true;
-                }
-
-                return isScanningPartialSkid;
-            }
-
-            async Task<bool> AskToAddAvailableSkidQuantity()
-            {
-                bool isAddAllSkidDetail = false;
-                const string skidMsg = "Do you wish to add all the available skid quantity?";
-                var result = await this.DisplayAlert("Skid", skidMsg, "Yes", "No");
-                if (result)
-                {
-                    isAddAllSkidDetail = true;
-                }
-
-                return isAddAllSkidDetail;
-            }
 
             async Task FindOrCreateSkidLineItem(BarCodeParse parse)
             {
@@ -839,6 +803,11 @@ namespace dMobile.View.Activity
                 {
                     var xmlDoc = actDetail.GetXml(actDetail);
                     await actDetail.Insert(xmlDoc);
+                    if (actDetail.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFkRefno != 0)
+                    {
+                        this.ScannedSkidQuantity += actDetail.Quantity;
+                    }
+
                     this.ActItem.AddToQuantityInActivityItem(
                         this.ActItem.SelectedItem,
                         actDetail.Quantity,
@@ -963,6 +932,9 @@ namespace dMobile.View.Activity
 
             void DisplayQuantityData()
             {
+                this.LblSkidQtyScannedData.Text = this.ScannedSkidQuantity > 0
+                    ? this.ScannedSkidQuantity.ToString("N3") + " " + this.ActItem.ProdInfo.UnitCode
+                    : "Unknown";
                 this.LblOrderedExpectedOnHand.Text = this.ActItem.GetOrderedExpectedOnHandTitle();
                 this.LblOrderedExpectedOnHandData.Text = this.ActItem.GetOrderedExpectedOnHandQuantity();
                 this.LblShippedReceivedCounted.Text = this.ActItem.GetShippedReceivedCountedTitle();
@@ -1000,6 +972,7 @@ namespace dMobile.View.Activity
                         Math.Round(decimal.Parse(xmlDoc.Root!.Element("base_qty") !.Value), 3),
                         Math.Round(decimal.Parse(xmlDoc.Root!.Element("wt_qty") !.Value), 3));
                     await this.ActItem.UpdateItemTableQuantity(this.ActItem.SelectedItem);
+                    this.ScannedSkidQuantity = Math.Round(decimal.Parse(xmlDoc.Root!.Element("skid_qty") !.Value), 3);
                     await this.DisplayData();
                 }
             }
@@ -1127,11 +1100,13 @@ namespace dMobile.View.Activity
         {
             try
             {
+                await this.ScannerDisable();
                 if (this.SysEnv.SysSettings.IsDisconnectedMode)
                 {
                     throw new MessageOnlyException("Skid tracking is not supported in disconnected mode.");
                 }
 
+                var currentSkidRefno = this.ActHdr.SkidInfo.CurrSkid.SkidFkRefno;
                 this.CmdSetSkid.IsEnabled = false;
                 var form = new ActivityHdrSkidInfo(this.ActSubType, this.ActItem, ActivityType.Items);
                 var result = await form.ShowDialog();
@@ -1147,6 +1122,12 @@ namespace dMobile.View.Activity
                 {
                     const string msg = "Expected a selected skid to contain a valid skid foreign key reference number.";
                     throw new Exception(msg);
+                }
+
+                // Reset the scanned quantity when changing skids.
+                if (currentSkidRefno != selectedSkidInfo.CurrSkid.SkidFkRefno)
+                {
+                    this.ScannedSkidQuantity = 0;
                 }
 
                 await AssignSelectedSkidTheCurrentLocationIfNoneAssigned(selectedSkidInfo);
@@ -1223,6 +1204,7 @@ namespace dMobile.View.Activity
             }
             finally
             {
+                await this.ScannerEnable();
                 this.CmdSetSkid.IsEnabled = true;
             }
 
@@ -1841,6 +1823,7 @@ namespace dMobile.View.Activity
                     this.ActDetail.BaseQuantity,
                     this.ActDetail.WeightQuantity);
                 await this.ActItem.UpdateItemTableQuantity(this.ActItem.SelectedItem);
+                this.ScannedSkidQuantity += this.ActDetail.Quantity;
                 await this.DisplayData();
             }
 
@@ -1954,6 +1937,7 @@ namespace dMobile.View.Activity
             {
                 this.CmdClearSkid.IsEnabled = false;
                 this.ActItem.ActHdr.SkidInfo.CurrSkid = new SSkidInfo();
+                this.ScannedSkidQuantity = 0;
                 await this.DisplayData();
             }
             catch (Exception ex)
@@ -2011,8 +1995,6 @@ namespace dMobile.View.Activity
                 await this.ScannerEnable();
                 this.CmdAddSkid.IsEnabled = true;
             }
-
-            return;
 
             async Task PerformAddSkid()
             {
@@ -2149,6 +2131,11 @@ namespace dMobile.View.Activity
                         _ = await errRpt.ShowDialog();
                     });
             }
+        }
+
+        private void ChkPartialSkid_Toggled(object sender, ToggledEventArgs e)
+        {
+            IsScanningPartialSkid = e.Value;
         }
     }
 }

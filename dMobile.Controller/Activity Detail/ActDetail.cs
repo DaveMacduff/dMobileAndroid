@@ -4,12 +4,6 @@
 
 namespace dMobile.Controller.Activity_Detail
 {
-    using Activity_Item;
-    using Bedrock;
-    using GroundWork;
-    using Resources.Models.Products;
-    using Resources.Types.Details;
-    using SQLite;
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
@@ -18,6 +12,12 @@ namespace dMobile.Controller.Activity_Detail
     using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
+    using Activity_Item;
+    using Bedrock;
+    using GroundWork;
+    using Resources.Models.Products;
+    using Resources.Types.Details;
+    using SQLite;
     using Xamarin.Forms;
 
     /// <summary>
@@ -455,6 +455,37 @@ namespace dMobile.Controller.Activity_Detail
         public abstract string GetControlDescription();
 
         /// <summary>
+        ///     Total all skid quantity from the list details for the selected skid.
+        /// </summary>
+        /// <param name="skidInfo"><see cref="SSkidInfo" /> Skid information.</param>
+        /// <returns><see cref="SFillQuantity" /> Summed quantities.</returns>
+        public virtual SFillQuantity GetTotalSkidQuantityFromListDetail(SSkidInfo skidInfo)
+        {
+            var fillQty = new SFillQuantity
+            {
+                Quantity = 0,
+                BaseQuantity = 0,
+                WeightQuantity = 0
+            };
+
+            if (skidInfo.SkidFkRefno > 0 && this.ListDetails?.Count > 0)
+            {
+                foreach (var detail in this.ListDetails.Cast<ActivityDetail>())
+                {
+                    // Only sum the quantities for the selected skid.
+                    if (detail.ActivityDetailLogisticUnitSkidNumber == skidInfo.SkidCode)
+                    {
+                        fillQty.Quantity += Convert.ToDecimal(detail.ActivityDetailQuantity);
+                        fillQty.BaseQuantity += Convert.ToDecimal(detail.ActivityDetailBaseQuantity);
+                        fillQty.WeightQuantity += Convert.ToDecimal(detail.ActivityDetailWeightQuantity);
+                    }
+                }
+            }
+
+            return fillQty;
+        }
+
+        /// <summary>
         ///     Total all activity detail quantity from the list details.
         /// </summary>
         /// <returns><see cref="SFillQuantity" /> Summed quantities.</returns>
@@ -468,7 +499,7 @@ namespace dMobile.Controller.Activity_Detail
             };
             await Device.InvokeOnMainThreadAsync(() =>
             {
-                if (this.ListDetails != null && this.ListDetails.Count > 0)
+                if (this.ListDetails?.Count > 0)
                 {
                     foreach (var detail in this.ListDetails.Cast<ActivityDetail>())
                     {
