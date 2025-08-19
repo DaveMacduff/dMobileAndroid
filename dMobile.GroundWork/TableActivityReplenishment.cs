@@ -177,11 +177,7 @@ namespace dMobile.GroundWork
                 });
         }
 
-        /// <summary>
-        /// Save the activity header, item and detail replenishment data.
-        /// </summary>
-        /// <param name="responseData"><see cref="string"/> Received data from communication server to save.</param>
-        /// <returns><see cref="Task"/> Task operation.</returns>
+        /// <inheritdoc cref="TableBase.Save(string)"/>
         protected override async Task Save(string responseData)
         {
             await DatabaseConnection.GetInstance()
@@ -346,7 +342,7 @@ namespace dMobile.GroundWork
                             var wtQty = Convert.ToDecimal(drow["ActivityDetailWeightQuantity"]) *
                                         -1;
 
-                            var query = @"INSERT INTO tActivityItemReplenishment (
+                            const string query = @"INSERT INTO tActivityItemReplenishment (
                             ActivityItemRefno
                             ,ActivityItemSubType
                             ,MoveType
@@ -440,7 +436,7 @@ namespace dMobile.GroundWork
                                 transaction.ExecuteScalar<int>(
                                     "SELECT last_insert_rowid() FROM tActivityDetail"));
 
-                            var queryInsertDetail = "INSERT INTO tActivityDetailReplenishment (" +
+                            const string queryInsertDetail = "INSERT INTO tActivityDetailReplenishment (" +
                                                     "ActivityDetailRefno, " +
                                                     "ActivityDetailFKRefno, " +
                                                     "ActivityDetailReplenishmentIsConfirmed" +

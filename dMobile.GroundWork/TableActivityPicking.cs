@@ -91,11 +91,7 @@ namespace dMobile.GroundWork
             }
         }
 
-        /// <summary>
-        ///    Save the data to the database.
-        /// </summary>
-        /// <param name="responseData"></param>
-        /// <returns>Task completed.</returns>
+        /// <inheritdoc cref="TableBase.Save(string)"/>
         protected override async Task Save(string responseData)
         {
             var conn = DatabaseConnection.GetInstance().SqlConn;

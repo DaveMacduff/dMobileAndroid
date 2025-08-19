@@ -131,6 +131,16 @@ namespace dMobile.GroundWork
                 });
         }
 
+        /// <summary>
+        /// Sends a request based on the specified activity foreign key reference number.
+        /// </summary>
+        /// <remarks>This method retrieves data from the database using the provided activity foreign key
+        /// reference number. If a matching record is found, it creates and sends a communication request based on the
+        /// retrieved data.</remarks>
+        /// <param name="activityFkRefno">The foreign key reference number of the activity item. Must be a valid reference number.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains the response string from the
+        /// communication request.</returns>
+        /// <exception cref="Exception">Thrown if no records are found for the specified <paramref name="activityFkRefno"/> in the database.</exception>
         protected override async Task<string> SendRequest(int activityFkRefno)
         {
             var results = await DatabaseConnection.GetInstance()
@@ -151,7 +161,8 @@ namespace dMobile.GroundWork
             return await SendComm(await this.CreateRequest(actAdjFkRefno));
         }
 
-        protected override async Task Save(string responseData, int actRefno)
+        /// <inheritdoc cref="TableBase.Save(string, int)"/>
+        protected override async Task Save(string responseData, int refno)
         {
             await DatabaseConnection.GetInstance()
                 .SqlConn.RunInTransactionAsync(
@@ -205,7 +216,7 @@ namespace dMobile.GroundWork
                                         " ActivityRefno, ActivityItemIsAdded) VALUES (?, ?, ?, ?)",
                                         Convert.ToInt32(SysCommon.ActSubTypes.Adjustment),
                                         Convert.ToInt32(SysCommon.ActStatus.NoChange),
-                                        actRefno,
+                                        refno,
                                         0);
 
                                     actItemRefno = Convert.ToInt32(
@@ -221,7 +232,7 @@ namespace dMobile.GroundWork
                                     actItemAdjFKRefno =
                                         Convert.ToInt32(drow["ActivityItemFKRefno"]);
 
-                                    var query = "INSERT INTO tActivityItemAdjustment " +
+                                    const string query = "INSERT INTO tActivityItemAdjustment " +
                                                 "(ActivityItemRefno, " +
                                                 "ActivityItemSubType, " +
                                                 "ActivityItemFKRefno, " +

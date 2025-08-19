@@ -185,7 +185,7 @@ namespace dMobile.GroundWork
                                 errMsg = "Code " + contactCode;
                                 errMsg += Environment.NewLine + "Name \'" + contactName + "\'";
 
-                                var queryInsertContactUser = "INSERT INTO tContactUser " +
+                                const string queryInsertContactUser = "INSERT INTO tContactUser " +
                                                              "(ContactRefno, " +
                                                              "ContactSubType, " +
                                                              "ContactUserCode, " +
@@ -268,11 +268,7 @@ namespace dMobile.GroundWork
                     });
         }
 
-        /// <summary>
-        /// The Save.
-        /// </summary>
-        /// <param name="responseData">XML data from the comm server.</param>
-        /// <returns>The <see cref="Task"/>.</returns>
+        /// <inheritdoc cref="TableBase.Save(string)"/>
         protected override async Task Save(string responseData)
         {
             var conn = DatabaseConnection.GetInstance().SqlConn;

@@ -157,6 +157,16 @@ namespace dMobile.GroundWork
                 });
         }
 
+        /// <summary>
+        /// Sends a request based on the specified activity foreign key reference number.
+        /// </summary>
+        /// <remarks>This method retrieves data from the database using the provided activity foreign key
+        /// reference number. If a matching record is found, it creates and sends a communication request based on the
+        /// retrieved data.</remarks>
+        /// <param name="activityFkRefno">The foreign key reference number of the activity item. Must be a valid reference number.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains the response string from the
+        /// communication request.</returns>
+        /// <exception cref="Exception">Thrown if no records are found for the specified <paramref name="activityFkRefno"/> in the database.</exception>
         protected override async Task<string> SendRequest(int activityFkRefno)
         {
             var results = await DatabaseConnection.GetInstance()
@@ -177,12 +187,8 @@ namespace dMobile.GroundWork
             return await SendComm(await this.CreateRequest(actItemPickFkRefno));
         }
 
-        /// <summary>
-        /// </summary>
-        /// <param name="responseData"></param>
-        /// <param name="actItemPickRefno"></param>
-        /// <inheritdoc />
-        protected override async Task Save(string responseData, int actItemPickRefno)
+        /// <inheritdoc cref="TableBase.Save(string, int)"/>
+        protected override async Task Save(string responseData, int refno)
         {
             var errMsg = string.Empty;
 
@@ -229,14 +235,14 @@ namespace dMobile.GroundWork
                                 var resultPickingItems =
                                     transaction.Query<ActivityItemPickingModel>(
                                         "SELECT * FROM tActivityItemPicking WHERE ActivityItemRefno = ?",
-                                        actItemPickRefno);
+                                        refno);
 
                                 if (resultPickingItems == null ||
                                     resultPickingItems is { Count: 0 })
                                 {
                                     throw new Exception(
                                         "No results in tActivityItemPicking for ActivityItemRefno " +
-                                        actItemPickRefno);
+                                        refno);
                                 }
 
                                 var productUnitRefno = resultPickingItems[0].ProductUnitRefno;
@@ -292,7 +298,7 @@ namespace dMobile.GroundWork
                                     {
                                         Convert.ToInt32(SysCommon.ActSubTypes.Picking),
                                         0,
-                                        actItemPickRefno,
+                                        refno,
                                         GetReceivedDataLocation(drow, transaction, useFNo),
                                         productUnitRefno
                                     };
@@ -311,7 +317,7 @@ namespace dMobile.GroundWork
                                               "Detail fk refno " +
                                               actDetailPickFkRefno;
 
-                                    var queryInsertPickingDetail =
+                                    const string queryInsertPickingDetail =
                                         "INSERT INTO tActivityDetailPicking (" +
                                         "ActivityDetailRefno, " +
                                         "ActivityDetailFKRefno, " +

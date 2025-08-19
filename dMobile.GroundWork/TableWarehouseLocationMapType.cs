@@ -193,24 +193,7 @@ namespace dMobile.GroundWork
             }
         }
 
-        /// <summary>
-        ///     Class to hold the data for the temporary table.
-        /// </summary>
-        private class Seg
-        {
-            public int LocationMapFKRefno { get; set; }
-
-            public int LocationMapSubType { get; set; }
-
-            public int WarehouseLocationMapType { get; set; }
-
-            public int WarehouseLocationMapFKRefno { get; set; }
-        }
-
-        /// <summary>
-        /// The Save.
-        /// </summary>
-        /// <param name="responseData"></param>
+        /// <inheritdoc cref="TableBase.Save(string)"/>
         protected override async Task Save(string responseData)
         {
             ////select cWhsLocation.LocationMapFKRefno, ;
@@ -331,6 +314,20 @@ namespace dMobile.GroundWork
             xml.Close();
 
             return xmlString.ToString();
+        }
+
+        /// <summary>
+        ///     Class to hold the data for the temporary table.
+        /// </summary>
+        private class Seg
+        {
+            public int LocationMapFKRefno { get; set; }
+
+            public int LocationMapSubType { get; set; }
+
+            public int WarehouseLocationMapType { get; set; }
+
+            public int WarehouseLocationMapFKRefno { get; set; }
         }
     }
 }

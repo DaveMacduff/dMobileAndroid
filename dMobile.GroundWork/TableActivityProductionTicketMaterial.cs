@@ -124,10 +124,7 @@ namespace dMobile.GroundWork
                 });
         }
 
-        /// <summary>
-        /// The Save.
-        /// </summary>
-        /// <param name="responseData"></param>
+        /// <inheritdoc cref="TableBase.Save(string)"/>
         protected override async Task Save(string responseData)
         {
             await DatabaseConnection.GetInstance()
@@ -189,7 +186,7 @@ namespace dMobile.GroundWork
                                     // To remove time - convert twice
                                     var dt = Convert.ToDateTime(drow["ActivityProductionDateTime"]);
 
-                                    var queryActivityProduction =
+                                    const string queryActivityProduction =
                                         "INSERT INTO tActivityProduction (" +
                                         "ActivityRefno, " +
                                         "ActivitySubType, " +
@@ -217,7 +214,7 @@ namespace dMobile.GroundWork
                                         parametersActivityProduction);
 
                                     actProductionFKRefno = Convert.ToInt32(drow["ActivityFKRefno"]);
-                                    var queryActivityProductionMaterial =
+                                    const string queryActivityProductionMaterial =
                                         "INSERT INTO tActivityProductionMaterial (" +
                                         "ActivityRefno, " +
                                         "ActivityFKRefno, " +

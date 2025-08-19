@@ -102,10 +102,7 @@ namespace dMobile.GroundWork
             });
         }
 
-        /// <summary>
-        /// The Save.
-        /// </summary>
-        /// <param name="responseData"></param>
+        /// <inheritdoc cref="TableBase.Save(string)"/>
         protected override async Task Save(string responseData)
         {
             await DatabaseConnection.GetInstance().SqlConn.RunInTransactionAsync(transaction =>
@@ -135,7 +132,7 @@ namespace dMobile.GroundWork
                         {
                             transaction.Execute("INSERT INTO tActivity (ActivityStatus, ActivitySubType) VALUES (?, ?)", 0, Convert.ToInt32(SysCommon.ActSubTypes.TicketFinished));
                             actRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivity"));
-                            var queryActivityProduction = "INSERT INTO tActivityProduction (" +
+                            const string queryActivityProduction = "INSERT INTO tActivityProduction (" +
                                                           "ActivityRefno, " +
                                                           "ActivitySubType, " +
                                                           "WarehouseLocationMapRefno, " +
@@ -160,7 +157,7 @@ namespace dMobile.GroundWork
                             transaction.Execute(queryActivityProduction, parametersActivityProduction.ToArray());
 
                             var actProductionFKRefno = Convert.ToInt32(drow["ActivityFKRefno"]);
-                            var queryActivityProductionFinished = "INSERT INTO tActivityProductionFinished (" +
+                            const string queryActivityProductionFinished = "INSERT INTO tActivityProductionFinished (" +
                                                                   "ActivityRefno, " +
                                                                   "ActivityFKRefno, " +
                                                                   "ActivityStringFKRefno, " +

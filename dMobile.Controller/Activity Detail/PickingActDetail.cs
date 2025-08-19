@@ -1274,11 +1274,7 @@ namespace dMobile.Controller.Activity_Detail
             return (DataTemplate)this.ResourceDictionary["dataTemplatePickingDetail"];
         }
 
-        /// <summary>
-        /// The Search.
-        /// </summary>
-        /// <param name="searchText">.</param>
-        /// <returns>.</returns>
+        /// <inheritdoc cref="ActivityDetail.Search(string)"/>
         public override ObservableCollection<object> Search(string searchText)
         {
             var observableCollection = new ObservableCollection<object>();

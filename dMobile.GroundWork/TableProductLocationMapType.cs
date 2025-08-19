@@ -40,7 +40,7 @@ namespace dMobile.GroundWork
                     EventArgs.Empty,
                     $"Purging {this.LowerCaseName}.",
                     true);
-                var query = "SELECT tLocationMapWarehouse.LocationMapWarehouseFKRefno FROM tLocationMapWarehouse";
+                const string query = "SELECT tLocationMapWarehouse.LocationMapWarehouseFKRefno FROM tLocationMapWarehouse";
                 var resultsLocationMapWarehouse = await DatabaseConnection.GetInstance()
                     .SqlConn.QueryAsync<LocationMapWarehouseModel>(query);
 
@@ -137,8 +137,8 @@ namespace dMobile.GroundWork
             }
         }
 
-        /// <inheritdoc/>
-        protected override async Task Save(string responseData, int whsLocMapRefno)
+        /// <inheritdoc cref="TableBase.Save(string, int)"/>
+        protected override Task Save(string responseData, int refno)
         {
             throw new NotImplementedException();
         }

@@ -146,10 +146,7 @@ namespace dMobile.GroundWork
             return rowsAffected;
         }
 
-        /// <summary>
-        /// Saves the response data to the table.
-        /// </summary>
-        /// <param name="responseData">The response data as a string.</param>
+        /// <inheritdoc cref="TableBase.Save(string)"/>
         protected override async Task Save(string responseData)
         {
             var conn = DatabaseConnection.GetInstance().SqlConn;

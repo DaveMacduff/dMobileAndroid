@@ -561,11 +561,7 @@ namespace dMobile.Controller.Activity_Detail
             return observableCollection;
         }
 
-        /// <summary>
-        /// Perform a search for an activity detail.
-        /// </summary>
-        /// <param name="searchText"><see cref="string"/> Search text.</param>
-        /// <returns><see cref="ObservableCollection{object}"/> Found object or null.</returns>
+        /// <inheritdoc cref="ActivityDetail.Search(string)"/>
         public override ObservableCollection<object> Search(string searchText)
         {
             throw new NotImplementedException();

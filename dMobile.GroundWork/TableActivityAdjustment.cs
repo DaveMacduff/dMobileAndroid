@@ -112,6 +112,7 @@ namespace dMobile.GroundWork
                 });
         }
 
+        /// <inheritdoc cref="TableBase.Save(string)"/>
         protected override async Task Save(string responseData)
         {
             var errMsg = string.Empty;

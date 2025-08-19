@@ -1237,11 +1237,7 @@ namespace dMobile.Controller.Activity_Item
             return this.ListItems;
         }
 
-        /// <summary>
-        /// Create a new filtered list of activity items, and an observable collection of activity items.
-        /// </summary>
-        /// <param name="searchText">Text to filter on.</param>
-        /// <returns>.</returns>
+        /// <inheritdoc cref="ActivityItem.Search(string)"/>
         public override ObservableCollection<object> Search(string searchText)
         {
             ObservableCollection<object> mainActivityItems = null;

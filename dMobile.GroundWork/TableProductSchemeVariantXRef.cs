@@ -91,10 +91,7 @@ namespace dMobile.GroundWork
             return rowsAffected;
         }
 
-        /// <summary>
-        /// The Save.
-        /// </summary>
-        /// <param name="responseData"></param>
+        /// <inheritdoc cref="TableBase.Save(string)"/>
         protected override async Task Save(string responseData)
         {
             ////select distinct cast(iv_grade.scheme as varchar(10)) as ProductSchemeCode, ;

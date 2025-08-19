@@ -301,7 +301,7 @@ namespace dMobile.Controller.Activity
             return this.ListHeaders;
         }
 
-        /// <inheritdoc />
+        /// <inheritdoc cref="Activity.Search(string)"/>
         public override ObservableCollection<object> Search(string searchText)
         {
             // TODO: verify filtering

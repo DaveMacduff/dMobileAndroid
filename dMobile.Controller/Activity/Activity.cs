@@ -115,8 +115,8 @@ namespace dMobile.Controller.Activity
         /// <summary>
         /// Search for a text match.
         /// </summary>
-        /// <param name="searchText">.</param>
-        /// <returns><see cref="ObservableCollection{T}"/> Found object.</returns>
+        /// <param name="searchText">Text to search for.</param>
+        /// <returns><see cref="ObservableCollection{T}"/> Found activity object or null.</returns>
         public abstract ObservableCollection<object> Search(string searchText);
 
         /// <summary>

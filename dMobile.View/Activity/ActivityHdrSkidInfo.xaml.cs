@@ -539,10 +539,22 @@ namespace dMobile.View.Activity
         /// </summary>
         protected override async void OnDisappearing()
         {
-            MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
-            base.OnDisappearing();
-            GC.Collect();
-            GC.WaitForPendingFinalizers();
+            try
+            {
+                MessagingCenter.Unsubscribe<string>(this, nameof(EventTypes.OnKeyUp));
+                base.OnDisappearing();
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
+            }
+            catch (Exception ex)
+            {
+                await Device.InvokeOnMainThreadAsync(
+                    async () =>
+                    {
+                        var errRpt = new FormErrorReport(ex);
+                        _ = await errRpt.ShowDialog();
+                    });
+            }
         }
 
         /// <summary>

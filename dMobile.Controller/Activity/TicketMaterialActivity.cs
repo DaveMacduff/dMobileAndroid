@@ -343,11 +343,7 @@ namespace dMobile.Controller.Activity
             return this.ListHeaders;
         }
 
-        /// <summary>
-        /// The Search.
-        /// </summary>
-        /// <param name="searchText">.</param>
-        /// <returns>.</returns>
+        /// <inheritdoc cref="Activity.Search(string)"/>
         public override ObservableCollection<object> Search(string searchText)
         {
             var observableCollection = new ObservableCollection<object>();

@@ -119,12 +119,7 @@ namespace dMobile.GroundWork
                 });
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="responseData"></param>
-        /// <remarks></remarks>
-        /// <inheritdoc/>
+        /// <inheritdoc cref="TableBase.Save(string)"/>
         protected override async Task Save(string responseData)
         {
             await DatabaseConnection.GetInstance()
@@ -188,7 +183,7 @@ namespace dMobile.GroundWork
                                         whsLocMapRefno =
                                             GetWhsLocMapRefnoFromDataRow(drow, transaction);
 
-                                        var query = "INSERT INTO tActivityReturns (" +
+                                        const string query = "INSERT INTO tActivityReturns (" +
                                                     "ActivityRefno, " +
                                                     "ActivitySubType, " +
                                                     "ActivityFKRefno, " +

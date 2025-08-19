@@ -206,6 +206,26 @@ namespace dMobile.GroundWork
                 await this.CreateTableActivityDetailProductionMaterial();
                 await this.CreateTableActivityDetailProductionByProduct();
 
+                // Create activity cut sheet-related tables.
+                await this.CreateTableActivityCutSheet();
+                await this.CreateTableActivityCutSheetFinished();
+                await this.CreateTableActivityCutSheetMaterial();
+                await this.CreateTableActivityItemCutSheet();
+                await this.CreateTableActivityItemCutSheetFinished();
+                await this.CreateTableActivityItemCutSheetMaterial();
+                await this.CreateTableActivityDetailCutSheetFinished();
+                await this.CreateTableActivityDetailCutSheetMaterial();
+
+                // Create activity yield sheet-related tables.
+                await this.CreateTableActivityYieldSheet();
+                await this.CreateTableActivityYieldSheetFinished();
+                await this.CreateTableActivityYieldSheetMaterial();
+                await this.CreateTableActivityItemYieldSheet();
+                await this.CreateTableActivityItemYieldSheetFinished();
+                await this.CreateTableActivityItemYieldSheetMaterial();
+                await this.CreateTableActivityDetailYieldSheetFinished();
+                await this.CreateTableActivityDetailYieldSheetMaterial();
+
                 // Create activity purchase order worksheet table.
                 await this.CreateTableActivityItemPurchaseOrderWorkSheet();
 
@@ -1270,6 +1290,250 @@ namespace dMobile.GroundWork
 
             // Create the ActivityDetailAdjustmentModel table asynchronously.
             await DatabaseConnection.GetInstance().SqlConn.CreateTableAsync<ActivityDetailAdjustmentModel>();
+        }
+
+        /// <summary>
+        /// Creates the activity cut sheet table.
+        /// </summary>
+        private async Task CreateTableActivityCutSheet()
+        {
+            if (this.OnNubStatOut != null)
+            {
+                // Notify listeners that the activity cut sheet table is being created.
+                this.MsgEventArgs.StatusOutMsg = "Creating cut sheet table.";
+                this.OnNubStatOut(this, this.MsgEventArgs);
+            }
+
+            await DatabaseConnection.GetInstance().SqlConn.CreateTableAsync<ActivityCutSheetModel>();
+        }
+
+        /// <summary>
+        /// Creates the activity cut sheet finished table.
+        /// </summary>
+        private async Task CreateTableActivityCutSheetFinished()
+        {
+            if (this.OnNubStatOut != null)
+            {
+                // Notify listeners that the activity cut sheet finished table is being created.
+                this.MsgEventArgs.StatusOutMsg = "Creating cut sheet finished table.";
+                this.OnNubStatOut(this, this.MsgEventArgs);
+            }
+
+            await DatabaseConnection.GetInstance().SqlConn.CreateTableAsync<ActivityCutSheetFinishedModel>();
+        }
+
+        /// <summary>
+        /// Creates the activity cut sheet material table.
+        /// </summary>
+        private async Task CreateTableActivityCutSheetMaterial()
+        {
+            if (this.OnNubStatOut != null)
+            {
+                // Notify listeners that the activity cut sheet material table is being created.
+                this.MsgEventArgs.StatusOutMsg = "Creating cut sheet material table.";
+                this.OnNubStatOut(this, this.MsgEventArgs);
+            }
+
+            // Create the ActivityCutSheetMaterialModel table asynchronously.
+            await DatabaseConnection.GetInstance().SqlConn.CreateTableAsync<ActivityCutSheetMaterialModel>();
+        }
+
+        /// <summary>
+        /// Creates the activity item cut sheet table.
+        /// </summary>
+        private async Task CreateTableActivityItemCutSheet()
+        {
+            if (this.OnNubStatOut != null)
+            {
+                // Notify listeners that the activity item cut sheet table is being created.
+                this.MsgEventArgs.StatusOutMsg = "Creating item cut sheet table.";
+                this.OnNubStatOut(this, this.MsgEventArgs);
+            }
+
+            await DatabaseConnection.GetInstance().SqlConn.CreateTableAsync<ActivityItemCutSheetModel>();
+        }
+
+        /// <summary>
+        /// Creates the activity item cut sheet finished table.
+        /// </summary>
+        private async Task CreateTableActivityItemCutSheetFinished()
+        {
+            if (this.OnNubStatOut != null)
+            {
+                // Notify listeners that the activity item cut sheet finished table is being created.
+                this.MsgEventArgs.StatusOutMsg = "Creating item cut sheet finished table.";
+                this.OnNubStatOut(this, this.MsgEventArgs);
+            }
+
+            await DatabaseConnection.GetInstance().SqlConn.CreateTableAsync<ActivityItemCutSheetFinishedModel>();
+        }
+
+        /// <summary>
+        /// Creates the activity item cut sheet material table.
+        /// </summary>
+        private async Task CreateTableActivityItemCutSheetMaterial()
+        {
+            if (this.OnNubStatOut != null)
+            {
+                // Notify listeners that the activity item cut sheet material table is being created.
+                this.MsgEventArgs.StatusOutMsg = "Creating item cut sheet material table.";
+                this.OnNubStatOut(this, this.MsgEventArgs);
+            }
+
+            await DatabaseConnection.GetInstance().SqlConn.CreateTableAsync<ActivityItemCutSheetMaterialModel>();
+        }
+
+        /// <summary>
+        /// Creates the activity detail cut sheet finished table.
+        /// </summary>
+        private async Task CreateTableActivityDetailCutSheetFinished()
+        {
+            if (this.OnNubStatOut != null)
+            {
+                // Notify listeners that the activity detail cut sheet finished table is being created.
+                this.MsgEventArgs.StatusOutMsg = "Creating detail cut sheet finished table.";
+                this.OnNubStatOut(this, this.MsgEventArgs);
+            }
+
+            await DatabaseConnection.GetInstance().SqlConn.CreateTableAsync<ActivityDetailCutSheetFinishedModel>();
+        }
+
+        /// <summary>
+        /// Creates the activity detail cut sheet material table.
+        /// </summary>
+        private async Task CreateTableActivityDetailCutSheetMaterial()
+        {
+            if (this.OnNubStatOut != null)
+            {
+                // Notify listeners that the activity detail cut sheet material table is being created.
+                this.MsgEventArgs.StatusOutMsg = "Creating detail cut sheet material table.";
+                this.OnNubStatOut(this, this.MsgEventArgs);
+            }
+
+            // Create the ActivityDetailProductionMaterialModel table asynchronously.
+            await DatabaseConnection.GetInstance().SqlConn.CreateTableAsync<ActivityDetailCutSheetMaterialModel>();
+        }
+
+        /// <summary>
+        /// Creates the activity yield sheet table.
+        /// </summary>
+        private async Task CreateTableActivityYieldSheet()
+        {
+            if (this.OnNubStatOut != null)
+            {
+                // Notify listeners that the activity yield sheet table is being created.
+                this.MsgEventArgs.StatusOutMsg = "Creating yield sheet table.";
+                this.OnNubStatOut(this, this.MsgEventArgs);
+            }
+
+            await DatabaseConnection.GetInstance().SqlConn.CreateTableAsync<ActivityYieldSheetModel>();
+        }
+
+        /// <summary>
+        /// Creates the activity yield sheet finished table.
+        /// </summary>
+        private async Task CreateTableActivityYieldSheetFinished()
+        {
+            if (this.OnNubStatOut != null)
+            {
+                // Notify listeners that the activity yield sheet finished table is being created.
+                this.MsgEventArgs.StatusOutMsg = "Creating yield sheet finished table.";
+                this.OnNubStatOut(this, this.MsgEventArgs);
+            }
+
+            await DatabaseConnection.GetInstance().SqlConn.CreateTableAsync<ActivityYieldSheetFinishedModel>();
+        }
+
+        /// <summary>
+        /// Creates the activity yield sheet material table.
+        /// </summary>
+        private async Task CreateTableActivityYieldSheetMaterial()
+        {
+            if (this.OnNubStatOut != null)
+            {
+                // Notify listeners that the activity yield sheet material table is being created.
+                this.MsgEventArgs.StatusOutMsg = "Creating yield sheet material table.";
+                this.OnNubStatOut(this, this.MsgEventArgs);
+            }
+
+            // Create the ActivityCutSheetMaterialModel table asynchronously.
+            await DatabaseConnection.GetInstance().SqlConn.CreateTableAsync<ActivityYieldSheetMaterialModel>();
+        }
+
+        /// <summary>
+        /// Creates the activity item yield sheet table.
+        /// </summary>
+        private async Task CreateTableActivityItemYieldSheet()
+        {
+            if (this.OnNubStatOut != null)
+            {
+                // Notify listeners that the activity item yield sheet table is being created.
+                this.MsgEventArgs.StatusOutMsg = "Creating item yield sheet table.";
+                this.OnNubStatOut(this, this.MsgEventArgs);
+            }
+
+            await DatabaseConnection.GetInstance().SqlConn.CreateTableAsync<ActivityItemYieldSheetModel>();
+        }
+
+        /// <summary>
+        /// Creates the activity item yield sheet finished table.
+        /// </summary>
+        private async Task CreateTableActivityItemYieldSheetFinished()
+        {
+            if (this.OnNubStatOut != null)
+            {
+                // Notify listeners that the activity item yield sheet finished table is being created.
+                this.MsgEventArgs.StatusOutMsg = "Creating item yield sheet finished table.";
+                this.OnNubStatOut(this, this.MsgEventArgs);
+            }
+
+            await DatabaseConnection.GetInstance().SqlConn.CreateTableAsync<ActivityItemYieldSheetFinishedModel>();
+        }
+
+        /// <summary>
+        /// Creates the activity item yield sheet material table.
+        /// </summary>
+        private async Task CreateTableActivityItemYieldSheetMaterial()
+        {
+            if (this.OnNubStatOut != null)
+            {
+                // Notify listeners that the activity item yield sheet material table is being created.
+                this.MsgEventArgs.StatusOutMsg = "Creating item yield sheet material table.";
+                this.OnNubStatOut(this, this.MsgEventArgs);
+            }
+
+            await DatabaseConnection.GetInstance().SqlConn.CreateTableAsync<ActivityItemYieldSheetMaterialModel>();
+        }
+
+        /// <summary>
+        /// Creates the activity detail yield sheet finished table.
+        /// </summary>
+        private async Task CreateTableActivityDetailYieldSheetFinished()
+        {
+            if (this.OnNubStatOut != null)
+            {
+                // Notify listeners that the activity detail yield sheet finished table is being created.
+                this.MsgEventArgs.StatusOutMsg = "Creating detail yield sheet finished table.";
+                this.OnNubStatOut(this, this.MsgEventArgs);
+            }
+
+            await DatabaseConnection.GetInstance().SqlConn.CreateTableAsync<ActivityDetailYieldSheetFinishedModel>();
+        }
+
+        /// <summary>
+        /// Creates the activity detail yield sheet material table.
+        /// </summary>
+        private async Task CreateTableActivityDetailYieldSheetMaterial()
+        {
+            if (this.OnNubStatOut != null)
+            {
+                // Notify listeners that the activity detail yield sheet material table is being created.
+                this.MsgEventArgs.StatusOutMsg = "Creating detail yield sheet material table.";
+                this.OnNubStatOut(this, this.MsgEventArgs);
+            }
+
+            // Create the ActivityDetailProductionMaterialModel table asynchronously.
+            await DatabaseConnection.GetInstance().SqlConn.CreateTableAsync<ActivityDetailYieldSheetMaterialModel>();
         }
 
         /// <summary>

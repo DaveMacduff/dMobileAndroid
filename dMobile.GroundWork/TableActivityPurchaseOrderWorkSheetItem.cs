@@ -104,22 +104,23 @@ namespace dMobile.GroundWork
         }
 
         /// <summary>
-        /// The Send.
+        /// Sends a request based on the specified activity foreign key reference number.
         /// </summary>
-        /// <param name="activityFkRefnoThe activityFkRefno<see cref="int"/>.</param>
-        /// <returns></returns>
+        /// <remarks>This method retrieves data from the database using the provided activity foreign key
+        /// reference number. If a matching record is found, it creates and sends a communication request based on the
+        /// retrieved data.</remarks>
+        /// <param name="activityFkRefno">The foreign key reference number of the activity item. Must be a valid reference number.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains the response string from the
+        /// communication request.</returns>
+        /// <exception cref="Exception">Thrown if no records are found for the specified <paramref name="activityFkRefno"/> in the database.</exception>
         protected override async Task<string> SendRequest(int activityFkRefno)
         {
-            var actWorkSheetFKRefno = 0;
+            const int actWorkSheetFKRefno = 0;
             return await SendComm(await this.CreateRequest(actWorkSheetFKRefno));
         }
 
-        /// <summary>
-        /// The Save.
-        /// </summary>
-        /// <param name="responseData"></param>
-        /// <param name="actRefno">The actItemRefno<see cref="int"/>.</param>
-        protected override async Task Save(string responseData, int actRefno)
+        /// <inheritdoc cref="TableBase.Save(string, int)"/>
+        protected override async Task Save(string responseData, int refno)
         {
             await DatabaseConnection.GetInstance().SqlConn.RunInTransactionAsync(transaction =>
             {
@@ -149,13 +150,13 @@ namespace dMobile.GroundWork
                         foreach (DataRow drow in ds.Tables["tActivityItemPurchaseOrderWorkSheet"].Rows)
                         {
                             transaction.Execute("INSERT INTO tActivity (ActivityStatus, ActivitySubType) VALUES (?, ?)", 0, Convert.ToInt32(SysCommon.ActSubTypes.PurchaseOrderWorkSheet));
-                            actRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivity"));
+                            refno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivity"));
                             transaction.Execute(
                                 "INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus, ActivityRefno," +
                                 " ActivityItemIsAdded) VALUES (?, ?, ?, ?)",
                                 Convert.ToInt32(SysCommon.ActSubTypes.PurchaseOrderWorkSheet),
                                 Convert.ToInt32(SysCommon.ActStatus.NoChange),
-                                actRefno,
+                                refno,
                                 0);
                             actItemRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivityItem"));
                             prodUnitRefno = GetProductUnitRefnoFromDataRow(drow, transaction, false);
@@ -163,7 +164,7 @@ namespace dMobile.GroundWork
 
                             actItemWorkSheetFKRefno = Convert.ToInt32(drow["ActivityItemFKRefno"]);
 
-                            var query = "INSERT INTO tActivityItemPurchaseOrderWorkSheet (" +
+                            const string query = "INSERT INTO tActivityItemPurchaseOrderWorkSheet (" +
                                         "ActivityItemRefno, " +
                                         "ActivityItemSubType, " +
                                         "ActivityItemFKRefno, " +

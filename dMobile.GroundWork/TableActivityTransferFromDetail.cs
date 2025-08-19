@@ -149,11 +149,15 @@ namespace dMobile.GroundWork
         }
 
         /// <summary>
-        ///
+        /// Sends a request based on the specified activity foreign key reference number.
         /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
-        /// <inheritdoc/>
+        /// <remarks>This method retrieves data from the database using the provided activity foreign key
+        /// reference number. If a matching record is found, it creates and sends a communication request based on the
+        /// retrieved data.</remarks>
+        /// <param name="activityFkRefno">The foreign key reference number of the activity item. Must be a valid reference number.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains the response string from the
+        /// communication request.</returns>
+        /// <exception cref="Exception">Thrown if no records are found for the specified <paramref name="activityFkRefno"/> in the database.</exception>
         protected override async Task<string> SendRequest(int activityFkRefno)
         {
             var results = await DatabaseConnection.GetInstance()
@@ -175,13 +179,8 @@ namespace dMobile.GroundWork
             return await SendComm(await this.CreateRequest(actItemFKRefno));
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="responseData"></param>
-        /// <param name="actItemTransferRefno"></param>
-        /// <inheritdoc/>
-        protected override async Task Save(string responseData, int actItemTransferRefno)
+        /// <inheritdoc cref="TableBase.Save(string, int)"/>
+        protected override async Task Save(string responseData, int refno)
         {
             var errMsg = string.Empty;
 
@@ -233,14 +232,14 @@ namespace dMobile.GroundWork
 
                                     var results = transaction.Query<ActivityItemTransferModel>(
                                         "SELECT * FROM tActivityItemTransfer WHERE ActivityItemRefno = ?",
-                                        Convert.ToInt32(actItemTransferRefno));
+                                        Convert.ToInt32(refno));
 
                                     if (results == null ||
                                         results?.Count == 0)
                                     {
                                         throw new Exception(
                                             errMsg +
-                                            $" Unable to locate the activity item transfer refno {actItemTransferRefno} in tActivityItemTransfer.");
+                                            $" Unable to locate the activity item transfer refno {refno} in tActivityItemTransfer.");
                                     }
 
                                     foreach (DataRow drow in ds.Tables["tActivityDetailTransfer"]
@@ -248,7 +247,7 @@ namespace dMobile.GroundWork
                                     {
                                         errMsg = "Arguments:";
 
-                                        var queryInsertDetail = "INSERT INTO tActivityDetail " +
+                                        const string queryInsertDetail = "INSERT INTO tActivityDetail " +
                                                                 "(" +
                                                                 "ActivityDetailSubType, " +
                                                                 "ActivityDetailStatus, " +
@@ -295,7 +294,7 @@ namespace dMobile.GroundWork
                                             Convert.ToInt32(SysCommon.ActSubTypes.TransferFrom));
                                         parametersInsertDetail.Add(SysCommon.ActStatus.NoChange);
                                         parametersInsertDetail.Add(
-                                            Convert.ToInt32(actItemTransferRefno));
+                                            Convert.ToInt32(refno));
                                         parametersInsertDetail.Add(
                                             GetReceivedDataLocation(drow, transaction, false));
                                         parametersInsertDetail.Add(results[0].ProductUnitRefno);
@@ -315,7 +314,7 @@ namespace dMobile.GroundWork
                                             transaction.ExecuteScalar<int>(
                                                 "SELECT last_insert_rowid() FROM tActivityDetail"));
 
-                                        var queryInsertTransferDetail =
+                                        const string queryInsertTransferDetail =
                                             "INSERT INTO tActivityDetailTransfer (ActivityDetailRefno, " +
                                             "ActivityDetailFKRefno, " +
                                             "ActivityDetailTransferIsConfirmed, " +

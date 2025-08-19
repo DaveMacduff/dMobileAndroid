@@ -173,7 +173,8 @@ namespace dMobile.GroundWork
             return response;
         }
 
-        protected override async Task Save(string responseData, int actRefno)
+        /// <inheritdoc cref="TableBase.Save(string, int)"/>
+        protected override async Task Save(string responseData, int refno)
         {
             var conn = DatabaseConnection.GetInstance().SqlConn;
             using var dataSet = new DataSet();
@@ -192,7 +193,7 @@ namespace dMobile.GroundWork
                             var item = new Seg
                             {
                                 ActivityItemRefno = itemRefno,
-                                ActivityFKRefno = actRefno,
+                                ActivityFKRefno = refno,
                                 ActivityPickingFKRefno = Convert.ToInt32(row["ActivityPickingFKRefno"]),
                                 ActivityItemFKRefno = Convert.ToInt32(row["ActivityItemFKRefno"]),
                                 ActivityItemStringFKRefno = Convert.ToString(row["ActivityItemFKRefno"]),
@@ -325,7 +326,7 @@ namespace dMobile.GroundWork
                     query,
                     Convert.ToInt32(SysCommon.ActSubTypes.Picking),
                     Convert.ToInt32(SysCommon.ActStatus.NoChange),
-                    actRefno,
+                    refno,
                     0);
                 query = "SELECT last_insert_rowid()";
                 ////query = "SELECT tActivityItem.ActivityItemRefno" +

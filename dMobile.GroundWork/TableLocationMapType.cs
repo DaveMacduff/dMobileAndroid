@@ -135,20 +135,21 @@ namespace dMobile.GroundWork
         }
 
         /// <summary>
-        /// The Send.
+        /// Sends a request based on the specified activity foreign key reference number.
         /// </summary>
-        /// <param name="activityFkRefno">The activityFkRefno<see cref="int"/>.</param>
-        /// <returns>The <see cref="Task"/>.</returns>
+        /// <remarks>This method retrieves data from the database using the provided activity foreign key
+        /// reference number. If a matching record is found, it creates and sends a communication request based on the
+        /// retrieved data.</remarks>
+        /// <param name="activityFkRefno">The foreign key reference number of the activity item. Must be a valid reference number.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains the response string from the
+        /// communication request.</returns>
+        /// <exception cref="Exception">Thrown if no records are found for the specified <paramref name="activityFkRefno"/> in the database.</exception>
         protected override async Task<string> SendRequest(int activityFkRefno)
         {
             return await SendComm(await this.CreateRequest(activityFkRefno));
         }
 
-        /// <summary>
-        /// The Save.
-        /// </summary>
-        /// <param name="responseData">The responseData<see cref="string"/>.</param>
-        /// <returns>The <see cref="Task"/>.</returns>
+        /// <inheritdoc cref="TableBase.Save(string)"/>
         protected override async Task Save(string responseData)
         {
             var conn = DatabaseConnection.GetInstance().SqlConn;

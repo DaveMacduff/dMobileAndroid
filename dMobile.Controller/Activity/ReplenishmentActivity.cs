@@ -464,6 +464,7 @@ namespace dMobile.Controller.Activity
             }
         }
 
+        /// <inheritdoc cref="Activity.Search(string)"/>
         public override ObservableCollection<object> Search(string searchText)
         {
             throw new NotImplementedException();

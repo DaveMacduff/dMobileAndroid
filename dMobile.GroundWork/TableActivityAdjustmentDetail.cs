@@ -170,10 +170,15 @@ namespace dMobile.GroundWork
         }
 
         /// <summary>
-        ///     The Send.
+        /// Sends a request based on the specified activity foreign key reference number.
         /// </summary>
-        /// <param name="activityFkRefno"><see cref="int" /> Activity item foreign key reference number.</param>
-        /// <returns><see cref="string" /> Send request response.</returns>
+        /// <remarks>This method retrieves data from the database using the provided activity foreign key
+        /// reference number. If a matching record is found, it creates and sends a communication request based on the
+        /// retrieved data.</remarks>
+        /// <param name="activityFkRefno">The foreign key reference number of the activity item. Must be a valid reference number.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains the response string from the
+        /// communication request.</returns>
+        /// <exception cref="Exception">Thrown if no records are found for the specified <paramref name="activityFkRefno"/> in the database.</exception>
         protected override async Task<string> SendRequest(int activityFkRefno)
         {
             const string query =
@@ -192,13 +197,8 @@ namespace dMobile.GroundWork
             return await SendComm(request);
         }
 
-        /// <summary>
-        ///     The Save.
-        /// </summary>
-        /// <param name="responseData"><see cref="string" /> Response data received.</param>
-        /// <param name="actItemRefno"><see cref="int" /> Activity item reference number.</param>
-        /// <returns><see cref="Task" /> Task completed.</returns>
-        protected override async Task Save(string responseData, int actItemRefno)
+        /// <inheritdoc cref="TableBase.Save(string, int)"/>
+        protected override async Task Save(string responseData, int refno)
         {
             var errMsg = string.Empty;
             var conn = DatabaseConnection.GetInstance().SqlConn;
@@ -236,18 +236,18 @@ namespace dMobile.GroundWork
                                 maxRowCount);
 
                             // Find the line item.
-                            var query =
+                            const string query =
                                 "SELECT * FROM tActivityItemAdjustment WHERE ActivityItemRefno = ?";
                             var actItemModel =
                                 transaction.Query<ActivityItemAdjustmentModel>(
                                     query,
-                                    actItemRefno);
+                                    refno);
                             if (actItemModel == null ||
                                 actItemModel.Count == 0)
                             {
                                 errMsg =
                                     "No results in tActivityItemAdjustment for ActivityItemRefno " +
-                                    actItemRefno +
+                                    refno +
                                     " " +
                                     this.FullClassName;
                                 throw new Exception(errMsg);
@@ -258,7 +258,7 @@ namespace dMobile.GroundWork
                             foreach (DataRow row in ds.Tables["tActivityDetailAdjustment"].Rows)
                             {
                                 errMsg = "Arguments:";
-                                InsertActivityDetail(actItemRefno, transaction, actItemModel, row);
+                                InsertActivityDetail(refno, transaction, actItemModel, row);
                                 errMsg = InsertActivityDetailAdjustment(
                                     transaction,
                                     errMsg,
@@ -351,7 +351,7 @@ namespace dMobile.GroundWork
             {
                 // Insert the activity detail extra information.
                 var parametersExtra = new List<object>();
-                var queryExtra = "INSERT INTO tActivityDetailExtra (" +
+                const string queryExtra = "INSERT INTO tActivityDetailExtra (" +
                                  "ActivityDetailRefno, " +
                                  "ActivityDetailSubType, " +
                                  "ActivityDetailExtra1Text, " +
@@ -387,7 +387,7 @@ namespace dMobile.GroundWork
                 var schemeVariantNo = Convert.ToInt32(drow["ProductSchemeVariantNo"]);
                 if (schemeVariantNo > 0)
                 {
-                    var emptyDate = "01-01-1900";
+                    const string emptyDate = "01-01-1900";
                     var query =
                         "SELECT * FROM tProductSchemeVariant WHERE ProductSchemeVariantNo = ?";
                     var resultsProductSchemeVariant =
@@ -443,7 +443,7 @@ namespace dMobile.GroundWork
                 List<ActivityItemAdjustmentModel> adjustmentItemResults,
                 DataRow row)
             {
-                var query = "INSERT INTO tActivityDetail " +
+                const string query = "INSERT INTO tActivityDetail " +
                             "(" +
                             "ActivityDetailSubType, " +
                             "ActivityDetailStatus, " +

@@ -117,6 +117,8 @@ namespace dMobile.View.Activity
 
         private decimal ScannedSkidQuantity { get; set; } = 0;
 
+        private int LastFullSkidFKRefno { get; set; } = 0;
+
         /// <summary>
         ///     Unregister the bar code scan event handler and disable the scanner.
         /// </summary>
@@ -225,7 +227,7 @@ namespace dMobile.View.Activity
         {
             try
             {
-                MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
+                MessagingCenter.Unsubscribe<string>(this, nameof(EventTypes.OnKeyUp));
                 base.OnDisappearing();
                 this.IsIndicatorRunning = false;
                 this.SearchTimer.Stop();
@@ -436,7 +438,8 @@ namespace dMobile.View.Activity
                         throw new MessageOnlyException("Skid tracking is not supported in disconnected mode.");
                     }
 
-                    await FindOrCreateSkidLineItem(scanArgs.ParseInfo);
+                    var lastSkid = this.ActItem.ActHdr.SkidInfo.CurrSkid;
+                    await FindOrCreateSkidLineItem(scanArgs.ParseInfo, lastSkid);
                     if (!this.IsScanningPartialSkid)
                     {
                         await Device.InvokeOnMainThreadAsync(
@@ -444,13 +447,22 @@ namespace dMobile.View.Activity
                         {
                             var actDetail = ActDetailFacade.GetActDetail(this.ActItem, this.ActSubType);
                             await actDetail.InsertSkid(this.ActItem.ActHdr.SkidInfo);
-                            this.ScannedSkidQuantity += actDetail.Quantity;
+                            this.LastFullSkidFKRefno = this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFkRefno;
                             this.ActItem.AddToQuantityInActivityItem(
                                 this.ActItem.SelectedItem,
                                 actDetail.Quantity,
                                 actDetail.BaseQuantity,
                                 actDetail.WeightQuantity);
                             await this.ActItem.UpdateItemTableQuantity(this.ActItem.SelectedItem);
+                            if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFkRefno == lastSkid.SkidFkRefno)
+                            {
+                                this.ScannedSkidQuantity += actDetail.Quantity;
+                            }
+                            else
+                            {
+                                this.ScannedSkidQuantity = actDetail.Quantity;
+                            }
+
                             await this.AssignAndDisplayLineItem(this.ActItem.ItemRefno);
                         });
                     }
@@ -524,7 +536,7 @@ namespace dMobile.View.Activity
 
             return;
 
-            async Task FindOrCreateSkidLineItem(BarCodeParse parse)
+            async Task FindOrCreateSkidLineItem(BarCodeParse parse, SSkidInfo lastSkid)
             {
                 if (!this.SysEnv.SysSettings.IsSkidTrackingModule)
                 {
@@ -539,6 +551,12 @@ namespace dMobile.View.Activity
                 }
 
                 var tempSkidInfo = await SysSkidInfo.GetSkidInfoFromBarCodeOrCode(parse.Sscc18);
+                if (tempSkidInfo.CurrSkid.SkidFkRefno == lastSkid.SkidFkRefno && !this.IsScanningPartialSkid)
+                {
+                    var msg = $"This skid '{lastSkid.SkidCode}' has already been scanned.";
+                    throw new MessageOnlyException(msg);
+                }
+
                 SLocMap tempSkidLocMap = await ChangeTheSkidLocationIfRequired(tempSkidInfo);
                 var tempProdInfo = tempSkidInfo.CurrSkid.ProdInfo;
                 if (tempProdInfo.UnitRefno == 0)
@@ -1998,8 +2016,8 @@ namespace dMobile.View.Activity
 
             async Task PerformAddSkid()
             {
-                var currSkid = this.ActItem.ActHdr.SkidInfo.CurrSkid;
-                if (currSkid == null || currSkid.SkidFkRefno == 0)
+                var selectedSkid = this.ActItem.ActHdr.SkidInfo.CurrSkid;
+                if (selectedSkid == null || selectedSkid.SkidFkRefno == 0)
                 {
                     const string msg = "Please select a skid to add.";
                     throw new MessageOnlyException(msg);
@@ -2014,10 +2032,28 @@ namespace dMobile.View.Activity
                     throw new CancelOperationException();
                 }
 
-                await FindOrCreateLineItem(currSkid);
+                var isSkidUsed = this.LastFullSkidFKRefno == this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFkRefno;
+                if (isSkidUsed)
+                {
+                    // If the skid is already used, we will not allow adding it again.
+                    const string msg = "This skid has already been added to this activity.";
+                    throw new MessageOnlyException(msg);
+                }
+
+                await FindOrCreateLineItem(selectedSkid);
                 await this.AssignAndDisplayLineItem(this.ActItem.ItemRefno);
 
                 await PerformAddDetail();
+                this.LastFullSkidFKRefno = this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFkRefno;
+                if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFkRefno == selectedSkid.SkidFkRefno)
+                {
+                    this.ScannedSkidQuantity += this.ActDetail.Quantity;
+                }
+                else
+                {
+                    this.ScannedSkidQuantity = this.ActDetail.Quantity;
+                }
+
                 this.ActItem.AddToQuantityInActivityItem(
                     this.ActItem.SelectedItem,
                     this.ActDetail.Quantity,

@@ -20,7 +20,7 @@ namespace dMobile.GroundWork
         public TableActivity()
           : base()
         {
-            this.FullClassName = "dMobile.GroundWork.TableActivity";
+            this.FullClassName = typeof(TableActivity).FullName;
         }
 
         /// <summary>

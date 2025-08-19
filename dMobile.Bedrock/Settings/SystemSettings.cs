@@ -15,817 +15,6 @@ namespace dMobile.Bedrock
     public class SystemSettings : ISysSettingsEventPublisher
     {
         /// <summary>
-        /// Defines the theme.
-        /// </summary>
-        private Theme theme = Theme.Light;
-
-        /// <summary>
-        /// Defines the isDisconnectedMode.
-        /// </summary>
-        private bool isDisconnectedMode = false;
-
-        /// <summary>
-        /// Defines the lastRefreshData.
-        /// </summary>
-        private DateTime lastRefreshData = DateTime.Now;
-
-        /// <summary>
-        /// Defines the isInvStrict.
-        /// </summary>
-        private bool isInvStrict = false;
-
-        /// <summary>
-        /// Defines the isSetCatchWeightZero.
-        /// </summary>
-        private bool isSetCatchWeightZero = false;
-
-        /// <summary>
-        /// Defines the isSetCatchCountZero.
-        /// </summary>
-        private bool isSetCatchCountZero = false;
-
-        /// <summary>
-        /// Defines the isIntegerCheckOverride.
-        /// </summary>
-        private bool isIntegerCheckOverride = false;
-
-        /// <summary>
-        /// Defines the isDisconnectedModeLoadDetail.
-        /// </summary>
-        private bool isDisconnectedModeLoadDetail = false;
-
-        /// <summary>
-        /// Defines the isEnableDefaultDetailValues.
-        /// </summary>
-        private bool isEnableDefaultDetailValues = false;
-
-        /// <summary>
-        /// Defines the isDetailEditScreenSetFocus2CatchWeight.
-        /// </summary>
-        private bool isDetailEditScreenSetFocus2CatchWeight = false;
-
-        /// <summary>
-        /// Defines the isEnableDefaultDetailExtraValues.
-        /// </summary>
-        private bool isEnableDefaultDetailExtraValues = false;
-
-        /// <summary>
-        /// Defines the isPrintProductLabelsAsBatch.
-        /// </summary>
-        private bool isPrintProductLabelsAsBatch = false;
-
-        /// <summary>
-        /// Defines the detailDateMinMaxValidYearRange.
-        /// </summary>
-        private int detailDateMinMaxValidYearRange = 0;
-
-        /// <summary>
-        /// Defines the prodWeightUnitTolerancePercent.
-        /// </summary>
-        private decimal prodWeightUnitTolerancePercent = 0;
-
-        /// <summary>
-        /// Defines the doesSelectingADifferentProductClearSkid.
-        /// </summary>
-        private bool doesSelectingADifferentProductClearSkid = false;
-
-        /// <summary>
-        /// Defines the isProductLabelCatchAsk.
-        /// </summary>
-        private bool isProductLabelCatchAsk = false;
-
-        /// <summary>
-        /// Defines the defaultLanguage.
-        /// </summary>
-        private string defaultLanguage = "ENU";
-
-        /// <summary>
-        /// Defines the languagePaths.
-        /// </summary>
-        private List<string> languagePaths = new List<string>();
-
-        /// <summary>
-        /// When true, inventory inquiry will search the whole warehouse instead
-        /// of specific section or slot..
-        /// </summary>
-        private bool inventoryInquirySearchEntireWarehouse = false;
-
-        /// <summary>
-        /// When true, disable the move all slot quantity option.
-        /// </summary>
-        private bool isDisableMoveAllSlotQuantityOption = false;
-
-        /// <summary>
-        /// Defines the gtinCompanyPrefix.
-        /// </summary>
-        private string gtinCompanyPrefix = string.Empty;
-
-        /// <summary>
-        /// Defines the isProductUnitBarCodeModifier1.
-        /// </summary>
-        private bool isProductUnitBarCodeModifier1 = false;
-
-        /// <summary>
-        /// Defines the productUnitBarCodeModifier1Codes.
-        /// </summary>
-        private string productUnitBarCodeModifier1Codes = string.Empty;
-
-        // private string locMapWarehouseMask = string.Empty;
-        // private string locMapSectionMask = string.Empty;
-        // private string locMapSlotMask = string.Empty;
-        // private string locMapSlotCoord1Mask = string.Empty;
-        // private string locMapSlotCoord2Mask = string.Empty;
-        // private string locMapSlotCoord3Mask = string.Empty;
-        // private string locMapSlotCoord1Name = string.Empty;
-        // private string locMapSlotCoord2Name = string.Empty;
-        // private string locMapSlotCoord3Name = string.Empty;
-
-        /// <summary>
-        /// Defines the isDefaultLocToProductDefaultLoc.
-        /// </summary>
-        private bool isDefaultLocToProductDefaultLoc = false;
-
-        /// <summary>
-        /// Defines the isVerifyProductLocation.
-        /// </summary>
-        private bool isVerifyProductLocation = false;
-
-        /// <summary>
-        /// Defines the isPutAwaySkidNoCatchAskZeroEnabled.
-        /// </summary>
-        private bool isPutAwaySkidNoCatchAskZeroEnabled = false;
-
-        /// <summary>
-        /// Defines the isReceivingNoCatchAskZeroEnabled.
-        /// </summary>
-        private bool isReceivingNoCatchAskZeroEnabled = false;
-
-        /// <summary>
-        /// Defines the isPOWorkSheetNoCatchAskZeroEnabled.
-        /// </summary>
-        private bool isPOWorkSheetNoCatchAskZeroEnabled = false;
-
-        /// <summary>
-        /// Defines the isReceivingModule.
-        /// </summary>
-        private bool isReceivingModule = false;
-
-        /// <summary>
-        /// Defines the allowAddProduct2Receiving.
-        /// </summary>
-        private bool allowAddProduct2Receiving = false;
-
-        /// <summary>
-        /// Defines the canPrintProductLabelReceiving.
-        /// </summary>
-        private bool canPrintProductLabelReceiving = false;
-
-        /// <summary>
-        /// Defines the isReceivingExtraDetailEnabled.
-        /// </summary>
-        private bool isReceivingExtraDetailEnabled = false;
-
-        /// <summary>
-        /// Defines the isReceivingCatchAskEnabled.
-        /// </summary>
-        private bool isReceivingCatchAskEnabled = false;
-
-        /// <summary>
-        /// Defines the isPurchaseOrderWorkSheetModule.
-        /// </summary>
-        private bool isPurchaseOrderWorkSheetModule = false;
-
-        /// <summary>
-        /// Defines the isPOWorkSheetCatchAskEnabled.
-        /// </summary>
-        private bool isPOWorkSheetCatchAskEnabled = false;
-
-        /// <summary>
-        /// Defines the isReceivingCreateNewItemNoAsk.
-        /// </summary>
-        private bool isReceivingCreateNewItemNoAsk = false;
-
-        /// <summary>
-        /// Defines the isPOWorkSheetCreateNewItemNoAsk.
-        /// </summary>
-        private bool isPOWorkSheetCreateNewItemNoAsk = false;
-
-        /// <summary>
-        /// Defines the askRecvPrintAllSkidLabelsUponSave.
-        /// </summary>
-        private bool askRecvPrintAllSkidLabelsUponSave = false;
-
-        /// <summary>
-        /// Receiving quantity over warning level..
-        /// </summary>
-        private SysCommon.ActReceivingQtyOverValLevels recvQtyOverWarn;
-
-        /// <summary>
-        /// Receiving quantity ounder warning level..
-        /// </summary>
-        private SysCommon.ActReceivingQtyUnderValLevels recvQtyUnderWarn;
-
-        /// <summary>
-        /// Defines the isPickingSingleModuleNoCatchAskZeroEnabled.
-        /// </summary>
-        private bool isPickingSingleModuleNoCatchAskZeroEnabled = false;
-
-        /// <summary>
-        /// Defines the isPickingNoCatchAskZeroEnabled.
-        /// </summary>
-        private bool isPickingNoCatchAskZeroEnabled = false;
-
-        /// <summary>
-        /// Is picking module enabled..
-        /// </summary>
-        private bool isPickMod = false;
-
-        /// <summary>
-        /// Is release by order..
-        /// </summary>
-        private bool isRelByOrder = false;
-
-        /// <summary>
-        /// Is release by section..
-        /// </summary>
-        private bool isRelBySect = false;
-
-        /// <summary>
-        /// Allow adding new product to order..
-        /// </summary>
-        private bool allowAddProd2Pick = false;
-
-        /// <summary>
-        /// Is preselection picking criteria..
-        /// </summary>
-        private bool isPrePickCrit = false;
-
-        /// <summary>
-        /// Is picking disallow manual add new product..
-        /// </summary>
-        private bool isPickDisallowManualAddProd = false;
-
-        /// <summary>
-        /// Is picking associate bar code password required..
-        /// </summary>
-        private bool isPickAssocBarCodePwdReq = false;
-
-        /// <summary>
-        /// Picking quantity over warning level..
-        /// </summary>
-        private SysCommon.ActPickingQtyOverValLevels pickQtyOverWarn;
-
-        /// <summary>
-        /// Picking quantity ounder warning level..
-        /// </summary>
-        private SysCommon.ActPickingQtyUnderValLevels pickQtyUnderWarn;
-
-        /// <summary>
-        /// Is picking quantity under show base quantity available..
-        /// </summary>
-        private bool isPickQtyUnderShowBaseQtyAvail = false;
-
-        /// <summary>
-        /// Is picking refresh orders after release..
-        /// </summary>
-        private bool isPickRefreshOrdAfterRel = false;
-
-        /// <summary>
-        /// Is picking show item quantity available..
-        /// </summary>
-        private bool isPickShowItemQtyAvail = false;
-
-        /// <summary>
-        /// Is Picking cofirm detail mode..
-        /// </summary>
-        private bool isPickConfirmDet = false;
-
-        /// <summary>
-        /// Is picking popup comments..
-        /// </summary>
-        private bool isPickPopupCmnt = false;
-
-        /// <summary>
-        /// Is picking must review items before release..
-        /// </summary>
-        private bool isPickMustReviewItemsBeforeRel = false;
-
-        /// <summary>
-        /// Is picking confirm exit enabled..
-        /// </summary>
-        private bool isPickConfirmExit = false;
-
-        /// <summary>
-        /// Is picking override message 1 enabled..
-        /// </summary>
-        private bool isPickOverrideMsg1 = false;
-
-        /// <summary>
-        /// Is picking hide route colums enabled..
-        /// </summary>
-        private bool isPickHideRouteCol = false;
-
-        /// <summary>
-        /// Is picking extra detail enabled..
-        /// </summary>
-        private bool isPickExtraDet = false;
-
-        /// <summary>
-        /// Is picking catch as enabled..
-        /// </summary>
-        private bool isPickCatchAsk = false;
-
-        /// <summary>
-        /// Picking detail grid design layout..
-        /// </summary>
-        private int pickDetGridDesignLayout = 0;
-
-        /// <summary>
-        /// Is picking create new item no ask..
-        /// </summary>
-        private bool isPickCreateNewItemNoAsk = false;
-
-        /// <summary>
-        /// Picking item description option..
-        /// </summary>
-        private int pickItemDescOpt = 0;
-
-        /// <summary>
-        /// Disable creation of a skid during picking..
-        /// </summary>
-        private bool isPickDisableMakeSkid = false;
-
-        /// <summary>
-        /// Require password for adding manual detail quantity..
-        /// </summary>
-        private bool isPickAddManualDetailPasswordRequired = false;
-
-        /// <summary>
-        /// Defines the isPickingModuleDisallowLoadingAllOrders.
-        /// </summary>
-        private bool isPickingModuleDisallowLoadingAllOrders = false;
-
-        /// <summary>
-        /// Is picking single catch ask enabled..
-        /// </summary>
-        private bool isPickSingleCatchAsk = false;
-
-        /// <summary>
-        /// Is picking single product..
-        /// </summary>
-        private bool isSingleActivityItem = false;
-
-        /// <summary>
-        /// Is picking single scanned product must match selected product..
-        /// </summary>
-        private bool isPickSingleScanProdMustMatchSelProd = false;
-
-        /// <summary>
-        /// Defines the isPickSinglePrintShipLabelFullQuantity.
-        /// </summary>
-        private bool isPickSinglePrintShipLabelFullQuantity = false;
-
-        /// <summary>
-        /// Defines the pickSingleShipLabelStopThresholdQuantity.
-        /// </summary>
-        private int pickSingleShipLabelStopThresholdQuantity = 0;
-
-        /// <summary>
-        /// Defines the canPrintShippingLabel.
-        /// </summary>
-        private bool canPrintShippingLabel = false;
-
-        /// <summary>
-        /// Defines the isFullQuantityEnabled.
-        /// </summary>
-        private bool isFullQuantityEnabled = false;
-
-        /// <summary>
-        /// Defines the isRepackQuantityEnabled.
-        /// </summary>
-        private bool isRepackQuantityEnabled = false;
-
-        /// <summary>
-        /// Defines the isDryQuantityEnabled.
-        /// </summary>
-        private bool isDryQuantityEnabled = false;
-
-        /// <summary>
-        /// Defines the isDryRepackQuantityEnabled.
-        /// </summary>
-        private bool isDryRepackQuantityEnabled = false;
-
-        /// <summary>
-        /// Defines the isFreshQuantityEnabled.
-        /// </summary>
-        private bool isFreshQuantityEnabled = false;
-
-        /// <summary>
-        /// Defines the isFreshRepackQuantityEnabled.
-        /// </summary>
-        private bool isFreshRepackQuantityEnabled = false;
-
-        /// <summary>
-        /// Defines the isFrozenQuantityEnabled.
-        /// </summary>
-        private bool isFrozenQuantityEnabled = false;
-
-        /// <summary>
-        /// Defines the isFrozenRepackQuantityEnabled.
-        /// </summary>
-        private bool isFrozenRepackQuantityEnabled = false;
-
-        /// <summary>
-        /// Defines the isLiveQuantityEnabled.
-        /// </summary>
-        private bool isLiveQuantityEnabled = false;
-
-        /// <summary>
-        /// Defines the isLiveRepackQuantityEnabled.
-        /// </summary>
-        private bool isLiveRepackQuantityEnabled = false;
-
-        /// <summary>
-        /// Defines the isPalletQuantityEnabled.
-        /// </summary>
-        private bool isPalletQuantityEnabled = false;
-
-        /// <summary>
-        /// Defines the isBundleQuantityEnabled.
-        /// </summary>
-        private bool isBundleQuantityEnabled = false;
-
-        /// <summary>
-        /// Defines the isReturnsNoCatchAskZeroEnabled.
-        /// </summary>
-        private bool isReturnsNoCatchAskZeroEnabled = false;
-
-        /// <summary>
-        /// Is returns module enabled..
-        /// </summary>
-        private bool isRetMod = false;
-
-        /// <summary>
-        /// Allow adding new products to returns..
-        /// </summary>
-        private bool allowAddProduct2Returns = false;
-
-        /// <summary>
-        /// Is returns confirm detail..
-        /// </summary>
-        private bool isRetConfirmDet = false;
-
-        /// <summary>
-        /// Is returns extra detail enabled..
-        /// </summary>
-        private bool isRetExtraDetEnabled = false;
-
-        /// <summary>
-        /// Is returns catch ask enabled..
-        /// </summary>
-        private bool isRetCatchAskEnabled = false;
-
-        /// <summary>
-        /// Defines the isRetCreateNewItemNoAsk.
-        /// </summary>
-        private bool isRetCreateNewItemNoAsk = false;
-
-        /// <summary>
-        /// Defines the isReplenishmentModule.
-        /// </summary>
-        private bool isReplenishmentModule = false;
-
-        /// <summary>
-        /// Defines the isPhysicalCountNoCatchAskZeroEnabled.
-        /// </summary>
-        private bool isPhysicalCountNoCatchAskZeroEnabled = false;
-
-        /// <summary>
-        /// Defines the isPhysicalCountModule.
-        /// </summary>
-        private bool isPhysicalCountModule = false;
-
-        /// <summary>
-        /// Defines the allowAddProduct2PhysicalCounts.
-        /// </summary>
-        private bool allowAddProduct2PhysicalCounts = false;
-
-        /// <summary>
-        /// Defines the isPhysicalExtraDetailEnabled.
-        /// </summary>
-        private bool isPhysicalExtraDetailEnabled = false;
-
-        /// <summary>
-        /// Defines the isPhysicalCatchAskEnabled.
-        /// </summary>
-        private bool isPhysicalCatchAskEnabled = false;
-
-        /// <summary>
-        /// Defines the isPhysicalCreateNewItemNoAsk.
-        /// </summary>
-        private bool isPhysicalCreateNewItemNoAsk = false;
-
-        /// <summary>
-        /// Defines the isPhysicalDoNotDefaultProductLocation.
-        /// </summary>
-        private bool isPhysicalDoNotDefaultProductLocation = false;
-
-        /// <summary>
-        /// Defines the isCycleCountNoCatchAskZeroEnabled.
-        /// </summary>
-        private bool isCycleCountNoCatchAskZeroEnabled = false;
-
-        /// <summary>
-        /// Defines the isCycleCountModule.
-        /// </summary>
-        private bool isCycleCountModule = false;
-
-        /// <summary>
-        /// Defines the allowAddProduct2CycleCounts.
-        /// </summary>
-        private bool allowAddProduct2CycleCounts = false;
-
-        /// <summary>
-        /// Defines the isCycleCountExtraDetailEnabled.
-        /// </summary>
-        private bool isCycleCountExtraDetailEnabled = false;
-
-        /// <summary>
-        /// Defines the isCycleCatchAskEnabled.
-        /// </summary>
-        private bool isCycleCatchAskEnabled = false;
-
-        /// <summary>
-        /// Defines the isCycleCreateNewItemNoAsk.
-        /// </summary>
-        private bool isCycleCreateNewItemNoAsk = false;
-
-        /// <summary>
-        /// Defines the isCycleDoNotDefaultProductLocation.
-        /// </summary>
-        private bool isCycleDoNotDefaultProductLocation = false;
-
-        /// <summary>
-        /// Defines the isTransferNoCatchAskZeroEnabled.
-        /// </summary>
-        private bool isTransferNoCatchAskZeroEnabled = false;
-
-        /// <summary>
-        /// Defines the canPrintProductLabelTransfers.
-        /// </summary>
-        private bool canPrintProductLabelTransfers = false;
-
-        /// <summary>
-        /// Is transfers module enabled..
-        /// </summary>
-        private bool isTransMod = false;
-
-        /// <summary>
-        /// Allowed adding new products to transfers..
-        /// </summary>
-        private bool allowAddProd2Trans = false;
-
-        /// <summary>
-        /// Is transfer extra detail enabled..
-        /// </summary>
-        private bool isTransExtraDetEnabled = false;
-
-        /// <summary>
-        /// Is transfers catch ask enabled..
-        /// </summary>
-        private bool isTransCatchAskEnabled = false;
-
-        /// <summary>
-        /// Is transfers create new item no ask..
-        /// </summary>
-        private bool isTransCreateNewItemNoAsk = false;
-
-        /// <summary>
-        /// Is transfers confirm from detail mode.
-        /// </summary>
-        // private bool isTransConfirmFromDet = false;
-
-        /// <summary>
-        /// Is transfers confirm to detail mode.
-        /// </summary>
-        ////private bool isTransConfirmToDet = false;
-
-        /// <summary>
-        /// Transfers quantity over warning level..
-        /// </summary>
-        private SysCommon.ActTransfersQtyOverValLevels transQtyOverWarn;
-
-        /// <summary>
-        /// Transfers quantity ounder warning level..
-        /// </summary>
-        private SysCommon.ActTransfersQtyUnderValLevels transQtyUnderWarn;
-
-        /// <summary>
-        /// Defines the isConvertUnitModuleNoCatchAskZeroEnabled.
-        /// </summary>
-        private bool isConvertUnitModuleNoCatchAskZeroEnabled = false;
-
-        /// <summary>
-        /// Defines the isConvertUnitsModule.
-        /// </summary>
-        private bool isConvertUnitsModule = false;
-
-        /// <summary>
-        /// Defines the isConvertUnitOnlyShowSell.
-        /// </summary>
-        private bool isConvertUnitOnlyShowSell = false;
-
-        /// <summary>
-        /// Defines the canPrintProductLabelConvertUnits.
-        /// </summary>
-        private bool canPrintProductLabelConvertUnits = false;
-
-        /// <summary>
-        /// Defines the canPrintProductLabelConvertProduct.
-        /// </summary>
-        private bool canPrintProductLabelConvertProduct = false;
-
-        /// <summary>
-        /// Defines the isConvertUnitCatchAskEnabled.
-        /// </summary>
-        private bool isConvertUnitCatchAskEnabled = false;
-
-        /// <summary>
-        /// Defines the isMoveInventoryModuleNoCatchAskZeroEnabled.
-        /// </summary>
-        private bool isMoveInventoryModuleNoCatchAskZeroEnabled = false;
-
-        /// <summary>
-        /// Defines the isMovesModule.
-        /// </summary>
-        private bool isMovesModule = false;
-
-        /// <summary>
-        /// Defines the isMoveInventoryCatchAskEnabled.
-        /// </summary>
-        private bool isMoveInventoryCatchAskEnabled = false;
-
-        /// <summary>
-        /// Defines the isPutAwayModule.
-        /// </summary>
-        private bool isPutAwayModule = false;
-
-        /// <summary>
-        /// Defines the isPutAwaySkidCatchAskEnabled.
-        /// </summary>
-        private bool isPutAwaySkidCatchAskEnabled = false;
-
-        /// <summary>
-        /// Defines the isAddToSkidModule.
-        /// </summary>
-        private bool isAddToSkidModule = false;
-
-        /// <summary>
-        /// Defines the isRemoveFromSkidModule.
-        /// </summary>
-        private bool isRemoveFromSkidModule = false;
-
-        /// <summary>
-        /// Defines the isBreakSkidModule.
-        /// </summary>
-        private bool isBreakSkidModule = false;
-
-        /// <summary>
-        /// Defines the isCreateSkidModule.
-        /// </summary>
-        private bool isCreateSkidModule = false;
-
-        /// <summary>
-        /// Defines the isSkidTrackingModule.
-        /// </summary>
-        private bool isSkidTrackingModule = false;
-
-        /// <summary>
-        /// Defines the isMoveSkidModule.
-        /// </summary>
-        private bool isMoveSkidModule = false;
-
-        /// <summary>
-        /// Defines the isAdjustmentNoCatchAskZeroEnabled.
-        /// </summary>
-        private bool isAdjustmentNoCatchAskZeroEnabled = false;
-
-        /// <summary>
-        /// Defines the isInventoryAdjustmentModule.
-        /// </summary>
-        private bool isInventoryAdjustmentModule = false;
-
-        /// <summary>
-        /// Defines the allowAddProduct2Adjustments.
-        /// </summary>
-        private bool allowAddProduct2Adjustments = false;
-
-        /// <summary>
-        /// Defines the isEnabledAdjustmentTypeFresh2Frozen.
-        /// </summary>
-        private bool isEnabledAdjustmentTypeFresh2Frozen = false;
-
-        /// <summary>
-        /// Defines the isAdjustmentsExtraDetailEnabled.
-        /// </summary>
-        private bool isAdjustmentsExtraDetailEnabled = false;
-
-        /// <summary>
-        /// Defines the isAdjustmentModuleCatchAskEnabled.
-        /// </summary>
-        private bool isAdjustmentModuleCatchAskEnabled = false;
-
-        /// <summary>
-        /// Defines the isAdjustmentCreateNewItemNoAsk.
-        /// </summary>
-        private bool isAdjustmentCreateNewItemNoAsk = false;
-
-        /// <summary>
-        /// Defines the isFinishedExtraDetailEnabled.
-        /// </summary>
-        private bool isFinishedExtraDetailEnabled = false;
-
-        /// <summary>
-        /// Defines the isMaterialExtraDetailEnabled.
-        /// </summary>
-        private bool isMaterialExtraDetailEnabled = false;
-
-        /// <summary>
-        /// Defines the isByProductsExtraDetailEnabled.
-        /// </summary>
-        private bool isByProductsExtraDetailEnabled = false;
-
-        /// <summary>
-        /// Defines the isTicketByProductNoCatchAskZeroEnabled.
-        /// </summary>
-        private bool isTicketByProductNoCatchAskZeroEnabled = false;
-
-        /// <summary>
-        /// Defines the isTicketFinishedNoCatchAskZeroEnabled.
-        /// </summary>
-        private bool isTicketFinishedNoCatchAskZeroEnabled = false;
-
-        /// <summary>
-        /// Defines the isTicketMaterialNoCatchAskZeroEnabled.
-        /// </summary>
-        private bool isTicketMaterialNoCatchAskZeroEnabled = false;
-
-        /// <summary>
-        /// Defines the isTicketFinishedGoodModule.
-        /// </summary>
-        private bool isTicketFinishedGoodModule = false;
-
-        /// <summary>
-        /// Defines the isTicketMaterialModule.
-        /// </summary>
-        private bool isTicketMaterialModule = false;
-
-        /// <summary>
-        /// Defines the isTicketByProductModule.
-        /// </summary>
-        private bool isTicketByProductModule = false;
-
-        /// <summary>
-        /// Defines the allowAddProduct2TicketFinishedGood.
-        /// </summary>
-        private bool allowAddProduct2TicketFinishedGood = false;
-
-        /// <summary>
-        /// Defines the allowAddProduct2TicketMaterial.
-        /// </summary>
-        private bool allowAddProduct2TicketMaterial = false;
-
-        /// <summary>
-        /// Defines the allowAddProduct2TicketByProduct.
-        /// </summary>
-        private bool allowAddProduct2TicketByProduct = false;
-
-        /// <summary>
-        /// Defines the isTicketFinishedCatchAskEnabled.
-        /// </summary>
-        private bool isTicketFinishedCatchAskEnabled = false;
-
-        /// <summary>
-        /// Defines the isTicketMaterialCatchAskEnabled.
-        /// </summary>
-        private bool isTicketMaterialCatchAskEnabled = false;
-
-        /// <summary>
-        /// Defines the isTicketByProductCatchAskEnabled.
-        /// </summary>
-        private bool isTicketByProductCatchAskEnabled = false;
-
-        /// <summary>
-        /// Defines the isTicketMaterialCreateNewItemNoAsk.
-        /// </summary>
-        private bool isTicketMaterialCreateNewItemNoAsk = false;
-
-        /// <summary>
-        /// Defines the isTicketByProductCreateNewItemNoAsk.
-        /// </summary>
-        private bool isTicketByProductCreateNewItemNoAsk = false;
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="SystemSettings"/> class.
         /// </summary>
         public SystemSettings()
@@ -834,168 +23,93 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether IsInvStrict
-        /// Is inventory checking strict..
+        /// Gets or sets a value indicating whether strict inventory quantity checking is enabled.
         /// </summary>
-        public bool IsInvStrict
-        {
-            get => this.isInvStrict;
-
-            set => this.isInvStrict = value;
-        }
+        [Obsolete("Quantity strictness will be enforced only on the communication server." +
+            " With the exception of serial number tracking.")]
+        public bool IsInvStrict { get; set; }
 
         /// <summary>
         /// Gets or sets the LastRefreshData.
         /// </summary>
-        public DateTime LastRefreshData
-        {
-            get => this.lastRefreshData;
-
-            set => this.lastRefreshData = value;
-        }
+        public DateTime LastRefreshData { get; set; } = DateTime.Now;
 
         /// <summary>
-        /// Gets or sets a value indicating whether IsDetailEditScreenSetFocus2CatchWeight.
+        /// Gets or sets a value indicating whether the detail edit screen should set focus to the catch weight field.
         /// </summary>
-        public bool IsDetailEditScreenSetFocus2CatchWeight
-        {
-            get => this.isDetailEditScreenSetFocus2CatchWeight;
-
-            set => this.isDetailEditScreenSetFocus2CatchWeight = value;
-        }
+        public bool IsDetailEditScreenSetFocus2CatchWeight { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether IsPrintProductLabelsAsBatch.
+        /// Gets or sets a value indicating whether to print product labels as a batch instead of individually.
         /// </summary>
-        public bool IsPrintProductLabelsAsBatch
-        {
-            get => this.isPrintProductLabelsAsBatch;
-
-            set => this.isPrintProductLabelsAsBatch = value;
-        }
+        public bool IsPrintProductLabelsAsBatch { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether IsSetCatchWeightZero.
+        /// Gets or sets a value indicating whether to set the catch weight to zero when the detail is entered.
         /// </summary>
-        public bool IsSetCatchWeightZero
-        {
-            get => this.isSetCatchWeightZero;
-
-            set => this.isSetCatchWeightZero = value;
-        }
+        public bool IsSetCatchWeightZero { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether IsSetCatchCountZero.
+        /// Gets or sets a value indicating whether to set the catch count to zero when the detail is entered.
         /// </summary>
-        public bool IsSetCatchCountZero
-        {
-            get => this.isSetCatchCountZero;
-
-            set => this.isSetCatchCountZero = value;
-        }
+        public bool IsSetCatchCountZero { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether IsIntegerCheckOverride.
+        /// Gets or sets a value indicating whether non integer quantities are allowed.
         /// </summary>
-        public bool IsIntegerCheckOverride
-        {
-            get => this.isIntegerCheckOverride;
-
-            set => this.isIntegerCheckOverride = value;
-        }
+        public bool IsIntegerCheckOverride { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether IsEnableDefaultDetailValues.
+        /// Gets or sets a value indicating whether default detail values are enabled.
         /// </summary>
-        public bool IsEnableDefaultDetailValues
-        {
-            get => this.isEnableDefaultDetailValues;
-
-            set => this.isEnableDefaultDetailValues = value;
-        }
+        public bool IsEnableDefaultDetailValues { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether IsEnableDefaultDetailExtraValues.
+        /// Gets or sets a value indicating whether default detail extra values are enabled.
         /// </summary>
-        public bool IsEnableDefaultDetailExtraValues
-        {
-            get => this.isEnableDefaultDetailExtraValues;
-
-            set => this.isEnableDefaultDetailExtraValues = value;
-        }
+        public bool IsEnableDefaultDetailExtraValues { get; set; }
 
         /// <summary>
         /// Gets or sets the Theme.
         /// </summary>
-        public Theme Theme
-        {
-            get => this.theme;
-
-            set => this.theme = value;
-        }
+        public Theme Theme { get; set; } = Theme.Light;
 
         /// <summary>
-        /// Gets or sets a value indicating whether IsDisconnectedMode.
+        /// Gets or sets a value indicating whether dmobile is in disconnected mode.
         /// </summary>
-        public bool IsDisconnectedMode
-        {
-            get => this.isDisconnectedMode;
-
-            set => this.isDisconnectedMode = value;
-        }
+        public bool IsDisconnectedMode { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether IsDisconnectedModeLoadDetail.
+        /// Gets or sets a value indicating whether dmobile should load detail records when in disconnected mode.
         /// </summary>
-        public bool IsDisconnectedModeLoadDetail
-        {
-            get => this.isDisconnectedModeLoadDetail;
-
-            set => this.isDisconnectedModeLoadDetail = value;
-        }
+        public bool IsDisconnectedModeLoadDetail { get; set; }
 
         /// <summary>
-        /// Gets or sets the DetailDateMinMaxValidYearRange.
+        /// Gets or sets the detail date min max valid year range.
         /// </summary>
-        public int DetailDateMinMaxValidYearRange
-        {
-            get => this.detailDateMinMaxValidYearRange;
-
-            set => this.detailDateMinMaxValidYearRange = value;
-        }
+        public int DetailDateMinMaxValidYearRange { get; set; }
 
         /// <summary>
-        /// Gets or sets the ProdWeightUnitTolerancePercent.
+        /// Gets or sets the product weight unit tolerance percent.
         /// </summary>
-        public decimal ProdWeightUnitTolerancePercent
-        {
-            get => this.prodWeightUnitTolerancePercent;
-
-            set => this.prodWeightUnitTolerancePercent = value;
-        }
+        public decimal ProdWeightUnitTolerancePercent { get; set; } = 0;
 
         /// <summary>
-        /// Gets or sets a value indicating whether DoesSelectingADifferentProductClearSkid
+        /// Gets or sets a value indicating whether to clear skid when selecting a different product.
+        /// </summary>
+        /// <remarks>
         /// In Activity Item, when you have a skid made for a line and go to select a new line:
         /// If this is true, it should clear the skid.
         /// Otherwise, keep the skid as is..
-        /// </summary>
-        public bool DoesSelectingADifferentProductClearSkid
-        {
-            get => this.doesSelectingADifferentProductClearSkid;
-            set => this.doesSelectingADifferentProductClearSkid = value;
-        }
+        /// </remarks>
+        public bool DoesSelectingADifferentProductClearSkid { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsProductLabelCatchAsk
         /// Forces the Product Label edit screen to always popup.
         /// It used to only show if scheme was missing. This says OR do it every time..
         /// </summary>
-        public bool IsProductLabelCatchAsk
-        {
-            get => this.isProductLabelCatchAsk;
-            set => this.isProductLabelCatchAsk = value;
-        }
+        public bool IsProductLabelCatchAsk { get; set; }
 
         /// <summary>
         /// Gets or sets the system default language.
@@ -1003,11 +117,7 @@ namespace dMobile.Bedrock
         /// when a user is not logged in, or when a user
         /// does not have a preferred language selected..
         /// </summary>
-        public string DefaultLanguage
-        {
-            get => this.defaultLanguage;
-            set => this.defaultLanguage = value;
-        }
+        public string DefaultLanguage { get; set; } = "ENU";
 
         /// <summary>
         /// Gets or sets the paths to the language files.
@@ -1016,1555 +126,712 @@ namespace dMobile.Bedrock
         /// https://msdn.microsoft.com/en-us/library/ee825488(v=cs.20).aspx..
         /// </summary>
         [XmlArrayItem("Path")]
-        public List<string> LanguagePaths
-        {
-            get => this.languagePaths;
-            set => this.languagePaths = value;
-        }
+        public List<string> LanguagePaths { get; set; } = new List<string>();
 
         /// <summary>
         /// Gets or sets a value indicating whether InventoryInquirySearchEntireWarehouse
         /// Gets or sets if the Inventory Inquiry screen should search the entire warehouse (true)
         /// or search specific section and slot (false)..
         /// </summary>
-        public bool InventoryInquirySearchEntireWarehouse
-        {
-            get => this.inventoryInquirySearchEntireWarehouse;
-
-            set => this.inventoryInquirySearchEntireWarehouse = value;
-        }
+        public bool InventoryInquirySearchEntireWarehouse { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether to disable the move all slot quantity option.
         /// </summary>
-        public bool IsDisableMoveAllSlotQuantityOption
-        {
-            get => this.isDisableMoveAllSlotQuantityOption;
-
-            set => this.isDisableMoveAllSlotQuantityOption = value;
-        }
+        public bool IsDisableMoveAllSlotQuantityOption { get; set; } = false;
 
         /// <summary>
         /// Gets or sets the GTINCompanyPrefix.
         /// </summary>
-        public string GTINCompanyPrefix
-        {
-            get => this.gtinCompanyPrefix;
-
-            set => this.gtinCompanyPrefix = value;
-        }
+        public string GTINCompanyPrefix { get; set; } = string.Empty;
 
         /// <summary>
         /// Gets or sets a value indicating whether IsProductUnitBarCodeModifier1.
         /// </summary>
-        public bool IsProductUnitBarCodeModifier1
-        {
-            get => this.isProductUnitBarCodeModifier1;
-
-            set => this.isProductUnitBarCodeModifier1 = value;
-        }
+        public bool IsProductUnitBarCodeModifier1 { get; set; }
 
         /// <summary>
         /// Gets or sets the ProductUnitBarCodeModifier1Codes.
         /// </summary>
-        public string ProductUnitBarCodeModifier1Codes
-        {
-            get => this.productUnitBarCodeModifier1Codes;
+        public string ProductUnitBarCodeModifier1Codes { get; set; } = string.Empty;
 
-            set => this.productUnitBarCodeModifier1Codes = value;
-        }
-
-        // public string LocMapWarehouseMask
-        // {
-        //    get
-        //    {
-        //        return this.locMapWarehouseMask;
-        //    }
-
-        // set
-        //    {
-        //        this.locMapWarehouseMask = value;
-        //    }
-        // }
-
-        // public string LocMapSectionMask
-        // {
-        //    get
-        //    {
-        //        return this.locMapSectionMask;
-        //    }
-
-        // set
-        //    {
-        //        this.locMapSectionMask = value;
-        //    }
-        // }
-
-        // public string LocMapSlotMask
-        // {
-        //    get
-        //    {
-        //        return this.locMapSlotMask;
-        //    }
-
-        // set
-        //    {
-        //        this.locMapSlotMask = value;
-        //    }
-        // }
-
-        // public string LocMapSlotCoord1Mask
-        // {
-        //    get
-        //    {
-        //        return this.locMapSlotCoord1Mask;
-        //    }
-
-        // set
-        //    {
-        //        this.locMapSlotCoord1Mask = value;
-        //    }
-        // }
-
-        // public string LocMapSlotCoord2Mask
-        // {
-        //    get
-        //    {
-        //        return this.locMapSlotCoord2Mask;
-        //    }
-
-        // set
-        //    {
-        //        this.locMapSlotCoord2Mask = value;
-        //    }
-        // }
-
-        // public string LocMapSlotCoord3Mask
-        // {
-        //    get
-        //    {
-        //        return this.locMapSlotCoord3Mask;
-        //    }
-
-        // set
-        //    {
-        //        this.locMapSlotCoord3Mask = value;
-        //    }
-        // }
-
-        // public string LocMapSlotCoord1Name
-        // {
-        //    get
-        //    {
-        //        return this.locMapSlotCoord1Name;
-        //    }
-
-        // set
-        //    {
-        //        this.locMapSlotCoord1Name = value;
-        //    }
-        // }
-
-        // public string LocMapSlotCoord2Name
-        // {
-        //    get
-        //    {
-        //        return this.locMapSlotCoord2Name;
-        //    }
-
-        // set
-        //    {
-        //        this.locMapSlotCoord2Name = value;
-        //    }
-        // }
-
-        // public string LocMapSlotCoord3Name
-        // {
-        //    get
-        //    {
-        //        return this.locMapSlotCoord3Name;
-        //    }
-
-        // set
-        //    {
-        //        this.locMapSlotCoord3Name = value;
-        //    }
-        // }
         /// <summary>
         /// Gets or sets a value indicating whether IsDefaultLocToProductDefaultLoc.
         /// </summary>
-        public bool IsDefaultLocToProductDefaultLoc
-        {
-            get => this.isDefaultLocToProductDefaultLoc;
-
-            set => this.isDefaultLocToProductDefaultLoc = value;
-        }
+        public bool IsDefaultLocToProductDefaultLoc { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsVerifyProductLocation.
         /// </summary>
-        public bool IsVerifyProductLocation
-        {
-            get => this.isVerifyProductLocation;
-
-            set => this.isVerifyProductLocation = value;
-        }
+        public bool IsVerifyProductLocation { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsPutAwaySkidNoCatchAskZeroEnabled.
         /// </summary>
-        public bool IsPutAwaySkidNoCatchAskZeroEnabled
-        {
-            get => this.isPutAwaySkidNoCatchAskZeroEnabled;
-
-            set => this.isPutAwaySkidNoCatchAskZeroEnabled = value;
-        }
+        public bool IsPutAwaySkidNoCatchAskZeroEnabled { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsPOWorkSheetNoCatchAskZeroEnabled.
         /// </summary>
-        public bool IsPOWorkSheetNoCatchAskZeroEnabled
-        {
-            get => this.isPOWorkSheetNoCatchAskZeroEnabled;
-
-            set => this.isPOWorkSheetNoCatchAskZeroEnabled = value;
-        }
+        public bool IsPOWorkSheetNoCatchAskZeroEnabled { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsReceivingNoCatchAskZeroEnabled.
         /// </summary>
-        public bool IsReceivingNoCatchAskZeroEnabled
-        {
-            get => this.isReceivingNoCatchAskZeroEnabled;
-
-            set => this.isReceivingNoCatchAskZeroEnabled = value;
-        }
+        public bool IsReceivingNoCatchAskZeroEnabled { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsReceivingModule.
         /// </summary>
-        public bool IsReceivingModule
-        {
-            get => this.isReceivingModule;
-
-            set => this.isReceivingModule = value;
-        }
+        public bool IsReceivingModule { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsReceivingCatchAskEnabled.
         /// </summary>
-        public bool IsReceivingCatchAskEnabled
-        {
-            get => this.isReceivingCatchAskEnabled;
-
-            set => this.isReceivingCatchAskEnabled = value;
-        }
+        public bool IsReceivingCatchAskEnabled { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsReceivingExtraDetailEnabled.
         /// </summary>
-        public bool IsReceivingExtraDetailEnabled
-        {
-            get => this.isReceivingExtraDetailEnabled;
-
-            set => this.isReceivingExtraDetailEnabled = value;
-        }
+        public bool IsReceivingExtraDetailEnabled { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether CanPrintProductLabelReceiving.
         /// </summary>
-        public bool CanPrintProductLabelReceiving
-        {
-            get => this.canPrintProductLabelReceiving;
-
-            set => this.canPrintProductLabelReceiving = value;
-        }
+        public bool CanPrintProductLabelReceiving { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether AllowAddProduct2Receiving.
         /// </summary>
-        public bool AllowAddProduct2Receiving
-        {
-            get => this.allowAddProduct2Receiving;
-
-            set => this.allowAddProduct2Receiving = value;
-        }
+        public bool AllowAddProduct2Receiving { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsPOWorkSheetCatchAskEnabled.
         /// </summary>
-        public bool IsPOWorkSheetCatchAskEnabled
-        {
-            get => this.isPOWorkSheetCatchAskEnabled;
-
-            set => this.isPOWorkSheetCatchAskEnabled = value;
-        }
+        public bool IsPOWorkSheetCatchAskEnabled { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsPOWorkSheetModule.
         /// </summary>
-        public bool IsPOWorkSheetModule
-        {
-            get => this.isPurchaseOrderWorkSheetModule;
-
-            set => this.isPurchaseOrderWorkSheetModule = value;
-        }
+        public bool IsPOWorkSheetModule { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsReceivingCreateNewItemNoAsk.
         /// </summary>
-        public bool IsReceivingCreateNewItemNoAsk
-        {
-            get => this.isReceivingCreateNewItemNoAsk;
-
-            set => this.isReceivingCreateNewItemNoAsk = value;
-        }
+        public bool IsReceivingCreateNewItemNoAsk { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsPOWorkSheetCreateNewItemNoAsk.
         /// </summary>
-        public bool IsPOWorkSheetCreateNewItemNoAsk
-        {
-            get => this.isPOWorkSheetCreateNewItemNoAsk;
-
-            set => this.isPOWorkSheetCreateNewItemNoAsk = value;
-        }
+        public bool IsPOWorkSheetCreateNewItemNoAsk { get; set; }
 
         /// <summary>
         /// Gets or sets the RecvQtyUnderWarn.
         /// </summary>
-        public SysCommon.ActReceivingQtyUnderValLevels RecvQtyUnderWarn
-        {
-            get => this.recvQtyUnderWarn;
-
-            set => this.recvQtyUnderWarn = value;
-        }
+        public SysCommon.ActReceivingQtyUnderValLevels RecvQtyUnderWarn { get; set; }
 
         /// <summary>
         /// Gets or sets the RecvQtyOverWarn.
         /// </summary>
-        public SysCommon.ActReceivingQtyOverValLevels RecvQtyOverWarn
-        {
-            get => this.recvQtyOverWarn;
-
-            set => this.recvQtyOverWarn = value;
-        }
+        public SysCommon.ActReceivingQtyOverValLevels RecvQtyOverWarn { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether AskRecvPrintAllSkidLabelsUponSave.
         /// </summary>
-        public bool AskRecvPrintAllSkidLabelsUponSave
-        {
-            get => this.askRecvPrintAllSkidLabelsUponSave;
-
-            set => this.askRecvPrintAllSkidLabelsUponSave = value;
-        }
+        public bool AskRecvPrintAllSkidLabelsUponSave { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsPickingNoCatchAskZeroEnabled.
         /// </summary>
-        public bool IsPickingNoCatchAskZeroEnabled
-        {
-            get => this.isPickingNoCatchAskZeroEnabled;
-
-            set => this.isPickingNoCatchAskZeroEnabled = value;
-        }
+        public bool IsPickingNoCatchAskZeroEnabled { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsPickingModuleDisallowLoadingAllOrders.
         /// </summary>
-        public bool IsPickingModuleDisallowLoadingAllOrders
-        {
-            get => this.isPickingModuleDisallowLoadingAllOrders;
-
-            set => this.isPickingModuleDisallowLoadingAllOrders = value;
-        }
+        public bool IsPickingModuleDisallowLoadingAllOrders { get; set; }
 
         /// <summary>
         /// Gets or sets the PickItemDescOpt.
         /// </summary>
-        public int PickItemDescOpt
-        {
-            get => this.pickItemDescOpt;
-
-            set => this.pickItemDescOpt = value;
-        }
+        public int PickItemDescOpt { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsPickMod.
         /// </summary>
-        public bool IsPickMod
-        {
-            get => this.isPickMod;
-
-            set => this.isPickMod = value;
-        }
+        public bool IsPickMod { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsPickHideRouteCol.
         /// </summary>
-        public bool IsPickHideRouteCol
-        {
-            get => this.isPickHideRouteCol;
-
-            set => this.isPickHideRouteCol = value;
-        }
+        public bool IsPickHideRouteCol { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsPickOverrideMsg1.
         /// </summary>
-        public bool IsPickOverrideMsg1
-        {
-            get => this.isPickOverrideMsg1;
-
-            set => this.isPickOverrideMsg1 = value;
-        }
+        public bool IsPickOverrideMsg1 { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsPickConfirmExit.
         /// </summary>
-        public bool IsPickConfirmExit
-        {
-            get => this.isPickConfirmExit;
-
-            set => this.isPickConfirmExit = value;
-        }
+        public bool IsPickConfirmExit { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsPickCatchAsk.
         /// </summary>
-        public bool IsPickCatchAsk
-        {
-            get => this.isPickCatchAsk;
-
-            set => this.isPickCatchAsk = value;
-        }
+        public bool IsPickCatchAsk { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsPickExtraDet.
         /// </summary>
-        public bool IsPickExtraDet
-        {
-            get => this.isPickExtraDet;
-
-            set => this.isPickExtraDet = value;
-        }
+        public bool IsPickExtraDet { get; set; } = false;
 
         /// <summary>
         /// Gets or sets a value indicating whether IsPickMustReviewItemsBeforeRel.
         /// </summary>
-        public bool IsPickMustReviewItemsBeforeRel
-        {
-            get => this.isPickMustReviewItemsBeforeRel;
-
-            set => this.isPickMustReviewItemsBeforeRel = value;
-        }
+        public bool IsPickMustReviewItemsBeforeRel { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsPickPopupCmnt.
         /// </summary>
-        public bool IsPickPopupCmnt
-        {
-            get => this.isPickPopupCmnt;
-
-            set => this.isPickPopupCmnt = value;
-        }
+        public bool IsPickPopupCmnt { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsPickRefreshOrdAfterRel.
         /// </summary>
-        public bool IsPickRefreshOrdAfterRel
-        {
-            get => this.isPickRefreshOrdAfterRel;
-
-            set => this.isPickRefreshOrdAfterRel = value;
-        }
+        public bool IsPickRefreshOrdAfterRel { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsPickQtyUnderShowBaseQtyAvail.
         /// </summary>
-        public bool IsPickQtyUnderShowBaseQtyAvail
-        {
-            get => this.isPickQtyUnderShowBaseQtyAvail;
-
-            set => this.isPickQtyUnderShowBaseQtyAvail = value;
-        }
+        public bool IsPickQtyUnderShowBaseQtyAvail { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsPickDisallowManualAddProd.
         /// </summary>
-        public bool IsPickDisallowManualAddProd
-        {
-            get => this.isPickDisallowManualAddProd;
-
-            set => this.isPickDisallowManualAddProd = value;
-        }
+        public bool IsPickDisallowManualAddProd { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsPickAssocBarCodePwdReq.
         /// </summary>
-        public bool IsPickAssocBarCodePwdReq
-        {
-            get => this.isPickAssocBarCodePwdReq;
-
-            set => this.isPickAssocBarCodePwdReq = value;
-        }
+        public bool IsPickAssocBarCodePwdReq { get; set; } = false;
 
         /// <summary>
         /// Gets or sets a value indicating whether AllowAddProd2Pick.
         /// </summary>
-        public bool AllowAddProd2Pick
-        {
-            get => this.allowAddProd2Pick;
-
-            set => this.allowAddProd2Pick = value;
-        }
+        public bool AllowAddProd2Pick { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsPrePickCrit.
         /// </summary>
-        public bool IsPrePickCrit
-        {
-            get => this.isPrePickCrit;
-
-            set => this.isPrePickCrit = value;
-        }
+        public bool IsPrePickCrit { get; set; }
 
         /// <summary>
         /// Gets or sets the PickQtyUnderWarn.
         /// </summary>
-        public SysCommon.ActPickingQtyUnderValLevels PickQtyUnderWarn
-        {
-            get => this.pickQtyUnderWarn;
-
-            set => this.pickQtyUnderWarn = value;
-        }
+        public SysCommon.ActPickingQtyUnderValLevels PickQtyUnderWarn { get; set; }
 
         /// <summary>
         /// Gets or sets the PickQtyOverWarn.
         /// </summary>
-        public SysCommon.ActPickingQtyOverValLevels PickQtyOverWarn
-        {
-            get => this.pickQtyOverWarn;
-
-            set => this.pickQtyOverWarn = value;
-        }
+        public SysCommon.ActPickingQtyOverValLevels PickQtyOverWarn { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsPickConfirmDet.
         /// </summary>
-        public bool IsPickConfirmDet
-        {
-            get => this.isPickConfirmDet;
-
-            set => this.isPickConfirmDet = value;
-        }
+        public bool IsPickConfirmDet { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsPickShowItemQtyAvail.
         /// </summary>
-        public bool IsPickShowItemQtyAvail
-        {
-            get => this.isPickShowItemQtyAvail;
-
-            set => this.isPickShowItemQtyAvail = value;
-        }
+        public bool IsPickShowItemQtyAvail { get; set; } = false;
 
         /// <summary>
         /// Gets or sets a value indicating whether IsRelByOrder.
         /// </summary>
-        public bool IsRelByOrder
-        {
-            get => this.isRelByOrder;
-
-            set => this.isRelByOrder = value;
-        }
+        public bool IsRelByOrder { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsRelBySect.
         /// </summary>
-        public bool IsRelBySect
-        {
-            get => this.isRelBySect;
-
-            set => this.isRelBySect = value;
-        }
+        public bool IsRelBySect { get; set; } = false;
 
         /// <summary>
         /// Gets or sets the PickDetGridDesignLayout.
         /// </summary>
-        public int PickDetGridDesignLayout
-        {
-            get => this.pickDetGridDesignLayout;
-
-            set => this.pickDetGridDesignLayout = value;
-        }
+        public int PickDetGridDesignLayout { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsPickCreateNewItemNoAsk.
         /// </summary>
-        public bool IsPickCreateNewItemNoAsk
-        {
-            get => this.isPickCreateNewItemNoAsk;
-
-            set => this.isPickCreateNewItemNoAsk = value;
-        }
+        public bool IsPickCreateNewItemNoAsk { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsPickDisableMakeSkid.
         /// </summary>
-        public bool IsPickDisableMakeSkid
-        {
-            get => this.isPickDisableMakeSkid;
-
-            set => this.isPickDisableMakeSkid = value;
-        }
+        public bool IsPickDisableMakeSkid { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsPickAddManualDetailPasswordRequired.
         /// </summary>
-        public bool IsPickAddManualDetailPasswordRequired
-        {
-            get => this.isPickAddManualDetailPasswordRequired;
-
-            set => this.isPickAddManualDetailPasswordRequired = value;
-        }
+        public bool IsPickAddManualDetailPasswordRequired { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsPickingSingleModuleNoCatchAskZeroEnabled.
         /// </summary>
-        public bool IsPickingSingleModuleNoCatchAskZeroEnabled
-        {
-            get => this.isPickingSingleModuleNoCatchAskZeroEnabled;
-
-            set => this.isPickingSingleModuleNoCatchAskZeroEnabled = value;
-        }
+        public bool IsPickingSingleModuleNoCatchAskZeroEnabled { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsSingleActivityItem.
         /// </summary>
-        public bool IsSingleActivityItem
-        {
-            get => this.isSingleActivityItem;
-
-            set => this.isSingleActivityItem = value;
-        }
+        public bool IsSingleActivityItem { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsPickSingleCatchAsk.
         /// </summary>
-        public bool IsPickSingleCatchAsk
-        {
-            get => this.isPickSingleCatchAsk;
-
-            set => this.isPickSingleCatchAsk = value;
-        }
+        public bool IsPickSingleCatchAsk { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsPickSingleScanProdMustMatchSelProd.
         /// </summary>
-        public bool IsPickSingleScanProdMustMatchSelProd
-        {
-            get => this.isPickSingleScanProdMustMatchSelProd;
-
-            set => this.isPickSingleScanProdMustMatchSelProd = value;
-        }
+        public bool IsPickSingleScanProdMustMatchSelProd { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsPickSinglePrintShipLabelFullQuantity.
         /// </summary>
-        public bool IsPickSinglePrintShipLabelFullQuantity
-        {
-            get => this.isPickSinglePrintShipLabelFullQuantity;
-
-            set => this.isPickSinglePrintShipLabelFullQuantity = value;
-        }
+        public bool IsPickSinglePrintShipLabelFullQuantity { get; set; }
 
         /// <summary>
         /// Gets or sets the PickSingleShipLabelStopThresholdQuantity.
         /// </summary>
-        public int PickSingleShipLabelStopThresholdQuantity
-        {
-            get => this.pickSingleShipLabelStopThresholdQuantity;
-
-            set => this.pickSingleShipLabelStopThresholdQuantity = value;
-        }
+        public int PickSingleShipLabelStopThresholdQuantity { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether CanPrintShippingLabel.
         /// </summary>
-        public bool CanPrintShippingLabel
-        {
-            get => this.canPrintShippingLabel;
-
-            set => this.canPrintShippingLabel = value;
-        }
+        public bool CanPrintShippingLabel { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsFullQuantityEnabled.
         /// </summary>
-        public bool IsFullQuantityEnabled
-        {
-            get => this.isFullQuantityEnabled;
-
-            set => this.isFullQuantityEnabled = value;
-        }
+        public bool IsFullQuantityEnabled { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsRepackQuantityEnabled.
         /// </summary>
-        public bool IsRepackQuantityEnabled
-        {
-            get => this.isRepackQuantityEnabled;
-
-            set => this.isRepackQuantityEnabled = value;
-        }
+        public bool IsRepackQuantityEnabled { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsDryQuantityEnabled.
         /// </summary>
-        public bool IsDryQuantityEnabled
-        {
-            get => this.isDryQuantityEnabled;
-
-            set => this.isDryQuantityEnabled = value;
-        }
+        public bool IsDryQuantityEnabled { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsDryRepackQuantityEnabled.
         /// </summary>
-        public bool IsDryRepackQuantityEnabled
-        {
-            get => this.isDryRepackQuantityEnabled;
-
-            set => this.isDryRepackQuantityEnabled = value;
-        }
+        public bool IsDryRepackQuantityEnabled { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsFreshQuantityEnabled.
         /// </summary>
-        public bool IsFreshQuantityEnabled
-        {
-            get => this.isFreshQuantityEnabled;
-
-            set => this.isFreshQuantityEnabled = value;
-        }
+        public bool IsFreshQuantityEnabled { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsFreshRepackQuantityEnabled.
         /// </summary>
-        public bool IsFreshRepackQuantityEnabled
-        {
-            get => this.isFreshRepackQuantityEnabled;
-
-            set => this.isFreshRepackQuantityEnabled = value;
-        }
+        public bool IsFreshRepackQuantityEnabled { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsFrozenQuantityEnabled.
         /// </summary>
-        public bool IsFrozenQuantityEnabled
-        {
-            get => this.isFrozenQuantityEnabled;
-
-            set => this.isFrozenQuantityEnabled = value;
-        }
+        public bool IsFrozenQuantityEnabled { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsFrozenRepackQuantityEnabled.
         /// </summary>
-        public bool IsFrozenRepackQuantityEnabled
-        {
-            get => this.isFrozenRepackQuantityEnabled;
-
-            set => this.isFrozenRepackQuantityEnabled = value;
-        }
+        public bool IsFrozenRepackQuantityEnabled { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsLiveQuantityEnabled.
         /// </summary>
-        public bool IsLiveQuantityEnabled
-        {
-            get => this.isLiveQuantityEnabled;
-
-            set => this.isLiveQuantityEnabled = value;
-        }
+        public bool IsLiveQuantityEnabled { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsLiveRepackQuantityEnabled.
         /// </summary>
-        public bool IsLiveRepackQuantityEnabled
-        {
-            get => this.isLiveRepackQuantityEnabled;
-
-            set => this.isLiveRepackQuantityEnabled = value;
-        }
+        public bool IsLiveRepackQuantityEnabled { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsPalletQuantityEnabled.
         /// </summary>
-        public bool IsPalletQuantityEnabled
-        {
-            get => this.isPalletQuantityEnabled;
-
-            set => this.isPalletQuantityEnabled = value;
-        }
+        public bool IsPalletQuantityEnabled { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsBundleQuantityEnabled.
         /// </summary>
-        public bool IsBundleQuantityEnabled
-        {
-            get => this.isBundleQuantityEnabled;
-
-            set => this.isBundleQuantityEnabled = value;
-        }
+        public bool IsBundleQuantityEnabled { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsReturnsNoCatchAskZeroEnabled.
         /// </summary>
-        public bool IsReturnsNoCatchAskZeroEnabled
-        {
-            get => this.isReturnsNoCatchAskZeroEnabled;
-
-            set => this.isReturnsNoCatchAskZeroEnabled = value;
-        }
+        public bool IsReturnsNoCatchAskZeroEnabled { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsRetMod.
         /// </summary>
-        public bool IsRetMod
-        {
-            get => this.isRetMod;
-
-            set => this.isRetMod = value;
-        }
+        public bool IsRetMod { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsRetExtraDetEnabled.
         /// </summary>
-        public bool IsRetExtraDetEnabled
-        {
-            get => this.isRetExtraDetEnabled;
-
-            set => this.isRetExtraDetEnabled = value;
-        }
+        public bool IsRetExtraDetEnabled { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsRetConfirmDet.
         /// </summary>
-        public bool IsRetConfirmDet
-        {
-            get => this.isRetConfirmDet;
-
-            set => this.isRetConfirmDet = value;
-        }
+        public bool IsRetConfirmDet { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether AllowAddProd2Ret.
         /// </summary>
-        public bool AllowAddProd2Ret
-        {
-            get => this.allowAddProduct2Returns;
-
-            set => this.allowAddProduct2Returns = value;
-        }
+        public bool AllowAddProd2Ret { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsRetCatchAskEnabled.
         /// </summary>
-        public bool IsRetCatchAskEnabled
-        {
-            get => this.isRetCatchAskEnabled;
-
-            set => this.isRetCatchAskEnabled = value;
-        }
+        public bool IsRetCatchAskEnabled { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsRetCreateNewItemNoAsk.
         /// </summary>
-        public bool IsRetCreateNewItemNoAsk
-        {
-            get => this.isRetCreateNewItemNoAsk;
-
-            set => this.isRetCreateNewItemNoAsk = value;
-        }
+        public bool IsRetCreateNewItemNoAsk { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsPhysicalModule.
         /// </summary>
-        public bool IsPhysicalModule
-        {
-            get => this.isPhysicalCountModule;
-
-            set => this.isPhysicalCountModule = value;
-        }
+        public bool IsPhysicalModule { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsPhysicalCatchAskEnabled.
         /// </summary>
-        public bool IsPhysicalCatchAskEnabled
-        {
-            get => this.isPhysicalCatchAskEnabled;
-
-            set => this.isPhysicalCatchAskEnabled = value;
-        }
+        public bool IsPhysicalCatchAskEnabled { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsPhysicalExtraDetailEnabled.
         /// </summary>
-        public bool IsPhysicalExtraDetailEnabled
-        {
-            get => this.isPhysicalExtraDetailEnabled;
-
-            set => this.isPhysicalExtraDetailEnabled = value;
-        }
+        public bool IsPhysicalExtraDetailEnabled { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether AllowAddProduct2Physical.
         /// </summary>
-        public bool AllowAddProduct2Physical
-        {
-            get => this.allowAddProduct2PhysicalCounts;
-
-            set => this.allowAddProduct2PhysicalCounts = value;
-        }
+        public bool AllowAddProduct2Physical { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsPhysicalCreateNewItemNoAsk.
         /// </summary>
-        public bool IsPhysicalCreateNewItemNoAsk
-        {
-            get => this.isPhysicalCreateNewItemNoAsk;
-
-            set => this.isPhysicalCreateNewItemNoAsk = value;
-        }
+        public bool IsPhysicalCreateNewItemNoAsk { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsPhysicalDoNotDefaultProductLocation.
         /// </summary>
-        public bool IsPhysicalDoNotDefaultProductLocation
-        {
-            get => this.isPhysicalDoNotDefaultProductLocation;
-
-            set => this.isPhysicalDoNotDefaultProductLocation = value;
-        }
+        public bool IsPhysicalDoNotDefaultProductLocation { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsCycleCountNoCatchAskZeroEnabled.
         /// </summary>
-        public bool IsCycleCountNoCatchAskZeroEnabled
-        {
-            get => this.isCycleCountNoCatchAskZeroEnabled;
-
-            set => this.isCycleCountNoCatchAskZeroEnabled = value;
-        }
+        public bool IsCycleCountNoCatchAskZeroEnabled { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsCycleModule.
         /// </summary>
-        public bool IsCycleModule
-        {
-            get => this.isCycleCountModule;
-
-            set => this.isCycleCountModule = value;
-        }
+        public bool IsCycleModule { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsCycleCatchAskEnabled.
         /// </summary>
-        public bool IsCycleCatchAskEnabled
-        {
-            get => this.isCycleCatchAskEnabled;
-
-            set => this.isCycleCatchAskEnabled = value;
-        }
+        public bool IsCycleCatchAskEnabled { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsCycleExtraDetailEnabled.
         /// </summary>
-        public bool IsCycleExtraDetailEnabled
-        {
-            get => this.isCycleCountExtraDetailEnabled;
-
-            set => this.isCycleCountExtraDetailEnabled = value;
-        }
+        public bool IsCycleExtraDetailEnabled { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether AllowAddProduct2Cycle.
         /// </summary>
-        public bool AllowAddProduct2Cycle
-        {
-            get => this.allowAddProduct2CycleCounts;
-
-            set => this.allowAddProduct2CycleCounts = value;
-        }
+        public bool AllowAddProduct2Cycle { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsCycleCreateNewItemNoAsk.
         /// </summary>
-        public bool IsCycleCreateNewItemNoAsk
-        {
-            get => this.isCycleCreateNewItemNoAsk;
-
-            set => this.isCycleCreateNewItemNoAsk = value;
-        }
+        public bool IsCycleCreateNewItemNoAsk { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsCycleDoNotDefaultProductLocation.
         /// </summary>
-        public bool IsCycleDoNotDefaultProductLocation
-        {
-            get => this.isCycleDoNotDefaultProductLocation;
-
-            set => this.isCycleDoNotDefaultProductLocation = value;
-        }
+        public bool IsCycleDoNotDefaultProductLocation { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsFinishedExtraDetailEnabled.
         /// </summary>
-        public bool IsFinishedExtraDetailEnabled
-        {
-            get => this.isFinishedExtraDetailEnabled;
-
-            set => this.isFinishedExtraDetailEnabled = value;
-        }
+        public bool IsFinishedExtraDetailEnabled { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsIngredientsExtraDetailEnabled.
         /// </summary>
-        public bool IsIngredientsExtraDetailEnabled
-        {
-            get => this.isMaterialExtraDetailEnabled;
-
-            set => this.isMaterialExtraDetailEnabled = value;
-        }
+        public bool IsIngredientsExtraDetailEnabled { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsByProductsExtraDetailEnabled.
         /// </summary>
-        public bool IsByProductsExtraDetailEnabled
-        {
-            get => this.isByProductsExtraDetailEnabled;
-
-            set => this.isByProductsExtraDetailEnabled = value;
-        }
+        public bool IsByProductsExtraDetailEnabled { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsTicketMaterialNoCatchAskZeroEnabled.
         /// </summary>
-        public bool IsTicketMaterialNoCatchAskZeroEnabled
-        {
-            get => this.isTicketMaterialNoCatchAskZeroEnabled;
-
-            set => this.isTicketMaterialNoCatchAskZeroEnabled = value;
-        }
+        public bool IsTicketMaterialNoCatchAskZeroEnabled { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsTicketByProductNoCatchAskZeroEnabled.
         /// </summary>
-        public bool IsTicketByProductNoCatchAskZeroEnabled
-        {
-            get => this.isTicketByProductNoCatchAskZeroEnabled;
-
-            set => this.isTicketByProductNoCatchAskZeroEnabled = value;
-        }
+        public bool IsTicketByProductNoCatchAskZeroEnabled { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsTicketFinishedNoCatchAskZeroEnabled.
         /// </summary>
-        public bool IsTicketFinishedNoCatchAskZeroEnabled
-        {
-            get => this.isTicketFinishedNoCatchAskZeroEnabled;
-
-            set => this.isTicketFinishedNoCatchAskZeroEnabled = value;
-        }
+        public bool IsTicketFinishedNoCatchAskZeroEnabled { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsPhysicalCountNoCatchAskZeroEnabled.
         /// </summary>
-        public bool IsPhysicalCountNoCatchAskZeroEnabled
-        {
-            get => this.isPhysicalCountNoCatchAskZeroEnabled;
-
-            set => this.isPhysicalCountNoCatchAskZeroEnabled = value;
-        }
+        public bool IsPhysicalCountNoCatchAskZeroEnabled { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsTicketFinishedGoodModule.
         /// </summary>
-        public bool IsTicketFinishedGoodModule
-        {
-            get => this.isTicketFinishedGoodModule;
-
-            set => this.isTicketFinishedGoodModule = value;
-        }
+        public bool IsTicketFinishedGoodModule { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsTicketMaterialModule.
         /// </summary>
-        public bool IsTicketMaterialModule
-        {
-            get => this.isTicketMaterialModule;
-
-            set => this.isTicketMaterialModule = value;
-        }
+        public bool IsTicketMaterialModule { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsTicketByProductModule.
         /// </summary>
-        public bool IsTicketByProductModule
-        {
-            get => this.isTicketByProductModule;
-
-            set => this.isTicketByProductModule = value;
-        }
+        public bool IsTicketByProductModule { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsTicketFinishedCatchAskEnabled.
         /// </summary>
-        public bool IsTicketFinishedCatchAskEnabled
-        {
-            get => this.isTicketFinishedCatchAskEnabled;
-
-            set => this.isTicketFinishedCatchAskEnabled = value;
-        }
+        public bool IsTicketFinishedCatchAskEnabled { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsTicketMaterialCatchAskEnabled.
         /// </summary>
-        public bool IsTicketMaterialCatchAskEnabled
-        {
-            get => this.isTicketMaterialCatchAskEnabled;
-
-            set => this.isTicketMaterialCatchAskEnabled = value;
-        }
+        public bool IsTicketMaterialCatchAskEnabled { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsTicketByProductCatchAskEnabled.
         /// </summary>
-        public bool IsTicketByProductCatchAskEnabled
-        {
-            get => this.isTicketByProductCatchAskEnabled;
-
-            set => this.isTicketByProductCatchAskEnabled = value;
-        }
+        public bool IsTicketByProductCatchAskEnabled { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether AllowAddProduct2TicketFinished.
         /// </summary>
-        public bool AllowAddProduct2TicketFinished
-        {
-            get => this.allowAddProduct2TicketFinishedGood;
-
-            set => this.allowAddProduct2TicketFinishedGood = value;
-        }
+        public bool AllowAddProduct2TicketFinished { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether AllowAddProduct2TicketMaterial.
         /// </summary>
-        public bool AllowAddProduct2TicketMaterial
-        {
-            get => this.allowAddProduct2TicketMaterial;
-
-            set => this.allowAddProduct2TicketMaterial = value;
-        }
+        public bool AllowAddProduct2TicketMaterial { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether AllowAddProduct2TicketByProduct.
         /// </summary>
-        public bool AllowAddProduct2TicketByProduct
-        {
-            get => this.allowAddProduct2TicketByProduct;
-
-            set => this.allowAddProduct2TicketByProduct = value;
-        }
+        public bool AllowAddProduct2TicketByProduct { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsTicketMaterialCreateNewItemNoAsk.
         /// </summary>
-        public bool IsTicketMaterialCreateNewItemNoAsk
-        {
-            get => this.isTicketMaterialCreateNewItemNoAsk;
-
-            set => this.isTicketMaterialCreateNewItemNoAsk = value;
-        }
+        public bool IsTicketMaterialCreateNewItemNoAsk { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsTicketByProductCreateNewItemNoAsk.
         /// </summary>
-        public bool IsTicketByProductCreateNewItemNoAsk
-        {
-            get => this.isTicketByProductCreateNewItemNoAsk;
-
-            set => this.isTicketByProductCreateNewItemNoAsk = value;
-        }
+        public bool IsTicketByProductCreateNewItemNoAsk { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsAdjustmentNoCatchAskZeroEnabled.
         /// </summary>
-        public bool IsAdjustmentNoCatchAskZeroEnabled
-        {
-            get => this.isAdjustmentNoCatchAskZeroEnabled;
-
-            set => this.isAdjustmentNoCatchAskZeroEnabled = value;
-        }
+        public bool IsAdjustmentNoCatchAskZeroEnabled { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsInventoryAdjustmentModule.
         /// </summary>
-        public bool IsInventoryAdjustmentModule
-        {
-            get => this.isInventoryAdjustmentModule;
-
-            set => this.isInventoryAdjustmentModule = value;
-        }
+        public bool IsInventoryAdjustmentModule { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsAdjustmentCatchAskEnabled.
         /// </summary>
-        public bool IsAdjustmentCatchAskEnabled
-        {
-            get => this.isAdjustmentModuleCatchAskEnabled;
-
-            set => this.isAdjustmentModuleCatchAskEnabled = value;
-        }
+        public bool IsAdjustmentCatchAskEnabled { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsAdjustmentsExtraDetailEnabled.
         /// </summary>
-        public bool IsAdjustmentsExtraDetailEnabled
-        {
-            get => this.isAdjustmentsExtraDetailEnabled;
-
-            set => this.isAdjustmentsExtraDetailEnabled = value;
-        }
+        public bool IsAdjustmentsExtraDetailEnabled { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsEnabledAdjustmentTypeFresh2Frozen.
         /// </summary>
-        public bool IsEnabledAdjustmentTypeFresh2Frozen
-        {
-            get => this.isEnabledAdjustmentTypeFresh2Frozen;
-
-            set => this.isEnabledAdjustmentTypeFresh2Frozen = value;
-        }
+        public bool IsEnabledAdjustmentTypeFresh2Frozen { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether AllowAddProduct2Adjustments.
         /// </summary>
-        public bool AllowAddProduct2Adjustments
-        {
-            get => this.allowAddProduct2Adjustments;
-
-            set => this.allowAddProduct2Adjustments = value;
-        }
+        public bool AllowAddProduct2Adjustments { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsAdjustmentCreateNewItemNoAsk.
         /// </summary>
-        public bool IsAdjustmentCreateNewItemNoAsk
-        {
-            get => this.isAdjustmentCreateNewItemNoAsk;
-
-            set => this.isAdjustmentCreateNewItemNoAsk = value;
-        }
+        public bool IsAdjustmentCreateNewItemNoAsk { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsTransferNoCatchAskZeroEnabled.
         /// </summary>
-        public bool IsTransferNoCatchAskZeroEnabled
-        {
-            get => this.isTransferNoCatchAskZeroEnabled;
-
-            set => this.isTransferNoCatchAskZeroEnabled = value;
-        }
+        public bool IsTransferNoCatchAskZeroEnabled { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether CanPrintProductLabelTransfers.
         /// </summary>
-        public bool CanPrintProductLabelTransfers
-        {
-            get => this.canPrintProductLabelTransfers;
-            set => this.canPrintProductLabelTransfers = value;
-        }
+        public bool CanPrintProductLabelTransfers { get; set; } = false;
 
         /// <summary>
         /// Gets or sets a value indicating whether warehouse transfers is enabled.
         /// </summary>
-        public bool IsTransMod
-        {
-            get => this.isTransMod;
-
-            set => this.isTransMod = value;
-        }
+        public bool IsTransMod { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsTransCatchAskEnabled.
         /// </summary>
-        public bool IsTransCatchAskEnabled
-        {
-            get => this.isTransCatchAskEnabled;
-
-            set => this.isTransCatchAskEnabled = value;
-        }
+        public bool IsTransCatchAskEnabled { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsTransExtraDetEnabled.
         /// </summary>
-        public bool IsTransExtraDetEnabled
-        {
-            get => this.isTransExtraDetEnabled;
-
-            set => this.isTransExtraDetEnabled = value;
-        }
+        public bool IsTransExtraDetEnabled { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether AllowAddProd2Trans.
         /// </summary>
-        public bool AllowAddProd2Trans
-        {
-            get => this.allowAddProd2Trans;
-
-            set => this.allowAddProd2Trans = value;
-        }
+        public bool AllowAddProd2Trans { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsTransCreateNewItemNoAsk.
         /// </summary>
-        public bool IsTransCreateNewItemNoAsk
-        {
-            get => this.isTransCreateNewItemNoAsk;
+        public bool IsTransCreateNewItemNoAsk { get; set; }
 
-            set => this.isTransCreateNewItemNoAsk = value;
-        }
-
-        // public bool IsTransConfirmFromDet
-        // {
-        //    get
-        //    {
-        //        return this.isTransConfirmFromDet;
-        //    }
-
-        // set
-        //    {
-        //        this.isTransConfirmFromDet = value;
-        //    }
-        // }
-
-        ////public bool IsTransConfirmToDet
-        ////{
-        ////  get
-        ////  {
-        ////    return this.isTransConfirmToDet;
-        ////  }
-
-        ////  set
-        ////  {
-        ////    this.IsTransConfirmToDet = value;
-        ////  }
-        ////}
         /// <summary>
         /// Gets or sets the TransQtyUnderWarn.
         /// </summary>
-        public SysCommon.ActTransfersQtyUnderValLevels TransQtyUnderWarn
-        {
-            get => this.transQtyUnderWarn;
-
-            set => this.transQtyUnderWarn = value;
-        }
+        public SysCommon.ActTransfersQtyUnderValLevels TransQtyUnderWarn { get; set; }
 
         /// <summary>
         /// Gets or sets the TransQtyOverWarn.
         /// </summary>
-        public SysCommon.ActTransfersQtyOverValLevels TransQtyOverWarn
-        {
-            get => this.transQtyOverWarn;
-
-            set => this.transQtyOverWarn = value;
-        }
+        public SysCommon.ActTransfersQtyOverValLevels TransQtyOverWarn { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsConvertUnitModuleNoCatchAskZeroEnabled.
         /// </summary>
-        public bool IsConvertUnitModuleNoCatchAskZeroEnabled
-        {
-            get => this.isConvertUnitModuleNoCatchAskZeroEnabled;
-
-            set => this.isConvertUnitModuleNoCatchAskZeroEnabled = value;
-        }
+        public bool IsConvertUnitModuleNoCatchAskZeroEnabled { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsConvertUnitsModule.
         /// </summary>
-        public bool IsConvertUnitsModule
-        {
-            get => this.isConvertUnitsModule;
-
-            set => this.isConvertUnitsModule = value;
-        }
+        public bool IsConvertUnitsModule { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsConvertUnitCatchAskEnabled.
         /// </summary>
-        public bool IsConvertUnitCatchAskEnabled
-        {
-            get => this.isConvertUnitCatchAskEnabled;
-
-            set => this.isConvertUnitCatchAskEnabled = value;
-        }
+        public bool IsConvertUnitCatchAskEnabled { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsConvertUnitOnlyShowSell.
         /// </summary>
-        public bool IsConvertUnitOnlyShowSell
-        {
-            get => this.isConvertUnitOnlyShowSell;
-
-            set => this.isConvertUnitOnlyShowSell = value;
-        }
+        public bool IsConvertUnitOnlyShowSell { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether CanPrintProductLabelConvertUnits.
         /// </summary>
-        public bool CanPrintProductLabelConvertUnits
-        {
-            get => this.canPrintProductLabelConvertUnits;
-
-            set => this.canPrintProductLabelConvertUnits = value;
-        }
+        public bool CanPrintProductLabelConvertUnits { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether CanPrintProductLabelConvertProduct
+        /// Gets or sets a value indicating whether CanPrintProductLabelConvertProduct.
         /// <para>Causes a label to print from ActivityDetail screen:</para>
         /// <para>- After scanning with complete scheme data.</para>
         /// <para>- After save of scheme data in ActivtyDetailEdit screen.</para>.
         /// </summary>
-        public bool CanPrintProductLabelConvertProduct
-        {
-            get => this.canPrintProductLabelConvertProduct;
-            set => this.canPrintProductLabelConvertProduct = value;
-        }
+        public bool CanPrintProductLabelConvertProduct { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsMoveInventoryModuleNoCatchAskZeroEnabled.
         /// </summary>
-        public bool IsMoveInventoryModuleNoCatchAskZeroEnabled
-        {
-            get => this.isMoveInventoryModuleNoCatchAskZeroEnabled;
-
-            set => this.isMoveInventoryModuleNoCatchAskZeroEnabled = value;
-        }
+        public bool IsMoveInventoryModuleNoCatchAskZeroEnabled { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsMovesModule.
         /// </summary>
-        public bool IsMovesModule
-        {
-            get => this.isMovesModule;
-
-            set => this.isMovesModule = value;
-        }
+        public bool IsMovesModule { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsMoveInventoryCatchAskEnabled.
         /// </summary>
-        public bool IsMoveInventoryCatchAskEnabled
-        {
-            get => this.isMoveInventoryCatchAskEnabled;
-
-            set => this.isMoveInventoryCatchAskEnabled = value;
-        }
+        public bool IsMoveInventoryCatchAskEnabled { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsSkidTrackingModule.
         /// </summary>
-        public bool IsSkidTrackingModule
-        {
-            get => this.isSkidTrackingModule;
-
-            set => this.isSkidTrackingModule = value;
-        }
+        public bool IsSkidTrackingModule { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsAddToSkidModule.
         /// </summary>
-        public bool IsAddToSkidModule
-        {
-            get => this.isAddToSkidModule;
-
-            set => this.isAddToSkidModule = value;
-        }
+        public bool IsAddToSkidModule { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsRemoveFromSkidModule.
         /// </summary>
-        public bool IsRemoveFromSkidModule
-        {
-            get => this.isRemoveFromSkidModule;
-
-            set => this.isRemoveFromSkidModule = value;
-        }
+        public bool IsRemoveFromSkidModule { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsBreakSkidModule.
         /// </summary>
-        public bool IsBreakSkidModule
-        {
-            get => this.isBreakSkidModule;
-
-            set => this.isBreakSkidModule = value;
-        }
+        public bool IsBreakSkidModule { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsCreateSkidModule.
         /// </summary>
-        public bool IsCreateSkidModule
-        {
-            get => this.isCreateSkidModule;
-
-            set => this.isCreateSkidModule = value;
-        }
+        public bool IsCreateSkidModule { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsMoveSkidModule.
         /// </summary>
-        public bool IsMoveSkidModule
-        {
-            get => this.isMoveSkidModule;
-
-            set => this.isMoveSkidModule = value;
-        }
+        public bool IsMoveSkidModule { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsPutAwayModule.
         /// </summary>
-        public bool IsPutAwayModule
-        {
-            get => this.isPutAwayModule;
-
-            set => this.isPutAwayModule = value;
-        }
+        public bool IsPutAwayModule { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsPutAwaySkidCatchAskEnabled.
         /// </summary>
-        public bool IsPutAwaySkidCatchAskEnabled
-        {
-            get => this.isPutAwaySkidCatchAskEnabled;
-
-            set => this.isPutAwaySkidCatchAskEnabled = value;
-        }
+        public bool IsPutAwaySkidCatchAskEnabled { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsReplenishmentModule.
         /// </summary>
-        public bool IsReplenishmentModule
-        {
-            get => this.isReplenishmentModule;
-
-            set => this.isReplenishmentModule = value;
-        }
+        public bool IsReplenishmentModule { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether a filter selection screen should be shown once in an activity header.
@@ -2579,7 +846,27 @@ namespace dMobile.Bedrock
         /// <summary>
         /// Gets or sets a value indicating whether the activity has new details added.
         /// </summary>
-        public bool IsNewActivityDetailsAdded { get; set; } = false;
+        public bool IsNewActivityDetailsAdded { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the Cut Sheet Finished Good Module is enabled.
+        /// </summary>
+        public bool IsCutSheetFinishedGoodModule { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the Cut Sheet Material Module is enabled.
+        /// </summary>
+        public bool IsCutSheetRawMaterialModule { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the Yield Sheet Finished Good Module is enabled.
+        /// </summary>
+        public bool IsYieldSheetFinishedGoodModule { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the Yield Sheet Material Module is enabled.
+        /// </summary>
+        public bool IsYieldSheetRawMaterialModule { get; set; }
 
         /// <summary>
         /// The RegisterSysSettingsListenerStatusOut.

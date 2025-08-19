@@ -105,12 +105,7 @@ namespace dMobile.GroundWork
                 });
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="responseData"></param>
-        /// <remarks></remarks>
-        /// <inheritdoc/>
+        /// <inheritdoc cref="TableBase.Save(string)"/>
         protected override async Task Save(string responseData)
         {
             var errMsg = string.Empty;
@@ -211,7 +206,7 @@ namespace dMobile.GroundWork
                                             transaction.ExecuteScalar<int>(
                                                 "SELECT last_insert_rowid() FROM tActivity"));
 
-                                        var query = "INSERT INTO tActivityTransfer (" +
+                                        const string query = "INSERT INTO tActivityTransfer (" +
                                                     "ActivityRefno, " +
                                                     "ActivitySubType, " +
                                                     "ActivityFKRefno, " +

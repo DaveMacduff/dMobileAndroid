@@ -345,11 +345,7 @@ namespace dMobile.Controller.Activity
             return this.ListHeaders;
         }
 
-        /// <summary>
-        /// Perform a search for a text match and return a list of matched headers.
-        /// </summary>
-        /// <param name="searchText"><see cref="string"/> String to search for.</param>
-        /// <returns>List of matched headers.</returns>
+        /// <inheritdoc cref="Activity.Search(string)"/>
         public override ObservableCollection<object> Search(string searchText)
         {
             var activityHeaders = new ObservableCollection<object>();

@@ -351,7 +351,7 @@ namespace dMobile.Controller.Activity_Detail
         ///     Perform a search in the detail list for the search text.
         /// </summary>
         /// <param name="searchText"><see cref="string" /> Text to search for a match.</param>
-        /// <returns>Found activity detail or null.</returns>
+        /// <returns><see cref="ObservableCollection{T}"/> Found activity detail object or null.</returns>
         public abstract ObservableCollection<object> Search(string searchText);
 
         /// <summary>

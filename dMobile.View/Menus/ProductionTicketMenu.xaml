@@ -6,10 +6,14 @@
     <ContentPage.Content>
         <AbsoluteLayout>
             <StackLayout AbsoluteLayout.LayoutFlags="All" AbsoluteLayout.LayoutBounds="0,0,1,1">
-                <Button x:Name="cmdFinishedGoods" Clicked="cmdFinishedGoods_Click"/>
-                <Button x:Name="cmdIngredientMaterial" Clicked="cmdIngredientMaterial_Click"/>
-                <Button x:Name="cmdByProduct" Clicked="cmdByProduct_Click"/>
-                <Button x:Name="cmdDebox" Clicked="cmdDebox_Click"/>
+                <Button x:Name="cmdFinishedGoods" Clicked="CmdFinishedGoods_Click"/>
+                <Button x:Name="cmdIngredientMaterial" Clicked="CmdIngredientMaterial_Click"/>
+                <Button x:Name="cmdByProduct" Clicked="CmdByProduct_Click"/>
+                <Button x:Name="cmdDebox" Clicked="CmdDebox_Click"/>
+                <Button x:Name="cmdCutFinished" Clicked="CmdCutFinished_Clicked"/>
+                <Button x:Name="cmdCutMaterial" Clicked="CmdCutMaterial_Clicked"/>
+                <Button x:Name="cmdYieldFinished" Clicked="CmdYieldFinished_Clicked"/>
+                <Button x:Name="cmdYieldMaterial" Clicked="CmdYieldMaterial_Clicked"/>
             </StackLayout>
 
             <ActivityIndicator IsVisible="{Binding IsIndicatorRunning}" 

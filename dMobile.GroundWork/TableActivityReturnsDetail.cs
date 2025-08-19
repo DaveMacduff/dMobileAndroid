@@ -160,11 +160,15 @@ namespace dMobile.GroundWork
         }
 
         /// <summary>
-        ///
+        /// Sends a request based on the specified activity foreign key reference number.
         /// </summary>
-        /// <param name="activityFkRefno</param>
-        /// <returns></returns>
-        /// <inheritdoc/>
+        /// <remarks>This method retrieves data from the database using the provided activity foreign key
+        /// reference number. If a matching record is found, it creates and sends a communication request based on the
+        /// retrieved data.</remarks>
+        /// <param name="activityFkRefno">The foreign key reference number of the activity item. Must be a valid reference number.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains the response string from the
+        /// communication request.</returns>
+        /// <exception cref="Exception">Thrown if no records are found for the specified <paramref name="activityFkRefno"/> in the database.</exception>
         protected override async Task<string> SendRequest(int activityFkRefno)
         {
             var results = await DatabaseConnection.GetInstance()
@@ -185,13 +189,8 @@ namespace dMobile.GroundWork
             return await SendComm(await this.CreateRequest(actItemRetFKRefno));
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="responseData"></param>
-        /// <param name="actItemReturnsRefno"></param>
-        /// <inheritdoc/>
-        protected override async Task Save(string responseData, int actItemReturnsRefno)
+        /// <inheritdoc cref="TableBase.Save(string, int)"/>
+        protected override async Task Save(string responseData, int refno)
         {
             var errMsg = string.Empty;
 
@@ -240,14 +239,14 @@ namespace dMobile.GroundWork
 
                                 var results = transaction.Query<ActivityItemReturnsModel>(
                                     "SELECT * FROM tActivityItemReturns WHERE ActivityItemRefno = ?",
-                                    Convert.ToInt32(actItemReturnsRefno));
+                                    Convert.ToInt32(refno));
 
                                 if (results == null ||
                                     results?.Count == 0)
                                 {
                                     throw new Exception(
                                         "No results in tActivityItemReturns for ActivityItemRefno " +
-                                        actItemReturnsRefno +
+                                        refno +
                                         " " +
                                         this.FullClassName);
                                 }
@@ -256,7 +255,7 @@ namespace dMobile.GroundWork
                                 {
                                     errMsg = "Arguments:";
 
-                                    var queryInsertDetail = "INSERT INTO tActivityDetail (" +
+                                    const string queryInsertDetail = "INSERT INTO tActivityDetail (" +
                                                             "ActivityDetailSubType, " +
                                                             "ActivityDetailStatus, " +
                                                             "ActivityItemRefno, " +
@@ -300,7 +299,7 @@ namespace dMobile.GroundWork
                                         Convert.ToInt32(SysCommon.ActSubTypes.Returns));
                                     parametersInsertDetail.Add(0);
                                     parametersInsertDetail.Add(
-                                        Convert.ToInt32(actItemReturnsRefno));
+                                        Convert.ToInt32(refno));
                                     parametersInsertDetail.Add(
                                         GetReceivedDataLocation(drow, transaction, false));
                                     parametersInsertDetail.Add(results[0].ProductUnitRefno);

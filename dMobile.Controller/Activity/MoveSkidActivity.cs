@@ -82,11 +82,7 @@ namespace dMobile.Controller.Activity
             throw new NotImplementedException();
         }
 
-        /// <summary>
-        /// The Search.
-        /// </summary>
-        /// <param name="searchText">.</param>
-        /// <returns>.</returns>
+        /// <inheritdoc cref="Activity.Search(string)"/>
         public override ObservableCollection<object> Search(string searchText)
         {
             throw new NotImplementedException();

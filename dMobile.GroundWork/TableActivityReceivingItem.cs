@@ -152,10 +152,15 @@ namespace dMobile.GroundWork
         }
 
         /// <summary>
-        /// The Send.
+        /// Sends a request based on the specified activity foreign key reference number.
         /// </summary>
-        /// <param name="activityFkRefnoThe activityFkRefno<see cref="int"/>.</param>
-        /// <returns></returns>
+        /// <remarks>This method retrieves data from the database using the provided activity foreign key
+        /// reference number. If a matching record is found, it creates and sends a communication request based on the
+        /// retrieved data.</remarks>
+        /// <param name="activityFkRefno">The foreign key reference number of the activity item. Must be a valid reference number.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains the response string from the
+        /// communication request.</returns>
+        /// <exception cref="Exception">Thrown if no records are found for the specified <paramref name="activityFkRefno"/> in the database.</exception>
         protected override async Task<string> SendRequest(int activityFkRefno)
         {
             var results = await DatabaseConnection.GetInstance()
@@ -176,12 +181,8 @@ namespace dMobile.GroundWork
             return await SendComm(await this.CreateRequest(recvFKRefno));
         }
 
-        /// <summary>
-        /// The Save.
-        /// </summary>
-        /// <param name="responseData"></param>
-        /// <param name="actRefno">The actItemRefno<see cref="int"/>.</param>
-        protected override async Task Save(string responseData, int actRefno)
+        /// <inheritdoc cref="TableBase.Save(string, int)"/>
+        protected override async Task Save(string responseData, int refno)
         {
             await DatabaseConnection.GetInstance()
                 .SqlConn.RunInTransactionAsync(
@@ -237,7 +238,7 @@ namespace dMobile.GroundWork
                                         " ActivityItemIsAdded) VALUES (?, ?, ?, ?)",
                                         Convert.ToInt32(SysCommon.ActSubTypes.Receiving),
                                         Convert.ToInt32(SysCommon.ActStatus.NoChange),
-                                        Convert.ToInt32(actRefno),
+                                        Convert.ToInt32(refno),
                                         0);
 
                                     actItemRefno = Convert.ToInt32(
@@ -252,7 +253,7 @@ namespace dMobile.GroundWork
                                         transaction);
                                     recvItemFKRefno = Convert.ToInt32(drow["ActivityItemFKRefno"]);
 
-                                    var queryInsertActivityItemReceiving =
+                                    const string queryInsertActivityItemReceiving =
                                         "INSERT INTO tActivityItemReceiving (" +
                                         "ActivityItemRefno, " +
                                         "ActivityItemSubType, " +

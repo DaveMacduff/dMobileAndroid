@@ -130,10 +130,15 @@ namespace dMobile.GroundWork
         }
 
         /// <summary>
-        ///     Send the request to the comm server.
+        /// Sends a request based on the specified activity foreign key reference number.
         /// </summary>
-        /// <param name="activityFkRefnoActivity item reference number.</param>
-        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        /// <remarks>This method retrieves data from the database using the provided activity foreign key
+        /// reference number. If a matching record is found, it creates and sends a communication request based on the
+        /// retrieved data.</remarks>
+        /// <param name="activityFkRefno">The foreign key reference number of the activity item. Must be a valid reference number.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains the response string from the
+        /// communication request.</returns>
+        /// <exception cref="Exception">Thrown if no records are found for the specified <paramref name="activityFkRefno"/> in the database.</exception>
         protected override async Task<string> SendRequest(int activityFkRefno)
         {
             const string query = "SELECT * FROM tActivityItemCount WHERE ActivityItemFKRefno = ?";
@@ -154,13 +159,8 @@ namespace dMobile.GroundWork
             return await SendComm(await this.CreateRequest(actItemCountFkRefno));
         }
 
-        /// <summary>
-        /// The Save.
-        /// </summary>
-        /// <param name="responseData"> Response data.</param>
-        /// <param name="actItemCountRefno"> Activity item count reference number.</param>
-        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-        protected override async Task Save(string responseData, int actItemCountRefno)
+        /// <inheritdoc cref="TableBase.Save(string, int)"/>
+        protected override async Task Save(string responseData, int refno)
         {
             var errMsg = string.Empty;
 
@@ -186,7 +186,7 @@ namespace dMobile.GroundWork
 
                             this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
 
-                            var resultCountItems = transaction.Query<ActivityItemCountModel>("SELECT * FROM tActivityItemCount WHERE ActivityItemRefno = ?", actItemCountRefno);
+                            var resultCountItems = transaction.Query<ActivityItemCountModel>("SELECT * FROM tActivityItemCount WHERE ActivityItemRefno = ?", refno);
 
                             if (resultCountItems == null || (resultCountItems != null && resultCountItems.Count == 0))
                             {
@@ -223,7 +223,7 @@ namespace dMobile.GroundWork
 
                                 parametersInsertDetail.Add(Convert.ToInt32(SysCommon.ActSubTypes.PhysicalCounts));
                                 parametersInsertDetail.Add(Convert.ToInt32(0));
-                                parametersInsertDetail.Add(actItemCountRefno);
+                                parametersInsertDetail.Add(refno);
                                 parametersInsertDetail.Add(GetReceivedDataLocation(drow, transaction, true));
                                 parametersInsertDetail.Add(resultCountItems[0].ProductUnitRefno);
                                 parametersInsertDetail.AddRange(SaveDetail(drow, transaction, true));

@@ -354,11 +354,7 @@ namespace dMobile.Controller.Activity_Item
             return Task.FromResult(this.ListItems);
         }
 
-        /// <summary>
-        /// The Search.
-        /// </summary>
-        /// <param name="searchText">.</param>
-        /// <returns>.</returns>
+        /// <inheritdoc cref="ActivityItem.Search(string)"/>
         public override ObservableCollection<object> Search(string searchText)
         {
             throw new NotImplementedException();

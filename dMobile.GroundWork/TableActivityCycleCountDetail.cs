@@ -152,11 +152,21 @@ namespace dMobile.GroundWork
                 });
         }
 
+        /// <summary>
+        /// Sends a request based on the specified activity foreign key reference number.
+        /// </summary>
+        /// <remarks>This method retrieves data from the database using the provided activity foreign key
+        /// reference number. If a matching record is found, it creates and sends a communication request based on the
+        /// retrieved data.</remarks>
+        /// <param name="activityFkRefno">The foreign key reference number of the activity item. Must be a valid reference number.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains the response string from the
+        /// communication request.</returns>
+        /// <exception cref="Exception">Thrown if no records are found for the specified <paramref name="activityFkRefno"/> in the database.</exception>
         protected override async Task<string> SendRequest(int activityFkRefno)
         {
             try
             {
-                var query = "SELECT * FROM tActivityItemCount WHERE ActivityItemFKRefno = ?";
+                const string query = "SELECT * FROM tActivityItemCount WHERE ActivityItemFKRefno = ?";
                 var results = await DatabaseConnection.GetInstance()
                     .SqlConn.QueryAsync<ActivityItemCountModel>(query, activityFkRefno);
 
@@ -183,12 +193,8 @@ namespace dMobile.GroundWork
             }
         }
 
-        /// <summary>
-        /// The Save.
-        /// </summary>
-        /// <param name="responseData"></param>
-        /// <param name="actItemCountRefno"></param>
-        protected override async Task Save(string responseData, int actItemCountRefno)
+        /// <inheritdoc cref="TableBase.Save(string, int)"/>
+        protected override async Task Save(string responseData, int refno)
         {
             var errMsg = string.Empty;
 
@@ -239,7 +245,7 @@ namespace dMobile.GroundWork
 
                                     var countItems = transaction.Query<ActivityItemCountModel>(
                                         "SELECT * FROM tActivityItemCount WHERE ActivityItemRefno = ?",
-                                        actItemCountRefno);
+                                        refno);
 
                                     if (countItems == null ||
                                         (countItems != null && countItems.Count == 0))
@@ -298,7 +304,7 @@ namespace dMobile.GroundWork
                                             Convert.ToInt32(SysCommon.ActSubTypes.CycleCounts));
                                         detailParameterList.Add(
                                             Convert.ToInt32(SysCommon.ActStatus.NoChange));
-                                        detailParameterList.Add(actItemCountRefno);
+                                        detailParameterList.Add(refno);
                                         detailParameterList.Add(
                                             GetReceivedDataLocation(drow, transaction, true));
                                         detailParameterList.Add(countItems[0].ProductUnitRefno);

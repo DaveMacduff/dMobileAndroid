@@ -1433,21 +1433,21 @@ namespace dMobile.GroundWork
         }
 
         /// <summary>
-        /// Save received data.
+        /// Performs the save operation for the received data.
         /// </summary>
-        /// <param name="responseData"><see cref="string"/> Received data to save.</param>
-        /// <returns><see cref="Task"/> Task operation.</returns>
+        /// <param name="responseData">Received data from communication server.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         protected virtual Task Save(string responseData)
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        /// Save received data.
+        /// Performs the save operation for the received data.
         /// </summary>
-        /// <param name="responseData"><see cref="string"/> Received data to save.</param>
-        /// <param name="refno"><see cref="int"/> Refno.</param>
-        /// <returns><see cref="Task"/> Task operation.</returns>
+        /// <param name="responseData">Received data from communication server.</param>
+        /// <param name="refno">Activity or activity item or activity detail reference number.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         protected virtual Task Save(string responseData, int refno)
         {
             throw new NotImplementedException();

@@ -1070,11 +1070,7 @@ namespace dMobile.Controller.Activity_Detail
             return observableCollection;
         }
 
-        /// <summary>
-        /// The Search.
-        /// </summary>
-        /// <param name="searchText">.</param>
-        /// <returns>Observable collection of adjustment detail.</returns>
+        /// <inheritdoc cref="ActivityDetail.Search(string)"/>
         public override ObservableCollection<object> Search(string searchText)
         {
             var observableCollection = new ObservableCollection<object>();

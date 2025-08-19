@@ -768,9 +768,29 @@ namespace dMobile.Bedrock
             TransferTo = 40,
 
             /// <summary>
-            /// Deifned the activity item inquiry single.
+            /// Defined the activity item inquiry single.
             /// </summary>
             InventoryInquiryActivitySingle = 41,
+
+            /// <summary>
+            /// Defined the cut sheet finished.
+            /// </summary>
+            CutSheetFinished = 42,
+
+            /// <summary>
+            /// Defined the cut sheet material.
+            /// </summary>
+            CutSheetMaterial = 43,
+
+            /// <summary>
+            /// Defined the yield sheet finished.
+            /// </summary>
+            YieldSheetFinished = 44,
+
+            /// <summary>
+            /// Defined the yield sheet material.
+            /// </summary>
+            YieldSheetMaterial = 45,
         }
 
         /// <summary>
