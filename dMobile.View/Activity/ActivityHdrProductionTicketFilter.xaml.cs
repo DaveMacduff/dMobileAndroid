@@ -47,7 +47,7 @@ namespace dMobile.View.Activity
             _ = this.aSortBy1.Add("Production Date Ascending");
             _ = this.aSortBy1.Add("Production Date Descending");
             this.cboSortBy1.ItemsSource = this.aSortBy1;
-            this.cboSortBy1.SelectedIndex = this.TicketSettings.iSortBy1Index;
+            this.cboSortBy1.SelectedIndex = this.TicketSettings.SortBy1Index;
 
             this.aSortBy2.Clear();
             _ = this.aSortBy2.Add(string.Empty);
@@ -56,7 +56,7 @@ namespace dMobile.View.Activity
             _ = this.aSortBy2.Add("Production Date Ascending");
             _ = this.aSortBy2.Add("Production Date Descending");
             this.cboSortBy2.ItemsSource = this.aSortBy2;
-            this.cboSortBy2.SelectedIndex = this.TicketSettings.iSortBy2Index;
+            this.cboSortBy2.SelectedIndex = this.TicketSettings.SortBy2Index;
 
             this.aSortBy3.Clear();
             _ = this.aSortBy3.Add(string.Empty);
@@ -65,7 +65,7 @@ namespace dMobile.View.Activity
             _ = this.aSortBy3.Add("Production Date Ascending");
             _ = this.aSortBy3.Add("Production Date Descending");
             this.cboSortBy3.ItemsSource = this.aSortBy3;
-            this.cboSortBy3.SelectedIndex = this.TicketSettings.iSortBy3Index;
+            this.cboSortBy3.SelectedIndex = this.TicketSettings.SortBy3Index;
 
             this.filters.Add("Production # Ascending", new Sort
                 { SortValue = "ActivityFKRefno", SortOrder = SortOrder.ASC });
@@ -183,9 +183,9 @@ namespace dMobile.View.Activity
                     this.dtpProductionDate.Date = this.TicketSettings.ProductionDateFilter;
                     this.chkApplyProductionDate.IsToggled = this.TicketSettings.IsApplyProductionDateFilter;
 
-                    this.cboSortBy1.SelectedIndex = this.TicketSettings.iSortBy1Index;
-                    this.cboSortBy2.SelectedIndex = this.TicketSettings.iSortBy2Index;
-                    this.cboSortBy3.SelectedIndex = this.TicketSettings.iSortBy3Index;
+                    this.cboSortBy1.SelectedIndex = this.TicketSettings.SortBy1Index;
+                    this.cboSortBy2.SelectedIndex = this.TicketSettings.SortBy2Index;
+                    this.cboSortBy3.SelectedIndex = this.TicketSettings.SortBy3Index;
                     this.MakeSQLSortBy();
 
                     bCancelChanges = false;
@@ -224,9 +224,9 @@ namespace dMobile.View.Activity
 
                     this.TicketSettings.IsApplyProductionDateFilter = this.chkApplyProductionDate.IsToggled;
 
-                    this.TicketSettings.iSortBy1Index = this.cboSortBy1.SelectedIndex;
-                    this.TicketSettings.iSortBy2Index = this.cboSortBy2.SelectedIndex;
-                    this.TicketSettings.iSortBy3Index = this.cboSortBy3.SelectedIndex;
+                    this.TicketSettings.SortBy1Index = this.cboSortBy1.SelectedIndex;
+                    this.TicketSettings.SortBy2Index = this.cboSortBy2.SelectedIndex;
+                    this.TicketSettings.SortBy3Index = this.cboSortBy3.SelectedIndex;
                     this.MakeSQLSortBy();
 
                     var tempTicketSettings = this.TicketSettings;
@@ -397,9 +397,9 @@ namespace dMobile.View.Activity
             this.dtpProductionDate.Date = this.TicketSettings.ProductionDateFilter;
             this.chkApplyProductionDate.IsToggled = this.TicketSettings.IsApplyProductionDateFilter;
 
-            this.cboSortBy1.SelectedIndex = this.TicketSettings.iSortBy1Index;
-            this.cboSortBy2.SelectedIndex = this.TicketSettings.iSortBy2Index;
-            this.cboSortBy3.SelectedIndex = this.TicketSettings.iSortBy3Index;
+            this.cboSortBy1.SelectedIndex = this.TicketSettings.SortBy1Index;
+            this.cboSortBy2.SelectedIndex = this.TicketSettings.SortBy2Index;
+            this.cboSortBy3.SelectedIndex = this.TicketSettings.SortBy3Index;
         }
 
         /// <summary>

@@ -6,7 +6,7 @@
 namespace dMobile.Resources.Types.Items
 {
     /// <summary>
-    /// Represents a material item in a production ticket.
+    /// Represents a material item in a yield sheet ticket.
     /// </summary>
     public class YieldSheetMaterialItem
     {
@@ -46,34 +46,34 @@ namespace dMobile.Resources.Types.Items
         public int ActivityItemStatus { get; set; }
 
         /// <summary>
-        /// Gets or sets the production quantity of the activity item.
+        /// Gets or sets the yield sheet quantity of the activity item.
         /// </summary>
-        public decimal ActivityItemProductionQuantity { get; set; }
+        public decimal ActivityItemYieldSheetQuantity { get; set; }
 
         /// <summary>
-        /// Gets or sets the base production quantity of the activity item.
+        /// Gets or sets the base yield sheet quantity of the activity item.
         /// </summary>
-        public decimal ActivityItemProductionBaseQuantity { get; set; }
+        public decimal ActivityItemYieldSheetBaseQuantity { get; set; }
 
         /// <summary>
-        /// Gets or sets the weight production quantity of the activity item.
+        /// Gets or sets the weight yield sheet quantity of the activity item.
         /// </summary>
-        public decimal ActivityItemProductionWeightQuantity { get; set; }
+        public decimal ActivityItemYieldSheetWeightQuantity { get; set; }
 
         /// <summary>
-        /// Gets or sets the expected production quantity of the activity item.
+        /// Gets or sets the expected yield sheet quantity of the activity item.
         /// </summary>
-        public decimal ActivityItemProductionQuantityExpected { get; set; }
+        public decimal ActivityItemYieldSheetQuantityExpected { get; set; }
 
         /// <summary>
-        /// Gets or sets the expected base production quantity of the activity item.
+        /// Gets or sets the expected base yield sheet quantity of the activity item.
         /// </summary>
-        public decimal ActivityItemProductionBaseQuantityExpected { get; set; }
+        public decimal ActivityItemYieldSheetBaseQuantityExpected { get; set; }
 
         /// <summary>
-        /// Gets or sets the expected weight production quantity of the activity item.
+        /// Gets or sets the expected weight yield sheet quantity of the activity item.
         /// </summary>
-        public decimal ActivityItemProductionWeightQuantityExpected { get; set; }
+        public decimal ActivityItemYieldSheetWeightQuantityExpected { get; set; }
 
         /// <summary>
         /// Gets or sets the string foreign key reference number of the activity item.

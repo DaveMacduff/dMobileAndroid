@@ -308,12 +308,11 @@ namespace dMobile.View.Activity
                         case SysCommon.ActPickingQtyUnderValLevels.ValidateWarnAndContinue:
                             if (await Device.InvokeOnMainThreadAsync(
                                     async () =>
-                                        await this.DisplayAlert(
+                                        !await this.DisplayAlert(
                                             "Quantity Validation",
                                             ex.Message + Environment.NewLine + "Continue?",
                                             "Yes",
-                                            "No") ==
-                                        false))
+                                            "No")))
                             {
                                 isReadyToSavePicking = false;
                                 this.IsShowDataValidMsg = false;

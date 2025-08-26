@@ -386,7 +386,7 @@ namespace dMobile.View
         {
             this.ProdSchemeData.LogisticUnitBatchLotNumber = string.Empty;
             var defaultDataAssigned = false;
-            if (this.ProductSchemeInfo.LabelInfo.IsLotTracked)
+            if (this.ProductSchemeInfo.IsLotTracked)
             {
                 if (this.BarCodeData == null || this.BarCodeData.LogisticUnitBatchLotNumber?.Length == 0)
                 {

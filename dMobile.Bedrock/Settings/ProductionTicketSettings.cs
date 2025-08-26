@@ -4,12 +4,12 @@
 
 namespace dMobile.Bedrock
 {
-    using dMobile.Resources.Enums;
-    using dMobile.Resources.Types;
     using System;
     using System.Collections.Generic;
     using System.IO;
     using System.Xml.Serialization;
+    using dMobile.Resources.Enums;
+    using dMobile.Resources.Types;
 
     /// <summary>
     /// Defines the <see cref="ProductionTicketSettings" />.
@@ -17,210 +17,85 @@ namespace dMobile.Bedrock
     [Serializable]
     public class ProductionTicketSettings
     {
-        // VARIABLES
-        /// <summary>
-        /// Defines the m_strFullClassName.
-        /// </summary>
-        [NonSerialized()]
-        private string m_strFullClassName = "dMobile.ProductionTicketSettings";
-
-        /// <summary>
-        /// Defines the m_strFilePath.
-        /// </summary>
-        [NonSerialized()]
-        private string m_strFilePath = string.Empty;
-
-        /// <summary>
-        /// Defines the m_strFileASCIIZ.
-        /// </summary>
-        [NonSerialized()]
-        private string m_strFileASCIIZ = string.Empty;
-
-        /// <summary>
-        /// Defines the m_strFileName.
-        /// </summary>
-        [NonSerialized()]
-        private string m_strFileName = "dMobileProductionTicketSettings.xml";
-
-        /// <summary>
-        /// Defines the writeLockObject.
-        /// </summary>
-        [NonSerialized]
-        private readonly object writeLockObject = new object();
-
-        /// <summary>
-        /// Defines the readLockObject.
-        /// </summary>
-        [NonSerialized]
-        private readonly object readLockObject = new object();
-
-        /// <summary>
-        /// Defines the m_iSortBy1Index.
-        /// </summary>
-        private int m_iSortBy1Index = 0;
-
-        /// <summary>
-        /// Defines the sortBy1Value.
-        /// </summary>
-        private Sort sortBy1Value = new Sort() { SortValue = "ActivityFKRefno", SortOrder = SortOrder.ASC };
-
-        /// <summary>
-        /// Defines the m_iSortBy2Index.
-        /// </summary>
-        private int m_iSortBy2Index = -1;
-
-        /// <summary>
-        /// Defines the sortBy2Value.
-        /// </summary>
-        private Sort sortBy2Value = null;
-
-        /// <summary>
-        /// Defines the m_iSortBy3Index.
-        /// </summary>
-        private int m_iSortBy3Index = -1;
-
-        /// <summary>
-        /// Defines the sortBy3Value.
-        /// </summary>
-        private Sort sortBy3Value = null;
-
-        /// <summary>
-        /// Defines the productionDateFilter.
-        /// </summary>
-        private DateTime productionDateFilter = new DateTime(1900, 1, 1);
-
-        /// <summary>
-        /// Defines the isApplyProductionDateFilter.
-        /// </summary>
-        private bool isApplyProductionDateFilter = false;
-
-        // PROPERTIES
-        /// <summary>
-        /// Gets or sets the ProductionDateFilter.
-        /// </summary>
-        public DateTime ProductionDateFilter
-        {
-            get => this.productionDateFilter;
-            set => this.productionDateFilter = value;
-        }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether IsApplyProductionDateFilter.
-        /// </summary>
-        public bool IsApplyProductionDateFilter
-        {
-            get => this.isApplyProductionDateFilter;
-            set => this.isApplyProductionDateFilter = value;
-        }
-
-        /// <summary>
-        /// Gets or sets the strFullClassName.
-        /// </summary>
-        public string strFullClassName
-        {
-            get => this.m_strFullClassName;
-            set => this.m_strFullClassName = value;
-        }
-
-        /// <summary>
-        /// Gets or sets the strFilePath.
-        /// </summary>
-        public string strFilePath
-        {
-            get => this.m_strFilePath;
-            set => this.m_strFilePath = value;
-        }
-
-        /// <summary>
-        /// Gets or sets the strFileASCIIZ.
-        /// </summary>
-        public string strFileASCIIZ
-        {
-            get => this.m_strFileASCIIZ;
-            set => this.m_strFileASCIIZ = value;
-        }
-
-        /// <summary>
-        /// Gets or sets the strFileName.
-        /// </summary>
-        public string strFileName
-        {
-            get => this.m_strFileName;
-            set => this.m_strFileName = value;
-        }
-
-        /// <summary>
-        /// Gets or sets the iSortBy1Index.
-        /// </summary>
-        public int iSortBy1Index
-        {
-            get => this.m_iSortBy1Index;
-            set => this.m_iSortBy1Index = value;
-        }
-
-        /// <summary>
-        /// Gets or sets the SortBy1Value.
-        /// </summary>
-        public Sort SortBy1Value
-        {
-            get => this.sortBy1Value;
-            set => this.sortBy1Value = value;
-        }
-
-        /// <summary>
-        /// Gets or sets the iSortBy2Index.
-        /// </summary>
-        public int iSortBy2Index
-        {
-            get => this.m_iSortBy2Index;
-            set => this.m_iSortBy2Index = value;
-        }
-
-        /// <summary>
-        /// Gets or sets the SortBy2Value.
-        /// </summary>
-        public Sort SortBy2Value
-        {
-            get => this.sortBy2Value;
-            set => this.sortBy2Value = value;
-        }
-
-        /// <summary>
-        /// Gets or sets the iSortBy3Index.
-        /// </summary>
-        public int iSortBy3Index
-        {
-            get => this.m_iSortBy3Index;
-            set => this.m_iSortBy3Index = value;
-        }
-
-        /// <summary>
-        /// Gets or sets the SortBy3Value.
-        /// </summary>
-        public Sort SortBy3Value
-        {
-            get => this.sortBy3Value;
-            set => this.sortBy3Value = value;
-        }
-
         /// <summary>
         /// Initializes a new instance of the <see cref="ProductionTicketSettings"/> class.
         /// </summary>
         public ProductionTicketSettings()
         {
-            this.strFilePath = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
-            this.strFileASCIIZ = Path.Combine(this.strFilePath, this.strFileName);
+            this.FilePath = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
+            this.FileASCIIZ = Path.Combine(this.FilePath, this.FileName);
         }
 
         /// <summary>
-        /// The GetDataViewSortBy.
+        /// Gets or sets the production date filter.
         /// </summary>
-        /// <returns>.</returns>
+        public DateTime ProductionDateFilter { get; set; } = new DateTime(1900, 1, 1);
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the production date filter is applied.
+        /// </summary>
+        public bool IsApplyProductionDateFilter { get; set; } = false;
+
+        /// <summary>
+        /// Gets the full class name.
+        /// </summary>
+        public string FullClassName { get; } = "dMobile.ProductionTicketSettings";
+
+        /// <summary>
+        /// Gets or sets the serialzed file path.
+        /// </summary>
+        public string FilePath { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets or sets the file ASCIIZ.
+        /// </summary>
+        public string FileASCIIZ { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets or sets the file name.
+        /// </summary>
+        public string FileName { get; set; } = "dMobileProductionTicketSettings.xml";
+
+        /// <summary>
+        /// Gets or sets the sort by index for the first sort criteria.
+        /// </summary>
+        public int SortBy1Index { get; set; } = 0;
+
+        /// <summary>
+        /// Gets or sets the sort by value for the first sort criteria.
+        /// </summary>
+        public Sort SortBy1Value { get; set; } = new Sort() { SortValue = "ActivityFKRefno", SortOrder = SortOrder.ASC };
+
+        /// <summary>
+        /// Gets or sets the sort by index for the second sort criteria.
+        /// </summary>
+        public int SortBy2Index { get; set; } = -1;
+
+        /// <summary>
+        /// Gets or sets the sort by value for the second sort criteria.
+        /// </summary>
+        public Sort SortBy2Value { get; set; } = null;
+
+        /// <summary>
+        /// Gets or sets the sort by index for the third sort criteria.
+        /// </summary>
+        public int SortBy3Index { get; set; } = -1;
+
+        /// <summary>
+        /// Gets or sets the sort by value for the third sort criteria.
+        /// </summary>
+        public Sort SortBy3Value { get; set; } = null;
+
+        /// <summary>
+        /// Get the data view sort criteria as a list of Sort objects.
+        /// </summary>
+        /// <returns>List of sorted data.</returns>
         public List<Sort> GetDataViewSortBy()
         {
-            var sortBy = new List<Sort>();
-
-            sortBy.Add(this.SortBy1Value);
+            var sortBy = new List<Sort>
+            {
+                this.SortBy1Value
+            };
 
             if (this.SortBy2Value != null && !string.IsNullOrEmpty(this.SortBy2Value.SortValue))
             {
@@ -231,70 +106,63 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// The LoadData.
+        /// Loads the production ticket settings data from the XML file.
         /// </summary>
-        /// <returns>.</returns>
+        /// <returns>Production ticket settings.</returns>
         public ProductionTicketSettings LoadData()
         {
-            lock (this.readLockObject)
+            var serializer = new XmlSerializer(typeof(ProductionTicketSettings));
+            var settings = new ProductionTicketSettings();
+
+            // use reflection to get the current assembly path for the database
+            var strAppDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
+            var strFullPathToMyFile = Path.Combine(strAppDir, this.FileName);
+
+            if (!File.Exists(strFullPathToMyFile))
             {
-                var serializer = new XmlSerializer(typeof(ProductionTicketSettings));
-                var oProductionTicketSettings = new ProductionTicketSettings();
-
-                // use reflection to get the current assembly path for the database
-                var strAppDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
-                var strFullPathToMyFile = Path.Combine(strAppDir, this.m_strFileName);
-
-                if (!File.Exists(strFullPathToMyFile))
-                {
-                    this.SaveData(ref oProductionTicketSettings);
-                }
-
-                // Create a FileStream to read with.
-                using (var reader = new FileStream(strFullPathToMyFile, FileMode.Open, FileAccess.Read, FileShare.Read))
-                {
-                    // Deserialize the stream to the object, and close the TextReader
-                    oProductionTicketSettings = (ProductionTicketSettings)serializer.Deserialize(reader);
-                }
-
-                return oProductionTicketSettings;
+                this.SaveData(ref settings);
             }
+
+            // Create a FileStream to read with.
+            using (var reader = new FileStream(strFullPathToMyFile, FileMode.Open, FileAccess.Read, FileShare.Read))
+            {
+                // Deserialize the stream to the object, and close the TextReader
+                settings = (ProductionTicketSettings)serializer.Deserialize(reader);
+            }
+
+            return settings;
         }
 
         /// <summary>
-        /// The SaveData.
+        /// Save the production ticket settings data to the XML file.
         /// </summary>
-        /// <param name="oProductionTicketSettings">.</param>
-        /// <returns>.</returns>
-        public bool SaveData(ref ProductionTicketSettings oProductionTicketSettings)
+        /// <param name="settings">Production ticket settings to save.</param>
+        /// <returns>True if the save was successful, else false.</returns>
+        public bool SaveData(ref ProductionTicketSettings settings)
         {
-            lock (this.writeLockObject)
+            var serializer = new XmlSerializer(typeof(ProductionTicketSettings));
+            bool isSaveComplete;
+            try
             {
-                var serializer = new XmlSerializer(typeof(ProductionTicketSettings));
-                var bSaveComplete = false;
+                // use reflection to get the current assembly path for the database
+                var strAppDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
+                var strFullPathToMyFile = Path.Combine(strAppDir, this.FileName);
 
-                try
+                // Create a FileStream to write with.
+                using (var writer = new FileStream(strFullPathToMyFile, FileMode.Create, FileAccess.Write, FileShare.None))
                 {
-                    // use reflection to get the current assembly path for the database
-                    var strAppDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
-                    var strFullPathToMyFile = Path.Combine(strAppDir, this.m_strFileName);
-
-                    // Create a FileStream to write with.
-                    using (var writer = new FileStream(strFullPathToMyFile, FileMode.Create, FileAccess.Write, FileShare.None))
-                    {
-                        // Serialize the object, and close the TextWriter
-                        serializer.Serialize(writer, oProductionTicketSettings);
-                    }
-
-                    bSaveComplete = true;
-                }
-                catch
-                {
-                    bSaveComplete = false;
+                    // Serialize the object, and close the TextWriter
+                    serializer.Serialize(writer, settings);
                 }
 
-                return bSaveComplete;
+                isSaveComplete = true;
             }
+            catch
+            {
+                isSaveComplete = false;
+            }
+
+            return isSaveComplete;
         }
     }
 }

@@ -38,12 +38,12 @@ namespace dMobile.Resources.Types.Headers
         public int LocationMapWarehouseFKRefno { get; set; }
 
         /// <summary>
-        /// Gets or sets the date and time of the production activity.
+        /// Gets or sets the date and time of the cut sheet activity.
         /// </summary>
         public DateTime ActivityProductionDateTime { get; set; }
 
         /// <summary>
-        /// Gets or sets the description of the production activity.
+        /// Gets or sets the description of the cut sheet activity.
         /// </summary>
         public string ActivityProductionDescription { get; set; }
 
