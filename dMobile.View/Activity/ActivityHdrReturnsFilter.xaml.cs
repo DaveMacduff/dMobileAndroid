@@ -54,7 +54,7 @@ namespace dMobile.View.Activity
             _ = this.SortBy1.Add("Returned Ascending");
             _ = this.SortBy1.Add("Returned Descending");
             this.cboSortBy1.ItemsSource = this.SortBy1;
-            this.cboSortBy1.SelectedIndex = this.RetSettings.iSortBy1Index;
+            this.cboSortBy1.SelectedIndex = this.RetSettings.SortBy1Index;
 
             this.SortBy2.Clear();
             _ = this.SortBy2.Add(string.Empty);
@@ -65,7 +65,7 @@ namespace dMobile.View.Activity
             _ = this.SortBy2.Add("Returned Ascending");
             _ = this.SortBy2.Add("Returned Descending");
             this.cboSortBy2.ItemsSource = this.SortBy2;
-            this.cboSortBy2.SelectedIndex = this.RetSettings.iSortBy2Index;
+            this.cboSortBy2.SelectedIndex = this.RetSettings.SortBy2Index;
 
             this.SortBy3.Clear();
             _ = this.SortBy3.Add(string.Empty);
@@ -76,7 +76,7 @@ namespace dMobile.View.Activity
             _ = this.SortBy3.Add("Returned Ascending");
             _ = this.SortBy3.Add("Returned Descending");
             this.cboSortBy3.ItemsSource = this.SortBy3;
-            this.cboSortBy3.SelectedIndex = this.RetSettings.iSortBy3Index;
+            this.cboSortBy3.SelectedIndex = this.RetSettings.SortBy3Index;
 
             this.filters.Add(string.Empty, null);
             this.filters.Add("Order # Ascending", new Sort
@@ -242,9 +242,9 @@ namespace dMobile.View.Activity
 
                     this.RetSettings.IsApplyEnteredDateFilter = this.chkApplyEnteredDate.IsToggled;
 
-                    this.RetSettings.iSortBy1Index = this.cboSortBy1.SelectedIndex;
-                    this.RetSettings.iSortBy2Index = this.cboSortBy2.SelectedIndex;
-                    this.RetSettings.iSortBy3Index = this.cboSortBy3.SelectedIndex;
+                    this.RetSettings.SortBy1Index = this.cboSortBy1.SelectedIndex;
+                    this.RetSettings.SortBy2Index = this.cboSortBy2.SelectedIndex;
+                    this.RetSettings.SortBy3Index = this.cboSortBy3.SelectedIndex;
                     this.MakeSQLSortBy();
 
                     var tempRetSettings = this.RetSettings;
@@ -313,9 +313,9 @@ namespace dMobile.View.Activity
                     this.dtpReturnedDate.Date = this.RetSettings.ReturnedDateFilter;
                     this.chkApplyEnteredDate.IsToggled = this.RetSettings.IsApplyEnteredDateFilter;
                     this.dtpEnteredDate.Date = this.RetSettings.EnteredDateFilter;
-                    this.cboSortBy1.SelectedIndex = this.RetSettings.iSortBy1Index;
-                    this.cboSortBy2.SelectedIndex = this.RetSettings.iSortBy2Index;
-                    this.cboSortBy3.SelectedIndex = this.RetSettings.iSortBy3Index;
+                    this.cboSortBy1.SelectedIndex = this.RetSettings.SortBy1Index;
+                    this.cboSortBy2.SelectedIndex = this.RetSettings.SortBy2Index;
+                    this.cboSortBy3.SelectedIndex = this.RetSettings.SortBy3Index;
                     this.MakeSQLSortBy();
 
                     cancelChanges = false;
@@ -471,9 +471,9 @@ namespace dMobile.View.Activity
             this.chkApplyReturnedDate.IsToggled = this.RetSettings.IsApplyReturnedDateFilter;
             this.dtpReturnedDate.Date = this.RetSettings.ReturnedDateFilter;
 
-            this.cboSortBy1.SelectedIndex = this.RetSettings.iSortBy1Index;
-            this.cboSortBy2.SelectedIndex = this.RetSettings.iSortBy2Index;
-            this.cboSortBy3.SelectedIndex = this.RetSettings.iSortBy3Index;
+            this.cboSortBy1.SelectedIndex = this.RetSettings.SortBy1Index;
+            this.cboSortBy2.SelectedIndex = this.RetSettings.SortBy2Index;
+            this.cboSortBy3.SelectedIndex = this.RetSettings.SortBy3Index;
         }
 
         /// <summary>

@@ -324,15 +324,15 @@ namespace dMobile.Bedrock
 
             // use reflection to get the current assembly path for the database
             var appDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
-            var fullPathToMyFile = Path.Combine(appDir, this.fileName);
+            var settingsFileName = Path.Combine(appDir, this.fileName);
 
-            if (!File.Exists(fullPathToMyFile))
+            if (!File.Exists(settingsFileName))
             {
                 this.SaveData(ref commSetup);
             }
 
             // Create a FileStream to read with.
-            var reader = new FileStream(fullPathToMyFile, FileMode.Open);
+            var reader = new FileStream(settingsFileName, FileMode.Open);
 
             // Deserialize the stream to the object, and close the TextReader
             commSetup = (CommunicationSetup)serializer.Deserialize(reader);
@@ -354,10 +354,10 @@ namespace dMobile.Bedrock
             {
                 // use reflection to get the current assembly path for the database
                 var appDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
-                var fullPathToMyFile = Path.Combine(appDir, this.fileName);
+                var settingsFileName = Path.Combine(appDir, this.fileName);
 
                 // Create a FileStream to write with.
-                var writer = new FileStream(fullPathToMyFile, FileMode.Create);
+                var writer = new FileStream(settingsFileName, FileMode.Create);
 
                 // Serialize the object, and close the TextWriter
                 serializer.Serialize(writer, commSetup);

@@ -54,7 +54,7 @@ namespace dMobile.View.Activity
             _ = this.aSortBy1.Add("Arrival Ascending");
             _ = this.aSortBy1.Add("Arrival Descending");
             this.cboSortBy1.ItemsSource = this.aSortBy1;
-            this.cboSortBy1.SelectedIndex = this.TransSettings.iSortBy1Index;
+            this.cboSortBy1.SelectedIndex = this.TransSettings.SortBy1Index;
 
             this.aSortBy2.Clear();
             _ = this.aSortBy2.Add(string.Empty);
@@ -67,7 +67,7 @@ namespace dMobile.View.Activity
             _ = this.aSortBy2.Add("Arrival Ascending");
             _ = this.aSortBy2.Add("Arrival Descending");
             this.cboSortBy2.ItemsSource = this.aSortBy2;
-            this.cboSortBy2.SelectedIndex = this.TransSettings.iSortBy2Index;
+            this.cboSortBy2.SelectedIndex = this.TransSettings.SortBy2Index;
 
             this.aSortBy3.Clear();
             _ = this.aSortBy3.Add(string.Empty);
@@ -80,7 +80,7 @@ namespace dMobile.View.Activity
             _ = this.aSortBy3.Add("Arrival Ascending");
             _ = this.aSortBy3.Add("Arrival Descending");
             this.cboSortBy3.ItemsSource = this.aSortBy3;
-            this.cboSortBy3.SelectedIndex = this.TransSettings.iSortBy3Index;
+            this.cboSortBy3.SelectedIndex = this.TransSettings.SortBy3Index;
 
             this.aSortBy4.Clear();
             _ = this.aSortBy4.Add(string.Empty);
@@ -93,7 +93,7 @@ namespace dMobile.View.Activity
             _ = this.aSortBy4.Add("Arrival Ascending");
             _ = this.aSortBy4.Add("Arrival Descending");
             this.cboSortBy4.ItemsSource = this.aSortBy4;
-            this.cboSortBy4.SelectedIndex = this.TransSettings.iSortBy4Index;
+            this.cboSortBy4.SelectedIndex = this.TransSettings.SortBy4Index;
 
             this.filters.Add(string.Empty, null);
             this.filters.Add(
@@ -312,10 +312,10 @@ namespace dMobile.View.Activity
             this.chkApplyDate.IsToggled = this.TransSettings.IsApplyTransferDateFilter;
             this.dtpDate.Date = this.TransSettings.TransferDateFilter;
 
-            this.cboSortBy1.SelectedIndex = this.TransSettings.iSortBy1Index;
-            this.cboSortBy2.SelectedIndex = this.TransSettings.iSortBy2Index;
-            this.cboSortBy3.SelectedIndex = this.TransSettings.iSortBy3Index;
-            this.cboSortBy4.SelectedIndex = this.TransSettings.iSortBy4Index;
+            this.cboSortBy1.SelectedIndex = this.TransSettings.SortBy1Index;
+            this.cboSortBy2.SelectedIndex = this.TransSettings.SortBy2Index;
+            this.cboSortBy3.SelectedIndex = this.TransSettings.SortBy3Index;
+            this.cboSortBy4.SelectedIndex = this.TransSettings.SortBy4Index;
         }
 
         /// <summary>
@@ -385,10 +385,10 @@ namespace dMobile.View.Activity
 
                     this.TransSettings.IsApplyTransferDateFilter = this.chkApplyDate.IsToggled;
 
-                    this.TransSettings.iSortBy1Index = this.cboSortBy1.SelectedIndex;
-                    this.TransSettings.iSortBy2Index = this.cboSortBy2.SelectedIndex;
-                    this.TransSettings.iSortBy3Index = this.cboSortBy3.SelectedIndex;
-                    this.TransSettings.iSortBy4Index = this.cboSortBy4.SelectedIndex;
+                    this.TransSettings.SortBy1Index = this.cboSortBy1.SelectedIndex;
+                    this.TransSettings.SortBy2Index = this.cboSortBy2.SelectedIndex;
+                    this.TransSettings.SortBy3Index = this.cboSortBy3.SelectedIndex;
+                    this.TransSettings.SortBy4Index = this.cboSortBy4.SelectedIndex;
                     this.MakeSQLSortBy();
 
                     var temp_oTransferSettings = this.TransSettings;
@@ -435,10 +435,10 @@ namespace dMobile.View.Activity
                 {
                     this.LoadData();
 
-                    this.cboSortBy1.SelectedIndex = this.TransSettings.iSortBy1Index;
-                    this.cboSortBy2.SelectedIndex = this.TransSettings.iSortBy2Index;
-                    this.cboSortBy3.SelectedIndex = this.TransSettings.iSortBy3Index;
-                    this.cboSortBy4.SelectedIndex = this.TransSettings.iSortBy4Index;
+                    this.cboSortBy1.SelectedIndex = this.TransSettings.SortBy1Index;
+                    this.cboSortBy2.SelectedIndex = this.TransSettings.SortBy2Index;
+                    this.cboSortBy3.SelectedIndex = this.TransSettings.SortBy3Index;
+                    this.cboSortBy4.SelectedIndex = this.TransSettings.SortBy4Index;
                     this.MakeSQLSortBy();
 
                     this.dtpDate.Date = this.TransSettings.TransferDateFilter;

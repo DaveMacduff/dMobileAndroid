@@ -382,7 +382,7 @@ namespace dMobile.View.Options
                 {
                     this.Activity = null;
 
-                    switch (this.SubmitBatchSettings.eActivitySubType)
+                    switch (this.SubmitBatchSettings.ActivitySubType)
                     {
                         case SysCommon.ActSubTypes.Receiving:
                             this.Activity = ActivityFacade.GetActivity(SysCommon.ActSubTypes.Receiving);
@@ -521,7 +521,7 @@ namespace dMobile.View.Options
                             actRefno = this.Activity.HdrRefno;
                             if (actItem == null)
                             {
-                                switch (this.SubmitBatchSettings.eActivitySubType)
+                                switch (this.SubmitBatchSettings.ActivitySubType)
                                 {
                                     case SysCommon.ActSubTypes.Receiving:
                                         actItem = ActItemFacade.GetActItem(this.Activity,
@@ -597,10 +597,10 @@ namespace dMobile.View.Options
                                     await actItem.AssignActivityItem(actItem.ListItems[itemIdx]);
                                     actItemRefno = actItem.ItemRefno;
 
-                                    if (actDetail == null && this.SubmitBatchSettings.eActivitySubType !=
+                                    if (actDetail == null && this.SubmitBatchSettings.ActivitySubType !=
                                         SysCommon.ActSubTypes.BarCodeAssociation)
                                     {
-                                        switch (this.SubmitBatchSettings.eActivitySubType)
+                                        switch (this.SubmitBatchSettings.ActivitySubType)
                                         {
                                             case SysCommon.ActSubTypes.Receiving:
                                                 actDetail = ActDetailFacade.GetActDetail(actItem,
@@ -662,7 +662,7 @@ namespace dMobile.View.Options
                                         }
                                     }
 
-                                    if (this.SubmitBatchSettings.eActivitySubType ==
+                                    if (this.SubmitBatchSettings.ActivitySubType ==
                                         SysCommon.ActSubTypes.BarCodeAssociation)
                                     {
                                         var i = (BarCodeSymbology)Convert.ToInt32(
@@ -697,7 +697,7 @@ namespace dMobile.View.Options
 
                                         await actItem.Submit(xmlParams, actItem.ListItems[itemIdx]);
                                     }
-                                    else if (this.SubmitBatchSettings.eActivitySubType ==
+                                    else if (this.SubmitBatchSettings.ActivitySubType ==
                                              SysCommon.ActSubTypes.PurchaseOrderWorkSheet)
                                     {
                                         XDocument xmlParams = XDocument.Parse(

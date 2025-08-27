@@ -31,72 +31,6 @@ namespace dMobile.Bedrock.Settings
         private readonly object readLockObject = new object();
 
         /// <summary>
-        /// Contains full replenishment settings class name.
-        /// </summary>
-        [NonSerialized]
-        private string fullClassName = "dMobile.ReplenishmentSettings";
-
-        /// <summary>
-        /// Contains replenishment settings path name.
-        /// </summary>
-        [NonSerialized]
-        private string filePath = string.Empty;
-
-        /// <summary>
-        /// Contains replenishment settings drive letter, path and file name.
-        /// </summary>
-        [NonSerialized]
-        private string fileASCIIZ = string.Empty;
-
-        /// <summary>
-        /// Contains replenishment settings file name.
-        /// </summary>
-        [NonSerialized]
-        private string fileName = "dMobileReplenishmentSettings.xml";
-
-        /// <summary>
-        /// Contains currently filtered replenishment type.
-        /// </summary>
-        private SysCommon.ReplenishmentTypes replenishmentType = SysCommon.ReplenishmentTypes.Manual;
-
-        /// <summary>
-        /// Contains if the currently select adjustment type filter applied or enabled.
-        /// </summary>
-        private bool isApplyReplenishmentType = false;
-
-        /// <summary>
-        /// Contains first sort option selected index.
-        /// </summary>
-        private int sortBy1Index = 0;
-
-        /// <summary>
-        /// Contains first sort option selected index value.
-        /// </summary>
-        private Sort sortBy1Value = new Sort() { SortValue = "ActivityItemFKRefno", SortOrder = SortOrder.ASC };
-
-        /////// <summary>
-        /////// Contains second sort option selected index.
-        /////// </summary>
-        ////private int sortBy2Index = -1;
-
-        /////// <summary>
-        /////// Contains second sort option selected index value.
-        /////// </summary>
-        ////private Sort sortBy2Value = null;
-
-        /////// <summary>
-        /////// Contains third sort option selected index.
-        /////// </summary>
-        ////private int sortBy3Index = -1;
-
-        /////// <summary>
-        /////// Contains third sort option selected index value.
-        /////// </summary>
-        ////private Sort sortBy3Value = null;
-
-        // CONSTRUCTORS
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="ReplenishmentSettings"/> class.
         /// </summary>
         public ReplenishmentSettings()
@@ -105,43 +39,25 @@ namespace dMobile.Bedrock.Settings
             this.FileASCIIZ = Path.Combine(this.FilePath, this.FileName);
         }
 
-        // PROPERTIES
-
         /// <summary>
         /// Gets or sets a value indicating whether the flag to apply replenishment type filter.
         /// </summary>
-        public bool IsApplyReplenishmentType
-        {
-            get => this.isApplyReplenishmentType;
-            set => this.isApplyReplenishmentType = value;
-        }
+        public bool IsApplyReplenishmentType { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether the replenishment type filter.
         /// </summary>
-        public SysCommon.ReplenishmentTypes ReplenishmentType
-        {
-            get => this.ReplenishmentType;
-            set => this.ReplenishmentType = value;
-        }
+        public SysCommon.ReplenishmentTypes ReplenishmentType { get; set; } = SysCommon.ReplenishmentTypes.Manual;
 
         /// <summary>
         /// Gets or sets the class name to serialize.
         /// </summary>
-        public string FullClassName
-        {
-            get => this.fullClassName;
-            set => this.fullClassName = value;
-        }
+        public string FullClassName { get; set; } = "dMobile.ReplenishmentSettings";
 
         /// <summary>
         /// Gets or sets the path name of the xml file.
         /// </summary>
-        public string FilePath
-        {
-            get => this.filePath;
-            set => this.filePath = value;
-        }
+        public string FilePath { get; set; } = string.Empty;
 
         /// <summary>
         /// Gets or sets the full path and file name of the xml file.
@@ -149,11 +65,7 @@ namespace dMobile.Bedrock.Settings
         /// <remarks>
         /// Includes the drive letter, path and file name.
         /// </remarks>
-        public string FileASCIIZ
-        {
-            get => this.fileASCIIZ;
-            set => this.fileASCIIZ = value;
-        }
+        public string FileASCIIZ { get; set; } = string.Empty;
 
         /// <summary>
         /// Gets or sets the file name of the xml file.
@@ -161,29 +73,17 @@ namespace dMobile.Bedrock.Settings
         /// <remarks>
         /// Does not include any path information.
         /// </remarks>
-        public string FileName
-        {
-            get => this.fileName;
-            set => this.fileName = value;
-        }
+        public string FileName { get; set; } = "dMobileReplenishmentSettings.xml";
 
         /// <summary>
         /// Gets or sets the first sort by index.
         /// </summary>
-        public int SortBy1Index
-        {
-            get => this.sortBy1Index;
-            set => this.sortBy1Index = value;
-        }
+        public int SortBy1Index { get; set; } = 0;
 
         /// <summary>
         /// Gets or sets the first sort by value.
         /// </summary>
-        public Sort SortBy1Value
-        {
-            get => this.sortBy1Value;
-            set => this.sortBy1Value = value;
-        }
+        public Sort SortBy1Value { get; set; } = new Sort() { SortValue = "ActivityItemFKRefno", SortOrder = SortOrder.ASC };
 
         // METHODS
 
@@ -193,11 +93,10 @@ namespace dMobile.Bedrock.Settings
         /// <returns>Sort by data view expression.</returns>
         public List<Sort> GetDataViewSortBy()
         {
-            var sortBy = new List<Sort>();
-
-            sortBy.Add(this.SortBy1Value);
-
-            return sortBy;
+            return new List<Sort>
+            {
+                this.SortBy1Value
+            };
         }
 
         /// <summary>
@@ -213,16 +112,16 @@ namespace dMobile.Bedrock.Settings
 
                 // use reflection to get the current assembly path for the database
                 var appDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
-                var fullPathToMyFile = Path.Combine(appDir, this.FileName);
+                var settingsFileName = Path.Combine(appDir, this.FileName);
 
-                if (!File.Exists(fullPathToMyFile))
+                if (!File.Exists(settingsFileName))
                 {
                     this.SaveData(ref settings);
                 }
 
                 // Create a FileStream to read with.
                 using (var reader = new FileStream(
-                    fullPathToMyFile,
+                    settingsFileName,
                     FileMode.Open,
                     FileAccess.Read,
                     FileShare.Read))
@@ -251,11 +150,11 @@ namespace dMobile.Bedrock.Settings
                 {
                     // use reflection to get the current assembly path for the database
                     var appDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
-                    var fullPathToMyFile = Path.Combine(appDir, this.FileName);
+                    var settingsFileName = Path.Combine(appDir, this.FileName);
 
                     // Create a FileStream to write with.
                     using (var writer = new FileStream(
-                        fullPathToMyFile,
+                        settingsFileName,
                         FileMode.Create,
                         FileAccess.Write,
                         FileShare.None))

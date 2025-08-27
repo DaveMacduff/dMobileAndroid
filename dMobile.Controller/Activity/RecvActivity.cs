@@ -499,9 +499,9 @@ namespace dMobile.Controller.Activity
 
             if (recvSettings.IsApplyIssuedDateFilter)
             {
-                if (!SysCommon.IsEmptyDate(recvSettings.dtIssuedDateFilter))
+                if (!SysCommon.IsEmptyDate(recvSettings.IssuedDateFilter))
                 {
-                    var dt = recvSettings.dtIssuedDateFilter;
+                    var dt = recvSettings.IssuedDateFilter;
                     var minDate = new DateTime(dt.Year, dt.Month, dt.Day, 00, 00, 00);
                     var maxDate = new DateTime(dt.Year, dt.Month, dt.Day, 23, 59, 59);
 
@@ -512,9 +512,9 @@ namespace dMobile.Controller.Activity
 
             if (recvSettings.IsApplyArrivalDateFilter)
             {
-                if (!SysCommon.IsEmptyDate(recvSettings.dtArrivalDateFilter))
+                if (!SysCommon.IsEmptyDate(recvSettings.ArrivalDateFilter))
                 {
-                    var dt = recvSettings.dtArrivalDateFilter;
+                    var dt = recvSettings.ArrivalDateFilter;
                     var minDate = new DateTime(dt.Year, dt.Month, dt.Day, 00, 00, 00);
                     var maxDate = new DateTime(dt.Year, dt.Month, dt.Day, 23, 59, 59);
 

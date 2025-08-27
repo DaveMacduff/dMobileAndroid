@@ -202,16 +202,16 @@ namespace dMobile.Bedrock.Settings
 
                 // use reflection to get the current assembly path for the database
                 var appDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
-                var fullPathToMyFile = Path.Combine(appDir, this.FileName);
+                var settingsFileName = Path.Combine(appDir, this.FileName);
 
-                if (!File.Exists(fullPathToMyFile))
+                if (!File.Exists(settingsFileName))
                 {
                     this.SaveData(ref adjustmentSettings);
                 }
 
                 // Create a FileStream to read with.
                 using (var reader = new FileStream(
-                    fullPathToMyFile,
+                    settingsFileName,
                     FileMode.Open,
                     FileAccess.Read,
                     FileShare.Read))
@@ -240,11 +240,11 @@ namespace dMobile.Bedrock.Settings
                 {
                     // use reflection to get the current assembly path for the database
                     var appDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
-                    var fullPathToMyFile = Path.Combine(appDir, this.FileName);
+                    var settingsFileName = Path.Combine(appDir, this.FileName);
 
                     // Create a FileStream to write with.
                     using (var writer = new FileStream(
-                        fullPathToMyFile,
+                        settingsFileName,
                         FileMode.Create,
                         FileAccess.Write,
                         FileShare.None))

@@ -101,15 +101,15 @@ namespace dMobile.Bedrock
 
             // use reflection to get the current assembly path for the database
             var appDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
-            var fullPathToMyFile = Path.Combine(appDir, this.fileName);
+            var settingsFileName = Path.Combine(appDir, this.fileName);
 
-            if (!File.Exists(fullPathToMyFile))
+            if (!File.Exists(settingsFileName))
             {
                 this.SaveData(ref refreshDataOptions);
             }
 
             // Create a FileStream to read with.
-            using var reader = new FileStream(fullPathToMyFile, FileMode.Open);
+            using var reader = new FileStream(settingsFileName, FileMode.Open);
 
             // Deserialize the stream to the object, and close the TextReader
             refreshDataOptions = (RefreshDataOptions)serializer.Deserialize(reader);
@@ -131,10 +131,10 @@ namespace dMobile.Bedrock
             {
                 // use reflection to get the current assembly path for the database
                 var appDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
-                var fullPathToMyFile = Path.Combine(appDir, this.fileName);
+                var settingsFileName = Path.Combine(appDir, this.fileName);
 
                 // Create a FileStream to write with.
-                using (var writer = new FileStream(fullPathToMyFile, FileMode.Create))
+                using (var writer = new FileStream(settingsFileName, FileMode.Create))
                 {
                     // Serialize the object, and close the TextWriter
                     serializer.Serialize(writer, options);

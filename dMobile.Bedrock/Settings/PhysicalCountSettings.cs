@@ -113,16 +113,16 @@ namespace dMobile.Bedrock.Settings
                 var settings = new PhysicalCountSettings();
 
                 // use reflection to get the current assembly path for the database
-                var strAppDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
-                var strFullPathToMyFile = Path.Combine(strAppDir, this.FileName);
+                var appDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
+                var settingsFileName = Path.Combine(appDir, this.FileName);
 
-                if (!File.Exists(strFullPathToMyFile))
+                if (!File.Exists(settingsFileName))
                 {
                     this.SaveData(ref settings);
                 }
 
                 // Create a FileStream to read with.
-                using (var reader = new FileStream(strFullPathToMyFile, FileMode.Open, FileAccess.Read, FileShare.Read))
+                using (var reader = new FileStream(settingsFileName, FileMode.Open, FileAccess.Read, FileShare.Read))
                 {
                     // Deserialize the stream to the object, and close the TextReader
                     settings = (PhysicalCountSettings)serializer.Deserialize(reader);
@@ -142,29 +142,29 @@ namespace dMobile.Bedrock.Settings
             lock (this.writeLockObject)
             {
                 var serializer = new XmlSerializer(typeof(PhysicalCountSettings));
-                var bSaveComplete = false;
+                var saveComplete = false;
 
                 try
                 {
                     // use reflection to get the current assembly path for the database
-                    var strAppDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
-                    var strFullPathToMyFile = Path.Combine(strAppDir, this.FileName);
+                    var appDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
+                    var settingsFileName = Path.Combine(appDir, this.FileName);
 
                     // Create a FileStream to write with.
-                    using (var writer = new FileStream(strFullPathToMyFile, FileMode.Create, FileAccess.Write, FileShare.None))
+                    using (var writer = new FileStream(settingsFileName, FileMode.Create, FileAccess.Write, FileShare.None))
                     {
                         // Serialize the object, and close the TextWriter
                         serializer.Serialize(writer, settings);
                     }
 
-                    bSaveComplete = true;
+                    saveComplete = true;
                 }
                 catch
                 {
-                    bSaveComplete = false;
+                    saveComplete = false;
                 }
 
-                return bSaveComplete;
+                return saveComplete;
             }
         }
     }

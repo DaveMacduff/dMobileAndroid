@@ -220,8 +220,8 @@ namespace dMobile.View.Options
                 if (!await this.IsReadyToClose())
                 {
                     this.LoadData();
-                    this.cboActivitySubType.SelectedIndex = this.SubmitBatchSettings.iActivitySubTypeIdx;
-                    this.cboActivityStatus.SelectedIndex = this.SubmitBatchSettings.iActivityStatusIdx;
+                    this.cboActivitySubType.SelectedIndex = this.SubmitBatchSettings.ActivitySubTypeIdx;
+                    this.cboActivityStatus.SelectedIndex = this.SubmitBatchSettings.ActivityStatusIdx;
                     cancelChanges = false;
                     this.IsChangesMade = false;
                 }
@@ -271,8 +271,8 @@ namespace dMobile.View.Options
             var request = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                 + "<params>"
-                + "<activity_status>" + (int)this.SubmitBatchSettings.eActivityStatus + "</activity_status>"
-                + "<activity_subtype>" + (int)this.SubmitBatchSettings.eActivitySubType + "</activity_subtype>"
+                + "<activity_status>" + (int)this.SubmitBatchSettings.ActivityStatus + "</activity_status>"
+                + "<activity_subtype>" + (int)this.SubmitBatchSettings.ActivitySubType + "</activity_subtype>"
                 + "</params>");
 
             return Task.FromResult(request);
@@ -385,12 +385,12 @@ namespace dMobile.View.Options
                 if (await this.IsReadyToSave())
                 {
                     // this.SubmitBatchSettings.eActivitySubType = (SysCommon.ActSubTypes)(Convert.ToInt32(((ComboBoxMembers)(this.cboActivitySubType.Items[this.cboActivitySubType.SelectedIndex])).ValueMember));
-                    this.SubmitBatchSettings.eActivitySubType = (SysCommon.ActSubTypes)Convert.ToInt32(this.subTypeFilters[this.cboActivitySubType.Items[this.cboActivitySubType.SelectedIndex]]);
-                    this.SubmitBatchSettings.iActivitySubTypeIdx = this.cboActivitySubType.SelectedIndex;
+                    this.SubmitBatchSettings.ActivitySubType = (SysCommon.ActSubTypes)Convert.ToInt32(this.subTypeFilters[this.cboActivitySubType.Items[this.cboActivitySubType.SelectedIndex]]);
+                    this.SubmitBatchSettings.ActivitySubTypeIdx = this.cboActivitySubType.SelectedIndex;
 
                     // this.SubmitBatchSettings.eActivityStatus = (SysCommon.ActStatus)(Convert.ToInt32(((ComboBoxMembers)(this.cboActivityStatus.Items[this.cboActivityStatus.SelectedIndex])).ValueMember));
-                    this.SubmitBatchSettings.eActivityStatus = (SysCommon.ActStatus)Convert.ToInt32(this.statusFilters[this.cboActivityStatus.Items[this.cboActivityStatus.SelectedIndex]]);
-                    this.SubmitBatchSettings.iActivityStatusIdx = this.cboActivityStatus.SelectedIndex;
+                    this.SubmitBatchSettings.ActivityStatus = (SysCommon.ActStatus)Convert.ToInt32(this.statusFilters[this.cboActivityStatus.Items[this.cboActivityStatus.SelectedIndex]]);
+                    this.SubmitBatchSettings.ActivityStatusIdx = this.cboActivityStatus.SelectedIndex;
 
                     var tempBatchSettings = this.SubmitBatchSettings;
                     _ = this.SubmitBatchSettings.SaveData(ref tempBatchSettings);
@@ -440,8 +440,8 @@ namespace dMobile.View.Options
                 this.LoadData();
             }
 
-            this.cboActivitySubType.SelectedIndex = this.SubmitBatchSettings.iActivitySubTypeIdx;
-            this.cboActivityStatus.SelectedIndex = this.SubmitBatchSettings.iActivityStatusIdx;
+            this.cboActivitySubType.SelectedIndex = this.SubmitBatchSettings.ActivitySubTypeIdx;
+            this.cboActivityStatus.SelectedIndex = this.SubmitBatchSettings.ActivityStatusIdx;
         }
 
         /// <summary>

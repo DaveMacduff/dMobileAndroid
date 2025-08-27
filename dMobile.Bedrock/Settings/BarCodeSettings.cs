@@ -455,15 +455,15 @@ namespace dMobile.Bedrock.Settings
 
                 // use reflection to get the current assembly path for the database
                 var appDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
-                var fullPathToMyFile = Path.Combine(appDir, this.FileName);
+                var settingsFileName = Path.Combine(appDir, this.FileName);
 
-                if (!File.Exists(fullPathToMyFile))
+                if (!File.Exists(settingsFileName))
                 {
                     this.SaveData(ref barCodeSettings);
                 }
 
                 // Create a FileStream to read with.
-                using (var reader = new FileStream(fullPathToMyFile, FileMode.Open, FileAccess.Read, FileShare.Read))
+                using (var reader = new FileStream(settingsFileName, FileMode.Open, FileAccess.Read, FileShare.Read))
                 {
                     // Deserialize the stream to the object, and close the TextReader
                     barCodeSettings = (BarCodeSettings)serializer.Deserialize(reader);
@@ -489,11 +489,11 @@ namespace dMobile.Bedrock.Settings
                 {
                     // use reflection to get the current assembly path for the database
                     var appDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
-                    var fullPathToMyFile = Path.Combine(appDir, this.FileName);
+                    var settingsFileName = Path.Combine(appDir, this.FileName);
 
                     // Create a FileStream to write with.
                     using (var writer = new FileStream(
-                        fullPathToMyFile,
+                        settingsFileName,
                         FileMode.Create,
                         FileAccess.Write,
                         FileShare.None))

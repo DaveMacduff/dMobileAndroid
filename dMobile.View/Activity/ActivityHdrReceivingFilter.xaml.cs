@@ -53,7 +53,7 @@ namespace dMobile.View.Activity
                 _ = this.aSortBy1.Add("Arrival Descending");
 
                 this.cboSortBy1.ItemsSource = this.aSortBy1;
-                this.cboSortBy1.SelectedIndex = this.RecvSettings.iSortBy1Index;
+                this.cboSortBy1.SelectedIndex = this.RecvSettings.SortBy1Index;
 
                 this.aSortBy2.Clear();
                 _ = this.aSortBy2.Add(string.Empty);
@@ -65,7 +65,7 @@ namespace dMobile.View.Activity
                 _ = this.aSortBy2.Add("Arrival Descending");
 
                 this.cboSortBy2.ItemsSource = this.aSortBy2;
-                this.cboSortBy2.SelectedIndex = this.RecvSettings.iSortBy2Index;
+                this.cboSortBy2.SelectedIndex = this.RecvSettings.SortBy2Index;
 
                 this.aSortBy3.Clear();
                 _ = this.aSortBy3.Add(string.Empty);
@@ -77,7 +77,7 @@ namespace dMobile.View.Activity
                 _ = this.aSortBy3.Add("Arrival Descending");
 
                 this.cboSortBy3.ItemsSource = this.aSortBy3;
-                this.cboSortBy3.SelectedIndex = this.RecvSettings.iSortBy3Index;
+                this.cboSortBy3.SelectedIndex = this.RecvSettings.SortBy3Index;
 
                 this.filters.Add(string.Empty, null);
                 this.filters.Add("Purchase Order # Ascending", new Sort
@@ -165,21 +165,21 @@ namespace dMobile.View.Activity
                 {
                     if (this.chkApplyArrivalDate.IsToggled)
                     {
-                        this.RecvSettings.dtArrivalDateFilter = this.dtpArrivalDate.Date;
+                        this.RecvSettings.ArrivalDateFilter = this.dtpArrivalDate.Date;
                     }
 
                     this.RecvSettings.IsApplyArrivalDateFilter = this.chkApplyArrivalDate.IsToggled;
 
                     if (this.chkApplyIssuedDate.IsToggled)
                     {
-                        this.RecvSettings.dtIssuedDateFilter = this.dtpIssuedDate.Date;
+                        this.RecvSettings.IssuedDateFilter = this.dtpIssuedDate.Date;
                     }
 
                     this.RecvSettings.IsApplyIssuedDateFilter = this.chkApplyIssuedDate.IsToggled;
 
-                    this.RecvSettings.iSortBy1Index = this.cboSortBy1.SelectedIndex;
-                    this.RecvSettings.iSortBy2Index = this.cboSortBy2.SelectedIndex;
-                    this.RecvSettings.iSortBy3Index = this.cboSortBy3.SelectedIndex;
+                    this.RecvSettings.SortBy1Index = this.cboSortBy1.SelectedIndex;
+                    this.RecvSettings.SortBy2Index = this.cboSortBy2.SelectedIndex;
+                    this.RecvSettings.SortBy3Index = this.cboSortBy3.SelectedIndex;
                     this.MakeSQLSortBy();
 
                     var tempRecvSettings = this.RecvSettings;
@@ -219,14 +219,14 @@ namespace dMobile.View.Activity
                     this.LoadData();
 
                     this.chkApplyArrivalDate.IsToggled = this.RecvSettings.IsApplyArrivalDateFilter;
-                    this.dtpArrivalDate.Date = this.RecvSettings.dtArrivalDateFilter;
+                    this.dtpArrivalDate.Date = this.RecvSettings.ArrivalDateFilter;
 
                     this.chkApplyIssuedDate.IsToggled = this.RecvSettings.IsApplyIssuedDateFilter;
-                    this.dtpIssuedDate.Date = this.RecvSettings.dtIssuedDateFilter;
+                    this.dtpIssuedDate.Date = this.RecvSettings.IssuedDateFilter;
 
-                    this.cboSortBy1.SelectedIndex = this.RecvSettings.iSortBy1Index;
-                    this.cboSortBy2.SelectedIndex = this.RecvSettings.iSortBy2Index;
-                    this.cboSortBy3.SelectedIndex = this.RecvSettings.iSortBy3Index;
+                    this.cboSortBy1.SelectedIndex = this.RecvSettings.SortBy1Index;
+                    this.cboSortBy2.SelectedIndex = this.RecvSettings.SortBy2Index;
+                    this.cboSortBy3.SelectedIndex = this.RecvSettings.SortBy3Index;
                     this.MakeSQLSortBy();
 
                     bCancelChanges = false;
@@ -250,9 +250,9 @@ namespace dMobile.View.Activity
         {
             var request = XDocument.Parse("<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" +
                                           "<params>" +
-                                          "<arrival_date>" + this.RecvSettings.dtArrivalDateFilter.ToShortDateString() +
+                                          "<arrival_date>" + this.RecvSettings.ArrivalDateFilter.ToShortDateString() +
                                           "</arrival_date>" +
-                                          "<issued_date>" + this.RecvSettings.dtIssuedDateFilter.ToShortDateString() +
+                                          "<issued_date>" + this.RecvSettings.IssuedDateFilter.ToShortDateString() +
                                           "</issued_date>" +
                                           "<sortby>" + this.strSQLSortBy + "</sortby>" +
                                           "</params>");
@@ -383,14 +383,14 @@ namespace dMobile.View.Activity
         {
             this.RecvSettings = this.RecvSettings.LoadData();
 
-            if (SysCommon.IsEmptyDate(this.RecvSettings.dtArrivalDateFilter))
+            if (SysCommon.IsEmptyDate(this.RecvSettings.ArrivalDateFilter))
             {
-                this.RecvSettings.dtArrivalDateFilter = DateTime.Now;
+                this.RecvSettings.ArrivalDateFilter = DateTime.Now;
             }
 
-            if (SysCommon.IsEmptyDate(this.RecvSettings.dtIssuedDateFilter))
+            if (SysCommon.IsEmptyDate(this.RecvSettings.IssuedDateFilter))
             {
-                this.RecvSettings.dtIssuedDateFilter = DateTime.Now;
+                this.RecvSettings.IssuedDateFilter = DateTime.Now;
             }
         }
 
@@ -419,14 +419,14 @@ namespace dMobile.View.Activity
                 await Device.InvokeOnMainThreadAsync(() =>
                 {
                     this.chkApplyArrivalDate.IsToggled = this.RecvSettings.IsApplyArrivalDateFilter;
-                    this.dtpArrivalDate.Date = this.RecvSettings.dtArrivalDateFilter;
+                    this.dtpArrivalDate.Date = this.RecvSettings.ArrivalDateFilter;
 
                     this.chkApplyIssuedDate.IsToggled = this.RecvSettings.IsApplyIssuedDateFilter;
-                    this.dtpIssuedDate.Date = this.RecvSettings.dtIssuedDateFilter;
+                    this.dtpIssuedDate.Date = this.RecvSettings.IssuedDateFilter;
 
-                    this.cboSortBy1.SelectedIndex = this.RecvSettings.iSortBy1Index;
-                    this.cboSortBy2.SelectedIndex = this.RecvSettings.iSortBy2Index;
-                    this.cboSortBy3.SelectedIndex = this.RecvSettings.iSortBy3Index;
+                    this.cboSortBy1.SelectedIndex = this.RecvSettings.SortBy1Index;
+                    this.cboSortBy2.SelectedIndex = this.RecvSettings.SortBy2Index;
+                    this.cboSortBy3.SelectedIndex = this.RecvSettings.SortBy3Index;
                 });
             });
         }

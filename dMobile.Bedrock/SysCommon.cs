@@ -1486,9 +1486,9 @@ namespace dMobile.Bedrock
             // Next
             // strClassName.Remove(strClassName.Length - 1, 1)
 
-            // Dim strAppDir As String = Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetName().CodeBase)
-            // Dim strFullPathToMyFile As String = Path.Combine(strAppDir, "dMobileResource02.wav")
-            // Dim oSnd As SysSound = New SysSound(strFullPathToMyFile)
+            // Dim appDir As String = Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetName().CodeBase)
+            // Dim settingsFileName As String = Path.Combine(appDir, "dMobileResource02.wav")
+            // Dim oSnd As SysSound = New SysSound(settingsFileName)
             // oSnd.Play()
             var result = false;
 
