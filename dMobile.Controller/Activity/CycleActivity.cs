@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using dMobile.Bedrock;
+using dMobile.Bedrock.Settings;
 using dMobile.GroundWork;
 using dMobile.Resources.Services;
 using dMobile.Resources.Types.Headers;
@@ -398,9 +399,9 @@ namespace dMobile.Controller.Activity
 
             if (this.CycleCountSettings.IsApplyCountDate)
             {
-                if (!SysCommon.IsEmptyDate(cycleSettings.dtCountDate))
+                if (!SysCommon.IsEmptyDate(cycleSettings.CountDate))
                 {
-                    var dt = cycleSettings.dtCountDate;
+                    var dt = cycleSettings.CountDate;
                     var minDate = new DateTime(dt.Year, dt.Month, dt.Day, 00, 00, 00);
                     var maxDate = new DateTime(dt.Year, dt.Month, dt.Day, 23, 59, 59);
 

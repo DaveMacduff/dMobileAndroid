@@ -12,6 +12,7 @@ namespace dMobile.View.Activity
     using Android.Views;
     using Bedrock;
     using CustomPages.Modal;
+    using dMobile.Bedrock.Settings;
     using Forms;
     using Resources.Enums;
     using Resources.Types;
@@ -47,7 +48,7 @@ namespace dMobile.View.Activity
             _ = this.SortBy1.Add("Count Date Ascending");
             _ = this.SortBy1.Add("Count Date Descending");
             this.cboSortBy1.ItemsSource = this.SortBy1;
-            this.cboSortBy1.SelectedIndex = this.CountSettings.iSortBy1Index;
+            this.cboSortBy1.SelectedIndex = this.CountSettings.SortBy1Index;
 
             this.SortBy2.Clear();
             _ = this.SortBy2.Add(string.Empty);
@@ -56,7 +57,7 @@ namespace dMobile.View.Activity
             _ = this.SortBy2.Add("Count Date Ascending");
             _ = this.SortBy2.Add("Count Date Descending");
             this.cboSortBy2.ItemsSource = this.SortBy2;
-            this.cboSortBy2.SelectedIndex = this.CountSettings.iSortBy2Index;
+            this.cboSortBy2.SelectedIndex = this.CountSettings.SortBy2Index;
 
             this.filters.Add(string.Empty, null);
             this.filters.Add("Count # Ascending", new Sort
@@ -152,13 +153,13 @@ namespace dMobile.View.Activity
                 {
                     if (this.chkApplyCountDate.IsToggled)
                     {
-                        this.CountSettings.dtCountDate = this.dtpCountDate.Date;
+                        this.CountSettings.CountDate = this.dtpCountDate.Date;
                     }
 
                     this.CountSettings.IsApplyCountDate = this.chkApplyCountDate.IsToggled;
 
-                    this.CountSettings.iSortBy1Index = this.cboSortBy1.SelectedIndex;
-                    this.CountSettings.iSortBy2Index = this.cboSortBy2.SelectedIndex;
+                    this.CountSettings.SortBy1Index = this.cboSortBy1.SelectedIndex;
+                    this.CountSettings.SortBy2Index = this.cboSortBy2.SelectedIndex;
 
                     this.MakeSQLSortBy();
 
@@ -203,11 +204,11 @@ namespace dMobile.View.Activity
                 {
                     this.LoadData();
 
-                    this.dtpCountDate.Date = this.CountSettings.dtCountDate;
+                    this.dtpCountDate.Date = this.CountSettings.CountDate;
                     this.chkApplyCountDate.IsToggled = this.CountSettings.IsApplyCountDate;
 
-                    this.cboSortBy1.SelectedIndex = this.CountSettings.iSortBy1Index;
-                    this.cboSortBy2.SelectedIndex = this.CountSettings.iSortBy2Index;
+                    this.cboSortBy1.SelectedIndex = this.CountSettings.SortBy1Index;
+                    this.cboSortBy2.SelectedIndex = this.CountSettings.SortBy2Index;
                     this.MakeSQLSortBy();
 
                     cancelChanges = false;
@@ -238,7 +239,7 @@ namespace dMobile.View.Activity
             var request = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" +
                 "<params>" +
-                "<count_date>" + this.CountSettings.dtCountDate.ToShortDateString() + "</count_date>" +
+                "<count_date>" + this.CountSettings.CountDate.ToShortDateString() + "</count_date>" +
                 "<sortby>" + this.SQLSortBy + "</sortby>" +
                 "</params>");
 
@@ -344,10 +345,10 @@ namespace dMobile.View.Activity
             }
 
             this.chkApplyCountDate.IsToggled = this.CountSettings.IsApplyCountDate;
-            this.dtpCountDate.Date = this.CountSettings.dtCountDate;
+            this.dtpCountDate.Date = this.CountSettings.CountDate;
 
-            this.cboSortBy1.SelectedIndex = this.CountSettings.iSortBy1Index;
-            this.cboSortBy2.SelectedIndex = this.CountSettings.iSortBy2Index;
+            this.cboSortBy1.SelectedIndex = this.CountSettings.SortBy1Index;
+            this.cboSortBy2.SelectedIndex = this.CountSettings.SortBy2Index;
         }
 
         /// <summary>
@@ -410,9 +411,9 @@ namespace dMobile.View.Activity
             this.CountSettings = this.CountSettings.LoadData();
 
             // default count date to today's date if it is empty
-            if (SysCommon.IsEmptyDate(this.CountSettings.dtCountDate))
+            if (SysCommon.IsEmptyDate(this.CountSettings.CountDate))
             {
-                this.CountSettings.dtCountDate = DateTime.Now;
+                this.CountSettings.CountDate = DateTime.Now;
             }
 
             this.IsControlLoaded = true;

@@ -13,6 +13,7 @@ namespace dMobile.View.Activity
     using Android.Views;
     using Bedrock;
     using CustomPages.Modal;
+    using dMobile.Bedrock.Settings;
     using Forms;
     using Resources.Enums;
     using Resources.Models;
@@ -188,7 +189,7 @@ namespace dMobile.View.Activity
             {
                 if (await this.IsReadyToSave())
                 {
-                    this.PickSettings.iRouteCodeSelectedIndex = this.cboRoute.SelectedIndex;
+                    this.PickSettings.RouteCodeSelectedIndex = this.cboRoute.SelectedIndex;
 
                     if (this.chkApplyRouteCode.IsToggled && this.cboRoute.SelectedIndex >= 0)
                     {
@@ -196,33 +197,33 @@ namespace dMobile.View.Activity
 
                         if (selectedItem != null && !string.IsNullOrEmpty(selectedItem.RouteCode))
                         {
-                            this.PickSettings.strRouteCodeSelectedValue = Convert.ToString(selectedItem.RouteCode);
+                            this.PickSettings.RouteCodeSelectedValue = Convert.ToString(selectedItem.RouteCode);
                         }
                     }
                     else
                     {
-                        this.PickSettings.iRouteCodeSelectedIndex = -1;
-                        this.PickSettings.strRouteCodeSelectedValue = string.Empty;
+                        this.PickSettings.RouteCodeSelectedIndex = -1;
+                        this.PickSettings.RouteCodeSelectedValue = string.Empty;
                     }
 
                     if (this.chkApplyDeliveryDate.IsToggled)
                     {
-                        this.PickSettings.dtDeliveryDateFilter = this.dtpDeliveryDate.Date;
+                        this.PickSettings.DeliveryDateFilter = this.dtpDeliveryDate.Date;
                     }
 
                     if (this.chkApplyOrderedDate.IsToggled)
                     {
-                        this.PickSettings.dtOrderedDateFilter = this.dtpOrderedDate.Date;
+                        this.PickSettings.OrderedDateFilter = this.dtpOrderedDate.Date;
                     }
 
                     this.PickSettings.IsApplyRouteCodeFilter = this.chkApplyRouteCode.IsToggled;
                     this.PickSettings.IsApplyDeliveryDateFilter = this.chkApplyDeliveryDate.IsToggled;
                     this.PickSettings.IsApplyOrderedDateFilter = this.chkApplyOrderedDate.IsToggled;
 
-                    this.PickSettings.iSortBy1Index = this.cboSortBy1.SelectedIndex;
-                    this.PickSettings.iSortBy2Index = this.cboSortBy2.SelectedIndex;
-                    this.PickSettings.iSortBy3Index = this.cboSortBy3.SelectedIndex;
-                    this.PickSettings.iSortBy4Index = this.cboSortBy4.SelectedIndex;
+                    this.PickSettings.SortBy1Index = this.cboSortBy1.SelectedIndex;
+                    this.PickSettings.SortBy2Index = this.cboSortBy2.SelectedIndex;
+                    this.PickSettings.SortBy3Index = this.cboSortBy3.SelectedIndex;
+                    this.PickSettings.SortBy4Index = this.cboSortBy4.SelectedIndex;
                     this.MakeSQLSortBy();
 
                     var tempPickSettings = this.PickSettings;
@@ -279,19 +280,19 @@ namespace dMobile.View.Activity
                     await this.LoadData();
 
                     this.chkApplyRouteCode.IsToggled = this.PickSettings.IsApplyRouteCodeFilter;
-                    this.cboRoute.SelectedIndex = this.PickSettings.iRouteCodeSelectedIndex;
-                    this.cboRoute.SelectedItem = this.PickSettings.strRouteCodeSelectedValue;
+                    this.cboRoute.SelectedIndex = this.PickSettings.RouteCodeSelectedIndex;
+                    this.cboRoute.SelectedItem = this.PickSettings.RouteCodeSelectedValue;
 
                     this.chkApplyDeliveryDate.IsToggled = this.PickSettings.IsApplyDeliveryDateFilter;
-                    this.dtpDeliveryDate.Date = this.PickSettings.dtDeliveryDateFilter;
+                    this.dtpDeliveryDate.Date = this.PickSettings.DeliveryDateFilter;
 
                     this.chkApplyOrderedDate.IsToggled = this.PickSettings.IsApplyOrderedDateFilter;
-                    this.dtpOrderedDate.Date = this.PickSettings.dtOrderedDateFilter;
+                    this.dtpOrderedDate.Date = this.PickSettings.OrderedDateFilter;
 
-                    this.cboSortBy1.SelectedIndex = this.PickSettings.iSortBy1Index;
-                    this.cboSortBy2.SelectedIndex = this.PickSettings.iSortBy2Index;
-                    this.cboSortBy3.SelectedIndex = this.PickSettings.iSortBy3Index;
-                    this.cboSortBy4.SelectedIndex = this.PickSettings.iSortBy4Index;
+                    this.cboSortBy1.SelectedIndex = this.PickSettings.SortBy1Index;
+                    this.cboSortBy2.SelectedIndex = this.PickSettings.SortBy2Index;
+                    this.cboSortBy3.SelectedIndex = this.PickSettings.SortBy3Index;
+                    this.cboSortBy4.SelectedIndex = this.PickSettings.SortBy4Index;
                     this.MakeSQLSortBy();
 
                     cancelChanges = false;
@@ -347,9 +348,9 @@ namespace dMobile.View.Activity
             var request = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                 + "<params>"
-                + "<delivery_date>" + this.PickSettings.dtDeliveryDateFilter.ToShortDateString() + "</delivery_date>"
-                + "<ordered_date>" + this.PickSettings.dtOrderedDateFilter.ToShortDateString() + "</ordered_date>"
-                + "<route_code>" + this.PickSettings.strRouteCodeSelectedValue + "</route_code>"
+                + "<delivery_date>" + this.PickSettings.DeliveryDateFilter.ToShortDateString() + "</delivery_date>"
+                + "<ordered_date>" + this.PickSettings.OrderedDateFilter.ToShortDateString() + "</ordered_date>"
+                + "<route_code>" + this.PickSettings.RouteCodeSelectedValue + "</route_code>"
                 + "<sortby>" + this.SQLSortBy + "</sortby>"
                 + "</params>");
 
@@ -400,7 +401,7 @@ namespace dMobile.View.Activity
                         _ = this.SortBy1.Add("Delivery Descending");
 
                         this.cboSortBy1.ItemsSource = this.SortBy1;
-                        this.cboSortBy1.SelectedIndex = this.PickSettings.iSortBy1Index;
+                        this.cboSortBy1.SelectedIndex = this.PickSettings.SortBy1Index;
 
                         this.SortBy2.Clear();
                         _ = this.SortBy2.Add(string.Empty);
@@ -414,7 +415,7 @@ namespace dMobile.View.Activity
                         _ = this.SortBy2.Add("Delivery Descending");
 
                         this.cboSortBy2.ItemsSource = this.SortBy2;
-                        this.cboSortBy2.SelectedIndex = this.PickSettings.iSortBy2Index;
+                        this.cboSortBy2.SelectedIndex = this.PickSettings.SortBy2Index;
 
                         this.SortBy3.Clear();
                         _ = this.SortBy3.Add(string.Empty);
@@ -428,7 +429,7 @@ namespace dMobile.View.Activity
                         _ = this.SortBy3.Add("Delivery Descending");
 
                         this.cboSortBy3.ItemsSource = this.SortBy3;
-                        this.cboSortBy3.SelectedIndex = this.PickSettings.iSortBy3Index;
+                        this.cboSortBy3.SelectedIndex = this.PickSettings.SortBy3Index;
 
                         this.SortBy4.Clear();
                         _ = this.SortBy4.Add(string.Empty);
@@ -442,7 +443,7 @@ namespace dMobile.View.Activity
                         _ = this.SortBy4.Add("Delivery Descending");
 
                         this.cboSortBy4.ItemsSource = this.SortBy4;
-                        this.cboSortBy4.SelectedIndex = this.PickSettings.iSortBy4Index;
+                        this.cboSortBy4.SelectedIndex = this.PickSettings.SortBy4Index;
 
                         this.Filters.Add(string.Empty, null);
                         this.Filters.Add("Order # Ascending", new Sort
@@ -599,10 +600,10 @@ namespace dMobile.View.Activity
         {
             this.chkApplyRouteCode.IsToggled = this.PickSettings.IsApplyRouteCodeFilter;
 
-            if (this.PickSettings.iRouteCodeSelectedIndex >= 0 &&
-                this.PickSettings.iRouteCodeSelectedIndex < this.cboRoute.Items.Count)
+            if (this.PickSettings.RouteCodeSelectedIndex >= 0 &&
+                this.PickSettings.RouteCodeSelectedIndex < this.cboRoute.Items.Count)
             {
-                this.cboRoute.SelectedIndex = this.PickSettings.iRouteCodeSelectedIndex;
+                this.cboRoute.SelectedIndex = this.PickSettings.RouteCodeSelectedIndex;
             }
             else
             {
@@ -610,15 +611,15 @@ namespace dMobile.View.Activity
             }
 
             this.chkApplyDeliveryDate.IsToggled = this.PickSettings.IsApplyDeliveryDateFilter;
-            this.dtpDeliveryDate.Date = this.PickSettings.dtDeliveryDateFilter;
+            this.dtpDeliveryDate.Date = this.PickSettings.DeliveryDateFilter;
 
             this.chkApplyOrderedDate.IsToggled = this.PickSettings.IsApplyOrderedDateFilter;
-            this.dtpOrderedDate.Date = this.PickSettings.dtOrderedDateFilter;
+            this.dtpOrderedDate.Date = this.PickSettings.OrderedDateFilter;
 
-            this.cboSortBy1.SelectedIndex = this.PickSettings.iSortBy1Index;
-            this.cboSortBy2.SelectedIndex = this.PickSettings.iSortBy2Index;
-            this.cboSortBy3.SelectedIndex = this.PickSettings.iSortBy3Index;
-            this.cboSortBy4.SelectedIndex = this.PickSettings.iSortBy4Index;
+            this.cboSortBy1.SelectedIndex = this.PickSettings.SortBy1Index;
+            this.cboSortBy2.SelectedIndex = this.PickSettings.SortBy2Index;
+            this.cboSortBy3.SelectedIndex = this.PickSettings.SortBy3Index;
+            this.cboSortBy4.SelectedIndex = this.PickSettings.SortBy4Index;
         }
 
         /// <summary>
@@ -671,22 +672,22 @@ namespace dMobile.View.Activity
             this.PickSettings = this.PickSettings.LoadData();
 
             // Default route selection.
-            if (this.PickSettings.iRouteCodeSelectedIndex <= this.cboRoute.Items.Count)
+            if (this.PickSettings.RouteCodeSelectedIndex <= this.cboRoute.Items.Count)
             {
                 _ = await Device.InvokeOnMainThreadAsync(() =>
-                    this.cboRoute.SelectedIndex = this.PickSettings.iRouteCodeSelectedIndex);
+                    this.cboRoute.SelectedIndex = this.PickSettings.RouteCodeSelectedIndex);
             }
 
             // Default delivery date.
-            if (SysCommon.IsEmptyDate(this.PickSettings.dtDeliveryDateFilter))
+            if (SysCommon.IsEmptyDate(this.PickSettings.DeliveryDateFilter))
             {
-                _ = await Device.InvokeOnMainThreadAsync(() => this.PickSettings.dtDeliveryDateFilter = DateTime.Now);
+                _ = await Device.InvokeOnMainThreadAsync(() => this.PickSettings.DeliveryDateFilter = DateTime.Now);
             }
 
             // Default ordered date.
-            if (SysCommon.IsEmptyDate(this.PickSettings.dtOrderedDateFilter))
+            if (SysCommon.IsEmptyDate(this.PickSettings.OrderedDateFilter))
             {
-                _ = await Device.InvokeOnMainThreadAsync(() => this.PickSettings.dtOrderedDateFilter = DateTime.Now);
+                _ = await Device.InvokeOnMainThreadAsync(() => this.PickSettings.OrderedDateFilter = DateTime.Now);
             }
         }
 

@@ -11,6 +11,7 @@ namespace dMobile.Bedrock
     using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
+    using dMobile.Bedrock.Settings;
     using Resources.Models.Details;
     using Resources.Models.Products;
     using Resources.QueryResults;

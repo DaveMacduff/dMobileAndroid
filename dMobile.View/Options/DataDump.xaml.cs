@@ -11,6 +11,7 @@ namespace dMobile.View.Options
     using System.Xml.Linq;
     using Android.Views;
     using Bedrock;
+    using dMobile.Bedrock.Settings;
     using Forms;
     using GroundWork;
     using Resources.Enums;

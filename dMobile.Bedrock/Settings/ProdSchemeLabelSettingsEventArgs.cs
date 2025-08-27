@@ -1,8 +1,8 @@
-﻿// <copyright file="ProductSchemeLabelSettingsEventArgs.cs" company="InterSect Business Systems Inc">
+﻿// <copyright file="ProdSchemeLabelSettingsEventArgs.cs" company="InterSect Business Systems Inc">
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
-namespace dMobile.Bedrock
+namespace dMobile.Bedrock.Settings
 {
     using System;
 
@@ -28,22 +28,22 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// Gets or sets the StatusOutMsg.
+        /// Gets or sets the status out message.
         /// </summary>
         public string StatusOutMsg { get; set; } = string.Empty;
 
         /// <summary>
-        /// Gets or sets the MinValue.
+        /// Gets or sets the progress minimum value.
         /// </summary>
         public int MinValue { get; set; } = 0;
 
         /// <summary>
-        /// Gets or sets the MaxValue.
+        /// Gets or sets the progress maximum value.
         /// </summary>
         public int MaxValue { get; set; } = 0;
 
         /// <summary>
-        /// Gets or sets the CurrentValue.
+        /// Gets or sets the progress current value.
         /// </summary>
         public int CurrentValue { get; set; } = 0;
     }

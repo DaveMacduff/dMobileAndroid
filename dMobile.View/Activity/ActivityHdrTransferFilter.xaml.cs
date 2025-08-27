@@ -18,6 +18,7 @@ namespace dMobile.View.Activity
     using CustomPages.Modal;
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;
+    using dMobile.Bedrock.Settings;
 
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class ActivityHdrTransferFilter : DMobileModal, IAppArea

@@ -2,7 +2,7 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
-namespace dMobile.Bedrock
+namespace dMobile.Bedrock.Settings
 {
     using System;
     using System.Collections.Generic;
@@ -21,25 +21,25 @@ namespace dMobile.Bedrock
         /// <summary>
         /// Defines the m_strFullClassName.
         /// </summary>
-        [NonSerialized()]
+        [NonSerialized]
         private string m_strFullClassName = "dMobile.TransferSettings";
 
         /// <summary>
         /// Defines the m_strFilePath.
         /// </summary>
-        [NonSerialized()]
+        [NonSerialized]
         private string m_strFilePath = string.Empty;
 
         /// <summary>
         /// Defines the m_strFileASCIIZ.
         /// </summary>
-        [NonSerialized()]
+        [NonSerialized]
         private string m_strFileASCIIZ = string.Empty;
 
         /// <summary>
         /// Defines the m_strFileName.
         /// </summary>
-        [NonSerialized()]
+        [NonSerialized]
         private string m_strFileName = "dMobileTransferSettings.xml";
 
         /// <summary>

@@ -29,6 +29,7 @@ namespace dMobile.View.Activity
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;
     using Resource = Resources.Properties.Resources;
+    using dMobile.Bedrock.Settings;
 
     /// <summary>
     ///     Product unit conversion.

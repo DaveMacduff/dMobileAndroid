@@ -4,6 +4,8 @@
 
 namespace dMobile.Bedrock
 {
+    using dMobile.Bedrock.Settings;
+
     /// <summary>
     /// System Environment Class.
     /// </summary>
@@ -53,7 +55,7 @@ namespace dMobile.Bedrock
         /// <summary>
         /// Contains current bar code settings and rules.
         /// </summary>
-        private static SysBarCodeSettings barCodeSettingsInstance = new SysBarCodeSettings().LoadData();
+        private static BarCodeSettings barCodeSettingsInstance = new BarCodeSettings().LoadData();
 
         /// <summary>
         /// Test if last communication test was successful.
@@ -227,13 +229,13 @@ namespace dMobile.Bedrock
         /// Gets or sets the bar code settings object.
         /// </summary>
         /// <remarks>A new instance will be created if one does not exist.</remarks>
-        public SysBarCodeSettings BarCodeSettings
+        public BarCodeSettings BarCodeSettings
         {
             get
             {
                 if (barCodeSettingsInstance == null)
                 {
-                    barCodeSettingsInstance = new SysBarCodeSettings();
+                    barCodeSettingsInstance = new BarCodeSettings();
                     barCodeSettingsInstance = barCodeSettingsInstance.LoadData();
                 }
 

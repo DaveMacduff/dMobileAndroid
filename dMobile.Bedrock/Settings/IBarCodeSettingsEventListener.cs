@@ -1,8 +1,8 @@
-﻿// <copyright file="IBarCodeSettings.cs" company="InterSect Business Systems Inc">
+﻿// <copyright file="IBarCodeSettingsEventListener.cs" company="InterSect Business Systems Inc">
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
-namespace dMobile.Bedrock
+namespace dMobile.Bedrock.Settings
 {
     /// <summary>
     /// Defines the <see cref="IBarCodeSettingsEventListener" />.

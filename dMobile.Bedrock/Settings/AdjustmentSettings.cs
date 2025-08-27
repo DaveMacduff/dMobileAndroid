@@ -53,61 +53,6 @@ namespace dMobile.Bedrock.Settings
         [NonSerialized]
         private string fileName = "dMobileAdjustmentSettings.xml";
 
-        /// <summary>
-        /// Contains currently filtered adjustment type.
-        /// </summary>
-        private SysCommon.AdjTypes adjustmentType = SysCommon.AdjTypes.Inventory;
-
-        /// <summary>
-        /// Contains if the currently select adjustment type filter applied or enabled.
-        /// </summary>
-        private bool isApplyAdjustmentType = false;
-
-        /// <summary>
-        /// Contains first sort option selected index.
-        /// </summary>
-        private int sortBy1Index = 0;
-
-        /// <summary>
-        /// Contains first sort option selected index value.
-        /// </summary>
-        private Sort sortBy1Value = new Sort() { SortValue = "ActivityFKRefno", SortOrder = SortOrder.ASC };
-
-        /// <summary>
-        /// Contains second sort option selected index.
-        /// </summary>
-        private int sortBy2Index = -1;
-
-        /// <summary>
-        /// Contains second sort option selected index value.
-        /// </summary>
-        private Sort sortBy2Value = null;
-
-        /// <summary>
-        /// Contains third sort option selected index.
-        /// </summary>
-        private int sortBy3Index = -1;
-
-        /// <summary>
-        /// Contains third sort option selected index value.
-        /// </summary>
-        private Sort sortBy3Value = null;
-
-        /// <summary>
-        /// Contains setting if scan quantity is negated for the adjustment type.
-        /// </summary>
-        private bool negateScanQuantity = false;
-
-        /// <summary>
-        /// Contains the date for adjustment date filtering.
-        /// </summary>
-        private DateTime adjustmentDate = new DateTime(1900, 1, 1);
-
-        /// <summary>
-        /// Contains the enabler for adjustment date filter.
-        /// </summary>
-        private bool isApplyAdjustmentDate = false;
-
         // CONSTRUCTORS
 
         /// <summary>
@@ -124,47 +69,27 @@ namespace dMobile.Bedrock.Settings
         /// <summary>
         /// Gets or sets a value indicating whether the adjustment date filter is enabled.
         /// </summary>
-        public bool IsApplyAdjustmentDate
-        {
-            get => this.isApplyAdjustmentDate;
-            set => this.isApplyAdjustmentDate = value;
-        }
+        public bool IsApplyAdjustmentDate { get; set; } = false;
 
         /// <summary>
         /// Gets or sets as value indicating whether the adjustment date to filter.
         /// </summary>
-        public DateTime AdjustmentDate
-        {
-            get => this.adjustmentDate;
-            set => this.adjustmentDate = value;
-        }
+        public DateTime AdjustmentDate { get; set; } = new DateTime(1900, 1, 1);
 
         /// <summary>
         /// Gets or sets a value indicating whether the flag to negate the scanned quantity.
         /// </summary>
-        public bool NegateScanQuantity
-        {
-            get => this.negateScanQuantity;
-            set => this.negateScanQuantity = value;
-        }
+        public bool NegateScanQuantity { get; set; } = false;
 
         /// <summary>
         /// Gets or sets a value indicating whether the flag to apply adjustment type filter.
         /// </summary>
-        public bool IsApplyAdjustmentType
-        {
-            get => this.isApplyAdjustmentType;
-            set => this.isApplyAdjustmentType = value;
-        }
+        public bool IsApplyAdjustmentType { get; set; } = false;
 
         /// <summary>
         /// Gets or sets a value indicating whether the adjustment type filter.
         /// </summary>
-        public SysCommon.AdjTypes AdjustmentType
-        {
-            get => this.adjustmentType;
-            set => this.adjustmentType = value;
-        }
+        public SysCommon.AdjTypes AdjustmentType { get; set; } = SysCommon.AdjTypes.Inventory;
 
         /// <summary>
         /// Gets or sets the class name to serialize.
@@ -211,56 +136,32 @@ namespace dMobile.Bedrock.Settings
         /// <summary>
         /// Gets or sets the first sort by index.
         /// </summary>
-        public int SortBy1Index
-        {
-            get => this.sortBy1Index;
-            set => this.sortBy1Index = value;
-        }
+        public int SortBy1Index { get; set; } = 0;
 
         /// <summary>
         /// Gets or sets the first sort by value.
         /// </summary>
-        public Sort SortBy1Value
-        {
-            get => this.sortBy1Value;
-            set => this.sortBy1Value = value;
-        }
+        public Sort SortBy1Value { get; set; } = new Sort() { SortValue = "ActivityFKRefno", SortOrder = SortOrder.ASC };
 
         /// <summary>
         /// Gets or sets the second sort by index.
         /// </summary>
-        public int SortBy2Index
-        {
-            get => this.sortBy2Index;
-            set => this.sortBy2Index = value;
-        }
+        public int SortBy2Index { get; set; } = -1;
 
         /// <summary>
         /// Gets or sets the second sort by value.
         /// </summary>
-        public Sort SortBy2Value
-        {
-            get => this.sortBy2Value;
-            set => this.sortBy2Value = value;
-        }
+        public Sort SortBy2Value { get; set; } = null;
 
         /// <summary>
         /// Gets or sets the third sort by index.
         /// </summary>
-        public int SortBy3Index
-        {
-            get => this.sortBy3Index;
-            set => this.sortBy3Index = value;
-        }
+        public int SortBy3Index { get; set; } = -1;
 
         /// <summary>
         /// Gets or sets the third sort by value.
         /// </summary>
-        public Sort SortBy3Value
-        {
-            get => this.sortBy3Value;
-            set => this.sortBy3Value = value;
-        }
+        public Sort SortBy3Value { get; set; } = null;
 
         // METHODS
 
@@ -270,9 +171,10 @@ namespace dMobile.Bedrock.Settings
         /// <returns>Sort by data view expression.</returns>
         public List<Sort> GetDataViewSortBy()
         {
-            var sortBy = new List<Sort>();
-
-            sortBy.Add(this.SortBy1Value);
+            var sortBy = new List<Sort>
+            {
+                this.SortBy1Value
+            };
 
             if (this.SortBy2Value != null && !string.IsNullOrEmpty(this.SortBy2Value.SortValue))
             {

@@ -1,11 +1,9 @@
-// <copyright file="ProductSchemeLabelSettings.cs" company="InterSect Business Systems Inc">
+// <copyright file="ProdSchemeLabelSettings.cs" company="InterSect Business Systems Inc">
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
-namespace dMobile.Bedrock
+namespace dMobile.Bedrock.Settings
 {
-    using dMobile.Resources.Models.Products;
-    using SQLite;
     using System;
     using System.Collections;
     using System.Data;
@@ -15,6 +13,9 @@ namespace dMobile.Bedrock
     using System.Xml;
     using System.Xml.Linq;
     using System.Xml.Serialization;
+    using dMobile.Bedrock;
+    using dMobile.Resources.Models.Products;
+    using SQLite;
 
     /// <summary>
     /// Printer Settings Class.
@@ -24,45 +25,16 @@ namespace dMobile.Bedrock
     public class ProdSchemeLabelSettings : ISysSocketEventListener, IProdSchemeLabelSettingsPublisher
     {
         /// <summary>
-        /// Contains full product scheme label settings class name.
-        /// </summary>
-        [NonSerialized]
-        private string fullClassName = "dMobile.Bedrock.ProductSchemeLabelSettings";
-
-        /// <summary>
-        /// Contains product scheme label settings path name.
-        /// </summary>
-        [NonSerialized]
-        private string filePath = string.Empty;
-
-        /// <summary>
-        /// Contains product scheme label settings drive letter, path and file name.
-        /// </summary>
-        [NonSerialized]
-        private string fileASCIIZ = string.Empty;
-
-        /// <summary>
-        /// Contains product scheme label settings file name.
-        /// </summary>
-        [NonSerialized]
-        private string fileName = "dMobileProductSchemeLabelSettings.xml";
-
-        /// <summary>
-        /// Defines the writeLockObject.
+        /// Defines the write lock object.
         /// </summary>
         [NonSerialized]
         private readonly object writeLockObject = new object();
 
         /// <summary>
-        /// Defines the readLockObject.
+        /// Defines the read lock object.
         /// </summary>
         [NonSerialized]
         private readonly object readLockObject = new object();
-
-        /// <summary>
-        /// arraylist of product scheme label definitions of type SchemeInfo.
-        /// </summary>
-        private ArrayList allProdSchemeLabel = new ArrayList();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ProdSchemeLabelSettings"/> class.
@@ -74,91 +46,57 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// The OnProdSchemeLabelSettingsStatusOutHandler.
+        /// The on product scheme label settings status out handler.
         /// </summary>
-        /// <param name="prodSchemeLabelSettingsPublisher">The prodSchemeLabelSettingsPublisher<see cref="IProdSchemeLabelSettingsPublisher"/>.</param>
-        /// <param name="prodSchemeLabelSettingsArgs">The prodSchemeLabelSettingsArgs<see cref="ProdSchemeLabelSettingsEventArgs"/>.</param>
+        /// <param name="publisher">The prodSchemeLabelSettingsPublisher<see cref="IProdSchemeLabelSettingsPublisher"/>.</param>
+        /// <param name="args">The prodSchemeLabelSettingsArgs<see cref="ProdSchemeLabelSettingsEventArgs"/>.</param>
         private delegate void OnProdSchemeLabelSettingsStatusOutHandler(
-        IProdSchemeLabelSettingsPublisher prodSchemeLabelSettingsPublisher,
-        ProdSchemeLabelSettingsEventArgs prodSchemeLabelSettingsArgs);
+        IProdSchemeLabelSettingsPublisher publisher,
+        ProdSchemeLabelSettingsEventArgs args);
 
         /// <summary>
-        /// The OnProdSchemeLabelSettingsProgressOutHandler.
+        /// The on product scheme label settings progress out handler.
         /// </summary>
-        /// <param name="prodSchemeLabelSettingsPublisher">The prodSchemeLabelSettingsPublisher<see cref="IProdSchemeLabelSettingsPublisher"/>.</param>
-        /// <param name="prodSchemeLabelSettingsArgs">The prodSchemeLabelSettingsArgs<see cref="ProdSchemeLabelSettingsEventArgs"/>.</param>
+        /// <param name="publisher">The prodSchemeLabelSettingsPublisher<see cref="IProdSchemeLabelSettingsPublisher"/>.</param>
+        /// <param name="args'">The prodSchemeLabelSettingsArgs<see cref="ProdSchemeLabelSettingsEventArgs"/>.</param>
         private delegate void OnProdSchemeLabelSettingsProgressOutHandler(
-        IProdSchemeLabelSettingsPublisher prodSchemeLabelSettingsPublisher,
-        ProdSchemeLabelSettingsEventArgs prodSchemeLabelSettingsArgs);
+        IProdSchemeLabelSettingsPublisher publisher,
+        ProdSchemeLabelSettingsEventArgs args);
 
         /// <summary>
-        /// Defines the OnProdSchemeLabelSettingsStatusOut.
+        /// Defines the on product scheme label settings status out.
         /// </summary>
         private event OnProdSchemeLabelSettingsStatusOutHandler OnProdSchemeLabelSettingsStatusOut;
 
         /// <summary>
-        /// Defines the OnProdSchemeLabelSettingsProgressOut.
+        /// Defines the on product scheme label settings progress out.
         /// </summary>
         private event OnProdSchemeLabelSettingsProgressOutHandler OnProdSchemeLabelSettingsProgressOut;
 
         /// <summary>
-        /// Gets or sets the AllProdSchemeLabel
-        /// Gets or sets an arraylist of printer definitions of type prodSchemeLabelInfo.
+        /// Gets or sets an arraylist of printer definitions of type prod scheme label info.
         /// </summary>
-        public ArrayList AllProdSchemeLabel
-        {
-            get
-            {
-                if (this.allProdSchemeLabel == null)
-                {
-                    this.allProdSchemeLabel = new ArrayList();
-                }
-
-                return this.allProdSchemeLabel;
-            }
-
-            set => this.allProdSchemeLabel = value;
-        }
+        public ArrayList AllProdSchemeLabel { get; set; } = new ArrayList();
 
         /// <summary>
         /// Gets or sets the class name to serialize.
         /// </summary>
-        public string FullClassName
-        {
-            get => this.fullClassName;
-
-            set => this.fullClassName = value;
-        }
+        public string FullClassName { get; set; } = "dMobile.Bedrock.ProdSchemeLabelSettings";
 
         /// <summary>
         /// Gets or sets the path name of the xml file.
         /// </summary>
-        public string FilePath
-        {
-            get => this.filePath;
-
-            set => this.filePath = value;
-        }
+        public string FilePath { get; set; } = string.Empty;
 
         /// <summary>
         /// Gets or sets the full path and file name of the xml file.
         /// </summary>
-        public string FileASCIIZ
-        {
-            get => this.fileASCIIZ;
-
-            set => this.fileASCIIZ = value;
-        }
+        public string FileASCIIZ { get; set; } = string.Empty;
 
         /// <summary>
         /// Gets or sets the file name of the xml file.
         /// </summary>
-        public string FileName
-        {
-            get => this.fileName;
-
-            set => this.fileName = value;
-        }
+        public string FileName { get; set; } = "dMobileProdSchemeLabelSettings.xml";
 
         /// <summary>
         /// Request the product scheme label settings data and save the file.
@@ -166,27 +104,23 @@ namespace dMobile.Bedrock
         /// <returns>The <see cref="Task"/>.</returns>
         public async Task RequestProductSchemeLabelSettings()
         {
-            var responseData = string.Empty;
-            var msgArgs = new ProdSchemeLabelSettingsEventArgs();
+            var args = new ProdSchemeLabelSettingsEventArgs();
 
             try
             {
-                msgArgs.StatusOutMsg = "Seeding product scheme label settings.";
+                args.StatusOutMsg = "Seeding product scheme label settings.";
+                this.OnProdSchemeLabelSettingsStatusOut(this, args);
 
-                this.OnProdSchemeLabelSettingsStatusOut(this, msgArgs);
-
-                responseData = SysCommon.SubmitComm(this.Create());
+                var responseData = SysCommon.SubmitComm(this.Create());
                 await this.Save(responseData);
 
-                msgArgs.StatusOutMsg = "Seeding product scheme label settings complete.";
-
-                this.OnProdSchemeLabelSettingsStatusOut(this, msgArgs);
+                args.StatusOutMsg = "Seeding product scheme label settings complete.";
+                this.OnProdSchemeLabelSettingsStatusOut(this, args);
             }
             catch (Exception ex)
             {
-                msgArgs.StatusOutMsg = "Seeding product scheme label settings failed.";
-
-                this.OnProdSchemeLabelSettingsStatusOut(this, msgArgs);
+                args.StatusOutMsg = "Seeding product scheme label settings failed.";
+                this.OnProdSchemeLabelSettingsStatusOut(this, args);
 
                 throw new Exception("Seeding product scheme label settings failed.", ex);
             }
@@ -205,7 +139,7 @@ namespace dMobile.Bedrock
 
                 // use reflection to get the current assembly path for the database
                 var appDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
-                var fullPathToMyFile = Path.Combine(appDir, this.fileName);
+                var fullPathToMyFile = Path.Combine(appDir, this.FileName);
 
                 if (!File.Exists(fullPathToMyFile))
                 {
@@ -216,9 +150,7 @@ namespace dMobile.Bedrock
                 using var reader = new FileStream(fullPathToMyFile, FileMode.Open, FileAccess.Read, FileShare.Read);
 
                 // Deserialize the stream to the object, and close the TextReader
-                settings = (ProdSchemeLabelSettings)serializer.Deserialize(reader);
-
-                return settings;
+                return (ProdSchemeLabelSettings)serializer.Deserialize(reader);
             }
         }
 
@@ -238,7 +170,7 @@ namespace dMobile.Bedrock
                 {
                     // use reflection to get the current assembly path for the database
                     var appDir = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
-                    var fullPathToMyFile = Path.Combine(appDir, this.fileName);
+                    var fullPathToMyFile = Path.Combine(appDir, this.FileName);
 
                     // Create a FileStream to write with.
                     using (var writer = new FileStream(fullPathToMyFile, FileMode.Create, FileAccess.Write, FileShare.None))
@@ -259,14 +191,13 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// The GetSchemeInfoFromSchemeRefno.
+        /// Get scheme info from the scheme reference number.
         /// </summary>
-        /// <param name="schemeRefno">.</param>
-        /// <returns>.</returns>
+        /// <param name="schemeRefno">Scheme reference number.</param>
+        /// <returns>Product scheme label information.</returns>
         public ProdSchemeLabelInfo GetSchemeInfoFromSchemeRefno(int schemeRefno)
         {
             var schemeLblInfo = new ProdSchemeLabelInfo();
-
             if (this.AllProdSchemeLabel.Count > 0)
             {
                 for (var idx = 0; idx < this.AllProdSchemeLabel.Count; idx++)
@@ -281,61 +212,58 @@ namespace dMobile.Bedrock
             if (schemeLblInfo.SchemeRefno == 0)
             {
                 throw new Exception(
-                    $"GetSchemeInfoFromSchemeRefno failed. Could not find scheme refno {schemeRefno} in the AllProdSchemeLabel arraylist.");
+                    $"GetSchemeInfoFromSchemeRefno failed. Could not find scheme refno {schemeRefno} in the " +
+                    "AllProdSchemeLabel arraylist.");
             }
 
             return schemeLblInfo;
         }
 
         /// <summary>
-        /// The RegProdSchemeLabelSettingsListenerStatusOut.
+        /// Register a listener for product scheme label settings status out events.
         /// </summary>
-        /// <param name="prodSchemeLabelSettingsListener">.</param>
-        public void RegProdSchemeLabelSettingsListenerStatusOut(
-        IProdSchemeLabelSettingsListener prodSchemeLabelSettingsListener)
+        /// <param name="listener">Product scheme label settings listener.</param>
+        public void RegProdSchemeLabelSettingsListenerStatusOut(IProdSchemeLabelSettingsListener listener)
         {
             this.OnProdSchemeLabelSettingsStatusOut += new OnProdSchemeLabelSettingsStatusOutHandler(
-                prodSchemeLabelSettingsListener.OnProdSchemeLabelSettingsStatusOut);
+                listener.OnProdSchemeLabelSettingsStatusOut);
         }
 
         /// <summary>
-        /// The UnregProdSchemeLabelSettingsListenerStatusOut.
+        /// Unregister a listener for product scheme label settings status out events.
         /// </summary>
-        /// <param name="prodSchemeLabelSettingsListener">.</param>
-        public void UnregProdSchemeLabelSettingsListenerStatusOut(
-        IProdSchemeLabelSettingsListener prodSchemeLabelSettingsListener)
+        /// <param name="listener">Product scheme label settings listener.</param>
+        public void UnregProdSchemeLabelSettingsListenerStatusOut(IProdSchemeLabelSettingsListener listener)
         {
             this.OnProdSchemeLabelSettingsStatusOut -= new OnProdSchemeLabelSettingsStatusOutHandler(
-                prodSchemeLabelSettingsListener.OnProdSchemeLabelSettingsStatusOut);
+                listener.OnProdSchemeLabelSettingsStatusOut);
         }
 
         /// <summary>
-        /// The RegProdSchemeLabelSettingsListenerProgressOut.
+        /// Register a listener for product scheme label settings progress out events.
         /// </summary>
-        /// <param name="prodSchemeLabelSettingsListener">.</param>
-        public void RegProdSchemeLabelSettingsListenerProgressOut(
-        IProdSchemeLabelSettingsListener prodSchemeLabelSettingsListener)
+        /// <param name="listener">Product scheme label settings listener.</param>
+        public void RegProdSchemeLabelSettingsListenerProgressOut(IProdSchemeLabelSettingsListener listener)
         {
             this.OnProdSchemeLabelSettingsProgressOut += new OnProdSchemeLabelSettingsProgressOutHandler(
-                prodSchemeLabelSettingsListener.OnProdSchemeLabelSettingsProgressOut);
+                listener.OnProdSchemeLabelSettingsProgressOut);
         }
 
         /// <summary>
-        /// The UnregProdSchemeLabelSettingsListenerProgressOut.
+        /// Unregister a listener for product scheme label settings progress out events.
         /// </summary>
-        /// <param name="prodSchemeLabelSettingsListener">.</param>
-        public void UnregProdSchemeLabelSettingsListenerProgressOut(
-        IProdSchemeLabelSettingsListener prodSchemeLabelSettingsListener)
+        /// <param name="listener">Product scheme label settings listener.</param>
+        public void UnregProdSchemeLabelSettingsListenerProgressOut(IProdSchemeLabelSettingsListener listener)
         {
             this.OnProdSchemeLabelSettingsProgressOut -= new OnProdSchemeLabelSettingsProgressOutHandler(
-                prodSchemeLabelSettingsListener.OnProdSchemeLabelSettingsProgressOut);
+                listener.OnProdSchemeLabelSettingsProgressOut);
         }
 
         /// <summary>
-        /// The OnSysSocketStatusOut.
+        /// On system socket status out event.
         /// </summary>
-        /// <param name="sockPublisher">.</param>
-        /// <param name="sockArgs">.</param>
+        /// <param name="sockPublisher">Socket event publisher.</param>
+        /// <param name="sockArgs">Socket event arguments.</param>
         public void OnSysSocketStatusOut(ISysSocketEventPublisher sockPublisher, SysSocketEventArgs sockArgs)
         {
             var args = new ProdSchemeLabelSettingsEventArgs(sockArgs.StatusOutMsg);
@@ -346,7 +274,7 @@ namespace dMobile.Bedrock
         /// Process the xml data from the communication server and store it.
         /// </summary>
         /// <param name="xmlData"> Xml data received from the communication server.</param>
-        /// <returns>The <see cref="Task"/>.</returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         private async Task Save(string xmlData)
         {
             var msgArg = new ProdSchemeLabelSettingsEventArgs();
@@ -355,20 +283,18 @@ namespace dMobile.Bedrock
 
             try
             {
-                using var ds = new DataSet();
                 if (this.OnProdSchemeLabelSettingsStatusOut != null)
                 {
                     msgArg.StatusOutMsg = "Reading received data.";
-
                     this.OnProdSchemeLabelSettingsStatusOut(this, msgArg);
                 }
 
+                using var ds = new DataSet();
                 ds.ReadXml(SysCommon.GetXmlReader(ref xmlData), XmlReadMode.Auto);
 
                 if (this.OnProdSchemeLabelSettingsStatusOut != null)
                 {
                     msgArg.StatusOutMsg = "Saving product scheme label settings.";
-
                     this.OnProdSchemeLabelSettingsStatusOut(this, msgArg);
                 }
 
@@ -379,7 +305,6 @@ namespace dMobile.Bedrock
                     if (this.OnProdSchemeLabelSettingsStatusOut != null)
                     {
                         msgArg.StatusOutMsg = $"Records {progMax}";
-
                         this.OnProdSchemeLabelSettingsStatusOut(this, msgArg);
                     }
 
@@ -400,7 +325,8 @@ namespace dMobile.Bedrock
                         schemeCode = Convert.ToString(drow["ProductSchemeCode"]);
                         errMsg = "Scheme code \'" + errMsg + "\'";
 
-                        var results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<ProductSchemeModel>("SELECT * FROM tProductScheme WHERE ProductSchemeCode = ?", schemeCode);
+                        var results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<ProductSchemeModel>(
+                            "SELECT * FROM tProductScheme WHERE ProductSchemeCode = ?", schemeCode);
 
                         // if (!drScheme.Seek(DbSeekOptions.FirstEqual, new object[] { schemeCode }))
                         // {
@@ -409,7 +335,7 @@ namespace dMobile.Bedrock
                         // }
 
                         // if (!drScheme.Read())
-                        if (results == null || results.Count <= 0)
+                        if (results == null || results.Count == 0)
                         {
                             throw new Exception("drProdScheme.Read() failed." + Environment.NewLine + errMsg);
                         }
@@ -421,10 +347,9 @@ namespace dMobile.Bedrock
                         schemeLblInfo.IsProductionDateTracked = Convert.ToBoolean(drow["ProductSchemeLabelIsProductionDateTracked"]);
                         schemeLblInfo.IsSerialTracked = Convert.ToBoolean(drow["ProductSchemeLabelIsSerialTracked"]);
                         schemeLblInfo.IsVariantTracked = Convert.ToBoolean(drow["ProductSchemeLabelIsVariantTracked"]);
-
                         this.AllProdSchemeLabel.Add(schemeLblInfo);
 
-                        progValue += 1;
+                        progValue++;
 
                         if (this.OnProdSchemeLabelSettingsProgressOut != null)
                         {
@@ -447,7 +372,6 @@ namespace dMobile.Bedrock
                 if (this.OnProdSchemeLabelSettingsStatusOut != null)
                 {
                     msgArg.StatusOutMsg = "Saving product scheme label settings complete.";
-
                     this.OnProdSchemeLabelSettingsStatusOut(this, msgArg);
                 }
             }
@@ -456,14 +380,12 @@ namespace dMobile.Bedrock
                 if (this.OnProdSchemeLabelSettingsStatusOut != null)
                 {
                     msgArg.StatusOutMsg = "Database exception occurred.";
-
                     this.OnProdSchemeLabelSettingsStatusOut(this, msgArg);
                 }
 
                 if (this.OnProdSchemeLabelSettingsStatusOut != null)
                 {
                     msgArg.StatusOutMsg = "Saving product scheme label settings failed.";
-
                     this.OnProdSchemeLabelSettingsStatusOut(this, msgArg);
                 }
 
@@ -506,37 +428,37 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// Defines the <see cref="ProdSchemeLabelInfo" />.
+        /// Defines the product scheme label information structure.
         /// </summary>
         public struct ProdSchemeLabelInfo
         {
             /// <summary>
-            /// Gets or sets the SchemeRefno.
+            /// Gets or sets the scheme reference number.
             /// </summary>
             public int SchemeRefno { get; set; }
 
             /// <summary>
-            /// Gets or sets a value indicating whether IsVariantTracked.
+            /// Gets or sets a value indicating whether the scheme is variant tracked.
             /// </summary>
             public bool IsVariantTracked { get; set; }
 
             /// <summary>
-            /// Gets or sets a value indicating whether IsBestBeforeDateTracked.
+            /// Gets or sets a value indicating whether the scheme is best before date tracked.
             /// </summary>
             public bool IsBestBeforeDateTracked { get; set; }
 
             /// <summary>
-            /// Gets or sets a value indicating whether IsSerialTracked.
+            /// Gets or sets a value indicating whether the scheme is serial tracked.
             /// </summary>
             public bool IsSerialTracked { get; set; }
 
             /// <summary>
-            /// Gets or sets a value indicating whether IsProductionDateTracked.
+            /// Gets or sets a value indicating whether the scheme is production date tracked.
             /// </summary>
             public bool IsProductionDateTracked { get; set; }
 
             /// <summary>
-            /// Gets or sets a value indicating whether IsLotTracked.
+            /// Gets or sets a value indicating whether the scheme is lot tracked.
             /// </summary>
             public bool IsLotTracked { get; set; }
         }

@@ -7,6 +7,7 @@ namespace dMobile.Bedrock
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
+    using dMobile.Bedrock.Settings;
     using dMobile.Resources.Models.LocationMap;
     using dMobile.Resources.Models.Products;
     using dMobile.Resources.Types.LocationMap;
@@ -27,7 +28,7 @@ namespace dMobile.Bedrock
         public static async Task<int> GetLocMapRefnoFromBarCodeGlobalLocIdentifier(string globalLocationIdentifier)
         {
             var foundLocMapRefno = 0;
-            var barCodeSettings = new SysBarCodeSettings().LoadData();
+            var barCodeSettings = new BarCodeSettings().LoadData();
 
             // This option was needed because of a screw-up calculating the location check digit.
             // Need to ignore the check digit when attempting to find the location.

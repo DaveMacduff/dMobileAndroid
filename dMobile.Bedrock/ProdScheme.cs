@@ -4,6 +4,7 @@
 
 namespace dMobile.Bedrock
 {
+    using dMobile.Bedrock.Settings;
     using System;
     using System.Diagnostics.CodeAnalysis;
     using System.IO;

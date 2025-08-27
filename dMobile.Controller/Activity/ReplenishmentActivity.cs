@@ -11,6 +11,7 @@ namespace dMobile.Controller.Activity
     using System.Threading.Tasks;
     using System.Xml.Linq;
     using dMobile.Bedrock;
+    using dMobile.Bedrock.Settings;
     using dMobile.GroundWork;
     using dMobile.Resources;
     using dMobile.Resources.Services;

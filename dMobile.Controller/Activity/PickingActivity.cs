@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Linq;
 using dMobile.Bedrock;
+using dMobile.Bedrock.Settings;
 using dMobile.GroundWork;
 using dMobile.Resources.Services;
 using dMobile.Resources.Types.Headers;
@@ -1058,17 +1059,17 @@ namespace dMobile.Controller.Activity
 
             if (pickingSettings.IsApplyRouteCodeFilter)
             {
-                if (!string.IsNullOrEmpty(pickingSettings.strRouteCodeSelectedValue))
+                if (!string.IsNullOrEmpty(pickingSettings.RouteCodeSelectedValue))
                 {
-                    this.listPicking = this.listPicking.Where(pick => pick.RouteCode == pickingSettings.strRouteCodeSelectedValue).ToList();
+                    this.listPicking = this.listPicking.Where(pick => pick.RouteCode == pickingSettings.RouteCodeSelectedValue).ToList();
                 }
             }
 
             if (pickingSettings.IsApplyOrderedDateFilter)
             {
-                if (!SysCommon.IsEmptyDate(pickingSettings.dtOrderedDateFilter))
+                if (!SysCommon.IsEmptyDate(pickingSettings.OrderedDateFilter))
                 {
-                    var dt = pickingSettings.dtOrderedDateFilter;
+                    var dt = pickingSettings.OrderedDateFilter;
                     var minDate = new DateTime(dt.Year, dt.Month, dt.Day, 00, 00, 00);
                     var maxDate = new DateTime(dt.Year, dt.Month, dt.Day, 23, 59, 59);
 
@@ -1079,9 +1080,9 @@ namespace dMobile.Controller.Activity
 
             if (pickingSettings.IsApplyDeliveryDateFilter)
             {
-                if (!SysCommon.IsEmptyDate(pickingSettings.dtDeliveryDateFilter))
+                if (!SysCommon.IsEmptyDate(pickingSettings.DeliveryDateFilter))
                 {
-                    var dt = pickingSettings.dtDeliveryDateFilter;
+                    var dt = pickingSettings.DeliveryDateFilter;
                     var minDate = new DateTime(dt.Year, dt.Month, dt.Day, 00, 00, 00);
                     var maxDate = new DateTime(dt.Year, dt.Month, dt.Day, 23, 59, 59);
 

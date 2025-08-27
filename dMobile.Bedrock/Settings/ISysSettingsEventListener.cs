@@ -1,9 +1,11 @@
-﻿// <copyright file="ISystemSettings.cs" company="InterSect Business Systems Inc">
+﻿// <copyright file="ISysSettingsEventListener.cs" company="InterSect Business Systems Inc">
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
-namespace dMobile.Bedrock
+namespace dMobile.Bedrock.Settings
 {
+    using dMobile.Bedrock;
+
     /// <summary>
     /// Defines the <see cref="ISysSettingsEventListener" />.
     /// </summary>

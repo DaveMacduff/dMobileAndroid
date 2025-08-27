@@ -2,12 +2,13 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
-namespace dMobile.Bedrock
+namespace dMobile.Bedrock.Settings
 {
     using System;
     using System.Collections.Generic;
     using System.IO;
     using System.Xml.Serialization;
+    using dMobile.Bedrock;
     using dMobile.Resources.Enums;
     using dMobile.Resources.Types;
 

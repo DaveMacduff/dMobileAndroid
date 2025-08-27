@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Linq;
 using dMobile.Bedrock;
+using dMobile.Bedrock.Settings;
 using dMobile.Controller.Activity_Item;
 using dMobile.Resources.Services;
 using dMobile.Resources.Types.Details;

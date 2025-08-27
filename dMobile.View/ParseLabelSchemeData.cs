@@ -8,6 +8,7 @@ namespace dMobile.View
     using dMobile.BarCodeScanner;
     using dMobile.BarCodeScanner.BarCodeParsing;
     using dMobile.Bedrock;
+    using dMobile.Bedrock.Settings;
     using dMobile.Controller.Activity_Detail;
     using dMobile.Controller.Activity_Item;
     using dMobile.Resources.Models.Products;
@@ -367,7 +368,7 @@ namespace dMobile.View
         ///         If there are errors, throw the first error.
         ///     </para>
         ///     <para>
-        ///         <see cref="SysBarCodeSettings.IsRuleEnabled_ParseEAN_UCC128_SuppressAllParseErrorsForNonTrackedComponents" />.
+        ///         <see cref="BarCodeSettings.IsRuleEnabled_ParseEAN_UCC128_SuppressAllParseErrorsForNonTrackedComponents" />.
         ///     </para>
         ///     <seealso cref="BarCodeParseUcc_EAN_128_Symbol.ParseBarCodeData" />.
         /// </summary>

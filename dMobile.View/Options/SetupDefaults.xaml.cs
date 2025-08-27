@@ -12,6 +12,7 @@ namespace dMobile.View.Options
     using Android.Views;
     using Bedrock;
     using CustomPages;
+    using dMobile.Bedrock.Settings;
     using Forms;
     using Pages.Themes;
     using Resources.Enums;

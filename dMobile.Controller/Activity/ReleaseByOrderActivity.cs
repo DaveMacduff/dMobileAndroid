@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Linq;
 using dMobile.Bedrock;
+using dMobile.Bedrock.Settings;
 using dMobile.GroundWork;
 using dMobile.Resources.Services;
 using dMobile.Resources.Types.Headers;
@@ -607,24 +608,24 @@ namespace dMobile.Controller.Activity
 
             if (pickingSettings.IsApplyRouteCodeFilter)
             {
-                if (!string.IsNullOrEmpty(pickingSettings.strRouteCodeSelectedValue))
+                if (!string.IsNullOrEmpty(pickingSettings.RouteCodeSelectedValue))
                 {
                     if (string.IsNullOrEmpty(filter))
                     {
-                        filter += $"RouteCode = \'{pickingSettings.strRouteCodeSelectedValue}\'";
+                        filter += $"RouteCode = \'{pickingSettings.RouteCodeSelectedValue}\'";
                     }
                     else
                     {
-                        filter += $" AND RouteCode = \'{pickingSettings.strRouteCodeSelectedValue}\'";
+                        filter += $" AND RouteCode = \'{pickingSettings.RouteCodeSelectedValue}\'";
                     }
                 }
             }
 
             if (pickingSettings.IsApplyOrderedDateFilter)
             {
-                if (!SysCommon.IsEmptyDate(pickingSettings.dtOrderedDateFilter))
+                if (!SysCommon.IsEmptyDate(pickingSettings.OrderedDateFilter))
                 {
-                    var dt = pickingSettings.dtOrderedDateFilter;
+                    var dt = pickingSettings.OrderedDateFilter;
 
                     // BETWEEN '2009-07-26 00:00:00.000' AND '2010-07-26 23:59:59.997'
                     if (string.IsNullOrEmpty(filter))
@@ -650,9 +651,9 @@ namespace dMobile.Controller.Activity
 
             if (pickingSettings.IsApplyDeliveryDateFilter)
             {
-                if (!SysCommon.IsEmptyDate(pickingSettings.dtDeliveryDateFilter))
+                if (!SysCommon.IsEmptyDate(pickingSettings.DeliveryDateFilter))
                 {
-                    var dt = pickingSettings.dtDeliveryDateFilter;
+                    var dt = pickingSettings.DeliveryDateFilter;
 
                     // BETWEEN '2009-07-26 00:00:00.000' AND '2010-07-26 23:59:59.997'
                     if (string.IsNullOrEmpty(filter))

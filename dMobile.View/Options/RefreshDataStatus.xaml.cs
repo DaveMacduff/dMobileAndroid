@@ -14,6 +14,7 @@ namespace dMobile.View.Options
     using Bedrock;
     using Controller.Activity_Detail;
     using Controller.Activity_Item;
+    using dMobile.Bedrock.Settings;
     using dMobile.Controller.Activity;
     using Forms;
     using GroundWork;

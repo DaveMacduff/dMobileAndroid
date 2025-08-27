@@ -14,6 +14,7 @@ namespace dMobile.Controller.Activity_Detail
     using System.Xml.Linq;
     using Activity_Item;
     using Bedrock;
+    using dMobile.Bedrock.Settings;
     using GroundWork;
     using Resources.Models.Products;
     using Resources.Types.Details;

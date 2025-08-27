@@ -14,6 +14,7 @@ namespace dMobile.View.Menus
     using CustomPages;
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;
+    using dMobile.Bedrock.Settings;
 
     /// <summary>
     /// Inventory movement menu.

@@ -6,6 +6,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
 {
     using System;
     using Bedrock;
+    using dMobile.Bedrock.Settings;
 
     /// <summary>
     ///     Bar code parsing information.
@@ -23,7 +24,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         ///     Bar code settings xml file.
         /// </summary>
         /// <remarks>Contains parsing rules.</remarks>
-        private static SysBarCodeSettings settings = new SysBarCodeSettings();
+        private static BarCodeSettings settings = new BarCodeSettings();
 
         /// <summary>
         ///     Bar code raw data read, direct from the scan engine.
@@ -438,7 +439,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         ///     Gets or sets the bar code settings xml file.
         /// </summary>
         /// <remarks>Contains parsing rules.</remarks>
-        public SysBarCodeSettings Settings
+        public BarCodeSettings Settings
         {
             get => settings;
 

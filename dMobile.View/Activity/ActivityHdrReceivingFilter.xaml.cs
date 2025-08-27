@@ -12,6 +12,7 @@ namespace dMobile.View.Activity
     using Android.Views;
     using Bedrock;
     using CustomPages.Modal;
+    using dMobile.Bedrock.Settings;
     using Resources.Enums;
     using Resources.Types;
     using Xamarin.Forms;

@@ -2,7 +2,7 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
-namespace dMobile.Bedrock
+namespace dMobile.Bedrock.Settings
 {
     using System;
     using System.Collections;
@@ -12,6 +12,7 @@ namespace dMobile.Bedrock
     using System.Xml;
     using System.Xml.Linq;
     using System.Xml.Serialization;
+    using dMobile.Bedrock;
 
     /// <summary>
     /// Printer Settings Class.
@@ -20,6 +21,18 @@ namespace dMobile.Bedrock
     [Serializable]
     public class PrinterSettings : ISysSocketEventListener, IPrnSettingsPublisher
     {
+        /// <summary>
+        /// Defines the write lock object.
+        /// </summary>
+        [NonSerialized]
+        private readonly object writeLockObject = new object();
+
+        /// <summary>
+        /// Defines the read lock object.
+        /// </summary>
+        [NonSerialized]
+        private readonly object readLockObject = new object();
+
         /// <summary>
         /// Contains full printer settings class name.
         /// </summary>
@@ -43,48 +56,6 @@ namespace dMobile.Bedrock
         /// </summary>
         [NonSerialized]
         private string fileName = "dMobilePrinterSettings.xml";
-
-        /// <summary>
-        /// Defines the writeLockObject.
-        /// </summary>
-        [NonSerialized]
-        private readonly object writeLockObject = new object();
-
-        /// <summary>
-        /// Defines the readLockObject.
-        /// </summary>
-        [NonSerialized]
-        private readonly object readLockObject = new object();
-
-        /// <summary>
-        /// Enables shipping label printer.
-        /// </summary>
-        private bool isEnabledShippingLabelPrinter = false;
-
-        /// <summary>
-        /// Contains a list of shipping label printer names.
-        /// </summary>
-        private string shippingLabelPrinterName = string.Empty;
-
-        /// <summary>
-        /// Enables shelf label printer..
-        /// </summary>
-        private bool isEnabledShelfLabelPrinter = false;
-
-        /// <summary>
-        /// Contains a list of shelf label printer names.
-        /// </summary>
-        private string shelfLabelPrinterName = string.Empty;
-
-        /// <summary>
-        /// Enables product label printer..
-        /// </summary>
-        private bool isEnabledProductLabelPrinter = false;
-
-        /// <summary>
-        /// Contains a list of product label printer names..
-        /// </summary>
-        private string productLabelPrinterName = string.Empty;
 
         /// <summary>
         /// arraylist of printer definitions of type printerInfo.
@@ -125,18 +96,13 @@ namespace dMobile.Bedrock
         private event OnPrnSettingsProgressOutHandler OnPrnSettingsProgressOut;
 
         /// <summary>
-        /// Gets or sets the AllPrinters
-        /// Gets or sets an arraylist of printer definitions of type printerInfo.
+        /// Gets or sets an arraylist of printer definitions of type printer information.
         /// </summary>
         public ArrayList AllPrinters
         {
             get
             {
-                if (this.allPrinters == null)
-                {
-                    this.allPrinters = new ArrayList();
-                }
-
+                this.allPrinters ??= new ArrayList();
                 return this.allPrinters;
             }
 
@@ -147,64 +113,34 @@ namespace dMobile.Bedrock
         /// Gets or sets a value indicating whether IsEnabledShippingLabelPrinter
         /// Enables the shipping label printer.
         /// </summary>
-        public bool IsEnabledShippingLabelPrinter
-        {
-            get => this.isEnabledShippingLabelPrinter;
-
-            set => this.isEnabledShippingLabelPrinter = value;
-        }
+        public bool IsEnabledShippingLabelPrinter { get; set; } = false;
 
         /// <summary>
         /// Gets or sets the current shipping label printer name.
         /// </summary>
-        public string ShippingLabelPrinterName
-        {
-            get => this.shippingLabelPrinterName;
-
-            set => this.shippingLabelPrinterName = value;
-        }
+        public string ShippingLabelPrinterName { get; set; } = string.Empty;
 
         /// <summary>
         /// Gets or sets a value indicating whether IsEnabledShelfLabelPrinter
         /// Enables the shelf label printer.
         /// </summary>
-        public bool IsEnabledShelfLabelPrinter
-        {
-            get => this.isEnabledShelfLabelPrinter;
-
-            set => this.isEnabledShelfLabelPrinter = value;
-        }
+        public bool IsEnabledShelfLabelPrinter { get; set; } = false;
 
         /// <summary>
         /// Gets or sets the current shelf label printer name.
         /// </summary>
-        public string ShelfLabelPrinterName
-        {
-            get => this.shelfLabelPrinterName;
-
-            set => this.shelfLabelPrinterName = value;
-        }
+        public string ShelfLabelPrinterName { get; set; } = string.Empty;
 
         /// <summary>
         /// Gets or sets a value indicating whether IsEnabledProductLabelPrinter
         /// Enables the product label printer.
         /// </summary>
-        public bool IsEnabledProductLabelPrinter
-        {
-            get => this.isEnabledProductLabelPrinter;
-
-            set => this.isEnabledProductLabelPrinter = value;
-        }
+        public bool IsEnabledProductLabelPrinter { get; set; } = false;
 
         /// <summary>
         /// Gets or sets the current product label printer name.
         /// </summary>
-        public string ProductLabelPrinterName
-        {
-            get => this.productLabelPrinterName;
-
-            set => this.productLabelPrinterName = value;
-        }
+        public string ProductLabelPrinterName { get; set; } = string.Empty;
 
         /// <summary>
         /// Gets or sets the class name to serialize.
@@ -340,52 +276,52 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// The RegPrnSettingsListenerStatusOut.
+        /// Register a listener for printer settings status messages.
         /// </summary>
-        /// <param name="prnSettingsListener">.</param>
-        public void RegPrnSettingsListenerStatusOut(IPrnSettingsListener prnSettingsListener)
+        /// <param name="listener">Printer settings listener.</param>
+        public void RegPrnSettingsListenerStatusOut(IPrnSettingsListener listener)
         {
-            this.OnPrnSettingsStatusOut += new OnPrnSettingsStatusOutHandler(prnSettingsListener.OnPrnSettingsStatusOut);
+            this.OnPrnSettingsStatusOut += new OnPrnSettingsStatusOutHandler(listener.OnPrnSettingsStatusOut);
         }
 
         /// <summary>
-        /// The UnregPrnSettingsListenerStatusOut.
+        /// Unregister a listener for printer settings status messages.
         /// </summary>
-        /// <param name="prnSettingsListener">.</param>
-        public void UnregPrnSettingsListenerStatusOut(IPrnSettingsListener prnSettingsListener)
+        /// <param name="listener">Printer settings listener.</param>
+        public void UnregPrnSettingsListenerStatusOut(IPrnSettingsListener listener)
         {
-            this.OnPrnSettingsStatusOut -= new OnPrnSettingsStatusOutHandler(prnSettingsListener.OnPrnSettingsStatusOut);
+            this.OnPrnSettingsStatusOut -= new OnPrnSettingsStatusOutHandler(listener.OnPrnSettingsStatusOut);
         }
 
         /// <summary>
-        /// The RegPrnSettingsListenerProgressOut.
+        /// Register a listener for printer settings status messages.
         /// </summary>
-        /// <param name="prnSettingsListener">.</param>
-        public void RegPrnSettingsListenerProgressOut(IPrnSettingsListener prnSettingsListener)
+        /// <param name="listener">Printer settings listener.</param>
+        public void RegPrnSettingsListenerProgressOut(IPrnSettingsListener listener)
         {
             this.OnPrnSettingsProgressOut += new OnPrnSettingsProgressOutHandler(
-                prnSettingsListener.OnPrnSettingsProgressOut);
+                listener.OnPrnSettingsProgressOut);
         }
 
         /// <summary>
-        /// The UnregPrnSettingsListenerProgressOut.
+        /// Unregister a listener for printer settings status messages.
         /// </summary>
-        /// <param name="prnSettingsListener">.</param>
-        public void UnregPrnSettingsListenerProgressOut(IPrnSettingsListener prnSettingsListener)
+        /// <param name="listener">Printer settings listener.</param>
+        public void UnregPrnSettingsListenerProgressOut(IPrnSettingsListener listener)
         {
             this.OnPrnSettingsProgressOut -= new OnPrnSettingsProgressOutHandler(
-                prnSettingsListener.OnPrnSettingsProgressOut);
+                listener.OnPrnSettingsProgressOut);
         }
 
         /// <summary>
-        /// The OnSysSocketStatusOut.
+        /// On socket status out event from the communication server.
         /// </summary>
-        /// <param name="sockPublisher">.</param>
-        /// <param name="sockArgs">.</param>
-        public void OnSysSocketStatusOut(ISysSocketEventPublisher sockPublisher, SysSocketEventArgs sockArgs)
+        /// <param name="publisher">Socket event publisher.</param>
+        /// <param name="args">Socket event arguments.</param>
+        public void OnSysSocketStatusOut(ISysSocketEventPublisher publisher, SysSocketEventArgs args)
         {
-            var args = new PrnSettingsArgs(sockArgs.StatusOutMsg);
-            this.OnPrnSettingsStatusOut(this, args);
+            var prnArgs = new PrnSettingsArgs(args.StatusOutMsg);
+            this.OnPrnSettingsStatusOut(this, prnArgs);
         }
 
         /// <summary>
@@ -437,7 +373,7 @@ namespace dMobile.Bedrock
                     prnInfo.Name = Convert.ToString(drow["PrinterSettingsPrinterName"]);
                     this.AllPrinters.Add(prnInfo);
 
-                    progValue += 1;
+                    progValue++;
 
                     if (this.OnPrnSettingsProgressOut != null)
                     {
@@ -487,7 +423,7 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// Defines the <see cref="PrinterInfo" />.
+        /// Defines the printer information structure.
         /// </summary>
         public struct PrinterInfo
         {

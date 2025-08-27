@@ -2,11 +2,12 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
-namespace dMobile.Bedrock
+namespace dMobile.Bedrock.Settings
 {
     using System;
     using System.Collections.Generic;
     using System.Xml.Serialization;
+    using dMobile.Bedrock;
 
     /// <summary>
     /// Defines the <see cref="SystemSettings" />.

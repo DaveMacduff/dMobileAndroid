@@ -23,6 +23,7 @@ namespace dMobile.View.Options
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;
     using Resource = Resources.Properties.Resources;
+    using dMobile.Bedrock.Settings;
 
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class SubmitBatch : DMobileContentPage, IAppArea
