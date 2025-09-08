@@ -24,7 +24,6 @@ namespace dMobile.GroundWork
         /// </summary>
         public TableProductSchemeLotNumberXRef()
         {
-            this.FullClassName = "dMobile.GroundWork.TableProductSchemeLotNumberXRef";
             this.LowerCaseName = "scheme lot numbers link";
             this.ProperCaseName = "Scheme lot numbers link";
         }

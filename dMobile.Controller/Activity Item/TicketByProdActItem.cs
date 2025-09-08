@@ -33,14 +33,11 @@ namespace dMobile.Controller.Activity_Item
             : base(activity)
         {
             this.IsAllowAddItem = this.SysEnv.SysSettings.AllowAddProduct2TicketByProduct;
-            this.FullClassName = typeof(TicketByProdActItem).FullName;
             this.IsAskCreateNewItem = !this.SysEnv.SysSettings.IsTicketByProductCreateNewItemNoAsk;
 
             // Create item template
             DefineInitialGrid();
-            return;
 
-            ///////////////////////////////////////////////////////////
             void DefineInitialGrid()
             {
                 var dataTemplate = new DataTemplate(

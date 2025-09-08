@@ -18,15 +18,6 @@ namespace dMobile.Controller.Activity
     public class AssignDefaultLocActivity : Activity
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="AssignDefaultLocActivity"/> class.
-        /// </summary>
-        public AssignDefaultLocActivity()
-          : base()
-        {
-            this.FullClassName = typeof(AssignDefaultLocActivity).FullName;
-        }
-
-        /// <summary>
         /// The Purge.
         /// </summary>
         /// <returns>The <see cref="Task"/>.</returns>

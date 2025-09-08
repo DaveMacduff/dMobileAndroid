@@ -10,7 +10,7 @@ namespace dMobile.Controller.Activity
     public class CutSheetFinishedActivityFactory : ActivityFactory
     {
         /// <summary>
-        /// The GetActivity.
+        /// Get the activity.
         /// </summary>
         /// <returns>The <see cref="Activity"/>.</returns>
         public override Activity GetActivity()

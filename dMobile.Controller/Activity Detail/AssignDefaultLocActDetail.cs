@@ -31,9 +31,6 @@ namespace dMobile.Controller.Activity_Detail
         public AssignDefaultLocActDetail(ActItem activityItem)
           : base(activityItem)
         {
-            this.FullClassName = typeof(AssignDefaultLocActDetail).FullName;
-
-            // Data grid
             var dataTemplate = new DataTemplate(() =>
             {
                 var gridData = new Grid

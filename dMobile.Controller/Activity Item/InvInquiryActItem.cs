@@ -70,7 +70,6 @@ namespace dMobile.Controller.Activity_Item
         public InvInquiryActItem(Activity.Activity activity)
             : base(activity)
         {
-            this.FullClassName = typeof(CycleActItem).FullName;
             this.IsAskCreateNewItem = false;
 
             // Data grid

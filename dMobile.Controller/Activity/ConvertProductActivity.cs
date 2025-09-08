@@ -19,15 +19,6 @@ namespace dMobile.Controller.Activity
     public class ConvertProductActivity : Activity
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="ConvertProductActivity"/> class.
-        /// </summary>
-        public ConvertProductActivity()
-            : base()
-        {
-            this.FullClassName = typeof(ConvertProductActivity).FullName;
-        }
-
-        /// <summary>
         /// The GetFKRefnoIdx.
         /// </summary>
         /// <returns>.</returns>

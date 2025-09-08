@@ -25,7 +25,6 @@ namespace dMobile.GroundWork
         /// </summary>
         public TableActivityCycleCountDetail()
         {
-            this.FullClassName = "dMobile.GroundWork.TableActivityCycleCountDetail";
             this.CurrentSubType = SysCommon.ActSubTypes.CycleCounts;
             this.LowerCaseName = "cycle count";
             this.ProperCaseName = "Cycle count";

@@ -36,10 +36,8 @@ namespace dMobile.Controller.Activity
         /// </summary>
         public SkidInfoActivity()
         {
-            this.FullClassName = typeof(SkidInfoActivity).FullName;
             this.LocMap = LocationMap.GetInstance();
             DefineInitialGridDataTemplate();
-            return;
 
             void DefineInitialGridDataTemplate()
             {

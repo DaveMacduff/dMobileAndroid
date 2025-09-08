@@ -24,7 +24,6 @@ namespace dMobile.GroundWork
         /// </summary>
         public TableActivityReplenishment()
         {
-            this.FullClassName = "dMobile.GroundWork.TableActivityReplenishment";
             this.CurrentSubType = SysCommon.ActSubTypes.InventoryReplenishment;
             this.LowerCaseName = "replenishment";
             this.ProperCaseName = "Replenishment";

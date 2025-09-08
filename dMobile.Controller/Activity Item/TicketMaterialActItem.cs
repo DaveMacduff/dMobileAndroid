@@ -31,14 +31,11 @@ namespace dMobile.Controller.Activity_Item
         public TicketMaterialActItem(Activity.Activity activity)
           : base(activity)
         {
-            this.FullClassName = typeof(TicketMaterialActItem).FullName;
             this.IsAllowAddItem = this.SysEnv.SysSettings.AllowAddProduct2TicketMaterial;
             this.IsAskCreateNewItem = !this.SysEnv.SysSettings.IsTicketMaterialCreateNewItemNoAsk;
 
             DefineInitialGrid();
-            return;
 
-            ///////////////////////////////////////////////////////////
             void DefineInitialGrid()
             {
                 var dataTemplate = new DataTemplate(() =>

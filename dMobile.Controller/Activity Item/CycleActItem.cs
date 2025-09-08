@@ -33,12 +33,9 @@ namespace dMobile.Controller.Activity_Item
         {
             this.IsAllowAddItem = this.SysEnv.SysSettings.AllowAddProduct2Cycle;
             this.IsAskCreateNewItem = !this.SysEnv.SysSettings.IsCycleCreateNewItemNoAsk;
-            this.FullClassName = typeof(CycleActItem).FullName;
 
             DefineInitialGrid();
-            return;
 
-            ///////////////////////////////////////////////////////////
             void DefineInitialGrid()
             {
                 var dataTemplate = new DataTemplate(

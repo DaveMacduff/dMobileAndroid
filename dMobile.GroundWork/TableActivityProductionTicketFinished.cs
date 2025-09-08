@@ -24,15 +24,12 @@ namespace dMobile.GroundWork
         /// </summary>
         public TableActivityProductionTicketFinished()
         {
-            this.FullClassName = "dMobile.GroundWork.TableActivityProductionTicketFinished";
             this.CurrentSubType = SysCommon.ActSubTypes.TicketFinished;
             this.LowerCaseName = "ticket finished products";
             this.ProperCaseName = "Ticket finished products";
         }
 
-        /// <summary>
-        /// The Purge.
-        /// </summary>
+        /// <inheritdoc cref="TableBase.PurgeData()"/>
         public override async Task PurgeData()
         {
             var conn = DatabaseConnection.GetInstance().SqlConn;
@@ -145,9 +142,11 @@ namespace dMobile.GroundWork
                                                           "?, " +
                                                           "?" +
                                                           ")";
-                            var parametersActivityProduction = new List<object>();
-                            parametersActivityProduction.Add(actRefno);
-                            parametersActivityProduction.Add(Convert.ToInt32(SysCommon.ActSubTypes.TicketFinished));
+                            var parametersActivityProduction = new List<object>
+                            {
+                                actRefno,
+                                Convert.ToInt32(SysCommon.ActSubTypes.TicketFinished)
+                            };
 
                             whsLocMapRefno = GetWhsLocMapRefnoFromDataRow(drow, transaction);
                             parametersActivityProduction.Add(whsLocMapRefno);
@@ -204,10 +203,7 @@ namespace dMobile.GroundWork
             });
         }
 
-        /// <summary>
-        /// The Create.
-        /// </summary>
-        /// <returns></returns>
+        /// <inheritdoc cref="TableBase.CreateRequest()"/>
         protected override async Task<string> CreateRequest()
         {
             var xmlString = new StringBuilder();

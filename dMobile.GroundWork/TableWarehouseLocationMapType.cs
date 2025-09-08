@@ -25,7 +25,6 @@ namespace dMobile.GroundWork
         public TableWarehouseLocationMapType()
             : base()
         {
-            this.FullClassName = "dMobile.GroundWork.TableWarehouseLocationMapType";
             this.LowerCaseName = "warehouse location map types";
             this.ProperCaseName = "Warehouse locations map types";
         }

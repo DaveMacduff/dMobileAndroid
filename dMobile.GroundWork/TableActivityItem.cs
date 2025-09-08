@@ -12,15 +12,6 @@ namespace dMobile.GroundWork
     public class TableActivityItem : TableBase
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="TableActivityItem"/> class.
-        /// </summary>
-        public TableActivityItem()
-          : base()
-        {
-            this.FullClassName = "dMobile.GroundWork.TableActivityItem";
-        }
-
-        /// <summary>
         ///
         /// </summary>
         /// <param name="actSubType"></param>

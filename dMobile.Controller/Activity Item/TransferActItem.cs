@@ -66,15 +66,12 @@ namespace dMobile.Controller.Activity_Item
         public TransferActItem(Activity.Activity activity)
             : base(activity)
         {
-            this.FullClassName = typeof(TransferActItem).FullName;
             this.IsAllowAddItem = this.SysEnv.SysSettings.AllowAddProd2Trans;
             this.IsAskCreateNewItem = !this.SysEnv.SysSettings.IsTransCreateNewItemNoAsk;
             this.ActSubType = activity.ActSubType;
 
             DefineInitialGrid();
-            return;
 
-            ///////////////////////////////////////////////////////////
             void DefineInitialGrid()
             {
                 var dataTemplate = new DataTemplate(

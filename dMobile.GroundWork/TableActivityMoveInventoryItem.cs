@@ -17,7 +17,6 @@ namespace dMobile.GroundWork
         public TableActivityMoveInventoryItem()
           : base()
         {
-            this.FullClassName = "dMobile.GroundWork.TableActivityMoveInventoryItem";
             this.CurrentSubType = SysCommon.ActSubTypes.MoveInventory;
             this.LowerCaseName = "move inventory item";
             this.ProperCaseName = "Move inventory item";

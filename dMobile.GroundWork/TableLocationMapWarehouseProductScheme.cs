@@ -17,15 +17,6 @@ namespace dMobile.GroundWork
     public class TableLocationMapWarehouseProductScheme : TableBase
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="TableLocationMapWarehouseProductScheme"/> class.
-        /// </summary>
-        public TableLocationMapWarehouseProductScheme()
-            : base()
-        {
-            this.FullClassName = this.GetType().FullName;
-        }
-
-        /// <summary>
         ///
         /// </summary>
         /// <remarks></remarks>

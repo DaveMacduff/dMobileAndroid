@@ -25,7 +25,6 @@ namespace dMobile.GroundWork
         /// </summary>
         public TableProductLocationMapType()
         {
-            this.FullClassName = this.GetType().Name;
             this.LowerCaseName = "product locations";
             this.ProperCaseName = "Product locations";
         }

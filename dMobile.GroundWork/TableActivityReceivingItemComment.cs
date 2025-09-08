@@ -17,7 +17,6 @@ namespace dMobile.GroundWork
         public TableActivityReceivingItemComment()
             : base()
         {
-            this.FullClassName = "dMobile.GroundWork.TableActivityReceivingItemComment";
             this.CurrentSubType = SysCommon.ActSubTypes.Receiving;
             this.LowerCaseName = "receiving comment";
             this.ProperCaseName = "Receiving comment";

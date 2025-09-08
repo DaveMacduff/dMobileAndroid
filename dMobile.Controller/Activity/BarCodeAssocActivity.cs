@@ -64,9 +64,6 @@ namespace dMobile.Controller.Activity
         public BarCodeAssocActivity()
           : base()
         {
-            this.FullClassName = typeof(BarCodeAssocActivity).FullName;
-
-            // Data grid
             var dataTemplate = new DataTemplate(() =>
             {
                 var gridData = new Grid

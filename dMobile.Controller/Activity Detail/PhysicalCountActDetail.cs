@@ -30,9 +30,6 @@ namespace dMobile.Controller.Activity_Detail
         public PhysicalCountActDetail(ActItem activityItem)
           : base(activityItem)
         {
-            this.FullClassName = typeof(PhysicalCountActDetail).FullName;
-
-            // Data grid
             var dataTemplate = new DataTemplate(() =>
             {
                 // Header grid

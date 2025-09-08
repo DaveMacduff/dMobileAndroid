@@ -25,7 +25,6 @@ namespace dMobile.GroundWork
         /// </summary>
         public TableProduct() : base()
         {
-            this.FullClassName = this.GetType().FullName;
             this.ProperCaseName = "Products";
             this.LowerCaseName = "products";
         }

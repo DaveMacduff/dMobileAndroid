@@ -18,14 +18,6 @@ namespace dMobile.Controller.Activity
     public class PutAwaySkidActivity : Activity
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="PutAwaySkidActivity"/> class.
-        /// </summary>
-        public PutAwaySkidActivity()
-        {
-            this.FullClassName = typeof(PutAwaySkidActivity).FullName;
-        }
-
-        /// <summary>
         /// The GetFKRefnoIdx.
         /// </summary>
         /// <returns>.</returns>

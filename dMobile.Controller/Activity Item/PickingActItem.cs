@@ -34,7 +34,6 @@ namespace dMobile.Controller.Activity_Item
         public PickingActItem(Activity.Activity activity)
             : base(activity)
         {
-            this.FullClassName = typeof(PickingActItem).FullName;
             this.IsAllowAddItem = this.SysEnv.SysSettings.AllowAddProd2Pick;
             this.IsAskCreateNewItem = !this.SysEnv.SysSettings.IsPickCreateNewItemNoAsk;
 

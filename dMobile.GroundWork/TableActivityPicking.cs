@@ -24,7 +24,6 @@ namespace dMobile.GroundWork
         /// </summary>
         public TableActivityPicking()
         {
-            this.FullClassName = "dMobile.GroundWork.TableActivityPicking";
             this.CurrentSubType = SysCommon.ActSubTypes.Picking;
             this.LowerCaseName = "sales orders";
             this.ProperCaseName = "Sales orders";

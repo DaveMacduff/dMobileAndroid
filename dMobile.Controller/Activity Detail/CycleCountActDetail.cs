@@ -33,9 +33,6 @@ namespace dMobile.Controller.Activity_Detail
         public CycleCountActDetail(ActItem actItem)
             : base(actItem)
         {
-            this.FullClassName = typeof(CycleCountActDetail).FullName;
-
-            // Data grid
             var dataTemplate = new DataTemplate(() =>
             {
                 // Header grid

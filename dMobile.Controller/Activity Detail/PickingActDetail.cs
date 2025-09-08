@@ -34,8 +34,6 @@ namespace dMobile.Controller.Activity_Detail
         public PickingActDetail(ActItem actItem)
           : base(actItem)
         {
-            this.FullClassName = typeof(PickingActDetail).FullName;
-
             var dataTemplate = new DataTemplate(
                 () =>
                 {

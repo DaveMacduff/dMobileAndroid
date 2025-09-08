@@ -54,9 +54,7 @@ namespace dMobile.Controller.Activity
         public RecvActivity()
           : base()
         {
-            this.FullClassName = typeof(RecvActivity).FullName;
             DefineInitialGridDataTemplate();
-            return;
 
             void DefineInitialGridDataTemplate()
             {

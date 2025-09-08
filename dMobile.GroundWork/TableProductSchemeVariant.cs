@@ -23,7 +23,6 @@ namespace dMobile.GroundWork
         public TableProductSchemeVariant()
           : base()
         {
-            this.FullClassName = "dMobile.GroundWork.TableProductSchemeVariant";
             this.LowerCaseName = "scheme variants";
             this.ProperCaseName = "Scheme variants";
         }

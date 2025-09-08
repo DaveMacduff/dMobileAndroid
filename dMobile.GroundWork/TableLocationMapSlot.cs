@@ -26,7 +26,6 @@ namespace dMobile.GroundWork
         /// </summary>
         public TableLocationMapSlot()
         {
-            this.FullClassName = "dMobile.GroundWork.TableLocationMapSlot";
             this.LowerCaseName = "slots";
             this.ProperCaseName = "Slots";
         }
@@ -60,7 +59,7 @@ namespace dMobile.GroundWork
                     else
                     {
                         var msg = $"No results in tLocationMapWarehouse for LocationMapRefno {whsLocMapRefno}";
-                        throw new Exception(msg + Environment.NewLine + this.FullClassName + " Request");
+                        throw new Exception(msg);
                     }
                 }
 

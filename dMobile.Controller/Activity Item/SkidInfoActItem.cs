@@ -24,7 +24,6 @@ namespace dMobile.Controller.Activity_Item
         public SkidInfoActItem(Activity.Activity activity)
           : base(activity)
         {
-            this.FullClassName = typeof(SkidInfoActItem).FullName;
         }
 
         /// <summary>

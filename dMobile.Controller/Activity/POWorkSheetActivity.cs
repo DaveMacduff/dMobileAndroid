@@ -52,7 +52,6 @@ namespace dMobile.Controller.Activity
         /// </summary>
         public PoWorkSheetActivity()
         {
-            this.FullClassName = typeof(PoWorkSheetActivity).FullName;
             DefineInitialGridDataTemplate();
             return;
 

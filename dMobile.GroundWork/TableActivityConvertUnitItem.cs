@@ -4,30 +4,31 @@
 
 namespace dMobile.GroundWork
 {
-    using System;
-    using System.Threading.Tasks;
     using Bedrock;
     using SQLite;
+    using System;
+    using System.Threading.Tasks;
 
+    /// <summary>
+    /// Defines the <see cref="TableActivityConvertUnitItem" />
+    /// </summary>
     public class TableActivityConvertUnitItem : TableBase
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="TableActivityConvertUnitItem"/> class.
         /// </summary>
         public TableActivityConvertUnitItem()
-          : base()
+            : base()
         {
-            this.FullClassName = "dMobile.GroundWork.TableActivityConvertUnitItem";
             this.CurrentSubType = SysCommon.ActSubTypes.ConvertUnit;
             this.LowerCaseName = "convert unit";
             this.ProperCaseName = "Convert unit";
         }
 
         /// <summary>
-        ///
+        /// The PurgeData
         /// </summary>
-        /// <remarks></remarks>
-        /// <inheritdoc/>
+        /// <returns>The <see cref="Task"/></returns>
         public override async Task PurgeData()
         {
             var conn = DatabaseConnection.GetInstance().SqlConn;
@@ -77,7 +78,7 @@ namespace dMobile.GroundWork
                                 (SELECT tActivityItem.ActivityItemRefno
                                     FROM tActivityItem
                                     WHERE tActivityItem.ActivityItemSubType = ?)";
-                    transaction.Execute(query,subType);
+                    transaction.Execute(query, subType);
 
                     query = "DELETE FROM tActivityItemConvertUnit WHERE ActivityItemSubType = ?";
                     transaction.Execute(query, subType);

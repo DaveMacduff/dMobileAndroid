@@ -23,7 +23,6 @@ namespace dMobile.GroundWork
         public TableProductScheme()
           : base()
         {
-            this.FullClassName = "dMobile.GroundWork.TableProductScheme";
             this.LowerCaseName = "schemes";
             this.ProperCaseName = "Schemes";
         }

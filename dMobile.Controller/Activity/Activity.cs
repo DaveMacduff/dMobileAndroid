@@ -30,7 +30,6 @@ namespace dMobile.Controller.Activity
             this.ActSubType = SysCommon.ActSubTypes.NotApplicable;
             this.SkidInfo = new SysSkidInfo();
             this.SysEnv = SysEnvironment.GetInstance();
-            this.FullClassName = typeof(Activity).FullName;
             this.DataEventArgs = new DataLayerEventArgs();
             this.SelectedActivity = null;
             this.XmlDataCriteria = null;
@@ -86,11 +85,6 @@ namespace dMobile.Controller.Activity
         public int HdrRefno { get; set; } = 0;
 
         /// <summary>
-        /// Gets or sets the SysEnv.
-        /// </summary>
-        protected SysEnvironment SysEnv { get; set; }
-
-        /// <summary>
         /// Gets or sets the DataEventArgs.
         /// </summary>
         public DataLayerEventArgs DataEventArgs { get; set; }
@@ -104,6 +98,11 @@ namespace dMobile.Controller.Activity
         /// Gets or sets the activity item list item selected index.
         /// </summary>
         public int SelectedListItemIdx { get; set; } = 0;
+
+        /// <summary>
+        /// Gets or sets the SysEnv.
+        /// </summary>
+        protected SysEnvironment SysEnv { get; set; }
 
         /// <summary>
         /// Perform a data refresh.
@@ -122,9 +121,9 @@ namespace dMobile.Controller.Activity
         /// <summary>
         /// Get a list of activity objects.
         /// </summary>
-        /// <param name="isSubmitBatch"><see cref="bool"/> Is submit batch operation.</param>
+        /// <param name="isDisconnectedMode"><see cref="bool"/> Is disconnected mode.</param>
         /// <returns><see cref="List{T}"/> List of activity objects.</returns>
-        public abstract Task<List<object>> GetActivityList(bool isSubmitBatch);
+        public abstract Task<List<object>> GetActivityList(bool isDisconnectedMode);
 
         /// <summary>
         /// Design the activity grid.

@@ -53,9 +53,7 @@ namespace dMobile.Controller.Activity
         /// </summary>
         public TicketByProdActivity()
         {
-            this.FullClassName = typeof(TicketByProdActivity).FullName;
             DefineInitialGridDataTemplate();
-            return;
 
             void DefineInitialGridDataTemplate()
             {

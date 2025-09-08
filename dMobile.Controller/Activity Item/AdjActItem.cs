@@ -31,14 +31,11 @@ namespace dMobile.Controller.Activity_Item
         public AdjActItem(Activity.Activity activity)
             : base(activity)
         {
-            this.FullClassName = typeof(AdjActItem).FullName;
             this.IsAllowAddItem = this.SysEnv.SysSettings.AllowAddProduct2Adjustments;
             this.IsAskCreateNewItem = !this.SysEnv.SysSettings.IsAdjustmentCreateNewItemNoAsk;
 
             DefineInitialGrid();
-            return;
 
-            ///////////////////////////////////////////////////////////
             void DefineInitialGrid()
             {
                 var dataTemplate = new DataTemplate(

@@ -29,7 +29,6 @@ namespace dMobile.Controller.Activity
         /// </summary>
         public AdjActivity()
         {
-            this.FullClassName = typeof(AdjActivity).FullName;
             this.AdjSettings = new AdjustmentSettings().LoadData();
             DefineInitialGridDataTemplate();
             return;
@@ -250,9 +249,9 @@ namespace dMobile.Controller.Activity
         /// <summary>
         /// Get list of activity headers.
         /// </summary>
-        /// <param name="isSubmitBatch"><see cref="bool"/> Is submitting batch mode.</param>
+        /// <param name="isDisconnectedMode"><see cref="bool"/> Is submitting batch mode.</param>
         /// <returns>List of headers.</returns>
-        public override async Task<List<object>> GetActivityList(bool isSubmitBatch)
+        public override async Task<List<object>> GetActivityList(bool isDisconnectedMode)
         {
             var adjSettings = new AdjustmentSettings().LoadData();
             var sql = new StringBuilder();
@@ -269,7 +268,7 @@ namespace dMobile.Controller.Activity
             _ = sql.Append("tActivityAdjustment.ActivityAdjustmentTypeDescription AS ActivityAdjustmentTypeDescription,");
             _ = sql.Append("tActivity.ActivityStatus AS ActivityStatus");
             _ = sql.Append(" FROM tActivityAdjustment");
-            if (isSubmitBatch)
+            if (isDisconnectedMode)
             {
                 _ = sql.Append(" INNER JOIN tActivity ON tActivity.ActivityRefno = tActivityAdjustment.ActivityRefno");
                 _ = sql.Append(" INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno = ");

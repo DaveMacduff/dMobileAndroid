@@ -25,7 +25,6 @@ namespace dMobile.GroundWork
         /// </summary>
         public TableActivityReceivingDetail()
         {
-            this.FullClassName = "dMobile.GroundWork.TableActivityReceivingDetail";
             this.CurrentSubType = SysCommon.ActSubTypes.Receiving;
             this.LowerCaseName = "receiving";
             this.ProperCaseName = "Receiving";
@@ -232,9 +231,7 @@ namespace dMobile.GroundWork
                                 {
                                     errMsg =
                                         "No results in tActivityItemReceiving for ActivityItemRefno " +
-                                        refno +
-                                        " " +
-                                        this.FullClassName;
+                                        refno.ToString();
                                     throw new Exception(errMsg);
                                 }
 

@@ -26,7 +26,6 @@ namespace dMobile.GroundWork
         public TableProductUnitBarCode()
             : base()
         {
-            this.FullClassName = "dMobile.GroundWork.TableProductUnitBarCode";
             this.LowerCaseName = "product unit bar codes";
             this.ProperCaseName = "Product unit bar codes";
         }

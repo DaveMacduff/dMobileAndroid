@@ -26,7 +26,6 @@ namespace dMobile.GroundWork
         public TableContactUsers()
             : base()
         {
-            this.FullClassName = "dMobile.GroundWork.TableContactUsers";
             this.LowerCaseName = "contact users";
             this.ProperCaseName = "Contact users";
         }

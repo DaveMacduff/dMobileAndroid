@@ -17,15 +17,6 @@ namespace dMobile.Controller.Activity
     public class InvInquirySummaryActivity : Activity
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="InvInquirySummaryActivity"/> class.
-        /// </summary>
-        public InvInquirySummaryActivity()
-            : base()
-        {
-            this.FullClassName = typeof(AdjActivity).FullName;
-        }
-
-        /// <summary>
         /// The Purge.
         /// </summary>
         /// <returns>The <see cref="Task"/>.</returns>

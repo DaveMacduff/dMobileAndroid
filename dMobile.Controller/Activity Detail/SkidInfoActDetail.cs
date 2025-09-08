@@ -32,9 +32,6 @@ namespace dMobile.Controller.Activity_Detail
         public SkidInfoActDetail(ActItem actItem)
             : base(actItem)
         {
-            this.FullClassName = typeof(SkidInfoActDetail).FullName;
-
-            // Data grid
             var dataTemplate = new DataTemplate(() =>
             {
                 var gridData = new Grid

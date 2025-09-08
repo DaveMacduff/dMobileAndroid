@@ -85,9 +85,7 @@ namespace dMobile.Controller.Activity_Detail
             : base(actItem)
         {
             this.Id = 0;
-            this.FullClassName = typeof(ConvertProductActDetail).FullName;
 
-            // Data grid
             var dataTemplate = new DataTemplate(() =>
             {
                 // Header grid

@@ -24,7 +24,6 @@ namespace dMobile.Controller.Activity_Item
         public MoveInvActItem(Activity.Activity activity)
             : base(activity)
         {
-            this.FullClassName = typeof(MoveInvActItem).FullName;
         }
 
         /// <summary>

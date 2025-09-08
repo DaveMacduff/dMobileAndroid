@@ -23,7 +23,6 @@ namespace dMobile.GroundWork
         public TableFamily()
             : base()
         {
-            this.FullClassName = "dMobile.GroundWork.TableFamily";
             this.LowerCaseName = "families";
             this.ProperCaseName = "Families";
         }

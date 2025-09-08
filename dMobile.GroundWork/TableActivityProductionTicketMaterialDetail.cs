@@ -25,15 +25,12 @@ namespace dMobile.GroundWork
         /// </summary>
         public TableActivityProductionTicketMaterialDetail()
         {
-            this.FullClassName = "dMobile.GroundWork.TableActivityProductionTicketMaterialDetail";
             this.CurrentSubType = SysCommon.ActSubTypes.TicketMaterial;
             this.LowerCaseName = "ticket raw material product";
             this.ProperCaseName = "Ticket raw material product";
         }
 
-        /// <summary>
-        /// The Purge.
-        /// </summary>
+        /// <inheritdoc/>
         public override async Task PurgeData()
         {
             var conn = DatabaseConnection.GetInstance().SqlConn;
@@ -159,16 +156,7 @@ namespace dMobile.GroundWork
                 });
         }
 
-        /// <summary>
-        /// Sends a request based on the specified activity foreign key reference number.
-        /// </summary>
-        /// <remarks>This method retrieves data from the database using the provided activity foreign key
-        /// reference number. If a matching record is found, it creates and sends a communication request based on the
-        /// retrieved data.</remarks>
-        /// <param name="activityFkRefno">The foreign key reference number of the activity item. Must be a valid reference number.</param>
-        /// <returns>A task that represents the asynchronous operation. The task result contains the response string from the
-        /// communication request.</returns>
-        /// <exception cref="Exception">Thrown if no records are found for the specified <paramref name="activityFkRefno"/> in the database.</exception>
+        /// <inheritdoc cref="TableBase.SendRequest(int)"/>
         protected override async Task<string> SendRequest(int activityFkRefno)
         {
             var results = await DatabaseConnection.GetInstance()
@@ -297,15 +285,15 @@ namespace dMobile.GroundWork
                                                             "?, " +
                                                             "?" +
                                                             ")";
-                                    var parametersInsertDetail = new List<object>();
-                                    parametersInsertDetail.Add(
-                                        Convert.ToInt32(SysCommon.ActSubTypes.TicketMaterial));
-                                    parametersInsertDetail.Add(Convert.ToInt32(0));
-                                    parametersInsertDetail.Add(refno);
-                                    parametersInsertDetail.Add(
+                                    var parametersInsertDetail = new List<object>
+                                    {
+                                        Convert.ToInt32(SysCommon.ActSubTypes.TicketMaterial),
+                                        Convert.ToInt32(0),
+                                        refno,
                                         Convert.ToInt32(
-                                            GetReceivedDataLocation(drow, transaction, false)));
-                                    parametersInsertDetail.Add(results[0].ProductUnitRefno);
+                                            GetReceivedDataLocation(drow, transaction, false)),
+                                        results[0].ProductUnitRefno
+                                    };
                                     parametersInsertDetail.AddRange(
                                         SaveDetail(drow, transaction, false));
 
@@ -386,11 +374,7 @@ namespace dMobile.GroundWork
                     });
         }
 
-        /// <summary>
-        /// The Create.
-        /// </summary>
-        /// <param name="activityFkRefno">The activityFkRefno<see cref="int"/>.</param>
-        /// <returns></returns>
+        /// <inheritdoc cref="TableBase.CreateRequest(int)"/>
         protected override async Task<string> CreateRequest(int activityFkRefno)
         {
             var xmlString = new StringBuilder();

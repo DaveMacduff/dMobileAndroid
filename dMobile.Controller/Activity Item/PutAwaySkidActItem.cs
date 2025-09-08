@@ -24,7 +24,6 @@ namespace dMobile.Controller.Activity_Item
         public PutAwaySkidActItem(Activity.Activity activity)
             : base(activity)
         {
-            this.FullClassName = typeof(PutAwaySkidActItem).FullName;
             this.IsAskCreateNewItem = true;
         }
 

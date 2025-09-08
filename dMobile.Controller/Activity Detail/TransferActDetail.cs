@@ -33,10 +33,8 @@ namespace dMobile.Controller.Activity_Detail
         public TransferActDetail(ActItem actItem)
             : base(actItem)
         {
-            this.FullClassName = typeof(TransferActDetail).FullName;
             this.ActSubType = actItem.ActSubType;
 
-            // Data grid
             var dataTemplate = new DataTemplate(() =>
             {
                 var gridData = new Grid

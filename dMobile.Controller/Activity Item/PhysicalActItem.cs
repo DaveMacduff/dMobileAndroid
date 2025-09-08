@@ -31,7 +31,6 @@ namespace dMobile.Controller.Activity_Item
         public PhysicalActItem(Activity.Activity activity)
           : base(activity)
         {
-            this.FullClassName = typeof(PhysicalActItem).FullName;
             this.IsAllowAddItem = this.SysEnv.SysSettings.AllowAddProduct2Physical;
             this.IsAskCreateNewItem = !this.SysEnv.SysSettings.IsPhysicalCreateNewItemNoAsk;
 

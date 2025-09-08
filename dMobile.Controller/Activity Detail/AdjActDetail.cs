@@ -65,9 +65,6 @@ namespace dMobile.Controller.Activity_Detail
         public AdjActDetail(ActItem activityItem)
             : base(activityItem)
         {
-            this.FullClassName = typeof(AdjActDetail).FullName;
-
-            // Data grid
             var dataTemplate = new DataTemplate(() =>
             {
                 // Header grid

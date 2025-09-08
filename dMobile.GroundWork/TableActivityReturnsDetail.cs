@@ -23,7 +23,6 @@ namespace dMobile.GroundWork
         public TableActivityReturnsDetail()
             : base()
         {
-            this.FullClassName = "dMobile.GroundWork.TableActivityReturnsDetail";
             this.CurrentSubType = SysCommon.ActSubTypes.Returns;
             this.LowerCaseName = "sales order return";
             this.ProperCaseName = "Sales order return";
@@ -246,9 +245,7 @@ namespace dMobile.GroundWork
                                 {
                                     throw new Exception(
                                         "No results in tActivityItemReturns for ActivityItemRefno " +
-                                        refno +
-                                        " " +
-                                        this.FullClassName);
+                                        refno.ToString());
                                 }
 
                                 foreach (DataRow drow in ds.Tables["tActivityDetailReturns"].Rows)

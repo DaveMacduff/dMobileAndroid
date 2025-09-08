@@ -26,7 +26,6 @@ namespace dMobile.Controller.Activity_Detail
         public PoWorkSheetActDetail(ActItem activityItem)
           : base(activityItem)
         {
-            this.FullClassName = typeof(PoWorkSheetActDetail).FullName;
         }
 
         /// <summary>

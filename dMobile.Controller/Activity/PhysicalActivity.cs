@@ -54,7 +54,6 @@ namespace dMobile.Controller.Activity
         public PhysicalActivity()
             : base()
         {
-            this.FullClassName = typeof(PhysicalActivity).FullName;
             DefineInitialGridDataTemplate();
             return;
 

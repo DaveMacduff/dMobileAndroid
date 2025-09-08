@@ -18,15 +18,6 @@ namespace dMobile.Controller.Activity
     public class ConvertUnitActivity : Activity
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="ConvertUnitActivity"/> class.
-        /// </summary>
-        public ConvertUnitActivity()
-            : base()
-        {
-            this.FullClassName = typeof(ConvertUnitActivity).FullName;
-        }
-
-        /// <summary>
         /// The GetFKRefnoIdx.
         /// </summary>
         /// <returns>.</returns>

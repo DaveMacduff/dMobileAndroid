@@ -25,7 +25,6 @@ namespace dMobile.GroundWork
         /// </summary>
         public TableRoute()
         {
-            this.FullClassName = "dMobile.GroundWork.TableRoute";
             this.LowerCaseName = "routes";
             this.ProperCaseName = "Routes";
         }

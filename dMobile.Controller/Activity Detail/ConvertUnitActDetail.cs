@@ -30,9 +30,6 @@ namespace dMobile.Controller.Activity_Detail
         public ConvertUnitActDetail(ActItem actItem)
           : base(actItem)
         {
-            this.FullClassName = typeof(ConvertUnitActDetail).FullName;
-
-            // Data grid
             var dataTemplate = new DataTemplate(() =>
             {
                 var gridData = new Grid

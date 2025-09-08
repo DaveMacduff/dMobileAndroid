@@ -17,15 +17,6 @@ namespace dMobile.Controller.Activity
     public class MoveSkidActivity : Activity
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="MoveSkidActivity"/> class.
-        /// </summary>
-        public MoveSkidActivity()
-          : base()
-        {
-            this.FullClassName = typeof(MoveSkidActivity).FullName;
-        }
-
-        /// <summary>
         /// The ChangeStatus.
         /// </summary>
         /// <param name="selectedActivity">The selectedActivity<see cref="object"/>.</param>

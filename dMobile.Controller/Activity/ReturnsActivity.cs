@@ -28,9 +28,7 @@ namespace dMobile.Controller.Activity
         /// </summary>
         public ReturnsActivity()
         {
-            this.FullClassName = typeof(ReturnsActivity).FullName;
             DefineInitialGridDataTemplate();
-            return;
 
             void DefineInitialGridDataTemplate()
             {

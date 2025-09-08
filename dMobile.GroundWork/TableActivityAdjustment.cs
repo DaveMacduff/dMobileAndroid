@@ -24,7 +24,6 @@ namespace dMobile.GroundWork
         /// </summary>
         public TableActivityAdjustment()
         {
-            this.FullClassName = "dMobile.GroundWork.TableActivityAdjustment";
             this.CurrentSubType = SysCommon.ActSubTypes.Adjustment;
             this.LowerCaseName = "adjustments";
             this.ProperCaseName = "Adjustments";

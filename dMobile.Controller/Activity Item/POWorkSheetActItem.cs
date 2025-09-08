@@ -53,8 +53,6 @@ namespace dMobile.Controller.Activity_Item
         public PoWorkSheetActItem(Activity activity)
             : base(activity)
         {
-            this.FullClassName = typeof(PoWorkSheetActItem).FullName;
-
             // Always allow adding product
             this.IsAllowAddItem = true;
             this.IsAskCreateNewItem = !this.SysEnv.SysSettings.IsPOWorkSheetCreateNewItemNoAsk;

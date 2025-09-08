@@ -17,15 +17,6 @@ namespace dMobile.Controller.Activity
     public class MoveInvActivity : Activity
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="MoveInvActivity"/> class.
-        /// </summary>
-        public MoveInvActivity()
-          : base()
-        {
-            this.FullClassName = typeof(MoveInvActivity).FullName;
-        }
-
-        /// <summary>
         /// The GetFKRefnoIdx.
         /// </summary>
         /// <returns>.</returns>

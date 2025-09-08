@@ -33,9 +33,6 @@ namespace dMobile.Controller.Activity_Detail
         public TicketByProdActDetail(ActItem actItem)
           : base(actItem)
         {
-            this.FullClassName = typeof(TicketByProdActDetail).FullName;
-
-            // Data grid
             var dataTemplate = new DataTemplate(() =>
             {
                 // Header grid

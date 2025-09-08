@@ -21,7 +21,6 @@ namespace dMobile.GroundWork
         public TableActivityTransferTo()
             : base()
         {
-            this.FullClassName = "dMobile.GroundWork.TableActivityTransferTo";
             this.CurrentSubType = SysCommon.ActSubTypes.TransferTo;
             this.LowerCaseName = "to transfers";
             this.ProperCaseName = "To transfers";

@@ -26,7 +26,6 @@ namespace dMobile.GroundWork
         /// </summary>
         public TableActivityPhysicalCountItem()
         {
-            this.FullClassName = "dMobile.GroundWork.TableActivityPhysicalCountItem";
             this.CurrentSubType = SysCommon.ActSubTypes.PhysicalCounts;
             this.LowerCaseName = "physical count";
             this.ProperCaseName = "Physical count";
@@ -170,12 +169,12 @@ namespace dMobile.GroundWork
                                 LocationMapRefno = await GetReceivedDataLocationAsync(
                                     drow,
                                     conn,
-                                    useFNumberElements: true,
+                                    useShortElementNames: true,
                                     SysCommon.ActSubTypes.PhysicalCounts),
                                 ProductUnitRefno = await GetProductUnitRefnoFromDataRowAsync(
                                     drow,
                                     conn,
-                                    useFNumberElements: true),
+                                    useShortElementNames: true),
                                 ActivityItemCountQuantityOnHand = Convert.ToDecimal(drow["f09"]),
                                 ActivityItemCountBaseQuantityOnHand = Convert.ToDecimal(drow["f10"]),
                                 ActivityItemCountWeightQuantityOnHand = Convert.ToDecimal(drow["f11"]),

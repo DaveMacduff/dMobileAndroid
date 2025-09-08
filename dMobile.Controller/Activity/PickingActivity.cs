@@ -65,10 +65,7 @@ namespace dMobile.Controller.Activity
         public PickingActivity()
           : base()
         {
-            this.FullClassName = typeof(PickingActivity).FullName;
-
             DefineInitialGridDataTemplate();
-            return;
 
             void DefineInitialGridDataTemplate()
             {

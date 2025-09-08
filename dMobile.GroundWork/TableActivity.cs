@@ -14,20 +14,7 @@ namespace dMobile.GroundWork
     /// </summary>
     public class TableActivity : TableBase
     {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="TableActivity"/> class.
-        /// </summary>
-        public TableActivity()
-          : base()
-        {
-            this.FullClassName = typeof(TableActivity).FullName;
-        }
-
-        /// <summary>
-        /// The Purge.
-        /// </summary>
-        /// <param name="actSubType">The actSubType<see cref="SysCommon.ActSubTypes"/>.</param>
-        /// <returns>The <see cref="Task"/>.</returns>
+        /// <inheritdoc/>
         public override async Task PurgeData(SysCommon.ActSubTypes actSubType)
         {
             try

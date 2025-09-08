@@ -56,9 +56,6 @@ namespace dMobile.Controller.Activity_Detail
         public InventoryInquiryActDetail(ActItem actItem)
           : base(actItem)
         {
-            this.FullClassName = typeof(InventoryInquiryActDetail).FullName;
-
-            // Data grid
             var dataTemplate = new DataTemplate(() =>
             {
                 // Header grid

@@ -27,14 +27,14 @@ namespace dMobile.Bedrock.Settings
         }
 
         /// <summary>
-        /// Gets or sets the production date filter.
+        /// Gets or sets the cut sheet date filter.
         /// </summary>
-        public DateTime ProductionDateFilter { get; set; } = new DateTime(1900, 1, 1);
+        public DateTime CutSheetDateFilter { get; set; } = new DateTime(1900, 1, 1);
 
         /// <summary>
-        /// Gets or sets a value indicating whether the production date filter is applied.
+        /// Gets or sets a value indicating whether the cut sheet date filter is applied.
         /// </summary>
-        public bool IsApplyProductionDateFilter { get; set; } = false;
+        public bool IsApplyCutSheetDateFilter { get; set; } = false;
 
         /// <summary>
         /// Gets the full class name.

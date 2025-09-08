@@ -95,7 +95,6 @@ namespace dMobile.Controller.Activity_Item
         public InvInquirySummaryActItem(Activity.Activity activity)
             : base(activity)
         {
-            this.FullClassName = typeof(CycleActItem).FullName;
             this.IsAskCreateNewItem = false;
             this.LocMap = LocationMap.GetInstance().CurrLocMap;
 

@@ -25,7 +25,6 @@ namespace dMobile.GroundWork
         /// </summary>
         public TableProductUnit()
         {
-            this.FullClassName = "dMobile.GroundWork.TableProductUnit";
             this.LowerCaseName = "product units";
             this.ProperCaseName = "Product units";
         }

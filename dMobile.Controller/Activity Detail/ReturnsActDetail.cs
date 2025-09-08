@@ -33,9 +33,6 @@ namespace dMobile.Controller.Activity_Detail
         public ReturnsActDetail(ActItem activityItem)
           : base(activityItem)
         {
-            this.FullClassName = typeof(ReturnsActDetail).FullName;
-
-            // Data grid
             var dataTemplate = new DataTemplate(() =>
             {
                 var gridData = new Grid

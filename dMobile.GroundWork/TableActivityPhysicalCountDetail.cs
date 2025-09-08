@@ -25,7 +25,6 @@ namespace dMobile.GroundWork
         /// </summary>
         public TableActivityPhysicalCountDetail()
         {
-            this.FullClassName = "dMobile.GroundWork.TableActivityPhysicalCountDetail";
             this.CurrentSubType = SysCommon.ActSubTypes.PhysicalCounts;
             this.LowerCaseName = "physical count";
             this.ProperCaseName = "Physical count";

@@ -24,15 +24,12 @@ namespace dMobile.GroundWork
         public TableActivityProductionTicketByProduct()
             : base()
         {
-            this.FullClassName = "dMobile.GroundWork.TableActivityProductionTicketByProduct";
             this.CurrentSubType = SysCommon.ActSubTypes.TicketAddProduct;
             this.LowerCaseName = "ticket additional products";
             this.ProperCaseName = "Ticket additional products";
         }
 
-        /// <summary>
-        /// The Purge.
-        /// </summary>
+        /// <inheritdoc cref="TableBase.PurgeData()"/>
         public override async Task PurgeData()
         {
             var conn = DatabaseConnection.GetInstance().SqlConn;
@@ -288,10 +285,7 @@ namespace dMobile.GroundWork
                     });
         }
 
-        /// <summary>
-        /// The Create.
-        /// </summary>
-        /// <returns></returns>
+        /// <inheritdoc cref="TableBase.CreateRequest()"/>
         protected override async Task<string> CreateRequest()
         {
             var xmlString = new StringBuilder();

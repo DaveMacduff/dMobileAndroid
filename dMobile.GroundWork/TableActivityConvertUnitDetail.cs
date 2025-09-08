@@ -17,7 +17,6 @@ namespace dMobile.GroundWork
         public TableActivityConvertUnitDetail()
           : base()
         {
-            this.FullClassName = "dMobile.GroundWork.TableActivityConvertUnitDetail";
             this.CurrentSubType = SysCommon.ActSubTypes.ConvertUnit;
             this.LowerCaseName = "convert unit";
             this.ProperCaseName = "Convert unit";

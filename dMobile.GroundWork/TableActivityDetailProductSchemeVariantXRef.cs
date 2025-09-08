@@ -17,7 +17,6 @@ namespace dMobile.GroundWork
         public TableActivityDetailProductSchemeVariantXRef()
           : base()
         {
-            this.FullClassName = "dMobile.GroundWork.TableActivityDetailProductSchemeVariantXRef";
             this.LowerCaseName = "product scheme variant xref";
             this.ProperCaseName = "Product scheme variant xref";
         }

@@ -61,9 +61,6 @@ namespace dMobile.Controller.Activity_Detail
         public PutAwaySkidActDetail(ActItem actItem)
           : base(actItem)
         {
-            this.FullClassName = typeof(PutAwaySkidActDetail).FullName;
-
-            // Data grid
             var dataTemplate = new DataTemplate(() =>
             {
                 var gridData = new Grid

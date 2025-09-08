@@ -64,9 +64,7 @@ namespace dMobile.Controller.Activity
         /// </summary>
         public ReleaseByOrderActivity()
         {
-            this.FullClassName = typeof(ReleaseByOrderActivity).FullName;
             DefineInitialGridDataTemplate();
-            return;
 
             void DefineInitialGridDataTemplate()
             {

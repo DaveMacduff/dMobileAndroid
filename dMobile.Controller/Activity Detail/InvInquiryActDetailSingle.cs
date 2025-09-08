@@ -53,9 +53,6 @@ namespace dMobile.Controller.Activity_Detail
         public InvInquiryActDetailSingle(ActItem actItem)
           : base(actItem)
         {
-            this.FullClassName = typeof(InvInquiryActDetailSingle).FullName;
-
-            // Data grid
             var dataTemplate = new DataTemplate(() =>
             {
                 // Header grid

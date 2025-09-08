@@ -38,10 +38,8 @@ namespace dMobile.Controller.Activity
         /// </summary>
         public CycleActivity()
         {
-            this.FullClassName = typeof(CycleActivity).FullName;
             this.CycleCountSettings = new CycleCountSettings().LoadData();
             DefineInitialGridDataTemplate();
-            return;
 
             void DefineInitialGridDataTemplate()
             {
@@ -427,7 +425,7 @@ namespace dMobile.Controller.Activity
 
             if (cycleSettings.IsApplyCountDate)
             {
-                if (string.Compare(filterData.Root.Element("count_date")! .Value, string.Empty) > 0)
+                if (string.Compare(filterData.Root.Element("count_date") !.Value, string.Empty) > 0)
                 {
                     var dt = DateTime.Parse(filterData.Root.Element("count_date") !.Value);
                     var minDate = new DateTime(dt.Year, dt.Month, dt.Day, 00, 00, 00);

@@ -62,15 +62,11 @@ namespace dMobile.Controller.Activity_Item
         public ReturnsActItem(Activity.Activity activity)
           : base(activity)
         {
-            this.FullClassName = typeof(ReturnsActItem).FullName;
             this.IsAllowAddItem = this.SysEnv.SysSettings.AllowAddProd2Ret;
             this.IsAskCreateNewItem = !this.SysEnv.SysSettings.IsRetCreateNewItemNoAsk;
 
-            // Data grid
             DefineInitialGrid();
-            return;
 
-            ///////////////////////////////////////////////////////////
             void DefineInitialGrid()
             {
                 var dataTemplate = new DataTemplate(

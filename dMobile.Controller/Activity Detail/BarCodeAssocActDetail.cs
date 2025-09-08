@@ -22,11 +22,9 @@ namespace dMobile.Controller.Activity_Detail
         /// <summary>
         /// Initializes a new instance of the <see cref="BarCodeAssocActDetail"/> class.
         /// </summary>
-        /// <param name="actItem">.</param>
-        public BarCodeAssocActDetail(ActItem actItem)
-          : base(actItem)
+        /// <param name="activityItem">Activity item.</param>
+        public BarCodeAssocActDetail(ActItem activityItem) : base(activityItem)
         {
-            this.FullClassName = typeof(BarCodeAssocActDetail).FullName;
         }
 
         /// <summary>

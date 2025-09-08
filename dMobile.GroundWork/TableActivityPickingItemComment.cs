@@ -17,7 +17,6 @@ namespace dMobile.GroundWork
         public TableActivityPickingItemComment()
           : base()
         {
-            this.FullClassName = "dMobile.GroundWork.TableActivityPickingItemComment";
             this.CurrentSubType = SysCommon.ActSubTypes.Picking;
             this.LowerCaseName = "sales order";
             this.ProperCaseName = "Sales order";

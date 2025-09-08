@@ -31,8 +31,6 @@ namespace dMobile.Controller.Activity_Detail
         public MoveInventoryActDetail(ActItem activityItem)
             : base(activityItem)
         {
-            this.FullClassName = typeof(MoveInventoryActDetail).FullName;
-
             foreach (var item in this.ResourceDictionary)
             {
                 if (item.Key == "dataTemplateMoveInventoryDetail")

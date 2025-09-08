@@ -42,7 +42,6 @@ namespace dMobile.Controller.Activity_Item
           : base(activity)
         {
             this.IsAllowAddItem = this.SysEnv.SysSettings.AllowAddProd2Pick;
-            this.FullClassName = typeof(PickSingleActItem).FullName;
             this.IsAskCreateNewItem = !this.SysEnv.SysSettings.IsPickCreateNewItemNoAsk;
 
             var dataTemplate = new DataTemplate(() =>

@@ -21,11 +21,10 @@ namespace dMobile.Controller.Activity_Item
         /// <summary>
         /// Initializes a new instance of the <see cref="AssignDefaultLocActItem"/> class.
         /// </summary>
-        /// <param name="activity">.</param>
+        /// <param name="activity">Activity item.</param>
         public AssignDefaultLocActItem(Activity.Activity activity)
             : base(activity)
         {
-            this.FullClassName = typeof(AssignDefaultLocActItem).FullName;
         }
 
         /// <summary>

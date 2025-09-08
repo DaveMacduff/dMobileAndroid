@@ -20,7 +20,6 @@ namespace dMobile.GroundWork
         public TableActivityMoveInventoryDetail()
           : base()
         {
-            this.FullClassName = "dMobile.GroundWork.TableActivityMoveInventoryDetail";
             this.CurrentSubType = SysCommon.ActSubTypes.MoveInventory;
         }
 

@@ -22,7 +22,6 @@ namespace dMobile.GroundWork
         /// </summary>
         public TableUnit()
         {
-            this.FullClassName = "dMobile.GroundWork.TableUnit";
             this.LowerCaseName = "units of measure";
             this.ProperCaseName = "Units of measure";
         }

@@ -24,7 +24,6 @@ namespace dMobile.GroundWork
         public TableActivityReceiving()
             : base()
         {
-            this.FullClassName = "dMobile.GroundWork.TableActivityReceiving";
             this.CurrentSubType = SysCommon.ActSubTypes.Receiving;
             this.LowerCaseName = "receiving";
             this.ProperCaseName = "Receiving";

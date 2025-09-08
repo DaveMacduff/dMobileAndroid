@@ -20,7 +20,6 @@ namespace dMobile.GroundWork
         public TableActivityItemBarCodeAssociationXRef()
             : base()
         {
-            this.FullClassName = "dMobile.GroundWork.TableActivityItemBarCodeAssociationXRef";
             this.CurrentSubType = SysCommon.ActSubTypes.BarCodeAssociation;
             this.LowerCaseName = "item bar code association xrefs";
             this.ProperCaseName = "Item Bar Code Association Xrefs";

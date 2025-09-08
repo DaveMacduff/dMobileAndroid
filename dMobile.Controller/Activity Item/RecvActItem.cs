@@ -63,7 +63,6 @@ namespace dMobile.Controller.Activity_Item
         public RecvActItem(Activity.Activity activity)
             : base(activity)
         {
-            this.FullClassName = typeof(RecvActItem).FullName;
             this.IsAllowAddItem = this.SysEnv.SysSettings.AllowAddProduct2Receiving;
             this.IsAskCreateNewItem = !this.SysEnv.SysSettings.IsReceivingCreateNewItemNoAsk;
 

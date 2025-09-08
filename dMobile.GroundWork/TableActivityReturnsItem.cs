@@ -22,7 +22,6 @@ namespace dMobile.GroundWork
         public TableActivityReturnsItem()
             : base()
         {
-            this.FullClassName = "dMobile.GroundWork.TableActivityReturnsItem";
             this.CurrentSubType = SysCommon.ActSubTypes.Returns;
             this.LowerCaseName = "sales order return";
             this.ProperCaseName = "Sales order return";

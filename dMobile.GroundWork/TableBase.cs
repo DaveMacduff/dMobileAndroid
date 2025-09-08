@@ -9,7 +9,6 @@ namespace dMobile.GroundWork
     using System;
     using System.Collections.Generic;
     using System.Data;
-    using System.Runtime.CompilerServices;
     using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
@@ -24,34 +23,26 @@ namespace dMobile.GroundWork
     public abstract class TableBase : IDataAccessEventPublisher
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="TableBase"/> class.
-        /// </summary>
-        protected TableBase()
-        {
-            this.SysEnv = SysEnvironment.GetInstance();
-        }
-
-        /// <summary>
         /// On data access status out event handler.
         /// </summary>
-        /// <param name="dataAccessEventPublisher"><see cref="IDataAccessEventPublisher"/> Data
+        /// <param name="publisher"><see cref="IDataAccessEventPublisher"/> Data
         /// access event publisher.</param>
-        /// <param name="dataAccessEventArgs"><see cref="DataAccessEventArgs"/> Data access event
+        /// <param name="args"><see cref="DataAccessEventArgs"/> Data access event
         /// arguments.</param>
         public delegate void DataAccessStatusOutEventHandler(
-            IDataAccessEventPublisher dataAccessEventPublisher,
-            DataAccessEventArgs dataAccessEventArgs);
+            IDataAccessEventPublisher publisher,
+            DataAccessEventArgs args);
 
         /// <summary>
         /// On data access progress out event handler.
         /// </summary>
-        /// <param name="dataAccessEventPublisher"><see cref="IDataAccessEventPublisher"/> Data
+        /// <param name="publisher"><see cref="IDataAccessEventPublisher"/> Data
         /// access event publisher.</param>
-        /// <param name="dataAccessEventArgs"><see cref="DataAccessEventArgs"/> Data access event
+        /// <param name="args"><see cref="DataAccessEventArgs"/> Data access event
         /// arguments.</param>
         public delegate void DataAccessProgressOutEventHandler(
-            IDataAccessEventPublisher dataAccessEventPublisher,
-            DataAccessEventArgs dataAccessEventArgs);
+            IDataAccessEventPublisher publisher,
+            DataAccessEventArgs args);
 
         /// <summary>
         /// Define the on access status out event.
@@ -62,11 +53,6 @@ namespace dMobile.GroundWork
         /// Define the on access progress out event.
         /// </summary>
         public event DataAccessProgressOutEventHandler OnDataAccessProgressOut;
-
-        /// <summary>
-        /// Gets or sets the full class name.
-        /// </summary>
-        protected string FullClassName { get; set; } = "TableBase";
 
         /// <summary>
         /// Gets or sets the message text activity lower case name.
@@ -81,13 +67,12 @@ namespace dMobile.GroundWork
         /// <summary>
         /// Gets or sets the system environment.
         /// </summary>
-        protected SysEnvironment SysEnv { get; set; }
+        protected SysEnvironment SysEnv { get; set; } = SysEnvironment.GetInstance();
 
         /// <summary>
         /// Gets or sets the table base current activity subtype.
         /// </summary>
-        protected SysCommon.ActSubTypes CurrentSubType { get; set; } =
-            SysCommon.ActSubTypes.NotApplicable;
+        protected SysCommon.ActSubTypes CurrentSubType { get; set; } = SysCommon.ActSubTypes.NotApplicable;
 
         /// <summary>
         /// Gets or sets the data access event arguments.
@@ -98,7 +83,7 @@ namespace dMobile.GroundWork
         /// Perform a request for data.
         /// </summary>
         /// <param name="actRefno"><see cref="int"/> Activity reference number.</param>
-        /// <returns>The <see cref="Task"/> Task operation.</returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public virtual Task RequestData(int actRefno)
         {
             throw new NotImplementedException();
@@ -107,7 +92,7 @@ namespace dMobile.GroundWork
         /// <summary>
         /// Perform a data purge.
         /// </summary>
-        /// <returns>The <see cref="Task"/> Task operation.</returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public virtual Task PurgeData()
         {
             throw new NotImplementedException();
@@ -117,7 +102,7 @@ namespace dMobile.GroundWork
         /// Perform a data purge.
         /// </summary>
         /// <param name="actSubType"> .</param>
-        /// <returns>The <see cref="Task"/> Task operation.</returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public virtual Task PurgeData(SysCommon.ActSubTypes actSubType)
         {
             throw new NotImplementedException();
@@ -135,7 +120,7 @@ namespace dMobile.GroundWork
         /// <summary>
         /// Request header data.
         /// </summary>
-        /// <returns><see cref="Task"/> Task completed.</returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         /// <remarks>
         ///     Send the comm request to the server and save the response to the local database.
         /// </remarks>
@@ -204,7 +189,7 @@ namespace dMobile.GroundWork
         /// Request header detail data using a filter criteria.
         /// </summary>
         /// <param name="criteria"> Filter criteria.</param>
-        /// <returns><see cref="Task"/> Task completed.</returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         /// <remarks>
         /// Send the comm request to the server and save the response to the local database.
         /// </remarks>
@@ -274,7 +259,7 @@ namespace dMobile.GroundWork
         /// </summary>
         /// <param name="actHdrFkRefno"> Activity header foreign key refno.</param>
         /// <param name="actHdrRefno"> Activity header refno.</param>
-        /// <returns><see cref="Task"/> Task completed.</returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public virtual async Task RequestItemData(int actHdrFkRefno, int actHdrRefno)
         {
             try
@@ -342,11 +327,8 @@ namespace dMobile.GroundWork
         /// <param name="actHdrFkRefno"> Activity header foreign key reference number.</param>
         /// <param name="criteria"> Item data filter.</param>
         /// <param name="actHdrRefno"> Activity header reference number.</param>
-        /// <returns><see cref="Task"/> Task completed.</returns>
-        public async Task RequestItemData(
-            int actHdrFkRefno,
-            XDocument criteria,
-            int actHdrRefno)
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        public async Task RequestItemData(int actHdrFkRefno, XDocument criteria, int actHdrRefno)
         {
             try
             {
@@ -412,7 +394,7 @@ namespace dMobile.GroundWork
         /// </summary>
         /// <param name="actItemFkRefno">Activity item foreign key refno.</param>
         /// <param name="actItemRefno">Activity item refno.</param>
-        /// <returns><see cref="Task"/> Task completed.</returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task RequestDetailData(int actItemFkRefno, int actItemRefno)
         {
             try
@@ -477,7 +459,7 @@ namespace dMobile.GroundWork
         /// <summary>
         /// Perform a request for data.
         /// </summary>
-        /// <returns>The <see cref="Task"/> Task operation.</returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public virtual async Task RequestData()
         {
             try
@@ -685,15 +667,15 @@ namespace dMobile.GroundWork
         /// <param name="drow"><see cref="DataRow"/> Data row to get the scheme variant no from.</param>
         /// <param name="conn"><see cref="SQLiteConnection"/> SQLite connection.</param>
         /// <param name="actDetailRefno"><see cref="int"/> Activity detail reference number.</param>
-        /// <param name="useFNumberElements"><see cref="bool"/> Flag indicating whether to read
+        /// <param name="useShortElementNames"><see cref="bool"/> Flag indicating whether to read
         /// 'F' XML element or a more verbose field name element.</param>
         protected static void SaveCommonDetailVariant(
             DataRow drow,
             SQLiteConnection conn,
             int actDetailRefno,
-            bool useFNumberElements)
+            bool useShortElementNames)
         {
-            var schemeVariantNo = useFNumberElements
+            var schemeVariantNo = useShortElementNames
                 ? Convert.ToInt32(drow["f17"])
                 : Convert.ToInt32(drow["ProductSchemeVariantNo"]);
             if (schemeVariantNo > 0)
@@ -731,13 +713,13 @@ namespace dMobile.GroundWork
         /// <param name="drow"><see cref="DataRow"/> Data row to get the scheme variant no from.</param>
         /// <param name="conn"><see cref="SQLiteConnection"/> SQLite connection.</param>
         /// <param name="actDetailRefno"><see cref="int"/> Activity detail reference number.</param>
-        /// <param name="useFNumberElements"><see cref="bool"/> Flag indicating whether to read
+        /// <param name="useShortElementNames"><see cref="bool"/> Flag indicating whether to read
         /// 'F' XML element or a more verbose field name element.</param>
         protected static void SaveDetailExtra(
             DataRow drow,
             SQLiteConnection conn,
             int actDetailRefno,
-            bool useFNumberElements)
+            bool useShortElementNames)
         {
             const string emptyDate = "01-01-1900";
             var parameters = new List<object>();
@@ -763,7 +745,7 @@ namespace dMobile.GroundWork
             parameters.Add(actDetailRefno);
             parameters.Add(Convert.ToInt32(SysCommon.ActSubTypes.CycleCounts));
 
-            if (useFNumberElements)
+            if (useShortElementNames)
             {
                 parameters.Add(Convert.ToString(drow["f19"]));
                 parameters.Add(Convert.ToString(drow["f20"]));
@@ -800,14 +782,14 @@ namespace dMobile.GroundWork
         /// </summary>
         /// <param name="drow"><see cref="DataRow"/> Data row to get the scheme variant no from.</param>
         /// <param name="conn"><see cref="SQLiteConnection"/> SQLite connection.</param>
-        /// <param name="useFNumberElements"><see cref="bool"/> Flag indicating whether to read 'F' XML element or a
+        /// <param name="useShortElementNames"><see cref="bool"/> Flag indicating whether to read 'F' XML element or a
         /// more verbose field name element.</param>
         /// <param name="actSubType">Activity subtype to control the field names to parse.</param>
         /// <returns>The <see cref="int"/> Identified location map reference number.</returns>
         protected static int GetReceivedDataLocation(
             DataRow drow,
             SQLiteConnection conn,
-            bool useFNumberElements,
+            bool useShortElementNames,
             SysCommon.ActSubTypes actSubType = SysCommon.ActSubTypes.NotApplicable)
         {
             var locMapRefno = 0;
@@ -815,7 +797,7 @@ namespace dMobile.GroundWork
             int locMapSectFkRefno;
             int locMapSlotFkRefno;
             string query;
-            if (useFNumberElements)
+            if (useShortElementNames)
             {
                 if (actSubType == SysCommon.ActSubTypes.PhysicalCounts || actSubType == SysCommon.ActSubTypes.CycleCounts)
                 {
@@ -883,20 +865,20 @@ namespace dMobile.GroundWork
         /// </summary>
         /// <param name="drow"><see cref="DataRow"/> Data row to get the scheme variant no from.</param>
         /// <param name="conn"><see cref="SQLiteAsyncConnection"/> SQLite async connection.</param>
-        /// <param name="useFNumberElements"><see cref="bool"/> Flag indicating whether to read 'F' XML element or a
+        /// <param name="useShortElementNames"><see cref="bool"/> Flag indicating whether to read 'F' XML element or a
         /// more verbose field name element.</param>
         /// <param name="actSubType">Activity subtype to control the field names to parse.</param>
         /// <returns>The <see cref="int"/> Identified location map reference number.</returns>
         protected static async Task<int> GetReceivedDataLocationAsync(
             DataRow drow,
             SQLiteAsyncConnection conn,
-            bool useFNumberElements,
+            bool useShortElementNames,
             SysCommon.ActSubTypes actSubType = SysCommon.ActSubTypes.NotApplicable)
         {
             int locMapWhsFkRefno;
             int locMapSectFkRefno;
             int locMapSlotFkRefno;
-            if (useFNumberElements)
+            if (useShortElementNames)
             {
                 if (actSubType == SysCommon.ActSubTypes.PhysicalCounts || actSubType == SysCommon.ActSubTypes.CycleCounts)
                 {
@@ -950,7 +932,6 @@ namespace dMobile.GroundWork
                       $" FK Refno {locMapSectFkRefno}{Environment.NewLine} Slot FK Refno {locMapSlotFkRefno}";
             throw new Exception(msg);
 
-            ///////////////////////////////////////////////////////////
             static async Task<int> GetLocationMapRefnoAsync(SQLiteAsyncConnection conn, string query, int fkRefno)
             {
                 if (fkRefno == 0)
@@ -968,17 +949,17 @@ namespace dMobile.GroundWork
         /// </summary>
         /// <param name="drow"><see cref="DataRow"/> Data row to get the scheme variant no from.</param>
         /// <param name="conn"><see cref="SQLiteConnection"/> SQLite connection.</param>
-        /// <param name="useFNumberElements"><see cref="bool"/> Flag indicating whether to read
+        /// <param name="useShortElementNames"><see cref="bool"/> Flag indicating whether to read
         /// 'F' XML element or a more verbose field name element.</param>
         /// <returns>The activity detail information.</returns>
         protected static List<object> SaveDetail(
             DataRow drow,
             SQLiteConnection conn,
-            bool useFNumberElements)
+            bool useShortElementNames)
         {
             const string emptyDate = "01-01-1900";
             var detailParameters = new List<object>();
-            if (useFNumberElements)
+            if (useShortElementNames)
             {
                 detailParameters.Add(Convert.ToString(drow["f05"]));
                 detailParameters.Add(Convert.ToString(drow["f06"]));
@@ -1079,10 +1060,8 @@ namespace dMobile.GroundWork
         /// </summary>
         /// <param name="drow"><see cref="DataRow"/> Row of data.</param>
         /// <param name="conn"><see cref="SQLiteConnection"/> SQL connection.</param>
-        /// <returns>.</returns>
-        protected static int GetWhsLocMapRefnoFromDataRow(
-            DataRow drow,
-            SQLiteAsyncConnection conn)
+        /// <returns>Warehouse location map reference number.</returns>
+        protected static int GetWhsLocMapRefnoFromDataRow(DataRow drow, SQLiteAsyncConnection conn)
         {
             var locMapWhsFkRefno = Convert.ToInt32(drow["LocationMapWarehouseFKRefno"]);
             var results = conn.QueryAsync<LocationMapWarehouseModel>(
@@ -1113,10 +1092,8 @@ namespace dMobile.GroundWork
         /// </summary>
         /// <param name="drow"><see cref="DataRow"/> Row of data.</param>
         /// <param name="conn"><see cref="SQLiteConnection"/> SQL connection.</param>
-        /// <returns>.</returns>
-        protected static int GetWhsLocMapRefnoFromDataRow(
-            DataRow drow,
-            SQLiteConnection conn)
+        /// <returns>Warehouse location map reference number.</returns>
+        protected static int GetWhsLocMapRefnoFromDataRow(DataRow drow, SQLiteConnection conn)
         {
             var locMapWhsFkRefno = Convert.ToInt32(drow["LocationMapWarehouseFKRefno"]);
             var results = conn.Query<LocationMapWarehouseModel>(
@@ -1148,18 +1125,18 @@ namespace dMobile.GroundWork
         /// </summary>
         /// <param name="drow"><see cref="DataRow"/> Data row.</param>
         /// <param name="conn">The conn<see cref="SQLiteConnection"/> SQL connection.</param>
-        /// <param name="useFNumberElements"><see cref="bool"/> Flag indicating whether to read 'F' XML element or a
+        /// <param name="useShortElementNames"><see cref="bool"/> Flag indicating whether to read 'F' XML element or a
         /// more verbose field name element.</param>
-        /// <returns>.</returns>
+        /// <returns>Product unit reference number.</returns>
         protected static int GetProductUnitRefnoFromDataRow(
             DataRow drow,
             SQLiteConnection conn,
-            bool useFNumberElements)
+            bool useShortElementNames)
         {
             int prodFkRefno;
             string unitCode;
             bool prodUnitIsBc;
-            if (useFNumberElements)
+            if (useShortElementNames)
             {
                 prodFkRefno = Convert.ToInt32(drow["f03"]);
                 unitCode = Convert.ToString(drow["f05"]);
@@ -1229,18 +1206,18 @@ namespace dMobile.GroundWork
         /// </summary>
         /// <param name="drow"><see cref="DataRow"/> Data row.</param>
         /// <param name="conn">The conn<see cref="SQLiteConnection"/> SQL connection.</param>
-        /// <param name="useFNumberElements"><see cref="bool"/> Flag indicating whether to read 'F' XML element or a
+        /// <param name="useShortElementNames"><see cref="bool"/> Flag indicating whether to read 'F' XML element or a
         /// more verbose field name element.</param>
         /// <returns>Found product unit reference number.</returns>
         protected static async Task<int> GetProductUnitRefnoFromDataRowAsync(
             DataRow drow,
             SQLiteAsyncConnection conn,
-            bool useFNumberElements)
+            bool useShortElementNames)
         {
             int prodFkRefno;
             string unitCode;
             bool prodUnitIsBc;
-            if (useFNumberElements)
+            if (useShortElementNames)
             {
                 // Physical and Cycle counts mapping fields.
                 prodFkRefno = Convert.ToInt32(drow["f03"]);
@@ -1299,20 +1276,28 @@ namespace dMobile.GroundWork
         }
 
         /// <summary>
-        /// Send a data request.
+        /// Sends a request based on the specified activity foreign key reference number.
         /// </summary>
         /// <param name="familyCode"><see cref="string"/> Family code filter.</param>
-        /// <returns><see cref="string"/> Send result information.</returns>
+        /// <remarks>This method retrieves data from the database using the provided activity foreign key
+        /// reference number. If a matching record is found, it creates and sends a communication request based on the
+        /// retrieved data.</remarks>
+        /// <returns>A task that represents the asynchronous operation. The task result contains the response string from the
+        /// communication request.</returns>
         protected virtual async Task<string> SendRequest(string familyCode)
         {
             return await SendComm(await this.CreateRequest(familyCode));
         }
 
         /// <summary>
-        /// Send a data request.
+        /// Sends a request based on the specified activity foreign key reference number.
         /// </summary>
-        /// <param name="activityFkRefno"><see cref="int"/> Activity foreign key reference number.</param>
-        /// <returns><see cref="string"/> Send result information.</returns>
+        /// <remarks>This method retrieves data from the database using the provided activity foreign key
+        /// reference number. If a matching record is found, it creates and sends a communication request based on the
+        /// retrieved data.</remarks>
+        /// <param name="activityFkRefno">The foreign key reference number of the activity item. Must be a valid reference number.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains the response string from the
+        /// communication request.</returns>
         protected virtual async Task<string> SendRequest(int activityFkRefno)
         {
             return await SendComm(await this.CreateRequest(activityFkRefno));

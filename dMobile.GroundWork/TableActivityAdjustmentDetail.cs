@@ -27,7 +27,6 @@ namespace dMobile.GroundWork
         /// </summary>
         public TableActivityAdjustmentDetail()
         {
-            this.FullClassName = "dMobile.GroundWork.TableActivityAdjustmentDetail";
             this.CurrentSubType = SysCommon.ActSubTypes.Adjustment;
             this.LowerCaseName = "adjustment";
             this.ProperCaseName = "Adjustment";
@@ -247,9 +246,7 @@ namespace dMobile.GroundWork
                             {
                                 errMsg =
                                     "No results in tActivityItemAdjustment for ActivityItemRefno " +
-                                    refno +
-                                    " " +
-                                    this.FullClassName;
+                                    refno.ToString();
                                 throw new Exception(errMsg);
                             }
 

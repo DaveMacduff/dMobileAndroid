@@ -25,7 +25,6 @@ namespace dMobile.GroundWork
         /// </summary>
         public TableLocationMapType()
         {
-            this.FullClassName = "dMobile.GroundWork.TableLocationMapType";
             this.LowerCaseName = "location map types";
             this.ProperCaseName = "Location map types";
         }

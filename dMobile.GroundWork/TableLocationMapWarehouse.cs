@@ -26,7 +26,6 @@ namespace dMobile.GroundWork
         public TableLocationMapWarehouse()
       : base()
         {
-            this.FullClassName = "dMobile.GroundWork.TableLocationMapWarehouse";
             this.LowerCaseName = "warehouses";
             this.ProperCaseName = "Warehouses";
         }

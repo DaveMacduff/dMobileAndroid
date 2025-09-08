@@ -58,11 +58,9 @@ namespace dMobile.Controller.Activity
         /// </summary>
         public TransferActivity()
         {
-            this.FullClassName = typeof(TransferActivity).FullName;
             this.TransSettings = new TransferSettings().LoadData();
 
             DefineInitialGridDataTemplate();
-            return;
 
             void DefineInitialGridDataTemplate()
             {

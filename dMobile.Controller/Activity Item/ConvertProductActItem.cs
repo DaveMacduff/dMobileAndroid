@@ -12,6 +12,7 @@ namespace dMobile.Controller.Activity_Item
     using System.Xml;
     using System.Xml.Linq;
     using dMobile.Bedrock;
+    using dMobile.Controller.Activity;
     using dMobile.Resources.Types.Items;
     using Xamarin.Forms;
 
@@ -21,13 +22,11 @@ namespace dMobile.Controller.Activity_Item
     public class ConvertProductActItem : ActItem
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="ConvertProductActItem"/> class.
+        /// Initializes a new instance of the <see cref="ConvertProductActItem"/> class using the specified activity.
         /// </summary>
-        /// <param name="activity">.</param>
-        public ConvertProductActItem(Activity.Activity activity)
-            : base(activity)
+        /// <param name="activity">The activity associated with this product conversion item. Cannot be null.</param>
+        public ConvertProductActItem(Activity activity) : base(activity)
         {
-            this.FullClassName = typeof(ConvertProductActItem).FullName;
         }
 
         /// <summary>

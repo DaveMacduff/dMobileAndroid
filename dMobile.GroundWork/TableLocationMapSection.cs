@@ -25,7 +25,6 @@ namespace dMobile.GroundWork
         public TableLocationMapSection()
       : base()
         {
-            this.FullClassName = "dMobile.GroundWork.TableLocationMapSection";
             this.LowerCaseName = "sections";
             this.ProperCaseName = "Sections";
         }

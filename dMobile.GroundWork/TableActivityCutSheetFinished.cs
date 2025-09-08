@@ -24,16 +24,12 @@ namespace dMobile.GroundWork
         /// </summary>
         public TableActivityCutSheetFinished()
         {
-            this.FullClassName = "dMobile.GroundWork.TableActivityCutSheetFinished";
             this.CurrentSubType = SysCommon.ActSubTypes.CutSheetFinished;
             this.LowerCaseName = "cut sheet finished products";
             this.ProperCaseName = "Cut sheet finished products";
         }
 
-        /// <summary>
-        /// The Purge.
-        /// </summary>
-        /// <returns>Task operation.</returns>
+        /// <inheritdoc/>
         public override async Task PurgeData()
         {
             var conn = DatabaseConnection.GetInstance().SqlConn;
@@ -86,14 +82,24 @@ namespace dMobile.GroundWork
                     transaction.Execute(query, subType);
 
                     transaction.Commit();
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} details complete.", true);
+                    this.DataAccessStatusOutHandler(
+                        this,
+                        EventArgs.Empty,
+                        $"Purging {this.LowerCaseName} details complete.",
+                        true);
                 }
                 catch (SQLiteException sqlEx)
                 {
                     transaction.Rollback();
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
-                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} details failed.", true);
-                    throw new Exception($"Database exception occurred. Purging {this.LowerCaseName} details failed.", sqlEx);
+                    this.DataAccessStatusOutHandler(
+                        this,
+                        EventArgs.Empty,
+                        $"Purging {this.LowerCaseName} details failed.",
+                        true);
+                    throw new Exception(
+                        $"Database exception occurred. Purging {this.LowerCaseName} details failed.",
+                        sqlEx);
                 }
                 catch (Exception ex)
                 {
@@ -207,10 +213,7 @@ namespace dMobile.GroundWork
             });
         }
 
-        /// <summary>
-        /// Create the request XML for cut sheet finished information.
-        /// </summary>
-        /// <returns>Request for cut sheet finished information.</returns>
+        /// <inheritdoc cref="TableBase.CreateRequest()"/>
         protected override async Task<string> CreateRequest()
         {
             var xmlString = new StringBuilder();

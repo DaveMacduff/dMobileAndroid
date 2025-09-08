@@ -25,7 +25,6 @@ namespace dMobile.GroundWork
         /// </summary>
         public TableLocationMapSlotCoordinate()
         {
-            this.FullClassName = "dMobile.GroundWork.TableLocationMapSlotCoordinate";
             this.LowerCaseName = "slot coordinates";
             this.ProperCaseName = "Slot coordinates";
         }

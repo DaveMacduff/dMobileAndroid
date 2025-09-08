@@ -30,11 +30,9 @@ namespace dMobile.Controller.Activity_Item
         /// <summary>
         /// Initializes a new instance of the <see cref="ConvertUnitActItem"/> class.
         /// </summary>
-        /// <param name="activity">.</param>
-        public ConvertUnitActItem(Activity.Activity activity)
-            : base(activity)
+        /// <param name="activity">Activity.</param>
+        public ConvertUnitActItem(Activity.Activity activity) : base(activity)
         {
-            this.FullClassName = typeof(ConvertUnitActItem).FullName;
         }
 
         /// <summary>

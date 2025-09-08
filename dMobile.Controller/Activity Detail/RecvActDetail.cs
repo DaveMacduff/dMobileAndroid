@@ -95,9 +95,6 @@ namespace dMobile.Controller.Activity_Detail
         public RecvActDetail(ActItem activityItem)
           : base(activityItem)
         {
-            this.FullClassName = typeof(RecvActDetail).FullName;
-
-            // Data grid
             var dataTemplate = new DataTemplate(() =>
             {
                 var gridData = new Grid

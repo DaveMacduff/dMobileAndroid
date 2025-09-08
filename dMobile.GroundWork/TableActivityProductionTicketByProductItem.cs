@@ -25,15 +25,12 @@ namespace dMobile.GroundWork
         public TableActivityProductionTicketByProductItem()
             : base()
         {
-            this.FullClassName = "dMobile.GroundWork.TableActivityProductionTicketByProductItem";
             this.CurrentSubType = SysCommon.ActSubTypes.TicketAddProduct;
             this.LowerCaseName = "ticket additional product";
             this.ProperCaseName = "Ticket additional product";
         }
 
-        /// <summary>
-        /// The Purge.
-        /// </summary>
+        /// <inheritdoc/>
         public override async Task PurgeData()
         {
             var conn = DatabaseConnection.GetInstance().SqlConn;
@@ -70,7 +67,7 @@ namespace dMobile.GroundWork
                         transaction.Execute(query);
 
                         query =
-                            @"DELETE FROM tActivityItemProduction WHERE tActivityItemProduction.ActivityItemRefno <= 0";
+                            "DELETE FROM tActivityItemProduction WHERE tActivityItemProduction.ActivityItemRefno <= 0";
                         transaction.Execute(query);
 
                         query = @"
@@ -140,16 +137,7 @@ namespace dMobile.GroundWork
                 });
         }
 
-        /// <summary>
-        /// Sends a request based on the specified activity foreign key reference number.
-        /// </summary>
-        /// <remarks>This method retrieves data from the database using the provided activity foreign key
-        /// reference number. If a matching record is found, it creates and sends a communication request based on the
-        /// retrieved data.</remarks>
-        /// <param name="activityFkRefno">The foreign key reference number of the activity item. Must be a valid reference number.</param>
-        /// <returns>A task that represents the asynchronous operation. The task result contains the response string from the
-        /// communication request.</returns>
-        /// <exception cref="Exception">Thrown if no records are found for the specified <paramref name="activityFkRefno"/> in the database.</exception>
+        /// <inheritdoc cref="TableBase.SendRequest(int)"/>
         protected override async Task<string> SendRequest(int activityFkRefno)
         {
             var results = await DatabaseConnection.GetInstance()
@@ -367,11 +355,7 @@ namespace dMobile.GroundWork
                     });
         }
 
-        /// <summary>
-        /// The Create.
-        /// </summary>
-        /// <param name="activityFkRefno"></param>
-        /// <returns></returns>
+        /// <inheritdoc cref="TableBase.CreateRequest(int)"/>
         protected override async Task<string> CreateRequest(int activityFkRefno)
         {
             var xmlString = new StringBuilder();

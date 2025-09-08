@@ -28,10 +28,7 @@ namespace dMobile.Controller.Activity
         /// </summary>
         public ReplenishmentActivity()
         {
-            this.FullClassName = typeof(ReplenishmentActivity).FullName;
-            ////this.ReplenSettings = new ReplenishmentSettings().LoadData();
             DefineInitialGridDataTemplate();
-            return;
 
             void DefineInitialGridDataTemplate()
             {

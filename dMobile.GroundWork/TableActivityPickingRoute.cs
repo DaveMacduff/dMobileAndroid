@@ -17,7 +17,6 @@ namespace dMobile.GroundWork
         public TableActivityPickingRoute()
           : base()
         {
-            this.FullClassName = "TableActivityPickingRoute";
             this.CurrentSubType = SysCommon.ActSubTypes.Picking;
             this.LowerCaseName = "sales orders route";
             this.ProperCaseName = "Sales orders route";
