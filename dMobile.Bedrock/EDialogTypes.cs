@@ -208,5 +208,25 @@ namespace dMobile.Bedrock
         /// Select Activity item.
         /// </summary>
         SelectActivityItem,
+
+        /// <summary>
+        /// Activity cut sheet finished filter.
+        /// </summary>
+        ActivityCutSheetFinishedFilter,
+
+        /// <summary>
+        /// Activity cut sheet material filter.
+        /// </summary>
+        ActivityCutSheetMaterialFilter,
+
+        /// <summary>
+        /// Activity yield sheet finished filter.
+        /// </summary>
+        ActivityYieldSheetFinishedFilter,
+
+        /// <summary>
+        /// Activity yield sheet material filter.
+        /// </summary>
+        ActivityYieldSheetMaterialFilter,
     }
 }

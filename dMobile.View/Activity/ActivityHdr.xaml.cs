@@ -188,7 +188,6 @@ namespace dMobile.View.Activity
 
             return isReadyToSave;
 
-            //////////////////////////////////////////////////////////////////////////
             async Task<bool> IsReadyToSavePicking()
             {
                 var isReadyToSavePicking = true;
@@ -752,6 +751,12 @@ namespace dMobile.View.Activity
                                     case SysCommon.ActSubTypes.InventoryInquirySummary:
                                     case SysCommon.ActSubTypes.ConvertProduct:
                                     case SysCommon.ActSubTypes.TransferTo:
+                                    case SysCommon.ActSubTypes.CutSheetFinished:
+                                    case SysCommon.ActSubTypes.CutSheetMaterial:
+                                    case SysCommon.ActSubTypes.CutSheetFilter:
+                                    case SysCommon.ActSubTypes.YieldSheetFinished:
+                                    case SysCommon.ActSubTypes.YieldSheetMaterial:
+                                    case SysCommon.ActSubTypes.YieldSheetFilter:
                                         break;
 
                                     default:

@@ -55,6 +55,12 @@
     <Compile Update="Activity\ActivityConvertUnitDetail.xaml.cs">
       <DependentUpon>ActivityConvertUnitDetail.xaml</DependentUpon>
     </Compile>
+    <Compile Update="Activity\ActivityHdrYieldSheetFilter.xaml.cs">
+      <DependentUpon>ActivityHdrYieldSheetFilter.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Activity\ActivityHdrCutSheetFilter.xaml.cs">
+      <DependentUpon>ActivityHdrCutSheetFilter.xaml</DependentUpon>
+    </Compile>
     <Compile Update="Activity\ActivityItemSingleInventoryInquiry.xaml.cs">
       <DependentUpon>ActivityItemSingleInventoryInquiry.xaml</DependentUpon>
     </Compile>

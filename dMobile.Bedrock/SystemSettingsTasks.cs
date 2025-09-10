@@ -275,6 +275,38 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
+        /// Assign properties from data row cut sheet.
+        /// </summary>
+        /// <param name="drow">Data row.</param>
+        /// <param name="settings">Settings to assign.</param>
+        public static void AssignPropertiesFromDataRowCutSheet(DataRow drow, ref SystemSettings settings)
+        {
+            settings.IsCutSheetFinishedGoodModule = Convert.ToBoolean(drow["IsCutSheetModule"]);
+            settings.IsCutSheetRawMaterialModule = Convert.ToBoolean(drow["IsCutSheetModule"]);
+            settings.AllowAddProduct2CutSheetFinished = Convert.ToBoolean(drow["AllowAddProduct2CutSheet"]);
+            settings.IsCutSheetFinishedCatchAskEnabled = Convert.ToBoolean(drow["IsCutSheetModuleCatchAskEnabled"]);
+            settings.IsCutSheetMaterialCatchAskEnabled = Convert.ToBoolean(drow["IsCutSheetModuleCatchAskEnabled"]);
+            settings.IsCutSheetFinishedNoCatchAskZeroEnabled = Convert.ToBoolean(drow["IsCutSheetFinishedNoCatchAskZeroEnabled"]);
+            settings.IsCutSheetMaterialNoCatchAskZeroEnabled = Convert.ToBoolean(drow["IsCutSheetMaterialNoCatchAskZeroEnabled"]);
+        }
+
+        /// <summary>
+        /// Assign properties from data row yield sheet.
+        /// </summary>
+        /// <param name="drow">Data row.</param>
+        /// <param name="settings">Settings to assign.</param>
+        public static void AssignPropertiesFromDataRowYieldSheet(DataRow drow, ref SystemSettings settings)
+        {
+            settings.IsYieldSheetFinishedGoodModule = Convert.ToBoolean(drow["IsYieldSheetModule"]);
+            settings.IsYieldSheetRawMaterialModule = Convert.ToBoolean(drow["IsYieldSheetModule"]);
+            settings.AllowAddProduct2YieldSheetMaterial = Convert.ToBoolean(drow["AllowAddProduct2YieldSheet"]);
+            settings.IsYieldSheetFinishedCatchAskEnabled = Convert.ToBoolean(drow["IsYieldSheetModuleCatchAskEnabled"]);
+            settings.IsYieldSheetMaterialCatchAskEnabled = Convert.ToBoolean(drow["IsYieldSheetModuleCatchAskEnabled"]);
+            settings.IsYieldSheetFinishedNoCatchAskZeroEnabled = Convert.ToBoolean(drow["IsYieldSheetFinishedNoCatchAskZeroEnabled"]);
+            settings.IsYieldSheetMaterialNoCatchAskZeroEnabled = Convert.ToBoolean(drow["IsYieldSheetMaterialNoCatchAskZeroEnabled"]);
+        }
+
+        /// <summary>
         /// The AssignPropertiesFromDataRowReceiving.
         /// </summary>
         /// <param name="drow">.</param>
@@ -426,7 +458,6 @@ namespace dMobile.Bedrock
         /// <param name="settings">The settings<see cref="SystemSettings"/>.</param>
         public static void AssignPropertiesFromDataRow(DataRow drow, ref SystemSettings settings)
         {
-            settings.IsInvStrict = Convert.ToBoolean(drow["IsInventoryStrict"]);
             settings.IsSetCatchWeightZero = Convert.ToBoolean(drow["IsSetCatchWeightZero"]);
             settings.IsSetCatchCountZero = Convert.ToBoolean(drow["IsSetCatchCountZero"]);
             settings.IsIntegerCheckOverride = Convert.ToBoolean(drow["IsIntegerCheckOverride"]);
@@ -487,6 +518,9 @@ namespace dMobile.Bedrock
             {
                 settings.IsDisableMoveAllSlotQuantityOption = false;
             }
+
+            AssignPropertiesFromDataRowCutSheet(drow, ref settings);
+            AssignPropertiesFromDataRowYieldSheet(drow, ref settings);
         }
 
         /// <summary>

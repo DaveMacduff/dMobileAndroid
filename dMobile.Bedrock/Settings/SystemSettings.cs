@@ -24,18 +24,6 @@ namespace dMobile.Bedrock.Settings
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether strict inventory quantity checking is enabled.
-        /// </summary>
-        [Obsolete("Quantity strictness will be enforced only on the communication server." +
-            " With the exception of serial number tracking.")]
-        public bool IsInvStrict { get; set; }
-
-        /// <summary>
-        /// Gets or sets the LastRefreshData.
-        /// </summary>
-        public DateTime LastRefreshData { get; set; } = DateTime.Now;
-
-        /// <summary>
         /// Gets or sets a value indicating whether the detail edit screen should set focus to the catch weight field.
         /// </summary>
         public bool IsDetailEditScreenSetFocus2CatchWeight { get; set; }
@@ -722,7 +710,7 @@ namespace dMobile.Bedrock.Settings
         public bool IsTransExtraDetEnabled { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether AllowAddProd2Trans.
+        /// Gets or sets a value indicating whether allow adding products to transfers.
         /// </summary>
         public bool AllowAddProd2Trans { get; set; }
 
@@ -742,27 +730,22 @@ namespace dMobile.Bedrock.Settings
         public SysCommon.ActTransfersQtyOverValLevels TransQtyOverWarn { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether IsConvertUnitModuleNoCatchAskZeroEnabled.
+        /// Gets or sets a value indicating whether convert unit catch ask is disabled when quantity is zero.
         /// </summary>
         public bool IsConvertUnitModuleNoCatchAskZeroEnabled { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether IsConvertUnitsModule.
+        /// Gets or sets a value indicating whether convert units module is enabled.
         /// </summary>
         public bool IsConvertUnitsModule { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether IsConvertUnitCatchAskEnabled.
+        /// Gets or sets a value indicating whether convert unit catch ask is enabled.
         /// </summary>
         public bool IsConvertUnitCatchAskEnabled { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether IsConvertUnitOnlyShowSell.
-        /// </summary>
-        public bool IsConvertUnitOnlyShowSell { get; set; }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether CanPrintProductLabelConvertUnits.
+        /// Gets or sets a value indicating whether can print product label after unit conversion.
         /// </summary>
         public bool CanPrintProductLabelConvertUnits { get; set; }
 
@@ -775,62 +758,62 @@ namespace dMobile.Bedrock.Settings
         public bool CanPrintProductLabelConvertProduct { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether IsMoveInventoryModuleNoCatchAskZeroEnabled.
+        /// Gets or sets a value indicating whether catch ask is disabled for move inventory when quantity is zero.
         /// </summary>
         public bool IsMoveInventoryModuleNoCatchAskZeroEnabled { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether IsMovesModule.
+        /// Gets or sets a value indicating whether move inventory module is enabled.
         /// </summary>
         public bool IsMovesModule { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether IsMoveInventoryCatchAskEnabled.
+        /// Gets or sets a value indicating whether catch ask is enabled for move inventory.
         /// </summary>
         public bool IsMoveInventoryCatchAskEnabled { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether IsSkidTrackingModule.
+        /// Gets or sets a value indicating whether skid tracking module is enabled.
         /// </summary>
         public bool IsSkidTrackingModule { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether IsAddToSkidModule.
+        /// Gets or sets a value indicating whether adding to skid module is enabled.
         /// </summary>
         public bool IsAddToSkidModule { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether IsRemoveFromSkidModule.
+        /// Gets or sets a value indicating whether remove from skid module is enabled.
         /// </summary>
         public bool IsRemoveFromSkidModule { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether IsBreakSkidModule.
+        /// Gets or sets a value indicating whether break skid module is enabled.
         /// </summary>
         public bool IsBreakSkidModule { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether IsCreateSkidModule.
+        /// Gets or sets a value indicating whether create skid module is enabled.
         /// </summary>
         public bool IsCreateSkidModule { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether IsMoveSkidModule.
+        /// Gets or sets a value indicating whether move skid module is enabled.
         /// </summary>
         public bool IsMoveSkidModule { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether IsPutAwayModule.
+        /// Gets or sets a value indicating whether put away module is enabled.
         /// </summary>
         public bool IsPutAwayModule { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether IsPutAwaySkidCatchAskEnabled.
+        /// Gets or sets a value indicating whether put away skid catch ask is enabled.
         /// </summary>
         public bool IsPutAwaySkidCatchAskEnabled { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether IsReplenishmentModule.
+        /// Gets or sets a value indicating whether replenishment module is enabled.
         /// </summary>
         public bool IsReplenishmentModule { get; set; }
 
@@ -860,6 +843,33 @@ namespace dMobile.Bedrock.Settings
         public bool IsCutSheetRawMaterialModule { get; set; }
 
         /// <summary>
+        /// Gets or sets a value indicating whether to allow adding products to the Cut Sheet Finished Good Module.
+        /// </summary>
+        public bool AllowAddProduct2CutSheetFinished { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether catch ask is enabled for cut sheet finished goods.
+        /// </summary>
+        public bool IsCutSheetFinishedCatchAskEnabled { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the "No Catch, Ask Zero" behavior is enabled for cut sheet
+        /// finished goods.
+        /// </summary>
+        public bool IsCutSheetFinishedNoCatchAskZeroEnabled { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether catch ask is enabled for cut sheet materials.
+        /// </summary>
+        public bool IsCutSheetMaterialCatchAskEnabled { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the "No Catch, Ask Zero" behavior is enabled for cut sheet
+        /// materials.
+        /// </summary>
+        public bool IsCutSheetMaterialNoCatchAskZeroEnabled { get; set; }
+
+        /// <summary>
         /// Gets or sets a value indicating whether the Yield Sheet Finished Good Module is enabled.
         /// </summary>
         public bool IsYieldSheetFinishedGoodModule { get; set; }
@@ -870,25 +880,54 @@ namespace dMobile.Bedrock.Settings
         public bool IsYieldSheetRawMaterialModule { get; set; }
 
         /// <summary>
-        /// The RegisterSysSettingsListenerStatusOut.
+        /// Gets or sets a value indicating whether to allow adding products to yield sheet materials.
+        /// </summary>
+        public bool AllowAddProduct2YieldSheetMaterial { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether catch ask is enabled for yield sheet finished goods.
+        /// </summary>
+        public bool IsYieldSheetFinishedCatchAskEnabled { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether catch ask is enabled for yield sheet materials.
+        /// </summary>
+        public bool IsYieldSheetMaterialCatchAskEnabled { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the "No Catch, Ask Zero" behavior is enabled for yield sheet
+        /// finished goods.
+        /// </summary>
+        public bool IsYieldSheetFinishedNoCatchAskZeroEnabled { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the "No Catch, Ask Zero" behavior is enabled for yield sheet
+        /// materials.
+        /// </summary>
+        public bool IsYieldSheetMaterialNoCatchAskZeroEnabled { get; set; }
+
+        /// <summary>
+        /// Registers a system settings event listener to receive status updates.
         /// </summary>
         /// <param name="sysSettingsListener">The sysSettingsListener<see cref="ISysSettingsEventListener"/>.</param>
         public void RegisterSysSettingsListenerStatusOut(ISysSettingsEventListener sysSettingsListener)
         {
-            SystemSettingsTasks.OnSysSettingsStatusOut += new SystemSettingsTasks.OnSysSettingsStatusOutEventHandler(sysSettingsListener.OnSysSettingsStatusOut);
+            SystemSettingsTasks.OnSysSettingsStatusOut += new SystemSettingsTasks.OnSysSettingsStatusOutEventHandler(
+                sysSettingsListener.OnSysSettingsStatusOut);
         }
 
         /// <summary>
-        /// The UnregisterSysSettingsListenerStatusOut.
+        /// Unregisters a system settings event listener from receiving status updates.
         /// </summary>
         /// <param name="sysSettingsListener">The sysSettingsListener<see cref="ISysSettingsEventListener"/>.</param>
         public void UnregisterSysSettingsListenerStatusOut(ISysSettingsEventListener sysSettingsListener)
         {
-            SystemSettingsTasks.OnSysSettingsStatusOut -= new SystemSettingsTasks.OnSysSettingsStatusOutEventHandler(sysSettingsListener.OnSysSettingsStatusOut);
+            SystemSettingsTasks.OnSysSettingsStatusOut -= new SystemSettingsTasks.OnSysSettingsStatusOutEventHandler(
+                sysSettingsListener.OnSysSettingsStatusOut);
         }
 
         /// <summary>
-        /// The RegisterSysSettingsListenerProgressOut.
+        /// Registers a system settings event listener to receive progress updates.
         /// </summary>
         /// <param name="sysSettingsListener">The sysSettingsListener<see cref="ISysSettingsEventListener"/>.</param>
         public void RegisterSysSettingsListenerProgressOut(ISysSettingsEventListener sysSettingsListener)
@@ -898,7 +937,7 @@ namespace dMobile.Bedrock.Settings
         }
 
         /// <summary>
-        /// The UnregisterSysSettingsListenerProgressOut.
+        /// Unregisters a system settings event listener from receiving progress updates.
         /// </summary>
         /// <param name="sysSettingsListener">The sysSettingsListener<see cref="ISysSettingsEventListener"/>.</param>
         public void UnregisterSysSettingsListenerProgressOut(ISysSettingsEventListener sysSettingsListener)

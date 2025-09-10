@@ -311,18 +311,6 @@ namespace dMobile.Controller.Activity
                 sql.AppendFormat("WHERE tActivity.ActivitySubType = {0}", Convert.ToInt32(SysCommon.ActSubTypes.CutSheetMaterial));
             }
 
-            // using (SQLiteDataAdapter da = new SQLiteDataAdapter(sql.ToString(), DatabaseConnection.GetInstance().SQLConn))
-            // {
-            //    using (DataSet ds = new DataSet())
-            //    {
-            //        da.Fill(ds);
-
-            // this.DataViewHdrs = ds.Tables[0].DefaultView;
-            //        this.DataViewHdrs.Table.TableName = this.MainGridMappingName;
-            //        // TODO: Fix sorting
-            //        this.DataViewHdrs.Sort = ticketSettings.GetDataViewSortBy();
-            //    }
-            // }
             this.listCutSheetMaterial = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<CutSheetMaterial>(sql.ToString());
 
             foreach (var sort in ticketSettings.GetDataViewSortBy())
@@ -347,32 +335,10 @@ namespace dMobile.Controller.Activity
         public override ObservableCollection<object> Search(string searchText)
         {
             var observableCollection = new ObservableCollection<object>();
-
-            // if (string.IsNullOrEmpty(this.ActFilter))
-            // {
-            // this.DataViewHdrs.RowFilter = "ActivityStringFKRefno LIKE \'%" + searchText.Trim() + "%\'";
-            this.ListHeaders = this.listCutSheetMaterial.Where(prodCutSheet => prodCutSheet.ActivityStringFKRefno.ToLower().Contains(searchText.ToLower().Trim())).Cast<object>().ToList();
-
-            // }
-            // else
-            // {
-            // TODO: Fix filtering
-            // this.DataViewHdrs.RowFilter = this.ActFilter + " AND ActivityStringFKRefno LIKE \'%" + searchText.Trim() + "%\'";
-            // }
+            this.ListHeaders = this.listCutSheetMaterial.Where(prodCutSheet => prodCutSheet.
+                ActivityStringFKRefno.ToLower().Contains(searchText.ToLower().Trim())).Cast<object>().ToList();
             foreach (var productionCutSheet in this.ListHeaders.Cast<CutSheetMaterial>())
             {
-                // CutSheetMaterial productionCutSheet = new CutSheetMaterial
-                // {
-                //    ActivityProductionDateTime = Convert.ToDateTime(row["ActivityProductionDateTime"] != DBNull.Value ? row["ActivityProductionDateTime"] : null),
-                //    ActivityProductionDescription = Convert.ToString(row["ActivityProductionDescription"] != DBNull.Value ? row["ActivityProductionDescription"] : null),
-                //    ActivityFKRefno = Convert.ToInt32(row["ActivityFKRefno"] != DBNull.Value ? row["ActivityFKRefno"] : null),
-                //    ActivityStringFKRefno = Convert.ToString(row["ActivityStringFKRefno"] != DBNull.Value ? row["ActivityStringFKRefno"] : null),
-                //    ActivityRefno = Convert.ToInt32(row["ActivityRefno"] != DBNull.Value ? row["ActivityRefno"] : null),
-                //    ActivityStatus = Convert.ToInt32(row["ActivityStatus"] != DBNull.Value ? row["ActivityStatus"] : null),
-                //    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"] != DBNull.Value ? row["LocationMapRefno"] : null),
-                //    LocationMapWarehouseFKRefno = Convert.ToInt32(row["LocationMapWarehouseFKRefno"] != DBNull.Value ? row["LocationMapWarehouseFKRefno"] : null),
-                //    LocationMapWarehouseName = Convert.ToString(row["LocationMapWarehouseName"] != DBNull.Value ? row["LocationMapWarehouseName"] : null),
-                // };
                 observableCollection.Add(productionCutSheet);
             }
 

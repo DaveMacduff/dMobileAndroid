@@ -1,0 +1,70 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<modal:DMobileModal xmlns:modal="clr-namespace:dMobile.View.CustomPages.Modal"
+                    xmlns="http://xamarin.com/schemas/2014/forms"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                    xmlns:customcontrols="clr-namespace:dMobile.View.CustomControls" 
+                    xmlns:Helpers="clr-namespace:dMobile.View.Helpers"
+                    x:Class="dMobile.View.Activity.ActivityHdrYieldSheetFilter">
+    <ContentPage.Content>
+        <AbsoluteLayout>
+            <Grid Padding="10" AbsoluteLayout.LayoutFlags="All" AbsoluteLayout.LayoutBounds="0,0,1,1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <Grid Grid.Row="0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Label x:Name="lblApplyYieldSheetDate" VerticalOptions="CenterAndExpand" FontAttributes="Bold" Grid.Row="0" Grid.Column="0"/>
+                    <customcontrols:CustomSwitch x:Name="chkApplyYieldSheetDate" VerticalOptions="CenterAndExpand" HorizontalOptions="EndAndExpand" Grid.Row="0" Grid.Column="1" Toggled="chkApplyYieldSheetDate_Toggled"/>
+                </Grid>
+
+                <Grid Grid.Row="1">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Label x:Name="lblAdjustmentDate" Grid.Row="0" Grid.Column="0" FontAttributes="Bold" VerticalOptions="CenterAndExpand"/>
+                    <DatePicker x:Name="dtpYieldSheetDate" Grid.Row="0" Grid.Column="1" DateSelected="dtpYieldSheetDate_DateSelected"/>
+
+                    <Label x:Name="lblSortBy" Grid.Row="1" Grid.Column="0" FontAttributes="Bold" VerticalOptions="CenterAndExpand"/>
+
+                    <Label x:Name="lblSortBy1" Grid.Row="2" Grid.Column="0" FontAttributes="Bold" VerticalOptions="CenterAndExpand" HorizontalOptions="CenterAndExpand"/>
+                    <customcontrols:CustomPicker x:Name="cboSortBy1" Grid.Row="2" Grid.Column="1" Image="arrow_drop_down" IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}" SelectedIndexChanged="IdentifyChangesMade"/>
+
+                    <Label x:Name="lblSortBy2" Grid.Row="3" Grid.Column="0" FontAttributes="Bold" VerticalOptions="CenterAndExpand" HorizontalOptions="CenterAndExpand"/>
+                    <customcontrols:CustomPicker x:Name="cboSortBy2" Grid.Row="3" Grid.Column="1" Image="arrow_drop_down" IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}" SelectedIndexChanged="IdentifyChangesMade"/>
+
+                    <Label x:Name="lblSortBy3" Grid.Row="4" Grid.Column="0" FontAttributes="Bold" VerticalOptions="CenterAndExpand" HorizontalOptions="CenterAndExpand"/>
+                    <customcontrols:CustomPicker x:Name="cboSortBy3" Grid.Row="4" Grid.Column="1" Image="arrow_drop_down" IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}" SelectedIndexChanged="IdentifyChangesMade"/>
+                </Grid>
+
+                <Grid Grid.Row="2">
+                    <Button x:Name="btnSave" Grid.Row="0" Grid.Column="0" IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}" Clicked="btnSave_Clicked"/>
+                    <Button x:Name="btnClose" Grid.Row="0" Grid.Column="1" IsEnabled="{Binding IsIndicatorRunning, Converter={Helpers:BoolConverter}}" Clicked="btnClose_Clicked"/>
+                </Grid>
+            </Grid>
+
+            <ActivityIndicator IsVisible="{Binding IsIndicatorRunning}" 
+                               IsRunning="{Binding IsIndicatorRunning}"
+                               AbsoluteLayout.LayoutFlags="All" 
+                               AbsoluteLayout.LayoutBounds="0.5,0.5,0.3,0.3"/>
+        </AbsoluteLayout>
+    </ContentPage.Content>
+</modal:DMobileModal>

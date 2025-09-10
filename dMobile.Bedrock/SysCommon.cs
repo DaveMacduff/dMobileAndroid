@@ -783,14 +783,24 @@ namespace dMobile.Bedrock
             CutSheetMaterial = 43,
 
             /// <summary>
+            /// Defined the cut sheet filter.
+            /// </summary>
+            CutSheetFilter = 44,
+
+            /// <summary>
             /// Defined the yield sheet finished.
             /// </summary>
-            YieldSheetFinished = 44,
+            YieldSheetFinished = 45,
 
             /// <summary>
             /// Defined the yield sheet material.
             /// </summary>
-            YieldSheetMaterial = 45,
+            YieldSheetMaterial = 46,
+
+            /// <summary>
+            /// Defined the yield sheet filter.
+            /// </summary>
+            YieldSheetFilter = 47,
         }
 
         /// <summary>
