@@ -24,7 +24,7 @@ namespace dMobile.GroundWork
         public TableActivityCutSheetMaterial()
             : base()
         {
-            this.CurrentSubType = SysCommon.ActSubTypes.TicketMaterial;
+            this.CurrentSubType = SysCommon.ActSubTypes.CutSheetMaterial;
             this.LowerCaseName = "sheet raw material products";
             this.ProperCaseName = "Sheet raw material products";
         }
@@ -173,7 +173,7 @@ namespace dMobile.GroundWork
                                     transaction.Execute(
                                         "INSERT INTO tActivity (ActivityStatus, ActivitySubType) VALUES (?, ?)",
                                         0,
-                                        Convert.ToInt32(SysCommon.ActSubTypes.TicketMaterial));
+                                        Convert.ToInt32(SysCommon.ActSubTypes.CutSheetMaterial));
                                     actRefno = Convert.ToInt32(
                                         transaction.ExecuteScalar<int>(
                                             "SELECT last_insert_rowid() FROM tActivity"));
@@ -200,7 +200,7 @@ namespace dMobile.GroundWork
                                     var parametersActivityCutSheet = new object[]
                                     {
                                         actRefno,
-                                        Convert.ToInt32(SysCommon.ActSubTypes.TicketMaterial),
+                                        Convert.ToInt32(SysCommon.ActSubTypes.CutSheetMaterial),
                                         whsLocMapRefno,
                                         DateTime.Parse(dt.ToShortDateString()),
                                         Convert.ToString(drow["ActivityCutSheetDescription"])

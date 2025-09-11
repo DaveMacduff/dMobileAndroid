@@ -78,8 +78,8 @@ namespace dMobile.Controller.Activity
                     var labelActivityDescription = new Label { VerticalOptions = LayoutOptions.Center };
 
                     labelActivityRefno.SetBinding(Label.TextProperty, new Binding("ActivityStringFKRefno"));
-                    labelActivityDateTime.SetBinding(Label.TextProperty, new Binding("ActivityProductionDateTime", BindingMode.Default, null, null, "{0:MM/dd/yyyy}"));
-                    labelActivityDescription.SetBinding(Label.TextProperty, new Binding("ActivityProductionDescription"));
+                    labelActivityDateTime.SetBinding(Label.TextProperty, new Binding("ActivityCutSheetDateTime", BindingMode.Default, null, null, "{0:MM/dd/yyyy}"));
+                    labelActivityDescription.SetBinding(Label.TextProperty, new Binding("ActivityCutSheetDescription"));
 
                     gridData.Children.Add(labelActivityRefno, 0, 0);
                     gridData.Children.Add(labelActivityDateTime, 0, 0);
@@ -135,7 +135,7 @@ namespace dMobile.Controller.Activity
             base.DisplayExtraInfo(extraInfo);
             if (this.SelectedActivity is CutSheetMaterial activity)
             {
-                extraInfo.Add(activity.ActivityProductionDescription);
+                extraInfo.Add(activity.ActivityCutSheetDescription);
                 extraInfo.Add("Warehouse:  " + activity.LocationMapWarehouseName);
             }
         }
@@ -154,8 +154,8 @@ namespace dMobile.Controller.Activity
             {
                 // CutSheetMaterial productionCutSheet = new CutSheetMaterial
                 // {
-                //    ActivityProductionDateTime = Convert.ToDateTime(row["ActivityProductionDateTime"] != DBNull.Value ? row["ActivityProductionDateTime"] : null),
-                //    ActivityProductionDescription = Convert.ToString(row["ActivityProductionDescription"] != DBNull.Value ? row["ActivityProductionDescription"] : null),
+                //    ActivityCutSheetDateTime = Convert.ToDateTime(row["ActivityCutSheetDateTime"] != DBNull.Value ? row["ActivityCutSheetDateTime"] : null),
+                //    ActivityCutSheetDescription = Convert.ToString(row["ActivityCutSheetDescription"] != DBNull.Value ? row["ActivityCutSheetDescription"] : null),
                 //    ActivityFKRefno = Convert.ToInt32(row["ActivityFKRefno"] != DBNull.Value ? row["ActivityFKRefno"] : null),
                 //    ActivityStringFKRefno = Convert.ToString(row["ActivityStringFKRefno"] != DBNull.Value ? row["ActivityStringFKRefno"] : null),
                 //    ActivityRefno = Convert.ToInt32(row["ActivityRefno"] != DBNull.Value ? row["ActivityRefno"] : null),
@@ -204,8 +204,8 @@ namespace dMobile.Controller.Activity
             foreach (var productionCutSheet in observableCollection.Cast<CutSheetMaterial>())
             {
                 var dataColumnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(productionCutSheet.ActivityStringFKRefno);
-                var dataColumnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(Convert.ToString(productionCutSheet.ActivityProductionDateTime.ToString("MM/dd/yyyy")));
-                var dataColumnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(productionCutSheet.ActivityProductionDescription);
+                var dataColumnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(Convert.ToString(productionCutSheet.ActivityCutSheetDateTime.ToString("MM/dd/yyyy")));
+                var dataColumnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(productionCutSheet.ActivityCutSheetDescription);
 
                 if (dataColumnWidth0 > this.columnWidth0)
                 {
@@ -241,61 +241,61 @@ namespace dMobile.Controller.Activity
             var ticketSettings = new CutSheetSettings().LoadData();
             var sql = new StringBuilder();
 
-            sql.Append("SELECT tActivityProduction.ActivityRefno,");
-            sql.Append("tActivityProductionMaterial.ActivityFKRefno,");
-            sql.Append("tActivityProductionMaterial.ActivityStringFKRefno,");
+            sql.Append("SELECT tActivityCutSheet.ActivityRefno,");
+            sql.Append("tActivityCutSheetMaterial.ActivityFKRefno,");
+            sql.Append("tActivityCutSheetMaterial.ActivityStringFKRefno,");
             sql.Append("tLocationMapWarehouse.LocationMapRefno AS LocationMapRefno,");
             sql.Append("tLocationMapWarehouse.LocationMapWarehouseFKRefno AS LocationMapWarehouseFKRefno,");
             sql.Append("tLocationMapWarehouse.LocationMapWarehouseName AS LocationMapWarehouseName,");
-            sql.Append("tActivityProduction.ActivityProductionDateTime AS ActivityProductionDateTime,");
-            sql.Append("tActivityProduction.ActivityProductionDescription AS ActivityProductionDescription,");
+            sql.Append("tActivityCutSheet.ActivityCutSheetDateTime AS ActivityCutSheetDateTime,");
+            sql.Append("tActivityCutSheet.ActivityCutSheetDescription AS ActivityCutSheetDescription,");
             sql.Append("tActivity.ActivityStatus AS ActivityStatus ");
-            sql.Append("FROM tActivityProduction ");
+            sql.Append("FROM tActivityCutSheet ");
             if (isSubmitBatch)
             {
-                sql.Append("INNER JOIN tActivity ON tActivity.ActivityRefno = tActivityProduction.ActivityRefno ");
-                sql.Append("INNER JOIN tActivityProductionMaterial ON tActivityProduction.ActivityRefno ");
-                sql.Append("= tActivityProductionMaterial.ActivityRefno ");
+                sql.Append("INNER JOIN tActivity ON tActivity.ActivityRefno = tActivityCutSheet.ActivityRefno ");
+                sql.Append("INNER JOIN tActivityCutSheetMaterial ON tActivityCutSheet.ActivityRefno ");
+                sql.Append("= tActivityCutSheetMaterial.ActivityRefno ");
                 sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno ");
-                sql.Append("= tActivityProduction.WarehouseLocationMapRefno ");
+                sql.Append("= tActivityCutSheet.WarehouseLocationMapRefno ");
                 sql.AppendFormat("WHERE tActivity.ActivityStatus <> {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
                 sql.AppendFormat("AND tActivity.ActivitySubType = {0} ", Convert.ToInt32(SysCommon.ActSubTypes.CutSheetMaterial));
                 sql.Append("UNION ");
-                sql.Append("SELECT tActivityProduction.ActivityRefno,");
-                sql.Append("tActivityProductionMaterial.ActivityFKRefno,");
-                sql.Append("tActivityProductionMaterial.ActivityStringFKRefno,");
+                sql.Append("SELECT tActivityCutSheet.ActivityRefno,");
+                sql.Append("tActivityCutSheetMaterial.ActivityFKRefno,");
+                sql.Append("tActivityCutSheetMaterial.ActivityStringFKRefno,");
                 sql.Append("tLocationMapWarehouse.LocationMapRefno,");
                 sql.Append("tLocationMapWarehouse.LocationMapWarehouseFKRefno,");
                 sql.Append("tLocationMapWarehouse.LocationMapWarehouseName,");
-                sql.Append("tActivityProduction.ActivityProductionDateTime,");
-                sql.Append("tActivityProduction.ActivityProductionDescription,");
+                sql.Append("tActivityCutSheet.ActivityCutSheetDateTime,");
+                sql.Append("tActivityCutSheet.ActivityCutSheetDescription,");
                 sql.Append("tActivity.ActivityStatus ");
-                sql.Append("FROM tActivityProduction ");
-                sql.Append("INNER JOIN tActivity ON tActivity.ActivityRefno = tActivityProduction.ActivityRefno ");
-                sql.Append("INNER JOIN tActivityProductionMaterial ON tActivityProduction.ActivityRefno ");
-                sql.Append("= tActivityProductionMaterial.ActivityRefno ");
+                sql.Append("FROM tActivityCutSheet ");
+                sql.Append("INNER JOIN tActivity ON tActivity.ActivityRefno = tActivityCutSheet.ActivityRefno ");
+                sql.Append("INNER JOIN tActivityCutSheetMaterial ON tActivityCutSheet.ActivityRefno ");
+                sql.Append("= tActivityCutSheetMaterial.ActivityRefno ");
                 sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno ");
-                sql.Append("= tActivityProduction.WarehouseLocationMapRefno ");
+                sql.Append("= tActivityCutSheet.WarehouseLocationMapRefno ");
                 sql.Append("INNER JOIN tActivityItem ON tActivityItem.ActivityRefno = tActivity.ActivityRefno ");
                 sql.AppendFormat("WHERE tActivityItem.ActivityItemStatus <> {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
                 sql.AppendFormat("AND tActivity.ActivitySubType = {0} ", Convert.ToInt32(SysCommon.ActSubTypes.CutSheetMaterial));
                 sql.Append("UNION ");
-                sql.Append("SELECT tActivityProduction.ActivityRefno,");
-                sql.Append("tActivityProductionMaterial.ActivityFKRefno,");
-                sql.Append("tActivityProductionMaterial.ActivityStringFKRefno,");
+                sql.Append("SELECT tActivityCutSheet.ActivityRefno,");
+                sql.Append("tActivityCutSheetMaterial.ActivityFKRefno,");
+                sql.Append("tActivityCutSheetMaterial.ActivityStringFKRefno,");
                 sql.Append("tLocationMapWarehouse.LocationMapRefno,");
                 sql.Append("tLocationMapWarehouse.LocationMapWarehouseFKRefno,");
                 sql.Append("tLocationMapWarehouse.LocationMapWarehouseName,");
-                sql.Append("tActivityProduction.ActivityProductionDateTime,");
-                sql.Append("tActivityProduction.ActivityProductionDescription,");
+                sql.Append("tActivityCutSheet.ActivityCutSheetDateTime,");
+                sql.Append("tActivityCutSheet.ActivityCutSheetDescription,");
                 sql.Append("tActivity.ActivityStatus ");
-                sql.Append("FROM tActivityProduction ");
-                sql.Append("INNER JOIN tActivity ON tActivity.ActivityRefno = tActivityProduction.ActivityRefno ");
-                sql.Append("INNER JOIN tActivityProductionMaterial ON tActivityProduction.ActivityRefno ");
-                sql.Append("= tActivityProductionMaterial.ActivityRefno ");
+                sql.Append("FROM tActivityCutSheet ");
+                sql.Append("INNER JOIN tActivity ON tActivity.ActivityRefno = tActivityCutSheet.ActivityRefno ");
+                sql.Append("INNER JOIN tActivityCutSheetMaterial ON tActivityCutSheet.ActivityRefno ");
+                sql.Append("= tActivityCutSheetMaterial.ActivityRefno ");
                 sql.Append("INNER JOIN tActivityItem ON tActivityItem.ActivityRefno = tActivity.ActivityRefno ");
                 sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno ");
-                sql.Append("= tActivityProduction.WarehouseLocationMapRefno ");
+                sql.Append("= tActivityCutSheet.WarehouseLocationMapRefno ");
                 sql.Append("INNER JOIN tActivityDetail ON tActivityDetail.ActivityItemRefno ");
                 sql.Append("= tActivityItem.ActivityItemRefno ");
                 sql.AppendFormat("WHERE tActivityDetail.ActivityDetailStatus <> {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
@@ -304,10 +304,10 @@ namespace dMobile.Controller.Activity
             else
             {
                 sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno ");
-                sql.Append("= tActivityProduction.WarehouseLocationMapRefno ");
-                sql.Append("INNER JOIN tActivity ON tActivity.ActivityRefno = tActivityProduction.ActivityRefno ");
-                sql.AppendFormat("INNER JOIN tActivityProductionMaterial ON tActivityProduction.ActivityRefno ");
-                sql.Append("= tActivityProductionMaterial.ActivityRefno ");
+                sql.Append("= tActivityCutSheet.WarehouseLocationMapRefno ");
+                sql.Append("INNER JOIN tActivity ON tActivity.ActivityRefno = tActivityCutSheet.ActivityRefno ");
+                sql.AppendFormat("INNER JOIN tActivityCutSheetMaterial ON tActivityCutSheet.ActivityRefno ");
+                sql.Append("= tActivityCutSheetMaterial.ActivityRefno ");
                 sql.AppendFormat("WHERE tActivity.ActivitySubType = {0}", Convert.ToInt32(SysCommon.ActSubTypes.CutSheetMaterial));
             }
 
@@ -446,8 +446,8 @@ namespace dMobile.Controller.Activity
                     var maxDate = new DateTime(dt.Year, dt.Month, dt.Day, 23, 59, 59);
 
                     this.listCutSheetMaterial = this.listCutSheetMaterial.Where(
-                        prodCutSheet => prodCutSheet.ActivityProductionDateTime >= minDate &&
-                        prodCutSheet.ActivityProductionDateTime <= maxDate).ToList();
+                        prodCutSheet => prodCutSheet.ActivityCutSheetDateTime >= minDate &&
+                        prodCutSheet.ActivityCutSheetDateTime <= maxDate).ToList();
                 }
             }
         }
@@ -467,7 +467,7 @@ namespace dMobile.Controller.Activity
                     var minDate = new DateTime(dt.Year, dt.Month, dt.Day, 00, 00, 00);
                     var maxDate = new DateTime(dt.Year, dt.Month, dt.Day, 23, 59, 59);
 
-                    this.listCutSheetMaterial = this.listCutSheetMaterial.Where(prodCutSheet => prodCutSheet.ActivityProductionDateTime >= minDate && prodCutSheet.ActivityProductionDateTime <= maxDate).ToList();
+                    this.listCutSheetMaterial = this.listCutSheetMaterial.Where(prodCutSheet => prodCutSheet.ActivityCutSheetDateTime >= minDate && prodCutSheet.ActivityCutSheetDateTime <= maxDate).ToList();
                 }
             }
         }

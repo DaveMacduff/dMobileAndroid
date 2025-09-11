@@ -137,7 +137,9 @@ namespace dMobile.GroundWork
 
                         foreach (DataRow drow in ds.Tables["tActivityCutSheet"].Rows)
                         {
-                            transaction.Execute("INSERT INTO tActivity (ActivityStatus, ActivitySubType) VALUES (?, ?)", 0, Convert.ToInt32(SysCommon.ActSubTypes.TicketFinished));
+                            transaction.Execute("INSERT INTO tActivity (ActivityStatus, ActivitySubType) VALUES (?, ?)",
+                                0,
+                                Convert.ToInt32(SysCommon.ActSubTypes.CutSheetFinished));
                             actRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivity"));
                             const string queryActivityCutSheet = "INSERT INTO tActivityCutSheet (" +
                                 "ActivityRefno, " +
@@ -155,7 +157,7 @@ namespace dMobile.GroundWork
                             var parametersActivityCutSheet = new List<object>
                             {
                                 actRefno,
-                                Convert.ToInt32(SysCommon.ActSubTypes.TicketFinished)
+                                Convert.ToInt32(SysCommon.ActSubTypes.CutSheetFinished)
                             };
 
                             whsLocMapRefno = GetWhsLocMapRefnoFromDataRow(drow, transaction);

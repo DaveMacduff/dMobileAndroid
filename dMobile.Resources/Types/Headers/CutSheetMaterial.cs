@@ -40,12 +40,12 @@ namespace dMobile.Resources.Types.Headers
         /// <summary>
         /// Gets or sets the date and time of the cut sheet activity.
         /// </summary>
-        public DateTime ActivityProductionDateTime { get; set; }
+        public DateTime ActivityCutSheetDateTime { get; set; }
 
         /// <summary>
         /// Gets or sets the description of the cut sheet activity.
         /// </summary>
-        public string ActivityProductionDescription { get; set; }
+        public string ActivityCutSheetDescription { get; set; }
 
         /// <summary>
         /// Gets or sets the string foreign key reference number of the activity.

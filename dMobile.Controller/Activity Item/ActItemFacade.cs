@@ -116,6 +116,14 @@ namespace dMobile.Controller.Activity_Item
                 case SysCommon.ActSubTypes.ConvertProduct:
                     actItemFactory = new ConvertProductActItemFactory();
                     break;
+
+                case SysCommon.ActSubTypes.CutSheetFinished:
+                    actItemFactory = new CutSheetFinishedActItemFactory();
+                    break;
+
+                case SysCommon.ActSubTypes.CutSheetMaterial:
+                    actItemFactory = new CutSheetMaterialActItemFactory();
+                    break;
             }
 
             ActItem actItem;

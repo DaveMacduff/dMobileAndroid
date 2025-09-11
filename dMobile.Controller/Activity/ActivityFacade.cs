@@ -86,6 +86,20 @@ namespace dMobile.Controller.Activity
                     actFactory = new TicketByProdActivityFactory();
                     break;
 
+                case SysCommon.ActSubTypes.CutSheetFinished:
+                    actFactory = new CutSheetFinishedActivityFactory();
+                    break;
+
+                case SysCommon.ActSubTypes.CutSheetMaterial:
+                    actFactory = new CutSheetMaterialActivityFactory();
+                    break;
+
+                case SysCommon.ActSubTypes.YieldSheetFinished:
+                    throw new NotImplementedException();
+
+                case SysCommon.ActSubTypes.YieldSheetMaterial:
+                    throw new NotImplementedException();
+
                 case SysCommon.ActSubTypes.PurchaseOrderWorkSheet:
                     actFactory = new PoWorkSheetActivityFactory();
                     break;

@@ -25,7 +25,7 @@ namespace dMobile.GroundWork
         public TableActivityCutSheetMaterialItem()
             : base()
         {
-            this.CurrentSubType = SysCommon.ActSubTypes.TicketMaterial;
+            this.CurrentSubType = SysCommon.ActSubTypes.CutSheetMaterial;
             this.LowerCaseName = "sheet raw material product";
             this.ProperCaseName = "Sheet raw material product";
         }

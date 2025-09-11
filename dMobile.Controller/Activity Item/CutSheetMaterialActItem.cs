@@ -32,8 +32,8 @@ namespace dMobile.Controller.Activity_Item
             : base(activity)
         {
             this.IsAllowAddItem = false;
+            ////this.IsAskCreateNewItem = this.SysEnv.SysSettings.IsCutSheetMaterialCreateNewItemNoAsk;
             this.IsAskCreateNewItem = false;
-
             DefineInitialGrid();
 
             void DefineInitialGrid()
@@ -150,16 +150,16 @@ namespace dMobile.Controller.Activity_Item
         private ResourceDictionary ResDict { get; } = new ResourceDictionary();
 
         /// <summary>
-        /// Defines the listCutSheetFinishedItems.
+        /// Defines the listCutSheetMaterialItems.
         /// </summary>
-        private List<CutSheetFinishedItem> ListCutSheetFinishedItems { get; set; } =
-            new List<CutSheetFinishedItem>();
+        private List<CutSheetMaterialItem> ListCutSheetMaterialItems { get; set; } =
+            new List<CutSheetMaterialItem>();
 
         /// <inheritdoc/>
         public override Color GetShippedReceivedCountedDisplayTextColor()
         {
             var displayColor = base.GetShippedReceivedCountedDisplayTextColor();
-            if (this.SelectedItem is CutSheetFinishedItem item)
+            if (this.SelectedItem is CutSheetMaterialItem item)
             {
                 displayColor = item.ActivityItemCutSheetQuantityExpected == item.ActivityItemCutSheetQuantity
                     ? Color.Green
@@ -179,7 +179,7 @@ namespace dMobile.Controller.Activity_Item
             if (actItemFoundRefno >= 0)
             {
                 var idx = 0;
-                foreach (var item in this.ListItems.Cast<CutSheetFinishedItem>())
+                foreach (var item in this.ListItems.Cast<CutSheetMaterialItem>())
                 {
                     if (item.ActivityItemRefno == actItemFoundRefno)
                     {
@@ -216,7 +216,7 @@ namespace dMobile.Controller.Activity_Item
             if (isCatchAsk)
             {
                 // modules are for exclusions
-                ////isCatchAsk = this.SysEnv.SysSettings.IsCutSheetMaterialCatchAskEnabled;
+                isCatchAsk = this.SysEnv.SysSettings.IsCutSheetMaterialCatchAskEnabled;
             }
 
             return isCatchAsk;
@@ -269,7 +269,7 @@ namespace dMobile.Controller.Activity_Item
         public override async Task<int> GetDefaultLocMapRefno(int whsLocMapRefno, int prodRefno)
         {
             var locMapRefno = 0;
-            if (this.SelectedItem is CutSheetFinishedItem item)
+            if (this.SelectedItem is CutSheetMaterialItem item)
             {
                 if (Math.Sign(item.ActivityItemCutSheetQuantity) == 0 ||
                     Math.Sign(item.ActivityItemCutSheetQuantity) == 1)
@@ -353,7 +353,6 @@ namespace dMobile.Controller.Activity_Item
             AddActivityItemToList(prodUnitRefno);
             return;
 
-            //////////////////////////////////////////////////////////////////////////
             async Task InsertActivityItemInTables(int prodUnitRefno)
             {
                 await DatabaseConnection.GetInstance()
@@ -423,12 +422,12 @@ namespace dMobile.Controller.Activity_Item
                                 // Get temporary item FK refno for newly inserted line item.
                                 this.ItemFkRefno = Convert.ToInt32(
                                     transaction.ExecuteScalar<int>(
-                                        "SELECT MAX(tActivityItemCutSheetFinished.ActivityItemFKRefno)" +
-                                        $" FROM tActivityItemCutSheetFinished"));
+                                        "SELECT MAX(tActivityItemCutSheetMaterial.ActivityItemFKRefno)" +
+                                        $" FROM tActivityItemCutSheetMaterial"));
                                 this.ItemFkRefno = this.ItemFkRefno + 1;
 
                                 transaction.Execute(
-                                    "INSERT INTO tActivityItemCutSheetFinished (ActivityItemRefno, ActivityItemFKRefno," +
+                                    "INSERT INTO tActivityItemCutSheetMaterial (ActivityItemRefno, ActivityItemFKRefno," +
                                     " ActivityItemStringFKRefno) VALUES (?, ?, ?)",
                                     Convert.ToInt32(this.ItemRefno),
                                     Convert.ToInt32(this.ItemFkRefno),
@@ -448,7 +447,7 @@ namespace dMobile.Controller.Activity_Item
             void AddActivityItemToList(int prodUnitRefno)
             {
                 var locMap = LocationMap.GetInstance().CurrLocMap;
-                var item = new CutSheetFinishedItem()
+                var item = new CutSheetMaterialItem()
                 {
                     ActivityItemRefno = this.ItemRefno,
                     ActivityItemFKRefno = this.ItemFkRefno,
@@ -490,16 +489,16 @@ namespace dMobile.Controller.Activity_Item
             {
                 this.DataLayerProgressOutHandler(this, EventArgs.Empty, 2);
 
-                var tableFinishedItem = new TableActivityCutSheetFinishedItem();
-                var tableFinishedDetail = new TableActivityCutSheetFinishedDetail();
-                await tableFinishedDetail.PurgeData();
-                await tableFinishedItem.PurgeData();
+                var tableMaterialItem = new TableActivityCutSheetMaterialItem();
+                var tableMaterialDetail = new TableActivityCutSheetMaterialDetail();
+                await tableMaterialDetail.PurgeData();
+                await tableMaterialItem.PurgeData();
 
                 this.DataLayerProgressOutHandler(this, EventArgs.Empty, 5);
 
-                tableFinishedItem.RegisterDataAccessListenerProgressOut(this);
-                await tableFinishedItem.RequestItemData(this.ActHdr.HdrFkRefno, this.ActHdr.HdrRefno);
-                tableFinishedItem.UnregisterDataAccessListenerProgressOut(this);
+                tableMaterialItem.RegisterDataAccessListenerProgressOut(this);
+                await tableMaterialItem.RequestItemData(this.ActHdr.HdrFkRefno, this.ActHdr.HdrRefno);
+                tableMaterialItem.UnregisterDataAccessListenerProgressOut(this);
             }
         }
 
@@ -532,7 +531,7 @@ namespace dMobile.Controller.Activity_Item
         public override ObservableCollection<object> CreateObservableCollectionFromListItems(List<object> listItems)
         {
             var mainActivityItems = new ObservableCollection<object>();
-            foreach (var item in listItems.Cast<CutSheetFinishedItem>())
+            foreach (var item in listItems.Cast<CutSheetMaterialItem>())
             {
                 mainActivityItems.Add(item);
             }
@@ -557,7 +556,7 @@ namespace dMobile.Controller.Activity_Item
             var mainActivityItems = new ObservableCollection<object>();
             if (string.IsNullOrEmpty(filterSearch) || string.IsNullOrWhiteSpace(filterSearch))
             {
-                foreach (var item in listItems.Cast<CutSheetFinishedItem>())
+                foreach (var item in listItems.Cast<CutSheetMaterialItem>())
                 {
                     mainActivityItems.Add(item);
                 }
@@ -566,7 +565,7 @@ namespace dMobile.Controller.Activity_Item
             {
                 mainActivityItems = new ObservableCollection<object>();
                 var lowerSearchText = filterSearch.ToLower().Trim();
-                foreach (var item in listItems.Cast<CutSheetFinishedItem>())
+                foreach (var item in listItems.Cast<CutSheetMaterialItem>())
                 {
                     if (item.ProductCode.ToLower().Contains(lowerSearchText))
                     {
@@ -591,7 +590,7 @@ namespace dMobile.Controller.Activity_Item
         public override void PlaceNewItemsAtBottomOfList(List<object> listItems)
         {
             var sortedItems = listItems
-                .Cast<CutSheetFinishedItem>()
+                .Cast<CutSheetMaterialItem>()
                 .OrderBy(item => item.ActivityItemFKRefno >= 0 ? 0 : 1)
                 .ThenBy(item => item.ActivityItemFKRefno)
                 .Cast<object>()
@@ -627,7 +626,7 @@ namespace dMobile.Controller.Activity_Item
             IGridService gridService,
             ColumnDefinitionCollection columns)
         {
-            var finishedItem = (CutSheetFinishedItem)item;
+            var finishedItem = (CutSheetMaterialItem)item;
 
             var detailWidths = new[]
             {
@@ -723,8 +722,8 @@ namespace dMobile.Controller.Activity_Item
             var sql = new StringBuilder();
 
             sql.Append("SELECT tActivityItemCutSheet.ActivityItemRefno,");
-            sql.Append("tActivityItemCutSheetFinished.ActivityItemFKRefno,");
-            sql.Append("tActivityItemCutSheetFinished.ActivityItemStringFKRefno,");
+            sql.Append("tActivityItemCutSheetMaterial.ActivityItemFKRefno,");
+            sql.Append("tActivityItemCutSheetMaterial.ActivityItemStringFKRefno,");
             sql.Append("tProductUnit.ProductUnitRefno AS ProductUnitRefno,");
             sql.Append("tProduct.ProductRefno AS ProductRefno,");
             sql.Append("tProduct.ProductCode AS ProductCode,");
@@ -753,7 +752,7 @@ namespace dMobile.Controller.Activity_Item
                 sql.Append("INNER JOIN tActivityItem ON tActivityItem.ActivityItemRefno ");
                 sql.Append("= tActivityItemCutSheet.ActivityItemRefno ");
                 sql.Append(
-                    "INNER JOIN tActivityItemCutSheetFinished ON tActivityItemCutSheetFinished.ActivityItemRefno ");
+                    "INNER JOIN tActivityItemCutSheetMaterial ON tActivityItemCutSheetMaterial.ActivityItemRefno ");
                 sql.Append("= tActivityItemCutSheet.ActivityItemRefno ");
                 sql.Append("INNER JOIN tProductUnit ON tProductUnit.ProductUnitRefno ");
                 sql.Append("= tActivityItemCutSheet.ProductUnitRefno ");
@@ -770,8 +769,8 @@ namespace dMobile.Controller.Activity_Item
                     Convert.ToInt32(SysCommon.ActSubTypes.CutSheetMaterial));
                 sql.Append("UNION ");
                 sql.Append("SELECT tActivityItemCutSheet.ActivityItemRefno,");
-                sql.Append("tActivityItemCutSheetFinished.ActivityItemFKRefno,");
-                sql.Append("tActivityItemCutSheetFinished.ActivityItemStringFKRefno,");
+                sql.Append("tActivityItemCutSheetMaterial.ActivityItemFKRefno,");
+                sql.Append("tActivityItemCutSheetMaterial.ActivityItemStringFKRefno,");
                 sql.Append("tProductUnit.ProductUnitRefno,");
                 sql.Append("tProduct.ProductRefno,");
                 sql.Append("tProduct.ProductCode,");
@@ -795,7 +794,7 @@ namespace dMobile.Controller.Activity_Item
                 sql.Append("INNER JOIN tActivityDetail ON tActivityDetail.ActivityItemRefno ");
                 sql.Append("= tActivityItemCutSheet.ActivityItemRefno ");
                 sql.Append(
-                    "INNER JOIN tActivityItemCutSheetFinished ON tActivityItemCutSheetFinished.ActivityItemRefno ");
+                    "INNER JOIN tActivityItemCutSheetMaterial ON tActivityItemCutSheetMaterial.ActivityItemRefno ");
                 sql.Append("= tActivityItemCutSheet.ActivityItemRefno ");
                 sql.Append("INNER JOIN tProductUnit ON tProductUnit.ProductUnitRefno ");
                 sql.Append("= tActivityItemCutSheet.ProductUnitRefno ");
@@ -824,7 +823,7 @@ namespace dMobile.Controller.Activity_Item
                 sql.Append("INNER JOIN tActivityItem ON tActivityItem.ActivityItemRefno ");
                 sql.Append("= tActivityItemCutSheet.ActivityItemRefno ");
                 sql.Append(
-                    "INNER JOIN tActivityItemCutSheetFinished ON tActivityItemCutSheetFinished.ActivityItemRefno ");
+                    "INNER JOIN tActivityItemCutSheetMaterial ON tActivityItemCutSheetMaterial.ActivityItemRefno ");
                 sql.Append("= tActivityItemCutSheet.ActivityItemRefno ");
                 sql.Append("INNER JOIN tProductUnit ON tProductUnit.ProductUnitRefno ");
                 sql.Append("= tActivityItemCutSheet.ProductUnitRefno ");
@@ -840,8 +839,8 @@ namespace dMobile.Controller.Activity_Item
                     Convert.ToInt32(SysCommon.ActSubTypes.CutSheetMaterial));
                 sql.Append("UNION ");
                 sql.Append("SELECT tActivityItemCutSheet.ActivityItemRefno,");
-                sql.Append("tActivityItemCutSheetFinished.ActivityItemFKRefno,");
-                sql.Append("tActivityItemCutSheetFinished.ActivityItemStringFKRefno,");
+                sql.Append("tActivityItemCutSheetMaterial.ActivityItemFKRefno,");
+                sql.Append("tActivityItemCutSheetMaterial.ActivityItemStringFKRefno,");
                 sql.Append("tProductUnit.ProductUnitRefno,");
                 sql.Append("tProduct.ProductRefno,");
                 sql.Append("tProduct.ProductCode,");
@@ -863,7 +862,7 @@ namespace dMobile.Controller.Activity_Item
                 sql.Append("INNER JOIN tActivityItem ON tActivityItem.ActivityItemRefno ");
                 sql.Append("= tActivityItemCutSheet.ActivityItemRefno ");
                 sql.Append(
-                    "INNER JOIN tActivityItemCutSheetFinished ON tActivityItemCutSheetFinished.ActivityItemRefno ");
+                    "INNER JOIN tActivityItemCutSheetMaterial ON tActivityItemCutSheetMaterial.ActivityItemRefno ");
                 sql.Append("= tActivityItemCutSheet.ActivityItemRefno ");
                 sql.Append("INNER JOIN tProductUnit ON tProductUnit.ProductUnitRefno ");
                 sql.Append("= tActivityItemCutSheet.ProductUnitRefno ");
@@ -877,8 +876,8 @@ namespace dMobile.Controller.Activity_Item
                     Convert.ToInt32(SysCommon.ActSubTypes.CutSheetMaterial));
                 sql.Append("UNION ");
                 sql.Append("SELECT tActivityItemCutSheet.ActivityItemRefno,");
-                sql.Append("tActivityItemCutSheetFinished.ActivityItemFKRefno,");
-                sql.Append("tActivityItemCutSheetFinished.ActivityItemStringFKRefno,");
+                sql.Append("tActivityItemCutSheetMaterial.ActivityItemFKRefno,");
+                sql.Append("tActivityItemCutSheetMaterial.ActivityItemStringFKRefno,");
                 sql.Append("tProductUnit.ProductUnitRefno,");
                 sql.Append("tProduct.ProductRefno,");
                 sql.Append("tProduct.ProductCode,");
@@ -900,7 +899,7 @@ namespace dMobile.Controller.Activity_Item
                 sql.Append("INNER JOIN tActivityItem ON tActivityItem.ActivityItemRefno ");
                 sql.Append("= tActivityItemCutSheet.ActivityItemRefno ");
                 sql.Append(
-                    "INNER JOIN tActivityItemCutSheetFinished ON tActivityItemCutSheetFinished.ActivityItemRefno ");
+                    "INNER JOIN tActivityItemCutSheetMaterial ON tActivityItemCutSheetMaterial.ActivityItemRefno ");
                 sql.Append("= tActivityItemCutSheet.ActivityItemRefno ");
                 sql.Append("INNER JOIN tProductUnit ON tProductUnit.ProductUnitRefno ");
                 sql.Append("= tActivityItemCutSheet.ProductUnitRefno ");
@@ -928,9 +927,9 @@ namespace dMobile.Controller.Activity_Item
             //        this.DataViewItems.Sort = "ActivityItemRefno";
             //    }
             // }
-            this.ListCutSheetFinishedItems = await DatabaseConnection.GetInstance()
-                .SqlConn.QueryAsync<CutSheetFinishedItem>(sql.ToString());
-            this.ListItems = this.ListCutSheetFinishedItems.Cast<object>().ToList();
+            this.ListCutSheetMaterialItems = await DatabaseConnection.GetInstance()
+                .SqlConn.QueryAsync<CutSheetMaterialItem>(sql.ToString());
+            this.ListItems = this.ListCutSheetMaterialItems.Cast<object>().ToList();
             return this.ListItems;
         }
 
@@ -941,8 +940,8 @@ namespace dMobile.Controller.Activity_Item
 
             // if (string.IsNullOrEmpty(this.ActItemFilter))
             // {
-            this.ListItems = this.ListCutSheetFinishedItems.Where(
-                    productionCutSheetMaterialItem => productionCutSheetMaterialItem.ProductCode.ToString()
+            this.ListItems = this.ListCutSheetMaterialItems.Where(
+                    productioCutSheetMaterialItem => productioCutSheetMaterialItem.ProductCode.ToString()
                         .ToLower()
                         .Contains(searchText.ToLower().Trim()))
                 .Cast<object>()
@@ -956,9 +955,9 @@ namespace dMobile.Controller.Activity_Item
             // }
 
             // Add all items in dataview to observable collection for display
-            foreach (var productionCutSheetMaterialItem in this.ListItems.Cast<CutSheetFinishedItem>())
+            foreach (var productioCutSheetMaterialItem in this.ListItems.Cast<CutSheetMaterialItem>())
             {
-                observableCollection.Add(productionCutSheetMaterialItem);
+                observableCollection.Add(productioCutSheetMaterialItem);
             }
 
             return observableCollection;
@@ -981,7 +980,7 @@ namespace dMobile.Controller.Activity_Item
                     Scheme = new ProdScheme()
                 };
             }
-            else if (selectedActivityItem is CutSheetFinishedItem item)
+            else if (selectedActivityItem is CutSheetMaterialItem item)
             {
                 this.SelectedListIdx = this.ListItems.IndexOf(item);
                 this.SelectedItem = item;
@@ -999,7 +998,7 @@ namespace dMobile.Controller.Activity_Item
             return;
 
             //////////////////////////////////////////////////////////////////////////
-            async Task AssignItemLocation(CutSheetFinishedItem item)
+            async Task AssignItemLocation(CutSheetMaterialItem item)
             {
                 // This code needs to be before the call to GetSelectedItemLocation, because the skid location may be
                 // used if the product unit and warehouse match.
@@ -1064,7 +1063,7 @@ namespace dMobile.Controller.Activity_Item
             sql.Append("INNER JOIN tActivityItem ON tActivityItem.ActivityItemRefno ");
             sql.Append("= tActivityItemCutSheet.ActivityItemRefno ");
             sql.Append(
-                "INNER JOIN tActivityItemCutSheetFinished ON tActivityItemCutSheetFinished.ActivityItemRefno ");
+                "INNER JOIN tActivityItemCutSheetMaterial ON tActivityItemCutSheetMaterial.ActivityItemRefno ");
             sql.Append("= tActivityItemCutSheet.ActivityItemRefno ");
             sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno ");
             sql.Append("= tActivityItemCutSheet.LocationMapRefno ");
@@ -1076,14 +1075,14 @@ namespace dMobile.Controller.Activity_Item
                 Convert.ToInt32(SysCommon.ActSubTypes.CutSheetMaterial));
 
             var results = await DatabaseConnection.GetInstance()
-                .SqlConn.QueryAsync<CutSheetFinishedItem>(sql.ToString());
+                .SqlConn.QueryAsync<CutSheetMaterialItem>(sql.ToString());
             if (results != null && results.Count > 0)
             {
                 foundActItemRefno = Convert.ToInt32(results[0].ActivityItemRefno);
             }
             else
             {
-                foreach (var item in this.ListCutSheetFinishedItems)
+                foreach (var item in this.ListCutSheetMaterialItems)
                 {
                     if (item.LocationMapRefno == locMap.WhsLocMapRefno && item.ProductUnitRefno == prodUnitRefno)
                     {
@@ -1121,7 +1120,7 @@ namespace dMobile.Controller.Activity_Item
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" +
                 "<imclient>" +
                 "<command>" +
-                "<action>SUBMIT PRODUCTION TICKET FINISHED ITEM</action>" +
+                "<action>SUBMIT PRODUCTION TICKET MATERIAL ITEM</action>" +
                 "</command>" +
                 await SysCommon.GetRequestDefaults(false) +
                 "<prod_id>" +
@@ -1162,11 +1161,11 @@ namespace dMobile.Controller.Activity_Item
             decimal baseQuantity,
             decimal weightQuantity)
         {
-            if (selectedActivityItem is CutSheetFinishedItem productionCutSheetMaterialItem)
+            if (selectedActivityItem is CutSheetMaterialItem productioCutSheetMaterialItem)
             {
-                productionCutSheetMaterialItem.ActivityItemCutSheetQuantity = quantity;
-                productionCutSheetMaterialItem.ActivityItemCutSheetBaseQuantity = baseQuantity;
-                productionCutSheetMaterialItem.ActivityItemCutSheetWeightQuantity = weightQuantity;
+                productioCutSheetMaterialItem.ActivityItemCutSheetQuantity = quantity;
+                productioCutSheetMaterialItem.ActivityItemCutSheetBaseQuantity = baseQuantity;
+                productioCutSheetMaterialItem.ActivityItemCutSheetWeightQuantity = weightQuantity;
             }
         }
 
@@ -1183,11 +1182,11 @@ namespace dMobile.Controller.Activity_Item
             decimal baseQuantity,
             decimal weightQuantity)
         {
-            if (selectedActivityItem is CutSheetFinishedItem productionCutSheetMaterialItem)
+            if (selectedActivityItem is CutSheetMaterialItem productioCutSheetMaterialItem)
             {
-                productionCutSheetMaterialItem.ActivityItemCutSheetQuantity += quantity;
-                productionCutSheetMaterialItem.ActivityItemCutSheetBaseQuantity += baseQuantity;
-                productionCutSheetMaterialItem.ActivityItemCutSheetWeightQuantity += weightQuantity;
+                productioCutSheetMaterialItem.ActivityItemCutSheetQuantity += quantity;
+                productioCutSheetMaterialItem.ActivityItemCutSheetBaseQuantity += baseQuantity;
+                productioCutSheetMaterialItem.ActivityItemCutSheetWeightQuantity += weightQuantity;
             }
         }
 
@@ -1198,17 +1197,17 @@ namespace dMobile.Controller.Activity_Item
         /// <returns>The <see cref="Task"/> Task operation.</returns>
         public override async Task UpdateItemTableQuantity(object activityItem)
         {
-            if (activityItem is CutSheetFinishedItem productionCutSheetMaterialItem)
+            if (activityItem is CutSheetMaterialItem productioCutSheetMaterialItem)
             {
                 var query = "UPDATE tActivityItemCutSheet SET ActivityItemCutSheetQuantity = ?," +
                             " ActivityItemCutSheetBaseQuantity = ?," +
                             " ActivityItemCutSheetWeightQuantity = ? WHERE ActivityItemRefno = ?";
                 var parameters = new object[]
                 {
-                    productionCutSheetMaterialItem.ActivityItemCutSheetQuantity,
-                    productionCutSheetMaterialItem.ActivityItemCutSheetBaseQuantity,
-                    productionCutSheetMaterialItem.ActivityItemCutSheetWeightQuantity,
-                    productionCutSheetMaterialItem.ActivityItemRefno
+                    productioCutSheetMaterialItem.ActivityItemCutSheetQuantity,
+                    productioCutSheetMaterialItem.ActivityItemCutSheetBaseQuantity,
+                    productioCutSheetMaterialItem.ActivityItemCutSheetWeightQuantity,
+                    productioCutSheetMaterialItem.ActivityItemRefno
                 };
 
                 await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync(query, parameters);
@@ -1222,7 +1221,7 @@ namespace dMobile.Controller.Activity_Item
         /// <returns><see cref="int"/> Found activity item foreign key reference number, else 0 if not found.</returns>
         public override int GetFkRefno(object resourceType)
         {
-            object tmpFkItRefno = ((CutSheetFinishedItem)resourceType).ActivityItemFKRefno;
+            object tmpFkItRefno = ((CutSheetMaterialItem)resourceType).ActivityItemFKRefno;
             return tmpFkItRefno == null ? 0 : Convert.ToInt32(tmpFkItRefno);
         }
 
@@ -1322,7 +1321,7 @@ namespace dMobile.Controller.Activity_Item
         /// <inheritdoc />
         public override DataTemplate GetDataTemplate()
         {
-            return (DataTemplate)this.ResourceDictionary["dataTemplateFinishedItem"];
+            return (DataTemplate)this.ResourceDictionary["dataTemplateMaterialItem"];
         }
 
         /// <inheritdoc />
@@ -1341,7 +1340,7 @@ namespace dMobile.Controller.Activity_Item
         public override string GetOrderedExpectedOnHandQuantity()
         {
             var quantity = "0.000";
-            if (this.SelectedItem is CutSheetFinishedItem item)
+            if (this.SelectedItem is CutSheetMaterialItem item)
             {
                 quantity = $"{item.ActivityItemCutSheetQuantityExpected:F3} {this.ProdInfo.UnitCode} @ " +
                            $"{item.ActivityItemCutSheetWeightQuantityExpected:F3} {this.ProdInfo.WeightUnitCode}";
@@ -1354,7 +1353,7 @@ namespace dMobile.Controller.Activity_Item
         public override string GetShippedReceivedCountedQuantity()
         {
             var quantity = "0.000";
-            if (this.SelectedItem is CutSheetFinishedItem item)
+            if (this.SelectedItem is CutSheetMaterialItem item)
             {
                 quantity = $"{item.ActivityItemCutSheetQuantity:F3} {this.ProdInfo.UnitCode} @ " +
                            $"{item.ActivityItemCutSheetWeightQuantity:F3} {this.ProdInfo.WeightUnitCode}";

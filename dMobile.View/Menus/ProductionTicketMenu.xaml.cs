@@ -378,28 +378,28 @@ namespace dMobile.View.Menus
 
         private async void CmdCutFinished_Clicked(object sender, EventArgs e)
         {
-            await Device.InvokeOnMainThreadAsync(async () =>
-                await this.DisplayAlert(
-                    "Under construction",
-                    "Cut sheet finished goods is under development.",
-                    "OK"));
-            return;
+            ////await Device.InvokeOnMainThreadAsync(async () =>
+            ////    await this.DisplayAlert(
+            ////        "Under construction",
+            ////        "Cut sheet finished goods is under development.",
+            ////        "OK"));
+            ////return;
 
             this.DisableControls();
             this.UnloadControl();
 
-            var form = new ActivityHdr(SysCommon.ActSubTypes.YieldSheetFinished);
+            var form = new ActivityHdr(SysCommon.ActSubTypes.CutSheetFinished);
             await form.Show();
         }
 
         private async void CmdCutMaterial_Clicked(object sender, EventArgs e)
         {
-            await Device.InvokeOnMainThreadAsync(async () =>
-                await this.DisplayAlert(
-                    "Under construction",
-                    "Cut sheet raw material is under development.",
-                    "OK"));
-            return;
+            ////await Device.InvokeOnMainThreadAsync(async () =>
+            ////    await this.DisplayAlert(
+            ////        "Under construction",
+            ////        "Cut sheet raw material is under development.",
+            ////        "OK"));
+            ////return;
 
             this.DisableControls();
             this.UnloadControl();

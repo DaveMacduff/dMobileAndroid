@@ -248,7 +248,7 @@ namespace dMobile.GroundWork
                                     var parametersActivityItemCutSheet = new object[]
                                     {
                                         actItemRefno,
-                                        Convert.ToInt32(SysCommon.ActSubTypes.TicketFinished),
+                                        Convert.ToInt32(SysCommon.ActSubTypes.CutSheetFinished),
                                         prodUnitRefno,
                                         GetWhsLocMapRefnoFromDataRow(drow, transaction),
                                         Convert.ToDecimal(drow["ActivityItemCutSheetQuantity"]),

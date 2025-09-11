@@ -259,7 +259,7 @@ namespace dMobile.GroundWork
                                         "ActivityDetailLogisticUnitBatchLotNumber, " +
                                         "ActivityDetailLogisticUnitBestBeforeSellByDate, " +
                                         "ActivityDetailLogisticUnitExpiryUseByDate, " +
-                                        "ActivityDetailLogisticUnitCutSheetDate, " +
+                                        "ActivityDetailLogisticUnitProductionDate, " +
                                         "ActivityDetailLogisticUnitDueDate, " +
                                         "ActivityDetailLogisticUnitPackagingDate, " +
                                         "ActivityDetailLogisticUnitSkidNumber" +
@@ -287,7 +287,7 @@ namespace dMobile.GroundWork
                                         ")";
                                     var parametersInsertDetail = new List<object>
                                     {
-                                        Convert.ToInt32(SysCommon.ActSubTypes.TicketFinished),
+                                        Convert.ToInt32(SysCommon.ActSubTypes.CutSheetFinished),
                                         Convert.ToInt32(0),
                                         refno,
                                         GetReceivedDataLocation(drow, transaction, false),

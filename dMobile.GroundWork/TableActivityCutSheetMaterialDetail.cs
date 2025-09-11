@@ -25,7 +25,7 @@ namespace dMobile.GroundWork
         /// </summary>
         public TableActivityCutSheetMaterialDetail()
         {
-            this.CurrentSubType = SysCommon.ActSubTypes.TicketMaterial;
+            this.CurrentSubType = SysCommon.ActSubTypes.CutSheetMaterial;
             this.LowerCaseName = "sheet raw material product";
             this.ProperCaseName = "Sheet raw material product";
         }
@@ -259,7 +259,7 @@ namespace dMobile.GroundWork
                                                             "ActivityDetailLogisticUnitBatchLotNumber, " +
                                                             "ActivityDetailLogisticUnitBestBeforeSellByDate, " +
                                                             "ActivityDetailLogisticUnitExpiryUseByDate, " +
-                                                            "ActivityDetailLogisticUnitCutSheetDate, " +
+                                                            "ActivityDetailLogisticUnitProductionDate, " +
                                                             "ActivityDetailLogisticUnitDueDate, " +
                                                             "ActivityDetailLogisticUnitPackagingDate, " +
                                                             "ActivityDetailLogisticUnitSkidNumber" +
@@ -287,7 +287,7 @@ namespace dMobile.GroundWork
                                                             ")";
                                     var parametersInsertDetail = new List<object>
                                     {
-                                        Convert.ToInt32(SysCommon.ActSubTypes.TicketMaterial),
+                                        Convert.ToInt32(SysCommon.ActSubTypes.CutSheetMaterial),
                                         Convert.ToInt32(0),
                                         refno,
                                         Convert.ToInt32(
