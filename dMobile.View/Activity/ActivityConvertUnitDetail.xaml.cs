@@ -54,6 +54,7 @@ namespace dMobile.View.Activity
             this.ActSubType = actSubTypes;
             this.ActDetail = ActDetailFacade.GetActDetail(actItem, actSubTypes);
             this.ActDetail.ActItem = actItem;
+            this.DataCollector = new DataCollector(this.ActSubType);
             this.ScannerEnable().FireAndForgetSafeAsync();
         }
 
@@ -103,6 +104,8 @@ namespace dMobile.View.Activity
         ///     Gets or sets a list of data grid activity items.
         /// </summary>
         private ObservableCollection<object> MainActivityItems { get; set; }
+
+        private DataCollector DataCollector { get; set; } = null;
 
         /// <summary>
         ///     Unregister the bar code scan event handler and disable the scanner.
@@ -793,8 +796,7 @@ namespace dMobile.View.Activity
                         throw new MessageOnlyException("Location must be set first!");
                     }
 
-                    var prodUnitRefno = await SysShared.IdentifyProductScanned(this.ActSubType, parse);
-
+                    var prodUnitRefno = await this.DataCollector.IdentifyProductScanned(parse);
                     var prodInfo = await ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
 
                     // Check if the scanned product matches the select activity line item product.

@@ -12,7 +12,6 @@ namespace dMobile.View
     using dMobile.Controller.Activity_Detail;
     using dMobile.Controller.Activity_Item;
     using dMobile.Resources.Models.Products;
-    using Java.Nio.Channels;
 
     /// <summary>
     /// Parse label scheme data.

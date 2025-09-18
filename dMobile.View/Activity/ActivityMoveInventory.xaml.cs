@@ -74,6 +74,7 @@ namespace dMobile.View.Activity
             this.ActDetail = ActDetailFacade.GetActDetail(this.ActItem, actSubType);
             this.ActDetail.ActItem = this.ActItem;
             this.ActDetail.ActExtra = new ActDetailExtra();
+            this.DataCollector = new DataCollector(this.ActSubType);
 
             CreateOptionsMenu();
             ParseAndSeedBarCodeModifier();
@@ -215,6 +216,8 @@ namespace dMobile.View.Activity
         /// Gets or sets the model bound to view, activity items list view. Changes made will update the UI.
         /// </summary>
         private ObservableCollection<object> MainActivityItems { get; set; }
+
+        private DataCollector DataCollector { get; set; } = null;
 
         /// <summary>
         /// Un-register the bar code scan event handler and disable the scanner.
@@ -1312,8 +1315,8 @@ namespace dMobile.View.Activity
             async Task ProductIdentifierHandler()
             {
                 // Identify the product scanned.
-                var prodUnitReferenceNumber = await SysShared.IdentifyProductScanned(this.ActSubType, this.BarCodeParse);
-                if (prodUnitReferenceNumber <= 0)
+                var prodUnitRefno = await this.DataCollector.IdentifyProductScanned(this.BarCodeParse);
+                if (prodUnitRefno <= 0)
                 {
                     throw new MessageOnlyException("Unable to identify the product scanned.");
                 }
@@ -1322,7 +1325,7 @@ namespace dMobile.View.Activity
                 var xmlDoc = XDocument.Parse(
                     "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
                     + "<params>"
-                    + "<ProductUnitRefno>" + prodUnitReferenceNumber + "</ProductUnitRefno>"
+                    + "<ProductUnitRefno>" + prodUnitRefno + "</ProductUnitRefno>"
                     + "</params>");
                 await this.ActItem.Insert(xmlDoc);
 

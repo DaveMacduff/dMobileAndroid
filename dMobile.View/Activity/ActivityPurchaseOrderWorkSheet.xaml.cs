@@ -58,6 +58,7 @@ namespace dMobile.View.Activity
             this.Title = this.GetControlDescription();
 
             ParseAndSeedBarCodeModifier();
+            this.DataCollector = new DataCollector(this.ActSubType);
             this.ScannerEnable().FireAndForgetSafeAsync();
             this.LoadAndBindData().FireAndForgetSafeAsync();
             return;
@@ -144,6 +145,8 @@ namespace dMobile.View.Activity
         ///     Gets or sets the main activity items collection.
         /// </summary>
         private ObservableCollection<object> MainActivityItems { get; set; }
+
+        private DataCollector DataCollector { get; set; } = null;
 
         /// <summary>
         ///     Unregister the bar code scan event handler and disable the scanner.
@@ -741,7 +744,7 @@ namespace dMobile.View.Activity
                 }
                 else if (isProductScanned)
                 {
-                    var prodUnitRefno = await SysShared.IdentifyProductScanned(this.ActSubType, this.BarParse);
+                    var prodUnitRefno = await this.DataCollector.IdentifyProductScanned(this.BarParse);
                     var scannedProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
                     if (scannedProdInfo.Refno == 0)
                     {

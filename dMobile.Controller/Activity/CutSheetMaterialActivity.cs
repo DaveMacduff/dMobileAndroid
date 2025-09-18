@@ -311,7 +311,7 @@ namespace dMobile.Controller.Activity
                 sql.AppendFormat("WHERE tActivity.ActivitySubType = {0}", Convert.ToInt32(SysCommon.ActSubTypes.CutSheetMaterial));
             }
 
-            this.listCutSheetMaterial = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<CutSheetMaterial>(sql.ToString());
+            this.listCutSheetMaterial = await this.Conn.QueryAsync<CutSheetMaterial>(sql.ToString());
 
             foreach (var sort in ticketSettings.GetDataViewSortBy())
             {

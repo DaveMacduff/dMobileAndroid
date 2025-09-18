@@ -318,7 +318,7 @@ namespace dMobile.Controller.Activity
             //        this.DataViewHdrs.RowFilter = this.GetFilter();
             //    }
             // }
-            this.listCounts = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<Count>(sql.ToString());
+            this.listCounts = await this.Conn.QueryAsync<Count>(sql.ToString());
 
             foreach (var sort in countSettings.GetDataViewSortBy())
             {

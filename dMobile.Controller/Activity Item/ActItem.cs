@@ -173,6 +173,11 @@ namespace dMobile.Controller.Activity_Item
         public int SelectedListIdx { get; set; } = -1;
 
         /// <summary>
+        /// Gets or sets the SQLite asynchronous connection.
+        /// </summary>
+        protected SQLiteAsyncConnection Conn { get; set; } = DatabaseConnection.GetInstance().SqlConn;
+
+        /// <summary>
         /// Gets or sets the data event arguments.
         /// </summary>
         private DataLayerEventArgs DataEventArgs { get; set; } = new DataLayerEventArgs();

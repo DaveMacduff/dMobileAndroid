@@ -47,6 +47,7 @@ namespace dMobile.View.Activity
             this.IsIndicatorRunning = false;
 
             ParseAndSeedBarCodeModifier();
+            this.DataCollector = new DataCollector(this.ActSubType);
             this.SearchTimer = new SysTimer(this.SearchTimerTickCallback);
             this.IsFirstAppearance = true;
             return;
@@ -108,6 +109,8 @@ namespace dMobile.View.Activity
         private object PreviousSenderForDoubleClick { get; set; }
 
         private int ResultItemRefno { get; set; }
+
+        private DataCollector DataCollector { get; set; } = null;
 
         /// <summary>
         /// Check if the activity item is ready to save.
@@ -613,7 +616,7 @@ namespace dMobile.View.Activity
                 async Task BarCodeHandlerProductIdentifier()
                 {
                     // Identify the product from the parse info.
-                    var prodUnitRefno = await SysShared.IdentifyProductScanned(this.ActSubType, parse);
+                    var prodUnitRefno = await this.DataCollector.IdentifyProductScanned(parse);
                     var scannedProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
 
                     // Attempt to find the activity line item.

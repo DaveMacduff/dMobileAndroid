@@ -845,7 +845,7 @@ namespace dMobile.Controller.Activity_Item
             }
 
             this.ListAdjustmentItems =
-                await DatabaseConnection.GetInstance().SqlConn.QueryAsync<AdjustmentItem>(sql.ToString());
+                await this.Conn.QueryAsync<AdjustmentItem>(sql.ToString());
             this.ListItems = this.ListAdjustmentItems.Cast<object>().ToList();
 
             return this.ListItems;
@@ -971,7 +971,7 @@ namespace dMobile.Controller.Activity_Item
                         AND tActivityItemAdjustment.WarehouseLocationMapRefno = {locMap.WhsLocMapRefno}
                         AND tActivityItemAdjustment.ProductUnitRefno = {prodUnitRefno}";
 
-            var results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<AdjustmentItem>(query);
+            var results = await this.Conn.QueryAsync<AdjustmentItem>(query);
             if (results != null && results.Count > 0)
             {
                 foundActItemRefno = Convert.ToInt32(results[0].ActivityItemRefno);
@@ -1107,7 +1107,7 @@ namespace dMobile.Controller.Activity_Item
                     adjustmentItem.ActivityItemRefno
                 };
 
-                await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync(query, parameters);
+                await this.Conn.ExecuteAsync(query, parameters);
             }
         }
 

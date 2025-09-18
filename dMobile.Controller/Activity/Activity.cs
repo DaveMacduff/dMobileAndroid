@@ -105,6 +105,11 @@ namespace dMobile.Controller.Activity
         protected SysEnvironment SysEnv { get; set; }
 
         /// <summary>
+        /// Gets or sets the SQLite asynchronous connection.
+        /// </summary>
+        protected SQLiteAsyncConnection Conn { get; set; } = DatabaseConnection.GetInstance().SqlConn;
+
+        /// <summary>
         /// Perform a data refresh.
         /// </summary>
         /// <param name="data">The data<see cref="XDocument"/>.</param>

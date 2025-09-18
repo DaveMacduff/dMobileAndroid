@@ -53,10 +53,10 @@ namespace dMobile.View.Activity
 
             // Init activity detail object
             this.ActDetail = ActDetailFacade.GetActDetail(this.ActItem, this.ActSubType);
-
             this.ActSubType = actSubType == SysCommon.ActSubTypes.PickingSingle ? SysCommon.ActSubTypes.Picking : actSubType;
 
             InitBarCodeModifiers();
+            this.DataCollector = new DataCollector(this.ActSubType);
             this.Title = this.GetControlDescription();
             this.LoadAndBind().FireAndForgetSafeAsync();
             this.SearchTimer = new SysTimer(this.TimerTickCallback);
@@ -118,6 +118,20 @@ namespace dMobile.View.Activity
         private decimal ScannedSkidQuantity { get; set; } = 0;
 
         private int LastFullSkidFKRefno { get; set; } = 0;
+
+        private DataCollector DataCollector { get; set; } = null;
+
+        private ProductInfo LastProductInfo { get; set; } = new ProductInfo();
+
+        private int LastLocMapRefno { get; set; } = 0;
+
+        private int LastSkidLocMapRefno { get; set; } = 0;
+
+        private int LastDefaultLocMapRefno { get; set; } = 0;
+
+        private int LastSkidFkRefno { get; set; } = 0;
+
+        private int LastProdUnitRefno { get; set; } = 0;
 
         /// <summary>
         ///     Unregister the bar code scan event handler and disable the scanner.
@@ -287,6 +301,10 @@ namespace dMobile.View.Activity
                 SysCommon.ActSubTypes.TicketFinished => $"Ticket Finished # {this.ActItem.ActHdr.HdrFkRefno}",
                 SysCommon.ActSubTypes.TicketMaterial => $"Ticket Material # {this.ActItem.ActHdr.HdrFkRefno}",
                 SysCommon.ActSubTypes.TicketAddProduct => $"Ticket Add-Product # {this.ActItem.ActHdr.HdrFkRefno}",
+                SysCommon.ActSubTypes.CutSheetFinished => $"Cut Finished # {this.ActItem.ActHdr.HdrFkRefno}",
+                SysCommon.ActSubTypes.CutSheetMaterial => $"Cut Material # {this.ActItem.ActHdr.HdrFkRefno}",
+                SysCommon.ActSubTypes.YieldSheetFinished => $"Yield Finished # {this.ActItem.ActHdr.HdrFkRefno}",
+                SysCommon.ActSubTypes.YieldSheetMaterial => $"Yield Material # {this.ActItem.ActHdr.HdrFkRefno}",
                 _ => "Activity Items"
             };
         }
@@ -360,36 +378,50 @@ namespace dMobile.View.Activity
 
         private void DisplayCmdSetSkidData()
         {
-            this.CmdSetSkid.IsEnabled = true;
-            if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFkRefno > 0)
+            if (this.LastSkidFkRefno != this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFkRefno)
             {
-                this.CmdClearSkid.IsEnabled = true;
-                var currSkid = this.ActItem.ActHdr.SkidInfo.CurrSkid;
-                this.CmdSetSkid.Text = "Skid# " + currSkid.SkidCode;
-            }
-            else
-            {
-                this.CmdClearSkid.IsEnabled = false;
-                this.CmdSetSkid.Text = "Select Skid";
+                this.CmdSetSkid.IsEnabled = true;
+                if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFkRefno > 0)
+                {
+                    this.CmdClearSkid.IsEnabled = true;
+                    var currSkid = this.ActItem.ActHdr.SkidInfo.CurrSkid;
+                    this.CmdSetSkid.Text = "Skid# " + currSkid.SkidCode;
+                }
+                else
+                {
+                    this.CmdClearSkid.IsEnabled = false;
+                    this.CmdSetSkid.Text = "Select Skid";
+                }
+
+                this.LastSkidFkRefno = this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFkRefno;
             }
         }
 
         private void DisplayCmdSetLocationData()
         {
-            if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFkRefno > 0)
+            if (this.LastSkidFkRefno != this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFkRefno)
             {
-                // If the skid is a new skid or empty, the location is enabled.
-                // There is no new skid flag, so we check if the quantity is greater than 0.
-                var currSkid = this.ActItem.ActHdr.SkidInfo.CurrSkid;
-                this.CmdSetLocation.IsEnabled = currSkid.Quantity == 0;
-            }
-            else
-            {
-                this.CmdSetLocation.IsEnabled = true;
+                if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFkRefno > 0)
+                {
+                    // If the skid is a new skid or empty, the location is enabled.
+                    // There is no new skid flag, so we check if the quantity is greater than 0.
+                    var currSkid = this.ActItem.ActHdr.SkidInfo.CurrSkid;
+                    this.CmdSetLocation.IsEnabled = currSkid.Quantity == 0;
+                }
+                else
+                {
+                    this.CmdSetLocation.IsEnabled = true;
+                }
+
+                this.LastSkidFkRefno = this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFkRefno;
             }
 
-            this.CmdSetLocation.Text = this.LocMap.CurrLocMap.WhsLocMapRefno > 0
-                ? LocationMapTasks.GetCurrentReadableLocation() : "Select Location";
+            if (this.LastLocMapRefno != this.LocMap.CurrLocMap.LocMapRefno)
+            {
+                this.CmdSetLocation.Text = this.LocMap.CurrLocMap.WhsLocMapRefno > 0
+                    ? LocationMapTasks.GetCurrentReadableLocation() : "Select Location";
+                this.LastLocMapRefno = this.LocMap.CurrLocMap.LocMapRefno;
+            }
         }
 
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
@@ -729,8 +761,18 @@ namespace dMobile.View.Activity
             {
                 {
                     // Identify the product from the parse info.
-                    var prodUnitRefno = await SysShared.IdentifyProductScanned(this.ActSubType, parse);
-                    var scannedProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
+                    var prodUnitRefno = await DataCollector.IdentifyProductScanned(parse);
+                    ProductInfo scannedProdInfo = null;
+                    if (this.LastProductInfo.UnitRefno == prodUnitRefno && prodUnitRefno != 0)
+                    {
+                        // The same product has been scanned again. No need to look it up again.
+                        scannedProdInfo = this.LastProductInfo;
+                    }
+                    else
+                    {
+                        scannedProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
+                        this.LastProductInfo = scannedProdInfo;
+                    }
 
                     // If there is a skid selected, then the product scanned must match the skid product.
                     if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFkRefno != 0)
@@ -738,7 +780,11 @@ namespace dMobile.View.Activity
                         await CheckIfSkidProductMatchesScanned(scannedProdInfo);
                     }
 
-                    await this.SetDefaultLocationBeforeKnownActivityItem(scannedProdInfo);
+                    if (this.LastLocMapRefno != this.LocMap.CurrLocMap.LocMapRefno)
+                    {
+                        await this.SetDefaultLocationBeforeKnownActivityItem(scannedProdInfo);
+                        this.LastLocMapRefno = this.LocMap.CurrLocMap.LocMapRefno;
+                    }
 
                     // Attempt to find the activity line item.
                     var actItemFoundRefno = await this.ActItem.GetActivityItemRefno(prodUnitRefno, this.LocMap.CurrLocMap);
@@ -799,15 +845,10 @@ namespace dMobile.View.Activity
 
             async Task CreateDetail(BarCodeParse parse)
             {
-                var actDetail = ActDetailFacade.GetActDetail(this.ActItem, this.ActSubType);
-
-                // If a skid is selected, then the scheme data will be set from the last assigned
-                // skid scheme data detail. Otherwise, the scheme data will be set from the product scheme data.
-                var schemeData = DefaultSchemeDataFromCurrentSkidSchemeDetail(actDetail);
-                actDetail.SchemeData = schemeData;
+                DefaultSchemeDataFromCurrentSkidSchemeDetail();
                 var tempItemProdSchemeData = new ActItemSchemeData
                 {
-                    ProdSchemeData = schemeData
+                    ProdSchemeData = this.ActDetail.SchemeData
                 };
 
                 var isInsertReady = await SysShared.GatherProductData(
@@ -815,35 +856,39 @@ namespace dMobile.View.Activity
                     this.ActSubType,
                     this.ActItem,
                     tempItemProdSchemeData,
-                    actDetail,
+                    this.ActDetail,
                     isForceStopForEditing: false);
                 if (isInsertReady)
                 {
-                    var xmlDoc = actDetail.GetXml(actDetail);
-                    await actDetail.Insert(xmlDoc);
-                    if (actDetail.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFkRefno != 0)
+                    var xmlDoc = this.ActDetail.GetXml(this.ActDetail);
+                    await this.ActDetail.Insert(xmlDoc);
+                    if (this.ActDetail.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFkRefno != 0)
                     {
-                        this.ScannedSkidQuantity += actDetail.Quantity;
+                        this.ScannedSkidQuantity += this.ActDetail.Quantity;
                     }
 
                     this.ActItem.AddToQuantityInActivityItem(
                         this.ActItem.SelectedItem,
-                        actDetail.Quantity,
-                        actDetail.BaseQuantity,
-                        actDetail.WeightQuantity);
+                        this.ActDetail.Quantity,
+                        this.ActDetail.BaseQuantity,
+                        this.ActDetail.WeightQuantity);
                     await this.ActItem.UpdateItemTableQuantity(this.ActItem.SelectedItem);
                     await this.AssignAndDisplayLineItem(this.ActItem.ItemRefno);
                 }
             }
 
-            ProductSchemeData DefaultSchemeDataFromCurrentSkidSchemeDetail(ActDetail actDetail)
+            void DefaultSchemeDataFromCurrentSkidSchemeDetail()
             {
-                // Did not use this.ActItem.ActHdr.SkidInfo.CurrSkid.LogisticUnitSkidCode
-                // because of the length of the code and the fact isn't human-readable friendly.
-                var schemeData = actDetail.SchemeData;
-                if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFkRefno != 0)
+                var curSkid = this.ActItem.ActHdr.SkidInfo.CurrSkid;
+
+                // If a skid is selected, then the scheme data will be set from the last assigned
+                // skid scheme data detail. Otherwise, the scheme data will be set from the product scheme data.
+                if (curSkid.SkidFkRefno != 0)
                 {
-                    var curSkid = this.ActItem.ActHdr.SkidInfo.CurrSkid;
+                    var schemeData = this.ActDetail.SchemeData;
+
+                    // Did not use this.ActItem.ActHdr.SkidInfo.CurrSkid.LogisticUnitSkidCode
+                    // because of the length of the code and the fact isn't human-readable friendly.
                     schemeData.LogisticUnitSkidNumber = curSkid.SkidCode;
                     schemeData.LogisticUnitBatchLotNumber = curSkid.SchemeData.LogisticUnitBatchLotNumber;
                     schemeData.LogisticUnitBestBeforeSellByDate = curSkid.SchemeData.LogisticUnitBestBeforeSellByDate;
@@ -851,9 +896,8 @@ namespace dMobile.View.Activity
                     schemeData.VariantCode = curSkid.SchemeData.VariantCode;
                     schemeData.VariantNumber = curSkid.SchemeData.VariantNumber;
                     schemeData.VariantDescription = curSkid.SchemeData.VariantDescription;
+                    this.ActDetail.SchemeData = schemeData;
                 }
-
-                return schemeData;
             }
         }
 
@@ -895,9 +939,13 @@ namespace dMobile.View.Activity
             var defLocMapRefno = await this.ActItem.GetDefaultLocMapRefno(
                 this.ActItem.LocMapRefno,
                 this.ActItem.ProdInfo.Refno);
-            var selectLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(defLocMapRefno);
-            this.LblDefaultLocationData.Text =
-                LocationMapTasks.GetReadableLocation(selectLocMap, isSepSlotCoords: false);
+            if (this.LastDefaultLocMapRefno != defLocMapRefno)
+            {
+                var selectLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(defLocMapRefno);
+                this.LblDefaultLocationData.Text =
+                    LocationMapTasks.GetReadableLocation(selectLocMap, isSepSlotCoords: false);
+                this.LastDefaultLocMapRefno = defLocMapRefno;
+            }
         }
 
         private async Task DisplaySkidLocationData()
@@ -909,10 +957,14 @@ namespace dMobile.View.Activity
             }
             else
             {
-                var skidLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(locMapRefno);
-                this.LblSkidLocationData.Text = LocationMapTasks.GetReadableLocation(
-                    skidLocMap,
-                    isSepSlotCoords: false);
+                if (this.LastSkidLocMapRefno != locMapRefno)
+                {
+                    var skidLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(locMapRefno);
+                    this.LblSkidLocationData.Text = LocationMapTasks.GetReadableLocation(
+                        skidLocMap,
+                        isSepSlotCoords: false);
+                    this.LastSkidLocMapRefno = locMapRefno;
+                }
             }
         }
 
@@ -942,9 +994,13 @@ namespace dMobile.View.Activity
                 }
                 else
                 {
-                    this.LblProductBcUnitData.Text = ProductInfoTasks.GetCurrReadableProdBcUnit(this.ActItem.ProdInfo);
-                    this.LblDescriptionSizeData.Text = this.ActItem.ProdInfo.Desc.TrimEnd() + " " + this.ActItem.ProdInfo.UnitSizeDesc;
-                    this.LblBrandData.Text = this.ActItem.ProdInfo.BrandDesc;
+                    if (this.LastProdUnitRefno != this.ActItem.ProdInfo.UnitRefno)
+                    {
+                        this.LblProductBcUnitData.Text = ProductInfoTasks.GetCurrReadableProdBcUnit(this.ActItem.ProdInfo);
+                        this.LblDescriptionSizeData.Text = this.ActItem.ProdInfo.Desc.TrimEnd() + " " + this.ActItem.ProdInfo.UnitSizeDesc;
+                        this.LblBrandData.Text = this.ActItem.ProdInfo.BrandDesc;
+                        this.LastProdUnitRefno = this.ActItem.ProdInfo.UnitRefno;
+                    }
                 }
             }
 

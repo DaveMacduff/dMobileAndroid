@@ -60,6 +60,7 @@ namespace dMobile.View.Utilities
                 this.Activity = ActivityFacade.GetActivity(SysCommon.ActSubTypes.AssignDefaultLocation);
                 this.ActItem = ActItemFacade.GetActItem(this.Activity, SysCommon.ActSubTypes.AssignDefaultLocation);
                 ////this.ActDetail = ActDetailFacade.GetActDetail(this.ActItem, SysCommon.ActSubTypes.AssignDefaultLocation);
+                this.DataCollector = new DataCollector(this.ActSubType);
             }
 
             return;
@@ -177,6 +178,8 @@ namespace dMobile.View.Utilities
         ///     Gets or sets a value indicating whether to performing loading data upon got focus.
         /// </summary>
         private bool IsFirstAppearance { get; set; } = true;
+
+        private DataCollector DataCollector { get; set; } = null;
 
         /// <summary>
         ///     Unregister the bar code scan event handler and disable the scanner.
@@ -900,8 +903,7 @@ namespace dMobile.View.Utilities
                 }
                 else if (!string.IsNullOrEmpty(parse.ProductIdentifier))
                 {
-                    prodUnitRefno = await SysShared.IdentifyProductScanned(this.ActSubType, parse);
-
+                    prodUnitRefno = await this.DataCollector.IdentifyProductScanned(parse);
                     if (prodUnitRefno == 0)
                     {
                         this.CurrLocMapDefPickingRefno = 0;

@@ -77,6 +77,7 @@ namespace dMobile.View.Activity
                 this.ActSubType = SysCommon.ActSubTypes.PutAwaySkid;
                 this.Scanner = ScannerEngine.GetInstance().Scanner;
                 this.Activity = ActivityFacade.GetActivity(this.ActSubType);
+                this.DataCollector = new DataCollector(this.ActSubType);
                 this.Title = this.GetControlDescription();
             }
         }
@@ -111,6 +112,8 @@ namespace dMobile.View.Activity
         public ObservableCollection<string> ExtraInfoItems { get; set; }
 
         public ObservableCollection<object> MainActivityItems { get; set; }
+
+        private DataCollector DataCollector { get; set; } = null;
 
         /// <summary>
         ///     The OnAppearing.
@@ -1176,8 +1179,7 @@ namespace dMobile.View.Activity
                                 "A skid must be selected first before scanning any product detail.");
                         }
 
-                        prodUnitRefno = await SysShared.IdentifyProductScanned(this.ActSubType, this.BarCodeParse);
-
+                        prodUnitRefno = await this.DataCollector.IdentifyProductScanned(this.BarCodeParse);
                         if (this.Activity.SkidInfo.CurrSkid.ProdInfo.UnitRefno != prodUnitRefno)
                         {
                             throw new MessageOnlyException(

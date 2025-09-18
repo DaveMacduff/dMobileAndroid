@@ -74,6 +74,8 @@ namespace dMobile.View.Activity
             this.ActDetail.ActSubType = this.ActItem.ActSubType;
             this.ActDetail.GetActivityDetailList(false).FireAndForgetSafeAsync();
 
+            this.DataCollector = new DataCollector(this.ActSubType);
+
             this.BarCodeModifier1Picker.SelectedItem = this.SysEnv.CurrentBarCodeModifier1;
             if (this.LocMap.CurrLocMap.WhsLocMapRefno != 0)
             {
@@ -180,6 +182,8 @@ namespace dMobile.View.Activity
         private List<string> OptionsMenuItems { get; } = new List<string>();
 
         private bool IsFirstAppearance { get; set; }
+
+        private DataCollector DataCollector { get; set; } = null;
 
         /// <summary>
         /// Un-register the bar code scan event handler and disable the scanner.
@@ -472,7 +476,7 @@ namespace dMobile.View.Activity
                 {
                     if (!string.IsNullOrEmpty(parse.ProductIdentifier))
                     {
-                        var prodUnitRefno = await SysShared.IdentifyProductScanned(this.ActSubType, parse);
+                        var prodUnitRefno = await this.DataCollector.IdentifyProductScanned(parse);
                         var scannedProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
                         scannedProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(scannedProdInfo.Refno);
 

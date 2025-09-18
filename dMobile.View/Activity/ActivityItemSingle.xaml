@@ -212,6 +212,7 @@
                            Grid.Row="0"
                            Grid.Column="0"
                            FontAttributes="Bold"
+                           HorizontalTextAlignment="End"
                            Text="Ordered"/>
                     <Label x:Name="LblOrderedExpectedOnHandData"
                            Grid.Row="0"
@@ -221,6 +222,7 @@
                            Grid.Row="1"
                            Grid.Column="0"
                            FontAttributes="Bold"
+                           HorizontalTextAlignment="End"
                            Text="Shipped"/>
                     <Label x:Name="LblShippedReceivedCountedData"
                            Grid.Row="1"

@@ -50,6 +50,7 @@ namespace dMobile.View.Activity
             }
 
             this.ParseAndSeedBarCodeModifier();
+            this.DataCollector = new DataCollector(this.ActSubType);
             this.Title = this.GetControlDescription();
             this.cmdLocation.Text = LocationMapTasks.GetCurrentReadableLocation();
             this.IsFirstAppearance = true;
@@ -76,6 +77,7 @@ namespace dMobile.View.Activity
             }
 
             this.ParseAndSeedBarCodeModifier();
+            this.DataCollector = new DataCollector(this.ActSubType);
             this.Title = this.GetControlDescription();
             this.cmdLocation.Text = LocationMapTasks.GetCurrentReadableLocation();
             this.cmdSelectProduct.Text = prodInfo.Code;
@@ -101,6 +103,8 @@ namespace dMobile.View.Activity
             new ObservableCollection<object>();
 
         private bool IsFirstAppearance { get; set; } = true;
+
+        private DataCollector DataCollector { get; set; } = null;
 
         /// <summary>
         ///     Unregister the bar code scan event handler and disable the scanner.
@@ -439,7 +443,7 @@ namespace dMobile.View.Activity
                     }
                     else if (!string.IsNullOrEmpty(this.BarParse.ProductIdentifier))
                     {
-                        var prodUnitRefno = await SysShared.IdentifyProductScanned(this.ActSubType, this.BarParse);
+                        var prodUnitRefno = await this.DataCollector.IdentifyProductScanned(this.BarParse);
                         if (prodUnitRefno != 0)
                         {
                             this.ActItem.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);

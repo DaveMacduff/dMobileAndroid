@@ -512,7 +512,7 @@ namespace dMobile.Controller.Activity
                             AND 0 < tActivityItemPicking.ActivityItemPickingBaseQuantityAvailable 
                             AND tActivityItemPicking.ActivityItemPickingQuantityShipped < tActivityItemPicking.ActivityItemPickingQuantityOrdered";
 
-                var rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SqlConn.ExecuteScalarAsync<object>(query));
+                var rowsAffected = Convert.ToInt32(await this.Conn.ExecuteScalarAsync<object>(query));
 
                 // Do not warn if product is out of stock WO# 12054
                 if (rowsAffected > 0)
@@ -924,7 +924,7 @@ namespace dMobile.Controller.Activity
                     LEFT JOIN tRoute ON tRoute.RouteRefno = tActivityPickingRoute.RouteRefno";
             }
 
-            this.listPicking = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<Picking>(sql);
+            this.listPicking = await this.Conn.QueryAsync<Picking>(sql);
             foreach (var sort in pickingSettings.GetDataViewSortBy())
             {
                 if (sort.SortOrder == Resources.Enums.SortOrder.ASC)

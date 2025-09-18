@@ -59,6 +59,7 @@ namespace dMobile.View.Activity
             var schemeData = this.ActDetail.SchemeData;
             schemeData.LogisticUnitSkidNumber = this.ActDetail.ActItem.ActHdr.SkidInfo.CurrSkid.SkidCode;
             this.ActDetail.SchemeData = schemeData;
+            this.DataCollector = new DataCollector(this.ActSubType);
 
             this.AddModeHeaderColor = Color.FromRgb(192, 255, 192);
             this.RemoveModeHeaderColor = Color.PaleVioletRed;
@@ -143,6 +144,8 @@ namespace dMobile.View.Activity
         ///     Gets or sets the remove mode header color....
         /// </summary>
         private Color RemoveModeHeaderColor { get; set; }
+
+        private DataCollector DataCollector { get; set; } = null;
 
         /// <summary>
         ///     Unregister the bar code scan event handler and disable the scanner.
@@ -903,8 +906,7 @@ namespace dMobile.View.Activity
                         throw new MessageOnlyException("Location must be set first.");
                     }
 
-                    prodUnitRefno = await SysShared.IdentifyProductScanned(this.ActSubType, this.Parse);
-
+                    prodUnitRefno = await this.DataCollector.IdentifyProductScanned(this.Parse);
                     var currSkid = this.ActDetail.ActItem.ActHdr.SkidInfo.CurrSkid;
 
                     if (prodUnitRefno != currSkid.ProdInfo.UnitRefno)

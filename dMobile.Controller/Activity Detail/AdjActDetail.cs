@@ -233,7 +233,7 @@ namespace dMobile.Controller.Activity_Detail
             await this.FillActDetailObjFromXml(data);
 
             // Get temporary item FK refno for newly inserted line item, used in disconnected mode.
-            this.DetailFkRefno = await DatabaseConnection.GetInstance().SqlConn.ExecuteScalarAsync<int>(
+            this.DetailFkRefno = await this.Conn.ExecuteScalarAsync<int>(
                 "SELECT MAX(tActivityDetailAdjustment.ActivityDetailFKRefno) FROM tActivityDetailAdjustment");
             this.DetailFkRefno++;
 
@@ -250,7 +250,7 @@ namespace dMobile.Controller.Activity_Detail
             {
                 this.DetailRefno = await this.InsertDetailIntoTablesDetail();
                 const string query = "INSERT INTO tActivityDetailAdjustment (ActivityDetailRefno, ActivityDetailFKRefno) VALUES (?, ?)";
-                var rowsAffected = await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync(
+                var rowsAffected = await this.Conn.ExecuteAsync(
                     query,
                     this.DetailRefno,
                     this.DetailFkRefno);
@@ -280,7 +280,7 @@ namespace dMobile.Controller.Activity_Detail
             }
 
             // Delete from database
-            var conn = DatabaseConnection.GetInstance().SqlConn;
+            var conn = this.Conn;
             await conn.RunInTransactionAsync(DeleteFromTables);
 
             //////// delete row from DataView
@@ -346,7 +346,7 @@ namespace dMobile.Controller.Activity_Detail
                         item.ActivityItemFKRefno = this.ActItem.ItemFkRefno;
                         item.ActivityItemStringFKRefno = this.ActItem.ItemFkRefno.ToString();
 
-                        rowsAffected = await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync(
+                        rowsAffected = await this.Conn.ExecuteAsync(
                             "UPDATE tActivityItemAdjustment SET ActivityItemFKRefno = ?" +
                             ",ActivityItemStringFKRefno = ?" +
                             " WHERE ActivityItemRefno = ?",
@@ -363,7 +363,7 @@ namespace dMobile.Controller.Activity_Detail
 
                     this.ActItem.ActStatus = SysCommon.ActStatus.NoChange;
 
-                    rowsAffected = await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync(
+                    rowsAffected = await this.Conn.ExecuteAsync(
                         "UPDATE tActivityItem SET ActivityItemStatus = ?" +
                         " WHERE ActivityItemRefno = ?",
                         Convert.ToInt32(SysCommon.ActStatus.NoChange),
@@ -404,7 +404,7 @@ namespace dMobile.Controller.Activity_Detail
                         selectedUpdated.ActivityDetailStatus = Convert.ToInt32(SysCommon.ActStatus.Updated);
                     }
 
-                    rowsAffected = await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync(
+                    rowsAffected = await this.Conn.ExecuteAsync(
                         "UPDATE tActivityDetail SET ActivityDetailStatus = ? WHERE ActivityDetailRefno = ?",
                         Convert.ToInt32(SysCommon.ActStatus.Updated),
                         this.DetailRefno);
@@ -422,7 +422,7 @@ namespace dMobile.Controller.Activity_Detail
                         selectedDeleted.ActivityDetailStatus = Convert.ToInt32(SysCommon.ActStatus.Deleted);
                     }
 
-                    rowsAffected = await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync(
+                    rowsAffected = await this.Conn.ExecuteAsync(
                         "UPDATE tActivityDetail SET ActivityDetailStatus = ? WHERE ActivityDetailRefno = ?",
                         Convert.ToInt32(SysCommon.ActStatus.Deleted),
                         this.DetailRefno);
@@ -834,7 +834,7 @@ namespace dMobile.Controller.Activity_Detail
             //        this.DataViewDetails.Table.TableName = this.MainGridMappingName;
             //    }
             // }
-            this.listAdjustmentDetails = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<AdjustmentDetail>(sql.ToString());
+            this.listAdjustmentDetails = await this.Conn.QueryAsync<AdjustmentDetail>(sql.ToString());
             this.ListDetails = this.listAdjustmentDetails.Cast<object>().ToList();
             return this.ListDetails;
         }
@@ -1099,7 +1099,7 @@ namespace dMobile.Controller.Activity_Detail
 
             var adjSettings = new AdjustmentSettings().LoadData();
 
-            var adjType = (SysCommon.AdjTypes)Convert.ToInt32(await DatabaseConnection.GetInstance().SqlConn.ExecuteScalarAsync<int>(
+            var adjType = (SysCommon.AdjTypes)Convert.ToInt32(await this.Conn.ExecuteScalarAsync<int>(
                 "SELECT ActivityAdjustmentType FROM tActivityAdjustment WHERE ActivityRefno = ?",
                 this.ActItem.ActHdr.HdrRefno));
 
@@ -1168,7 +1168,7 @@ namespace dMobile.Controller.Activity_Detail
             };
             var xml = XmlWriter.Create(xmlString, settings);
 
-            var adjType = (SysCommon.AdjTypes)Convert.ToInt32(await DatabaseConnection.GetInstance().SqlConn.ExecuteScalarAsync<int>(
+            var adjType = (SysCommon.AdjTypes)Convert.ToInt32(await this.Conn.ExecuteScalarAsync<int>(
                 "SELECT ActivityAdjustmentType FROM tActivityAdjustment WHERE ActivityRefno = ?",
                 this.ActItem.ActHdr.HdrRefno));
             XDocument request;

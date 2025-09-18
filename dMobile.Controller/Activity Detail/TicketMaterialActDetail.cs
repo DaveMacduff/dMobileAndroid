@@ -175,7 +175,7 @@ namespace dMobile.Controller.Activity_Detail
             await this.FillActDetailObjFromXml(data);
 
             // Get temporary item FK refno for newly inserted line item.
-            this.DetailFkRefno = await DatabaseConnection.GetInstance().SqlConn.ExecuteScalarAsync<int>(
+            this.DetailFkRefno = await this.Conn.ExecuteScalarAsync<int>(
                 "SELECT MAX(tActivityDetailProductionMaterial.ActivityDetailFKRefno) FROM tActivityDetailProductionMaterial");
             this.DetailFkRefno++;
 
@@ -190,7 +190,7 @@ namespace dMobile.Controller.Activity_Detail
             {
                 this.DetailRefno = await this.InsertDetailIntoTablesDetail();
                 const string query = "INSERT INTO tActivityDetailProductionMaterial (ActivityDetailRefno, ActivityDetailFKRefno) VALUES (?, ?)";
-                var rowsAffected = await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync(
+                var rowsAffected = await this.Conn.ExecuteAsync(
                     query,
                     Convert.ToInt32(this.DetailRefno),
                     Convert.ToInt32(this.DetailFkRefno));
@@ -219,7 +219,7 @@ namespace dMobile.Controller.Activity_Detail
             }
 
             // Delete from database
-            var conn = DatabaseConnection.GetInstance().SqlConn;
+            var conn = this.Conn;
             await conn.RunInTransactionAsync(DeleteFromTables);
 
             return 0;
@@ -280,7 +280,7 @@ namespace dMobile.Controller.Activity_Detail
 
                     this.ActItem.ActStatus = SysCommon.ActStatus.NoChange;
 
-                    rowsAffected = await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync(
+                    rowsAffected = await this.Conn.ExecuteAsync(
                         "UPDATE tActivityItem SET ActivityItemStatus = ? WHERE ActivityItemRefno = ?",
                         Convert.ToInt32(SysCommon.ActStatus.NoChange),
                         this.ActItem.ItemRefno);
@@ -298,7 +298,7 @@ namespace dMobile.Controller.Activity_Detail
                         selectedInserted.ActivityDetailStatus = Convert.ToInt32(SysCommon.ActStatus.NoChange);
                     }
 
-                    rowsAffected = await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync(
+                    rowsAffected = await this.Conn.ExecuteAsync(
                         "UPDATE tActivityDetail SET ActivityDetailStatus = ? WHERE ActivityDetailRefno = ?",
                         Convert.ToInt32(SysCommon.ActStatus.NoChange),
                         this.DetailRefno);
@@ -316,7 +316,7 @@ namespace dMobile.Controller.Activity_Detail
                         selectedUpdated.ActivityDetailStatus = Convert.ToInt32(SysCommon.ActStatus.NoChange);
                     }
 
-                    rowsAffected = await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync(
+                    rowsAffected = await this.Conn.ExecuteAsync(
                         "UPDATE tActivityDetail SET ActivityDetailStatus = ? WHERE ActivityDetailRefno = ?",
                         Convert.ToInt32(SysCommon.ActStatus.NoChange),
                         this.DetailRefno);
@@ -334,7 +334,7 @@ namespace dMobile.Controller.Activity_Detail
                         selectedDeleted.ActivityDetailStatus = Convert.ToInt32(SysCommon.ActStatus.NoChange);
                     }
 
-                    rowsAffected = await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync(
+                    rowsAffected = await this.Conn.ExecuteAsync(
                         "UPDATE tActivityDetail SET ActivityDetailStatus = ? WHERE ActivityDetailRefno = ?",
                         Convert.ToInt32(SysCommon.ActStatus.NoChange),
                         this.DetailRefno);
@@ -739,7 +739,7 @@ namespace dMobile.Controller.Activity_Detail
                 sql.Append("ORDER BY tActivityDetail.ActivityDetailRefno");
             }
 
-            this.ListProductionTicketMaterialDetail = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<ProductionTicketMaterialDetail>(sql.ToString());
+            this.ListProductionTicketMaterialDetail = await this.Conn.QueryAsync<ProductionTicketMaterialDetail>(sql.ToString());
             this.ListDetails = this.ListProductionTicketMaterialDetail.Cast<object>().ToList();
             return this.ListDetails;
         }

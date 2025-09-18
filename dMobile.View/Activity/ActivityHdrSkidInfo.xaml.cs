@@ -153,6 +153,7 @@ namespace dMobile.View.Activity
             this.CallingWarehouseLocMapRefno = this.LocMap.WhsLocMapRefno;
 
             this.ParseAndSeedBarCodeModifier();
+            this.DataCollector = new DataCollector(this.CallingActSubType);
             _ = Device.InvokeOnMainThreadAsync(
                 () => this.BarCodeModifier1Picker.SelectedItem = this.SysEnv.CurrentBarCodeModifier1);
             this.DisplaySkidInfo().FireAndForgetSafeAsync();
@@ -186,6 +187,8 @@ namespace dMobile.View.Activity
         private SysSkidInfo SkidInfo { get; set; }
 
         private ObservableCollection<string> ExtraInfoItems { get; } = new ObservableCollection<string>();
+
+        private DataCollector DataCollector { get; set; } = null;
 
         /// <summary>
         ///     Un-register the bar code scan event handler and disable the scanner.
@@ -1168,9 +1171,7 @@ namespace dMobile.View.Activity
 
             async Task HandleProductScanned(BarCodeParse codeParse)
             {
-                var prodUnitRefno = await SysShared.IdentifyProductScanned(
-                    this.CallingActSubType,
-                    codeParse);
+                var prodUnitRefno = await DataCollector.IdentifyProductScanned(codeParse);
                 if (prodUnitRefno <= 0)
                 {
                     const string msg =

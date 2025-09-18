@@ -331,7 +331,7 @@ namespace dMobile.Controller.Activity_Item
             //////////////////////////////////////////////////////////////////////////
             async Task InsertActivityItemInTables(int prodUnitRefno)
             {
-                await DatabaseConnection.GetInstance().SqlConn.RunInTransactionAsync(transaction =>
+                await this.Conn.RunInTransactionAsync(transaction =>
                 {
                     try
                     {
@@ -810,7 +810,7 @@ namespace dMobile.Controller.Activity_Item
             //        this.DataViewItems.Sort = "ActivityItemRefno";
             //    }
             // }
-            this.ListCutSheetFinishedItems = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<CutSheetFinishedItem>(sql.ToString());
+            this.ListCutSheetFinishedItems = await this.Conn.QueryAsync<CutSheetFinishedItem>(sql.ToString());
             this.ListItems = this.ListCutSheetFinishedItems.Cast<object>().ToList();
             return this.ListItems;
         }
@@ -942,7 +942,7 @@ namespace dMobile.Controller.Activity_Item
             sql.AppendFormat("AND tActivityItemCutSheet.ProductUnitRefno = {0} ", prodUnitRefno);
             sql.AppendFormat("AND tActivityItem.ActivityItemSubType = {0}", Convert.ToInt32(SysCommon.ActSubTypes.CutSheetFinished));
 
-            var results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<CutSheetFinishedItem>(sql.ToString());
+            var results = await this.Conn.QueryAsync<CutSheetFinishedItem>(sql.ToString());
             if (results != null && results.Count > 0)
             {
                 foundActItemRefno = Convert.ToInt32(results[0].ActivityItemRefno);
@@ -1060,7 +1060,7 @@ namespace dMobile.Controller.Activity_Item
                     productionCutSheetFinishedItem.ActivityItemCutSheetWeightQuantity,
                     productionCutSheetFinishedItem.ActivityItemRefno, };
 
-                await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync(query, parameters);
+                await this.Conn.ExecuteAsync(query, parameters);
             }
         }
 
@@ -1183,7 +1183,7 @@ namespace dMobile.Controller.Activity_Item
         /// <inheritdoc />
         public override string GetShippedReceivedCountedTitle()
         {
-            return "    Raw";
+            return "Finished";
         }
 
         /// <inheritdoc />

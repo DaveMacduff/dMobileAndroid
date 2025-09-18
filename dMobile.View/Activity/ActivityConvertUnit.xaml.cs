@@ -58,10 +58,11 @@ namespace dMobile.View.Activity
             this.SysEnv = SysEnvironment.GetInstance();
             this.LocMap = LocationMap.GetInstance();
             ParseAndSeedBarCodeModifier();
+            this.DataCollector = new DataCollector(this.ActSubType);
+
             this.ScannerEnable().FireAndForgetSafeAsync();
             return;
 
-            //////////////////////////////////////////////////////////////////////////
             void ParseAndSeedBarCodeModifier()
             {
                 this.BarCodeModifier1Picker.IsVisible = false;
@@ -129,6 +130,8 @@ namespace dMobile.View.Activity
         ///     Gets or sets the selected activity detail foreign key reference number.
         /// </summary>
         private int SelectedActivityDetailFkRefno { get; set; }
+
+        private DataCollector DataCollector { get; set; } = null;
 
         /// <summary>
         ///     Un-register the bar code scan event handler and disable the scanner.
@@ -750,8 +753,7 @@ namespace dMobile.View.Activity
                         await this.ClearContents();
 
                         var tempFromProdUnitRefno = this.FromProdUnitRefno;
-
-                        tempFromProdUnitRefno = await SysShared.IdentifyProductScanned(this.ActSubType, parse);
+                        tempFromProdUnitRefno = await this.DataCollector.IdentifyProductScanned(parse);
 
                         this.FromProdUnitRefno = tempFromProdUnitRefno;
                         this.ActItem.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(this.FromProdUnitRefno);

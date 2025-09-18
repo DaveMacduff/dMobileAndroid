@@ -98,6 +98,7 @@ namespace dMobile.View.Activity
             this.ActDetail.ActItem = actItem;
 
             this.Title = this.ActDetail.GetControlDescription();
+            this.DataCollector = new DataCollector(this.ActSubType);
             this.Timer = new SysTimer(this.TimerTickCallback);
             IsFirstAppearance = true;
         }
@@ -167,6 +168,8 @@ namespace dMobile.View.Activity
         ///     Gets or sets a value indicating whether the data is being loaded.
         /// </summary>
         private bool IsDataLoading { get; set; }
+
+        private DataCollector DataCollector { get; set; } = null;
 
         /// <summary>
         ///     Gets or sets the command location text.
@@ -1708,7 +1711,7 @@ namespace dMobile.View.Activity
                     throw new MessageOnlyException("Location must be set first!");
                 }
 
-                var prodUnitRefno = await SysShared.IdentifyProductScanned(this.ActSubType, parse);
+                var prodUnitRefno = await this.DataCollector.IdentifyProductScanned(parse);
                 var prodInfo = await ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
 
                 // Check if the scanned product matches the select activity line item product.

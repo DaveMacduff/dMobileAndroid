@@ -174,6 +174,11 @@ namespace dMobile.Controller.Activity_Detail
         public int SelectedListIdx { get; set; } = -1;
 
         /// <summary>
+        /// Gets or sets the SQLite asynchronous connection.
+        /// </summary>
+        protected SQLiteAsyncConnection Conn { get; set; } = DatabaseConnection.GetInstance().SqlConn;
+
+        /// <summary>
         ///     Get the scheme data variant information from the scheme data variant number.
         /// </summary>
         /// <param name="prodSchemeData"><see cref="ActItemSchemeData" /> Product scheme data.</param>

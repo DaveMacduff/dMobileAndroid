@@ -81,6 +81,7 @@ namespace dMobile.View.Activity
                 this.CmdSelectSkidIsEnabled;
 
             ParseAndSeedBarCodeModifier();
+            this.DataCollector = new DataCollector(this.ActSubType);
             this.Title = this.ActItem.GetControlDescription();
             this.SearchTimer = new SysTimer(this.SearchTimerTickCallback);
             this.IsFirstAppearance = true;
@@ -276,6 +277,8 @@ namespace dMobile.View.Activity
         private bool IsFirstAppearance { get; set; }
 
         private bool IsScanningPartialSkid { get; set; } = true;
+
+        private DataCollector DataCollector { get; set; } = null;
 
         /// <summary>
         ///     Check if the activity item is ready to save.
@@ -1594,7 +1597,7 @@ namespace dMobile.View.Activity
                             if (isProductScanned)
                             {
                                 // Identify the product from the parse info.
-                                var prodUnitRefno = await SysShared.IdentifyProductScanned(this.ActSubType, parse);
+                                var prodUnitRefno = await DataCollector.IdentifyProductScanned(parse);
                                 var scannedProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
 
                                 // If there is a skid selected, then the product scanned must match the skid product.

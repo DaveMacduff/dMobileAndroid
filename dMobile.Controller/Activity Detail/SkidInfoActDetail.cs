@@ -311,7 +311,7 @@ namespace dMobile.Controller.Activity_Detail
                     tempSchemeData.LogisticUnitSkidNumber = this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFkRefno.ToString();
                     tempSchemeData.VariantNumber = Convert.ToInt32(drow["ProductSchemeVariantNo"]);
 
-                    var results = await DatabaseConnection.GetInstance().SqlConn.
+                    var results = await this.Conn.
                         QueryAsync<ProductSchemeVariantModel>(
                         "SELECT * FROM tProductSchemeVariant WHERE ProductSchemeVariantNo = ?",
                         tempSchemeData.VariantNumber);

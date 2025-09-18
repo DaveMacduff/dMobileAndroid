@@ -47,14 +47,12 @@ namespace dMobile.GroundWork
                     try
                     {
                         // Corruption recovery cleanup.
-                        var query = @"
-                        DELETE FROM tActivityDetailProductSchemeVariantXRef
+                        var query = @"DELETE FROM tActivityDetailProductSchemeVariantXRef
                             WHERE tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno <= 0
                                 OR tActivityDetailProductSchemeVariantXRef.ProductSchemeVariantRefno <= 0";
                         transaction.Execute(query);
 
-                        query = @"
-                        DELETE FROM tActivityDetailProductSchemeVariantXRef
+                        query = @"DELETE FROM tActivityDetailProductSchemeVariantXRef
                             WHERE tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno
                                 NOT IN (SELECT tActivityDetail.ActivityDetailRefno FROM tActivityDetail)";
                         transaction.Execute(query);
@@ -69,57 +67,49 @@ namespace dMobile.GroundWork
                                 NOT IN (SELECT tActivityDetail.ActivityDetailRefno FROM tActivityDetail)";
                         transaction.Execute(query);
 
-                        query = @"
-                        DELETE FROM tActivityDetailCutSheetMaterial
+                        query = @"DELETE FROM tActivityDetailCutSheetMaterial
                             WHERE tActivityDetailCutSheetMaterial.ActivityDetailRefno <= 0
                                 OR tActivityDetailCutSheetMaterial.ActivityDetailFKRefno <= 0";
                         transaction.Execute(query);
 
-                        query = @"
-                        DELETE FROM tActivityDetailCutSheetMaterial
+                        query = @"DELETE FROM tActivityDetailCutSheetMaterial
                             WHERE tActivityDetailCutSheetMaterial.ActivityDetailRefno
                                 NOT IN (SELECT tActivityDetail.ActivityDetailRefno FROM tActivityDetail)";
                         transaction.Execute(query);
 
-                        query = @"
-                        DELETE FROM tActivityDetail
+                        query = @"DELETE FROM tActivityDetail
                             WHERE tActivityDetail.ActivityDetailSubType = ?
                                 AND tActivityDetail.ActivityDetailRefno <= 0";
                         transaction.Execute(query, subType);
 
-                        query = @"
-                        DELETE FROM tActivityDetail
+                        query = @"DELETE FROM tActivityDetail
                             WHERE tActivityDetail.ActivityItemRefno
                                 NOT IN (SELECT tActivityItem.ActivityItemRefno FROM tActivityItem)";
                         transaction.Execute(query, subType);
 
                         // Regular purge.
-                        query = @"
-                        DELETE FROM tActivityDetailProductSchemeVariantXRef
+                        query = @"DELETE FROM tActivityDetailProductSchemeVariantXRef
                             WHERE tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno IN
                                 (SELECT tActivityDetail.ActivityDetailRefno
                                     FROM tActivityDetail
                                     WHERE tActivityDetail.ActivityDetailSubType = ?)";
                         transaction.Execute(query, subType);
 
-                        query = @"
-                        DELETE FROM tActivityDetailCutSheetMaterial
+                        query = @"DELETE FROM tActivityDetailCutSheetMaterial
                             WHERE tActivityDetailCutSheetMaterial.ActivityDetailRefno IN
                                 (SELECT tActivityDetail.ActivityDetailRefno
                                     FROM tActivityDetail
                                     WHERE tActivityDetail.ActivityDetailSubType = ?)";
                         transaction.Execute(query, subType);
 
-                        query = @"
-                        DELETE FROM tActivityDetailExtra
+                        query = @"DELETE FROM tActivityDetailExtra
                             WHERE tActivityDetailExtra.ActivityDetailRefno IN
                                 (SELECT tActivityDetail.ActivityDetailRefno
                                     FROM tActivityDetail
                                     WHERE tActivityDetail.ActivityDetailSubType = ?)";
                         transaction.Execute(query, subType);
 
-                        query =
-                            "DELETE FROM tActivityDetail WHERE tActivityDetail.ActivityDetailSubType = ?";
+                        query = "DELETE FROM tActivityDetail WHERE tActivityDetail.ActivityDetailSubType = ?";
                         transaction.Execute(query, subType);
 
                         transaction.Commit();
@@ -238,8 +228,7 @@ namespace dMobile.GroundWork
                                         errMsg);
                                 }
 
-                                foreach (DataRow drow in
-                                         ds.Tables["tActivityDetailCutSheet"].Rows)
+                                foreach (DataRow drow in ds.Tables["tActivityDetailCutSheet"].Rows)
                                 {
                                     errMsg = "Arguments:";
 
@@ -297,18 +286,14 @@ namespace dMobile.GroundWork
                                     parametersInsertDetail.AddRange(
                                         SaveDetail(drow, transaction, false));
 
-                                    transaction.Execute(
-                                        queryInsertDetail,
-                                        parametersInsertDetail.ToArray());
+                                    transaction.Execute(queryInsertDetail, parametersInsertDetail.ToArray());
 
                                     actDetailRefno = Convert.ToInt32(
                                         transaction.ExecuteScalar<int>(
                                             "SELECT last_insert_rowid() FROM tActivityDetail"));
-                                    var actDetailCutSheetFKRefno =
-                                        Convert.ToInt32(drow["ActivityDetailCutSheetFKRefno"]);
-                                    errMsg += Environment.NewLine +
-                                              "Detail fk refno " +
-                                              actDetailCutSheetFKRefno;
+                                    var actDetailCutSheetFKRefno = Convert.ToInt32(
+                                        drow["ActivityDetailCutSheetFKRefno"]);
+                                    errMsg += Environment.NewLine + "Detail fk refno " + actDetailCutSheetFKRefno;
 
                                     transaction.Execute(
                                         "INSERT INTO tActivityDetailCutSheetMaterial (ActivityDetailRefno, ActivityDetailFKRefno) VALUES (?, ?)",

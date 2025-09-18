@@ -1210,7 +1210,7 @@ namespace dMobile.Controller.Activity_Item
                     productioCutSheetMaterialItem.ActivityItemRefno
                 };
 
-                await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync(query, parameters);
+                await this.Conn.ExecuteAsync(query, parameters);
             }
         }
 
@@ -1333,7 +1333,7 @@ namespace dMobile.Controller.Activity_Item
         /// <inheritdoc />
         public override string GetShippedReceivedCountedTitle()
         {
-            return "Finished";
+            return "    Raw";
         }
 
         /// <inheritdoc />

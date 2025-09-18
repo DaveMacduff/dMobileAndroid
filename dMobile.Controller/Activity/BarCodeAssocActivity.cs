@@ -147,8 +147,8 @@ namespace dMobile.Controller.Activity
 
             try
             {
-                await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync("DELETE FROM tActivityItem WHERE ActivityItemSubType = ?", Convert.ToInt32(SysCommon.ActSubTypes.BarCodeAssociation));
-                await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync("DELETE FROM tActivity WHERE ActivitySubType = ?", Convert.ToInt32(SysCommon.ActSubTypes.BarCodeAssociation));
+                await this.Conn.ExecuteAsync("DELETE FROM tActivityItem WHERE ActivityItemSubType = ?", Convert.ToInt32(SysCommon.ActSubTypes.BarCodeAssociation));
+                await this.Conn.ExecuteAsync("DELETE FROM tActivity WHERE ActivitySubType = ?", Convert.ToInt32(SysCommon.ActSubTypes.BarCodeAssociation));
             }
             catch (SQLiteException ex)
             {
@@ -257,7 +257,7 @@ namespace dMobile.Controller.Activity
                 sql.AppendFormat(" AND tActivityItem.ActivityItemSubType = {0}", Convert.ToInt32(SysCommon.ActSubTypes.BarCodeAssociation));
             }
 
-            this.barcodeAssociations = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<BarcodeAssociation>(sql.ToString());
+            this.barcodeAssociations = await this.Conn.QueryAsync<BarcodeAssociation>(sql.ToString());
             this.ListHeaders = this.barcodeAssociations.Cast<object>().ToList();
             return this.ListHeaders;
         }
