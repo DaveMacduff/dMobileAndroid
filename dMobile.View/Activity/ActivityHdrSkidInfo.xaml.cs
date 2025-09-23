@@ -153,7 +153,7 @@ namespace dMobile.View.Activity
             this.CallingWarehouseLocMapRefno = this.LocMap.WhsLocMapRefno;
 
             this.ParseAndSeedBarCodeModifier();
-            this.DataCollector = new DataCollector(this.CallingActSubType);
+            this.DataCollector = new DataCollector(this.CallingActSubType, actItem);
             _ = Device.InvokeOnMainThreadAsync(
                 () => this.BarCodeModifier1Picker.SelectedItem = this.SysEnv.CurrentBarCodeModifier1);
             this.DisplaySkidInfo().FireAndForgetSafeAsync();

@@ -60,7 +60,7 @@ namespace dMobile.View.Utilities
                 this.Activity = ActivityFacade.GetActivity(SysCommon.ActSubTypes.AssignDefaultLocation);
                 this.ActItem = ActItemFacade.GetActItem(this.Activity, SysCommon.ActSubTypes.AssignDefaultLocation);
                 ////this.ActDetail = ActDetailFacade.GetActDetail(this.ActItem, SysCommon.ActSubTypes.AssignDefaultLocation);
-                this.DataCollector = new DataCollector(this.ActSubType);
+                this.DataCollector = new DataCollector(this.ActSubType, this.ActItem);
             }
 
             return;

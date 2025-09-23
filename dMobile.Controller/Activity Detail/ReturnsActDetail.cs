@@ -179,10 +179,10 @@ namespace dMobile.Controller.Activity_Detail
         /// <returns>The <see cref="Task"/>.</returns>
         public override async Task Insert(XDocument data)
         {
-            await this.FillActDetailObjFromXml(data);
+            this.FillActDetailObjFromXml(data);
 
             // Get temporary item FK refno for newly inserted line item.
-            this.DetailFkRefno = await this.Conn.ExecuteScalarAsync<int>(
+            this.DetailFkRefno = await Conn.ExecuteScalarAsync<int>(
                 "SELECT MAX(tActivityDetailReturns.ActivityDetailFKRefno) FROM tActivityDetailReturns");
             this.DetailFkRefno++;
 
@@ -198,7 +198,7 @@ namespace dMobile.Controller.Activity_Detail
                 this.DetailRefno = await this.InsertDetailIntoTablesDetail();
                 const string query = "INSERT INTO tActivityDetailReturns (ActivityDetailRefno, ActivityDetailFKRefno," +
                                      "ActivityDetailReturnsIsConfirmed) VALUES (?, ?, ?)";
-                var rowsAffected = await this.Conn.ExecuteAsync(
+                var rowsAffected = await Conn.ExecuteAsync(
                     query,
                     Convert.ToInt32(this.DetailRefno),
                     Convert.ToInt32(this.DetailFkRefno),
@@ -228,7 +228,7 @@ namespace dMobile.Controller.Activity_Detail
             }
 
             // Delete from database
-            var conn = this.Conn;
+            var conn = Conn;
             await conn.RunInTransactionAsync(DeleteFromTables);
 
             return 0;
@@ -287,7 +287,7 @@ namespace dMobile.Controller.Activity_Detail
                         item.ActivityItemFKRefno = this.ActItem.ItemFkRefno;
                         item.ActivityItemStringFKRefno = this.ActItem.ItemFkRefno.ToString();
 
-                        rowsAffected = await this.Conn.ExecuteAsync(
+                        rowsAffected = await Conn.ExecuteAsync(
                             "UPDATE tActivityItemPicking SET ActivityItemFKRefno = ?" +
                             ",ActivityItemStringFKRefno = ?" +
                             " WHERE ActivityItemRefno = ?",
@@ -304,7 +304,7 @@ namespace dMobile.Controller.Activity_Detail
 
                     this.ActItem.ActStatus = SysCommon.ActStatus.NoChange;
 
-                    rowsAffected = await this.Conn.ExecuteAsync(
+                    rowsAffected = await Conn.ExecuteAsync(
                         "UPDATE tActivityItem SET ActivityItemStatus = ? WHERE ActivityItemRefno = ?",
                         Convert.ToInt32(SysCommon.ActStatus.NoChange),
                         this.ActItem.ItemRefno);
@@ -322,7 +322,7 @@ namespace dMobile.Controller.Activity_Detail
                         selectedInserted.ActivityDetailStatus = Convert.ToInt32(SysCommon.ActStatus.NoChange);
                     }
 
-                    rowsAffected = await this.Conn.ExecuteAsync(
+                    rowsAffected = await Conn.ExecuteAsync(
                         "UPDATE tActivityDetail SET ActivityDetailStatus = ? WHERE ActivityDetailRefno = ?",
                         Convert.ToInt32(SysCommon.ActStatus.NoChange),
                         this.DetailRefno);
@@ -340,7 +340,7 @@ namespace dMobile.Controller.Activity_Detail
                         selectedUpdated.ActivityDetailStatus = Convert.ToInt32(SysCommon.ActStatus.NoChange);
                     }
 
-                    rowsAffected = await this.Conn.ExecuteAsync(
+                    rowsAffected = await Conn.ExecuteAsync(
                         "UPDATE tActivityDetail SET ActivityDetailStatus = ? WHERE ActivityDetailRefno = ?",
                         Convert.ToInt32(SysCommon.ActStatus.NoChange),
                         this.DetailRefno);
@@ -358,7 +358,7 @@ namespace dMobile.Controller.Activity_Detail
                         selectedDeleted.ActivityDetailStatus = Convert.ToInt32(SysCommon.ActStatus.NoChange);
                     }
 
-                    rowsAffected = await this.Conn.ExecuteAsync(
+                    rowsAffected = await Conn.ExecuteAsync(
                         "UPDATE tActivityDetail SET ActivityDetailStatus = ? WHERE ActivityDetailRefno = ?",
                         Convert.ToInt32(SysCommon.ActStatus.NoChange),
                         this.DetailRefno);
@@ -391,7 +391,7 @@ namespace dMobile.Controller.Activity_Detail
                         selectedUpdated.ActivityDetailStatus = Convert.ToInt32(SysCommon.ActStatus.Updated);
                     }
 
-                    rowsAffected = await this.Conn.ExecuteAsync(
+                    rowsAffected = await Conn.ExecuteAsync(
                         "UPDATE tActivityDetail SET ActivityDetailStatus = ? WHERE ActivityDetailRefno = ?",
                         Convert.ToInt32(SysCommon.ActStatus.Updated),
                         this.DetailRefno);
@@ -409,7 +409,7 @@ namespace dMobile.Controller.Activity_Detail
                         selectedDeleted.ActivityDetailStatus = Convert.ToInt32(SysCommon.ActStatus.Deleted);
                     }
 
-                    rowsAffected = await this.Conn.ExecuteAsync(
+                    rowsAffected = await Conn.ExecuteAsync(
                         "UPDATE tActivityDetail SET ActivityDetailStatus = ? WHERE ActivityDetailRefno = ?",
                         Convert.ToInt32(SysCommon.ActStatus.Deleted),
                         this.DetailRefno);
@@ -838,7 +838,7 @@ namespace dMobile.Controller.Activity_Detail
                 sql.Append("ORDER BY tActivityDetail.ActivityDetailRefno");
             }
 
-            this.ListReturnDetails = await this.Conn.QueryAsync<ReturnDetail>(sql.ToString());
+            this.ListReturnDetails = await Conn.QueryAsync<ReturnDetail>(sql.ToString());
             this.ListDetails = this.ListReturnDetails.Cast<object>().ToList();
             return this.ListDetails;
         }

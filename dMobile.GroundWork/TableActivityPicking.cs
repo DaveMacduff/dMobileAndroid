@@ -271,31 +271,42 @@ namespace dMobile.GroundWork
             return xmlString.ToString();
         }
 
+        /// <inheritdoc/>
         protected override async Task<string> CreateRequest()
         {
-            var xmlString = new StringBuilder();
-            var settings = new XmlWriterSettings
+            var sb = new StringBuilder(256);
+            using (var writer = XmlWriter.Create(sb, new XmlWriterSettings
+                {
+                    Async = false,
+                    Indent = false,
+                    OmitXmlDeclaration = false
+                }))
             {
-                Async = true,
-                Indent = false
-            };
-            var xml = XmlWriter.Create(xmlString, settings);
+                writer.WriteStartDocument();
+                writer.WriteStartElement("imclient");
+                writer.WriteStartElement("command");
+                writer.WriteElementString("action", "REQUEST SALES ORDERS");
 
-            var request = XDocument.Parse(
-                "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>" +
-                "<imclient>" +
-                "<command>" +
-                "<action>REQUEST SALES ORDERS</action>" +
-                await SysCommon.GetRequestDefaults(false) +
-                "<whs_id></whs_id>" +
-                "<sect_refno></sect_refno>" +
-                "</command>" +
-                "</imclient>");
-            request.Save(xml);
-            await xml.FlushAsync();
-            xml.Close();
+                // Insert request defaults directly as XML
+                var requestDefaults = await SysCommon.GetRequestDefaults(false);
+                if (!string.IsNullOrEmpty(requestDefaults))
+                {
+                    var defaultsDoc = XDocument.Parse("<root>" + requestDefaults + "</root>");
+                    foreach (var elem in defaultsDoc.Root.Elements())
+                    {
+                        elem.WriteTo(writer);
+                    }
+                }
 
-            return xmlString.ToString();
+                writer.WriteElementString("whs_id", string.Empty);
+                writer.WriteElementString("sect_refno", string.Empty);
+                writer.WriteEndElement(); // command
+                writer.WriteEndElement(); // imclient
+                writer.WriteEndDocument();
+                writer.Flush();
+            }
+
+            return sb.ToString();
         }
 
         /// <summary>

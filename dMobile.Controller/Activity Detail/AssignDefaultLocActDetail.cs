@@ -280,7 +280,7 @@ namespace dMobile.Controller.Activity_Detail
                 this.DetailFkRefno = int.Parse(xmlDoc.DocumentElement["ser_refno"].InnerText);
                 moveDetail.ActivityDetailStatus = Convert.ToInt32(SysCommon.ActStatus.NoChange);
 
-                await this.Conn.ExecuteAsync(
+                await Conn.ExecuteAsync(
                     "UPDATE tActivityDetail SET ActivityDetailStatus = ? WHERE ActivityDetailRefno = ?",
                     Convert.ToInt32(SysCommon.ActStatus.NoChange),
                     this.DetailRefno);

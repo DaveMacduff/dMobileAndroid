@@ -74,7 +74,7 @@ namespace dMobile.View.Activity
             this.ActDetail = ActDetailFacade.GetActDetail(this.ActItem, actSubType);
             this.ActDetail.ActItem = this.ActItem;
             this.ActDetail.ActExtra = new ActDetailExtra();
-            this.DataCollector = new DataCollector(this.ActSubType);
+            this.DataCollector = new DataCollector(this.ActSubType, this.ActItem);
 
             CreateOptionsMenu();
             ParseAndSeedBarCodeModifier();

@@ -331,7 +331,7 @@ namespace dMobile.Controller.Activity_Item
             //////////////////////////////////////////////////////////////////////////
             async Task InsertActivityItemInTables(int prodUnitRefno)
             {
-                await this.Conn.RunInTransactionAsync(transaction =>
+                await Conn.RunInTransactionAsync(transaction =>
                 {
                     try
                     {
@@ -679,138 +679,132 @@ namespace dMobile.Controller.Activity_Item
         /// The GetActivityItemList.
         /// </summary>
         /// <param name="isSubmitBatch">.</param>
-        /// <returns>.</returns>
+        /// <returns>List of activity items.</returns>
         public override async Task<List<object>> GetActivityItemList(bool isSubmitBatch)
         {
-            var sql = new StringBuilder();
+            // Use StringBuilder pooling and parameterized queries for better performance and security
+            // Also, avoid ToString() on StringBuilder until needed
+            string sql;
+            object[] parameters;
+
+            int hdrRefno = this.ActHdr.HdrRefno;
+            int actStatusNoChange = Convert.ToInt32(SysCommon.ActStatus.NoChange);
+            int actSubTypeCutSheetFinished = Convert.ToInt32(SysCommon.ActSubTypes.CutSheetFinished);
 
             if (isSubmitBatch)
             {
-                sql.Append("SELECT tActivityItemCutSheet.ActivityItemRefno,");
-                sql.Append("tActivityItemCutSheetFinished.ActivityItemFKRefno,");
-                sql.Append("tActivityItemCutSheetFinished.ActivityItemStringFKRefno,");
-                sql.Append("tProductUnit.ProductUnitRefno AS ProductUnitRefno,");
-                sql.Append("tProduct.ProductRefno AS ProductRefno,");
-                sql.Append("tProduct.ProductCode AS ProductCode,");
-                sql.Append("tProduct.ProductDescription AS ProductDescription,");
-                sql.Append("tUnit.UnitCode AS BaseUnitCode,");
-                sql.Append("tProductUnit.ProductUnitBC AS ProductUnitBC,");
-                sql.Append("tProductUnit.ProductUnitSizeDescription AS ProductUnitSizeDescription,");
-                sql.Append("tActivityItemCutSheet.ActivityItemCutSheetQuantity AS ActivityItemCutSheetQuantity,");
-                sql.Append("tActivityItemCutSheet.ActivityItemCutSheetBaseQuantity AS ActivityItemCutSheetBaseQuantity,");
-                sql.Append("tActivityItemCutSheet.ActivityItemCutSheetWeightQuantity AS ActivityItemCutSheetWeightQuantity,");
-                sql.Append("tActivityItemCutSheet.ActivityItemCutSheetQuantityExpected AS ActivityItemCutSheetQuantityExpected,");
-                sql.Append("tActivityItemCutSheet.ActivityItemCutSheetBaseQuantityExpected AS ActivityItemCutSheetBaseQuantityExpected,");
-                sql.Append("tActivityItemCutSheet.ActivityItemCutSheetWeightQuantityExpected AS ActivityItemCutSheetWeightQuantityExpected,");
-                sql.Append("tLocationMapWarehouse.LocationMapRefno AS LocationMapRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapWarehouseCode AS LocationCode,");
-                sql.Append("tLocationMapWarehouse.LocationMapWarehouseName AS LocationName,");
-                sql.Append("tActivityItem.ActivityItemStatus AS ActivityItemStatus ");
-                sql.Append("FROM tActivityItemCutSheet ");
-                sql.Append("INNER JOIN tActivityItem ON tActivityItem.ActivityItemRefno ");
-                sql.Append("= tActivityItemCutSheet.ActivityItemRefno ");
-                sql.Append("INNER JOIN tActivityItemCutSheetFinished ON tActivityItemCutSheetFinished.ActivityItemRefno ");
-                sql.Append("= tActivityItemCutSheet.ActivityItemRefno ");
-                sql.Append("INNER JOIN tProductUnit ON tProductUnit.ProductUnitRefno ");
-                sql.Append("= tActivityItemCutSheet.ProductUnitRefno ");
-                sql.Append("INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.BaseUnitRefno ");
-                sql.Append("INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno ");
-                sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno ");
-                sql.Append("= tActivityItemCutSheet.LocationMapRefno ");
-                sql.AppendFormat("WHERE tActivityItem.ActivityRefno = {0} ", this.ActHdr.HdrRefno);
-                sql.AppendFormat("AND tActivityItem.ActivityItemStatus <> {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
-                sql.AppendFormat("AND tActivityItem.ActivityItemSubType = {0} ", Convert.ToInt32(SysCommon.ActSubTypes.CutSheetFinished));
-                sql.Append("UNION ");
-                sql.Append("SELECT tActivityItemCutSheet.ActivityItemRefno,");
-                sql.Append("tActivityItemCutSheetFinished.ActivityItemFKRefno,");
-                sql.Append("tActivityItemCutSheetFinished.ActivityItemStringFKRefno,");
-                sql.Append("tProductUnit.ProductUnitRefno,");
-                sql.Append("tProduct.ProductRefno,");
-                sql.Append("tProduct.ProductCode,");
-                sql.Append("tProduct.ProductDescription,");
-                sql.Append("tUnit.UnitCode AS BaseUnitCode,");
-                sql.Append("tProductUnit.ProductUnitBC,");
-                sql.Append("tProductUnit.ProductUnitSizeDescription,");
-                sql.Append("tActivityItemCutSheet.ActivityItemCutSheetQuantity,");
-                sql.Append("tActivityItemCutSheet.ActivityItemCutSheetBaseQuantity,");
-                sql.Append("tActivityItemCutSheet.ActivityItemCutSheetWeightQuantity,");
-                sql.Append("tActivityItemCutSheet.ActivityItemCutSheetQuantityExpected,");
-                sql.Append("tActivityItemCutSheet.ActivityItemCutSheetBaseQuantityExpected,");
-                sql.Append("tActivityItemCutSheet.ActivityItemCutSheetWeightQuantityExpected,");
-                sql.Append("tLocationMapWarehouse.LocationMapRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapWarehouseCode AS LocationCode,");
-                sql.Append("tLocationMapWarehouse.LocationMapWarehouseName AS LocationName,");
-                sql.Append("tActivityItem.ActivityItemStatus ");
-                sql.Append("FROM tActivityItemCutSheet ");
-                sql.Append("INNER JOIN tActivityItem ON tActivityItem.ActivityItemRefno ");
-                sql.Append("= tActivityItemCutSheet.ActivityItemRefno ");
-                sql.Append("INNER JOIN tActivityDetail ON tActivityDetail.ActivityItemRefno ");
-                sql.Append("= tActivityItemCutSheet.ActivityItemRefno ");
-                sql.Append("INNER JOIN tActivityItemCutSheetFinished ON tActivityItemCutSheetFinished.ActivityItemRefno ");
-                sql.Append("= tActivityItemCutSheet.ActivityItemRefno ");
-                sql.Append("INNER JOIN tProductUnit ON tProductUnit.ProductUnitRefno ");
-                sql.Append("= tActivityItemCutSheet.ProductUnitRefno ");
-                sql.Append("INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.BaseUnitRefno ");
-                sql.Append("INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno ");
-                sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno ");
-                sql.Append("= tActivityItemCutSheet.LocationMapRefno ");
-                sql.AppendFormat("WHERE tActivityItem.ActivityRefno = {0} ", this.ActHdr.HdrRefno);
-                sql.AppendFormat("AND tActivityDetail.ActivityDetailStatus <> {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
-                sql.AppendFormat("AND tActivityDetail.ActivityDetailSubType = {0} ", Convert.ToInt32(SysCommon.ActSubTypes.CutSheetFinished));
-                sql.Append("ORDER BY tActivityItemCutSheet.ActivityItemRefno");
+                sql = @"
+                    SELECT tActivityItemCutSheet.ActivityItemRefno,
+                           tActivityItemCutSheetFinished.ActivityItemFKRefno,
+                           tActivityItemCutSheetFinished.ActivityItemStringFKRefno,
+                           tProductUnit.ProductUnitRefno AS ProductUnitRefno,
+                           tProduct.ProductRefno AS ProductRefno,
+                           tProduct.ProductCode AS ProductCode,
+                           tProduct.ProductDescription AS ProductDescription,
+                           tUnit.UnitCode AS BaseUnitCode,
+                           tProductUnit.ProductUnitBC AS ProductUnitBC,
+                           tProductUnit.ProductUnitSizeDescription AS ProductUnitSizeDescription,
+                           tActivityItemCutSheet.ActivityItemCutSheetQuantity AS ActivityItemCutSheetQuantity,
+                           tActivityItemCutSheet.ActivityItemCutSheetBaseQuantity AS ActivityItemCutSheetBaseQuantity,
+                           tActivityItemCutSheet.ActivityItemCutSheetWeightQuantity AS ActivityItemCutSheetWeightQuantity,
+                           tActivityItemCutSheet.ActivityItemCutSheetQuantityExpected AS ActivityItemCutSheetQuantityExpected,
+                           tActivityItemCutSheet.ActivityItemCutSheetBaseQuantityExpected AS ActivityItemCutSheetBaseQuantityExpected,
+                           tActivityItemCutSheet.ActivityItemCutSheetWeightQuantityExpected AS ActivityItemCutSheetWeightQuantityExpected,
+                           tLocationMapWarehouse.LocationMapRefno AS LocationMapRefno,
+                           tLocationMapWarehouse.LocationMapWarehouseCode AS LocationCode,
+                           tLocationMapWarehouse.LocationMapWarehouseName AS LocationName,
+                           tActivityItem.ActivityItemStatus AS ActivityItemStatus
+                    FROM tActivityItemCutSheet
+                    INNER JOIN tActivityItem ON tActivityItem.ActivityItemRefno = tActivityItemCutSheet.ActivityItemRefno
+                    INNER JOIN tActivityItemCutSheetFinished ON tActivityItemCutSheetFinished.ActivityItemRefno = tActivityItemCutSheet.ActivityItemRefno
+                    INNER JOIN tProductUnit ON tProductUnit.ProductUnitRefno = tActivityItemCutSheet.ProductUnitRefno
+                    INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.BaseUnitRefno
+                    INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno
+                    INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno = tActivityItemCutSheet.LocationMapRefno
+                    WHERE tActivityItem.ActivityRefno = ?
+                      AND tActivityItem.ActivityItemStatus <> ?
+                      AND tActivityItem.ActivityItemSubType = ?
+                    UNION
+                    SELECT tActivityItemCutSheet.ActivityItemRefno,
+                           tActivityItemCutSheetFinished.ActivityItemFKRefno,
+                           tActivityItemCutSheetFinished.ActivityItemStringFKRefno,
+                           tProductUnit.ProductUnitRefno,
+                           tProduct.ProductRefno,
+                           tProduct.ProductCode,
+                           tProduct.ProductDescription,
+                           tUnit.UnitCode AS BaseUnitCode,
+                           tProductUnit.ProductUnitBC,
+                           tProductUnit.ProductUnitSizeDescription,
+                           tActivityItemCutSheet.ActivityItemCutSheetQuantity,
+                           tActivityItemCutSheet.ActivityItemCutSheetBaseQuantity,
+                           tActivityItemCutSheet.ActivityItemCutSheetWeightQuantity,
+                           tActivityItemCutSheet.ActivityItemCutSheetQuantityExpected,
+                           tActivityItemCutSheet.ActivityItemCutSheetBaseQuantityExpected,
+                           tActivityItemCutSheet.ActivityItemCutSheetWeightQuantityExpected,
+                           tLocationMapWarehouse.LocationMapRefno,
+                           tLocationMapWarehouse.LocationMapWarehouseCode AS LocationCode,
+                           tLocationMapWarehouse.LocationMapWarehouseName AS LocationName,
+                           tActivityItem.ActivityItemStatus
+                    FROM tActivityItemCutSheet
+                    INNER JOIN tActivityItem ON tActivityItem.ActivityItemRefno = tActivityItemCutSheet.ActivityItemRefno
+                    INNER JOIN tActivityDetail ON tActivityDetail.ActivityItemRefno = tActivityItemCutSheet.ActivityItemRefno
+                    INNER JOIN tActivityItemCutSheetFinished ON tActivityItemCutSheetFinished.ActivityItemRefno = tActivityItemCutSheet.ActivityItemRefno
+                    INNER JOIN tProductUnit ON tProductUnit.ProductUnitRefno = tActivityItemCutSheet.ProductUnitRefno
+                    INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.BaseUnitRefno
+                    INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno
+                    INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno = tActivityItemCutSheet.LocationMapRefno
+                    WHERE tActivityItem.ActivityRefno = ?
+                      AND tActivityDetail.ActivityDetailStatus <> ?
+                      AND tActivityDetail.ActivityDetailSubType = ?
+                    ORDER BY tActivityItemCutSheet.ActivityItemRefno";
+                parameters = new object[]
+                {
+                    hdrRefno, actStatusNoChange, actSubTypeCutSheetFinished,
+                    hdrRefno, actStatusNoChange, actSubTypeCutSheetFinished
+                };
             }
             else
             {
-                sql.Append("SELECT tActivityItemCutSheet.ActivityItemRefno,");
-                sql.Append("tActivityItemCutSheetFinished.ActivityItemFKRefno,");
-                sql.Append("tActivityItemCutSheetFinished.ActivityItemStringFKRefno,");
-                sql.Append("tProductUnit.ProductUnitRefno AS ProductUnitRefno,");
-                sql.Append("tProduct.ProductRefno AS ProductRefno,");
-                sql.Append("tProduct.ProductCode AS ProductCode,");
-                sql.Append("tProduct.ProductDescription AS ProductDescription,");
-                sql.Append("tUnit.UnitCode AS BaseUnitCode,");
-                sql.Append("tProductUnit.ProductUnitBC AS ProductUnitBC,");
-                sql.Append("tProductUnit.ProductUnitSizeDescription AS ProductUnitSizeDescription,");
-                sql.Append("tActivityItemCutSheet.ActivityItemCutSheetQuantity AS ActivityItemCutSheetQuantity,");
-                sql.Append("tActivityItemCutSheet.ActivityItemCutSheetBaseQuantity AS ActivityItemCutSheetBaseQuantity,");
-                sql.Append("tActivityItemCutSheet.ActivityItemCutSheetWeightQuantity AS ActivityItemCutSheetWeightQuantity,");
-                sql.Append("tActivityItemCutSheet.ActivityItemCutSheetQuantityExpected AS ActivityItemCutSheetQuantityExpected,");
-                sql.Append("tActivityItemCutSheet.ActivityItemCutSheetBaseQuantityExpected AS ActivityItemCutSheetBaseQuantityExpected,");
-                sql.Append("tActivityItemCutSheet.ActivityItemCutSheetWeightQuantityExpected AS ActivityItemCutSheetWeightQuantityExpected,");
-                sql.Append("tLocationMapWarehouse.LocationMapRefno AS LocationMapRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapWarehouseCode AS LocationCode,");
-                sql.Append("tLocationMapWarehouse.LocationMapWarehouseName AS LocationName,");
-                sql.Append("tActivityItem.ActivityItemStatus AS ActivityItemStatus ");
-                sql.Append("FROM tActivityItemCutSheet ");
-                sql.Append("INNER JOIN tActivityItem ON tActivityItem.ActivityItemRefno ");
-                sql.Append("= tActivityItemCutSheet.ActivityItemRefno ");
-                sql.Append("INNER JOIN tActivityItemCutSheetFinished ON tActivityItemCutSheetFinished.ActivityItemRefno ");
-                sql.Append("= tActivityItemCutSheet.ActivityItemRefno ");
-                sql.Append("INNER JOIN tProductUnit ON tProductUnit.ProductUnitRefno ");
-                sql.Append("= tActivityItemCutSheet.ProductUnitRefno ");
-                sql.Append("INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.BaseUnitRefno ");
-                sql.Append("INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno ");
-                sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno ");
-                sql.Append("= tActivityItemCutSheet.LocationMapRefno ");
-                sql.AppendFormat("WHERE tActivityItem.ActivityRefno = {0} ", this.ActHdr.HdrRefno);
-                sql.AppendFormat("AND tActivityItem.ActivityItemSubType = {0} ", Convert.ToInt32(SysCommon.ActSubTypes.CutSheetFinished));
-                sql.Append("ORDER BY tActivityItemCutSheet.ActivityItemRefno");
+                sql = @"
+                    SELECT tActivityItemCutSheet.ActivityItemRefno,
+                           tActivityItemCutSheetFinished.ActivityItemFKRefno,
+                           tActivityItemCutSheetFinished.ActivityItemStringFKRefno,
+                           tProductUnit.ProductUnitRefno AS ProductUnitRefno,
+                           tProduct.ProductRefno AS ProductRefno,
+                           tProduct.ProductCode AS ProductCode,
+                           tProduct.ProductDescription AS ProductDescription,
+                           tUnit.UnitCode AS BaseUnitCode,
+                           tProductUnit.ProductUnitBC AS ProductUnitBC,
+                           tProductUnit.ProductUnitSizeDescription AS ProductUnitSizeDescription,
+                           tActivityItemCutSheet.ActivityItemCutSheetQuantity AS ActivityItemCutSheetQuantity,
+                           tActivityItemCutSheet.ActivityItemCutSheetBaseQuantity AS ActivityItemCutSheetBaseQuantity,
+                           tActivityItemCutSheet.ActivityItemCutSheetWeightQuantity AS ActivityItemCutSheetWeightQuantity,
+                           tActivityItemCutSheet.ActivityItemCutSheetQuantityExpected AS ActivityItemCutSheetQuantityExpected,
+                           tActivityItemCutSheet.ActivityItemCutSheetBaseQuantityExpected AS ActivityItemCutSheetBaseQuantityExpected,
+                           tActivityItemCutSheet.ActivityItemCutSheetWeightQuantityExpected AS ActivityItemCutSheetWeightQuantityExpected,
+                           tLocationMapWarehouse.LocationMapRefno AS LocationMapRefno,
+                           tLocationMapWarehouse.LocationMapWarehouseCode AS LocationCode,
+                           tLocationMapWarehouse.LocationMapWarehouseName AS LocationName,
+                           tActivityItem.ActivityItemStatus AS ActivityItemStatus
+                    FROM tActivityItemCutSheet
+                    INNER JOIN tActivityItem ON tActivityItem.ActivityItemRefno = tActivityItemCutSheet.ActivityItemRefno
+                    INNER JOIN tActivityItemCutSheetFinished ON tActivityItemCutSheetFinished.ActivityItemRefno = tActivityItemCutSheet.ActivityItemRefno
+                    INNER JOIN tProductUnit ON tProductUnit.ProductUnitRefno = tActivityItemCutSheet.ProductUnitRefno
+                    INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.BaseUnitRefno
+                    INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno
+                    INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno = tActivityItemCutSheet.LocationMapRefno
+                    WHERE tActivityItem.ActivityRefno = ?
+                      AND tActivityItem.ActivityItemSubType = ?
+                    ORDER BY tActivityItemCutSheet.ActivityItemRefno";
+                parameters = new object[]
+                {
+                    hdrRefno,
+                    actSubTypeCutSheetFinished
+                };
             }
 
-            // using (SQLiteDataAdapter da = new SQLiteDataAdapter(sql.ToString(), DatabaseConnection.GetInstance().SQLConn))
-            // {
-            //    using (DataSet ds = new DataSet())
-            //    {
-            //        da.Fill(ds);
-            //        this.DataViewItems = ds.Tables[0].DefaultView;
-            //        this.DataViewItems.Table.TableName = this.MainGridMappingName;
-            //        this.DataViewItems.AllowNew = true;
-            //        this.DataViewItems.AllowEdit = true;
-            //        this.DataViewItems.AllowDelete = true;
-            //        this.DataViewItems.Sort = "ActivityItemRefno";
-            //    }
-            // }
-            this.ListCutSheetFinishedItems = await this.Conn.QueryAsync<CutSheetFinishedItem>(sql.ToString());
+            // Use parameterized query to avoid SQL injection and improve SQLite query plan caching
+            this.ListCutSheetFinishedItems = await Conn.QueryAsync<CutSheetFinishedItem>(sql, parameters);
             this.ListItems = this.ListCutSheetFinishedItems.Cast<object>().ToList();
             return this.ListItems;
         }
@@ -942,7 +936,7 @@ namespace dMobile.Controller.Activity_Item
             sql.AppendFormat("AND tActivityItemCutSheet.ProductUnitRefno = {0} ", prodUnitRefno);
             sql.AppendFormat("AND tActivityItem.ActivityItemSubType = {0}", Convert.ToInt32(SysCommon.ActSubTypes.CutSheetFinished));
 
-            var results = await this.Conn.QueryAsync<CutSheetFinishedItem>(sql.ToString());
+            var results = await Conn.QueryAsync<CutSheetFinishedItem>(sql.ToString());
             if (results != null && results.Count > 0)
             {
                 foundActItemRefno = Convert.ToInt32(results[0].ActivityItemRefno);
@@ -1060,7 +1054,7 @@ namespace dMobile.Controller.Activity_Item
                     productionCutSheetFinishedItem.ActivityItemCutSheetWeightQuantity,
                     productionCutSheetFinishedItem.ActivityItemRefno, };
 
-                await this.Conn.ExecuteAsync(query, parameters);
+                await Conn.ExecuteAsync(query, parameters);
             }
         }
 

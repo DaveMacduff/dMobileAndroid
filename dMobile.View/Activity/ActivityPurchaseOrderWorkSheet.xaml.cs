@@ -58,7 +58,7 @@ namespace dMobile.View.Activity
             this.Title = this.GetControlDescription();
 
             ParseAndSeedBarCodeModifier();
-            this.DataCollector = new DataCollector(this.ActSubType);
+            this.DataCollector = new DataCollector(this.ActSubType, this.ActItem);
             this.ScannerEnable().FireAndForgetSafeAsync();
             this.LoadAndBindData().FireAndForgetSafeAsync();
             return;

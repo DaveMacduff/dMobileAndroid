@@ -1210,7 +1210,7 @@ namespace dMobile.Controller.Activity_Item
                     productioCutSheetMaterialItem.ActivityItemRefno
                 };
 
-                await this.Conn.ExecuteAsync(query, parameters);
+                await Conn.ExecuteAsync(query, parameters);
             }
         }
 

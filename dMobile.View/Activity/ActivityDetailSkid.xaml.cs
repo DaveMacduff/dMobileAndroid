@@ -59,7 +59,7 @@ namespace dMobile.View.Activity
             var schemeData = this.ActDetail.SchemeData;
             schemeData.LogisticUnitSkidNumber = this.ActDetail.ActItem.ActHdr.SkidInfo.CurrSkid.SkidCode;
             this.ActDetail.SchemeData = schemeData;
-            this.DataCollector = new DataCollector(this.ActSubType);
+            this.DataCollector = new DataCollector(this.ActSubType, actItem);
 
             this.AddModeHeaderColor = Color.FromRgb(192, 255, 192);
             this.RemoveModeHeaderColor = Color.PaleVioletRed;
@@ -1048,7 +1048,7 @@ namespace dMobile.View.Activity
         {
             this.ActDetail.DetailFkRefno = 0;
             var xmlDoc = this.ActDetail.GetXml(this.ActDetail);
-            await this.ActDetail.FillActDetailObjFromXml(xmlDoc);
+            this.ActDetail.FillActDetailObjFromXml(xmlDoc);
             _ = await this.ActDetail.Delete();
         }
 

@@ -98,7 +98,7 @@ namespace dMobile.View.Activity
             this.ActDetail.ActItem = actItem;
 
             this.Title = this.ActDetail.GetControlDescription();
-            this.DataCollector = new DataCollector(this.ActSubType);
+            this.DataCollector = new DataCollector(this.ActSubType, actItem);
             this.Timer = new SysTimer(this.TimerTickCallback);
             IsFirstAppearance = true;
         }

@@ -388,7 +388,7 @@ namespace dMobile.Controller.Activity
                     inner join tActivityDetail detail on detail.ActivityItemRefno = item.ActivityItemRefno
                     inner join tActivityDetailReplenishment replenDetail on replenDetail.ActivityDetailRefno = detail.ActivityDetailRefno";
 
-            this.ListReplenishments = await this.Conn.QueryAsync<Replenishment>(query);
+            this.ListReplenishments = await Conn.QueryAsync<Replenishment>(query);
 
             foreach (var item in this.ListReplenishments)
             {

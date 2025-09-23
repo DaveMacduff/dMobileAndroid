@@ -205,7 +205,7 @@ namespace dMobile.Controller.Activity_Detail
         /// <returns><see cref="Task"/> Task operation.</returns>
         public override async Task Insert(XDocument data)
         {
-            await this.FillActDetailObjFromXml(data);
+            this.FillActDetailObjFromXml(data);
 
             var xmlSend = await this.CreateSubmitXml(XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?><params></params>"));
@@ -311,7 +311,7 @@ namespace dMobile.Controller.Activity_Detail
                     tempSchemeData.LogisticUnitSkidNumber = this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFkRefno.ToString();
                     tempSchemeData.VariantNumber = Convert.ToInt32(drow["ProductSchemeVariantNo"]);
 
-                    var results = await this.Conn.
+                    var results = await Conn.
                         QueryAsync<ProductSchemeVariantModel>(
                         "SELECT * FROM tProductSchemeVariant WHERE ProductSchemeVariantNo = ?",
                         tempSchemeData.VariantNumber);

@@ -81,7 +81,7 @@ namespace dMobile.View.Activity
                 this.CmdSelectSkidIsEnabled;
 
             ParseAndSeedBarCodeModifier();
-            this.DataCollector = new DataCollector(this.ActSubType);
+            this.DataCollector = new DataCollector(this.ActSubType, this.ActItem);
             this.Title = this.ActItem.GetControlDescription();
             this.SearchTimer = new SysTimer(this.SearchTimerTickCallback);
             this.IsFirstAppearance = true;

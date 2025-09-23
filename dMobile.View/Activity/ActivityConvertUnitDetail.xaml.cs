@@ -54,7 +54,7 @@ namespace dMobile.View.Activity
             this.ActSubType = actSubTypes;
             this.ActDetail = ActDetailFacade.GetActDetail(actItem, actSubTypes);
             this.ActDetail.ActItem = actItem;
-            this.DataCollector = new DataCollector(this.ActSubType);
+            this.DataCollector = new DataCollector(this.ActSubType, actItem);
             this.ScannerEnable().FireAndForgetSafeAsync();
         }
 

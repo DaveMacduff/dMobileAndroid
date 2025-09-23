@@ -50,7 +50,7 @@ namespace dMobile.View.Activity
             }
 
             this.ParseAndSeedBarCodeModifier();
-            this.DataCollector = new DataCollector(this.ActSubType);
+            this.DataCollector = new DataCollector(this.ActSubType, this.ActItem);
             this.Title = this.GetControlDescription();
             this.cmdLocation.Text = LocationMapTasks.GetCurrentReadableLocation();
             this.IsFirstAppearance = true;
@@ -77,7 +77,7 @@ namespace dMobile.View.Activity
             }
 
             this.ParseAndSeedBarCodeModifier();
-            this.DataCollector = new DataCollector(this.ActSubType);
+            this.DataCollector = new DataCollector(this.ActSubType, this.ActItem);
             this.Title = this.GetControlDescription();
             this.cmdLocation.Text = LocationMapTasks.GetCurrentReadableLocation();
             this.cmdSelectProduct.Text = prodInfo.Code;

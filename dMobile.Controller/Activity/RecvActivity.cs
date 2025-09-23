@@ -364,7 +364,7 @@ namespace dMobile.Controller.Activity
             //        this.DataViewHdrs.RowFilter = this.GetFilter();
             //    }
             // }
-            this.listReceives = await this.Conn.QueryAsync<Receive>(sql.ToString());
+            this.listReceives = await Conn.QueryAsync<Receive>(sql.ToString());
 
             foreach (var sort in receiveSettings.GetDataViewSortBy())
             {

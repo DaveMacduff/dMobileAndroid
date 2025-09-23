@@ -74,7 +74,7 @@ namespace dMobile.View.Activity
             this.ActDetail.ActSubType = this.ActItem.ActSubType;
             this.ActDetail.GetActivityDetailList(false).FireAndForgetSafeAsync();
 
-            this.DataCollector = new DataCollector(this.ActSubType);
+            this.DataCollector = new DataCollector(this.ActSubType, this.ActItem);
 
             this.BarCodeModifier1Picker.SelectedItem = this.SysEnv.CurrentBarCodeModifier1;
             if (this.LocMap.CurrLocMap.WhsLocMapRefno != 0)

@@ -299,7 +299,7 @@ namespace dMobile.Controller.Activity
                     Convert.ToInt32(SysCommon.ActSubTypes.CutSheetFinished));
             }
 
-            this.ListCutSheetFinished = await this.Conn.QueryAsync<CutSheetFinished>(
+            this.ListCutSheetFinished = await Conn.QueryAsync<CutSheetFinished>(
                 sql.ToString());
             foreach (var sort in settings.GetDataViewSortBy())
             {

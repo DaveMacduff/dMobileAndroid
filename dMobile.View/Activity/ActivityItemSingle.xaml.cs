@@ -56,7 +56,7 @@ namespace dMobile.View.Activity
             this.ActSubType = actSubType == SysCommon.ActSubTypes.PickingSingle ? SysCommon.ActSubTypes.Picking : actSubType;
 
             InitBarCodeModifiers();
-            this.DataCollector = new DataCollector(this.ActSubType);
+            this.DataCollector = new DataCollector(this.ActSubType, this.ActItem);
             this.Title = this.GetControlDescription();
             this.LoadAndBind().FireAndForgetSafeAsync();
             this.SearchTimer = new SysTimer(this.TimerTickCallback);
@@ -851,30 +851,51 @@ namespace dMobile.View.Activity
                     ProdSchemeData = this.ActDetail.SchemeData
                 };
 
-                var isInsertReady = await SysShared.GatherProductData(
+                ////    var isInsertReady = await SysShared.GatherProductData(
+                ////        parse,
+                ////        this.ActSubType,
+                ////        this.ActItem,
+                ////        tempItemProdSchemeData,
+                ////        this.ActDetail,
+                ////        isForceStopForEditing: false);
+                ////    if (isInsertReady)
+                ////    {
+                ////        var xmlDoc = this.ActDetail.GetXml(this.ActDetail);
+                ////        await this.ActDetail.Insert(xmlDoc);
+                ////        if (this.ActDetail.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFkRefno != 0)
+                ////        {
+                ////            this.ScannedSkidQuantity += this.ActDetail.Quantity;
+                ////        }
+
+                ////        this.ActItem.AddToQuantityInActivityItem(
+                ////            this.ActItem.SelectedItem,
+                ////            this.ActDetail.Quantity,
+                ////            this.ActDetail.BaseQuantity,
+                ////            this.ActDetail.WeightQuantity);
+                ////        await this.ActItem.UpdateItemTableQuantity(this.ActItem.SelectedItem);
+                ////        await this.AssignAndDisplayLineItem(this.ActItem.ItemRefno);
+                ////    }
+                ////}
+                ////DataCollector.ActDetail = this.ActDetail;
+                await DataCollector.GatherProductData(
                     parse,
-                    this.ActSubType,
-                    this.ActItem,
                     tempItemProdSchemeData,
                     this.ActDetail,
                     isForceStopForEditing: false);
-                if (isInsertReady)
+                var xmlDoc = this.ActDetail.GetXml(this.ActDetail);
+                await this.ActDetail.Insert(xmlDoc);
+                if (this.ActDetail.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFkRefno != 0)
                 {
-                    var xmlDoc = this.ActDetail.GetXml(this.ActDetail);
-                    await this.ActDetail.Insert(xmlDoc);
-                    if (this.ActDetail.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFkRefno != 0)
-                    {
-                        this.ScannedSkidQuantity += this.ActDetail.Quantity;
-                    }
-
-                    this.ActItem.AddToQuantityInActivityItem(
-                        this.ActItem.SelectedItem,
-                        this.ActDetail.Quantity,
-                        this.ActDetail.BaseQuantity,
-                        this.ActDetail.WeightQuantity);
-                    await this.ActItem.UpdateItemTableQuantity(this.ActItem.SelectedItem);
-                    await this.AssignAndDisplayLineItem(this.ActItem.ItemRefno);
+                    this.ScannedSkidQuantity += this.ActDetail.Quantity;
                 }
+
+                this.ActItem.AddToQuantityInActivityItem(
+                    this.ActItem.SelectedItem,
+                    this.ActDetail.Quantity,
+                    this.ActDetail.BaseQuantity,
+                    this.ActDetail.WeightQuantity);
+                await this.ActItem.UpdateItemTableQuantity(this.ActItem.SelectedItem);
+                await this.AssignAndDisplayLineItem(this.ActItem.ItemRefno);
             }
 
             void DefaultSchemeDataFromCurrentSkidSchemeDetail()

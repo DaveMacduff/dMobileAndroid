@@ -16,12 +16,17 @@ namespace dMobile.Bedrock
     using Resources.Models.Products;
     using Resources.QueryResults;
     using Resources.Types.Products;
+    using SQLite;
 
     /// <summary>
     /// <see cref="ProductInfoTasks"/> Collection of product methods.
     /// </summary>
     public static class ProductInfoTasks
     {
+        private static SQLiteAsyncConnection Conn { get; } = DatabaseConnection.GetInstance().SqlConn;
+
+        private static SysEnvironment SysEnv { get; } = SysEnvironment.GetInstance();
+
         /// <summary>
         /// Get the current readable product bc unit.
         /// </summary>
@@ -38,38 +43,46 @@ namespace dMobile.Bedrock
         /// </summary>
         /// <param name="prodInfo"><see cref="ProductInfo"/> Product information.</param>
         /// <returns><see cref="XDocument"/> XDocument containing product information.</returns>
+        /// <remarks>Uses XmlWriter and StringBuilder for faster, lower-memory XML creation.</remarks>
         public static XDocument GetXml(ProductInfo prodInfo)
         {
-            var request = new XDocument(
-                new XDeclaration("1.0", "utf-16", "yes"),
-                string.Empty,
-                new XElement(
-                    "params",
-                    new XElement("ProductUnitRefno", prodInfo.UnitRefno),
-                    new XElement("ProductRefno", prodInfo.Refno),
-                    new XElement("ProductFKRefno", prodInfo.FkRefno),
-                    new XElement("ProductCode", prodInfo.Code),
-                    new XElement("ProductDescription", prodInfo.Desc),
-                    new XElement("UnitCode", prodInfo.UnitCode),
-                    new XElement("BaseUnitCode", prodInfo.UnitCode),
-                    new XElement("WeightUnitCode", prodInfo.UnitCode),
-                    new XElement("ProductUnitBC", prodInfo.UnitBc),
-                    new XElement("ProductUnitIsBC", prodInfo.UnitIsBc.ToString()),
-                    new XElement("ProductUnitSizeDescription", prodInfo.UnitSizeDesc),
-                    new XElement("ProductIsCatchAsk", prodInfo.IsCatchAsk.ToString()),
-                    new XElement("ProductIsCatchAskZero", prodInfo.IsCatchAskZero.ToString()),
-                    new XElement("ProductAllowConvertProduct", prodInfo.IsAllowConvertProduct.ToString()),
-                    new XElement("ProductIsCatchCount", prodInfo.IsCatchCount.ToString()),
-                    new XElement("ProductIsCatchWeight", prodInfo.IsCatchWeight.ToString()),
-                    new XElement("ProductBrandDescription", prodInfo.BrandDesc),
-                    new XElement("ProductUnitIsSellUnit", prodInfo.UnitIsSellUnit.ToString()),
-                    new XElement("ProductUnitIsDefault", prodInfo.UnitIsDefault.ToString()),
-                    new XElement("ProductUnitBoxCount", prodInfo.BoxCount.ToString(CultureInfo.CurrentCulture)),
-                    new XElement("ProductUnitWeightTolerance", prodInfo.WeightTolerance.ToString(CultureInfo.CurrentCulture)),
-                    new XElement("ProductUnitWeight", prodInfo.UnitGrossWeight.ToString(CultureInfo.CurrentCulture)),
-                    new XElement("ProductAcceptDays", prodInfo.ProductAcceptDays.ToString())));
+            // Use XmlWriter and StringBuilder for faster, lower-memory XML creation
+            var sb = new StringBuilder(512);
+            using (var writer = XmlWriter.Create(sb, new XmlWriterSettings { OmitXmlDeclaration = false, Indent = false }))
+            {
+                writer.WriteStartDocument();
+                writer.WriteStartElement("params");
 
-            return request;
+                writer.WriteElementString("ProductUnitRefno", prodInfo.UnitRefno.ToString());
+                writer.WriteElementString("ProductRefno", prodInfo.Refno.ToString());
+                writer.WriteElementString("ProductFKRefno", prodInfo.FkRefno.ToString());
+                writer.WriteElementString("ProductCode", prodInfo.Code ?? string.Empty);
+                writer.WriteElementString("ProductDescription", prodInfo.Desc ?? string.Empty);
+                writer.WriteElementString("UnitCode", prodInfo.UnitCode ?? string.Empty);
+                writer.WriteElementString("BaseUnitCode", prodInfo.UnitCode ?? string.Empty);
+                writer.WriteElementString("WeightUnitCode", prodInfo.UnitCode ?? string.Empty);
+                writer.WriteElementString("ProductUnitBC", prodInfo.UnitBc ?? string.Empty);
+                writer.WriteElementString("ProductUnitIsBC", prodInfo.UnitIsBc.ToString());
+                writer.WriteElementString("ProductUnitSizeDescription", prodInfo.UnitSizeDesc ?? string.Empty);
+                writer.WriteElementString("ProductIsCatchAsk", prodInfo.IsCatchAsk.ToString());
+                writer.WriteElementString("ProductIsCatchAskZero", prodInfo.IsCatchAskZero.ToString());
+                writer.WriteElementString("ProductAllowConvertProduct", prodInfo.IsAllowConvertProduct.ToString());
+                writer.WriteElementString("ProductIsCatchCount", prodInfo.IsCatchCount.ToString());
+                writer.WriteElementString("ProductIsCatchWeight", prodInfo.IsCatchWeight.ToString());
+                writer.WriteElementString("ProductBrandDescription", prodInfo.BrandDesc ?? string.Empty);
+                writer.WriteElementString("ProductUnitIsSellUnit", prodInfo.UnitIsSellUnit.ToString());
+                writer.WriteElementString("ProductUnitIsDefault", prodInfo.UnitIsDefault.ToString());
+                writer.WriteElementString("ProductUnitBoxCount", prodInfo.BoxCount.ToString(CultureInfo.CurrentCulture));
+                writer.WriteElementString("ProductUnitWeightTolerance", prodInfo.WeightTolerance.ToString(CultureInfo.CurrentCulture));
+                writer.WriteElementString("ProductUnitWeight", prodInfo.UnitGrossWeight.ToString(CultureInfo.CurrentCulture));
+                writer.WriteElementString("ProductAcceptDays", prodInfo.ProductAcceptDays.ToString());
+
+                writer.WriteEndElement(); // params
+                writer.WriteEndDocument();
+                writer.Flush();
+            }
+
+            return XDocument.Parse(sb.ToString());
         }
 
         /// <summary>
@@ -101,11 +114,8 @@ namespace dMobile.Bedrock
                         FROM tProduct 
                         WHERE tProduct.ProductCode = ?";
 
-                var results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<ProductModel>(
-                    query,
-                    productCode);
-
-                if (results != null && results.Count > 0)
+                var results = await Conn.QueryAsync<ProductModel>(query, productCode);
+                if (results?.Count > 0)
                 {
                     prodInfo.Refno = Convert.ToInt32(results[0].ProductRefno);
                     prodInfo.FkRefno = Convert.ToInt32(results[0].ProductFKRefno);
@@ -157,13 +167,13 @@ namespace dMobile.Bedrock
                             AND tProductUnit.ProductUnitBC = ?
                             AND tUnit.UnitCode = ?";
 
-                var results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<ProductInfoQueryResult>(
+                var results = await Conn.QueryAsync<ProductInfoQueryResult>(
                     query,
                     productCode,
                     productUnitBc,
                     unitCode);
 
-                if (results != null && results.Count > 0)
+                if (results?.Count > 0)
                 {
                     prodInfo.UnitRefno = results[0].ProductUnitRefno;
                     prodInfo.Refno = results[0].ProductRefno;
@@ -239,11 +249,8 @@ namespace dMobile.Bedrock
                         INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno
                         WHERE tProductUnit.ProductUnitRefno = ?";
 
-                var results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<ProductInfoQueryResult>(
-                    query,
-                    Convert.ToInt32(productUnitRefno));
-
-                if (results != null && results.Count > 0)
+                var results = await Conn.QueryAsync<ProductInfoQueryResult>(query, Convert.ToInt32(productUnitRefno));
+                if (results?.Count > 0)
                 {
                     prodInfo.UnitRefno = results[0].ProductUnitRefno;
                     prodInfo.Refno = results[0].ProductRefno;
@@ -318,11 +325,8 @@ namespace dMobile.Bedrock
                     WHERE tProduct.ProductRefno = ?
                         AND tProductUnit.ProductUnitIsDefault = 1"; // true
 
-            var results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<ProductInfoQueryResult>(
-                query,
-                Convert.ToInt32(productRefno));
-
-            if (results != null && results.Count > 0)
+            var results = await Conn.QueryAsync<ProductInfoQueryResult>(query, Convert.ToInt32(productRefno));
+            if (results?.Count > 0)
             {
                 prodInfo.UnitRefno = results[0].ProductUnitRefno;
                 prodInfo.Refno = results[0].ProductRefno;
@@ -400,10 +404,9 @@ namespace dMobile.Bedrock
                     INNER JOIN tProductScheme ON tProductScheme.ProductSchemeRefno = tLocationMapWarehouseProductScheme.ProductSchemeRefno
                     WHERE tProduct.ProductRefno = ?";
 
-            var prodSchemes = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<ProductSchemeModel>(
+            var prodSchemes = await Conn.QueryAsync<ProductSchemeModel>(
                 query,
-                Convert.ToInt32(
-                LocationMap.GetInstance().CurrLocMap.WhsLocMapRefno),
+                Convert.ToInt32(LocationMap.GetInstance().CurrLocMap.WhsLocMapRefno),
                 Convert.ToInt32(productRefno));
 
             if (prodSchemes?.Count > 0)
@@ -470,8 +473,7 @@ namespace dMobile.Bedrock
                         AND tUnit.UnitCode = ?
                         AND tBaseUnit.UnitCode = ?";
 
-                prodUnitFactor = Convert.ToDecimal(
-                    await DatabaseConnection.GetInstance().SqlConn.ExecuteScalarAsync<decimal>(
+                prodUnitFactor = Convert.ToDecimal(await Conn.ExecuteScalarAsync<decimal>(
                     query,
                     Convert.ToInt32(productInfo.Refno),
                     Convert.ToString(productInfo.UnitCode),
@@ -494,15 +496,14 @@ namespace dMobile.Bedrock
         public static string GetProdSchemeSingleTradeItemSerialNumber()
         {
             var singleTradeItemSerialNumber = string.Empty;
-            var sysEnv = SysEnvironment.GetInstance();
-            if (!sysEnv.SysSettings.IsDisconnectedMode)
+            if (!SysEnv.SysSettings.IsDisconnectedMode)
             {
                 var xmlString = new StringBuilder();
                 var xml = XmlWriter.Create(xmlString);
-                var deviceId = sysEnv.DeviceId;
-                var revision = sysEnv.RefreshOpt.RefreshedDataLast.ToString(
+                var deviceId = SysEnv.DeviceId;
+                var revision = SysEnv.RefreshOpt.RefreshedDataLast.ToString(
                     "yyyy\'-\'MM\'-\'dd\'T\'HH\':\'mm\':\'ss");
-                var loginId = sysEnv.ContactLog.LoginID.ToString();
+                var loginId = SysEnv.ContactLog.LoginID.ToString();
                 var current = DateTime.Now.ToString("yyyy\'-\'MM\'-\'dd\'T\'HH\':\'mm\':\'ss");
                 var request = XDocument.Parse(
                     "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" +
@@ -556,7 +557,7 @@ namespace dMobile.Bedrock
                     INNER JOIN tUnit AS aUnitBase ON aUnitBase.UnitRefno = tProductUnit.BaseUnitRefno
                     ORDER BY tProduct.ProductCode, tProductUnit.ProductUnitBC, tUnit.UnitCode";
 
-            return await DatabaseConnection.GetInstance().SqlConn.QueryAsync<ProductUnit>(query);
+            return await Conn.QueryAsync<ProductUnit>(query);
         }
 
         /// <summary>
@@ -572,7 +573,7 @@ namespace dMobile.Bedrock
                     FROM tProduct 
                     ORDER BY ProductCode";
 
-            return await DatabaseConnection.GetInstance().SqlConn.QueryAsync<Product>(query);
+            return await Conn.QueryAsync<Product>(query);
         }
 
         /// <summary>
@@ -590,7 +591,7 @@ namespace dMobile.Bedrock
                     WHERE ProductAllowConvertProduct = 1
                     ORDER BY ProductCode";
 
-            return await DatabaseConnection.GetInstance().SqlConn.QueryAsync<Product>(query);
+            return await Conn.QueryAsync<Product>(query);
         }
 
         /// <summary>
@@ -605,7 +606,6 @@ namespace dMobile.Bedrock
             ProdScheme prodSchemeComponents,
             ProductSchemeData prodSchemeData)
         {
-            _ = prodCode ?? throw new ArgumentNullException(nameof(prodCode));
             var schemeId = string.Empty;
 
             if (prodSchemeComponents.IsSerialTracked)
@@ -660,12 +660,14 @@ namespace dMobile.Bedrock
         /// <param name="prodSchemeComponents"><see cref="ProdScheme"/> Scheme components.</param>
         /// <param name="prodSchemeData"><see cref="ProductSchemeData"/> Scheme data.</param>
         /// <returns><see cref="string"/> Scheme id.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="prodCode"/> is <c>null</c>.</exception>
         public static string GetActSchemeIdFromSProdSchemeData(
             string prodCode,
             ProdScheme prodSchemeComponents,
             ProductSchemeData prodSchemeData)
         {
             _ = prodCode ?? throw new ArgumentNullException(nameof(prodCode));
+
             var schemeId = string.Empty;
 
             if (!string.IsNullOrEmpty(prodSchemeData.SingleTradeItemSerialNumber))
@@ -724,9 +726,8 @@ namespace dMobile.Bedrock
                     FROM tActivityDetail
                     WHERE ActivityDetailUniqueSchemeID = ?";
 
-            var conn = DatabaseConnection.GetInstance().SqlConn;
-            var results = await conn.QueryAsync<ActivityDetailModel>(query, uniqueSchemeId);
-            if (results != null && results.Count > 0)
+            var results = await Conn.QueryAsync<ActivityDetailModel>(query, uniqueSchemeId);
+            if (results?.Count > 0)
             {
                 isDuplicate = true;
             }

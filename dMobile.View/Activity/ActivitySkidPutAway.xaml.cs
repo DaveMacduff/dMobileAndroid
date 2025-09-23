@@ -77,7 +77,6 @@ namespace dMobile.View.Activity
                 this.ActSubType = SysCommon.ActSubTypes.PutAwaySkid;
                 this.Scanner = ScannerEngine.GetInstance().Scanner;
                 this.Activity = ActivityFacade.GetActivity(this.ActSubType);
-                this.DataCollector = new DataCollector(this.ActSubType);
                 this.Title = this.GetControlDescription();
             }
         }
@@ -817,6 +816,8 @@ namespace dMobile.View.Activity
             this.ActDetail = ActDetailFacade.GetActDetail(this.ActItem, this.ActSubType);
             this.ActDetail.ListDetails = await this.ActDetail.GetActivityDetailList(false);
             this.ActDetail.ActItem = this.ActItem;
+
+            this.DataCollector = new DataCollector(this.ActSubType, this.ActItem);
 
             await Device.InvokeOnMainThreadAsync(() =>
             {

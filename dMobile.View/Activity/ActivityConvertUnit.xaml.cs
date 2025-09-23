@@ -58,7 +58,6 @@ namespace dMobile.View.Activity
             this.SysEnv = SysEnvironment.GetInstance();
             this.LocMap = LocationMap.GetInstance();
             ParseAndSeedBarCodeModifier();
-            this.DataCollector = new DataCollector(this.ActSubType);
 
             this.ScannerEnable().FireAndForgetSafeAsync();
             return;
@@ -459,6 +458,7 @@ namespace dMobile.View.Activity
                         InitActivity();
                         await InitActivityItem();
                         InitActivityDetail();
+                        this.DataCollector = new DataCollector(this.ActSubType, this.ActItem);
                         if (this.ActDetail.ListDetails == null)
                         {
                             _ = await this.ActDetail.GetActivityDetailList(false);

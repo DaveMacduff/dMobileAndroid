@@ -10,7 +10,9 @@ namespace dMobile.View
     using dMobile.BarCodeScanner;
     using dMobile.BarCodeScanner.BarCodeParsing;
     using dMobile.Bedrock;
+    using dMobile.Bedrock.Settings;
     using dMobile.Controller.Activity;
+    using dMobile.Controller.Activity_Detail;
     using dMobile.Controller.Activity_Item;
     using dMobile.Resources.Enums;
     using dMobile.View.Forms;
@@ -25,27 +27,180 @@ namespace dMobile.View
         /// Initializes a new instance of the <see cref="DataCollector"/> class.
         /// </summary>
         /// <param name="actSubType">The activity sub type.</param>
-        public DataCollector(SysCommon.ActSubTypes actSubType)
+        /// <param name="actItem"><see cref="ActItem" /> Activity item instance.</param>
+        public DataCollector(SysCommon.ActSubTypes actSubType, ActItem actItem)
         {
             this.ActBarCode = ActivityFacade.GetActivity(SysCommon.ActSubTypes.BarCodeAssociation);
             this.ActItemBarCode = ActItemFacade.GetActItem(this.ActBarCode, SysCommon.ActSubTypes.BarCodeAssociation);
-            this.ActSubType = actSubType;
+            ActSubType = actSubType;
+            ActItem = actItem;
+            ActDetail = null;
         }
 
-        private SysEnvironment SysEnv { get; } = SysEnvironment.GetInstance();
+        private static ActDetail ActDetail { get; set; } = null;
+
+        private static SysEnvironment SysEnv { get; } = SysEnvironment.GetInstance();
+
+        private static SQLite.SQLiteAsyncConnection Conn { get; } = DatabaseConnection.GetInstance().SqlConn;
+
+        private static LocationMap LocMap { get; } = LocationMap.GetInstance();
+
+        private static ActItem ActItem { get; set; } = null;
+
+        private static SysCommon.ActSubTypes ActSubType { get; set; } = SysCommon.ActSubTypes.BarCodeAssociation;
+
+        private static BarCodeParse BarCodeParse { get; set; } = null;
 
         private Controller.Activity.Activity ActBarCode { get; } = ActivityFacade.GetActivity(
             SysCommon.ActSubTypes.BarCodeAssociation);
 
         private ActItem ActItemBarCode { get; } = null;
 
-        private SQLite.SQLiteAsyncConnection Conn { get; } = DatabaseConnection.GetInstance().SqlConn;
-
-        private SysCommon.ActSubTypes ActSubType { get; } = SysCommon.ActSubTypes.BarCodeAssociation;
-
-        private BarCodeParse BarCodeParse { get; set; } = null;
-
         private ProductUnitBarCodeModel ProdUnitBarCode { get; set; } = new ProductUnitBarCodeModel();
+
+        /// <summary>
+        ///     Gather activity detail data from the scanned bar code.
+        /// </summary>
+        /// <param name="barParse"><see cref="BarCodeParse" /> Bar code parse scan information.</param>
+        /// <param name="defaultItemSchemeData"><see cref="ActItemSchemeData" /> Scheme data.</param>
+        /// <param name="actDetail"><see cref="ActDetail" /> Activity detail instance to fill.</param>
+        /// <param name="isForceStopForEditing"> Flag to force stopping at the edit screen.</param>
+        /// <returns>True if ready to insert detail else false.</returns>
+        /// <remarks>This can be invoked also from an add detail button event with no bar code data.</remarks>
+        public static async Task GatherProductData(
+            BarCodeParse barParse,
+            ActItemSchemeData defaultItemSchemeData,
+            ActDetail actDetail,
+            bool isForceStopForEditing = false)
+        {
+            ActDetail = actDetail;
+
+            // Can't remember why this code is needed.
+            if (!string.IsNullOrEmpty(barParse.ActDetailFkRefno) && !SysEnv.SysSettings.IsDisconnectedMode)
+            {
+                defaultItemSchemeData = new ActItemSchemeData();
+                var sLocMapAndRefno = await LocationMapTasks.GetSLocMapFromLocMapFkRefno(
+                    defaultItemSchemeData.LocMapWhsFkRefno,
+                    defaultItemSchemeData.LocMapSectFkRefno,
+                    defaultItemSchemeData.LocMapSlotFkRefno);
+                LocMap.CurrLocMap = sLocMapAndRefno.SLocMap;
+            }
+
+            var defaultLabelSchemeDataAssigned = GatherSchemeData(barParse, defaultItemSchemeData);
+            var actDetailAndStopForDetail = await GatherProductQuantityData(defaultItemSchemeData);
+
+            // isForceStopForEditing may be set to true from the calling method.
+            if (isForceStopForEditing)
+            {
+                actDetailAndStopForDetail.IsForceStopForEdit = true;
+            }
+            else
+            {
+                actDetailAndStopForDetail.IsForceStopForEdit = IsStopForDetail(
+                    actDetailAndStopForDetail,
+                    defaultLabelSchemeDataAssigned);
+            }
+
+            var isStopForLabelDetail = false;
+            if ((ActSubType == SysCommon.ActSubTypes.Receiving ||
+                    ActSubType == SysCommon.ActSubTypes.TransferFrom ||
+                    ActSubType == SysCommon.ActSubTypes.TransferTo) &&
+                    ActItem.LocMap.IsWhsWms)
+            {
+                if (!ActDetail.IsLabelSchemeComplete())
+                {
+                    isStopForLabelDetail = true;
+                }
+                else if (defaultLabelSchemeDataAssigned)
+                {
+                    // If the label scheme data was assigned from the default item scheme data
+                    // then we do not need to stop for label printing.
+                    ////isStopForLabelDetail = true;
+                    // actDetailAndStopForDetail.IsForceStopForEdit may be set to true because of an invalid
+                    // production date for example. At some point we need to update the actDetail.LabelSchemeData
+                    // with a new valid production date from the edit screen.
+                }
+            }
+
+            if (actDetailAndStopForDetail.IsForceStopForEdit)
+            {
+                var continueIsStopForDetail = false;
+
+                // Check for duplicate occurs in form
+                // Check for quantity over occurs in form
+                // Check for label printing occurs in form
+                var form = new FormDialogContainer(EDialogTypes.ActivityDetailEdit, ActDetail, ActSubType);
+                if (await Device.InvokeOnMainThreadAsync(async () =>
+                        await form.DisplayControl.ShowDialog() == DialogResult.OK))
+                {
+                    continueIsStopForDetail = true;
+                }
+
+                if (!continueIsStopForDetail)
+                {
+                    throw new GatherProductDataException("Cancelled from detail edit.", true);
+                }
+
+                XDocument xmlDoc = await ((IAppArea)form.DisplayControl).GetXml();
+                UpdateActDetailFromXml(xmlDoc);
+            }
+            else if (isStopForLabelDetail)
+            {
+                var continueIsStopForLabelDetail = false;
+
+                // No duplicate check needed for label printing
+                // No quantity over check needed for label printing
+                var form = new FormDialogContainer(
+                    EDialogTypes.ActivityProductLabel,
+                    ActDetail,
+                    ActSubType);
+
+                if (await Device.InvokeOnMainThreadAsync(async () =>
+                        await form.DisplayControl.ShowDialog() == DialogResult.OK))
+                {
+                    continueIsStopForLabelDetail = true;
+                }
+
+                if (continueIsStopForLabelDetail)
+                {
+                    XDocument xmlDoc = await ((IAppArea)form.DisplayControl).GetXml();
+                    UpdateActDetailFromXml(xmlDoc);
+                }
+            }
+            else
+            {
+                ActDetail.SchemeId = ProductInfoTasks.GetActSchemeIdFromSProdSchemeData(
+                    ActItem.ProdInfo.Code,
+                    ActItem.ProdInfo.Scheme,
+                    ActDetail.SchemeData);
+                ActDetail.UniqueSchemeId = ProductInfoTasks.GetUniqueSchemeIdFromSProdSchemeData(
+                    ActItem.ProdInfo.Code,
+                    ActItem.ProdInfo.Scheme,
+                    ActDetail.SchemeData);
+
+                var xmlParam = XDocument.Parse(
+                    "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
+                    + "<imclient>"
+                    + "<itm_refno>" + ActItem.ItemFkRefno + "</itm_refno>"
+                    + "<alt_qty>" + ActDetail.Quantity + "</alt_qty>"
+                    + "<wt_qty>" + ActDetail.WeightQuantity + "</wt_qty>"
+                    + "<ActivityDetailUniqueSchemeID>" + ActDetail.UniqueSchemeId + "</ActivityDetailUniqueSchemeID>"
+                    + "</imclient>");
+
+                await ActItem.IsReadyToApply(xmlParam);
+
+                if (defaultLabelSchemeDataAssigned &&
+                    (ActSubType == SysCommon.ActSubTypes.Receiving ||
+                    ActSubType == SysCommon.ActSubTypes.TransferFrom ||
+                    ActSubType == SysCommon.ActSubTypes.TransferTo) &&
+                    ActItem.LocMap.IsWhsWms)
+                {
+                    var sendReq = await ActDetail.CreateSubmitProductLabelXml(
+                    await SysShared.GetXmlFromActivityDetailLabel(ActDetail));
+                    _ = SysCommon.SubmitComm(sendReq);
+                }
+            }
+        }
 
         /// <summary>
         ///     Identify the product scanned by bar code.
@@ -54,18 +209,410 @@ namespace dMobile.View
         /// <returns>The <see cref="int" />Product unit reference number.</returns>
         public async Task<int> IdentifyProductScanned(BarCodeParse barCodeParse)
         {
-            this.BarCodeParse = barCodeParse;
+            BarCodeParse = barCodeParse;
             this.ProdUnitBarCode = new ProductUnitBarCodeModel();
 
-            await SumwaFarmWholeDuckRule();
-            await SearchBarCodesForMatch();
-            await SearchDeliBarCodeMatch();
-            await AssociateNewBarCode(barCodeParse);
+            await this.SumwaFarmWholeDuckRule();
+            await this.SearchBarCodesForMatch();
+            await this.SearchDeliBarCodeMatch();
+            await this.AssociateNewBarCode();
 
             return this.ProdUnitBarCode.ProductUnitRefno;
         }
 
-        private async Task AssociateNewBarCode(BarCodeParse barCodeParse)
+        private static void UpdateActDetailFromXml(XDocument xmlDoc)
+        {
+            var schemeData = ActDetail.SchemeData;
+            if (xmlDoc.Root != null)
+            {
+                schemeData.SingleTradeItemSerialNumber = xmlDoc.Root.Element("serial").Value;
+                schemeData.LogisticUnitProductionDate = DateTime.Parse(xmlDoc.Root.Element("pdate").Value);
+                schemeData.LogisticUnitBatchLotNumber = xmlDoc.Root.Element("lot_no").Value;
+                schemeData.LogisticUnitBestBeforeSellByDate = DateTime.Parse(xmlDoc.Root.Element("bdate").Value);
+                schemeData.VariantCode = xmlDoc.Root.Element("variant_code").Value;
+                schemeData.VariantNumber = int.Parse(xmlDoc.Root.Element("variant_no").Value);
+                ActDetail.SchemeData = schemeData;
+
+                ActDetail.Quantity = decimal.Parse(xmlDoc.Root.Element("alt_qty").Value);
+                ActDetail.BaseQuantity = decimal.Parse(xmlDoc.Root.Element("base_qty").Value);
+                ActDetail.WeightQuantity = decimal.Parse(xmlDoc.Root.Element("wt_qty").Value);
+
+                ActDetail.ActExtra.Text1 = xmlDoc.Root.Element("extra1").Value;
+                ActDetail.ActExtra.Text2 = xmlDoc.Root.Element("extra2").Value;
+                ActDetail.ActExtra.Text3 = xmlDoc.Root.Element("extra3").Value;
+                ActDetail.ActExtra.Text4 = xmlDoc.Root.Element("extra4").Value;
+                ActDetail.ActExtra.DateTime1 = DateTime.Parse(xmlDoc.Root.Element("extra5").Value);
+            }
+
+            ActDetail.SchemeId = ProductInfoTasks.GetActSchemeIdFromSProdSchemeData(
+                ActItem.ProdInfo.Code,
+                ActItem.ProdInfo.Scheme,
+                ActDetail.SchemeData);
+
+            ActDetail.UniqueSchemeId = ProductInfoTasks.GetUniqueSchemeIdFromSProdSchemeData(
+                ActItem.ProdInfo.Code,
+                ActItem.ProdInfo.Scheme,
+                ActDetail.SchemeData);
+        }
+
+        private static bool GatherSchemeData(BarCodeParse barParse, ActItemSchemeData defaultItemSchemeData)
+        {
+            var parseSchemeData = new ParseSchemeData(
+                ActItem.ProdInfo.Scheme,
+                barParse,
+                defaultItemSchemeData,
+                ActItem.ActHdr.SkidInfo.CurrSkid);
+
+            var defaultSchemeDataAssigned = false;
+            ActDetail.SchemeData = parseSchemeData.GatherSchemeData(
+                ActDetail.SchemeData,
+                ref defaultSchemeDataAssigned);
+
+            var defaultLabelSchemeDataAssigned = false;
+            if (ActItem.LocMap.IsWhsWms &&
+                (ActSubType == SysCommon.ActSubTypes.Receiving || ActSubType == SysCommon.ActSubTypes.TransferTo))
+            {
+                // defaultLabelSchemeDataAssigned is assigned to true if the label scheme data is assigned
+                var labelSchemeData = new ParseLabelSchemeData(
+                    ActItem.ProdInfo.Scheme,
+                    barParse,
+                    defaultItemSchemeData,
+                    ActItem.ActHdr.SkidInfo.CurrSkid);
+                ActDetail.LabelSchemeData = labelSchemeData.GatherLabelSchemeData(
+                    ActDetail.SchemeData,
+                    ref defaultLabelSchemeDataAssigned);
+            }
+
+            return defaultLabelSchemeDataAssigned;
+        }
+
+        private static async Task<ActDetailAndStopForDetail> GatherProductQuantityData(ActItemSchemeData tempItemSchemeData)
+        {
+            var prodInfo = ActItem.ProdInfo;
+            var barCodeRuleForcedEdit = false;
+
+            if (ActItem.IsCatchAskZero())
+            {
+                ActDetail.Quantity = 0;
+                ActDetail.BaseQuantity = 0;
+                ActDetail.WeightQuantity = 0;
+            }
+            else
+            {
+                GatherWeightQuantity(prodInfo);
+                GatherQuantityFromItem();
+                await GatherUnitQuantity();
+                NegateAdjustmentQuantity();
+            }
+
+            // Fill activity detail and stop for detail.
+            var actDetailAndStopForDetail = new ActDetailAndStopForDetail
+            {
+                ActDetail = ActDetail,
+                IsForceStopForEdit = barCodeRuleForcedEdit,
+            };
+
+            return actDetailAndStopForDetail;
+
+            void GatherWeightQuantity(ProductInfo prodInfo)
+            {
+                // Assign scanned weight and convert if needed
+                if (SysEnv.SysSettings.IsSetCatchWeightZero && prodInfo.IsCatchWeight)
+                {
+                    barCodeRuleForcedEdit = true;
+                }
+                else
+                {
+                    ActDetail.WeightQuantity = prodInfo.UnitGrossWeight;
+                }
+
+                if (prodInfo.IsCatchWeight)
+                {
+                    switch (prodInfo.WeightUnitCode)
+                    {
+                        case "LB" when BarCodeParse.NetWeightMetricKg != 0:
+                            ActDetail.WeightQuantity = SysCommon.ConvertKg2Lb(BarCodeParse.NetWeightMetricKg);
+                            break;
+
+                        case "LB":
+                            {
+                                if (BarCodeParse.NetWeightNonMetricLb != 0)
+                                {
+                                    ActDetail.WeightQuantity = BarCodeParse.NetWeightNonMetricLb;
+                                }
+
+                                break;
+                            }
+
+                        case "KG" when BarCodeParse.NetWeightNonMetricLb != 0:
+                            ActDetail.WeightQuantity = SysCommon.ConvertLb2Kg(BarCodeParse.NetWeightNonMetricLb);
+                            break;
+
+                        case "KG":
+                            {
+                                if (BarCodeParse.NetWeightMetricKg != 0)
+                                {
+                                    ActDetail.WeightQuantity = BarCodeParse.NetWeightMetricKg;
+                                }
+
+                                break;
+                            }
+                    }
+                }
+            }
+
+            async Task GatherBaseQuantity(decimal unitQuantity)
+            {
+                var sysEnv = SysEnvironment.GetInstance();
+                if (prodInfo.BaseUnitCode == "LB" || prodInfo.BaseUnitCode == "KG")
+                {
+                    ActDetail.BaseQuantity = ActDetail.WeightQuantity;
+                }
+                else
+                {
+                    if (prodInfo.IsCatchCount
+                        && BarCodeParse.LogisticUnitVariableCount != 0
+                        && sysEnv.BarCodeSettings.IsRuleEnabled_Parse_Code_128_AI01_BC_AI30_exclusive)
+                    {
+                        ActDetail.BaseQuantity = BarCodeParse.LogisticUnitVariableCount;
+                    }
+                    else
+                    {
+                        ActDetail.BaseQuantity = unitQuantity *
+                            await ProductInfoTasks.GetUnitRelationFactor(prodInfo);
+                    }
+                }
+            }
+
+            void NegateAdjustmentQuantity()
+            {
+                // Negate the quantity if desired
+                if (ActItem.ActHdr.ActSubType == SysCommon.ActSubTypes.Adjustment)
+                {
+                    var adjSettings = new AdjustmentSettings().LoadData();
+                    if (adjSettings.NegateScanQuantity)
+                    {
+                        ActDetail.Quantity *= -1;
+                        ActDetail.BaseQuantity *= -1;
+                        ActDetail.WeightQuantity *= -1;
+                    }
+                }
+            }
+
+            async Task GatherUnitQuantity()
+            {
+                decimal unitQuantity = 1;
+                await CheckBarCodeRuleAi21BoxCode(unitQuantity);
+
+                // If catch count is enabled the variable count is the base quantity not the unit quantity
+                if (!prodInfo.IsCatchCount)
+                {
+                    if (BarCodeParse.LogisticUnitVariableCount != 0
+                        && SysEnv.BarCodeSettings.IsRuleEnabled_Parse_Code_128_AI01_BC_AI30_exclusive)
+                    {
+                        unitQuantity = BarCodeParse.LogisticUnitVariableCount;
+                    }
+                }
+
+                await GatherBaseQuantity(unitQuantity);
+
+                if (prodInfo.UnitCode == "LB" ||
+                    prodInfo.UnitCode == "KG")
+                {
+                    ActDetail.Quantity = ActDetail.WeightQuantity;
+                }
+                else
+                {
+                    ActDetail.Quantity = unitQuantity;
+                }
+
+                return;
+
+                async Task<decimal> CheckBarCodeRuleAi21BoxCode(decimal unitQty)
+                {
+                    if (SysEnv.BarCodeSettings.IsRuleEnabled_Parse_Code_128_AI01_Nossack_AI21_SkidNumber_BoxCount)
+                    {
+                        EvalParse_Code_128_AI01_Nossack_AI21_SkidNumber_BoxCount(ref unitQty);
+
+                        // Adjust the weight if rule was applied.
+                        if (unitQty > 1)
+                        {
+                            // See WO# 12203 Always stop and allow editing of detail.
+                            barCodeRuleForcedEdit = true;
+
+                            if (!prodInfo.IsCatchWeight)
+                            {
+                                ActDetail.WeightQuantity = unitQty *
+                                    await ProductInfoTasks.GetUnitRelationFactor(prodInfo);
+                            }
+                        }
+                    }
+
+                    return unitQty;
+                }
+            }
+
+            void GatherQuantityFromItem()
+            {
+                if (tempItemSchemeData.ActDetailQuantity != 0 && ActDetail.Quantity == 0)
+                {
+                    ActDetail.Quantity = tempItemSchemeData.ActDetailQuantity;
+                }
+
+                if (tempItemSchemeData.ActDetailBaseQuantity != 0 && ActDetail.BaseQuantity == 0)
+                {
+                    ActDetail.BaseQuantity = tempItemSchemeData.ActDetailBaseQuantity;
+                }
+
+                if (tempItemSchemeData.ActDetailWeightQuantity != 0 && ActDetail.WeightQuantity == 0)
+                {
+                    ActDetail.WeightQuantity = tempItemSchemeData.ActDetailWeightQuantity;
+                }
+            }
+        }
+
+        /// <summary>
+        ///     Parse Nossack box count from the AI21 serial number and weight amount.
+        /// </summary>
+        /// <param name="unitQty">.</param>
+        /// <remarks>
+        /// Only Nossack usings this rule. But removed the check for Nossack's GTIN Company Prefix.
+        /// Magic number 4 times the average weight to determine if the code is a skid label.
+        /// 2 = For the first digit past the 01 in the AI(21).
+        /// </remarks>
+        private static void EvalParse_Code_128_AI01_Nossack_AI21_SkidNumber_BoxCount(ref decimal unitQty)
+        {
+            // Removed check for Nossack's GTIN Company Prefix WO#11478
+            // Nossack's GTIN Company Prefix
+
+            // if (BarCodeParse.GTIN.Contains("67156"))
+            // {
+            var weight = ActDetail.WeightQuantity;
+
+            if (ActItem.ProdInfo.WeightUnitCode == "LB")
+            {
+                if (BarCodeParse.NetWeightMetricKg > 0)
+                {
+                    weight = Convert.ToDecimal(SysCommon.ConvertKg2Lb(Convert.ToDouble(BarCodeParse.NetWeightMetricKg)));
+                }
+                else if (BarCodeParse.NetWeightNonMetricLb > 0)
+                {
+                    weight = BarCodeParse.NetWeightNonMetricLb;
+                }
+            }
+            else if (ActItem.ProdInfo.WeightUnitCode == "KG")
+            {
+                if (BarCodeParse.NetWeightNonMetricLb > 0)
+                {
+                    weight = Convert.ToDecimal(SysCommon.ConvertLb2Kg(Convert.ToDouble(BarCodeParse.NetWeightNonMetricLb)));
+                }
+                else if (BarCodeParse.NetWeightMetricKg > 0)
+                {
+                    weight = BarCodeParse.NetWeightMetricKg;
+                }
+            }
+
+            // Magic number 4 times the average weight to determine if the code is a skid label.
+            if (BarCodeParse.SingleTradeItemSerialNumber.Length > 1 && weight > ActItem.ProdInfo.UnitGrossWeight * 4)
+            {
+                // 2 = For the first digit past the 01 in the AI(21).
+                unitQty = decimal.Parse(BarCodeParse.SingleTradeItemSerialNumber.Substring(2));
+            }
+        }
+
+        private static bool IsStopForDetail(
+            ActDetailAndStopForDetail actDetailAndStopForDetail,
+            bool defaultSchemeDataAssigned)
+        {
+            var isStopForDetail = actDetailAndStopForDetail.IsForceStopForEdit;
+            if (!isStopForDetail)
+            {
+                if (actDetailAndStopForDetail.ActDetail.Quantity == 0 ||
+                    actDetailAndStopForDetail.ActDetail.BaseQuantity == 0 ||
+                    actDetailAndStopForDetail.ActDetail.WeightQuantity == 0)
+                {
+                    isStopForDetail = true;
+                }
+                else
+                {
+                    if (ActDetail.IsSchemeComplete(ActItem))
+                    {
+                        if (ActItem.IsCatchAsk())
+                        {
+                            isStopForDetail = true;
+                        }
+                        else if (defaultSchemeDataAssigned)
+                        {
+                            ////isStopForDetail = true;
+                        }
+                    }
+                    else
+                    {
+                        isStopForDetail = true;
+                    }
+                }
+            }
+
+            if (!isStopForDetail)
+            {
+                if (ActSubType == SysCommon.ActSubTypes.Receiving && ActItem.ProdInfo.ProductAcceptDays > 0)
+                {
+                    if (ActItem.ProdInfo.Scheme.IsProductionDateTracked &&
+                        ActDetail.SchemeData.LogisticUnitProductionDate > new DateTime(1900, 1, 1))
+                    {
+                        if (ActDetail.SchemeData.LogisticUnitProductionDate.AddDays(
+                            ActItem.ProdInfo.ProductAcceptDays) < DateTime.Now.Date)
+                        {
+                            isStopForDetail = true;
+                        }
+                    }
+
+                    if (ActItem.ProdInfo.Scheme.IsBestBeforeDateTracked &&
+                        ActDetail.SchemeData.LogisticUnitBestBeforeSellByDate > new DateTime(1900, 1, 1))
+                    {
+                        if (ActDetail.SchemeData.LogisticUnitBestBeforeSellByDate >
+                            DateTime.Now.AddDays(ActItem.ProdInfo.ProductAcceptDays))
+                        {
+                            isStopForDetail = true;
+                        }
+                    }
+                }
+            }
+
+            if (!isStopForDetail)
+            {
+                var scheme = ActItem.ProdInfo.Scheme;
+                if (scheme.Extra1Type != Convert.ToInt32(SysCommon.SchemeExtraTypes.Disabled) &&
+                    scheme.Extra1IsRequired)
+                {
+                    isStopForDetail = true;
+                }
+                else if (scheme.Extra2Type != Convert.ToInt32(SysCommon.SchemeExtraTypes.Disabled) &&
+                    scheme.Extra2IsRequired)
+                {
+                    isStopForDetail = true;
+                }
+                else if (scheme.Extra3Type != Convert.ToInt32(SysCommon.SchemeExtraTypes.Disabled) &&
+                    scheme.Extra3IsRequired)
+                {
+                    isStopForDetail = true;
+                }
+                else if (scheme.Extra4Type != Convert.ToInt32(SysCommon.SchemeExtraTypes.Disabled) &&
+                    scheme.Extra4IsRequired)
+                {
+                    isStopForDetail = true;
+                }
+                else if (scheme.Extra5Type != Convert.ToInt32(SysCommon.SchemeExtraTypes.Disabled) &&
+                    scheme.Extra5IsRequired)
+                {
+                    isStopForDetail = true;
+                }
+            }
+
+            return isStopForDetail;
+        }
+
+        private async Task AssociateNewBarCode()
         {
             if (this.ProdUnitBarCode.ProductUnitBarCodeRefno == 0 && this.ProdUnitBarCode.ProductUnitRefno == 0)
             {
@@ -75,7 +622,7 @@ namespace dMobile.View
                     throw new MessageOnlyException("New bar code product association is not enabled.");
                 }
 
-                var frmSelectProduct = new FormDialogContainer(EDialogTypes.SelectProductUnit, this.ActSubType);
+                var frmSelectProduct = new FormDialogContainer(EDialogTypes.SelectProductUnit, ActSubType);
                 if (await Device.InvokeOnMainThreadAsync(async () =>
                         await frmSelectProduct.DisplayControl.ShowDialog() != DialogResult.OK))
                 {
@@ -118,7 +665,7 @@ namespace dMobile.View
             {
                 // Changed functionality to disallow product scanning everywhere.
                 // However, always prompt for password if not allowed to associate.
-                var isAllowedAssocProdBarCode = this.SysEnv.ContactLog.IsAllowedAssociateProductBarCode;
+                var isAllowedAssocProdBarCode = SysEnv.ContactLog.IsAllowedAssociateProductBarCode;
                 if (!isAllowedAssocProdBarCode)
                 {
                     // Prompt for password
@@ -141,13 +688,13 @@ namespace dMobile.View
                     + "<ProductUnitRefno>" + this.ProdUnitBarCode.ProductUnitRefno + "</ProductUnitRefno>"
                     + "<ProductUnitBarCodeRefno>" + this.ProdUnitBarCode.ProductUnitBarCodeRefno
                     + "</ProductUnitBarCodeRefno>"
-                    + "<ProductIdentifier>" + this.BarCodeParse.ProductIdentifier + "</ProductIdentifier>"
-                    + "<ProductUnitBarCodeModifier1>" + this.SysEnv.CurrentBarCodeModifier1
+                    + "<ProductIdentifier>" + BarCodeParse.ProductIdentifier + "</ProductIdentifier>"
+                    + "<ProductUnitBarCodeModifier1>" + SysEnv.CurrentBarCodeModifier1
                     + "</ProductUnitBarCodeModifier1>"
-                    + "<RawData>" + this.BarCodeParse.Raw + "</RawData>"
-                    + "<enumBarCodeSymbology>" + Convert.ToInt32(barCodeParse.Symbology)
+                    + "<RawData>" + BarCodeParse.Raw + "</RawData>"
+                    + "<enumBarCodeSymbology>" + Convert.ToInt32(BarCodeParse.Symbology)
                     + "</enumBarCodeSymbology>"
-                    + "<BarCodeSymbologyPrefix>" + this.BarCodeParse.SymbologyPrefix +
+                    + "<BarCodeSymbologyPrefix>" + BarCodeParse.SymbologyPrefix +
                     "</BarCodeSymbologyPrefix>"
                     + "</params>");
                 await this.ActItemBarCode.Insert(xmlDoc);
@@ -165,32 +712,32 @@ namespace dMobile.View
             // This prevents the found prodInfo from being overwritten.</issue>
             if (this.ProdUnitBarCode.ProductUnitBarCodeRefno == 0 && this.ProdUnitBarCode.ProductUnitRefno == 0)
             {
-                if (!this.SysEnv.SysSettings.IsDisconnectedMode)
+                if (!SysEnv.SysSettings.IsDisconnectedMode)
                 {
                     decimal deliScaleWeight = 0;
                     var unitRefnoFromBarCode = await BarCodeCommon.GetDeliProdInfoFromBarCode(
-                        this.BarCodeParse.ProductIdentifier,
-                        this.SysEnv.CurrentBarCodeModifier1,
-                        this.BarCodeParse.Symbology,
-                        this.BarCodeParse.DeliScaleAmount);
+                        BarCodeParse.ProductIdentifier,
+                        SysEnv.CurrentBarCodeModifier1,
+                        BarCodeParse.Symbology,
+                        BarCodeParse.DeliScaleAmount);
 
                     var prod = unitRefnoFromBarCode.ProdInfo;
-                    this.ProdUnitBarCode.ProductUnitRefno = unitRefnoFromBarCode.ProdInfo.UnitRefno;
+                    ProdUnitBarCode.ProductUnitRefno = unitRefnoFromBarCode.ProdInfo.UnitRefno;
                     deliScaleWeight = unitRefnoFromBarCode.DeliScaleWeight;
                     var deliScaleWeightUnit = unitRefnoFromBarCode.DeliScaleWeightUnit;
 
                     switch (deliScaleWeightUnit)
                     {
                         case "LB":
-                            this.BarCodeParse.NetWeightNonMetricLb = deliScaleWeight;
-                            this.BarCodeParse.NetWeightMetricKg = Convert.ToDecimal(
-                                SysCommon.ConvertLb2Kg(Convert.ToDouble(this.BarCodeParse.NetWeightNonMetricLb)));
+                            BarCodeParse.NetWeightNonMetricLb = deliScaleWeight;
+                            BarCodeParse.NetWeightMetricKg = Convert.ToDecimal(
+                                SysCommon.ConvertLb2Kg(Convert.ToDouble(BarCodeParse.NetWeightNonMetricLb)));
                             break;
 
                         case "KG":
-                            this.BarCodeParse.NetWeightMetricKg = deliScaleWeight;
-                            this.BarCodeParse.NetWeightNonMetricLb = Convert.ToDecimal(
-                                SysCommon.ConvertKg2Lb(Convert.ToDouble(this.BarCodeParse.NetWeightMetricKg)));
+                            BarCodeParse.NetWeightMetricKg = deliScaleWeight;
+                            BarCodeParse.NetWeightNonMetricLb = Convert.ToDecimal(
+                                SysCommon.ConvertKg2Lb(Convert.ToDouble(BarCodeParse.NetWeightMetricKg)));
                             break;
 
                         default:
@@ -204,7 +751,7 @@ namespace dMobile.View
 
         private async Task SearchBarCodesForMatch()
         {
-            if (this.ProdUnitBarCode.ProductUnitBarCodeRefno == 0 && this.ProdUnitBarCode.ProductUnitRefno == 0)
+            if (this.ProdUnitBarCode.ProductUnitBarCodeRefno == 0 && ProdUnitBarCode.ProductUnitRefno == 0)
             {
                 const string query = @"
                         SELECT tProductUnitBarCode.ProductUnitBarCodeRefno,
@@ -213,15 +760,15 @@ namespace dMobile.View
                         WHERE ProductUnitBarCodeCode = ?
                             AND ProductUnitBarCodeModifier1 = ?";
 
-                var results = await this.Conn.QueryAsync<ProductUnitBarCodeModel>(
+                var results = await Conn.QueryAsync<ProductUnitBarCodeModel>(
                         query,
-                        this.BarCodeParse.ProductIdentifier,
-                        this.SysEnv.CurrentBarCodeModifier1);
+                        BarCodeParse.ProductIdentifier,
+                        SysEnv.CurrentBarCodeModifier1);
 
                 if (results?.Count > 0)
                 {
-                    this.ProdUnitBarCode.ProductUnitBarCodeRefno = Convert.ToInt32(results[0].ProductUnitBarCodeRefno);
-                    this.ProdUnitBarCode.ProductUnitRefno = Convert.ToInt32(results[0].ProductUnitRefno);
+                    ProdUnitBarCode.ProductUnitBarCodeRefno = Convert.ToInt32(results[0].ProductUnitBarCodeRefno);
+                    ProdUnitBarCode.ProductUnitRefno = Convert.ToInt32(results[0].ProductUnitRefno);
                 }
             }
         }
@@ -236,12 +783,12 @@ namespace dMobile.View
                 // Attempt to find the product in local database.
                 // Do not look up GTIN in bar code database for this rule, product will be identified by a range
                 // of fixed weights.
-                if (this.SysEnv.BarCodeSettings.IsRuleEnabled_ParseSumwaFarmFedWholeDuck_UseWeightRangeToIDProduct &&
-                    this.BarCodeParse.ProductIdentifier == "90695955110022")
+                if (SysEnv.BarCodeSettings.IsRuleEnabled_ParseSumwaFarmFedWholeDuck_UseWeightRangeToIDProduct &&
+                    BarCodeParse.ProductIdentifier == "90695955110022")
                 {
                     this.BarCodeRuleParseSumwaFarmFedWholeDuckUseWeightRangeToIdProduct();
                     var prodInfo = await ProductInfoTasks.GetInfoFromCodeBcUnit(
-                        this.BarCodeParse.ProductIdentifier,
+                        BarCodeParse.ProductIdentifier,
                         string.Empty,
                         "CS");
                     this.ProdUnitBarCode.ProductUnitBarCodeRefno = 0;
@@ -252,50 +799,50 @@ namespace dMobile.View
 
         private void BarCodeRuleParseSumwaFarmFedWholeDuckUseWeightRangeToIdProduct()
         {
-            if (this.BarCodeParse.NetWeightMetricKg >= Convert.ToDecimal(11.00) &&
-                this.BarCodeParse.NetWeightMetricKg <= Convert.ToDecimal(11.99))
+            if (BarCodeParse.NetWeightMetricKg >= Convert.ToDecimal(11.00) &&
+                BarCodeParse.NetWeightMetricKg <= Convert.ToDecimal(11.99))
             {
-                this.BarCodeParse.ProductIdentifier = "MC10448";
+                BarCodeParse.ProductIdentifier = "MC10448";
             }
-            else if (this.BarCodeParse.NetWeightMetricKg >= Convert.ToDecimal(12.00) &&
-                     this.BarCodeParse.NetWeightMetricKg <= Convert.ToDecimal(12.49))
+            else if (BarCodeParse.NetWeightMetricKg >= Convert.ToDecimal(12.00) &&
+                     BarCodeParse.NetWeightMetricKg <= Convert.ToDecimal(12.49))
             {
-                this.BarCodeParse.ProductIdentifier = "MC10443";
+                BarCodeParse.ProductIdentifier = "MC10443";
             }
-            else if (this.BarCodeParse.NetWeightMetricKg >= Convert.ToDecimal(12.50) &&
-                     this.BarCodeParse.NetWeightMetricKg <= Convert.ToDecimal(12.99))
+            else if (BarCodeParse.NetWeightMetricKg >= Convert.ToDecimal(12.50) &&
+                     BarCodeParse.NetWeightMetricKg <= Convert.ToDecimal(12.99))
             {
-                this.BarCodeParse.ProductIdentifier = "MC10441";
+                BarCodeParse.ProductIdentifier = "MC10441";
             }
-            else if (this.BarCodeParse.NetWeightMetricKg >= Convert.ToDecimal(13.00) &&
-                     this.BarCodeParse.NetWeightMetricKg <= Convert.ToDecimal(13.49))
+            else if (BarCodeParse.NetWeightMetricKg >= Convert.ToDecimal(13.00) &&
+                     BarCodeParse.NetWeightMetricKg <= Convert.ToDecimal(13.49))
             {
-                this.BarCodeParse.ProductIdentifier = "MC10442";
+                BarCodeParse.ProductIdentifier = "MC10442";
             }
-            else if (this.BarCodeParse.NetWeightMetricKg >= Convert.ToDecimal(13.50) &&
-                     this.BarCodeParse.NetWeightMetricKg <= Convert.ToDecimal(13.99))
+            else if (BarCodeParse.NetWeightMetricKg >= Convert.ToDecimal(13.50) &&
+                     BarCodeParse.NetWeightMetricKg <= Convert.ToDecimal(13.99))
             {
-                this.BarCodeParse.ProductIdentifier = "MC10440";
+                BarCodeParse.ProductIdentifier = "MC10440";
             }
-            else if (this.BarCodeParse.NetWeightMetricKg >= Convert.ToDecimal(14.00) &&
-                     this.BarCodeParse.NetWeightMetricKg <= Convert.ToDecimal(14.49))
+            else if (BarCodeParse.NetWeightMetricKg >= Convert.ToDecimal(14.00) &&
+                     BarCodeParse.NetWeightMetricKg <= Convert.ToDecimal(14.49))
             {
-                this.BarCodeParse.ProductIdentifier = "MC10445";
+                BarCodeParse.ProductIdentifier = "MC10445";
             }
-            else if (this.BarCodeParse.NetWeightMetricKg >= Convert.ToDecimal(14.50) &&
-                     this.BarCodeParse.NetWeightMetricKg <= Convert.ToDecimal(14.99))
+            else if (BarCodeParse.NetWeightMetricKg >= Convert.ToDecimal(14.50) &&
+                     BarCodeParse.NetWeightMetricKg <= Convert.ToDecimal(14.99))
             {
-                this.BarCodeParse.ProductIdentifier = "MC10446";
+                BarCodeParse.ProductIdentifier = "MC10446";
             }
-            else if (this.BarCodeParse.NetWeightMetricKg >= Convert.ToDecimal(15.00) &&
-                     this.BarCodeParse.NetWeightMetricKg <= Convert.ToDecimal(15.49))
+            else if (BarCodeParse.NetWeightMetricKg >= Convert.ToDecimal(15.00) &&
+                     BarCodeParse.NetWeightMetricKg <= Convert.ToDecimal(15.49))
             {
-                this.BarCodeParse.ProductIdentifier = "MC10447";
+                BarCodeParse.ProductIdentifier = "MC10447";
             }
-            else if (this.BarCodeParse.NetWeightMetricKg >= Convert.ToDecimal(15.50) &&
-                     this.BarCodeParse.NetWeightMetricKg <= Convert.ToDecimal(16.00))
+            else if (BarCodeParse.NetWeightMetricKg >= Convert.ToDecimal(15.50) &&
+                     BarCodeParse.NetWeightMetricKg <= Convert.ToDecimal(16.00))
             {
-                this.BarCodeParse.ProductIdentifier = "MC10450";
+                BarCodeParse.ProductIdentifier = "MC10450";
             }
             else
             {
@@ -312,6 +859,22 @@ namespace dMobile.View
             public int ProductUnitBarCodeRefno { get; set; }
 
             public int ProductUnitRefno { get; set; }
+        }
+
+        /// <summary>
+        ///     Defines the <see cref="ActDetailAndStopForDetail" /> Activity detail used for editing.
+        /// </summary>
+        private class ActDetailAndStopForDetail
+        {
+            /// <summary>
+            ///     Gets or sets the activity detail.
+            /// </summary>
+            public ActDetail ActDetail { get; set; }
+
+            /// <summary>
+            ///     Gets or sets a value indicating whether to stop for edit detail.
+            /// </summary>
+            public bool IsForceStopForEdit { get; set; }
         }
     }
 }

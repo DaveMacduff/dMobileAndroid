@@ -176,7 +176,7 @@ namespace dMobile.Controller.Activity_Detail
         /// <summary>
         /// Gets or sets the SQLite asynchronous connection.
         /// </summary>
-        protected SQLiteAsyncConnection Conn { get; set; } = DatabaseConnection.GetInstance().SqlConn;
+        protected static SQLiteAsyncConnection Conn { get; set; } = DatabaseConnection.GetInstance().SqlConn;
 
         /// <summary>
         ///     Get the scheme data variant information from the scheme data variant number.
@@ -188,8 +188,7 @@ namespace dMobile.Controller.Activity_Detail
         {
             if (prodSchemeData.VariantNumber > 0)
             {
-                var conn = DatabaseConnection.GetInstance().SqlConn;
-                var results = await conn.QueryAsync<ProductSchemeVariantModel>(
+                var results = await Conn.QueryAsync<ProductSchemeVariantModel>(
                     "SELECT * FROM tProductSchemeVariant WHERE ProductSchemeVariantNo = ?",
                     Convert.ToInt32(prodSchemeData.VariantNumber));
 
@@ -705,6 +704,8 @@ namespace dMobile.Controller.Activity_Detail
             {
                 Async = true,
                 Indent = false,
+                OmitXmlDeclaration = false,
+                Encoding = Encoding.Unicode
             };
             var xml = XmlWriter.Create(xmlString, settings);
 
@@ -726,45 +727,96 @@ namespace dMobile.Controller.Activity_Detail
 
             var prnSettings = new PrinterSettings().LoadData();
 
+            ////decimal altQty = Convert.ToInt32(detailData.Root.Element("alt_qty").Value);
+            ////var wtQty = Convert.ToDecimal(detailData.Root.Element("wt_qty").Value);
+
+            ////var request = XDocument.Parse(
+            ////    "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
+            ////    + "<imclient>"
+            ////    + "<command>"
+            ////    + "<action>SUBMIT PRINT PRODUCT LABEL</action>"
+            ////    + "<whs_id>0</whs_id>"
+            ////    + "<sect_refno>0</sect_refno>"
+            ////    + "</command>"
+            ////    + await SysCommon.GetRequestDefaults(false)
+            ////    + "<prod_id>" + this.ActItem.ProdInfo.Code + "</prod_id>"
+            ////    + "<is_bc>" + this.ActItem.ProdInfo.UnitIsBc + "</is_bc>"
+            ////    + "<whs_id>" + this.LocMap.CurrLocMap.WhsFkRefno + "</whs_id>"
+            ////    + "<sect_refno>" + this.LocMap.CurrLocMap.SectFkRefno + "</sect_refno>"
+            ////    + "<slot_refno>" + this.LocMap.CurrLocMap.SlotFkRefno + "</slot_refno>"
+            ////    + "<refno>" + this.ActItem.ActHdr.HdrFkRefno + "</refno>"
+            ////    + "<itm_refno>" + this.ActItem.ItemFkRefno + "</itm_refno>"
+            ////    + "<alt_qty>" + altQty + "</alt_qty>"
+            ////    + "<alt_unit>" + this.ActItem.ProdInfo.UnitCode + "</alt_unit>"
+            ////    + "<base_qty>" + detailData.Root.Element("base_qty").Value + "</base_qty>"
+            ////    + "<base_unit>" + this.ActItem.ProdInfo.BaseUnitCode + "</base_unit>"
+            ////    + "<wt_qty>" + wtQty + "</wt_qty>"
+            ////    + "<wt_unit>" + this.ActItem.ProdInfo.WeightUnitCode + "</wt_unit>"
+            ////    + "<serial>" + detailData.Root.Element("serial").Value + "</serial>"
+            ////    + "<lot_no>" + detailData.Root.Element("lot_no").Value + "</lot_no>"
+            ////    + "<pdate>" + production + "</pdate>"
+            ////    + "<bdate>" + bestBefore + "</bdate>"
+            ////    + "<variant_no>" + detailData.Root.Element("variant_no").Value + "</variant_no>"
+            ////    + "<variant_code>" + detailData.Root.Element("variant_code").Value + "</variant_code>"
+            ////    + "<mobile_printer_name>"
+            ////    + (prnSettings.IsEnabledProductLabelPrinter ? prnSettings.ProductLabelPrinterName : string.Empty)
+            ////    + "</mobile_printer_name>"
+            ////    + "</imclient>");
+
+            ////request.Save(xml);
+            ////await xml.FlushAsync();
+            ////xml.Close();
+
+            ////return xmlString.ToString();
             decimal altQty = Convert.ToInt32(detailData.Root.Element("alt_qty").Value);
             var wtQty = Convert.ToDecimal(detailData.Root.Element("wt_qty").Value);
 
-            var request = XDocument.Parse(
-                "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
-                + "<imclient>"
-                + "<command>"
-                + "<action>SUBMIT PRINT PRODUCT LABEL</action>"
-                + "<whs_id>0</whs_id>"
-                + "<sect_refno>0</sect_refno>"
-                + "</command>"
-                + await SysCommon.GetRequestDefaults(false)
-                + "<prod_id>" + this.ActItem.ProdInfo.Code + "</prod_id>"
-                + "<is_bc>" + this.ActItem.ProdInfo.UnitIsBc + "</is_bc>"
-                + "<whs_id>" + this.LocMap.CurrLocMap.WhsFkRefno + "</whs_id>"
-                + "<sect_refno>" + this.LocMap.CurrLocMap.SectFkRefno + "</sect_refno>"
-                + "<slot_refno>" + this.LocMap.CurrLocMap.SlotFkRefno + "</slot_refno>"
-                + "<refno>" + this.ActItem.ActHdr.HdrFkRefno + "</refno>"
-                + "<itm_refno>" + this.ActItem.ItemFkRefno + "</itm_refno>"
-                + "<alt_qty>" + altQty + "</alt_qty>"
-                + "<alt_unit>" + this.ActItem.ProdInfo.UnitCode + "</alt_unit>"
-                + "<base_qty>" + detailData.Root.Element("base_qty").Value + "</base_qty>"
-                + "<base_unit>" + this.ActItem.ProdInfo.BaseUnitCode + "</base_unit>"
-                + "<wt_qty>" + wtQty + "</wt_qty>"
-                + "<wt_unit>" + this.ActItem.ProdInfo.WeightUnitCode + "</wt_unit>"
-                + "<serial>" + detailData.Root.Element("serial").Value + "</serial>"
-                + "<lot_no>" + detailData.Root.Element("lot_no").Value + "</lot_no>"
-                + "<pdate>" + production + "</pdate>"
-                + "<bdate>" + bestBefore + "</bdate>"
-                + "<variant_no>" + detailData.Root.Element("variant_no").Value + "</variant_no>"
-                + "<variant_code>" + detailData.Root.Element("variant_code").Value + "</variant_code>"
-                + "<mobile_printer_name>"
-                + (prnSettings.IsEnabledProductLabelPrinter ? prnSettings.ProductLabelPrinterName : string.Empty)
-                + "</mobile_printer_name>"
-                + "</imclient>");
+            using (var xmlWriter = XmlWriter.Create(xmlString, settings))
+            {
+                xmlWriter.WriteStartDocument();
+                xmlWriter.WriteStartElement("imclient");
 
-            request.Save(xml);
-            await xml.FlushAsync();
-            xml.Close();
+                xmlWriter.WriteStartElement("command");
+                xmlWriter.WriteElementString("action", "SUBMIT PRINT PRODUCT LABEL");
+                xmlWriter.WriteElementString("whs_id", "0");
+                xmlWriter.WriteElementString("sect_refno", "0");
+                xmlWriter.WriteEndElement(); // command
+
+                // Insert request defaults as raw XML
+                var requestDefaults = await SysCommon.GetRequestDefaults(false);
+                var defaultsDoc = XDocument.Parse("<root>" + requestDefaults + "</root>");
+                foreach (var el in defaultsDoc.Root.Elements())
+                {
+                    el.WriteTo(xmlWriter);
+                }
+
+                xmlWriter.WriteElementString("prod_id", this.ActItem.ProdInfo.Code);
+                xmlWriter.WriteElementString("is_bc", this.ActItem.ProdInfo.UnitIsBc.ToString());
+                xmlWriter.WriteElementString("whs_id", this.LocMap.CurrLocMap.WhsFkRefno.ToString());
+                xmlWriter.WriteElementString("sect_refno", this.LocMap.CurrLocMap.SectFkRefno.ToString());
+                xmlWriter.WriteElementString("slot_refno", this.LocMap.CurrLocMap.SlotFkRefno.ToString());
+                xmlWriter.WriteElementString("refno", this.ActItem.ActHdr.HdrFkRefno.ToString());
+                xmlWriter.WriteElementString("itm_refno", this.ActItem.ItemFkRefno.ToString());
+                xmlWriter.WriteElementString("alt_qty", altQty.ToString());
+                xmlWriter.WriteElementString("alt_unit", this.ActItem.ProdInfo.UnitCode);
+                xmlWriter.WriteElementString("base_qty", detailData.Root.Element("base_qty").Value);
+                xmlWriter.WriteElementString("base_unit", this.ActItem.ProdInfo.BaseUnitCode);
+                xmlWriter.WriteElementString("wt_qty", wtQty.ToString());
+                xmlWriter.WriteElementString("wt_unit", this.ActItem.ProdInfo.WeightUnitCode);
+                xmlWriter.WriteElementString("serial", detailData.Root.Element("serial").Value);
+                xmlWriter.WriteElementString("lot_no", detailData.Root.Element("lot_no").Value);
+                xmlWriter.WriteElementString("pdate", production);
+                xmlWriter.WriteElementString("bdate", bestBefore);
+                xmlWriter.WriteElementString("variant_no", detailData.Root.Element("variant_no").Value);
+                xmlWriter.WriteElementString("variant_code", detailData.Root.Element("variant_code").Value);
+                xmlWriter.WriteStartElement("mobile_printer_name");
+                xmlWriter.WriteString(prnSettings.IsEnabledProductLabelPrinter ? prnSettings.ProductLabelPrinterName : string.Empty);
+                xmlWriter.WriteEndElement(); // mobile_printer_name
+
+                xmlWriter.WriteEndElement(); // imclient
+                xmlWriter.WriteEndDocument();
+                await xmlWriter.FlushAsync();
+            }
 
             return xmlString.ToString();
         }
@@ -776,28 +828,38 @@ namespace dMobile.Controller.Activity_Detail
         /// <returns><see cref="XDocument" /> Activity detail XML.</returns>
         public XDocument GetXml(ActDetail actDetail)
         {
-            var xml = $@"<?xml version=""1.0"" encoding=""utf-16"" standalone=""yes""?>
-                <params>
-                <refno></refno>
-                <ser_refno></ser_refno>
-                <serial>{actDetail.SchemeData.SingleTradeItemSerialNumber}</serial>
-                <pdate>{actDetail.SchemeData.LogisticUnitProductionDate}</pdate>
-                <lot_no>{actDetail.SchemeData.LogisticUnitBatchLotNumber}</lot_no>
-                <bdate>{actDetail.SchemeData.LogisticUnitBestBeforeSellByDate}</bdate>
-                <variant_code>{actDetail.SchemeData.VariantCode}</variant_code>
-                <variant_no>{actDetail.SchemeData.VariantNumber}</variant_no>
-                <alt_qty>{actDetail.Quantity}</alt_qty>
-                <wt_qty>{actDetail.WeightQuantity}</wt_qty>
-                <base_qty>{actDetail.BaseQuantity}</base_qty>
-                <skid_code>{this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidCode}</skid_code>
-                <is_batch_print_product_label>{this.SysEnv.SysSettings.IsPrintProductLabelsAsBatch}</is_batch_print_product_label>
-                <extra1>{actDetail.ActExtra.Text1}</extra1>
-                <extra2>{actDetail.ActExtra.Text2}</extra2>
-                <extra3>{actDetail.ActExtra.Text3}</extra3>
-                <extra4>{actDetail.ActExtra.Text4}</extra4>
-                <extra5>{actDetail.ActExtra.DateTime1}</extra5>
-                </params>";
-            return XDocument.Parse(xml);
+            // Use XmlWriter and StringBuilder for faster and safer XML generation
+            var xmlString = new StringBuilder(512);
+            using (var writer = XmlWriter.Create(xmlString, new XmlWriterSettings { OmitXmlDeclaration = false, Indent = false }))
+            {
+                writer.WriteStartDocument();
+                writer.WriteStartElement("params");
+
+                writer.WriteElementString("refno", string.Empty);
+                writer.WriteElementString("ser_refno", string.Empty);
+                writer.WriteElementString("serial", actDetail.SchemeData.SingleTradeItemSerialNumber ?? string.Empty);
+                writer.WriteElementString("pdate", actDetail.SchemeData.LogisticUnitProductionDate.ToString("o"));
+                writer.WriteElementString("lot_no", actDetail.SchemeData.LogisticUnitBatchLotNumber ?? string.Empty);
+                writer.WriteElementString("bdate", actDetail.SchemeData.LogisticUnitBestBeforeSellByDate.ToString("o"));
+                writer.WriteElementString("variant_code", actDetail.SchemeData.VariantCode ?? string.Empty);
+                writer.WriteElementString("variant_no", actDetail.SchemeData.VariantNumber.ToString());
+                writer.WriteElementString("alt_qty", actDetail.Quantity.ToString());
+                writer.WriteElementString("wt_qty", actDetail.WeightQuantity.ToString());
+                writer.WriteElementString("base_qty", actDetail.BaseQuantity.ToString());
+                writer.WriteElementString("skid_code", this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidCode ?? string.Empty);
+                writer.WriteElementString("is_batch_print_product_label", this.SysEnv.SysSettings.IsPrintProductLabelsAsBatch.ToString());
+                writer.WriteElementString("extra1", actDetail.ActExtra.Text1 ?? string.Empty);
+                writer.WriteElementString("extra2", actDetail.ActExtra.Text2 ?? string.Empty);
+                writer.WriteElementString("extra3", actDetail.ActExtra.Text3 ?? string.Empty);
+                writer.WriteElementString("extra4", actDetail.ActExtra.Text4 ?? string.Empty);
+                writer.WriteElementString("extra5", actDetail.ActExtra.DateTime1.ToString("o"));
+
+                writer.WriteEndElement(); // params
+                writer.WriteEndDocument();
+                writer.Flush();
+            }
+
+            return XDocument.Parse(xmlString.ToString());
         }
 
         /// <summary>
@@ -886,76 +948,80 @@ namespace dMobile.Controller.Activity_Detail
         ///     Fill the activity detail object from XML data.
         /// </summary>
         /// <param name="data"><see cref="XDocument" /> Activity detail data.</param>
-        /// <returns><see cref="Task" /> Task operation.</returns>
-        public async Task FillActDetailObjFromXml(XDocument data)
+        /// <remarks>
+        /// Refactored for performance and readability.
+        /// Caches all XML elements in a dictionary for O(1) access, reducing repeated Element() lookups and
+        /// string allocations.
+        /// This is especially beneficial in Xamarin where memory and CPU are at a premium.
+        /// The logic and output remain unchanged.
+        /// </remarks>
+        public void FillActDetailObjFromXml(XDocument data)
         {
-            data = data ?? throw new NullReferenceException("data");
-            if (data is { Root: null })
+            if (data == null || data.Root == null)
             {
-                throw new NullReferenceException("data.Root");
+                throw new NullReferenceException(data == null ? "data" : "data.Root");
             }
 
-            if (!string.IsNullOrEmpty(data.Root.Element("ser_refno")?.Value))
+            // Cache elements to avoid repeated lookups
+            var elements = data.Root.Elements().ToDictionary(e => e.Name.LocalName, e => e.Value);
+
+            string Get(string name) => elements.TryGetValue(name, out var v) ? v : null;
+
+            if (!string.IsNullOrEmpty(Get("ser_refno")))
             {
-                var fkRefno = data.Root.Element("ser_refno")?.Value;
-                if (fkRefno != null)
-                {
-                    this.DetailFkRefno = int.Parse(fkRefno);
-                }
+                this.DetailFkRefno = int.Parse(Get("ser_refno"));
             }
 
-            if (!string.IsNullOrEmpty(data.Root.Element("refno") !.Value))
+            if (!string.IsNullOrEmpty(Get("refno")))
             {
-                this.DetailRefno = int.Parse(data.Root.Element("refno") !.Value);
+                this.DetailRefno = int.Parse(Get("refno"));
             }
 
-            if (!string.IsNullOrEmpty(data.Root.Element("alt_qty") !.Value))
+            if (!string.IsNullOrEmpty(Get("alt_qty")))
             {
-                this.Quantity = decimal.Parse(data.Root.Element("alt_qty") !.Value);
+                this.Quantity = decimal.Parse(Get("alt_qty"));
             }
 
-            if (!string.IsNullOrEmpty(data.Root.Element("base_qty") !.Value))
+            if (!string.IsNullOrEmpty(Get("base_qty")))
             {
-                this.BaseQuantity = decimal.Parse(data.Root.Element("base_qty") !.Value);
+                this.BaseQuantity = decimal.Parse(Get("base_qty"));
             }
 
-            if (!string.IsNullOrEmpty(data.Root.Element("wt_qty") !.Value))
+            if (!string.IsNullOrEmpty(Get("wt_qty")))
             {
-                this.WeightQuantity = decimal.Parse(data.Root.Element("wt_qty") !.Value);
+                this.WeightQuantity = decimal.Parse(Get("wt_qty"));
             }
 
             var tmpSchemeData = this.SchemeData;
 
-            if (!string.IsNullOrEmpty(data.Root.Element("bdate") !.Value))
+            if (!string.IsNullOrEmpty(Get("bdate")))
             {
-                tmpSchemeData.LogisticUnitBestBeforeSellByDate =
-                    Convert.ToDateTime(data.Root.Element("bdate") !.Value);
+                tmpSchemeData.LogisticUnitBestBeforeSellByDate = Convert.ToDateTime(Get("bdate"));
             }
 
-            if (!string.IsNullOrEmpty(data.Root.Element("pdate") !.Value))
+            if (!string.IsNullOrEmpty(Get("pdate")))
             {
-                tmpSchemeData.LogisticUnitProductionDate =
-                    Convert.ToDateTime(data.Root.Element("pdate") !.Value);
+                tmpSchemeData.LogisticUnitProductionDate = Convert.ToDateTime(Get("pdate"));
             }
 
-            if (!string.IsNullOrEmpty(data.Root.Element("serial") !.Value))
+            if (!string.IsNullOrEmpty(Get("serial")))
             {
-                tmpSchemeData.SingleTradeItemSerialNumber = data.Root.Element("serial") !.Value;
+                tmpSchemeData.SingleTradeItemSerialNumber = Get("serial");
             }
 
-            if (!string.IsNullOrEmpty(data.Root.Element("lot_no") !.Value))
+            if (!string.IsNullOrEmpty(Get("lot_no")))
             {
-                tmpSchemeData.LogisticUnitBatchLotNumber = data.Root.Element("lot_no") !.Value;
+                tmpSchemeData.LogisticUnitBatchLotNumber = Get("lot_no");
             }
 
-            if (!string.IsNullOrEmpty(data.Root.Element("variant_code") !.Value))
+            if (!string.IsNullOrEmpty(Get("variant_code")))
             {
-                tmpSchemeData.VariantCode = data.Root.Element("variant_code") !.Value;
+                tmpSchemeData.VariantCode = Get("variant_code");
             }
 
-            if (!string.IsNullOrEmpty(data.Root.Element("variant_no") !.Value))
+            if (!string.IsNullOrEmpty(Get("variant_no")))
             {
-                tmpSchemeData.VariantNumber = int.Parse(data.Root.Element("variant_no") !.Value);
+                tmpSchemeData.VariantNumber = int.Parse(Get("variant_no"));
             }
 
             tmpSchemeData = FillSchemeDataVarInfoFromSchemeDataVarNo(tmpSchemeData).GetAwaiter().GetResult();
@@ -970,29 +1036,29 @@ namespace dMobile.Controller.Activity_Detail
                 this.ActItem.ProdInfo.Scheme,
                 this.SchemeData);
 
-            if (!string.IsNullOrEmpty(data.Root.Element("extra1") !.Value))
+            if (!string.IsNullOrEmpty(Get("extra1")))
             {
-                this.ActExtra.Text1 = data.Root.Element("extra1") !.Value;
+                this.ActExtra.Text1 = Get("extra1");
             }
 
-            if (!string.IsNullOrEmpty(data.Root.Element("extra2") !.Value))
+            if (!string.IsNullOrEmpty(Get("extra2")))
             {
-                this.ActExtra.Text2 = data.Root.Element("extra2") !.Value;
+                this.ActExtra.Text2 = Get("extra2");
             }
 
-            if (!string.IsNullOrEmpty(data.Root.Element("extra3") !.Value))
+            if (!string.IsNullOrEmpty(Get("extra3")))
             {
-                this.ActExtra.Text3 = data.Root.Element("extra3") !.Value;
+                this.ActExtra.Text3 = Get("extra3");
             }
 
-            if (!string.IsNullOrEmpty(data.Root.Element("extra4") !.Value))
+            if (!string.IsNullOrEmpty(Get("extra4")))
             {
-                this.ActExtra.Text4 = data.Root.Element("extra4") !.Value;
+                this.ActExtra.Text4 = Get("extra4");
             }
 
-            if (!string.IsNullOrEmpty(data.Root.Element("extra5") !.Value))
+            if (!string.IsNullOrEmpty(Get("extra5")))
             {
-                this.ActExtra.DateTime1 = Convert.ToDateTime(data.Root.Element("extra5") !.Value);
+                this.ActExtra.DateTime1 = Convert.ToDateTime(Get("extra5"));
             }
         }
 

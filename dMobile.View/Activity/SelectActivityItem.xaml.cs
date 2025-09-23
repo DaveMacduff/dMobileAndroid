@@ -47,7 +47,7 @@ namespace dMobile.View.Activity
             this.IsIndicatorRunning = false;
 
             ParseAndSeedBarCodeModifier();
-            this.DataCollector = new DataCollector(this.ActSubType);
+            this.DataCollector = new DataCollector(this.ActSubType, this.ActItem);
             this.SearchTimer = new SysTimer(this.SearchTimerTickCallback);
             this.IsFirstAppearance = true;
             return;

@@ -12,19 +12,13 @@ namespace dMobile.View
     using dMobile.Controller.Activity_Detail;
     using dMobile.Controller.Activity_Item;
     using dMobile.Resources.Models.Products;
+    using SQLite;
 
     /// <summary>
     ///     Parse scheme data.
     /// </summary>
     public class ParseSchemeData
     {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ParseSchemeData"/> class.
-        /// </summary>
-        public ParseSchemeData()
-        {
-        }
-
         /// <summary>
         /// Initializes a new instance of the <see cref="ParseSchemeData"/> class.
         /// </summary>
@@ -55,6 +49,10 @@ namespace dMobile.View
         private ProductSchemeData ProdSchemeData { get; set; } = new ProductSchemeData();
 
         private bool DefaultSchemeDataAssigned { get; set; } = false;
+
+        private SQLiteAsyncConnection Conn { get; } = DatabaseConnection.GetInstance().SqlConn;
+
+        private SysEnvironment SysEnv { get; } = SysEnvironment.GetInstance();
 
         /// <summary>
         /// Gather the scheme data from the activity detail and bar code parse.
@@ -138,62 +136,26 @@ namespace dMobile.View
                 var count = details.ErrorCount;
                 for (var i = 0; i < count; ++i)
                 {
-                    var reason = details.GetParseExceptionReasonAt(i);
-
                     // Default/unhandled will be thrown
-                    switch (reason)
+                    switch (details.GetParseExceptionReasonAt(i))
                     {
                         case BarCodeExceptionReason.ActivityDetailFKRefno_InvalidFormat:
-                            break;
-
                         case BarCodeExceptionReason.ActivityFKRefno_InvalidFormat:
-                            break;
-
                         case BarCodeExceptionReason.ActivityItemFKRefno_InvalidFormat:
-                            break;
-
                         case BarCodeExceptionReason.CountOfTradeItems_InvalidInteger:
-                            break;
-
                         case BarCodeExceptionReason.DimensionMeters_InvalidDecimal:
-                            break;
-
                         case BarCodeExceptionReason.DimensionMeters_UnknownDecimalPlaces:
-                            break;
-
                         case BarCodeExceptionReason.DueDate_InvalidDate:
-                            break;
-
                         case BarCodeExceptionReason.ExpiryUseByDate_InvalidDate:
-                            break;
-
                         case BarCodeExceptionReason.GrossWeightMetricKG_InvalidDecimal:
-                            break;
-
                         case BarCodeExceptionReason.GrossWeightMetricKG_UnknownDecimalPlaces:
-                            break;
-
                         case BarCodeExceptionReason.GrossWeightNonMetricLB_InvalidDecimal:
-                            break;
-
                         case BarCodeExceptionReason.GrossWeightNonMetricLB_UnknownDecimalPlaces:
-                            break;
-
                         case BarCodeExceptionReason.NetWeightMetricKG_InvalidDecimal:
-                            break;
-
                         case BarCodeExceptionReason.NetWeightMetricKG_UnknownDecimalPlaces:
-                            break;
-
                         case BarCodeExceptionReason.NetWeightNonMetricLB_InvalidDecimal:
-                            break;
-
                         case BarCodeExceptionReason.NetWeightNonMetricLB_UnknownDecimalPlaces:
-                            break;
-
                         case BarCodeExceptionReason.PackagingDate_InvalidDate:
-                            break;
-
                         case BarCodeExceptionReason.VariableCount_InvalidInteger:
                             break;
 
@@ -259,54 +221,13 @@ namespace dMobile.View
             }
         }
 
-        private string GetLotCodeDefaultFromSupplierCompanyPrefix(int schemeReferenceNumber, string globalTradeIdentifier)
-        {
-            schemeReferenceNumber = schemeReferenceNumber <= 0
-                ? throw new ArgumentOutOfRangeException(nameof(schemeReferenceNumber))
-                : schemeReferenceNumber;
-            var lotCodeDefault = string.Empty;
-
-            if (!string.IsNullOrEmpty(globalTradeIdentifier))
-            {
-                // Order by descending, we want to examine the longest string to compare for a match first.
-                const string query = @"
-                                select tProductSchemeLotNumber.ProductSchemeLotNumberCode,
-                                        tProductSchemeLotNumber.ProductSchemeLotNumberCodeDefault
-                                    from tProductSchemeLotNumberXRef
-                                    inner join tProductSchemeLotNumber ON tProductSchemeLotNumber.ProductSchemeLotNumberRefno =
-                                            tProductSchemeLotNumberXRef.ProductSchemeLotNumberRefno
-                                        where tProductSchemeLotNumberXRef.ProductSchemeRefno = ?
-                                    order by ProductSchemeLotNumberCode DESC";
-                var results = DatabaseConnection.GetInstance()
-                    .SqlConn
-                    .QueryAsync<ProductSchemeLotNumberModel>(query, schemeReferenceNumber)
-                    .GetAwaiter()
-                    .GetResult();
-                if (results?.Count > 0)
-                {
-                    foreach (var xRef in results)
-                    {
-                        if (globalTradeIdentifier.Contains(Convert.ToString(xRef.ProductSchemeLotNumberCode)
-                                .TrimEnd()))
-                        {
-                            lotCodeDefault = Convert.ToString(xRef.ProductSchemeLotNumberCodeDefault).TrimEnd();
-                            break;
-                        }
-                    }
-                }
-            }
-
-            return lotCodeDefault;
-        }
-
         private void NebraskBeefRule()
         {
-            var sysEnv = SysEnvironment.GetInstance();
             if (this.BarCodeData != null)
             {
                 // Decided to implement the bar code here. Could have made it a new BarCodeParseCode_128_NebraskaBeef class.
                 // The bar code was well-formed except it being a non GS1 code 128.
-                if (sysEnv.BarCodeSettings.IsRuleEnabled_NebraskaBeef_Parse_Lot_as_Serial_Code_128 &&
+                if (this.SysEnv.BarCodeSettings.IsRuleEnabled_NebraskaBeef_Parse_Lot_as_Serial_Code_128 &&
                     IsNebraskaBeefRuleMet(this.BarCodeData))
                 {
                     // Lot Number is '00000021724739' serial number should be '724739'
@@ -332,8 +253,8 @@ namespace dMobile.View
                 if (this.BarCodeData == null || SysCommon.IsEmptyDateTime(this.BarCodeData.LogisticUnitBestBeforeSellByDate))
                 {
                     var defaultDate = this.DefaultSchemeData.ProdSchemeData.LogisticUnitBestBeforeSellByDate;
-                    var sysEnv = SysEnvironment.GetInstance();
-                    if (sysEnv.SysSettings.IsEnableDefaultDetailValues && this.ProductSchemeInfo.IsBestBeforeDateTrackedDefault &&
+                    if (this.SysEnv.SysSettings.IsEnableDefaultDetailValues &&
+                        this.ProductSchemeInfo.IsBestBeforeDateTrackedDefault &&
                         !SysCommon.IsEmptyDateTime(defaultDate))
                     {
                         this.ProdSchemeData.LogisticUnitBestBeforeSellByDate = defaultDate;
@@ -362,8 +283,8 @@ namespace dMobile.View
                 if (this.BarCodeData == null || SysCommon.IsEmptyDateTime(this.BarCodeData.LogisticUnitProductionDate))
                 {
                     var defaultDate = this.DefaultSchemeData.ProdSchemeData.LogisticUnitProductionDate;
-                    var sysEnv = SysEnvironment.GetInstance();
-                    if (sysEnv.SysSettings.IsEnableDefaultDetailValues && this.ProductSchemeInfo.IsProductionDateTrackedDefault &&
+                    if (this.SysEnv.SysSettings.IsEnableDefaultDetailValues &&
+                        this.ProductSchemeInfo.IsProductionDateTrackedDefault &&
                         !SysCommon.IsEmptyDateTime(defaultDate))
                     {
                         this.ProdSchemeData.LogisticUnitProductionDate = defaultDate;
@@ -404,8 +325,7 @@ namespace dMobile.View
                 // Comparing GTIN = '90000122345000' to "122345". The small string is on the right instead of the left.
                 // A SQL command using '122345' LIKE %90000122345000% will of course not work.
                 // Only way to find was to iterate through the table and use a 'contains' command.
-                var sysEnv = SysEnvironment.GetInstance();
-                if (sysEnv.SysSettings.IsEnableDefaultDetailValues && this.ProductSchemeInfo.IsLotTrackedDefault)
+                if (this.SysEnv.SysSettings.IsEnableDefaultDetailValues && this.ProductSchemeInfo.IsLotTrackedDefault)
                 {
                     var lotCodeDefault = string.Empty;
                     if (this.BarCodeData != null)
@@ -436,6 +356,43 @@ namespace dMobile.View
             }
 
             return defaultDataAssigned;
+
+            string GetLotCodeDefaultFromSupplierCompanyPrefix(int schemeReferenceNumber, string globalTradeIdentifier)
+            {
+                schemeReferenceNumber = schemeReferenceNumber <= 0
+                    ? throw new ArgumentOutOfRangeException(nameof(schemeReferenceNumber))
+                    : schemeReferenceNumber;
+                var lotCodeDefault = string.Empty;
+
+                if (!string.IsNullOrEmpty(globalTradeIdentifier))
+                {
+                    // Order by descending, we want to examine the longest string to compare for a match first.
+                    const string query = @"
+                        select tProductSchemeLotNumber.ProductSchemeLotNumberCode,
+                                tProductSchemeLotNumber.ProductSchemeLotNumberCodeDefault
+                            from tProductSchemeLotNumberXRef
+                            inner join tProductSchemeLotNumber ON tProductSchemeLotNumber.ProductSchemeLotNumberRefno =
+                                    tProductSchemeLotNumberXRef.ProductSchemeLotNumberRefno
+                                where tProductSchemeLotNumberXRef.ProductSchemeRefno = ?
+                            order by ProductSchemeLotNumberCode DESC";
+                    var results = this.Conn.QueryAsync<ProductSchemeLotNumberModel>(query, schemeReferenceNumber)
+                        .GetAwaiter()
+                        .GetResult();
+                    if (results?.Count > 0)
+                    {
+                        foreach (var xRef in results)
+                        {
+                            if (globalTradeIdentifier.Contains(Convert.ToString(xRef.ProductSchemeLotNumberCode).TrimEnd()))
+                            {
+                                lotCodeDefault = Convert.ToString(xRef.ProductSchemeLotNumberCodeDefault).TrimEnd();
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                return lotCodeDefault;
+            }
         }
 
         private bool AssignSerialNumber()
