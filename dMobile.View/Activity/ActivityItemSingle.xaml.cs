@@ -851,32 +851,6 @@ namespace dMobile.View.Activity
                     ProdSchemeData = this.ActDetail.SchemeData
                 };
 
-                ////    var isInsertReady = await SysShared.GatherProductData(
-                ////        parse,
-                ////        this.ActSubType,
-                ////        this.ActItem,
-                ////        tempItemProdSchemeData,
-                ////        this.ActDetail,
-                ////        isForceStopForEditing: false);
-                ////    if (isInsertReady)
-                ////    {
-                ////        var xmlDoc = this.ActDetail.GetXml(this.ActDetail);
-                ////        await this.ActDetail.Insert(xmlDoc);
-                ////        if (this.ActDetail.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFkRefno != 0)
-                ////        {
-                ////            this.ScannedSkidQuantity += this.ActDetail.Quantity;
-                ////        }
-
-                ////        this.ActItem.AddToQuantityInActivityItem(
-                ////            this.ActItem.SelectedItem,
-                ////            this.ActDetail.Quantity,
-                ////            this.ActDetail.BaseQuantity,
-                ////            this.ActDetail.WeightQuantity);
-                ////        await this.ActItem.UpdateItemTableQuantity(this.ActItem.SelectedItem);
-                ////        await this.AssignAndDisplayLineItem(this.ActItem.ItemRefno);
-                ////    }
-                ////}
-                ////DataCollector.ActDetail = this.ActDetail;
                 await DataCollector.GatherProductData(
                     parse,
                     tempItemProdSchemeData,
@@ -2002,27 +1976,20 @@ namespace dMobile.View.Activity
                 ////}
                 var parse = BarCodeParseFacade.ParseData(string.Empty);
                 var tempItemProdSchemeData = InitDetailBeforeGather();
-
-                var isInsertReady = await SysShared.GatherProductData(
+                await DataCollector.GatherProductData(
                     parse,
-                    this.ActSubType,
-                    this.ActDetail.ActItem,
                     tempItemProdSchemeData,
                     gatherActDetail,
-                    true);
+                    isForceStopForEditing: true);
+                gatherActDetail.DetailFkRefno = 0;
+                gatherActDetail.ActStatus = SysCommon.ActStatus.Inserted;
+                this.ActDetail.Quantity = gatherActDetail.Quantity;
+                this.ActDetail.BaseQuantity = gatherActDetail.BaseQuantity;
+                this.ActDetail.WeightQuantity = gatherActDetail.WeightQuantity;
 
-                if (isInsertReady)
-                {
-                    gatherActDetail.DetailFkRefno = 0;
-                    gatherActDetail.ActStatus = SysCommon.ActStatus.Inserted;
-                    this.ActDetail.Quantity = gatherActDetail.Quantity;
-                    this.ActDetail.BaseQuantity = gatherActDetail.BaseQuantity;
-                    this.ActDetail.WeightQuantity = gatherActDetail.WeightQuantity;
-
-                    // actDetail.DetailFkRefno and actDetail.DetailRefno is assigned in Insert().
-                    var xmlDoc = gatherActDetail.GetXml(gatherActDetail);
-                    await gatherActDetail.Insert(xmlDoc);
-                }
+                // actDetail.DetailFkRefno and actDetail.DetailRefno is assigned in Insert().
+                var xmlDoc = gatherActDetail.GetXml(gatherActDetail);
+                await gatherActDetail.Insert(xmlDoc);
             }
         }
 

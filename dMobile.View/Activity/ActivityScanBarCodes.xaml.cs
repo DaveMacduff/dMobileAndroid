@@ -943,13 +943,67 @@ namespace dMobile.View.Activity
                 if (this.SysEnv.BarCodeSettings.IsRuleEnabled_ParseSumwaFarmFedWholeDuck_UseWeightRangeToIDProduct &&
                     this.Parse.ProductIdentifier == "90695955110022")
                 {
-                    SysShared.BarCodeRuleParseSumwaFarmFedWholeDuckUseWeightRangeToIdProduct(this.Parse);
+                    BarCodeRuleParseSumwaFarmFedWholeDuckUseWeightRangeToIdProduct(this.Parse);
 
                     prodInfo = await ProductInfoTasks.GetInfoFromCodeBcUnit(
                         this.Parse.ProductIdentifier,
                         string.Empty,
                         "CS");
                     this.ProductUnitRefno = prodInfo.UnitRefno;
+                }
+
+                static void BarCodeRuleParseSumwaFarmFedWholeDuckUseWeightRangeToIdProduct(BarCodeParse barCodeParse)
+                {
+                    if (barCodeParse.NetWeightMetricKg >= Convert.ToDecimal(11.00) &&
+                        barCodeParse.NetWeightMetricKg <= Convert.ToDecimal(11.99))
+                    {
+                        barCodeParse.ProductIdentifier = "MC10448";
+                    }
+                    else if (barCodeParse.NetWeightMetricKg >= Convert.ToDecimal(12.00) &&
+                             barCodeParse.NetWeightMetricKg <= Convert.ToDecimal(12.49))
+                    {
+                        barCodeParse.ProductIdentifier = "MC10443";
+                    }
+                    else if (barCodeParse.NetWeightMetricKg >= Convert.ToDecimal(12.50) &&
+                             barCodeParse.NetWeightMetricKg <= Convert.ToDecimal(12.99))
+                    {
+                        barCodeParse.ProductIdentifier = "MC10441";
+                    }
+                    else if (barCodeParse.NetWeightMetricKg >= Convert.ToDecimal(13.00) &&
+                             barCodeParse.NetWeightMetricKg <= Convert.ToDecimal(13.49))
+                    {
+                        barCodeParse.ProductIdentifier = "MC10442";
+                    }
+                    else if (barCodeParse.NetWeightMetricKg >= Convert.ToDecimal(13.50) &&
+                             barCodeParse.NetWeightMetricKg <= Convert.ToDecimal(13.99))
+                    {
+                        barCodeParse.ProductIdentifier = "MC10440";
+                    }
+                    else if (barCodeParse.NetWeightMetricKg >= Convert.ToDecimal(14.00) &&
+                             barCodeParse.NetWeightMetricKg <= Convert.ToDecimal(14.49))
+                    {
+                        barCodeParse.ProductIdentifier = "MC10445";
+                    }
+                    else if (barCodeParse.NetWeightMetricKg >= Convert.ToDecimal(14.50) &&
+                             barCodeParse.NetWeightMetricKg <= Convert.ToDecimal(14.99))
+                    {
+                        barCodeParse.ProductIdentifier = "MC10446";
+                    }
+                    else if (barCodeParse.NetWeightMetricKg >= Convert.ToDecimal(15.00) &&
+                             barCodeParse.NetWeightMetricKg <= Convert.ToDecimal(15.49))
+                    {
+                        barCodeParse.ProductIdentifier = "MC10447";
+                    }
+                    else if (barCodeParse.NetWeightMetricKg >= Convert.ToDecimal(15.50) &&
+                             barCodeParse.NetWeightMetricKg <= Convert.ToDecimal(16.00))
+                    {
+                        barCodeParse.ProductIdentifier = "MC10450";
+                    }
+                    else
+                    {
+                        throw new Exception("Unable to identify product scanned." + Environment.NewLine +
+                                            "ParseSumwaFarmFedWholeDuck_UseWeightRangeToIDProduct enabled.");
+                    }
                 }
             }
 

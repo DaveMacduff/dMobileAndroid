@@ -23,7 +23,7 @@ namespace dMobile.View
         /// Initializes a new instance of the <see cref="ParseSchemeData"/> class.
         /// </summary>
         /// <param name="prodScheme">Product scheme.</param>
-        /// <param name="barParse">Parsed Bar Code data.</param>
+        /// <param name="barParse">Parsed Bar Code data or null.</param>
         /// <param name="defaultSchemeData">Default scheme data.</param>
         /// <param name="currSkid">Current skid information.</param>
         public ParseSchemeData(
@@ -33,7 +33,7 @@ namespace dMobile.View
             SSkidInfo currSkid)
         {
             this.ProductSchemeInfo = prodScheme ?? throw new ArgumentNullException(nameof(prodScheme));
-            this.BarCodeData = barParse ?? throw new ArgumentNullException(nameof(barParse));
+            ////this.BarCodeData = barParse ?? throw new ArgumentNullException(nameof(barParse));
             this.DefaultSchemeData = defaultSchemeData ?? throw new ArgumentNullException(nameof(defaultSchemeData));
             this.CurrentSkid = currSkid ?? throw new ArgumentNullException(nameof(currSkid));
         }
@@ -231,16 +231,16 @@ namespace dMobile.View
                     IsNebraskaBeefRuleMet(this.BarCodeData))
                 {
                     // Lot Number is '00000021724739' serial number should be '724739'
-                    this.BarCodeData.LogisticUnitBatchLotNumber = this.BarCodeData.LogisticUnitBatchLotNumber[8..];
+                    this.BarCodeData.LogisticUnitBatchLotNumber = this.BarCodeData.LogisticUnitBatchLotNumber.Remove(0, 8);
                     this.BarCodeData.SingleTradeItemSerialNumber = string.Empty;
                 }
+            }
 
-                static bool IsNebraskaBeefRuleMet(BarCodeParse barParse)
-                {
-                    return (barParse.Gtin.Contains("0740780")
-                            || barParse.Gtin.Contains("19336"))
-                           && !string.IsNullOrEmpty(barParse.LogisticUnitBatchLotNumber);
-                }
+            static bool IsNebraskaBeefRuleMet(BarCodeParse barParse)
+            {
+                return (barParse.Gtin.Contains("0740780")
+                        || barParse.Gtin.Contains("19336"))
+                        && !string.IsNullOrEmpty(barParse.LogisticUnitBatchLotNumber);
             }
         }
 

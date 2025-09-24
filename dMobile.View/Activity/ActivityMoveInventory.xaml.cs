@@ -1079,7 +1079,7 @@ namespace dMobile.View.Activity
                 this.ActDetail.ClearProperties();
 
                 // --- Gather the activity detail to insert.
-                var isInsertReady = await GatherActivityDetail();
+                await GatherActivityDetail();
 
                 //--- Perform a few more gathered detail validations.
                 // Scheme data has already been validated.
@@ -1091,7 +1091,7 @@ namespace dMobile.View.Activity
                     throw new MessageOnlyException("Move quantity must be greater than zero.");
                 }
 
-                await this.InsertActivityDetail(this.ActDetail, isInsertReady);
+                await this.InsertActivityDetail(this.ActDetail);
             }
             catch (CancelOperationException)
             {
@@ -1134,7 +1134,7 @@ namespace dMobile.View.Activity
             return;
 
             //////////////////////////////////////////////////////////////////////////
-            async Task<bool> GatherActivityDetail()
+            async Task GatherActivityDetail()
             {
                 //--- Gather new activity detail to be inserted.
                 this.ActDetail.Quantity = 0;
@@ -1156,13 +1156,11 @@ namespace dMobile.View.Activity
                     ProdSchemeData = new ProductSchemeData(),
                 };
                 this.BarCodeParse = BarCodeParseFacade.ParseData(string.Empty);
-                var canInsert = await SysShared.GatherProductData(
+                await DataCollector.GatherProductData(
                     this.BarCodeParse,
-                    this.ActSubType,
-                    this.ActItem,
                     tempItemSchemeData,
-                    this.ActDetail);
-                return canInsert;
+                    this.ActDetail,
+                    isForceStopForEditing: false);
             }
 
             //////////////////////////////////////////////////////////////////////////
@@ -1187,26 +1185,22 @@ namespace dMobile.View.Activity
         /// Insert activity detail.
         /// </summary>
         /// <param name="actDetail">.</param>
-        /// <param name="isInsertDetailReady">The isInsertDetailReady<see cref="bool"/>.</param>
         /// <returns>The <see cref="Task"/>.</returns>
-        private async Task InsertActivityDetail(ActDetail actDetail, bool isInsertDetailReady)
+        private async Task InsertActivityDetail(ActDetail actDetail)
         {
-            if (isInsertDetailReady)
+            actDetail.DetailFkRefno = 0;
+            var inserted = this.ActDetail.GatherDetail();
+            this.ActDetail.ListDetails.Add(inserted);
+            this.SelectedActivityDetailFKRefno = inserted.ActivityDetailFKRefno;
+            await Device.InvokeOnMainThreadAsync(() =>
             {
-                actDetail.DetailFkRefno = 0;
-                var inserted = this.ActDetail.GatherDetail();
-                this.ActDetail.ListDetails.Add(inserted);
-                this.SelectedActivityDetailFKRefno = inserted.ActivityDetailFKRefno;
-                await Device.InvokeOnMainThreadAsync(() =>
-                {
-                    this.ListViewMainActivity.ItemTemplate = this.ActDetail.DesignGrid(
-                        ref this.GridMainActivity,
-                        inserted,
-                        this.MainActivityItems);
-                });
+                this.ListViewMainActivity.ItemTemplate = this.ActDetail.DesignGrid(
+                    ref this.GridMainActivity,
+                    inserted,
+                    this.MainActivityItems);
+            });
 
-                await this.FindSelectedItemAsync();
-            }
+            await this.FindSelectedItemAsync();
         }
 
         /// <summary>
@@ -1338,13 +1332,12 @@ namespace dMobile.View.Activity
                 this.ActDetail.ClearProperties();
 
                 var tempItemSchemeData = new ActItemSchemeData();
-                var isInsertReady = await SysShared.GatherProductData(
+                await DataCollector.GatherProductData(
                     this.BarCodeParse,
-                    this.ActSubType,
-                    this.ActItem,
                     tempItemSchemeData,
-                    this.ActDetail);
-                await this.InsertActivityDetail(this.ActDetail, isInsertReady);
+                    this.ActDetail,
+                    isForceStopForEditing: false);
+                await this.InsertActivityDetail(this.ActDetail);
             }
 
             //////////////////////////////////////////////////////////////////////////

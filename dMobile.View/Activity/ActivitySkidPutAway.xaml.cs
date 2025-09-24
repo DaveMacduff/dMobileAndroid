@@ -1377,55 +1377,51 @@ namespace dMobile.View.Activity
         private async Task GatherProductData(BarCodeParse barParse)
         {
             var tempItemProdSchemeData = new ActItemSchemeData();
-            var isInsertReady = await SysShared.GatherProductData(
+            await DataCollector.GatherProductData(
                 barParse,
-                this.ActSubType,
-                this.ActItem,
                 tempItemProdSchemeData,
-                this.ActDetail);
+                this.ActDetail,
+                isForceStopForEditing: false);
 
-            if (isInsertReady)
+            var xmlParam = XDocument.Parse(
+                "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
+                + "<imclient>"
+                + "<itm_refno>" + this.ActDetail.ActItem.ItemFkRefno + "</itm_refno>"
+                + "<alt_qty>" + this.ActDetail.Quantity + "</alt_qty>"
+                + "<ActivityDetailUniqueSchemeID>" + this.ActDetail.UniqueSchemeId +
+                "</ActivityDetailUniqueSchemeID>"
+                + "</imclient>");
+
+            await this.ActDetail.IsReadyToApply(xmlParam);
+
+            var xmlDoc = XDocument.Parse(
+                "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
+                + "<params>"
+                + "<serial>" + this.ActDetail.SchemeData.SingleTradeItemSerialNumber + "</serial>"
+                + "<pdate>" + this.ActDetail.SchemeData.LogisticUnitProductionDate + "</pdate>"
+                + "<lot_no>" + this.ActDetail.SchemeData.LogisticUnitBatchLotNumber + "</lot_no>"
+                + "<bdate>" + this.ActDetail.SchemeData.LogisticUnitBestBeforeSellByDate + "</bdate>"
+                + "<variant_code>" + this.ActDetail.SchemeData.VariantCode + "</variant_code>"
+                + "<variant_no>" + this.ActDetail.SchemeData.VariantNumber + "</variant_no>"
+                + "<alt_qty>" + this.ActDetail.Quantity + "</alt_qty>"
+                + "<wt_qty>" + this.ActDetail.WeightQuantity + "</wt_qty>"
+                + "<base_qty>" + this.ActDetail.BaseQuantity + "</base_qty>"
+                + "<is_batch_print_product_label>" + false + "</is_batch_print_product_label>"
+                + "</params>");
+
+            await this.ActDetail.Insert(xmlDoc);
+
+            await Device.InvokeOnMainThreadAsync(() =>
             {
-                var xmlParam = XDocument.Parse(
-                    "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
-                    + "<imclient>"
-                    + "<itm_refno>" + this.ActDetail.ActItem.ItemFkRefno + "</itm_refno>"
-                    + "<alt_qty>" + this.ActDetail.Quantity + "</alt_qty>"
-                    + "<ActivityDetailUniqueSchemeID>" + this.ActDetail.UniqueSchemeId +
-                    "</ActivityDetailUniqueSchemeID>"
-                    + "</imclient>");
+                this.MainActivityItems =
+                    this.ActDetail.DesignGrid(ref this.GridMainActivity, ref this.ListViewMainActivity);
+                this.ListViewMainActivity.ItemsSource = this.MainActivityItems;
 
-                await this.ActDetail.IsReadyToApply(xmlParam);
-
-                var xmlDoc = XDocument.Parse(
-                    "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
-                    + "<params>"
-                    + "<serial>" + this.ActDetail.SchemeData.SingleTradeItemSerialNumber + "</serial>"
-                    + "<pdate>" + this.ActDetail.SchemeData.LogisticUnitProductionDate + "</pdate>"
-                    + "<lot_no>" + this.ActDetail.SchemeData.LogisticUnitBatchLotNumber + "</lot_no>"
-                    + "<bdate>" + this.ActDetail.SchemeData.LogisticUnitBestBeforeSellByDate + "</bdate>"
-                    + "<variant_code>" + this.ActDetail.SchemeData.VariantCode + "</variant_code>"
-                    + "<variant_no>" + this.ActDetail.SchemeData.VariantNumber + "</variant_no>"
-                    + "<alt_qty>" + this.ActDetail.Quantity + "</alt_qty>"
-                    + "<wt_qty>" + this.ActDetail.WeightQuantity + "</wt_qty>"
-                    + "<base_qty>" + this.ActDetail.BaseQuantity + "</base_qty>"
-                    + "<is_batch_print_product_label>" + false + "</is_batch_print_product_label>"
-                    + "</params>");
-
-                await this.ActDetail.Insert(xmlDoc);
-
-                await Device.InvokeOnMainThreadAsync(() =>
+                if (this.ActDetail.ListDetails.Count > 0 && this.MainActivityItems.Count > 0)
                 {
-                    this.MainActivityItems =
-                        this.ActDetail.DesignGrid(ref this.GridMainActivity, ref this.ListViewMainActivity);
-                    this.ListViewMainActivity.ItemsSource = this.MainActivityItems;
-
-                    if (this.ActDetail.ListDetails.Count > 0 && this.MainActivityItems.Count > 0)
-                    {
-                        this.ListViewMainActivity.SelectedItem = this.MainActivityItems.LastOrDefault();
-                    }
-                });
-            }
+                    this.ListViewMainActivity.SelectedItem = this.MainActivityItems.LastOrDefault();
+                }
+            });
         }
     }
 }

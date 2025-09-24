@@ -134,6 +134,36 @@ namespace dMobile.Controller.Activity_Detail
         /// </summary>
         public List<ReturnDetail> ListReturnDetails { get; set; } = new List<ReturnDetail>();
 
+        /// <inheritdoc/>
+        public override async Task<ActDetailExtra> GetExtraInfoAsync(object selectedItem)
+        {
+            if (selectedItem is ReturnDetail detail)
+            {
+                // Get the line item location.
+                var itemLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
+                    Convert.ToInt32(detail.LocationMapRefno));
+                var detailLoc = LocationMapTasks.GetReadableLocation(itemLocMap);
+
+                // Using the line item warehouse, get the product default location.
+                var defLocMapRefno =
+                    await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(
+                        itemLocMap.WhsLocMapRefno,
+                        Convert.ToInt32(detail.ProductRefno),
+                        SysCommon.ProdLocMapTypes.Receiving);
+                var defProdLoc = LocationMapTasks.GetReadableLocation(
+                    await LocationMapTasks.GetSLocMapFromLocMapRefno(defLocMapRefno));
+
+                var prodDesc = detail.ProductDescription;
+                var prodUnitSizeDesc = detail.ProductUnitSizeDescription;
+
+                this.ActExtra.Text1 = prodDesc.Trim() + " " + prodUnitSizeDesc.Trim();
+                this.ActExtra.Text2 = "Default Location: " + defProdLoc.Trim();
+                this.ActExtra.Text2 = "Returned Location: " + detailLoc.Trim();
+            }
+
+            return this.ActExtra;
+        }
+
         /// <summary>
         /// The InsertSkid.
         /// </summary>

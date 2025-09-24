@@ -851,24 +851,13 @@ namespace dMobile.View.Activity
                         tempItemProdSchemeData.ProdSchemeData = schemeData;
                         this.ActDetail.SchemeData = schemeData;
 
-                        // Gather data is the meat and potatoes of collecting and assembling
-                        // the product scheme data.
-                        var isInsertReady = await SysShared.GatherProductData(
+                        await DataCollector.GatherProductData(
                             parse,
-                            this.ActSubType,
-                            this.ActDetail.ActItem,
                             tempItemProdSchemeData,
-                            this.ActDetail);
-                        if (isInsertReady)
-                        {
-                            await this.InsertActivityDetail(this.ActDetail);
-                        }
-
+                            this.ActDetail,
+                            isForceStopForEditing: false);
+                        await this.InsertActivityDetail(this.ActDetail);
                         await this.FindSelectedItemAsync();
-                        ////if (this.MainActivityItems.Count > currRowIdx)
-                        ////{
-                        ////    this.ListViewMainActivity.SelectedItem = this.MainActivityItems[currRowIdx];
-                        ////}
                     }
                 }
                 else if (!string.IsNullOrEmpty(parse.ActFkRefno))
@@ -1249,17 +1238,12 @@ namespace dMobile.View.Activity
                 {
                     await this.ActDisappearing();
                     var tempItemProdSchemeData = InitDetailBeforeGather();
-                    var isInsertReady = await SysShared.GatherProductData(
+                    await DataCollector.GatherProductData(
                         parse,
-                        this.ActSubType,
-                        this.ActDetail.ActItem,
                         tempItemProdSchemeData,
-                        this.ActDetail);
-
-                    if (isInsertReady)
-                    {
-                        await this.InsertActivityDetail(this.ActDetail);
-                    }
+                        this.ActDetail,
+                        isForceStopForEditing: false);
+                    await this.InsertActivityDetail(this.ActDetail);
                 }
                 finally
                 {

@@ -774,13 +774,13 @@ namespace dMobile.View.Activity
                         this.ActDetail.ActExtra.Text4 = string.Empty;
                         this.ActDetail.ActExtra.DateTime1 = new DateTime(1980, 1, 1);
 
-                        var isInsertReady = await SysShared.GatherProductData(parse, this.ActSubType, this.ActItem,
-                            tempItemProdSchemeData, this.ActDetail);
-
+                        await DataCollector.GatherProductData(
+                            parse,
+                            tempItemProdSchemeData,
+                            this.ActDetail,
+                            isForceStopForEditing: false);
                         var xmlDoc = this.ActDetail.GetXml(this.ActDetail);
-
                         await this.ActItem.Insert(xmlDoc);
-
                         await this.DisplayData();
 
                         if (this.FromProdUnitRefno > 0)

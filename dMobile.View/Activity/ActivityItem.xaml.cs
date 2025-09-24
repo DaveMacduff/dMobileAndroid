@@ -1825,36 +1825,30 @@ namespace dMobile.View.Activity
                                 var schemeData = this.DefaultSchemeDataFromCurrentSkidSchemeDetail(actDetail);
                                 tempItemProdSchemeData.ProdSchemeData = schemeData;
                                 actDetail.SchemeData = schemeData;
-
-                                var isInsertReady = await SysShared.GatherProductData(
+                                await DataCollector.GatherProductData(
                                     parse,
-                                    this.ActSubType,
-                                    this.ActItem,
                                     tempItemProdSchemeData,
-                                    actDetail);
+                                    actDetail,
+                                    isForceStopForEditing: false);
+                                var xmlDoc = actDetail.GetXml(actDetail);
+                                await actDetail.Insert(xmlDoc);
+                                this.ActItem = actDetail.ActItem;
 
-                                if (isInsertReady)
+                                // TODO check if actually new, if not delete and change counter
+                                // Does the row exist? If not, then it has been removed due to not needing it
+                                // Skip update qty.
+                                if (selectedItem != null)
                                 {
-                                    var xmlDoc = actDetail.GetXml(actDetail);
-                                    await actDetail.Insert(xmlDoc);
-                                    this.ActItem = actDetail.ActItem;
-
-                                    // TODO check if actually new, if not delete and change counter
-                                    // Does the row exist? If not, then it has been removed due to not needing it
-                                    // Skip update qty.
-                                    if (selectedItem != null)
-                                    {
-                                        // Upon a save of completed data update the data view to show new item and
-                                        // quantity change.
-                                        this.ActItem.AddToQuantityInActivityItem(
-                                            selectedItem,
-                                            actDetail.Quantity,
-                                            actDetail.BaseQuantity,
-                                            actDetail.WeightQuantity);
-                                        await this.ActItem.UpdateItemTableQuantity(selectedItem);
-                                        this.ActItem.SelectedItem = selectedItem;
-                                        ////this.ActItem.ListItems[this.ActItem.SelectedListIdx] = this.ActItem.SelectedItem;
-                                    }
+                                    // Upon a save of completed data update the data view to show new item and
+                                    // quantity change.
+                                    this.ActItem.AddToQuantityInActivityItem(
+                                        selectedItem,
+                                        actDetail.Quantity,
+                                        actDetail.BaseQuantity,
+                                        actDetail.WeightQuantity);
+                                    await this.ActItem.UpdateItemTableQuantity(selectedItem);
+                                    this.ActItem.SelectedItem = selectedItem;
+                                    ////this.ActItem.ListItems[this.ActItem.SelectedListIdx] = this.ActItem.SelectedItem;
                                 }
                             }
 

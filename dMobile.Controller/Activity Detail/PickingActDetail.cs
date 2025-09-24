@@ -169,6 +169,72 @@ namespace dMobile.Controller.Activity_Detail
         /// </summary>
         public List<PickingDetail> ListPickingDetails { get; set; } = new List<PickingDetail>();
 
+        /// <inheritdoc/>
+        public override async Task<ActDetailExtra> GetExtraInfoAsync(object selectedItem)
+        {
+            if (selectedItem is PickingDetail detail)
+            {
+                // Get the line item location.
+                DisplayProductInfo(detail);
+
+                // Using the line item warehouse, get the product default location.
+                var itemLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
+                    Convert.ToInt32(detail.LocationMapRefno));
+                await DisplayDefaultLocation(itemLocMap, detail);
+                DisplayPickingLocation(itemLocMap, detail);
+                DisplayOrdered();
+            }
+
+            return this.ActExtra;
+
+            void DisplayProductInfo(PickingDetail detail)
+            {
+                var prodCode = detail.ProductCode;
+                var prodDesc = detail.ProductDescription;
+                var prodUnitSizeDesc = detail.ProductUnitSizeDescription;
+                this.ActExtra.Text1 = prodCode.Trim() + " " + prodDesc.Trim() + " " + prodUnitSizeDesc.Trim();
+            }
+
+            async Task DisplayDefaultLocation(SLocMap itemLocMap, PickingDetail detail)
+            {
+                var defLocMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(
+                        itemLocMap.WhsLocMapRefno,
+                        Convert.ToInt32(detail.ProductRefno),
+                        SysCommon.ProdLocMapTypes.Picking);
+                var defProdLoc = LocationMapTasks.GetReadableLocation(
+                    await LocationMapTasks.GetSLocMapFromLocMapRefno(defLocMapRefno));
+                this.ActExtra.Text2 = "Default Location: " + defProdLoc.Trim();
+            }
+
+            void DisplayPickingLocation(SLocMap itemLocMap, PickingDetail detail)
+            {
+                var detailLoc = LocationMapTasks.GetReadableLocation(itemLocMap);
+                if (detail.ActivityDetailIsConfirmed ||
+                    !this.SysEnv.SysSettings.IsPickConfirmDet)
+                {
+                    this.ActExtra.Text3 = "Picked Location: " + detailLoc.Trim();
+                }
+                else
+                {
+                    this.ActExtra.Text3 = "Picking Location: " + detailLoc.Trim();
+                }
+            }
+
+            void DisplayOrdered()
+            {
+                var qty = ((this.ActItem.SelectedItem as PickingItem)!).
+                    ActivityItemPickingQuantityOrdered;
+
+                var wtQty = ((this.ActItem.SelectedItem as PickingItem)!).
+                    ActivityItemPickingWeightQuantityOrdered;
+
+                this.ActExtra.Text4 = "Ordered: " + SysCommon.NiceQuantityReadableString(
+                    this.ActItem.ProdInfo,
+                    qty,
+                    wtQty);
+            }
+        }
+
         /// <summary>
         /// Find or insert an activity detail into the list details.
         /// </summary>

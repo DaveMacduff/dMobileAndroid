@@ -122,6 +122,37 @@ namespace dMobile.Controller.Activity_Detail
         /// </summary>
         public List<CountDetail> ListCountDetails { get; set; } = new List<CountDetail>();
 
+        /// <inheritdoc/>
+        public override async Task<ActDetailExtra> GetExtraInfoAsync(object selectedItem)
+        {
+            if (selectedItem is CountDetail detail)
+            {
+                // Get the cycle count line item location.
+                var countItemLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
+                    Convert.ToInt32(detail.LocationMapRefno));
+                var countReadableLocation =
+                    LocationMapTasks.GetReadableLocation(countItemLocMap);
+
+                // Using the cycle count line item warehouse, get the product default
+                // picking location.
+                var defLocMapRefno =
+                    await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(
+                        countItemLocMap.WhsLocMapRefno,
+                        Convert.ToInt32(detail.ProductRefno),
+                        SysCommon.ProdLocMapTypes.Picking);
+                var defaultReadableLocation = LocationMapTasks.GetReadableLocation(
+                    await LocationMapTasks.GetSLocMapFromLocMapRefno(defLocMapRefno));
+                var prodDesc = detail.ProductDescription;
+                var prodUnitSizeDesc = detail.ProductUnitSizeDescription;
+
+                this.ActExtra.Text1 = prodDesc.Trim() + " " + prodUnitSizeDesc.Trim();
+                this.ActExtra.Text2 = "Default Location: " + defaultReadableLocation.Trim();
+                this.ActExtra.Text3 = "Counted Location: " + countReadableLocation.Trim();
+            }
+
+            return this.ActExtra;
+        }
+
         /// <summary>
         /// Find or insert an activity detail into the list details.
         /// </summary>

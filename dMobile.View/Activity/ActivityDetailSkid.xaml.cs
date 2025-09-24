@@ -915,15 +915,12 @@ namespace dMobile.View.Activity
                     }
 
                     var itemSchemeData = AssignSchemeData(currSkid);
-                    var isInsertReady = await SysShared.GatherProductData(
+                    await DataCollector.GatherProductData(
                         this.Parse,
-                        this.ActSubType,
-                        this.ActDetail.ActItem,
                         itemSchemeData,
-                        this.ActDetail);
-
-                    // If add mode / else remove mode
-                    if (this.ScannerModeAdd && isInsertReady)
+                        this.ActDetail,
+                        isForceStopForEditing: false);
+                    if (this.ScannerModeAdd)
                     {
                         await this.InsertActivityDetail(this.ActDetail);
                     }
@@ -1255,17 +1252,12 @@ namespace dMobile.View.Activity
                 this.ActDetail.ActExtra.DateTime1 = new DateTime(1980, 1, 1);
 
                 var parse = BarCodeParseFacade.ParseData(string.Empty);
-                var isInsertReady = await SysShared.GatherProductData(
+                await DataCollector.GatherProductData(
                     parse,
-                    this.ActSubType,
-                    this.ActDetail.ActItem,
                     FillSchemeData(),
-                    this.ActDetail);
-
-                if (isInsertReady)
-                {
-                    await this.InsertActivityDetail(this.ActDetail);
-                }
+                    this.ActDetail,
+                    isForceStopForEditing: false);
+                await this.InsertActivityDetail(this.ActDetail);
             }
             catch (GatherProductDataException ex)
             {

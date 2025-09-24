@@ -22,6 +22,7 @@ using Xamarin.Forms;
 namespace dMobile.Controller.Activity_Detail
 {
     using Bedrock.Settings;
+    using System.Runtime.CompilerServices;
 
     /// <summary>
     /// Defines the <see cref="AdjActDetail" />.
@@ -318,6 +319,32 @@ namespace dMobile.Controller.Activity_Detail
                     "DELETE FROM tActivityDetail WHERE ActivityDetailRefno = ?",
                     this.DetailRefno);
             }
+        }
+
+        /// <inheritdoc/>
+        public override async Task<ActDetailExtra> GetExtraInfoAsync(object selectedItem)
+        {
+            if (selectedItem is AdjustmentDetail detail)
+            {
+                // Get the line item location.
+                var itemLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
+                    Convert.ToInt32(detail.LocationMapRefno));
+                var readableLocation = LocationMapTasks.GetReadableLocation(itemLocMap);
+                var defLocMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(
+                        itemLocMap.WhsLocMapRefno,
+                        Convert.ToInt32(detail.ProductRefno),
+                        SysCommon.ProdLocMapTypes.Picking);
+                var defaultReadableLocation = LocationMapTasks.GetReadableLocation(
+                    await LocationMapTasks.GetSLocMapFromLocMapRefno(defLocMapRefno));
+
+                var prodDesc = detail.ProductDescription;
+                var prodUnitSizeDesc = detail.ProductUnitSizeDescription;
+                this.ActExtra.Text1 = prodDesc.Trim() + " " + prodUnitSizeDesc.Trim();
+                this.ActExtra.Text2 = "Default Location: " + defaultReadableLocation.Trim();
+                this.ActExtra.Text3 = "Adjusted Location: " + readableLocation.Trim();
+            }
+
+            return this.ActExtra;
         }
 
         /// <summary>

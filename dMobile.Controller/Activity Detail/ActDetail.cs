@@ -521,6 +521,17 @@ namespace dMobile.Controller.Activity_Detail
         }
 
         /// <summary>
+        /// Gets additional details associated with the current action.
+        /// </summary>
+        /// <param name="selectedItem"><see cref="object" /> Selected item.</param>
+        /// <returns>The <see cref="Task{ActDetailExtra}" /> Extra activity detail information.</returns>
+        public virtual async Task<ActDetailExtra> GetExtraInfoAsync(object selectedItem)
+        {
+            await Task.Run(() => this.ActExtra = new ActDetailExtra());
+            return this.ActExtra;
+        }
+
+        /// <summary>
         ///     Clear the activity properties.
         /// </summary>
         public virtual void ClearProperties()
@@ -546,14 +557,7 @@ namespace dMobile.Controller.Activity_Detail
             this.UniqueSchemeId = string.Empty;
 
             // Extra HACCP etc.
-            this.ActExtra.Text1 = string.Empty;
-            this.ActExtra.Text2 = string.Empty;
-            this.ActExtra.Text3 = string.Empty;
-            this.ActExtra.Text4 = string.Empty;
-            this.ActExtra.DateTime1 = SysCommon.EmptyDateTime;
-
-            ////this.SelectedLocMap = new SLocMap();
-            ////this.SelectedDetail = null;
+            this.ActExtra = new ActDetailExtra();
         }
 
         /// <summary>

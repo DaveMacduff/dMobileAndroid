@@ -4,24 +4,14 @@
 
 namespace dMobile.View
 {
-    using System;
-    using System.Reflection;
-    using System.Threading.Tasks;
-    using System.Xml.Linq;
-    using BarCodeScanner;
-    using BarCodeScanner.BarCodeParsing;
     using Bedrock;
-    using Bedrock.Settings;
-    using Controller.Activity;
     using Controller.Activity_Detail;
-    using Controller.Activity_Item;
     using CustomPages;
-    using Forms;
-    using Resources.Enums;
-    using Resources.Models.Products;
-    using Xamarin.Forms;
-    using static Bedrock.LocationMapTasks;
-    using static Bedrock.ProductInfoTasks;
+    using System.Reflection;
+    using System.Text;
+    using System.Threading.Tasks;
+    using System.Xml;
+    using System.Xml.Linq;
 
     /// <summary>
     ///     Defines the <see cref="SysShared" />.
@@ -60,60 +50,6 @@ namespace dMobile.View
         }
 
         /// <summary>
-        ///     Parse Nossack box count from the AI21 serial number and weight amount.
-        /// </summary>
-        /// <param name="parse">Bar code captured data.</param>
-        /// <param name="actDetail">Activity detail instance.</param>
-        /// <param name="unitQty">.</param>
-        /// <remarks>
-        /// Only Nossack usings this rule. But removed the check for Nossack's GTIN Company Prefix.
-        /// Magic number 4 times the average weight to determine if the code is a skid label.
-        /// 2 = For the first digit past the 01 in the AI(21).
-        /// </remarks>
-        public static void EvalParse_Code_128_AI01_Nossack_AI21_SkidNumber_BoxCount(
-            BarCodeParse parse,
-            ActDetail actDetail,
-            ref decimal unitQty)
-        {
-            // Removed check for Nossack's GTIN Company Prefix WO#11478
-            // Nossack's GTIN Company Prefix
-
-            // if (parse.GTIN.Contains("67156"))
-            // {
-            var weight = actDetail.WeightQuantity;
-
-            if (actDetail.ActItem.ProdInfo.WeightUnitCode == "LB")
-            {
-                if (parse.NetWeightMetricKg > 0)
-                {
-                    weight = Convert.ToDecimal(SysCommon.ConvertKg2Lb(Convert.ToDouble(parse.NetWeightMetricKg)));
-                }
-                else if (parse.NetWeightNonMetricLb > 0)
-                {
-                    weight = parse.NetWeightNonMetricLb;
-                }
-            }
-            else if (actDetail.ActItem.ProdInfo.WeightUnitCode == "KG")
-            {
-                if (parse.NetWeightNonMetricLb > 0)
-                {
-                    weight = Convert.ToDecimal(SysCommon.ConvertLb2Kg(Convert.ToDouble(parse.NetWeightNonMetricLb)));
-                }
-                else if (parse.NetWeightMetricKg > 0)
-                {
-                    weight = parse.NetWeightMetricKg;
-                }
-            }
-
-            // Magic number 4 times the average weight to determine if the code is a skid label.
-            if (parse.SingleTradeItemSerialNumber.Length > 1 && weight > actDetail.ActItem.ProdInfo.UnitGrossWeight * 4)
-            {
-                // 2 = For the first digit past the 01 in the AI(21).
-                unitQty = decimal.Parse(parse.SingleTradeItemSerialNumber.Substring(2));
-            }
-        }
-
-        /// <summary>
         /// Get XML data from the activity detail edit.
         /// </summary>
         /// <param name="detailEdit"><see cref="ActDetailEdit"/> Activity detail edit object.</param>
@@ -122,28 +58,35 @@ namespace dMobile.View
         {
             var isBatchPrintProductLabel = SysEnvironment.GetInstance().SysSettings.IsPrintProductLabelsAsBatch;
 
-            var xmlDoc = XDocument.Parse(
-                "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
-                + "<params>"
-                + "<ser_refno>0</ser_refno>"
-                + "<refno>0</refno>"
-                + "<serial>" + detailEdit.SchemeData.SingleTradeItemSerialNumber + "</serial>"
-                + "<pdate>" + detailEdit.SchemeData.LogisticUnitProductionDate + "</pdate>"
-                + "<lot_no>" + detailEdit.SchemeData.LogisticUnitBatchLotNumber + "</lot_no>"
-                + "<bdate>" + detailEdit.SchemeData.LogisticUnitBestBeforeSellByDate + "</bdate>"
-                + "<variant_code>" + detailEdit.SchemeData.VariantCode + "</variant_code>"
-                + "<variant_no>" + detailEdit.SchemeData.VariantNumber + "</variant_no>"
-                + "<alt_qty>" + detailEdit.Quantity + "</alt_qty>"
-                + "<wt_qty>" + detailEdit.WeightQuantity + "</wt_qty>"
-                + "<base_qty>" + detailEdit.BaseQuantity + "</base_qty>"
-                + "<is_batch_print_product_label>" + isBatchPrintProductLabel + "</is_batch_print_product_label>"
-                + "<extra1>" + detailEdit.ActExtra.Text1 + "</extra1>"
-                + "<extra2>" + detailEdit.ActExtra.Text2 + "</extra2>"
-                + "<extra3>" + detailEdit.ActExtra.Text3 + "</extra3>"
-                + "<extra4>" + detailEdit.ActExtra.Text4 + "</extra4>"
-                + "<extra5>" + detailEdit.ActExtra.DateTime1 + "</extra5>"
-                + "</params>");
+            // Use XmlWriter and StringBuilder for faster, safer XML generation
+            var sb = new StringBuilder(256);
+            using (var writer = XmlWriter.Create(sb, new XmlWriterSettings { OmitXmlDeclaration = false, Indent = false }))
+            {
+                writer.WriteStartDocument();
+                writer.WriteStartElement("params");
+                writer.WriteElementString("ser_refno", "0");
+                writer.WriteElementString("refno", "0");
+                writer.WriteElementString("serial", detailEdit.SchemeData.SingleTradeItemSerialNumber ?? string.Empty);
+                writer.WriteElementString("pdate", detailEdit.SchemeData.LogisticUnitProductionDate.ToString("o"));
+                writer.WriteElementString("lot_no", detailEdit.SchemeData.LogisticUnitBatchLotNumber ?? string.Empty);
+                writer.WriteElementString("bdate", detailEdit.SchemeData.LogisticUnitBestBeforeSellByDate.ToString("o"));
+                writer.WriteElementString("variant_code", detailEdit.SchemeData.VariantCode ?? string.Empty);
+                writer.WriteElementString("variant_no", detailEdit.SchemeData.VariantNumber.ToString());
+                writer.WriteElementString("alt_qty", detailEdit.Quantity.ToString());
+                writer.WriteElementString("wt_qty", detailEdit.WeightQuantity.ToString());
+                writer.WriteElementString("base_qty", detailEdit.BaseQuantity.ToString());
+                writer.WriteElementString("is_batch_print_product_label", isBatchPrintProductLabel.ToString());
+                writer.WriteElementString("extra1", detailEdit.ActExtra.Text1 ?? string.Empty);
+                writer.WriteElementString("extra2", detailEdit.ActExtra.Text2 ?? string.Empty);
+                writer.WriteElementString("extra3", detailEdit.ActExtra.Text3 ?? string.Empty);
+                writer.WriteElementString("extra4", detailEdit.ActExtra.Text4 ?? string.Empty);
+                writer.WriteElementString("extra5", detailEdit.ActExtra.DateTime1.ToString("o"));
+                writer.WriteEndElement();
+                writer.WriteEndDocument();
+                writer.Flush();
+            }
 
+            var xmlDoc = XDocument.Parse(sb.ToString());
             return Task.FromResult(xmlDoc);
         }
 
@@ -156,542 +99,36 @@ namespace dMobile.View
         {
             var isBatchPrintProductLabel = SysEnvironment.GetInstance().SysSettings.IsPrintProductLabelsAsBatch;
 
-            var xmlDoc = XDocument.Parse(
-                "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
-                + "<params>"
-                + "<ser_refno>0</ser_refno>"
-                + "<refno>0</refno>"
-                + "<serial>" + detail.LabelSchemeData.SingleTradeItemSerialNumber + "</serial>"
-                + "<pdate>" + detail.LabelSchemeData.LogisticUnitProductionDate + "</pdate>"
-                + "<lot_no>" + detail.LabelSchemeData.LogisticUnitBatchLotNumber + "</lot_no>"
-                + "<bdate>" + detail.LabelSchemeData.LogisticUnitBestBeforeSellByDate + "</bdate>"
-                + "<variant_code>" + detail.LabelSchemeData.VariantCode + "</variant_code>"
-                + "<variant_no>" + detail.LabelSchemeData.VariantNumber + "</variant_no>"
-                + "<alt_qty>" + detail.Quantity + "</alt_qty>"
-                + "<wt_qty>" + detail.WeightQuantity + "</wt_qty>"
-                + "<base_qty>" + detail.BaseQuantity + "</base_qty>"
-                + "<is_batch_print_product_label>" + isBatchPrintProductLabel + "</is_batch_print_product_label>"
-                + "<extra1>" + detail.ActExtra.Text1 + "</extra1>"
-                + "<extra2>" + detail.ActExtra.Text2 + "</extra2>"
-                + "<extra3>" + detail.ActExtra.Text3 + "</extra3>"
-                + "<extra4>" + detail.ActExtra.Text4 + "</extra4>"
-                + "<extra5>" + detail.ActExtra.DateTime1 + "</extra5>"
-                + "</params>");
+            // Use XmlWriter and StringBuilder for efficient XML generation
+            var sb = new StringBuilder(256);
+            using (var writer = XmlWriter.Create(sb, new XmlWriterSettings { OmitXmlDeclaration = false, Indent = false }))
+            {
+                writer.WriteStartDocument();
+                writer.WriteStartElement("params");
+                writer.WriteElementString("ser_refno", "0");
+                writer.WriteElementString("refno", "0");
+                writer.WriteElementString("serial", detail.LabelSchemeData.SingleTradeItemSerialNumber ?? string.Empty);
+                writer.WriteElementString("pdate", detail.LabelSchemeData.LogisticUnitProductionDate.ToString("o"));
+                writer.WriteElementString("lot_no", detail.LabelSchemeData.LogisticUnitBatchLotNumber ?? string.Empty);
+                writer.WriteElementString("bdate", detail.LabelSchemeData.LogisticUnitBestBeforeSellByDate.ToString("o"));
+                writer.WriteElementString("variant_code", detail.LabelSchemeData.VariantCode ?? string.Empty);
+                writer.WriteElementString("variant_no", detail.LabelSchemeData.VariantNumber.ToString());
+                writer.WriteElementString("alt_qty", detail.Quantity.ToString());
+                writer.WriteElementString("wt_qty", detail.WeightQuantity.ToString());
+                writer.WriteElementString("base_qty", detail.BaseQuantity.ToString());
+                writer.WriteElementString("is_batch_print_product_label", isBatchPrintProductLabel.ToString());
+                writer.WriteElementString("extra1", detail.ActExtra.Text1 ?? string.Empty);
+                writer.WriteElementString("extra2", detail.ActExtra.Text2 ?? string.Empty);
+                writer.WriteElementString("extra3", detail.ActExtra.Text3 ?? string.Empty);
+                writer.WriteElementString("extra4", detail.ActExtra.Text4 ?? string.Empty);
+                writer.WriteElementString("extra5", detail.ActExtra.DateTime1.ToString("o"));
+                writer.WriteEndElement();
+                writer.WriteEndDocument();
+                writer.Flush();
+            }
 
+            var xmlDoc = XDocument.Parse(sb.ToString());
             return Task.FromResult(xmlDoc);
-        }
-
-        /// <summary>
-        ///     Gather activity detail data from the scanned bar code.
-        /// </summary>
-        /// <param name="barParse"><see cref="BarCodeParse" /> Bar code parse scan information.</param>
-        /// <param name="actSubType"><see cref="SysCommon.ActSubTypes" /> Activity subtype.</param>
-        /// <param name="actItem"><see cref="ActItem" /> Activity item instance.</param>
-        /// <param name="defaultItemSchemeData"><see cref="ActItemSchemeData" /> Scheme data.</param>
-        /// <param name="actDetail"><see cref="ActDetail" /> Activity detail.</param>
-        /// <param name="isForceStopForEditing"> Flag to force stopping at the edit screen.</param>
-        /// <returns>True if ready to insert detail else false.</returns>
-        /// <remarks>This can be invoked also from an add detail button event with no bar code data.</remarks>
-        public static async Task<bool> GatherProductData(
-            BarCodeParse barParse,
-            SysCommon.ActSubTypes actSubType,
-            ActItem actItem,
-            ActItemSchemeData defaultItemSchemeData,
-            ActDetail actDetail,
-            bool isForceStopForEditing = false)
-        {
-            var sysEnv = SysEnvironment.GetInstance();
-            var isInsertDetailReady = false;
-
-            // Can't remember why this block is needed.
-            if (!string.IsNullOrEmpty(barParse.ActDetailFkRefno) && !sysEnv.SysSettings.IsDisconnectedMode)
-            {
-                defaultItemSchemeData = new ActItemSchemeData();
-                var locMap = LocationMap.GetInstance();
-                var sLocMapAndRefno = await GetSLocMapFromLocMapFkRefno(
-                    defaultItemSchemeData.LocMapWhsFkRefno,
-                    defaultItemSchemeData.LocMapSectFkRefno,
-                    defaultItemSchemeData.LocMapSlotFkRefno);
-                locMap.CurrLocMap = sLocMapAndRefno.SLocMap;
-            }
-
-            var parseSchemeData = new ParseSchemeData(
-                actDetail.ActItem.ProdInfo.Scheme,
-                barParse,
-                defaultItemSchemeData,
-                actItem.ActHdr.SkidInfo.CurrSkid);
-
-            var defaultSchemeDataAssigned = false;
-            actDetail.SchemeData = parseSchemeData.GatherSchemeData(
-                actDetail.SchemeData,
-                ref defaultSchemeDataAssigned);
-
-            var defaultLabelSchemeDataAssigned = false;
-            if ((actDetail.ActSubType == SysCommon.ActSubTypes.Receiving ||
-                actDetail.ActSubType == SysCommon.ActSubTypes.TransferFrom ||
-                actDetail.ActSubType == SysCommon.ActSubTypes.TransferTo) &&
-                actDetail.ActItem.LocMap.IsWhsWms)
-            {
-                // defaultLabelSchemeDataAssigned is assigned to true if the label scheme data is assigned
-                var labelSchemeData = new ParseLabelSchemeData(
-                    actDetail.ActItem.ProdInfo.Scheme,
-                    barParse,
-                    defaultItemSchemeData,
-                    actItem.ActHdr.SkidInfo.CurrSkid);
-                actDetail.LabelSchemeData = labelSchemeData.GatherLabelSchemeData(
-                    actDetail.SchemeData,
-                    ref defaultLabelSchemeDataAssigned);
-            }
-
-            var actDetailAndStopForDetail = await GatherProductQuantityData(
-                actDetail,
-                barParse,
-                defaultItemSchemeData);
-
-            // isForceStopForEditing may be set to true from the calling method.
-            if (isForceStopForEditing)
-            {
-                actDetailAndStopForDetail.IsForceStopForEdit = true;
-            }
-            else
-            {
-                actDetailAndStopForDetail.IsForceStopForEdit = IsStopForDetail();
-            }
-
-            var isStopForLabelDetail = false;
-            if ((actDetail.ActSubType == SysCommon.ActSubTypes.Receiving ||
-                    actDetail.ActSubType == SysCommon.ActSubTypes.TransferFrom ||
-                    actDetail.ActSubType == SysCommon.ActSubTypes.TransferTo) &&
-                    actDetail.ActItem.LocMap.IsWhsWms)
-            {
-                if (!actDetail.IsLabelSchemeComplete())
-                {
-                    isStopForLabelDetail = true;
-                }
-                else if (defaultLabelSchemeDataAssigned)
-                {
-                    // If the label scheme data was assigned from the default item scheme data
-                    // then we do not need to stop for label printing.
-                    ////isStopForLabelDetail = true;
-                    // actDetailAndStopForDetail.IsForceStopForEdit may be set to true because of an invalid
-                    // production date for example. At some point we need to update the actDetail.LabelSchemeData
-                    // with a new valid production date from the edit screen.
-                }
-            }
-
-            if (actDetailAndStopForDetail.IsForceStopForEdit)
-            {
-                var continueIsStopForDetail = false;
-
-                // Check for duplicate occurs in form
-                // Check for quantity over occurs in form
-                // Check for label printing occurs in form
-                var form = new FormDialogContainer(EDialogTypes.ActivityDetailEdit, actDetail, actSubType);
-                if (await Device.InvokeOnMainThreadAsync(async () =>
-                        await form.DisplayControl.ShowDialog() == DialogResult.OK))
-                {
-                    continueIsStopForDetail = true;
-                }
-
-                if (continueIsStopForDetail)
-                {
-                    XDocument xmlDoc = null;
-                    ////xmlDoc = form.DisplayControlData;
-                    xmlDoc = await ((IAppArea)form.DisplayControl).GetXml();
-                    UpdateActDetailFromXml(ref actDetail, xmlDoc);
-
-                    // No need to call actItem.IsReadyToApply(xmlParam) the form will call it.
-                    isInsertDetailReady = true;
-                }
-                else
-                {
-                    throw new GatherProductDataException("Cancelled from detail edit.", true);
-                }
-            }
-            else if (isStopForLabelDetail)
-            {
-                var continueIsStopForLabelDetail = false;
-
-                // No duplicate check needed for label printing
-                // No quantity over check needed for label printing
-                var form = new FormDialogContainer(
-                    EDialogTypes.ActivityProductLabel,
-                    actDetail,
-                    actSubType);
-
-                if (await Device.InvokeOnMainThreadAsync(async () =>
-                        await form.DisplayControl.ShowDialog() == DialogResult.OK))
-                {
-                    continueIsStopForLabelDetail = true;
-                }
-
-                if (continueIsStopForLabelDetail)
-                {
-                    XDocument xmlDoc = null;
-                    xmlDoc = await ((IAppArea)form.DisplayControl).GetXml();
-                    UpdateActDetailFromXml(ref actDetail, xmlDoc);
-                }
-
-                // No need to call actItem.IsReadyToApply(xmlParam) the form will call it.
-                // Insert the activity detail even if the print product label was canceled.
-                // All inventory tracked scheme components where complete before even call the
-                // print product labels control.
-                isInsertDetailReady = true;
-            }
-            else
-            {
-                actDetail.SchemeId = GetActSchemeIdFromSProdSchemeData(
-                    actItem.ProdInfo.Code,
-                    actItem.ProdInfo.Scheme,
-                    actDetail.SchemeData);
-                actDetail.UniqueSchemeId = GetUniqueSchemeIdFromSProdSchemeData(
-                    actItem.ProdInfo.Code,
-                    actItem.ProdInfo.Scheme,
-                    actDetail.SchemeData);
-
-                // IsReadyToApply will perform any validations, such as duplicate checks and
-                // quantity validations.
-                var xmlParam = XDocument.Parse(
-                    "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
-                    + "<imclient>"
-                    + "<itm_refno>" + actItem.ItemFkRefno + "</itm_refno>"
-                    + "<alt_qty>" + actDetail.Quantity + "</alt_qty>"
-                    + "<wt_qty>" + actDetail.WeightQuantity + "</wt_qty>"
-                    + "<ActivityDetailUniqueSchemeID>" + actDetail.UniqueSchemeId + "</ActivityDetailUniqueSchemeID>"
-                    + "</imclient>");
-
-                await actItem.IsReadyToApply(xmlParam);
-
-                if (defaultLabelSchemeDataAssigned &&
-                    (actDetail.ActSubType == SysCommon.ActSubTypes.Receiving ||
-                    actDetail.ActSubType == SysCommon.ActSubTypes.TransferFrom ||
-                    actDetail.ActSubType == SysCommon.ActSubTypes.TransferTo) &&
-                    actDetail.ActItem.LocMap.IsWhsWms)
-                {
-                    var sendReq = await actDetail.CreateSubmitProductLabelXml(
-                    await SysShared.GetXmlFromActivityDetailLabel(actDetail));
-                    _ = SysCommon.SubmitComm(sendReq);
-                }
-
-                isInsertDetailReady = true;
-            }
-
-            return isInsertDetailReady;
-
-            static async Task<ActDetailAndStopForDetail> GatherProductQuantityData(
-                ActDetail actDetail,
-                BarCodeParse barParse,
-                ActItemSchemeData tempItemSchemeData)
-            {
-                var prodInfo = actDetail.ActItem.ProdInfo;
-                var barCodeRuleForcedEdit = false;
-
-                if (actDetail.ActItem.IsCatchAskZero())
-                {
-                    actDetail.Quantity = 0;
-                    actDetail.BaseQuantity = 0;
-                    actDetail.WeightQuantity = 0;
-                }
-                else
-                {
-                    GatherWeightQuantity(prodInfo, actDetail, barParse);
-                    GatherQuantityFromItem();
-                    await GatherUnitQuantity();
-                    NegateAdjustmentQuantity();
-                }
-
-                // Fill activity detail and stop for detail.
-                var actDetailAndStopForDetail = new ActDetailAndStopForDetail
-                {
-                    ActDetail = actDetail,
-                    IsForceStopForEdit = barCodeRuleForcedEdit,
-                };
-
-                return actDetailAndStopForDetail;
-
-                void GatherWeightQuantity(ProductInfo prodInfo, ActDetail actDetail, BarCodeParse barCodeParse)
-                {
-                    var sysEnv = SysEnvironment.GetInstance();
-
-                    // Assign scanned weight and convert if needed
-                    if (sysEnv.SysSettings.IsSetCatchWeightZero && prodInfo.IsCatchWeight)
-                    {
-                        barCodeRuleForcedEdit = true;
-                    }
-                    else
-                    {
-                        actDetail.WeightQuantity = prodInfo.UnitGrossWeight;
-                    }
-
-                    if (prodInfo.IsCatchWeight)
-                    {
-                        switch (prodInfo.WeightUnitCode)
-                        {
-                            case "LB" when barCodeParse.NetWeightMetricKg != 0:
-                                actDetail.WeightQuantity = SysCommon.ConvertKg2Lb(barCodeParse.NetWeightMetricKg);
-                                break;
-
-                            case "LB":
-                            {
-                                if (barCodeParse.NetWeightNonMetricLb != 0)
-                                {
-                                    actDetail.WeightQuantity = barCodeParse.NetWeightNonMetricLb;
-                                }
-
-                                break;
-                            }
-
-                            case "KG" when barCodeParse.NetWeightNonMetricLb != 0:
-                                actDetail.WeightQuantity = SysCommon.ConvertLb2Kg(barCodeParse.NetWeightNonMetricLb);
-                                break;
-
-                            case "KG":
-                            {
-                                if (barCodeParse.NetWeightMetricKg != 0)
-                                {
-                                    actDetail.WeightQuantity = barCodeParse.NetWeightMetricKg;
-                                }
-
-                                break;
-                            }
-                        }
-                    }
-                }
-
-                async Task GatherBaseQuantity(decimal unitQuantity)
-                {
-                    var sysEnv = SysEnvironment.GetInstance();
-                    if (prodInfo.BaseUnitCode == "LB" || prodInfo.BaseUnitCode == "KG")
-                    {
-                        actDetail.BaseQuantity = actDetail.WeightQuantity;
-                    }
-                    else
-                    {
-                        if (prodInfo.IsCatchCount
-                            && barParse.LogisticUnitVariableCount != 0
-                            && sysEnv.BarCodeSettings.IsRuleEnabled_Parse_Code_128_AI01_BC_AI30_exclusive)
-                        {
-                            actDetail.BaseQuantity = barParse.LogisticUnitVariableCount;
-                        }
-                        else
-                        {
-                            actDetail.BaseQuantity = unitQuantity * await GetUnitRelationFactor(prodInfo);
-                        }
-                    }
-                }
-
-                void NegateAdjustmentQuantity()
-                {
-                    // Negate the quantity if desired
-                    if (actDetail.ActItem.ActHdr.ActSubType == SysCommon.ActSubTypes.Adjustment)
-                    {
-                        var adjSettings = new AdjustmentSettings().LoadData();
-                        if (adjSettings.NegateScanQuantity)
-                        {
-                            actDetail.Quantity *= -1;
-                            actDetail.BaseQuantity *= -1;
-                            actDetail.WeightQuantity *= -1;
-                        }
-                    }
-                }
-
-                async Task GatherUnitQuantity()
-                {
-                    decimal unitQuantity = 1;
-                    await CheckBarCodeRuleAi21BoxCode(unitQuantity);
-
-                    // If catch count is enabled the variable count is the base quantity not the unit quantity
-                    if (!prodInfo.IsCatchCount)
-                    {
-                        var sysEnv = SysEnvironment.GetInstance();
-                        if (barParse.LogisticUnitVariableCount != 0
-                            && sysEnv.BarCodeSettings.IsRuleEnabled_Parse_Code_128_AI01_BC_AI30_exclusive)
-                        {
-                            unitQuantity = barParse.LogisticUnitVariableCount;
-                        }
-                    }
-
-                    await GatherBaseQuantity(unitQuantity);
-
-                    if (prodInfo.UnitCode == "LB" ||
-                        prodInfo.UnitCode == "KG")
-                    {
-                        actDetail.Quantity = actDetail.WeightQuantity;
-                    }
-                    else
-                    {
-                        actDetail.Quantity = unitQuantity;
-                    }
-
-                    return;
-
-                    async Task<decimal> CheckBarCodeRuleAi21BoxCode(decimal unitQty)
-                    {
-                        var sysEnv = SysEnvironment.GetInstance();
-                        if (sysEnv.BarCodeSettings.IsRuleEnabled_Parse_Code_128_AI01_Nossack_AI21_SkidNumber_BoxCount)
-                        {
-                            EvalParse_Code_128_AI01_Nossack_AI21_SkidNumber_BoxCount(
-                                barParse,
-                                actDetail,
-                                ref unitQty);
-
-                            // Adjust the weight if rule was applied.
-                            if (unitQty > 1)
-                            {
-                                // See WO# 12203 Always stop and allow editing of detail.
-                                barCodeRuleForcedEdit = true;
-
-                                if (!prodInfo.IsCatchWeight)
-                                {
-                                    actDetail.WeightQuantity = unitQty * await GetUnitRelationFactor(
-                                        prodInfo);
-                                }
-                            }
-                        }
-
-                        return unitQty;
-                    }
-                }
-
-                void GatherQuantityFromItem()
-                {
-                    if (tempItemSchemeData.ActDetailQuantity != 0 && actDetail.Quantity == 0)
-                    {
-                        actDetail.Quantity = tempItemSchemeData.ActDetailQuantity;
-                    }
-
-                    if (tempItemSchemeData.ActDetailBaseQuantity != 0 && actDetail.BaseQuantity == 0)
-                    {
-                        actDetail.BaseQuantity = tempItemSchemeData.ActDetailBaseQuantity;
-                    }
-
-                    if (tempItemSchemeData.ActDetailWeightQuantity != 0 && actDetail.WeightQuantity == 0)
-                    {
-                        actDetail.WeightQuantity = tempItemSchemeData.ActDetailWeightQuantity;
-                    }
-                }
-            }
-
-            static void UpdateActDetailFromXml(ref ActDetail actDetail, XDocument xmlDoc)
-            {
-                var schemeData = actDetail.SchemeData;
-                if (xmlDoc.Root != null)
-                {
-                    schemeData.SingleTradeItemSerialNumber = xmlDoc.Root.Element("serial").Value;
-                    schemeData.LogisticUnitProductionDate = DateTime.Parse(xmlDoc.Root.Element("pdate").Value);
-                    schemeData.LogisticUnitBatchLotNumber = xmlDoc.Root.Element("lot_no").Value;
-                    schemeData.LogisticUnitBestBeforeSellByDate = DateTime.Parse(xmlDoc.Root.Element("bdate").Value);
-                    schemeData.VariantCode = xmlDoc.Root.Element("variant_code").Value;
-                    schemeData.VariantNumber = int.Parse(xmlDoc.Root.Element("variant_no").Value);
-                    actDetail.SchemeData = schemeData;
-
-                    actDetail.Quantity = decimal.Parse(xmlDoc.Root.Element("alt_qty").Value);
-                    actDetail.BaseQuantity = decimal.Parse(xmlDoc.Root.Element("base_qty").Value);
-                    actDetail.WeightQuantity = decimal.Parse(xmlDoc.Root.Element("wt_qty").Value);
-
-                    actDetail.ActExtra.Text1 = xmlDoc.Root.Element("extra1").Value;
-                    actDetail.ActExtra.Text2 = xmlDoc.Root.Element("extra2").Value;
-                    actDetail.ActExtra.Text3 = xmlDoc.Root.Element("extra3").Value;
-                    actDetail.ActExtra.Text4 = xmlDoc.Root.Element("extra4").Value;
-                    actDetail.ActExtra.DateTime1 = DateTime.Parse(xmlDoc.Root.Element("extra5").Value);
-                }
-
-                actDetail.SchemeId = GetActSchemeIdFromSProdSchemeData(
-                    actDetail.ActItem.ProdInfo.Code,
-                    actDetail.ActItem.ProdInfo.Scheme,
-                    actDetail.SchemeData);
-
-                actDetail.UniqueSchemeId = GetUniqueSchemeIdFromSProdSchemeData(
-                    actDetail.ActItem.ProdInfo.Code,
-                    actDetail.ActItem.ProdInfo.Scheme,
-                    actDetail.SchemeData);
-            }
-
-            bool IsStopForDetail()
-            {
-                var isStopForDetail = actDetailAndStopForDetail.IsForceStopForEdit;
-
-                if (!isStopForDetail)
-                {
-                    if (actDetailAndStopForDetail.ActDetail.Quantity == 0 ||
-                        actDetailAndStopForDetail.ActDetail.BaseQuantity == 0 ||
-                        actDetailAndStopForDetail.ActDetail.WeightQuantity == 0)
-                    {
-                        isStopForDetail = true;
-                    }
-                    else
-                    {
-                        if (actDetail.IsSchemeComplete(actDetail.ActItem))
-                        {
-                            if (actDetail.ActItem.IsCatchAsk())
-                            {
-                                isStopForDetail = true;
-                            }
-                            else if (defaultSchemeDataAssigned)
-                            {
-                                ////isStopForDetail = true;
-                            }
-                        }
-                        else
-                        {
-                            isStopForDetail = true;
-                        }
-                    }
-                }
-
-                if (!isStopForDetail)
-                {
-                    if (actSubType == SysCommon.ActSubTypes.Receiving && actDetail.ActItem.ProdInfo.ProductAcceptDays > 0)
-                    {
-                        if (actDetail.ActItem.ProdInfo.Scheme.IsProductionDateTracked &&
-                            actDetail.SchemeData.LogisticUnitProductionDate > new DateTime(1900, 1, 1))
-                        {
-                            if (actDetail.SchemeData.LogisticUnitProductionDate.AddDays(
-                                actDetail.ActItem.ProdInfo.ProductAcceptDays) < DateTime.Now.Date)
-                            {
-                                isStopForDetail = true;
-                            }
-                        }
-
-                        if (actDetail.ActItem.ProdInfo.Scheme.IsBestBeforeDateTracked &&
-                            actDetail.SchemeData.LogisticUnitBestBeforeSellByDate > new DateTime(1900, 1, 1))
-                        {
-                            if (actDetail.SchemeData.LogisticUnitBestBeforeSellByDate >
-                                DateTime.Now.AddDays(actDetail.ActItem.ProdInfo.ProductAcceptDays))
-                            {
-                                isStopForDetail = true;
-                            }
-                        }
-                    }
-                }
-
-                if (!isStopForDetail)
-                {
-                    var scheme = actDetail.ActItem.ProdInfo.Scheme;
-                    if (scheme.Extra1Type != Convert.ToInt32(SysCommon.SchemeExtraTypes.Disabled) && scheme.Extra1IsRequired)
-                    {
-                        isStopForDetail = true;
-                    }
-                    else if (scheme.Extra2Type != Convert.ToInt32(SysCommon.SchemeExtraTypes.Disabled) && scheme.Extra2IsRequired)
-                    {
-                        isStopForDetail = true;
-                    }
-                    else if (scheme.Extra3Type != Convert.ToInt32(SysCommon.SchemeExtraTypes.Disabled) && scheme.Extra3IsRequired)
-                    {
-                        isStopForDetail = true;
-                    }
-                    else if (scheme.Extra4Type != Convert.ToInt32(SysCommon.SchemeExtraTypes.Disabled) && scheme.Extra4IsRequired)
-                    {
-                        isStopForDetail = true;
-                    }
-                    else if (scheme.Extra5Type != Convert.ToInt32(SysCommon.SchemeExtraTypes.Disabled) && scheme.Extra5IsRequired)
-                    {
-                        isStopForDetail = true;
-                    }
-                }
-
-                return isStopForDetail;
-            }
         }
 
         /// <summary>
@@ -706,81 +143,6 @@ namespace dMobile.View
             var revision = Assembly.GetExecutingAssembly().GetName().Version.Revision;
 
             return $"{major}.{minor}.{build}.{revision}";
-        }
-
-        /// <summary>
-        ///     The BarCodeRuleParseSumwaFarmFedWholeDuckUseWeightRangeToIDProduct.
-        /// </summary>
-        /// <param name="barCodeParse">.</param>
-        public static void BarCodeRuleParseSumwaFarmFedWholeDuckUseWeightRangeToIdProduct(
-            BarCodeParse barCodeParse)
-        {
-            if (barCodeParse.NetWeightMetricKg >= Convert.ToDecimal(11.00) &&
-                barCodeParse.NetWeightMetricKg <= Convert.ToDecimal(11.99))
-            {
-                barCodeParse.ProductIdentifier = "MC10448";
-            }
-            else if (barCodeParse.NetWeightMetricKg >= Convert.ToDecimal(12.00) &&
-                     barCodeParse.NetWeightMetricKg <= Convert.ToDecimal(12.49))
-            {
-                barCodeParse.ProductIdentifier = "MC10443";
-            }
-            else if (barCodeParse.NetWeightMetricKg >= Convert.ToDecimal(12.50) &&
-                     barCodeParse.NetWeightMetricKg <= Convert.ToDecimal(12.99))
-            {
-                barCodeParse.ProductIdentifier = "MC10441";
-            }
-            else if (barCodeParse.NetWeightMetricKg >= Convert.ToDecimal(13.00) &&
-                     barCodeParse.NetWeightMetricKg <= Convert.ToDecimal(13.49))
-            {
-                barCodeParse.ProductIdentifier = "MC10442";
-            }
-            else if (barCodeParse.NetWeightMetricKg >= Convert.ToDecimal(13.50) &&
-                     barCodeParse.NetWeightMetricKg <= Convert.ToDecimal(13.99))
-            {
-                barCodeParse.ProductIdentifier = "MC10440";
-            }
-            else if (barCodeParse.NetWeightMetricKg >= Convert.ToDecimal(14.00) &&
-                     barCodeParse.NetWeightMetricKg <= Convert.ToDecimal(14.49))
-            {
-                barCodeParse.ProductIdentifier = "MC10445";
-            }
-            else if (barCodeParse.NetWeightMetricKg >= Convert.ToDecimal(14.50) &&
-                     barCodeParse.NetWeightMetricKg <= Convert.ToDecimal(14.99))
-            {
-                barCodeParse.ProductIdentifier = "MC10446";
-            }
-            else if (barCodeParse.NetWeightMetricKg >= Convert.ToDecimal(15.00) &&
-                     barCodeParse.NetWeightMetricKg <= Convert.ToDecimal(15.49))
-            {
-                barCodeParse.ProductIdentifier = "MC10447";
-            }
-            else if (barCodeParse.NetWeightMetricKg >= Convert.ToDecimal(15.50) &&
-                     barCodeParse.NetWeightMetricKg <= Convert.ToDecimal(16.00))
-            {
-                barCodeParse.ProductIdentifier = "MC10450";
-            }
-            else
-            {
-                throw new Exception("Unable to identify product scanned." + Environment.NewLine +
-                                    "ParseSumwaFarmFedWholeDuck_UseWeightRangeToIDProduct enabled.");
-            }
-        }
-
-        /// <summary>
-        ///     Defines the <see cref="ActDetailAndStopForDetail" /> Activity detail used for editing.
-        /// </summary>
-        private class ActDetailAndStopForDetail
-        {
-            /// <summary>
-            ///     Gets or sets the activity detail.
-            /// </summary>
-            public ActDetail ActDetail { get; set; }
-
-            /// <summary>
-            ///     Gets or sets a value indicating whether to stop for edit detail.
-            /// </summary>
-            public bool IsForceStopForEdit { get; set; }
         }
     }
 }
