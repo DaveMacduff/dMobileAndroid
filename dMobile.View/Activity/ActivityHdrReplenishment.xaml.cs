@@ -360,14 +360,11 @@ namespace dMobile.View.Activity
         /// <returns><see cref="Task" /> Task operation.</returns>
         public async Task ScannerDisable()
         {
-            if (this.Scanner != null)
+            if (this.Scanner != null && this.IsBarCodeHandlerRegistered)
             {
-                if (this.IsBarCodeHandlerRegistered)
-                {
-                    this.Scanner.ClearBarCodeScanEventHandlers();
-                    await this.Scanner.DisableScanning();
-                    this.IsBarCodeHandlerRegistered = false;
-                }
+                this.Scanner.ClearBarCodeScanEventHandlers();
+                await this.Scanner.DisableScanning();
+                this.IsBarCodeHandlerRegistered = false;
             }
         }
 
@@ -377,18 +374,15 @@ namespace dMobile.View.Activity
         /// <returns><see cref="Task" /> Task operation.</returns>
         public async Task ScannerEnable()
         {
-            if (this.Scanner != null)
+            if (this.Scanner != null && !this.IsBarCodeHandlerRegistered)
             {
-                if (!this.IsBarCodeHandlerRegistered)
+                await this.Scanner.EnableScanning();
+                if (!this.Scanner.IsBarCodeScanEventHandlerAdded())
                 {
-                    await this.Scanner.EnableScanning();
-                    if (!this.Scanner.IsBarCodeScanEventHandlerAdded())
-                    {
-                        this.Scanner.OnBarCodeScan += this.BarCodeHandler;
-                    }
-
-                    this.IsBarCodeHandlerRegistered = true;
+                    this.Scanner.OnBarCodeScan += this.BarCodeHandler;
                 }
+
+                this.IsBarCodeHandlerRegistered = true;
             }
         }
 
@@ -1407,20 +1401,17 @@ namespace dMobile.View.Activity
             this.MainMoveToItems.Clear();
             foreach (var item in this.ActHdr.ListItems)
             {
-                if (item is Replenishment replen)
+                if (item is Replenishment replen && replen.ActivityItemFKParRefno == this.ActHdr.HdrFkRefno)
                 {
-                    if (replen.ActivityItemFKParRefno == this.ActHdr.HdrFkRefno)
-                    {
-                        this.SourceToLocMapRefno = replen.LocationMapRefno;
-                        this.SourceToLocMap =
-                            await LocationMapTasks.GetSLocMapFromLocMapRefno(this.SourceToLocMapRefno);
-                        this.SourceToActivityItemFKRefno = replen.ActivityItemFKRefno;
-                        this.MainMoveToItems.Add($"To: {replen.ReadableLocationMap}");
-                        this.MainMoveToItems.Add($"Scheme ID: {replen.ActivityDetailSchemeID}");
-                        this.MainMoveToItems.Add($"Quantity {replen.ActivityItemReplenishmentQuantity * -1}" +
-                                                 $" {(replen.ProductUnitBC + replen.ProductUnitCode).TrimStart()}");
-                        break;
-                    }
+                    this.SourceToLocMapRefno = replen.LocationMapRefno;
+                    this.SourceToLocMap =
+                        await LocationMapTasks.GetSLocMapFromLocMapRefno(this.SourceToLocMapRefno);
+                    this.SourceToActivityItemFKRefno = replen.ActivityItemFKRefno;
+                    this.MainMoveToItems.Add($"To: {replen.ReadableLocationMap}");
+                    this.MainMoveToItems.Add($"Scheme ID: {replen.ActivityDetailSchemeID}");
+                    this.MainMoveToItems.Add($"Quantity {replen.ActivityItemReplenishmentQuantity * -1}" +
+                                             $" {(replen.ProductUnitBC + replen.ProductUnitCode).TrimStart()}");
+                    break;
                 }
             }
 

@@ -76,12 +76,9 @@ namespace dMobile.View.Options
                 {
                     _ = Enum.TryParse(keyPressed, out Keycode keycode);
 
-                    if (keycode == Keycode.F1)
+                    if (keycode == Keycode.F1 && await this.SaveChanges())
                     {
-                        if (await this.SaveChanges())
-                        {
-                            await this.Close();
-                        }
+                        await this.Close();
                     }
                 });
 
@@ -162,20 +159,17 @@ namespace dMobile.View.Options
             try
             {
                 // if select all make sure all items are selected. including disconnected mode activities if applicable
-                if (this.chkSelectAll.IsToggled)
+                if (this.chkSelectAll.IsToggled && this.SysEnv.SysSettings.IsDisconnectedMode)
                 {
-                    if (this.SysEnv.SysSettings.IsDisconnectedMode)
-                    {
-                        isReadyToSave = isReadyToSave && this.chkSystemData.IsToggled;
-                        isReadyToSave = isReadyToSave && this.chkAdjustments.IsToggled;
-                        isReadyToSave = isReadyToSave && this.chkCounts.IsToggled;
-                        isReadyToSave = isReadyToSave && this.chkProductionTickets.IsToggled;
-                        isReadyToSave = isReadyToSave && this.chkPurchaseOrders.IsToggled;
-                        isReadyToSave = isReadyToSave && this.chkReplenishment.IsToggled;
-                        isReadyToSave = isReadyToSave && this.chkSalesOrders.IsToggled;
-                        isReadyToSave = isReadyToSave && this.chkTransfers.IsToggled;
-                        isReadyToSave = isReadyToSave && this.chkPurchaseOrderWorkSheet.IsToggled;
-                    }
+                    isReadyToSave = isReadyToSave && this.chkSystemData.IsToggled;
+                    isReadyToSave = isReadyToSave && this.chkAdjustments.IsToggled;
+                    isReadyToSave = isReadyToSave && this.chkCounts.IsToggled;
+                    isReadyToSave = isReadyToSave && this.chkProductionTickets.IsToggled;
+                    isReadyToSave = isReadyToSave && this.chkPurchaseOrders.IsToggled;
+                    isReadyToSave = isReadyToSave && this.chkReplenishment.IsToggled;
+                    isReadyToSave = isReadyToSave && this.chkSalesOrders.IsToggled;
+                    isReadyToSave = isReadyToSave && this.chkTransfers.IsToggled;
+                    isReadyToSave = isReadyToSave && this.chkPurchaseOrderWorkSheet.IsToggled;
                 }
 
                 // if we are not in disconnected mode do not allow activity refreshing
@@ -275,45 +269,42 @@ namespace dMobile.View.Options
         /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
         public async Task RefreshComplete()
         {
-            if (this.IsRefreshComplete)
+            if (this.IsRefreshComplete && this.IsDisplayShutDownMsg)
             {
-                if (this.IsDisplayShutDownMsg)
+                this.IsDisplayShutDownMsg = false;
+
+                // Attempt to record logout
+                if (!this.SysEnv.SysSettings.IsDisconnectedMode && (this.SysEnv.CommSetup.HostIpAddressComponent1 + this.SysEnv.CommSetup.HostIpAddressComponent2 + this.SysEnv.CommSetup.HostIpAddressComponent3) != 0)
                 {
-                    this.IsDisplayShutDownMsg = false;
-
-                    // Attempt to record logout
-                    if (!this.SysEnv.SysSettings.IsDisconnectedMode && (this.SysEnv.CommSetup.HostIpAddressComponent1 + this.SysEnv.CommSetup.HostIpAddressComponent2 + this.SysEnv.CommSetup.HostIpAddressComponent3) != 0)
+                    if (this.SysEnv.ContactLog.IsLoggedIn)
                     {
-                        if (this.SysEnv.ContactLog.IsLoggedIn)
-                        {
-                            this.SysEnv.ContactLog.IsLoggedIn = false;
-                            var tempContactLogin = this.SysEnv.ContactLog;
-                            _ = this.SysEnv.ContactLog.SaveData(ref tempContactLogin);
+                        this.SysEnv.ContactLog.IsLoggedIn = false;
+                        var tempContactLogin = this.SysEnv.ContactLog;
+                        _ = this.SysEnv.ContactLog.SaveData(ref tempContactLogin);
 
-                            try
-                            {
-                                this.SysEnv.ContactLog.SubmitContactLogOut();
-                            }
-                            catch (SocketException ex)
-                            {
-                                Console.WriteLine(ex);
-                            }
-                            catch (Exception ex)
-                            {
-                                throw ex;
-                            }
-                            finally
-                            {
-                                Device.BeginInvokeOnMainThread(async () => await this.DisplayAlert(this.GetControlDescription(), "Please log back in for changes to be made in effect.", "OK"));
-                                _ = await Device.InvokeOnMainThreadAsync(() => Application.Current.MainPage = new NavigationPage(new SplashStartup()));
-                            }
+                        try
+                        {
+                            this.SysEnv.ContactLog.SubmitContactLogOut();
+                        }
+                        catch (SocketException ex)
+                        {
+                            Console.WriteLine(ex);
+                        }
+                        catch (Exception ex)
+                        {
+                            throw ex;
+                        }
+                        finally
+                        {
+                            Device.BeginInvokeOnMainThread(async () => await this.DisplayAlert(this.GetControlDescription(), "Please log back in for changes to be made in effect.", "OK"));
+                            _ = await Device.InvokeOnMainThreadAsync(() => Application.Current.MainPage = new NavigationPage(new SplashStartup()));
                         }
                     }
-                    else
-                    {
-                        Device.BeginInvokeOnMainThread(async () => await this.DisplayAlert(this.GetControlDescription(), "Please log back in for changes to be made in effect.", "OK"));
-                        _ = await Device.InvokeOnMainThreadAsync(() => Application.Current.MainPage = new NavigationPage(new SplashStartup()));
-                    }
+                }
+                else
+                {
+                    Device.BeginInvokeOnMainThread(async () => await this.DisplayAlert(this.GetControlDescription(), "Please log back in for changes to be made in effect.", "OK"));
+                    _ = await Device.InvokeOnMainThreadAsync(() => Application.Current.MainPage = new NavigationPage(new SplashStartup()));
                 }
             }
         }
@@ -484,12 +475,9 @@ namespace dMobile.View.Options
 
             if (this.SysEnv.SysSettings.IsDisconnectedMode && await SysCommon.CheckForUnSubmittedData())
             {
-                if (await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(this.GetControlDescription(), Resource.WarningUnsubmittedDataExistsAndWillBeLostContinueWithRefreshData, Resource.Yes, Resource.No)))
+                if (await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(this.GetControlDescription(), Resource.WarningUnsubmittedDataExistsAndWillBeLostContinueWithRefreshData, Resource.Yes, Resource.No)) && await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(this.GetControlDescription(), Resource.ConfirmRefreshData, Resource.Yes, Resource.No)))
                 {
-                    if (await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(this.GetControlDescription(), Resource.ConfirmRefreshData, Resource.Yes, Resource.No)))
-                    {
-                        isContinueRefresh = true;
-                    }
+                    isContinueRefresh = true;
                 }
             }
             else if (await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(this.GetControlDescription(), "Confirm refresh data?", Resource.Yes, Resource.No)))
@@ -497,22 +485,19 @@ namespace dMobile.View.Options
                 isContinueRefresh = true;
             }
 
-            if (isContinueRefresh)
+            if (isContinueRefresh && await this.SaveChanges())
             {
-                if (await this.SaveChanges())
+                await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    await Device.InvokeOnMainThreadAsync(async () =>
-                    {
-                        var form = new FormDialogContainer(EDialogTypes.RefreshDataStatus, SysCommon.ActSubTypes.RefreshData);
+                    var form = new FormDialogContainer(EDialogTypes.RefreshDataStatus, SysCommon.ActSubTypes.RefreshData);
 
-                        if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
-                        {
-                            var xmlDoc = await form.GetXml();
-                            this.IsRefreshComplete = bool.Parse(xmlDoc.Root.Element("IsRefreshComplete").Value);
-                            await this.RefreshComplete();
-                        }
-                    });
-                }
+                    if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
+                    {
+                        var xmlDoc = await form.GetXml();
+                        this.IsRefreshComplete = bool.Parse(xmlDoc.Root.Element("IsRefreshComplete").Value);
+                        await this.RefreshComplete();
+                    }
+                });
             }
         }
 

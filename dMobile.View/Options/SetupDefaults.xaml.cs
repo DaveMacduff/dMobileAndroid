@@ -327,25 +327,19 @@ namespace dMobile.View.Options
                     this.PrnSettings.ShippingLabelPrinterName = string.Empty;
                     this.PrnSettings.IsEnabledShippingLabelPrinter = this.chkEnableShippingMobilePrinter.IsToggled;
 
-                    if (this.PrnSettings.IsEnabledShippingLabelPrinter)
-                    {
-                        if (this.cboShippingMobilePrinter.Items.Count > 0 &&
+                    if (this.PrnSettings.IsEnabledShippingLabelPrinter && this.cboShippingMobilePrinter.Items.Count > 0 &&
                             this.cboShippingMobilePrinter.SelectedIndex > -1)
-                        {
-                            this.PrnSettings.ShippingLabelPrinterName =
-                                this.cboShippingMobilePrinter.SelectedItem.ToString();
-                        }
+                    {
+                        this.PrnSettings.ShippingLabelPrinterName =
+                            this.cboShippingMobilePrinter.SelectedItem.ToString();
                     }
 
                     this.PrnSettings.ShelfLabelPrinterName = string.Empty;
                     this.PrnSettings.IsEnabledShelfLabelPrinter = this.chkEnableShelfMobilePrinter.IsToggled;
 
-                    if (this.PrnSettings.IsEnabledShelfLabelPrinter)
+                    if (this.PrnSettings.IsEnabledShelfLabelPrinter && this.cboShelfMobilePrinter.Items.Count > 0 && this.cboShelfMobilePrinter.SelectedIndex > -1)
                     {
-                        if (this.cboShelfMobilePrinter.Items.Count > 0 && this.cboShelfMobilePrinter.SelectedIndex > -1)
-                        {
-                            this.PrnSettings.ShelfLabelPrinterName = this.cboShelfMobilePrinter.SelectedItem.ToString();
-                        }
+                        this.PrnSettings.ShelfLabelPrinterName = this.cboShelfMobilePrinter.SelectedItem.ToString();
                     }
 
                     this.PrnSettings.ProductLabelPrinterName = string.Empty;

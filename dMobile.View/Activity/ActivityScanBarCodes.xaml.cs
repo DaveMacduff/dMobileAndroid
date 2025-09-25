@@ -244,13 +244,10 @@ namespace dMobile.View.Activity
                 {
                     _ = Enum.TryParse(keyPressed, out Keycode keycode);
 
-                    if (keycode == Keycode.F1)
+                    if (keycode == Keycode.F1 && await this.SaveChanges())
                     {
-                        if (await this.SaveChanges())
-                        {
-                            await this.ScannerDisable();
-                            await this.Close();
-                        }
+                        await this.ScannerDisable();
+                        await this.Close();
                     }
                 }
             }

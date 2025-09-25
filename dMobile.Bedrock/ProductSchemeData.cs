@@ -25,27 +25,27 @@ namespace dMobile.Bedrock
         /// <summary>
         ///     Gets or sets the logistic unit best before sell by date.
         /// </summary>
-        public DateTime LogisticUnitBestBeforeSellByDate { get; set; } = new DateTime(1900, 1, 1);
+        public DateTime LogisticUnitBestBeforeSellByDate { get; set; } = SysCommon.EmptyDateTime;
 
         /// <summary>
         ///     Gets or sets the logistic unit expiry use by date.
         /// </summary>
-        public DateTime LogisticUnitExpiryUseByDate { get; set; } = new DateTime(1900, 1, 1);
+        public DateTime LogisticUnitExpiryUseByDate { get; set; } = SysCommon.EmptyDateTime;
 
         /// <summary>
         ///     Gets or sets the logistic unit production date.
         /// </summary>
-        public DateTime LogisticUnitProductionDate { get; set; } = new DateTime(1900, 1, 1);
+        public DateTime LogisticUnitProductionDate { get; set; } = SysCommon.EmptyDateTime;
 
         /// <summary>
         ///     Gets or sets the logistic unit due date.
         /// </summary>
-        public DateTime LogisticUnitDueDate { get; set; } = new DateTime(1900, 1, 1);
+        public DateTime LogisticUnitDueDate { get; set; } = SysCommon.EmptyDateTime;
 
         /// <summary>
         ///     Gets or sets the logistic unit packaging date.
         /// </summary>
-        public DateTime LogisticUnitPackagingDate { get; set; } = new DateTime(1900, 1, 1);
+        public DateTime LogisticUnitPackagingDate { get; set; } = SysCommon.EmptyDateTime;
 
         /// <summary>
         ///     Gets or sets the logistic unit skid number.

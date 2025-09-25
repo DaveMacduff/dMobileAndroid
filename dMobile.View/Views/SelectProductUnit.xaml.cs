@@ -374,15 +374,12 @@ namespace dMobile.View.Views
         /// <returns><see cref="Task"/> Task operation.</returns>
         public async Task ScannerDisable()
         {
-            if (this.Scanner != null)
+            if (this.Scanner != null && this.IsBarCodeHandlerRegistered)
             {
-                if (this.IsBarCodeHandlerRegistered)
-                {
-                    this.Scanner.OnBarCodeScan -=
-                        new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
-                    await this.Scanner.DisableScanning();
-                    this.IsBarCodeHandlerRegistered = false;
-                }
+                this.Scanner.OnBarCodeScan -=
+                    new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
+                await this.Scanner.DisableScanning();
+                this.IsBarCodeHandlerRegistered = false;
             }
         }
 
@@ -392,15 +389,12 @@ namespace dMobile.View.Views
         /// <returns><see cref="Task"/> Task operation.</returns>
         public async Task ScannerEnable()
         {
-            if (this.Scanner != null)
+            if (this.Scanner != null && !this.IsBarCodeHandlerRegistered)
             {
-                if (!this.IsBarCodeHandlerRegistered)
-                {
-                    await this.Scanner.EnableScanning();
-                    this.Scanner.OnBarCodeScan +=
-                        new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
-                    this.IsBarCodeHandlerRegistered = true;
-                }
+                await this.Scanner.EnableScanning();
+                this.Scanner.OnBarCodeScan +=
+                    new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
+                this.IsBarCodeHandlerRegistered = true;
             }
         }
 
@@ -553,13 +547,10 @@ namespace dMobile.View.Views
                         case Keycode.Enter:
                         case Keycode.F1:
                             {
-                                if (this.dgProducts.SelectedItem != null)
+                                if (this.dgProducts.SelectedItem != null && await this.SaveChanges())
                                 {
-                                    if (await this.SaveChanges())
-                                    {
-                                        this.DialogResult = DialogResult.OK;
-                                        await this.Close();
-                                    }
+                                    this.DialogResult = DialogResult.OK;
+                                    await this.Close();
                                 }
 
                                 break;

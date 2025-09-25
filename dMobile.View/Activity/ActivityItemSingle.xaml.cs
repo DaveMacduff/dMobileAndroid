@@ -1733,16 +1733,13 @@ namespace dMobile.View.Activity
 
             async Task IfSkidAssignedAndSubTypeCountUseSkidLocation()
             {
-                if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFkRefno != 0)
-                {
-                    if (!(this.ActItem.ActSubType == SysCommon.ActSubTypes.PhysicalCounts ||
+                if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFkRefno != 0 && !(this.ActItem.ActSubType == SysCommon.ActSubTypes.PhysicalCounts ||
                           this.ActItem.ActSubType == SysCommon.ActSubTypes.CycleCounts))
+                {
+                    if (await LocationMapTasks.IsCompleteLocMap(this.ActItem.ActHdr.SkidInfo.CurrSkid.LocMap))
                     {
-                        if (await LocationMapTasks.IsCompleteLocMap(this.ActItem.ActHdr.SkidInfo.CurrSkid.LocMap))
-                        {
-                            this.LocMap.CurrLocMap = this.ActItem.ActHdr.SkidInfo.CurrSkid.LocMap;
-                            assignDefaultLocation = false;
-                        }
+                        this.LocMap.CurrLocMap = this.ActItem.ActHdr.SkidInfo.CurrSkid.LocMap;
+                        assignDefaultLocation = false;
                     }
                 }
             }
@@ -1922,7 +1919,7 @@ namespace dMobile.View.Activity
                 this.ActDetail.ActExtra.Text2 = string.Empty;
                 this.ActDetail.ActExtra.Text3 = string.Empty;
                 this.ActDetail.ActExtra.Text4 = string.Empty;
-                this.ActDetail.ActExtra.DateTime1 = new DateTime(1900, 1, 1);
+                this.ActDetail.ActExtra.DateTime1 = SysCommon.EmptyDateTime;
 
                 // Did not use this.ActItem.ActHdr.SkidInfo.CurrSkid.LogisticUnitSkidCode because of
                 // the length of the code and the fact isn't human-readable friendly.
@@ -1934,8 +1931,8 @@ namespace dMobile.View.Activity
                     // Set to empty values, otherwise the detail edit screen may not be shown.
                     schemeData.LogisticUnitSkidNumber = string.Empty;
                     schemeData.LogisticUnitBatchLotNumber = string.Empty;
-                    ////schemeData.LogisticUnitBestBeforeSellByDate = new DateTime(1900, 1, 1);
-                    ////schemeData.LogisticUnitProductionDate = new DateTime(1900, 1, 1);
+                    ////schemeData.LogisticUnitBestBeforeSellByDate = SysCommon.EmptyDateTime;
+                    ////schemeData.LogisticUnitProductionDate = SysCommon.EmptyDateTime;
                     schemeData.LogisticUnitBestBeforeSellByDate = DateTime.Now;
                     schemeData.LogisticUnitProductionDate = DateTime.Now;
                     schemeData.VariantCode = string.Empty;

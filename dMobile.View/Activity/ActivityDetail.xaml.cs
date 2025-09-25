@@ -322,19 +322,16 @@ namespace dMobile.View.Activity
                     this.SysEnv.SysSettings.CanPrintProductLabelReceiving &&
                     this.SysEnv.SysSettings.IsPrintProductLabelsAsBatch &&
                     !this.SysEnv.SysSettings.IsDisconnectedMode &&
-                    this.SysEnv.SysSettings.IsPrintProductLabelsAsBatch)
+                    this.SysEnv.SysSettings.IsPrintProductLabelsAsBatch && this.ActDetail.ListDetails.Count > 0)
                 {
-                    if (this.ActDetail.ListDetails.Count > 0)
+                    if (await Device.InvokeOnMainThreadAsync(
+                            async () => await this.DisplayAlert(
+                                "Print Label",
+                                "Print Product Labels",
+                                "Yes",
+                                "No")))
                     {
-                        if (await Device.InvokeOnMainThreadAsync(
-                                async () => await this.DisplayAlert(
-                                    "Print Label",
-                                    "Print Product Labels",
-                                    "Yes",
-                                    "No")))
-                        {
-                            await PrintBatchedProductLabels();
-                        }
+                        await PrintBatchedProductLabels();
                     }
                 }
             }
@@ -1933,7 +1930,7 @@ namespace dMobile.View.Activity
                 this.ActDetail.ActExtra.Text2 = string.Empty;
                 this.ActDetail.ActExtra.Text3 = string.Empty;
                 this.ActDetail.ActExtra.Text4 = string.Empty;
-                this.ActDetail.ActExtra.DateTime1 = new DateTime(1900, 1, 1);
+                this.ActDetail.ActExtra.DateTime1 = SysCommon.EmptyDateTime;
 
                 // Did not use this.ActItem.ActHdr.SkidInfo.CurrSkid.LogisticUnitSkidCode because of
                 // the length of the code and the fact isn't human-readable friendly.
@@ -1945,8 +1942,8 @@ namespace dMobile.View.Activity
                     // Set to empty values, otherwise the detail edit screen may not be shown.
                     schemeData.LogisticUnitSkidNumber = string.Empty;
                     schemeData.LogisticUnitBatchLotNumber = string.Empty;
-                    ////schemeData.LogisticUnitBestBeforeSellByDate = new DateTime(1900, 1, 1);
-                    ////schemeData.LogisticUnitProductionDate = new DateTime(1900, 1, 1);
+                    ////schemeData.LogisticUnitBestBeforeSellByDate = SysCommon.EmptyDateTime;
+                    ////schemeData.LogisticUnitProductionDate = SysCommon.EmptyDateTime;
                     schemeData.LogisticUnitBestBeforeSellByDate = DateTime.Now;
                     schemeData.LogisticUnitProductionDate = DateTime.Now;
                     schemeData.VariantCode = string.Empty;
@@ -2207,53 +2204,50 @@ namespace dMobile.View.Activity
             {
                 try
                 {
-                    if (await CheckAllowedToAddSkid())
-                    {
-                        if (await Device.InvokeOnMainThreadAsync(
+                    if (await CheckAllowedToAddSkid() && await Device.InvokeOnMainThreadAsync(
                                 async () =>
                                     await this.DisplayAlert(
                                         this.ActDetail.GetControlDescription(),
                                         "Add the available skid quantity?",
                                         "Yes",
                                         "No")))
-                        {
-                            this.ActDetail.UniqueSchemeId =
-                                ProductInfoTasks.GetUniqueSchemeIdFromSProdSchemeData(
-                                    this.ActDetail.ActItem.ProdInfo.Code,
-                                    this.ActDetail.ActItem.ProdInfo.Scheme,
-                                    this.ActDetail.SchemeData);
+                    {
+                        this.ActDetail.UniqueSchemeId =
+                            ProductInfoTasks.GetUniqueSchemeIdFromSProdSchemeData(
+                                this.ActDetail.ActItem.ProdInfo.Code,
+                                this.ActDetail.ActItem.ProdInfo.Scheme,
+                                this.ActDetail.SchemeData);
 
-                            // IsReadyToApply will perform any validations, such as duplicate checks and quantity
-                            // validations.
-                            var xmlParam = XDocument.Parse(
-                                "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" +
-                                "<imclient>" +
-                                "<itm_refno>" +
-                                this.ActDetail.ActItem.ItemFkRefno +
-                                "</itm_refno>" +
-                                "<alt_qty>" +
-                                this.ActDetail.ActItem.ActHdr.SkidInfo.CurrSkid.Quantity +
-                                "</alt_qty>" +
-                                "<wt_qty>" +
-                                this.ActDetail.ActItem.ActHdr.SkidInfo.CurrSkid.WeightQuantity +
-                                "</wt_qty>" +
-                                "<ActivityDetailUniqueSchemeID>" +
-                                this.ActDetail.UniqueSchemeId +
-                                "</ActivityDetailUniqueSchemeID>" +
-                                "</imclient>");
+                        // IsReadyToApply will perform any validations, such as duplicate checks and quantity
+                        // validations.
+                        var xmlParam = XDocument.Parse(
+                            "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" +
+                            "<imclient>" +
+                            "<itm_refno>" +
+                            this.ActDetail.ActItem.ItemFkRefno +
+                            "</itm_refno>" +
+                            "<alt_qty>" +
+                            this.ActDetail.ActItem.ActHdr.SkidInfo.CurrSkid.Quantity +
+                            "</alt_qty>" +
+                            "<wt_qty>" +
+                            this.ActDetail.ActItem.ActHdr.SkidInfo.CurrSkid.WeightQuantity +
+                            "</wt_qty>" +
+                            "<ActivityDetailUniqueSchemeID>" +
+                            this.ActDetail.UniqueSchemeId +
+                            "</ActivityDetailUniqueSchemeID>" +
+                            "</imclient>");
 
-                            await this.ActDetail.ActItem.IsReadyToApply(xmlParam);
-                            await this.ActDetail.InsertSkid(this.ActDetail.ActItem.ActHdr.SkidInfo);
-                            var fillQty = await this.ActDetail.GetTotalQuantityFromListDetail();
-                            this.ActDetail.ActItem.AddToQuantityInActivityItem(
-                                this.ActDetail.ActItem.SelectedItem,
-                                fillQty.Quantity,
-                                fillQty.BaseQuantity,
-                                fillQty.WeightQuantity);
+                        await this.ActDetail.ActItem.IsReadyToApply(xmlParam);
+                        await this.ActDetail.InsertSkid(this.ActDetail.ActItem.ActHdr.SkidInfo);
+                        var fillQty = await this.ActDetail.GetTotalQuantityFromListDetail();
+                        this.ActDetail.ActItem.AddToQuantityInActivityItem(
+                            this.ActDetail.ActItem.SelectedItem,
+                            fillQty.Quantity,
+                            fillQty.BaseQuantity,
+                            fillQty.WeightQuantity);
 
-                            await Task.Run(this.LoadAndBindData);
-                            this.ListViewMainActivity.Focus();
-                        }
+                        await Task.Run(this.LoadAndBindData);
+                        this.ListViewMainActivity.Focus();
                     }
                 }
                 catch (MessageOnlyException msgEx)
@@ -2280,15 +2274,12 @@ namespace dMobile.View.Activity
                 {
                     var isAllowedAddManualDetail = true;
                     if (this.SysEnv.SysSettings.IsPickAddManualDetailPasswordRequired &&
-                        this.ActSubType == SysCommon.ActSubTypes.Picking)
+                        this.ActSubType == SysCommon.ActSubTypes.Picking && !this.SysEnv.ContactLog.IsAllowedPickingModuleOverrideAddManualDetail)
                     {
-                        if (!this.SysEnv.ContactLog.IsAllowedPickingModuleOverrideAddManualDetail)
-                        {
-                            var form = new FormAddManualDetailOverride();
-                            isAllowedAddManualDetail = await Device.InvokeOnMainThreadAsync(
-                                async () =>
-                                    await form.ShowDialog() == DialogResult.OK);
-                        }
+                        var form = new FormAddManualDetailOverride();
+                        isAllowedAddManualDetail = await Device.InvokeOnMainThreadAsync(
+                            async () =>
+                                await form.ShowDialog() == DialogResult.OK);
                     }
 
                     return isAllowedAddManualDetail;

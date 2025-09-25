@@ -545,7 +545,6 @@ namespace dMobile.Controller.Activity_Item
             return mainActivityItems;
         }
 
-
         /// <summary>
         ///     Create observable collection from list items.
         /// </summary>

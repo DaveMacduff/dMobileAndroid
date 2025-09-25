@@ -298,19 +298,16 @@ namespace dMobile.View.Options
                     {
                         _ = Enum.TryParse(keyPressed, out Keycode keycode);
 
-                        if (!this.IsIndicatorRunning)
+                        if (!this.IsIndicatorRunning && keycode == Keycode.F1)
                         {
-                            if (keycode == Keycode.F1)
+                            if (await this.SaveChanges())
                             {
-                                if (await this.SaveChanges())
-                                {
-                                    await this.Close();
-                                }
-                                else
-                                {
-                                    _ = await this.CancelChanges();
-                                    await this.Close();
-                                }
+                                await this.Close();
+                            }
+                            else
+                            {
+                                _ = await this.CancelChanges();
+                                await this.Close();
                             }
                         }
                     });

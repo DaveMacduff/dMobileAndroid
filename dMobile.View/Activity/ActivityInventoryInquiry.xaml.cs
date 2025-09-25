@@ -347,15 +347,12 @@ namespace dMobile.View.Activity
                         await this.ScannerDisable();
                         _ = Enum.TryParse(keyPressed, out Keycode keycode);
 
-                        if (!this.IsIndicatorRunning)
+                        if (!this.IsIndicatorRunning && keycode == Keycode.Enter)
                         {
-                            if (keycode == Keycode.Enter)
+                            if (await this.SaveChanges())
                             {
-                                if (await this.SaveChanges())
-                                {
-                                    this.DialogResult = DialogResult.OK;
-                                    await this.Close();
-                                }
+                                this.DialogResult = DialogResult.OK;
+                                await this.Close();
                             }
                         }
                     }

@@ -237,7 +237,7 @@ namespace dMobile.View.Options
         /// <remarks></remarks>
         private void RefreshNICList()
         {
-            var IpAddress = Dns.GetHostAddresses(Dns.GetHostName()).FirstOrDefault();
+            var ipAddress = Dns.GetHostAddresses(Dns.GetHostName()).FirstOrDefault();
 
             foreach (var ni in NetworkInterface.GetAllNetworkInterfaces())
             {

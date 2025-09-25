@@ -29,7 +29,7 @@ namespace dMobile.Bedrock.Settings
         /// <summary>
         /// Gets or sets the cut sheet date filter.
         /// </summary>
-        public DateTime YieldSheetDateFilter { get; set; } = new DateTime(1900, 1, 1);
+        public DateTime YieldSheetDateFilter { get; set; } = SysCommon.EmptyDateTime;
 
         /// <summary>
         /// Gets or sets a value indicating whether the cut sheet date filter is applied.

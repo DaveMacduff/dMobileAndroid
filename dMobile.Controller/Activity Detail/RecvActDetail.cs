@@ -177,29 +177,40 @@ namespace dMobile.Controller.Activity_Detail
         {
             if (selectedItem is ReceiveDetail detail)
             {
-                // Get the line item location.
+                DisplayProductInfo(detail);
+
                 var itemLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
                     Convert.ToInt32(detail.LocationMapRefno));
-                var detailLoc = LocationMapTasks.GetReadableLocation(itemLocMap);
 
-                // Using the line item warehouse, get the product default location.
-                var defLocMapRefno =
-                    await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(
+                await DisplayDefaultLocation(detail, itemLocMap);
+                DisplayReceivedLocation(itemLocMap);
+            }
+
+            return this.ActExtra;
+
+            void DisplayProductInfo(ReceiveDetail detail)
+            {
+                var prodDesc = detail.ProductDescription;
+                var prodUnitSizeDesc = detail.ProductUnitSizeDescription;
+                this.ActExtra.Text1 = prodDesc.Trim() + " " + prodUnitSizeDesc.Trim();
+            }
+
+            async Task DisplayDefaultLocation(ReceiveDetail detail, SLocMap itemLocMap)
+            {
+                var defLocMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(
                         itemLocMap.WhsLocMapRefno,
                         Convert.ToInt32(detail.ProductRefno),
                         SysCommon.ProdLocMapTypes.Receiving);
                 var defProdLoc = LocationMapTasks.GetReadableLocation(
                     await LocationMapTasks.GetSLocMapFromLocMapRefno(defLocMapRefno));
-
-                var prodDesc = detail.ProductDescription;
-                var prodUnitSizeDesc = detail.ProductUnitSizeDescription;
-
-                this.ActExtra.Text1 = prodDesc.Trim() + " " + prodUnitSizeDesc.Trim();
                 this.ActExtra.Text2 = "Default Location: " + defProdLoc.Trim();
-                this.ActExtra.Text3 = "Received Location: " + detailLoc.Trim();
             }
 
-            return this.ActExtra;
+            void DisplayReceivedLocation(SLocMap itemLocMap)
+            {
+                var detailLoc = LocationMapTasks.GetReadableLocation(itemLocMap);
+                this.ActExtra.Text3 = "Received Location: " + detailLoc.Trim();
+            }
         }
 
         /// <summary>

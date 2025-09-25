@@ -407,13 +407,10 @@ namespace dMobile.View
                 await CheckBarCodeRuleAi21BoxCode(unitQuantity);
 
                 // If catch count is enabled the variable count is the base quantity not the unit quantity
-                if (!prodInfo.IsCatchCount && BarCodeParse != null)
-                {
-                    if (BarCodeParse.LogisticUnitVariableCount != 0
+                if (!prodInfo.IsCatchCount && BarCodeParse != null && BarCodeParse.LogisticUnitVariableCount != 0
                         && SysEnv.BarCodeSettings.IsRuleEnabled_Parse_Code_128_AI01_BC_AI30_exclusive)
-                    {
-                        unitQuantity = BarCodeParse.LogisticUnitVariableCount;
-                    }
+                {
+                    unitQuantity = BarCodeParse.LogisticUnitVariableCount;
                 }
 
                 await GatherBaseQuantity(unitQuantity);
@@ -555,28 +552,25 @@ namespace dMobile.View
                 }
             }
 
-            if (!isStopForDetail)
+            if (!isStopForDetail && ActSubType == SysCommon.ActSubTypes.Receiving && ActItem.ProdInfo.ProductAcceptDays > 0)
             {
-                if (ActSubType == SysCommon.ActSubTypes.Receiving && ActItem.ProdInfo.ProductAcceptDays > 0)
+                if (ActItem.ProdInfo.Scheme.IsProductionDateTracked &&
+                    ActDetail.SchemeData.LogisticUnitProductionDate > new DateTime(1900, 1, 1))
                 {
-                    if (ActItem.ProdInfo.Scheme.IsProductionDateTracked &&
-                        ActDetail.SchemeData.LogisticUnitProductionDate > new DateTime(1900, 1, 1))
+                    if (ActDetail.SchemeData.LogisticUnitProductionDate.AddDays(
+                        ActItem.ProdInfo.ProductAcceptDays) < DateTime.Now.Date)
                     {
-                        if (ActDetail.SchemeData.LogisticUnitProductionDate.AddDays(
-                            ActItem.ProdInfo.ProductAcceptDays) < DateTime.Now.Date)
-                        {
-                            isStopForDetail = true;
-                        }
+                        isStopForDetail = true;
                     }
+                }
 
-                    if (ActItem.ProdInfo.Scheme.IsBestBeforeDateTracked &&
-                        ActDetail.SchemeData.LogisticUnitBestBeforeSellByDate > new DateTime(1900, 1, 1))
+                if (ActItem.ProdInfo.Scheme.IsBestBeforeDateTracked &&
+                    ActDetail.SchemeData.LogisticUnitBestBeforeSellByDate > new DateTime(1900, 1, 1))
+                {
+                    if (ActDetail.SchemeData.LogisticUnitBestBeforeSellByDate >
+                        DateTime.Now.AddDays(ActItem.ProdInfo.ProductAcceptDays))
                     {
-                        if (ActDetail.SchemeData.LogisticUnitBestBeforeSellByDate >
-                            DateTime.Now.AddDays(ActItem.ProdInfo.ProductAcceptDays))
-                        {
-                            isStopForDetail = true;
-                        }
+                        isStopForDetail = true;
                     }
                 }
             }

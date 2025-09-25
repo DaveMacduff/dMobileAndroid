@@ -84,54 +84,51 @@ namespace dMobile.View.Activity
                     {
                         _ = Enum.TryParse(keyPressed, out Keycode keycode);
 
-                        if (!this.IsIndicatorRunning)
+                        if (!this.IsIndicatorRunning && keycode == Keycode.Enter)
                         {
-                            if (keycode == Keycode.Enter)
+                            var svdProdInfo = this.ActItem.ProdInfo;
+
+                            try
                             {
-                                var svdProdInfo = this.ActItem.ProdInfo;
+                                this.IsEnterTrapped = true;
+                                this.IsEnabled = false;
 
-                                try
+                                await this.ScannerDisable();
+                                var index = 0;
+
+                                if (this.ListViewMainActivity.SelectedItem != null &&
+                                    this.MainActivityItems.IndexOf(this.ListViewMainActivity.SelectedItem) >= 0)
                                 {
-                                    this.IsEnterTrapped = true;
-                                    this.IsEnabled = false;
+                                    index = this.MainActivityItems.IndexOf(this.ListViewMainActivity.SelectedItem);
 
-                                    await this.ScannerDisable();
-                                    var index = 0;
+                                    // TODO: test
+                                    this.ActItem.ProdInfo = ProductInfoTasks.GetInfoFromCodeBcUnit(
+                                        Convert.ToString((this.ActItem.ListItems[index] as dynamic).productcode),
+                                        Convert.ToString((this.ActItem.ListItems[index] as dynamic).productunitbc),
+                                        Convert.ToString((this.ActItem.ListItems[index] as dynamic).unitcode));
 
-                                    if (this.ListViewMainActivity.SelectedItem != null &&
-                                        this.MainActivityItems.IndexOf(this.ListViewMainActivity.SelectedItem) >= 0)
-                                    {
-                                        index = this.MainActivityItems.IndexOf(this.ListViewMainActivity.SelectedItem);
+                                    var actDetail = ActDetailFacade.GetActDetail(this.ActItem,
+                                        SysCommon.ActSubTypes.InventoryInquiry);
 
-                                        // TODO: test
-                                        this.ActItem.ProdInfo = ProductInfoTasks.GetInfoFromCodeBcUnit(
-                                            Convert.ToString((this.ActItem.ListItems[index] as dynamic).productcode),
-                                            Convert.ToString((this.ActItem.ListItems[index] as dynamic).productunitbc),
-                                            Convert.ToString((this.ActItem.ListItems[index] as dynamic).unitcode));
-
-                                        var actDetail = ActDetailFacade.GetActDetail(this.ActItem,
-                                            SysCommon.ActSubTypes.InventoryInquiry);
-
-                                        var form = new FormDialogContainer(EDialogTypes.ActivityInventoryInquiryDetail,
-                                            actDetail, this.ActSubType);
-                                        _ = await form.DisplayControl.ShowDialog();
-                                    }
+                                    var form = new FormDialogContainer(EDialogTypes.ActivityInventoryInquiryDetail,
+                                        actDetail, this.ActSubType);
+                                    _ = await form.DisplayControl.ShowDialog();
                                 }
-                                catch (Exception ex)
+                            }
+                            catch (Exception ex)
+                            {
+                                await Device.InvokeOnMainThreadAsync(async () =>
                                 {
-                                    await Device.InvokeOnMainThreadAsync(async () =>
-                                    {
-                                        var errRpt = new FormErrorReport(this.ActSubType, ex);
-                                        _ = await errRpt.ShowDialog();
-                                    });
-                                }
-                                finally
-                                {
-                                    this.ActItem.ProdInfo = svdProdInfo;
-                                    await this.ScannerEnable();
+                                    var errRpt = new FormErrorReport(this.ActSubType, ex);
+                                    _ = await errRpt.ShowDialog();
+                                });
+                            }
+                            finally
+                            {
+                                this.ActItem.ProdInfo = svdProdInfo;
+                                await this.ScannerEnable();
 
-                                    this.IsEnabled = true;
-                                }
+                                this.IsEnabled = true;
                             }
                         }
                     });

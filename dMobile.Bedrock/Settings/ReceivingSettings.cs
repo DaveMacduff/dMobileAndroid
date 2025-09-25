@@ -51,12 +51,12 @@ namespace dMobile.Bedrock.Settings
         /// <summary>
         /// Gets or sets the issued date filter.
         /// </summary>
-        public DateTime IssuedDateFilter { get; set; } = new DateTime(1900, 1, 1);
+        public DateTime IssuedDateFilter { get; set; } = SysCommon.EmptyDateTime;
 
         /// <summary>
         /// Gets or sets the arrival date filter.
         /// </summary>
-        public DateTime ArrivalDateFilter { get; set; } = new DateTime(1900, 1, 1);
+        public DateTime ArrivalDateFilter { get; set; } = SysCommon.EmptyDateTime;
 
         /// <summary>
         /// Gets or sets the full class name.

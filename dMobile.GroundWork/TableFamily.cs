@@ -4,8 +4,6 @@
 
 namespace dMobile.GroundWork
 {
-    using Bedrock;
-    using SQLite;
     using System;
     using System.Collections.Generic;
     using System.Data;
@@ -13,7 +11,9 @@ namespace dMobile.GroundWork
     using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
+    using Bedrock;
     using Resources.Models.Products;
+    using SQLite;
 
     public class TableFamily : TableBase
     {

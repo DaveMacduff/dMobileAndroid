@@ -150,8 +150,8 @@ namespace dMobile.GroundWork
                                     var locMapWhsDescription = string.Empty;
                                     var transFKRefno = 0;
                                     var transDesc = string.Empty;
-                                    var transDateTime = new DateTime(1900, 1, 1);
-                                    var arrivalDateTime = new DateTime(1900, 1, 1);
+                                    var transDateTime = SysCommon.EmptyDateTime;
+                                    var arrivalDateTime = SysCommon.EmptyDateTime;
 
                                     this.DataAccessProgressOutHandler(
                                         this,

@@ -164,7 +164,6 @@ namespace dMobile.Controller.Activity
                     return new ViewCell { View = gridData };
                 });
 
-
                 var isAddKey = true;
                 foreach (var item in this.resourceDictionary)
                 {

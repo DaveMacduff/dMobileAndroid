@@ -1756,36 +1756,30 @@ namespace dMobile.View.Activity
 
         private void CheckProductionAcceptedDays()
         {
-            if (this.ActSubType == SysCommon.ActSubTypes.Receiving && this.ActDetail.ActItem.ProdInfo.ProductAcceptDays > 0)
-            {
-                if (this.ActDetail.ActItem.ProdInfo.Scheme.IsProductionDateTracked &&
+            if (this.ActSubType == SysCommon.ActSubTypes.Receiving && this.ActDetail.ActItem.ProdInfo.ProductAcceptDays > 0 && this.ActDetail.ActItem.ProdInfo.Scheme.IsProductionDateTracked &&
                     this.ActDetail.SchemeData.LogisticUnitProductionDate > new DateTime(1900, 1, 1))
+            {
+                var acceptDate = this.ActDetail.SchemeData.LogisticUnitProductionDate.AddDays(
+                    this.ActDetail.ActItem.ProdInfo.ProductAcceptDays);
+                if (acceptDate < DateTime.Now.Date)
                 {
-                    var acceptDate = this.ActDetail.SchemeData.LogisticUnitProductionDate.AddDays(
-                        this.ActDetail.ActItem.ProdInfo.ProductAcceptDays);
-                    if (acceptDate < DateTime.Now.Date)
-                    {
-                        var msg = $"Production date {acceptDate:MM/dd/yyyy} must be greater than {DateTime.Now.Date:MM/dd/yyyy}.";
-                        throw new MessageOnlyException(msg);
-                    }
+                    var msg = $"Production date {acceptDate:MM/dd/yyyy} must be greater than {DateTime.Now.Date:MM/dd/yyyy}.";
+                    throw new MessageOnlyException(msg);
                 }
             }
         }
 
         private void CheckBestBeforeAcceptedDays()
         {
-            if (this.ActSubType == SysCommon.ActSubTypes.Receiving && this.ActDetail.ActItem.ProdInfo.ProductAcceptDays > 0)
-            {
-                if (this.ActDetail.ActItem.ProdInfo.Scheme.IsBestBeforeDateTracked &&
+            if (this.ActSubType == SysCommon.ActSubTypes.Receiving && this.ActDetail.ActItem.ProdInfo.ProductAcceptDays > 0 && this.ActDetail.ActItem.ProdInfo.Scheme.IsBestBeforeDateTracked &&
                     this.ActDetail.SchemeData.LogisticUnitBestBeforeSellByDate > new DateTime(1900, 1, 1))
+            {
+                var acceptDate = DateTime.Now.AddDays(this.ActDetail.ActItem.ProdInfo.ProductAcceptDays);
+                if (this.ActDetail.SchemeData.LogisticUnitBestBeforeSellByDate <= acceptDate)
                 {
-                    var acceptDate = DateTime.Now.AddDays(this.ActDetail.ActItem.ProdInfo.ProductAcceptDays);
-                    if (this.ActDetail.SchemeData.LogisticUnitBestBeforeSellByDate <= acceptDate)
-                    {
-                        var msg = $"Best before date {this.ActDetail.SchemeData.LogisticUnitBestBeforeSellByDate:MM/dd/yyyy}" +
-                                  $" must be greater than {acceptDate:MM/dd/yyyy}.";
-                        throw new MessageOnlyException(msg);
-                    }
+                    var msg = $"Best before date {this.ActDetail.SchemeData.LogisticUnitBestBeforeSellByDate:MM/dd/yyyy}" +
+                              $" must be greater than {acceptDate:MM/dd/yyyy}.";
+                    throw new MessageOnlyException(msg);
                 }
             }
         }
@@ -1794,43 +1788,40 @@ namespace dMobile.View.Activity
         {
             if (await this.SaveChanges())
             {
-                if (this.AskToPrintProductLabels)
+                if (this.AskToPrintProductLabels && !this.SysEnv.SysSettings.IsPrintProductLabelsAsBatch)
                 {
-                    if (!this.SysEnv.SysSettings.IsPrintProductLabelsAsBatch)
+                    if (await Device.InvokeOnMainThreadAsync(async () =>
+                            await this.DisplayAlert(
+                                this.ActDetail.GetControlDescription(),
+                                "Print product labels?",
+                                "Yes",
+                                "No")))
                     {
-                        if (await Device.InvokeOnMainThreadAsync(async () =>
-                                await this.DisplayAlert(
-                                    this.ActDetail.GetControlDescription(),
-                                    "Print product labels?",
-                                    "Yes",
-                                    "No")))
+                        try
                         {
-                            try
-                            {
-                                await this.PrintProductLabels();
-                            }
-                            catch (MessageOnlyException msgEx)
-                            {
-                                var msg = msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1
-                                    ? msgEx.Message
-                                    : msgEx.Message["MSGBOX-".Length..];
+                            await this.PrintProductLabels();
+                        }
+                        catch (MessageOnlyException msgEx)
+                        {
+                            var msg = msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1
+                                ? msgEx.Message
+                                : msgEx.Message["MSGBOX-".Length..];
 
-                                // Even though an error was raised, during label printing allow the control to close.
-                                await Device.InvokeOnMainThreadAsync(async () =>
-                                    await Application.Current.MainPage.DisplayAlert(
-                                        GetControlDescription(),
-                                        msg,
-                                        Resource.OK));
-                            }
-                            catch (Exception ex)
+                            // Even though an error was raised, during label printing allow the control to close.
+                            await Device.InvokeOnMainThreadAsync(async () =>
+                                await Application.Current.MainPage.DisplayAlert(
+                                    GetControlDescription(),
+                                    msg,
+                                    Resource.OK));
+                        }
+                        catch (Exception ex)
+                        {
+                            // Even though an error was raised, during label printing allow the control to close.
+                            await Device.InvokeOnMainThreadAsync(async () =>
                             {
-                                // Even though an error was raised, during label printing allow the control to close.
-                                await Device.InvokeOnMainThreadAsync(async () =>
-                                {
-                                    var errRpt = new FormErrorReport(this.ActSubType, ex);
-                                    _ = await errRpt.ShowDialog();
-                                });
-                            }
+                                var errRpt = new FormErrorReport(this.ActSubType, ex);
+                                _ = await errRpt.ShowDialog();
+                            });
                         }
                     }
                 }

@@ -185,7 +185,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         ///     Day: the number of the day of the relevant month (e.g., second day = 02);
         ///     if it is not necessary to specify the day, the field must be filled with two zeros.
         /// </remarks>
-        private static DateTime logisticUnitBestBeforeSellByDate = new DateTime(1900, 1, 1);
+        private static DateTime logisticUnitBestBeforeSellByDate = SysCommon.EmptyDateTime;
 
         /// <summary>
         ///     Expiration Date: AI (17).
@@ -206,7 +206,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         ///     Day: the number of the day of the relevant month (e.g., second day = 02);
         ///     if it is not necessary to specify the day, the field must be filled with two zeros.
         /// </remarks>
-        private static DateTime logisticUnitExpiryUseByDate = new DateTime(1900, 1, 1);
+        private static DateTime logisticUnitExpiryUseByDate = SysCommon.EmptyDateTime;
 
         /// <summary>
         ///     Production Date: AI (11).
@@ -222,7 +222,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         ///     Day: the number of the day of the relevant month (e.g., second day = 02);
         ///     if it is not necessary to specify the day, the field must be filled with two zeros.
         /// </remarks>
-        private static DateTime logisticUnitProductionDate = new DateTime(1900, 1, 1);
+        private static DateTime logisticUnitProductionDate = SysCommon.EmptyDateTime;
 
         /// <summary>
         ///     Due Date for Amount on Payment Slip: AI (12).
@@ -238,7 +238,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         ///     Day: the number of the day of the relevant month (e.g., second day = 02);
         ///     if it is not necessary to specify the day, the field must be filled with two zeros.
         /// </remarks>
-        private static DateTime logisticUnitDueDate = new DateTime(1900, 1, 1);
+        private static DateTime logisticUnitDueDate = SysCommon.EmptyDateTime;
 
         /// <summary>
         ///     Packaging Date: AI (13).
@@ -254,7 +254,7 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
         ///     Day: the number of the day of the relevant month (e.g., second day = 02);
         ///     if it is not necessary to specify the day, the field must be filled with two zeros.
         /// </remarks>
-        private static DateTime logisticUnitPackagingDate = new DateTime(1900, 1, 1);
+        private static DateTime logisticUnitPackagingDate = SysCommon.EmptyDateTime;
 
         /// <summary>
         ///     Product Variant: AI (20).
@@ -1056,11 +1056,11 @@ namespace dMobile.BarCodeScanner.BarCodeParsing
             this.GtinLogisticUnit = string.Empty;
             this.SingleTradeItemSerialNumber = string.Empty;
             this.LogisticUnitBatchLotNumber = string.Empty;
-            this.LogisticUnitBestBeforeSellByDate = new DateTime(1900, 1, 1);
-            this.LogisticUnitExpiryUseByDate = new DateTime(1900, 1, 1);
-            this.LogisticUnitProductionDate = new DateTime(1900, 1, 1);
-            this.LogisticUnitDueDate = new DateTime(1900, 1, 1);
-            this.LogisticUnitPackagingDate = new DateTime(1900, 1, 1);
+            this.LogisticUnitBestBeforeSellByDate = SysCommon.EmptyDateTime;
+            this.LogisticUnitExpiryUseByDate = SysCommon.EmptyDateTime;
+            this.LogisticUnitProductionDate = SysCommon.EmptyDateTime;
+            this.LogisticUnitDueDate = SysCommon.EmptyDateTime;
+            this.LogisticUnitPackagingDate = SysCommon.EmptyDateTime;
             this.LogisticUnitProductVariant = 0;
             this.NetWeightMetricKg = 0;
             this.NetWeightMetricKgFoundAi = false;

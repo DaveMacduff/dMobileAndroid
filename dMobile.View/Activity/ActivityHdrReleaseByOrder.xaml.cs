@@ -222,19 +222,16 @@ namespace dMobile.View.Activity
                     {
                         _ = Enum.TryParse(keyPressed, out Keycode keycode);
 
-                        if (!this.IsIndicatorRunning)
+                        if (!this.IsIndicatorRunning && keycode == Keycode.F4 && !this.SysEnv.SysSettings.IsDisconnectedMode)
                         {
-                            if (keycode == Keycode.F4 && !this.SysEnv.SysSettings.IsDisconnectedMode)
+                            try
                             {
-                                try
-                                {
-                                    await this.ReleaseOrder();
-                                }
-                                catch (Exception ex)
-                                {
-                                    await Device.InvokeOnMainThreadAsync(async () =>
-                                        await this.DisplayAlert("Change Status", ex.Message, "OK"));
-                                }
+                                await this.ReleaseOrder();
+                            }
+                            catch (Exception ex)
+                            {
+                                await Device.InvokeOnMainThreadAsync(async () =>
+                                    await this.DisplayAlert("Change Status", ex.Message, "OK"));
                             }
                         }
                     });

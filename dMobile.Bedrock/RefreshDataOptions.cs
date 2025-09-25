@@ -23,7 +23,7 @@ namespace dMobile.Bedrock
         /// <summary>
         /// Defines the refreshedDataLast.
         /// </summary>
-        private DateTime refreshedDataLast = new DateTime(1900, 1, 1);
+        private DateTime refreshedDataLast = SysCommon.EmptyDateTime;
 
         /// <summary>
         /// Gets or sets a value indicating whether IsRefreshDataFailed.

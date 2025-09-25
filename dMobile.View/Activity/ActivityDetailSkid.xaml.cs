@@ -153,14 +153,11 @@ namespace dMobile.View.Activity
         /// <returns><see cref="Task" /> Task operation.</returns>
         public async Task ScannerDisable()
         {
-            if (this.Scanner != null)
+            if (this.Scanner != null && this.IsBarCodeHandlerRegistered)
             {
-                if (this.IsBarCodeHandlerRegistered)
-                {
-                    this.Scanner.ClearBarCodeScanEventHandlers();
-                    await this.Scanner.DisableScanning();
-                    this.IsBarCodeHandlerRegistered = false;
-                }
+                this.Scanner.ClearBarCodeScanEventHandlers();
+                await this.Scanner.DisableScanning();
+                this.IsBarCodeHandlerRegistered = false;
             }
         }
 
@@ -170,18 +167,15 @@ namespace dMobile.View.Activity
         /// <returns><see cref="Task" /> Task operation.</returns>
         public async Task ScannerEnable()
         {
-            if (this.Scanner != null)
+            if (this.Scanner != null && !this.IsBarCodeHandlerRegistered)
             {
-                if (!this.IsBarCodeHandlerRegistered)
+                await this.Scanner.EnableScanning();
+                if (!this.Scanner.IsBarCodeScanEventHandlerAdded())
                 {
-                    await this.Scanner.EnableScanning();
-                    if (!this.Scanner.IsBarCodeScanEventHandlerAdded())
-                    {
-                        this.Scanner.OnBarCodeScan += this.BarCodeHandler;
-                    }
-
-                    this.IsBarCodeHandlerRegistered = true;
+                    this.Scanner.OnBarCodeScan += this.BarCodeHandler;
                 }
+
+                this.IsBarCodeHandlerRegistered = true;
             }
         }
 
@@ -1074,19 +1068,16 @@ namespace dMobile.View.Activity
         {
             var fillQty = new SFillQuantity();
 
-            if (this.ActDetail.ListDetails != null)
+            if (this.ActDetail.ListDetails != null && this.ActDetail.ListDetails.Count > 0)
             {
-                if (this.ActDetail.ListDetails.Count > 0)
+                for (var i = 0; i <= this.ActDetail.ListDetails.Count - 1; i++)
                 {
-                    for (var i = 0; i <= this.ActDetail.ListDetails.Count - 1; i++)
-                    {
-                        fillQty.Quantity += Convert.ToDecimal(this.ActDetail.ListDetails[i].GetType()
-                            .GetProperty("ActivityDetailQuantity")?.GetValue(this.ActDetail.ListDetails[i]));
-                        fillQty.BaseQuantity += Convert.ToDecimal(this.ActDetail.ListDetails[i].GetType()
-                            .GetProperty("ActivityDetailBaseQuantity")?.GetValue(this.ActDetail.ListDetails[i]));
-                        fillQty.WeightQuantity += Convert.ToDecimal(this.ActDetail.ListDetails[i].GetType()
-                            .GetProperty("ActivityDetailWeightQuantity")?.GetValue(this.ActDetail.ListDetails[i]));
-                    }
+                    fillQty.Quantity += Convert.ToDecimal(this.ActDetail.ListDetails[i].GetType()
+                        .GetProperty("ActivityDetailQuantity")?.GetValue(this.ActDetail.ListDetails[i]));
+                    fillQty.BaseQuantity += Convert.ToDecimal(this.ActDetail.ListDetails[i].GetType()
+                        .GetProperty("ActivityDetailBaseQuantity")?.GetValue(this.ActDetail.ListDetails[i]));
+                    fillQty.WeightQuantity += Convert.ToDecimal(this.ActDetail.ListDetails[i].GetType()
+                        .GetProperty("ActivityDetailWeightQuantity")?.GetValue(this.ActDetail.ListDetails[i]));
                 }
             }
 

@@ -160,9 +160,9 @@ namespace dMobile.View.Menus
         /// <inheritdoc/>
         public Task<bool> IsReadyToSave()
         {
-            var IsReadyToSave = true;
+            var isReadyToSave = true;
 
-            return Task.FromResult(IsReadyToSave);
+            return Task.FromResult(isReadyToSave);
         }
 
         /// <summary>

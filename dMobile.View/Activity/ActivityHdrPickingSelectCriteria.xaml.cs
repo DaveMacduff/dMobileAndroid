@@ -269,15 +269,12 @@ namespace dMobile.View.Activity
                 // IsReadyToClose checks if any changes where made.
                 if (await this.IsReadyToClose())
                 {
-                    if (!this.SysEnv.SysSettings.IsPickingModuleDisallowLoadingAllOrders)
-                    {
-                        if (await Device.InvokeOnMainThreadAsync(async () =>
+                    if (!this.SysEnv.SysSettings.IsPickingModuleDisallowLoadingAllOrders && await Device.InvokeOnMainThreadAsync(async () =>
                                 !await this.DisplayAlert(this.GetControlDescription(),
                                     "All orders for all sections will be loaded. Continue?", "Yes", "No")))
-                        {
-                            cancelChanges = false;
-                            this.IsChangesMade = false;
-                        }
+                    {
+                        cancelChanges = false;
+                        this.IsChangesMade = false;
                     }
 
                     // Clear any properties.

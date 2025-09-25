@@ -290,14 +290,11 @@ namespace dMobile.View.Views
         /// <returns><see cref="Task" /> Task operation.</returns>
         public async Task ScannerDisable()
         {
-            if (this.Scanner != null)
+            if (this.Scanner != null && this.IsBarCodeHandlerRegistered)
             {
-                if (this.IsBarCodeHandlerRegistered)
-                {
-                    this.Scanner.ClearBarCodeScanEventHandlers();
-                    await this.Scanner.DisableScanning();
-                    this.IsBarCodeHandlerRegistered = false;
-                }
+                this.Scanner.ClearBarCodeScanEventHandlers();
+                await this.Scanner.DisableScanning();
+                this.IsBarCodeHandlerRegistered = false;
             }
         }
 
@@ -307,18 +304,15 @@ namespace dMobile.View.Views
         /// <returns><see cref="Task" /> Task operation.</returns>
         public async Task ScannerEnable()
         {
-            if (this.Scanner != null)
+            if (this.Scanner != null && !this.IsBarCodeHandlerRegistered)
             {
-                if (!this.IsBarCodeHandlerRegistered)
+                await this.Scanner.EnableScanning();
+                if (!this.Scanner.IsBarCodeScanEventHandlerAdded())
                 {
-                    await this.Scanner.EnableScanning();
-                    if (!this.Scanner.IsBarCodeScanEventHandlerAdded())
-                    {
-                        this.Scanner.OnBarCodeScan += this.BarCodeHandler;
-                    }
-
-                    this.IsBarCodeHandlerRegistered = true;
+                    this.Scanner.OnBarCodeScan += this.BarCodeHandler;
                 }
+
+                this.IsBarCodeHandlerRegistered = true;
             }
         }
 
@@ -676,14 +670,11 @@ namespace dMobile.View.Views
 
                         await this.SelectSection();
 
-                        if (this.FilteredListSections.Count > 0)
-                        {
-                            if (this.SectionsView.SelectedItem is Section selectedSection &&
+                        if (this.FilteredListSections.Count > 0 && this.SectionsView.SelectedItem is Section selectedSection &&
                                 this.LocMapInfo.SectLocMapRefno != selectedSection.LocationMapRefno)
-                            {
-                                this.LocMapInfo = await LocationMapTasks.GetSLocMapFromLocMapRefno(
-                                    selectedSection.LocationMapRefno);
-                            }
+                        {
+                            this.LocMapInfo = await LocationMapTasks.GetSLocMapFromLocMapRefno(
+                                selectedSection.LocationMapRefno);
                         }
                     }
                 }
@@ -1410,28 +1401,19 @@ namespace dMobile.View.Views
 
                 if (this.CurrentPage.TabIndex == 2)
                 {
-                    if (this.FilteredSlot1Coordinates.Count > 0)
+                    if (this.FilteredSlot1Coordinates.Count > 0 && this.dgCoord1.SelectedItem is Slot slot1)
                     {
-                        if (this.dgCoord1.SelectedItem is Slot slot1)
-                        {
-                            this.LblSlotCoordinate1.Text = "Coord1: " + slot1.LocationMapSlotCoordinateCode;
-                        }
+                        this.LblSlotCoordinate1.Text = "Coord1: " + slot1.LocationMapSlotCoordinateCode;
                     }
 
-                    if (this.FilteredSlot2Coordinates.Count > 0)
+                    if (this.FilteredSlot2Coordinates.Count > 0 && this.dgCoord2.SelectedItem is Slot slot2)
                     {
-                        if (this.dgCoord2.SelectedItem is Slot slot2)
-                        {
-                            this.LblSlotCoordinate2.Text = "Coord2: " + slot2.LocationMapSlotCoordinateCode;
-                        }
+                        this.LblSlotCoordinate2.Text = "Coord2: " + slot2.LocationMapSlotCoordinateCode;
                     }
 
-                    if (this.FilteredSlot3Coordinates.Count > 0)
+                    if (this.FilteredSlot3Coordinates.Count > 0 && this.dgCoord3.SelectedItem is Slot slot3)
                     {
-                        if (this.dgCoord3.SelectedItem is Slot slot3)
-                        {
-                            this.LblSlotCoordinate3.Text = "Coord3: " + slot3.LocationMapSlotCoordinateCode;
-                        }
+                        this.LblSlotCoordinate3.Text = "Coord3: " + slot3.LocationMapSlotCoordinateCode;
                     }
                 }
             });

@@ -493,20 +493,14 @@ namespace dMobile.View.Activity
             var prodInfo = this.ActDetail.ActItem.ProdInfo;
             var scheme = prodInfo.Scheme;
 
-            if (scheme.LabelInfo.IsBestBeforeDateTracked)
+            if (scheme.LabelInfo.IsBestBeforeDateTracked && !SysCommon.IsEmptyDateTime(this.ActDetailEdit.SchemeData.LogisticUnitBestBeforeSellByDate))
             {
-                if (!SysCommon.IsEmptyDateTime(this.ActDetailEdit.SchemeData.LogisticUnitBestBeforeSellByDate))
-                {
-                    this.dtBestBeforeDate.Date = this.ActDetailEdit.SchemeData.LogisticUnitBestBeforeSellByDate;
-                }
+                this.dtBestBeforeDate.Date = this.ActDetailEdit.SchemeData.LogisticUnitBestBeforeSellByDate;
             }
 
-            if (scheme.LabelInfo.IsProductionDateTracked)
+            if (scheme.LabelInfo.IsProductionDateTracked && !SysCommon.IsEmptyDate(this.ActDetailEdit.SchemeData.LogisticUnitProductionDate))
             {
-                if (!SysCommon.IsEmptyDate(this.ActDetailEdit.SchemeData.LogisticUnitProductionDate))
-                {
-                    this.dtProductionDate.Date = this.ActDetailEdit.SchemeData.LogisticUnitProductionDate;
-                }
+                this.dtProductionDate.Date = this.ActDetailEdit.SchemeData.LogisticUnitProductionDate;
             }
 
             if (scheme.LabelInfo.IsSerialTracked)
@@ -686,37 +680,28 @@ namespace dMobile.View.Activity
                 }
             }
 
-            if (isRetVal)
-            {
-                if (scheme.LabelInfo.IsSerialTracked &&
+            if (isRetVal && scheme.LabelInfo.IsSerialTracked &&
                     this.ActDetailEdit.SchemeData.SingleTradeItemSerialNumber?.Length == 0)
-                {
-                    await Device.InvokeOnMainThreadAsync(async () =>
-                        await this.DisplayAlert(this.GetControlDescription(), "Serial number required.", "OK"));
-                    isRetVal = false;
-                }
+            {
+                await Device.InvokeOnMainThreadAsync(async () =>
+                    await this.DisplayAlert(this.GetControlDescription(), "Serial number required.", "OK"));
+                isRetVal = false;
             }
 
-            if (isRetVal)
-            {
-                if (scheme.LabelInfo.IsLotTracked &&
+            if (isRetVal && scheme.LabelInfo.IsLotTracked &&
                     this.ActDetailEdit.SchemeData.LogisticUnitBatchLotNumber == string.Empty)
-                {
-                    await Device.InvokeOnMainThreadAsync(async () =>
-                        await this.DisplayAlert(this.GetControlDescription(), "Lot number required.", "OK"));
-                    isRetVal = false;
-                }
+            {
+                await Device.InvokeOnMainThreadAsync(async () =>
+                    await this.DisplayAlert(this.GetControlDescription(), "Lot number required.", "OK"));
+                isRetVal = false;
             }
 
-            if (isRetVal)
-            {
-                if (scheme.LabelInfo.IsVariantTracked &&
+            if (isRetVal && scheme.LabelInfo.IsVariantTracked &&
                     this.ActDetailEdit.SchemeData.VariantCode == string.Empty)
-                {
-                    await Device.InvokeOnMainThreadAsync(async () =>
-                        await this.DisplayAlert(this.GetControlDescription(), "Variant code required.", "OK"));
-                    isRetVal = false;
-                }
+            {
+                await Device.InvokeOnMainThreadAsync(async () =>
+                    await this.DisplayAlert(this.GetControlDescription(), "Variant code required.", "OK"));
+                isRetVal = false;
             }
 
             if (scheme.LabelInfo.IsBestBeforeDateTracked &&

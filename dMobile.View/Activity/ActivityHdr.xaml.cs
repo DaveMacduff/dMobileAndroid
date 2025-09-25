@@ -1407,34 +1407,31 @@ namespace dMobile.View.Activity
                         if (await ((PickingActivity)this.ActHdr).IsSalesOrderBeingPicked())
                         {
                             isAllowedToPick = false;
-                            if (this.SysEnv.ContactLog.IsAllowedPickingModuleOverridePicker)
-                            {
-                                if (await Device.InvokeOnMainThreadAsync(
+                            if (this.SysEnv.ContactLog.IsAllowedPickingModuleOverridePicker && await Device.InvokeOnMainThreadAsync(
                                         async () => await this.DisplayAlert(
                                             "Picker Override",
                                             "Do you wish to clear the current picker?",
                                             "Yes",
                                             "No")))
+                            {
+                                if (await ((PickingActivity)this.ActHdr).ClearSalesOrderBeingPicked(false))
                                 {
-                                    if (await ((PickingActivity)this.ActHdr).ClearSalesOrderBeingPicked(false))
-                                    {
-                                        await Device.InvokeOnMainThreadAsync(
-                                            async () =>
-                                                await this.DisplayAlert(
-                                                    "Picker Override",
-                                                    "Picker cleared.",
-                                                    "OK"));
-                                        isAllowedToPick = true;
-                                    }
-                                    else
-                                    {
-                                        await Device.InvokeOnMainThreadAsync(
-                                            async () =>
-                                                await this.DisplayAlert(
-                                                    "Picker Override",
-                                                    "Unable to clear the current picker.",
-                                                    "OK"));
-                                    }
+                                    await Device.InvokeOnMainThreadAsync(
+                                        async () =>
+                                            await this.DisplayAlert(
+                                                "Picker Override",
+                                                "Picker cleared.",
+                                                "OK"));
+                                    isAllowedToPick = true;
+                                }
+                                else
+                                {
+                                    await Device.InvokeOnMainThreadAsync(
+                                        async () =>
+                                            await this.DisplayAlert(
+                                                "Picker Override",
+                                                "Unable to clear the current picker.",
+                                                "OK"));
                                 }
                             }
                         }

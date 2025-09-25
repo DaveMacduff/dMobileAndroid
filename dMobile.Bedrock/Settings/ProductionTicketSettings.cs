@@ -29,7 +29,7 @@ namespace dMobile.Bedrock.Settings
         /// <summary>
         /// Gets or sets the production date filter.
         /// </summary>
-        public DateTime ProductionDateFilter { get; set; } = new DateTime(1900, 1, 1);
+        public DateTime ProductionDateFilter { get; set; } = SysCommon.EmptyDateTime;
 
         /// <summary>
         /// Gets or sets a value indicating whether the production date filter is applied.

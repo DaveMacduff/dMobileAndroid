@@ -381,15 +381,12 @@ namespace dMobile.View.Activity
                     {
                         _ = Enum.TryParse(keyPressed, out Keycode keycode);
 
-                        if (!this.IsIndicatorRunning)
+                        if (!this.IsIndicatorRunning && keycode == Keycode.F1)
                         {
-                            if (keycode == Keycode.F1)
+                            if (await this.SaveChanges())
                             {
-                                if (await this.SaveChanges())
-                                {
-                                    this.DialogResult = DialogResult.OK;
-                                    await this.Close();
-                                }
+                                this.DialogResult = DialogResult.OK;
+                                await this.Close();
                             }
                         }
                     });

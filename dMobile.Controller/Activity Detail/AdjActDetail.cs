@@ -2,27 +2,25 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml;
-using System.Xml.Linq;
-using dMobile.Bedrock;
-using dMobile.Controller.Activity_Item;
-using dMobile.GroundWork;
-using dMobile.Resources.Services;
-using dMobile.Resources.Types.Details;
-using dMobile.Resources.Types.Items;
-using SQLite;
-using Xamarin.Forms;
-
 namespace dMobile.Controller.Activity_Detail
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Collections.ObjectModel;
+    using System.Linq;
+    using System.Text;
+    using System.Threading.Tasks;
+    using System.Xml;
+    using System.Xml.Linq;
     using Bedrock.Settings;
-    using System.Runtime.CompilerServices;
+    using dMobile.Bedrock;
+    using dMobile.Controller.Activity_Item;
+    using dMobile.GroundWork;
+    using dMobile.Resources.Services;
+    using dMobile.Resources.Types.Details;
+    using dMobile.Resources.Types.Items;
+    using SQLite;
+    using Xamarin.Forms;
 
     /// <summary>
     /// Defines the <see cref="AdjActDetail" />.
@@ -326,25 +324,40 @@ namespace dMobile.Controller.Activity_Detail
         {
             if (selectedItem is AdjustmentDetail detail)
             {
-                // Get the line item location.
+                DisplayProductInfo(detail);
+
                 var itemLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
                     Convert.ToInt32(detail.LocationMapRefno));
-                var readableLocation = LocationMapTasks.GetReadableLocation(itemLocMap);
+
+                await DisplayDefaultLocation(detail, itemLocMap);
+                DisplayAdjustedLocation(itemLocMap);
+            }
+
+            return this.ActExtra;
+
+            void DisplayProductInfo(AdjustmentDetail detail)
+            {
+                var prodDesc = detail.ProductDescription;
+                var prodUnitSizeDesc = detail.ProductUnitSizeDescription;
+                this.ActExtra.Text1 = prodDesc.Trim() + " " + prodUnitSizeDesc.Trim();
+            }
+
+            async Task DisplayDefaultLocation(AdjustmentDetail detail, SLocMap itemLocMap)
+            {
                 var defLocMapRefno = await LocationMapTasks.GetDefaultLocMapRefnoFromWhsProdRefno(
                         itemLocMap.WhsLocMapRefno,
                         Convert.ToInt32(detail.ProductRefno),
                         SysCommon.ProdLocMapTypes.Picking);
                 var defaultReadableLocation = LocationMapTasks.GetReadableLocation(
                     await LocationMapTasks.GetSLocMapFromLocMapRefno(defLocMapRefno));
-
-                var prodDesc = detail.ProductDescription;
-                var prodUnitSizeDesc = detail.ProductUnitSizeDescription;
-                this.ActExtra.Text1 = prodDesc.Trim() + " " + prodUnitSizeDesc.Trim();
                 this.ActExtra.Text2 = "Default Location: " + defaultReadableLocation.Trim();
-                this.ActExtra.Text3 = "Adjusted Location: " + readableLocation.Trim();
             }
 
-            return this.ActExtra;
+            void DisplayAdjustedLocation(SLocMap itemLocMap)
+            {
+                var readableLocation = LocationMapTasks.GetReadableLocation(itemLocMap);
+                this.ActExtra.Text3 = "Adjusted Location: " + readableLocation.Trim();
+            }
         }
 
         /// <summary>

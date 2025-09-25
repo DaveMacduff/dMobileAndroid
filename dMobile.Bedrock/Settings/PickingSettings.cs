@@ -56,12 +56,12 @@ namespace dMobile.Bedrock.Settings
         /// <summary>
         /// Gets or sets the delivery date filter.
         /// </summary>
-        public DateTime DeliveryDateFilter { get; set; } = new DateTime(1900, 1, 1);
+        public DateTime DeliveryDateFilter { get; set; } = SysCommon.EmptyDateTime;
 
         /// <summary>
         /// Gets or sets the ordered date filter.
         /// </summary>
-        public DateTime OrderedDateFilter { get; set; } = new DateTime(1900, 1, 1);
+        public DateTime OrderedDateFilter { get; set; } = SysCommon.EmptyDateTime;
 
         /// <summary>
         /// Gets or sets a value indicating whether the flag to apply route code filter.

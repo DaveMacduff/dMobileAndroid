@@ -247,7 +247,7 @@ namespace dMobile.View
         private bool AssignBestBefore()
         {
             var defaultDataAssigned = false;
-            this.ProdSchemeData.LogisticUnitBestBeforeSellByDate = new DateTime(1900, 1, 1);
+            this.ProdSchemeData.LogisticUnitBestBeforeSellByDate = SysCommon.EmptyDateTime;
             if (this.ProductSchemeInfo.IsBestBeforeDateTracked)
             {
                 if (this.BarCodeData == null || SysCommon.IsEmptyDateTime(this.BarCodeData.LogisticUnitBestBeforeSellByDate))
@@ -277,7 +277,7 @@ namespace dMobile.View
         private bool AssignProductionDate()
         {
             var defaultDataAssigned = false;
-            this.ProdSchemeData.LogisticUnitProductionDate = new DateTime(1900, 1, 1);
+            this.ProdSchemeData.LogisticUnitProductionDate = SysCommon.EmptyDateTime;
             if (this.ProductSchemeInfo.IsProductionDateTracked)
             {
                 if (this.BarCodeData == null || SysCommon.IsEmptyDateTime(this.BarCodeData.LogisticUnitProductionDate))

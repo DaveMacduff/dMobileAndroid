@@ -2,6 +2,7 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
+using dMobile.Bedrock;
 using System;
 
 namespace dMobile.Controller.Activity_Detail
@@ -34,6 +35,6 @@ namespace dMobile.Controller.Activity_Detail
         /// <summary>
         /// Gets or sets the activity detail extra date time 1.
         /// </summary>
-        public DateTime DateTime1 { get; set; } = new DateTime(1900, 1, 1);
+        public DateTime DateTime1 { get; set; } = SysCommon.EmptyDateTime;
     }
 }

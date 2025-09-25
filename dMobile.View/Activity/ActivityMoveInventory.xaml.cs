@@ -225,14 +225,11 @@ namespace dMobile.View.Activity
         /// <returns><see cref="Task"/> Task operation.</returns>
         public async Task ScannerDisable()
         {
-            if (this.Scanner != null)
+            if (this.Scanner != null && this.IsBarCodeHandlerRegistered)
             {
-                if (this.IsBarCodeHandlerRegistered)
-                {
-                    this.Scanner.ClearBarCodeScanEventHandlers();
-                    await this.Scanner.DisableScanning();
-                    this.IsBarCodeHandlerRegistered = false;
-                }
+                this.Scanner.ClearBarCodeScanEventHandlers();
+                await this.Scanner.DisableScanning();
+                this.IsBarCodeHandlerRegistered = false;
             }
         }
 
@@ -242,18 +239,15 @@ namespace dMobile.View.Activity
         /// <returns><see cref="Task"/> Task operation.</returns>
         public async Task ScannerEnable()
         {
-            if (this.Scanner != null)
+            if (this.Scanner != null && !this.IsBarCodeHandlerRegistered)
             {
-                if (!this.IsBarCodeHandlerRegistered)
+                await this.Scanner.EnableScanning();
+                if (!this.Scanner.IsBarCodeScanEventHandlerAdded())
                 {
-                    await this.Scanner.EnableScanning();
-                    if (!this.Scanner.IsBarCodeScanEventHandlerAdded())
-                    {
-                        this.Scanner.OnBarCodeScan += this.BarCodeHandler;
-                    }
-
-                    this.IsBarCodeHandlerRegistered = true;
+                    this.Scanner.OnBarCodeScan += this.BarCodeHandler;
                 }
+
+                this.IsBarCodeHandlerRegistered = true;
             }
         }
 
@@ -876,19 +870,16 @@ namespace dMobile.View.Activity
                         if (keycode == Keycode.Del || keycode == Keycode.Clear || keycode == Keycode.Back)
                         {
                             var selectedIdx = this.MainActivityItems.IndexOf(this.ListViewMainActivity.SelectedItem);
-                            if (this.ListViewMainActivity.SelectedItem != null && selectedIdx > -1)
-                            {
-                                if (await Device.InvokeOnMainThreadAsync(async () =>
+                            if (this.ListViewMainActivity.SelectedItem != null && selectedIdx > -1 && await Device.InvokeOnMainThreadAsync(async () =>
                                         await this.DisplayAlert(
                                             this.GetControlDescription(),
                                             "Do you wish to delete this record?",
                                             "Yes",
                                             "No")))
-                                {
-                                    this.ActDetail.ListDetails.RemoveAt(selectedIdx);
-                                    this.MainActivityItems.RemoveAt(selectedIdx);
-                                    this.ListViewMainActivity.ItemsSource = this.MainActivityItems;
-                                }
+                            {
+                                this.ActDetail.ListDetails.RemoveAt(selectedIdx);
+                                this.MainActivityItems.RemoveAt(selectedIdx);
+                                this.ListViewMainActivity.ItemsSource = this.MainActivityItems;
                             }
                         }
                     }

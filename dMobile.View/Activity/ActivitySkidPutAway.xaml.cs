@@ -141,24 +141,21 @@ namespace dMobile.View.Activity
                             }
                             else if (keycode == Keycode.Del || keycode == Keycode.Clear)
                             {
-                                if (this.MainActivityItems.Count > 0 && this.ListViewMainActivity.SelectedItem != null)
-                                {
-                                    if (await Device.InvokeOnMainThreadAsync(async () =>
+                                if (this.MainActivityItems.Count > 0 && this.ListViewMainActivity.SelectedItem != null && await Device.InvokeOnMainThreadAsync(async () =>
                                             await this.DisplayAlert("Put Away", "Do you wish to delete this record?",
                                                 "Yes",
                                                 "No")))
-                                    {
-                                        _ = this.ActDetail.ListDetails.Remove(this.ListViewMainActivity.SelectedItem);
+                                {
+                                    _ = this.ActDetail.ListDetails.Remove(this.ListViewMainActivity.SelectedItem);
 
-                                        // Delete needs to rebind the the grid to the proper data view depending on the record count
-                                        await Device.InvokeOnMainThreadAsync(() =>
-                                        {
-                                            this.MainActivityItems = this.ActDetailOnSkid.DesignGrid(
-                                                ref this.GridMainActivity,
-                                                ref this.ListViewMainActivity);
-                                            this.ListViewMainActivity.ItemsSource = this.MainActivityItems;
-                                        });
-                                    }
+                                    // Delete needs to rebind the the grid to the proper data view depending on the record count
+                                    await Device.InvokeOnMainThreadAsync(() =>
+                                    {
+                                        this.MainActivityItems = this.ActDetailOnSkid.DesignGrid(
+                                            ref this.GridMainActivity,
+                                            ref this.ListViewMainActivity);
+                                        this.ListViewMainActivity.ItemsSource = this.MainActivityItems;
+                                    });
                                 }
                             }
                         }
@@ -426,7 +423,7 @@ namespace dMobile.View.Activity
                     this.ActDetail.ActExtra.Text2 = string.Empty;
                     this.ActDetail.ActExtra.Text3 = string.Empty;
                     this.ActDetail.ActExtra.Text4 = string.Empty;
-                    this.ActDetail.ActExtra.DateTime1 = new DateTime(1900, 1, 1);
+                    this.ActDetail.ActExtra.DateTime1 = SysCommon.EmptyDateTime;
 
                     await this.InsertActivityDetail(this.ActDetail);
                 }
@@ -559,15 +556,12 @@ namespace dMobile.View.Activity
                 {
                     // Expect the control to close.
                     // Clear any properties.
-                    if (this.Activity.SkidInfo.CurrSkid.SkidFkRefno != 0)
-                    {
-                        if (await Device.InvokeOnMainThreadAsync(async () =>
+                    if (this.Activity.SkidInfo.CurrSkid.SkidFkRefno != 0 && await Device.InvokeOnMainThreadAsync(async () =>
                                 await this.DisplayAlert("Skid Put Away", "Do you wish to put away another skid?", "Yes",
                                     "No")))
-                        {
-                            await this.ClearContents();
-                            cancelChanges = false;
-                        }
+                    {
+                        await this.ClearContents();
+                        cancelChanges = false;
                     }
                 }
                 else
@@ -630,61 +624,49 @@ namespace dMobile.View.Activity
 
             try
             {
-                if (isReadyToSave)
+                if (isReadyToSave && this.Activity.SkidInfo.CurrSkid.SkidFkRefno == 0)
                 {
-                    if (this.Activity.SkidInfo.CurrSkid.SkidFkRefno == 0)
-                    {
-                        isReadyToSave = false;
-                    }
+                    isReadyToSave = false;
                 }
 
-                if (isReadyToSave)
+                if (isReadyToSave && this.ActDetailOnSkid.ListDetails.Count == 0)
                 {
-                    if (this.ActDetailOnSkid.ListDetails.Count == 0)
-                    {
-                        isReadyToSave = false;
-                    }
+                    isReadyToSave = false;
                 }
 
-                if (isReadyToSave)
+                if (isReadyToSave && this.ActDetail.ListDetails.Count == 0)
                 {
-                    if (this.ActDetail.ListDetails.Count == 0)
-                    {
-                        isReadyToSave = false;
-                    }
+                    isReadyToSave = false;
                 }
 
                 // Check number of unts match, ignoring weight in comparison
                 // Raise a warning if there is a mismatch
-                if (isReadyToSave)
+                if (isReadyToSave && this.ActItem.ProdInfo.UnitCode != "LB" && this.ActItem.ProdInfo.UnitCode != "KG")
                 {
-                    if (this.ActItem.ProdInfo.UnitCode != "LB" && this.ActItem.ProdInfo.UnitCode != "KG")
+                    decimal skidTotQty = 0;
+
+                    foreach (dynamic detail in this.ActDetailOnSkid.ListDetails)
                     {
-                        decimal skidTotQty = 0;
+                        skidTotQty += Convert.ToDecimal(detail.ActivityDetailQuantity);
+                    }
 
-                        foreach (dynamic detail in this.ActDetailOnSkid.ListDetails)
+                    decimal putAwaySkidTotQty = 0;
+
+                    foreach (dynamic detail in this.ActDetail.ListDetails)
+                    {
+                        putAwaySkidTotQty += Convert.ToDecimal(detail.ActivityDetailQuantity);
+                    }
+
+                    if (skidTotQty != putAwaySkidTotQty)
+                    {
+                        var msg = string.Format(
+                            "Total quantity of {0} {2} to be put away does not match the current skid quantity of {1} {2}. Do you wish to continue?",
+                            putAwaySkidTotQty, skidTotQty, this.ActItem.ProdInfo.UnitCode);
+
+                        if (await Device.InvokeOnMainThreadAsync(async () =>
+                                !await this.DisplayAlert("Skid Put Away", msg, "Yes", "No")))
                         {
-                            skidTotQty += Convert.ToDecimal(detail.ActivityDetailQuantity);
-                        }
-
-                        decimal putAwaySkidTotQty = 0;
-
-                        foreach (dynamic detail in this.ActDetail.ListDetails)
-                        {
-                            putAwaySkidTotQty += Convert.ToDecimal(detail.ActivityDetailQuantity);
-                        }
-
-                        if (skidTotQty != putAwaySkidTotQty)
-                        {
-                            var msg = string.Format(
-                                "Total quantity of {0} {2} to be put away does not match the current skid quantity of {1} {2}. Do you wish to continue?",
-                                putAwaySkidTotQty, skidTotQty, this.ActItem.ProdInfo.UnitCode);
-
-                            if (await Device.InvokeOnMainThreadAsync(async () =>
-                                    !await this.DisplayAlert("Skid Put Away", msg, "Yes", "No")))
-                            {
-                                isReadyToSave = false;
-                            }
+                            isReadyToSave = false;
                         }
                     }
                 }
@@ -1097,30 +1079,27 @@ namespace dMobile.View.Activity
             actDetail.UniqueSchemeId = ProductInfoTasks.GetUniqueSchemeIdFromSProdSchemeData(this.ActItem.ProdInfo.Code,
                 this.ActItem.ProdInfo.Scheme, actDetail.SchemeData);
 
-            if (isInsertDetailReady)
+            if (isInsertDetailReady && !isDuplicateSchemeId)
             {
-                if (!isDuplicateSchemeId)
-                {
-                    await actDetail.Insert(xmlDoc);
+                await actDetail.Insert(xmlDoc);
 
-                    await Device.InvokeOnMainThreadAsync(() =>
+                await Device.InvokeOnMainThreadAsync(() =>
+                {
+                    if (actDetail.ListDetails.Count > 0)
                     {
-                        if (actDetail.ListDetails.Count > 0)
-                        {
-                            this.MainActivityItems = actDetail.DesignGrid(ref this.GridMainActivity,
-                                ref this.ListViewMainActivity);
-                            this.ListViewMainActivity.ItemsSource = this.MainActivityItems;
-                            this.ListViewMainActivity.SelectedItem =
-                                this.MainActivityItems[actDetail.ListDetails.Count - 1];
-                        }
-                        else
-                        {
-                            this.MainActivityItems = this.ActDetailOnSkid.DesignGrid(ref this.GridMainActivity,
-                                ref this.ListViewMainActivity);
-                            this.ListViewMainActivity.ItemsSource = this.MainActivityItems;
-                        }
-                    });
-                }
+                        this.MainActivityItems = actDetail.DesignGrid(ref this.GridMainActivity,
+                            ref this.ListViewMainActivity);
+                        this.ListViewMainActivity.ItemsSource = this.MainActivityItems;
+                        this.ListViewMainActivity.SelectedItem =
+                            this.MainActivityItems[actDetail.ListDetails.Count - 1];
+                    }
+                    else
+                    {
+                        this.MainActivityItems = this.ActDetailOnSkid.DesignGrid(ref this.GridMainActivity,
+                            ref this.ListViewMainActivity);
+                        this.ListViewMainActivity.ItemsSource = this.MainActivityItems;
+                    }
+                });
             }
         }
 

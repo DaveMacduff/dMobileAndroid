@@ -88,21 +88,18 @@ namespace dMobile.View.Activity
                     {
                         _ = Enum.TryParse(keyPressed, out Keycode keycode);
 
-                        if (!this.IsIndicatorRunning)
+                        if (!this.IsIndicatorRunning && keycode == Keycode.F1)
                         {
-                            if (keycode == Keycode.F1)
+                            if (await this.SaveChanges())
                             {
-                                if (await this.SaveChanges())
-                                {
-                                    this.DialogResult = DialogResult.OK;
-                                    await this.Close();
-                                }
-                                else
-                                {
-                                    this.DialogResult = DialogResult.None;
-                                    _ = await this.CancelChanges();
-                                    await this.Close();
-                                }
+                                this.DialogResult = DialogResult.OK;
+                                await this.Close();
+                            }
+                            else
+                            {
+                                this.DialogResult = DialogResult.None;
+                                _ = await this.CancelChanges();
+                                await this.Close();
                             }
                         }
                     });
@@ -240,21 +237,21 @@ namespace dMobile.View.Activity
         /// <returns>.</returns>
         public Task<bool> IsReadyToSave()
         {
-            var IsReadyToSave = true;
+            var isReadyToSave = true;
 
             try
             {
             }
-            catch (Exception Ex)
+            catch (Exception ex)
             {
-                if (SysCommon.ErrorReportAndRequestContinue(this.strFullClassName, "IsReadyToSave", Ex) == false)
+                if (SysCommon.ErrorReportAndRequestContinue(this.strFullClassName, "IsReadyToSave", ex) == false)
                 {
                 }
 
-                IsReadyToSave = false;
+                isReadyToSave = false;
             }
 
-            return Task.FromResult(IsReadyToSave);
+            return Task.FromResult(isReadyToSave);
         }
 
         /// <summary>
@@ -309,9 +306,9 @@ namespace dMobile.View.Activity
                     await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(this.GetControlDescription(), "Data Failed Validation. Check Your Data.", "OK"));
                 }
             }
-            catch (Exception Ex)
+            catch (Exception ex)
             {
-                if (SysCommon.ErrorReportAndRequestContinue(this.strFullClassName, "SaveChanges", Ex) == false)
+                if (SysCommon.ErrorReportAndRequestContinue(this.strFullClassName, "SaveChanges", ex) == false)
                 {
                 }
 
@@ -385,9 +382,9 @@ namespace dMobile.View.Activity
                     this.bChangesMade = true;
                 }
             }
-            catch (Exception Ex)
+            catch (Exception ex)
             {
-                if (SysCommon.ErrorReportAndRequestContinue(this.strFullClassName, "IdentifyChangesMade", Ex) == false)
+                if (SysCommon.ErrorReportAndRequestContinue(this.strFullClassName, "IdentifyChangesMade", ex) == false)
                 {
                 }
             }

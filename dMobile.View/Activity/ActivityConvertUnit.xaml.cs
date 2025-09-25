@@ -551,21 +551,18 @@ namespace dMobile.View.Activity
                             case Keycode.F1:
                             {
                                 const string msg = "Confirm to convert unit?";
-                                if (await Device.InvokeOnMainThreadAsync(
-                                    async () => await Application.Current.MainPage.DisplayAlert(
-                                        this.GetControlDescription(),
-                                        msg,
-                                        "Yes",
-                                        "No")))
-                                {
-                                    if (await this.SaveChanges())
+                                    if (await Device.InvokeOnMainThreadAsync(
+                                        async () => await Application.Current.MainPage.DisplayAlert(
+                                            this.GetControlDescription(),
+                                            msg,
+                                            "Yes",
+                                            "No")) && await this.SaveChanges())
                                     {
                                         await this.ScannerDisable();
                                         await this.Close();
                                     }
-                                }
 
-                                break;
+                                    break;
                             }
 
                             case Keycode.F2:
@@ -1526,7 +1523,7 @@ namespace dMobile.View.Activity
             var response = SysCommon.SubmitComm(request);
             var xmlDoc = new XmlDocument();
             xmlDoc.LoadXml(response);
-            if (xmlDoc.SelectSingleNode("/VFPData/Quantity")!.HasChildNodes)
+            if (xmlDoc.SelectSingleNode("/VFPData/Quantity") !.HasChildNodes)
             {
                 fillQty.Quantity = Convert.ToDecimal(xmlDoc.SelectSingleNode("/VFPData/Quantity")!.FirstChild.Value);
             }
@@ -1647,13 +1644,10 @@ namespace dMobile.View.Activity
                     this.GetControlDescription(),
                     msg,
                     "Yes",
-                    "No")))
+                    "No")) && await this.SaveChanges())
             {
-                if (await this.SaveChanges())
-                {
-                    await this.ScannerDisable();
-                    await this.Close();
-                }
+                await this.ScannerDisable();
+                await this.Close();
             }
         }
 

@@ -2,23 +2,23 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
-using dMobile.Bedrock;
-using dMobile.GroundWork;
-using dMobile.Resources.Services;
-using dMobile.Resources.Types.Items;
-using SQLite;
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml;
-using System.Xml.Linq;
-using Xamarin.Forms;
-
 namespace dMobile.Controller.Activity_Item
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Collections.ObjectModel;
+    using System.Linq;
+    using System.Text;
+    using System.Threading.Tasks;
+    using System.Xml;
+    using System.Xml.Linq;
+    using dMobile.Bedrock;
+    using dMobile.GroundWork;
+    using dMobile.Resources.Services;
+    using dMobile.Resources.Types.Items;
+    using SQLite;
+    using Xamarin.Forms;
+
     /// <summary>
     /// Defines the <see cref="CutSheetFinishedActItem" />.
     /// </summary>

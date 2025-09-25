@@ -125,23 +125,23 @@ namespace dMobile.View.Activity
         /// <inheritdoc />
         public Task<bool> IsReadyToSave()
         {
-            var IsReadyToSave = true;
+            var isReadyToSave = true;
 
             try
             {
-                IsReadyToSave = IsReadyToSave && !(decimal.Parse(this.txtAltQty.Text) == 0);
-                IsReadyToSave = IsReadyToSave && this.IsValidData();
+                isReadyToSave = isReadyToSave && !(decimal.Parse(this.txtAltQty.Text) == 0);
+                isReadyToSave = isReadyToSave && this.IsValidData();
             }
-            catch (Exception Ex)
+            catch (Exception ex)
             {
-                if (SysCommon.ErrorReportAndRequestContinue(this.strFullClassName, "IsReadyToSave", Ex) == false)
+                if (SysCommon.ErrorReportAndRequestContinue(this.strFullClassName, "IsReadyToSave", ex) == false)
                 {
                 }
 
-                IsReadyToSave = false;
+                isReadyToSave = false;
             }
 
-            return Task.FromResult(IsReadyToSave);
+            return Task.FromResult(isReadyToSave);
         }
 
         /// <summary>
@@ -177,9 +177,9 @@ namespace dMobile.View.Activity
                         await this.DisplayAlert("Data Validation", "Data Failed Validation. Check Your Data.", "OK"));
                 }
             }
-            catch (Exception Ex)
+            catch (Exception ex)
             {
-                if (SysCommon.ErrorReportAndRequestContinue(this.strFullClassName, "SaveChanges", Ex) == false)
+                if (SysCommon.ErrorReportAndRequestContinue(this.strFullClassName, "SaveChanges", ex) == false)
                 {
                 }
 
@@ -273,15 +273,12 @@ namespace dMobile.View.Activity
                     {
                         _ = Enum.TryParse(keyPressed, out Keycode keycode);
 
-                        if (!this.IsIndicatorRunning)
+                        if (!this.IsIndicatorRunning && keycode == Keycode.Enter)
                         {
-                            if (keycode == Keycode.Enter)
+                            if (await this.SaveChanges())
                             {
-                                if (await this.SaveChanges())
-                                {
-                                    this.DialogResult = DialogResult.OK;
-                                    await this.Close();
-                                }
+                                this.DialogResult = DialogResult.OK;
+                                await this.Close();
                             }
                         }
                     });
@@ -363,14 +360,14 @@ namespace dMobile.View.Activity
         /// <remarks></remarks>
         private bool IsValidData()
         {
-            var IsRetVal = true;
+            var isRetVal = true;
 
             // if (!Information.IsNumeric(TxtBaseQty.Text))
             if (!decimal.TryParse(this.txtAltQty.Text, out _))
             {
                 Device.BeginInvokeOnMainThread(() => this.DisplayAlert("Error", "Invalid Quantity!", "OK"));
 
-                IsRetVal = false;
+                isRetVal = false;
             }
             else
             {
@@ -382,7 +379,7 @@ namespace dMobile.View.Activity
                 this.actDetailEdit.WeightQuantity = decimal.Round(sQuantity.WeightQuantity, 3);
             }
 
-            return IsRetVal;
+            return isRetVal;
         }
 
         /// <summary>
@@ -447,9 +444,9 @@ namespace dMobile.View.Activity
                     this.IsChangesMade = true;
                 }
             }
-            catch (Exception Ex)
+            catch (Exception ex)
             {
-                if (SysCommon.ErrorReportAndRequestContinue(this.strFullClassName, "IdentifyChangesMade", Ex) == false)
+                if (SysCommon.ErrorReportAndRequestContinue(this.strFullClassName, "IdentifyChangesMade", ex) == false)
                 {
                 }
             }

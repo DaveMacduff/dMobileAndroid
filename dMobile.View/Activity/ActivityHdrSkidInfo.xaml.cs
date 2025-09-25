@@ -326,7 +326,7 @@ namespace dMobile.View.Activity
             XDocument xmlDoc;
             if (skidInfo.SkidFkRefno == 0)
             {
-                var dt = new DateTime(1900, 1, 1);
+                var dt = SysCommon.EmptyDateTime;
                 xmlDoc = XDocument.Parse(
                     "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" +
                     "<params>" +
@@ -1583,13 +1583,10 @@ namespace dMobile.View.Activity
 
                 this.cmdSkidProduct.Text = "Select Product";
 
-                if (this.ProdInfo != null)
+                if (this.ProdInfo != null && this.ProdInfo.UnitRefno != 0)
                 {
-                    if (this.ProdInfo.UnitRefno != 0)
-                    {
-                        this.cmdSkidProduct.Text =
-                            ProductInfoTasks.GetCurrReadableProdBcUnit(this.ProdInfo);
-                    }
+                    this.cmdSkidProduct.Text =
+                        ProductInfoTasks.GetCurrReadableProdBcUnit(this.ProdInfo);
                 }
             }
             catch (MessageOnlyException msgEx)

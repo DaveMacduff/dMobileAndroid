@@ -74,7 +74,7 @@ namespace dMobile.Bedrock.Settings
         /// <summary>
         /// Gets or sets as value indicating whether the adjustment date to filter.
         /// </summary>
-        public DateTime AdjustmentDate { get; set; } = new DateTime(1900, 1, 1);
+        public DateTime AdjustmentDate { get; set; } = SysCommon.EmptyDateTime;
 
         /// <summary>
         /// Gets or sets a value indicating whether the flag to negate the scanned quantity.

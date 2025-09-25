@@ -14,7 +14,7 @@ namespace dMobile.Resources
         /// <summary>
         /// Define the empty date time.
         /// </summary>
-        public static readonly DateTime EmptyDateTime = new DateTime(1900, 1, 1);
+        public static readonly DateTime EmptyDateTime = new DateTime(1900, 1, 1, 0, 0, 0, DateTimeKind.Local);
 
         /// <summary>
         ///

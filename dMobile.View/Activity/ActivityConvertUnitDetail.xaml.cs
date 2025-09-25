@@ -808,12 +808,9 @@ namespace dMobile.View.Activity
 
                     // If there is a selected skid check if the scanned product matches.
                     var currSkid = this.ActDetail.ActItem.ActHdr.SkidInfo.CurrSkid;
-                    if (currSkid.SkidFkRefno != 0)
+                    if (currSkid.SkidFkRefno != 0 && currSkid.ProdInfo.UnitRefno != prodUnitRefno)
                     {
-                        if (currSkid.ProdInfo.UnitRefno != prodUnitRefno)
-                        {
-                            throw new Exception("Scanned product does not match the selected skid product.");
-                        }
+                        throw new Exception("Scanned product does not match the selected skid product.");
                     }
 
                     // Get the activity item reference number from the identified location reference number

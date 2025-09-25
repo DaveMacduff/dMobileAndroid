@@ -46,7 +46,7 @@ namespace dMobile.Bedrock.Settings
         /// <summary>
         /// Gets or sets the transfer date filter.
         /// </summary>
-        public DateTime TransferDateFilter { get; set; } = new DateTime(1900, 1, 1);
+        public DateTime TransferDateFilter { get; set; } = SysCommon.EmptyDateTime;
 
         /// <summary>
         /// Gets or sets the full class name.

@@ -1496,13 +1496,10 @@ namespace dMobile.View.Activity
                 // Do not turn off or on scanner here, caller did.
                 await this.ActItem.AssignActivityItem(this.ListViewMainActivity.SelectedItem);
 
-                if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFkRefno != 0)
+                if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFkRefno != 0 && this.ActItem.ActHdr.SkidInfo.CurrSkid.ProdInfo.Refno != this.ActItem.ProdInfo.Refno)
                 {
-                    if (this.ActItem.ActHdr.SkidInfo.CurrSkid.ProdInfo.Refno != this.ActItem.ProdInfo.Refno)
-                    {
-                        throw new MessageOnlyException(
-                            "Selected line item product must match the selected skid product.");
-                    }
+                    throw new MessageOnlyException(
+                        "Selected line item product must match the selected skid product.");
                 }
 
                 await this.ScannerDisable();
@@ -1702,14 +1699,11 @@ namespace dMobile.View.Activity
                             await this.VerifyLocationIsValid();
 
                             // Check that the skid product matches the identified product unit.
-                            if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFkRefno != 0)
-                            {
-                                if (this.ActItem.ActHdr.SkidInfo.CurrSkid.ProdInfo.UnitRefno !=
+                            if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFkRefno != 0 && this.ActItem.ActHdr.SkidInfo.CurrSkid.ProdInfo.UnitRefno !=
                                     this.ActItem.ProdInfo.UnitRefno)
-                                {
-                                    throw new MessageOnlyException(
-                                        "Identified line item product does not match the selected skid product.");
-                                }
+                            {
+                                throw new MessageOnlyException(
+                                    "Identified line item product does not match the selected skid product.");
                             }
 
                             if (isSkidScanned)
@@ -2018,12 +2012,9 @@ namespace dMobile.View.Activity
 
                 // The current location will supersede the skid location on counts.
                 if (!(this.ActItem.ActSubType == SysCommon.ActSubTypes.PhysicalCounts ||
-                      this.ActItem.ActSubType == SysCommon.ActSubTypes.CycleCounts))
+                      this.ActItem.ActSubType == SysCommon.ActSubTypes.CycleCounts) && await LocationMapTasks.IsCompleteLocMap(this.ActItem.ActHdr.SkidInfo.CurrSkid.LocMap))
                 {
-                    if (await LocationMapTasks.IsCompleteLocMap(this.ActItem.ActHdr.SkidInfo.CurrSkid.LocMap))
-                    {
-                        this.LocMap.CurrLocMap = this.ActItem.ActHdr.SkidInfo.CurrSkid.LocMap;
-                    }
+                    this.LocMap.CurrLocMap = this.ActItem.ActHdr.SkidInfo.CurrSkid.LocMap;
                 }
 
                 if (!await LocationMapTasks.IsCompleteLocMap(this.LocMap.CurrLocMapRefno))
@@ -2167,16 +2158,13 @@ namespace dMobile.View.Activity
             // the login warehouse.
             // We can't determine the default location until after identifying the line item.
             var assignDefaultLocation = true;
-            if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFkRefno != 0)
-            {
-                if (!(this.ActItem.ActSubType == SysCommon.ActSubTypes.PhysicalCounts ||
+            if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFkRefno != 0 && !(this.ActItem.ActSubType == SysCommon.ActSubTypes.PhysicalCounts ||
                       this.ActItem.ActSubType == SysCommon.ActSubTypes.CycleCounts))
+            {
+                if (await LocationMapTasks.IsCompleteLocMap(this.ActItem.ActHdr.SkidInfo.CurrSkid.LocMap))
                 {
-                    if (await LocationMapTasks.IsCompleteLocMap(this.ActItem.ActHdr.SkidInfo.CurrSkid.LocMap))
-                    {
-                        this.LocMap.CurrLocMap = this.ActItem.ActHdr.SkidInfo.CurrSkid.LocMap;
-                        assignDefaultLocation = false;
-                    }
+                    this.LocMap.CurrLocMap = this.ActItem.ActHdr.SkidInfo.CurrSkid.LocMap;
+                    assignDefaultLocation = false;
                 }
             }
 
@@ -2333,21 +2321,18 @@ namespace dMobile.View.Activity
         /// <exception cref="Exception"> Unhandled print skid labels error.</exception>
         private async Task PrintSkidLabels()
         {
-            if (await this.CheckIfSkids2Print())
-            {
-                if (await this.DisplayAlert(
+            if (await this.CheckIfSkids2Print() && await this.DisplayAlert(
                         "Skid Labels",
                         "Do you wish to print all skid label(s)?",
                         "Yes",
                         "No"))
-                {
-                    await this.SubmitPrintSkidLabelsRequest();
-                    await Device.InvokeOnMainThreadAsync(
-                        async () => await Application.Current.MainPage.DisplayAlert(
-                            this.ActItem.GetControlDescription(),
-                            "Skid labels printed successfully.",
-                            Resource.OK));
-                }
+            {
+                await this.SubmitPrintSkidLabelsRequest();
+                await Device.InvokeOnMainThreadAsync(
+                    async () => await Application.Current.MainPage.DisplayAlert(
+                        this.ActItem.GetControlDescription(),
+                        "Skid labels printed successfully.",
+                        Resource.OK));
             }
         }
 

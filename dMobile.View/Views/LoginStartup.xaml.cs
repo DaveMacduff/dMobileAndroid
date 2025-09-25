@@ -194,29 +194,26 @@ namespace dMobile.View.Views
                 if (!this.SysEnv.SysSettings.IsDisconnectedMode
                     && this.SysEnv.CommSetup.HostIpAddressComponent1
                     + this.SysEnv.CommSetup.HostIpAddressComponent2
-                    + this.SysEnv.CommSetup.HostIpAddressComponent3 != 0)
+                    + this.SysEnv.CommSetup.HostIpAddressComponent3 != 0 && this.SysEnv.ContactLog.IsLoggedIn)
                 {
-                    if (this.SysEnv.ContactLog.IsLoggedIn)
-                    {
-                        this.SysEnv.ContactLog.IsLoggedIn = false;
-                        var tempContactLogin = this.SysEnv.ContactLog;
-                        _ = this.SysEnv.ContactLog.SaveData(ref tempContactLogin);
+                    this.SysEnv.ContactLog.IsLoggedIn = false;
+                    var tempContactLogin = this.SysEnv.ContactLog;
+                    _ = this.SysEnv.ContactLog.SaveData(ref tempContactLogin);
 
-                        try
-                        {
-                            this.SysEnv.ContactLog.SubmitContactLogOut();
-                        }
-                        catch (SocketException)
-                        {
-                            // do nothing if login failed
-                            // FormErrorReport errReport = new FormErrorReport(SysCommon.ActSubTypes.LoginStartup, ex);
-                            // Device.BeginInvokeOnMainThread(async () => await errReport.ShowDialog());
-                        }
-                        catch (Exception ex)
-                        {
-                            var errReport = new FormErrorReport(SysCommon.ActSubTypes.LoginStartup, ex);
-                            _ = await Device.InvokeOnMainThreadAsync(async () => await errReport.ShowDialog());
-                        }
+                    try
+                    {
+                        this.SysEnv.ContactLog.SubmitContactLogOut();
+                    }
+                    catch (SocketException)
+                    {
+                        // do nothing if login failed
+                        // FormErrorReport errReport = new FormErrorReport(SysCommon.ActSubTypes.LoginStartup, ex);
+                        // Device.BeginInvokeOnMainThread(async () => await errReport.ShowDialog());
+                    }
+                    catch (Exception ex)
+                    {
+                        var errReport = new FormErrorReport(SysCommon.ActSubTypes.LoginStartup, ex);
+                        _ = await Device.InvokeOnMainThreadAsync(async () => await errReport.ShowDialog());
                     }
                 }
             }

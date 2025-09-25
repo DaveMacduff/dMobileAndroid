@@ -793,7 +793,7 @@ namespace dMobile.View.Options
         /// <remarks></remarks>
         private async Task RefreshDataStatus_GotFocus(object sender, EventArgs e)
         {
-            var refreshLast = new DateTime(1900, 1, 1);
+            var refreshLast = SysCommon.EmptyDateTime;
 
             this.IsIndicatorRunning = true;
 
@@ -830,7 +830,7 @@ namespace dMobile.View.Options
                             // if there is no data or we are purging reset the last refresh date
                             if (!await Common.IsDataBaseDataExist())
                             {
-                                this.SysEnv.RefreshOpt.RefreshedDataLast = new DateTime(1900, 1, 1);
+                                this.SysEnv.RefreshOpt.RefreshedDataLast = SysCommon.EmptyDateTime;
                                 var tempRefreshOpt1 = this.SysEnv.RefreshOpt;
                                 _ = this.SysEnv.RefreshOpt.SaveData(ref tempRefreshOpt1);
                             }
@@ -843,7 +843,7 @@ namespace dMobile.View.Options
                             {
                                 await this.CreateDatabase();
                                 this.SysEnv.RefreshOpt.IsDataCreatedInStartUp = false;
-                                this.SysEnv.RefreshOpt.RefreshedDataLast = new DateTime(1900, 1, 1);
+                                this.SysEnv.RefreshOpt.RefreshedDataLast = SysCommon.EmptyDateTime;
                                 var tempRefreshOpt2 = this.SysEnv.RefreshOpt;
                                 _ = this.SysEnv.RefreshOpt.SaveData(ref tempRefreshOpt2);
 

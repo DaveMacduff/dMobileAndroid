@@ -159,12 +159,9 @@ namespace dMobile.View.Pages
                     {
                         _ = Enum.TryParse(keyPressed, out Keycode keycode);
 
-                        if (keycode == Keycode.Enter)
+                        if (keycode == Keycode.Enter && this.btnClose.IsEnabled)
                         {
-                            if (this.btnClose.IsEnabled)
-                            {
-                                this.BtnClose_Clicked(this, EventArgs.Empty);
-                            }
+                            this.BtnClose_Clicked(this, EventArgs.Empty);
                         }
                     }
                     catch (Exception ex)

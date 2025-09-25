@@ -483,7 +483,6 @@ namespace dMobile.Controller.Activity_Detail
             throw new NotImplementedException();
         }
 
-
         /// <summary>
         ///     The CreateDeleteXML.
         /// </summary>

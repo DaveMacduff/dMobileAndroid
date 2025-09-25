@@ -128,17 +128,17 @@ namespace dMobile.View.Activity
         /// <inheritdoc />
         public Task<bool> IsReadyToSave()
         {
-            var IsReadyToSave = true;
+            var isReadyToSave = true;
 
             try
             {
             }
             catch (Exception)
             {
-                IsReadyToSave = false;
+                isReadyToSave = false;
             }
 
-            return Task.FromResult(IsReadyToSave);
+            return Task.FromResult(isReadyToSave);
         }
 
         /// <summary>
@@ -276,23 +276,20 @@ namespace dMobile.View.Activity
                     {
                         _ = Enum.TryParse(keyPressed, out Keycode keycode);
 
-                        if (!this.IsIndicatorRunning)
+                        if (!this.IsIndicatorRunning && keycode == Keycode.Grave)
                         {
-                            if (keycode == Keycode.Grave)
+                            if (await this.SaveChanges())
                             {
-                                if (await this.SaveChanges())
-                                {
-                                    this.DialogResult = DialogResult.OK;
-                                    await this.Close();
-                                }
-                                else
-                                {
-                                    this.DialogResult = DialogResult.None;
-                                    _ = await this.CancelChanges();
-                                }
-
+                                this.DialogResult = DialogResult.OK;
                                 await this.Close();
                             }
+                            else
+                            {
+                                this.DialogResult = DialogResult.None;
+                                _ = await this.CancelChanges();
+                            }
+
+                            await this.Close();
                         }
                     });
 

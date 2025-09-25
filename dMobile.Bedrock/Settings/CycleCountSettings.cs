@@ -43,7 +43,7 @@ namespace dMobile.Bedrock.Settings
         /// <summary>
         /// Gets or sets the count date filter.
         /// </summary>
-        public DateTime CountDate { get; set; } = new DateTime(1900, 1, 1);
+        public DateTime CountDate { get; set; } = SysCommon.EmptyDateTime;
 
         /// <summary>
         /// Gets or sets the full class name.
