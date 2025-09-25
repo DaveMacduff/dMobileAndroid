@@ -645,14 +645,15 @@ namespace dMobile.View.Activity
                         try
                         {
                             IsItemSelected();
+                            var labelQuantity = new SLabelQuantity();
 
                             // Important! Need to ask for label quantity before the change status AND set
                             // this.ActHdr.Refno
                             this.ActHdr.AssignRefnoFromActivity(this.ListViewMainActivity.SelectedItem);
-                            var labelQuantity = new SLabelQuantity();
-
-                            if (this.ActSubType == SysCommon.ActSubTypes.Picking &&
-                                this.SysEnv.SysSettings.CanPrintShippingLabel && !this.SysEnv.SysSettings.IsDisconnectedMode)
+                            if (this.ActSubType != SysCommon.ActSubTypes.CutSheetFinished &&
+                                this.ActSubType == SysCommon.ActSubTypes.Picking &&
+                                this.SysEnv.SysSettings.CanPrintShippingLabel &&
+                                !this.SysEnv.SysSettings.IsDisconnectedMode)
                             {
                                 labelQuantity = await this.ActHdr.GetLabelQuantity(
                                     this.SysEnv.SysSettings.IsPickSinglePrintShipLabelFullQuantity);
@@ -712,6 +713,11 @@ namespace dMobile.View.Activity
                                             break;
                                         }
 
+                                    case SysCommon.ActSubTypes.CutSheetFinished:
+                                        _ = this.ActHdr.ListHeaders.Remove(this.ListViewMainActivity.SelectedItem);
+                                        await this.DesignGrid();
+                                        break;
+
                                     case SysCommon.ActSubTypes.NotApplicable:
                                     case SysCommon.ActSubTypes.BarCodeAssociation:
                                     case SysCommon.ActSubTypes.PhysicalCounts:
@@ -751,7 +757,6 @@ namespace dMobile.View.Activity
                                     case SysCommon.ActSubTypes.InventoryInquirySummary:
                                     case SysCommon.ActSubTypes.ConvertProduct:
                                     case SysCommon.ActSubTypes.TransferTo:
-                                    case SysCommon.ActSubTypes.CutSheetFinished:
                                     case SysCommon.ActSubTypes.CutSheetMaterial:
                                     case SysCommon.ActSubTypes.CutSheetFilter:
                                     case SysCommon.ActSubTypes.YieldSheetFinished:

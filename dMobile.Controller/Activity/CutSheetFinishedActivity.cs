@@ -448,5 +448,39 @@ namespace dMobile.Controller.Activity
                 }
             }
         }
+
+        /// <summary>
+        /// Change the activity header status.
+        /// </summary>
+        /// <param name="selectedActivity"><see cref="object"/> Selected activity to change the status on.</param>
+        /// <returns>True if successful else false.</returns>
+        public override async Task<bool> ChangeStatus(object selectedActivity)
+        {
+            var result = false;
+            if (!this.SysEnv.SysSettings.IsDisconnectedMode)
+            {
+                result = await Device.InvokeOnMainThreadAsync(async () =>
+                    await Application.Current.MainPage.DisplayAlert(
+                        this.GetControlDescription(),
+                        "Complete this cut sheet?",
+                        "Yes", "No"));
+                if (result)
+                {
+                    // do xml request to debox
+                    var xml = "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
+                        + "<imclient>"
+                        + "<command>"
+                        + "<action>COMPLETE CUT SHEET</action>"
+                        + "</command>"
+                        + await SysCommon.GetRequestDefaults(false)
+                        + "<refno>" + this.HdrFkRefno + "</refno>"
+                        + "</imclient>";
+                    _ = SysCommon.SubmitComm(xml);
+                    result = true;
+                }
+            }
+
+            return result;
+        }
     }
 }

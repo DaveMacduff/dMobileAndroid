@@ -601,14 +601,14 @@ namespace dMobile.Controller.Activity
                     {
                         if (!isResult)
                         {
-                            throw new Exception("Items that have not been reviewed exist for this section.");
+                            throw new MessageOnlyException("Items that have not been reviewed exist for this section.");
                         }
                     }
                     else if (this.SysEnv.SysSettings.IsRelByOrder && !this.SysEnv.SysSettings.IsDisconnectedMode)
                     {
                         if (!isResult)
                         {
-                            throw new Exception("Items that have not been reviewed exist for this order.");
+                            throw new MessageOnlyException("Items that have not been reviewed exist for this order.");
                         }
                     }
                 }
@@ -652,7 +652,7 @@ namespace dMobile.Controller.Activity
                     }
                     catch (Exception ex)
                     {
-                        throw new Exception("Items that have not been reviewed exist for this order.");
+                        throw new MessageOnlyException("Items that have not been reviewed exist for this order.");
                     }
                 }
             }
