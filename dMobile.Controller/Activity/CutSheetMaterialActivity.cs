@@ -5,8 +5,8 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using dMobile.Bedrock;
@@ -24,6 +24,11 @@ namespace dMobile.Controller.Activity
     public class CutSheetMaterialActivity : Activity
     {
         /// <summary>
+        /// Defines the resourceDictionary.
+        /// </summary>
+        private readonly ResourceDictionary resDict = new ResourceDictionary();
+
+        /// <summary>
         /// Defines the columnWidth0.
         /// </summary>
         private double columnWidth0 = 0;
@@ -37,11 +42,6 @@ namespace dMobile.Controller.Activity
         /// Defines the columnWidth2.
         /// </summary>
         private double columnWidth2 = 0;
-
-        /// <summary>
-        /// Defines the resourceDictionary.
-        /// </summary>
-        private ResourceDictionary resourceDictionary = new ResourceDictionary();
 
         /// <summary>
         /// Defines the listCutSheetMaterial.
@@ -78,7 +78,9 @@ namespace dMobile.Controller.Activity
                     var labelActivityDescription = new Label { VerticalOptions = LayoutOptions.Center };
 
                     labelActivityRefno.SetBinding(Label.TextProperty, new Binding("ActivityStringFKRefno"));
-                    labelActivityDateTime.SetBinding(Label.TextProperty, new Binding("ActivityCutSheetDateTime", BindingMode.Default, null, null, "{0:MM/dd/yyyy}"));
+                    labelActivityDateTime.SetBinding(Label.TextProperty, new Binding(
+                        "ActivityCutSheetDateTime",
+                        BindingMode.Default, null, null, "{0:MM/dd/yyyy}"));
                     labelActivityDescription.SetBinding(Label.TextProperty, new Binding("ActivityCutSheetDescription"));
 
                     gridData.Children.Add(labelActivityRefno, 0, 0);
@@ -93,7 +95,7 @@ namespace dMobile.Controller.Activity
                 });
 
                 var isAddKey = true;
-                foreach (var item in this.resourceDictionary)
+                foreach (var item in this.resDict)
                 {
                     if (item.Key == "dataTemplateRawMaterial")
                     {
@@ -103,33 +105,24 @@ namespace dMobile.Controller.Activity
 
                 if (isAddKey)
                 {
-                    this.resourceDictionary.Add("dataTemplateRawMaterial", dataTemplate);
+                    this.resDict.Add("dataTemplateRawMaterial", dataTemplate);
                 }
             }
         }
 
-        /// <summary>
-        /// The GetFKRefnoIdx.
-        /// </summary>
-        /// <returns>.</returns>
+        /// <inheritdoc cref="Activity.GetFkRefnoIdx()"/>
         public override string GetFkRefnoIdx()
         {
             return "ActivityStringFKRefno";
         }
 
-        /// <summary>
-        /// The GetControlDescription.
-        /// </summary>
-        /// <returns>.</returns>
+        /// <inheritdoc cref="Activity.GetControlDescription()"/>
         public override string GetControlDescription()
         {
             return "CutSheet Materials";
         }
 
-        /// <summary>
-        /// Display the extra information for the selected activity.
-        /// </summary>
-        /// <param name="extraInfo">Extra information collection.</param>
+        /// <inheritdoc cref="Activity.DisplayExtraInfo(ObservableCollection{string})"/>
         public override void DisplayExtraInfo(ObservableCollection<string> extraInfo)
         {
             base.DisplayExtraInfo(extraInfo);
@@ -140,36 +133,34 @@ namespace dMobile.Controller.Activity
             }
         }
 
-        /// <summary>
-        /// The DesignGrid.
-        /// </summary>
-        /// <param name="gridMainActivity">The gridMainActivity<see cref="Grid"/>.</param>
-        /// <param name="listViewMainActivity">The listViewMainActivity<see cref="ListView"/>.</param>
-        /// <returns>The <see cref="ObservableCollection{object}"/>.</returns>
+        /// <inheritdoc cref="Activity.DesignGrid(ref Grid, ref ListView)"/>
         public override ObservableCollection<object> DesignGrid(ref Grid gridMainActivity, ref ListView listViewMainActivity)
         {
             var observableCollection = new ObservableCollection<object>();
 
             foreach (var productionCutSheet in this.ListHeaders.Cast<CutSheetMaterial>())
             {
-                // CutSheetMaterial productionCutSheet = new CutSheetMaterial
-                // {
-                //    ActivityCutSheetDateTime = Convert.ToDateTime(row["ActivityCutSheetDateTime"] != DBNull.Value ? row["ActivityCutSheetDateTime"] : null),
-                //    ActivityCutSheetDescription = Convert.ToString(row["ActivityCutSheetDescription"] != DBNull.Value ? row["ActivityCutSheetDescription"] : null),
-                //    ActivityFKRefno = Convert.ToInt32(row["ActivityFKRefno"] != DBNull.Value ? row["ActivityFKRefno"] : null),
-                //    ActivityStringFKRefno = Convert.ToString(row["ActivityStringFKRefno"] != DBNull.Value ? row["ActivityStringFKRefno"] : null),
-                //    ActivityRefno = Convert.ToInt32(row["ActivityRefno"] != DBNull.Value ? row["ActivityRefno"] : null),
-                //    ActivityStatus = Convert.ToInt32(row["ActivityStatus"] != DBNull.Value ? row["ActivityStatus"] : null),
-                //    LocationMapRefno = Convert.ToInt32(row["LocationMapRefno"] != DBNull.Value ? row["LocationMapRefno"] : null),
-                //    LocationMapWarehouseFKRefno = Convert.ToInt32(row["LocationMapWarehouseFKRefno"] != DBNull.Value ? row["LocationMapWarehouseFKRefno"] : null),
-                //    LocationMapWarehouseName = Convert.ToString(row["LocationMapWarehouseName"] != DBNull.Value ? row["LocationMapWarehouseName"] : null),
-                // };
                 observableCollection.Add(productionCutSheet);
             }
 
-            var labelCutSheetNumber = new Label { Text = "CutSheet #", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            var labelCutSheetDate = new Label { Text = "Date", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            var labelCutSheetDescription = new Label { Text = "Description", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelCutSheetNumber = new Label
+            {
+                Text = "CutSheet #",
+                VerticalOptions = LayoutOptions.Center,
+                FontAttributes = FontAttributes.Bold
+            };
+            var labelCutSheetDate = new Label
+            {
+                Text = "Date",
+                VerticalOptions = LayoutOptions.Center,
+                FontAttributes = FontAttributes.Bold
+            };
+            var labelCutSheetDescription = new Label
+            {
+                Text = "Description",
+                VerticalOptions = LayoutOptions.Center,
+                FontAttributes = FontAttributes.Bold
+            };
 
             // Calculate text size
             this.columnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelCutSheetNumber.Text);
@@ -201,11 +192,14 @@ namespace dMobile.Controller.Activity
 
             gridMainActivity.Children.Add(gridHeader);
 
-            foreach (var productionCutSheet in observableCollection.Cast<CutSheetMaterial>())
+            foreach (var sheet in observableCollection.Cast<CutSheetMaterial>())
             {
-                var dataColumnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(productionCutSheet.ActivityStringFKRefno);
-                var dataColumnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(Convert.ToString(productionCutSheet.ActivityCutSheetDateTime.ToString("MM/dd/yyyy")));
-                var dataColumnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(productionCutSheet.ActivityCutSheetDescription);
+                var dataColumnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(
+                    sheet.ActivityStringFKRefno);
+                var dataColumnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(
+                    Convert.ToString(sheet.ActivityCutSheetDateTime.ToString("MM/dd/yyyy")));
+                var dataColumnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(
+                    sheet.ActivityCutSheetDescription);
 
                 if (dataColumnWidth0 > this.columnWidth0)
                 {
@@ -226,103 +220,103 @@ namespace dMobile.Controller.Activity
                 }
             }
 
-            listViewMainActivity.ItemTemplate = (DataTemplate)this.resourceDictionary["dataTemplateRawMaterial"];
+            listViewMainActivity.ItemTemplate = (DataTemplate)this.resDict["dataTemplateRawMaterial"];
 
             return observableCollection;
         }
 
-        /// <summary>
-        /// The GetActivityList.
-        /// </summary>
-        /// <param name="isSubmitBatch">.</param>
-        /// <returns>.</returns>
-        public override async Task<List<object>> GetActivityList(bool isSubmitBatch)
+        /// <inheritdoc cref="Activity.GetActivityList(bool)"/>
+        public override async Task<List<object>> GetActivityList(bool isDisconnectedMode)
         {
             var ticketSettings = new CutSheetSettings().LoadData();
-            var sql = new StringBuilder();
 
-            sql.Append("SELECT tActivityCutSheet.ActivityRefno,");
-            sql.Append("tActivityCutSheetMaterial.ActivityFKRefno,");
-            sql.Append("tActivityCutSheetMaterial.ActivityStringFKRefno,");
-            sql.Append("tLocationMapWarehouse.LocationMapRefno AS LocationMapRefno,");
-            sql.Append("tLocationMapWarehouse.LocationMapWarehouseFKRefno AS LocationMapWarehouseFKRefno,");
-            sql.Append("tLocationMapWarehouse.LocationMapWarehouseName AS LocationMapWarehouseName,");
-            sql.Append("tActivityCutSheet.ActivityCutSheetDateTime AS ActivityCutSheetDateTime,");
-            sql.Append("tActivityCutSheet.ActivityCutSheetDescription AS ActivityCutSheetDescription,");
-            sql.Append("tActivity.ActivityStatus AS ActivityStatus ");
-            sql.Append("FROM tActivityCutSheet ");
-            if (isSubmitBatch)
+            // Parameterized SQL to reduce allocations and improve plan caching
+            string sql;
+            object[] parameters;
+            const int actStatusNoChange = (int)SysCommon.ActStatus.NoChange;
+            const int subTypeCutSheetMaterial = (int)SysCommon.ActSubTypes.CutSheetMaterial;
+
+            if (isDisconnectedMode)
             {
-                sql.Append("INNER JOIN tActivity ON tActivity.ActivityRefno = tActivityCutSheet.ActivityRefno ");
-                sql.Append("INNER JOIN tActivityCutSheetMaterial ON tActivityCutSheet.ActivityRefno ");
-                sql.Append("= tActivityCutSheetMaterial.ActivityRefno ");
-                sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno ");
-                sql.Append("= tActivityCutSheet.WarehouseLocationMapRefno ");
-                sql.AppendFormat("WHERE tActivity.ActivityStatus <> {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
-                sql.AppendFormat("AND tActivity.ActivitySubType = {0} ", Convert.ToInt32(SysCommon.ActSubTypes.CutSheetMaterial));
-                sql.Append("UNION ");
-                sql.Append("SELECT tActivityCutSheet.ActivityRefno,");
-                sql.Append("tActivityCutSheetMaterial.ActivityFKRefno,");
-                sql.Append("tActivityCutSheetMaterial.ActivityStringFKRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapWarehouseFKRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapWarehouseName,");
-                sql.Append("tActivityCutSheet.ActivityCutSheetDateTime,");
-                sql.Append("tActivityCutSheet.ActivityCutSheetDescription,");
-                sql.Append("tActivity.ActivityStatus ");
-                sql.Append("FROM tActivityCutSheet ");
-                sql.Append("INNER JOIN tActivity ON tActivity.ActivityRefno = tActivityCutSheet.ActivityRefno ");
-                sql.Append("INNER JOIN tActivityCutSheetMaterial ON tActivityCutSheet.ActivityRefno ");
-                sql.Append("= tActivityCutSheetMaterial.ActivityRefno ");
-                sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno ");
-                sql.Append("= tActivityCutSheet.WarehouseLocationMapRefno ");
-                sql.Append("INNER JOIN tActivityItem ON tActivityItem.ActivityRefno = tActivity.ActivityRefno ");
-                sql.AppendFormat("WHERE tActivityItem.ActivityItemStatus <> {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
-                sql.AppendFormat("AND tActivity.ActivitySubType = {0} ", Convert.ToInt32(SysCommon.ActSubTypes.CutSheetMaterial));
-                sql.Append("UNION ");
-                sql.Append("SELECT tActivityCutSheet.ActivityRefno,");
-                sql.Append("tActivityCutSheetMaterial.ActivityFKRefno,");
-                sql.Append("tActivityCutSheetMaterial.ActivityStringFKRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapWarehouseFKRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapWarehouseName,");
-                sql.Append("tActivityCutSheet.ActivityCutSheetDateTime,");
-                sql.Append("tActivityCutSheet.ActivityCutSheetDescription,");
-                sql.Append("tActivity.ActivityStatus ");
-                sql.Append("FROM tActivityCutSheet ");
-                sql.Append("INNER JOIN tActivity ON tActivity.ActivityRefno = tActivityCutSheet.ActivityRefno ");
-                sql.Append("INNER JOIN tActivityCutSheetMaterial ON tActivityCutSheet.ActivityRefno ");
-                sql.Append("= tActivityCutSheetMaterial.ActivityRefno ");
-                sql.Append("INNER JOIN tActivityItem ON tActivityItem.ActivityRefno = tActivity.ActivityRefno ");
-                sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno ");
-                sql.Append("= tActivityCutSheet.WarehouseLocationMapRefno ");
-                sql.Append("INNER JOIN tActivityDetail ON tActivityDetail.ActivityItemRefno ");
-                sql.Append("= tActivityItem.ActivityItemRefno ");
-                sql.AppendFormat("WHERE tActivityDetail.ActivityDetailStatus <> {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
-                sql.AppendFormat("AND tActivity.ActivitySubType = {0}", Convert.ToInt32(SysCommon.ActSubTypes.CutSheetMaterial));
+                // Use EXISTS instead of UNIONs to reduce scans
+                sql = @"
+                    SELECT DISTINCT
+                        tActivityCutSheet.ActivityRefno,
+                        tActivityCutSheetMaterial.ActivityFKRefno,
+                        tActivityCutSheetMaterial.ActivityStringFKRefno,
+                        tLocationMapWarehouse.LocationMapRefno AS LocationMapRefno,
+                        tLocationMapWarehouse.LocationMapWarehouseFKRefno AS LocationMapWarehouseFKRefno,
+                        tLocationMapWarehouse.LocationMapWarehouseName AS LocationMapWarehouseName,
+                        tActivityCutSheet.ActivityCutSheetDateTime AS ActivityCutSheetDateTime,
+                        tActivityCutSheet.ActivityCutSheetDescription AS ActivityCutSheetDescription,
+                        tActivity.ActivityStatus AS ActivityStatus
+                    FROM tActivityCutSheet
+                    INNER JOIN tActivity ON tActivity.ActivityRefno = tActivityCutSheet.ActivityRefno
+                    INNER JOIN tActivityCutSheetMaterial ON tActivityCutSheetMaterial.ActivityRefno = tActivityCutSheet.ActivityRefno
+                    INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno = tActivityCutSheet.WarehouseLocationMapRefno
+                    WHERE tActivity.ActivitySubType = ?
+                      AND (
+                            tActivity.ActivityStatus <> ?
+                            OR EXISTS (
+                                SELECT 1 FROM tActivityItem ai
+                                WHERE ai.ActivityRefno = tActivity.ActivityRefno
+                                  AND ai.ActivityItemStatus <> ?
+                            )
+                            OR EXISTS (
+                                SELECT 1 FROM tActivityItem ai
+                                INNER JOIN tActivityDetail ad ON ad.ActivityItemRefno = ai.ActivityItemRefno
+                                WHERE ai.ActivityRefno = tActivity.ActivityRefno
+                                  AND ad.ActivityDetailStatus <> ?
+                            )
+                      )";
+                parameters = new object[] { subTypeCutSheetMaterial, actStatusNoChange, actStatusNoChange, actStatusNoChange };
             }
             else
             {
-                sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno ");
-                sql.Append("= tActivityCutSheet.WarehouseLocationMapRefno ");
-                sql.Append("INNER JOIN tActivity ON tActivity.ActivityRefno = tActivityCutSheet.ActivityRefno ");
-                sql.AppendFormat("INNER JOIN tActivityCutSheetMaterial ON tActivityCutSheet.ActivityRefno ");
-                sql.Append("= tActivityCutSheetMaterial.ActivityRefno ");
-                sql.AppendFormat("WHERE tActivity.ActivitySubType = {0}", Convert.ToInt32(SysCommon.ActSubTypes.CutSheetMaterial));
+                sql = @"
+                    SELECT
+                        tActivityCutSheet.ActivityRefno,
+                        tActivityCutSheetMaterial.ActivityFKRefno,
+                        tActivityCutSheetMaterial.ActivityStringFKRefno,
+                        tLocationMapWarehouse.LocationMapRefno AS LocationMapRefno,
+                        tLocationMapWarehouse.LocationMapWarehouseFKRefno AS LocationMapWarehouseFKRefno,
+                        tLocationMapWarehouse.LocationMapWarehouseName AS LocationMapWarehouseName,
+                        tActivityCutSheet.ActivityCutSheetDateTime AS ActivityCutSheetDateTime,
+                        tActivityCutSheet.ActivityCutSheetDescription AS ActivityCutSheetDescription,
+                        tActivity.ActivityStatus AS ActivityStatus
+                    FROM tActivityCutSheet
+                    INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno = tActivityCutSheet.WarehouseLocationMapRefno
+                    INNER JOIN tActivity ON tActivity.ActivityRefno = tActivityCutSheet.ActivityRefno
+                    INNER JOIN tActivityCutSheetMaterial ON tActivityCutSheetMaterial.ActivityRefno = tActivityCutSheet.ActivityRefno
+                    WHERE tActivity.ActivitySubType = ?";
+                parameters = new object[] { subTypeCutSheetMaterial };
             }
 
-            this.listCutSheetMaterial = await Conn.QueryAsync<CutSheetMaterial>(sql.ToString());
+            this.listCutSheetMaterial = await Conn.QueryAsync<CutSheetMaterial>(sql, parameters);
 
+            // Replace reflection-based sorting with typed selectors
             foreach (var sort in ticketSettings.GetDataViewSortBy())
             {
-                if (sort.SortOrder == Resources.Enums.SortOrder.ASC)
+                Func<CutSheetMaterial, IComparable> keySelector = sort.SortValue switch
                 {
-                    this.listCutSheetMaterial = this.listCutSheetMaterial.OrderBy(prodCutSheet => prodCutSheet.GetType().GetProperty(sort.SortValue).GetValue(prodCutSheet)).ToList();
-                }
-                else
+                    nameof(CutSheetMaterial.ActivityStringFKRefno) => (Func<CutSheetMaterial, IComparable>)(x => x.ActivityStringFKRefno),
+                    nameof(CutSheetMaterial.ActivityCutSheetDateTime) => x => x.ActivityCutSheetDateTime,
+                    nameof(CutSheetMaterial.ActivityCutSheetDescription) => x => x.ActivityCutSheetDescription,
+                    nameof(CutSheetMaterial.LocationMapWarehouseName) => x => x.LocationMapWarehouseName,
+                    nameof(CutSheetMaterial.ActivityStatus) => x => x.ActivityStatus,
+                    nameof(CutSheetMaterial.ActivityRefno) => x => x.ActivityRefno,
+                    nameof(CutSheetMaterial.ActivityFKRefno) => x => x.ActivityFKRefno,
+                    _ => null,
+                };
+
+                if (keySelector == null)
                 {
-                    this.listCutSheetMaterial = this.listCutSheetMaterial.OrderByDescending(prodCutSheet => prodCutSheet.GetType().GetProperty(sort.SortValue).GetValue(prodCutSheet)).ToList();
+                    continue; // unknown column: skip to avoid reflection costs
                 }
+
+                this.listCutSheetMaterial = (sort.SortOrder == Resources.Enums.SortOrder.ASC)
+                    ? this.listCutSheetMaterial.OrderBy(keySelector).ToList()
+                    : this.listCutSheetMaterial.OrderByDescending(keySelector).ToList();
             }
 
             this.GetFilter();
@@ -345,11 +339,7 @@ namespace dMobile.Controller.Activity
             return observableCollection;
         }
 
-        /// <summary>
-        /// The SelectActivity.
-        /// </summary>
-        /// <param name="selectedActivity">The selectedActivity<see cref="object"/>.</param>
-        /// <returns>The <see cref="Task"/>.</returns>
+        /// <inheritdoc cref="Activity.SelectActivity(object)"/>/>
         public override async Task SelectActivity(object selectedActivity)
         {
             if (selectedActivity is CutSheetMaterial header)
@@ -388,24 +378,17 @@ namespace dMobile.Controller.Activity
             }
         }
 
-        /// <summary>
-        /// The AssignRefnoFromActivity.
-        /// </summary>
-        /// <param name="selectedItem">The selectedItem<see cref="object"/>.</param>
-        public override void AssignRefnoFromActivity(object selectedItem)
+        /// <inheritdoc cref="Activity.AssignRefnoFromActivity(object)"/>
+        public override void AssignRefnoFromActivity(object selectedActivity)
         {
-            if (selectedItem is CutSheetMaterial hdr)
+            if (selectedActivity is CutSheetMaterial hdr)
             {
                 this.HdrFkRefno = Convert.ToInt32(hdr.ActivityFKRefno);
                 this.HdrRefno = Convert.ToInt32(hdr.ActivityRefno);
             }
         }
 
-        /// <summary>
-        /// The Refresh.
-        /// </summary>
-        /// <param name="data">The data<see cref="XDocument"/>.</param>
-        /// <returns>The <see cref="Task"/>.</returns>
+        /// <inheritdoc cref="Activity.Refresh(XDocument)"/>/>
         public override async Task Refresh(XDocument data)
         {
             if (!this.SysEnv.SysSettings.IsDisconnectedMode)
@@ -416,10 +399,7 @@ namespace dMobile.Controller.Activity
             }
         }
 
-        /// <summary>
-        /// The Purge.
-        /// </summary>
-        /// <returns>The <see cref="Task"/>.</returns>
+        /// <inheritdoc cref="Activity.Purge()"/>
         public override async Task Purge()
         {
             var tableCutSheetMaterial = new TableActivityCutSheetMaterial();
@@ -431,44 +411,34 @@ namespace dMobile.Controller.Activity
             await tableCutSheetMaterial.PurgeData();
         }
 
-        /// <summary>
-        /// The GetFilter.
-        /// </summary>
+        /// <inheritdoc cref="Activity.GetFilter()"/>/>
         public override void GetFilter()
         {
             var settings = new CutSheetSettings().LoadData();
-            if (settings.IsApplyCutSheetDateFilter)
+            if (settings.IsApplyCutSheetDateFilter && !SysCommon.IsEmptyDateTime(settings.CutSheetDateFilter))
             {
-                if (!SysCommon.IsEmptyDateTime(settings.CutSheetDateFilter))
-                {
-                    var dt = settings.CutSheetDateFilter;
-                    var minDate = new DateTime(dt.Year, dt.Month, dt.Day, 00, 00, 00);
-                    var maxDate = new DateTime(dt.Year, dt.Month, dt.Day, 23, 59, 59);
-
-                    this.listCutSheetMaterial = this.listCutSheetMaterial.Where(
-                        prodCutSheet => prodCutSheet.ActivityCutSheetDateTime >= minDate &&
-                        prodCutSheet.ActivityCutSheetDateTime <= maxDate).ToList();
-                }
+                var dt = settings.CutSheetDateFilter;
+                var minDate = new DateTime(dt.Year, dt.Month, dt.Day, 00, 00, 00, DateTimeKind.Local);
+                var maxDate = new DateTime(dt.Year, dt.Month, dt.Day, 23, 59, 59, DateTimeKind.Local);
+                this.listCutSheetMaterial = this.listCutSheetMaterial.Where(
+                    prodCutSheet => prodCutSheet.ActivityCutSheetDateTime >= minDate &&
+                    prodCutSheet.ActivityCutSheetDateTime <= maxDate).ToList();
             }
         }
 
-        /// <summary>
-        /// The GetFilter.
-        /// </summary>
-        /// <param name="data">The data<see cref="XDocument"/>.</param>
+        /// <inheritdoc cref="Activity.GetFilter(XDocument)"/>/>
         public override void GetFilter(XDocument data)
         {
             var settings = new CutSheetSettings().LoadData();
-            if (settings.IsApplyCutSheetDateFilter)
+            if (settings.IsApplyCutSheetDateFilter &&
+                string.Compare(data.Root.Element("cutsheet_date").Value, string.Empty) > 0)
             {
-                if (string.Compare(data.Root.Element("cutsheet_date").Value, string.Empty) > 0)
-                {
-                    var dt = DateTime.Parse(data.Root.Element("cutsheet_date").Value);
-                    var minDate = new DateTime(dt.Year, dt.Month, dt.Day, 00, 00, 00);
-                    var maxDate = new DateTime(dt.Year, dt.Month, dt.Day, 23, 59, 59);
-
-                    this.listCutSheetMaterial = this.listCutSheetMaterial.Where(prodCutSheet => prodCutSheet.ActivityCutSheetDateTime >= minDate && prodCutSheet.ActivityCutSheetDateTime <= maxDate).ToList();
-                }
+                var dt = DateTime.Parse(data.Root.Element("cutsheet_date").Value, new CultureInfo("en-US"));
+                var minDate = new DateTime(dt.Year, dt.Month, dt.Day, 00, 00, 00, DateTimeKind.Local);
+                var maxDate = new DateTime(dt.Year, dt.Month, dt.Day, 23, 59, 59, DateTimeKind.Local);
+                this.listCutSheetMaterial = this.listCutSheetMaterial.Where(prodCutSheet =>
+                    prodCutSheet.ActivityCutSheetDateTime >= minDate &&
+                    prodCutSheet.ActivityCutSheetDateTime <= maxDate).ToList();
             }
         }
     }

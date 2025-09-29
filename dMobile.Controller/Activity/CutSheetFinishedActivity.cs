@@ -2,22 +2,22 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
-using dMobile.Bedrock;
-using dMobile.Bedrock.Settings;
-using dMobile.GroundWork;
-using dMobile.Resources.Services;
-using dMobile.Resources.Types.Headers;
-using Xamarin.Forms;
-
 namespace dMobile.Controller.Activity
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Collections.ObjectModel;
+    using System.Globalization;
+    using System.Linq;
+    using System.Threading.Tasks;
+    using System.Xml.Linq;
+    using dMobile.Bedrock;
+    using dMobile.Bedrock.Settings;
+    using dMobile.GroundWork;
+    using dMobile.Resources.Services;
+    using dMobile.Resources.Types.Headers;
+    using Xamarin.Forms;
+
     /// <summary>
     /// Defines the <see cref="CutSheetFinishedActivity" />.
     /// </summary>
@@ -116,6 +116,264 @@ namespace dMobile.Controller.Activity
         }
 
         /// <inheritdoc cref="Activity.Search(string)"/>
+        public override async Task<List<object>> GetActivityList(bool isDisconnectedMode)
+        {
+            var settings = new CutSheetSettings().LoadData();
+            var actNoChange = (int)SysCommon.ActStatus.NoChange;
+            var cutSheetFinished = (int)SysCommon.ActSubTypes.CutSheetFinished;
+
+            string sql;
+            object[] parameters;
+
+            if (isDisconnectedMode)
+            {
+                // One pass using EXISTS instead of UNIONs
+                sql = @"
+                    SELECT DISTINCT
+                        tActivityCutSheet.ActivityRefno,
+                        tActivityCutSheetFinished.ActivityFKRefno,
+                        tActivityCutSheetFinished.ActivityStringFKRefno,
+                        tLocationMapWarehouse.LocationMapRefno AS LocationMapRefno,
+                        tLocationMapWarehouse.LocationMapWarehouseFKRefno AS LocationMapWarehouseFKRefno,
+                        tLocationMapWarehouse.LocationMapWarehouseName AS LocationMapWarehouseName,
+                        tActivityCutSheet.ActivityCutSheetDateTime AS ActivityCutSheetDateTime,
+                        tActivityCutSheet.ActivityCutSheetDescription AS ActivityCutSheetDescription,
+                        tActivity.ActivityStatus AS ActivityStatus
+                    FROM tActivityCutSheet
+                    INNER JOIN tActivity ON tActivity.ActivityRefno = tActivityCutSheet.ActivityRefno
+                    INNER JOIN tActivityCutSheetFinished ON tActivityCutSheetFinished.ActivityRefno = tActivityCutSheet.ActivityRefno
+                    INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno = tActivityCutSheet.WarehouseLocationMapRefno
+                    WHERE tActivity.ActivitySubType = ?
+                      AND (
+                            tActivity.ActivityStatus <> ?
+                            OR EXISTS (
+                                SELECT 1
+                                FROM tActivityItem ai
+                                WHERE ai.ActivityRefno = tActivity.ActivityRefno
+                                  AND ai.ActivityItemStatus <> ?
+                            )
+                            OR EXISTS (
+                                SELECT 1
+                                FROM tActivityItem ai
+                                INNER JOIN tActivityDetail ad ON ad.ActivityItemRefno = ai.ActivityItemRefno
+                                WHERE ai.ActivityRefno = tActivity.ActivityRefno
+                                  AND ad.ActivityDetailStatus <> ?
+                            )
+                      )";
+                parameters = new object[] { cutSheetFinished, actNoChange, actNoChange, actNoChange };
+            }
+            else
+            {
+                sql = @"
+                    SELECT
+                        tActivityCutSheet.ActivityRefno,
+                        tActivityCutSheetFinished.ActivityFKRefno,
+                        tActivityCutSheetFinished.ActivityStringFKRefno,
+                        tLocationMapWarehouse.LocationMapRefno AS LocationMapRefno,
+                        tLocationMapWarehouse.LocationMapWarehouseFKRefno AS LocationMapWarehouseFKRefno,
+                        tLocationMapWarehouse.LocationMapWarehouseName AS LocationMapWarehouseName,
+                        tActivityCutSheet.ActivityCutSheetDateTime AS ActivityCutSheetDateTime,
+                        tActivityCutSheet.ActivityCutSheetDescription AS ActivityCutSheetDescription,
+                        tActivity.ActivityStatus AS ActivityStatus
+                    FROM tActivityCutSheet
+                    INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno = tActivityCutSheet.WarehouseLocationMapRefno
+                    INNER JOIN tActivity ON tActivity.ActivityRefno = tActivityCutSheet.ActivityRefno
+                    INNER JOIN tActivityCutSheetFinished ON tActivityCutSheetFinished.ActivityRefno = tActivityCutSheet.ActivityRefno
+                    WHERE tActivity.ActivitySubType = ?";
+                parameters = new object[] { cutSheetFinished };
+            }
+
+            var list = await Conn.QueryAsync<CutSheetFinished>(sql, parameters);
+
+            // Fast sort without reflection
+            foreach (var sort in settings.GetDataViewSortBy())
+            {
+                list = ApplySort(list, sort.SortValue, sort.SortOrder == Resources.Enums.SortOrder.ASC).ToList();
+            }
+
+            this.ListCutSheetFinished = list;
+            this.GetFilter(); // Consider pushing this date filter into SQL too
+            this.ListHeaders = this.ListCutSheetFinished.Cast<object>().ToList();
+            return this.ListHeaders;
+
+            static IEnumerable<CutSheetFinished> ApplySort(IEnumerable<CutSheetFinished> src, string key, bool asc)
+            {
+                return key switch
+                {
+                    nameof(CutSheetFinished.ActivityStringFKRefno) => asc
+                        ? src.OrderBy(x => x.ActivityStringFKRefno)
+                        : src.OrderByDescending(x => x.ActivityStringFKRefno),
+                    nameof(CutSheetFinished.ActivityCutSheetDateTime) => asc
+                        ? src.OrderBy(x => x.ActivityCutSheetDateTime)
+                        : src.OrderByDescending(x => x.ActivityCutSheetDateTime),
+                    nameof(CutSheetFinished.ActivityCutSheetDescription) => asc
+                        ? src.OrderBy(x => x.ActivityCutSheetDescription)
+                        : src.OrderByDescending(x => x.ActivityCutSheetDescription),
+                    nameof(CutSheetFinished.LocationMapWarehouseName) => asc
+                        ? src.OrderBy(x => x.LocationMapWarehouseName)
+                        : src.OrderByDescending(x => x.LocationMapWarehouseName),
+                    _ => src,   // unknown sort key: no-op
+                };
+            }
+        }
+
+        /// <inheritdoc cref="Activity.Search(string)"
+        public override ObservableCollection<object> Search(string searchText)
+        {
+            var observableCollection = new ObservableCollection<object>();
+            this.ListHeaders = this.ListCutSheetFinished.Where(
+                prodTicket => prodTicket.ActivityStringFKRefno.ToLower().Contains(searchText.ToLower().Trim())).
+                Cast<object>().ToList();
+
+            foreach (var productionTicketFinished in this.ListHeaders.Cast<CutSheetFinished>())
+            {
+                observableCollection.Add(productionTicketFinished);
+            }
+
+            return observableCollection;
+        }
+
+        /// <inheritdoc cref="Activity.Search(string)"/>
+        public override async Task SelectActivity(object selectedActivity)
+        {
+            if (selectedActivity is CutSheetFinished header)
+            {
+                this.SelectedActivity = header;
+                this.HdrFkRefno = header.ActivityFKRefno;
+                this.HdrRefno = header.ActivityRefno;
+                this.LocationMapRefno = header.LocationMapRefno;
+
+                if (this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc)
+                {
+                    // Set the current location to the header.
+                    if (LocationMap.GetInstance().CurrLocMap.WhsLocMapRefno != header.LocationMapRefno &&
+                            await LocationMapTasks.IsCompleteLocMap(header.LocationMapRefno))
+                    {
+                        LocationMap.GetInstance().CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
+                            header.LocationMapRefno);
+                    }
+
+                    // Override and set the chosen location to the current location.
+                    if (LocationMap.GetInstance().ChosenLocMap.WhsLocMapRefno != header.LocationMapRefno &&
+                            await LocationMapTasks.IsCompleteLocMap(header.LocationMapRefno))
+                    {
+                        LocationMap.GetInstance().ChosenLocMap = LocationMap.GetInstance().CurrLocMap.Clone();
+                    }
+
+                    // Override and set any selected skid location to the current location.
+                    if (this.SkidInfo.CurrSkid?.SkidFkRefno > 0 &&
+                        this.SkidInfo.CurrSkid.LocMapRefno != header.LocationMapRefno &&
+                        await LocationMapTasks.IsCompleteLocMap(header.LocationMapRefno))
+                    {
+                        // NOTE: We may have to use a temp var to assign the current skid a new location.
+                        this.SkidInfo.CurrSkid.LocMap = LocationMap.GetInstance().CurrLocMap.Clone();
+                    }
+                }
+            }
+        }
+
+        /// <inheritdoc cref="Activity.Search(string)"/>
+        public override void AssignRefnoFromActivity(object selectedActivity)
+        {
+            if (selectedActivity is CutSheetFinished hdr)
+            {
+                this.HdrFkRefno = Convert.ToInt32(hdr.ActivityFKRefno);
+                this.HdrRefno = Convert.ToInt32(hdr.ActivityRefno);
+            }
+        }
+
+        /// <inheritdoc cref="Activity.Search(string)"/>
+        public override async Task Refresh(XDocument data)
+        {
+            if (!this.SysEnv.SysSettings.IsDisconnectedMode)
+            {
+                await this.Purge();
+                var tableFinished = new TableActivityCutSheetFinished();
+                await tableFinished.RequestHeaderData();
+            }
+        }
+
+        /// <inheritdoc cref="Activity.Search(string)"/>
+        public override async Task Purge()
+        {
+            var tableFinished = new TableActivityCutSheetFinished();
+            var tableFinishedItem = new TableActivityCutSheetFinishedItem();
+            var tableFinishedDetail = new TableActivityCutSheetFinishedDetail();
+
+            await tableFinishedDetail.PurgeData();
+            await tableFinishedItem.PurgeData();
+            await tableFinished.PurgeData();
+        }
+
+        /// <inheritdoc cref="Activity.Search(string)"/>
+        public override void GetFilter()
+        {
+            var ticketSettings = new CutSheetSettings().LoadData();
+
+            if (ticketSettings.IsApplyCutSheetDateFilter && !SysCommon.IsEmptyDateTime(ticketSettings.CutSheetDateFilter))
+            {
+                var dt = ticketSettings.CutSheetDateFilter;
+                var minDate = new DateTime(dt.Year, dt.Month, dt.Day, 00, 00, 00, DateTimeKind.Local);
+                var maxDate = new DateTime(dt.Year, dt.Month, dt.Day, 23, 59, 59, DateTimeKind.Local);
+
+                this.ListCutSheetFinished = this.ListCutSheetFinished.Where(
+                    prodTicket => prodTicket.ActivityCutSheetDateTime >= minDate &&
+                    prodTicket.ActivityCutSheetDateTime <= maxDate).ToList();
+            }
+        }
+
+        /// <inheritdoc cref="Activity.Search(string)"/>
+        public override void GetFilter(XDocument data)
+        {
+            var ticketSettings = new CutSheetSettings().LoadData();
+
+            if (ticketSettings.IsApplyCutSheetDateFilter && string.Compare(data.Root.Element("cutsheet_date").Value, string.Empty) > 0)
+            {
+                var dt = DateTime.Parse(data.Root.Element("cutsheet_date").Value, new CultureInfo("en-US"));
+                var minDate = new DateTime(dt.Year, dt.Month, dt.Day, 00, 00, 00, DateTimeKind.Local);
+                var maxDate = new DateTime(dt.Year, dt.Month, dt.Day, 23, 59, 59, DateTimeKind.Local);
+
+                this.ListCutSheetFinished = this.ListCutSheetFinished.Where(
+                    prodTicket => prodTicket.ActivityCutSheetDateTime >= minDate &&
+                    prodTicket.ActivityCutSheetDateTime <= maxDate).ToList();
+            }
+        }
+
+        /// <summary>
+        /// Change the activity header status.
+        /// </summary>
+        /// <param name="selectedActivity"><see cref="object"/> Selected activity to change the status on.</param>
+        /// <returns>True if successful else false.</returns>
+        public override async Task<bool> ChangeStatus(object selectedActivity)
+        {
+            var result = false;
+            if (!this.SysEnv.SysSettings.IsDisconnectedMode)
+            {
+                result = await Device.InvokeOnMainThreadAsync(async () =>
+                    await Application.Current.MainPage.DisplayAlert(
+                        this.GetControlDescription(),
+                        "Complete this cut sheet?",
+                        "Yes", "No"));
+                if (result)
+                {
+                    // do xml request to debox
+                    var xml = "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
+                        + "<imclient>"
+                        + "<command>"
+                        + "<action>COMPLETE CUT SHEET</action>"
+                        + "</command>"
+                        + await SysCommon.GetRequestDefaults(false)
+                        + "<refno>" + this.HdrFkRefno + "</refno>"
+                        + "</imclient>";
+                    _ = SysCommon.SubmitComm(xml);
+                    result = true;
+                }
+            }
+
+            return result;
+        }
+
+        /// <inheritdoc cref="Activity.Search(string)"/>
         public override ObservableCollection<object> DesignGrid(ref Grid gridMainActivity, ref ListView listViewMainActivity)
         {
             var observableCollection = new ObservableCollection<object>();
@@ -207,280 +465,6 @@ namespace dMobile.Controller.Activity
             listViewMainActivity.ItemTemplate = (DataTemplate)this.ResDict["dataTemplateFinished"];
 
             return observableCollection;
-        }
-
-        /// <inheritdoc cref="Activity.Search(string)"/>
-        public override async Task<List<object>> GetActivityList(bool isDisconnectedMode)
-        {
-            var settings = new CutSheetSettings().LoadData();
-            var sql = new StringBuilder();
-
-            sql.Append("SELECT tActivityCutSheet.ActivityRefno,");
-            sql.Append("tActivityCutSheetFinished.ActivityFKRefno,");
-            sql.Append("tActivityCutSheetFinished.ActivityStringFKRefno,");
-            sql.Append("tLocationMapWarehouse.LocationMapRefno AS LocationMapRefno,");
-            sql.Append("tLocationMapWarehouse.LocationMapWarehouseFKRefno AS LocationMapWarehouseFKRefno,");
-            sql.Append("tLocationMapWarehouse.LocationMapWarehouseName AS LocationMapWarehouseName,");
-            sql.Append("tActivityCutSheet.ActivityCutSheetDateTime AS ActivityCutSheetDateTime,");
-            sql.Append("tActivityCutSheet.ActivityCutSheetDescription AS ActivityCutSheetDescription,");
-            sql.Append("tActivity.ActivityStatus AS ActivityStatus ");
-            sql.Append("FROM tActivityCutSheet ");
-            if (isDisconnectedMode)
-            {
-                sql.Append("INNER JOIN tActivity ON tActivity.ActivityRefno = tActivityCutSheet.ActivityRefno ");
-                sql.Append("INNER JOIN tActivityCutSheetFinished ON tActivityCutSheetFinished.ActivityRefno ");
-                sql.Append("= tActivityCutSheet.ActivityRefno ");
-                sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno ");
-                sql.Append("= tActivityCutSheet.WarehouseLocationMapRefno ");
-                sql.AppendFormat(
-                    "WHERE tActivity.ActivityStatus <> {0} ",
-                    Convert.ToInt32(SysCommon.ActStatus.NoChange));
-                sql.AppendFormat(
-                    "AND tActivity.ActivitySubType = {0} ",
-                    Convert.ToInt32(SysCommon.ActSubTypes.CutSheetFinished));
-                sql.Append("UNION ");
-                sql.Append("SELECT tActivityCutSheet.ActivityRefno,");
-                sql.Append("tActivityCutSheetFinished.ActivityFKRefno,");
-                sql.Append("tActivityCutSheetFinished.ActivityStringFKRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapWarehouseFKRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapWarehouseName,");
-                sql.Append("tActivityCutSheet.ActivityCutSheetDateTime,");
-                sql.Append("tActivityCutSheet.ActivityCutSheetDescription,");
-                sql.Append("tActivity.ActivityStatus ");
-                sql.Append("FROM tActivityCutSheet ");
-                sql.Append("INNER JOIN tActivity ON tActivity.ActivityRefno = tActivityCutSheet.ActivityRefno ");
-                sql.Append("INNER JOIN tActivityCutSheetFinished ON tActivityCutSheetFinished.ActivityRefno ");
-                sql.Append("= tActivityCutSheet.ActivityRefno ");
-                sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno ");
-                sql.Append("= tActivityCutSheet.WarehouseLocationMapRefno ");
-                sql.Append("INNER JOIN tActivityItem ON tActivityItem.ActivityRefno = tActivity.ActivityRefno ");
-                sql.AppendFormat(
-                    "WHERE tActivityItem.ActivityItemStatus <> {0} ",
-                    Convert.ToInt32(SysCommon.ActStatus.NoChange));
-                sql.AppendFormat(
-                    "AND tActivity.ActivitySubType = {0} ",
-                    Convert.ToInt32(SysCommon.ActSubTypes.CutSheetFinished));
-                sql.Append("UNION ");
-                sql.Append("SELECT tActivityCutSheet.ActivityRefno,");
-                sql.Append("tActivityCutSheetFinished.ActivityFKRefno,");
-                sql.Append("tActivityCutSheetFinished.ActivityStringFKRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapWarehouseFKRefno,");
-                sql.Append("tLocationMapWarehouse.LocationMapWarehouseName,");
-                sql.Append("tActivityCutSheet.ActivityCutSheetDateTime,");
-                sql.Append("tActivityCutSheet.ActivityCutSheetDescription,");
-                sql.Append("tActivity.ActivityStatus ");
-                sql.Append("FROM tActivityCutSheet ");
-                sql.Append("INNER JOIN tActivity ON tActivity.ActivityRefno = tActivityCutSheet.ActivityRefno ");
-                sql.Append("INNER JOIN tActivityCutSheetFinished ON tActivityCutSheetFinished.ActivityRefno ");
-                sql.Append("= tActivityCutSheet.ActivityRefno ");
-                sql.Append("INNER JOIN tActivityItem ON tActivityItem.ActivityRefno = tActivity.ActivityRefno ");
-                sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno ");
-                sql.Append("= tActivityCutSheet.WarehouseLocationMapRefno ");
-                sql.Append("INNER JOIN tActivityDetail ON tActivityDetail.ActivityItemRefno ");
-                sql.Append("= tActivityItem.ActivityItemRefno ");
-                sql.AppendFormat(
-                    "WHERE tActivityDetail.ActivityDetailStatus <> {0} ",
-                    Convert.ToInt32(SysCommon.ActStatus.NoChange));
-                sql.AppendFormat(
-                    "AND tActivity.ActivitySubType = {0}",
-                    Convert.ToInt32(SysCommon.ActSubTypes.CutSheetFinished));
-            }
-            else
-            {
-                sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno ");
-                sql.Append("= tActivityCutSheet.WarehouseLocationMapRefno ");
-                sql.Append("INNER JOIN tActivity ON tActivity.ActivityRefno = tActivityCutSheet.ActivityRefno ");
-                sql.Append("INNER JOIN tActivityCutSheetFinished ON tActivityCutSheetFinished.ActivityRefno ");
-                sql.Append("= tActivityCutSheet.ActivityRefno ");
-                sql.AppendFormat(
-                    "WHERE tActivity.ActivitySubType = {0}",
-                    Convert.ToInt32(SysCommon.ActSubTypes.CutSheetFinished));
-            }
-
-            this.ListCutSheetFinished = await Conn.QueryAsync<CutSheetFinished>(
-                sql.ToString());
-            foreach (var sort in settings.GetDataViewSortBy())
-            {
-                if (sort.SortOrder == Resources.Enums.SortOrder.ASC)
-                {
-                    this.ListCutSheetFinished = this.ListCutSheetFinished.OrderBy(adj => adj.GetType().
-                        GetProperty(sort.SortValue).GetValue(adj)).ToList();
-                }
-                else
-                {
-                    this.ListCutSheetFinished = this.ListCutSheetFinished.OrderByDescending(adj => adj.GetType().
-                        GetProperty(sort.SortValue).GetValue(adj)).ToList();
-                }
-            }
-
-            this.GetFilter();
-
-            this.ListHeaders = this.ListCutSheetFinished.Cast<object>().ToList();
-            return this.ListHeaders;
-        }
-
-        /// <inheritdoc cref="Activity.Search(string)"/>
-        public override ObservableCollection<object> Search(string searchText)
-        {
-            var observableCollection = new ObservableCollection<object>();
-            this.ListHeaders = this.ListCutSheetFinished.Where(
-                prodTicket => prodTicket.ActivityStringFKRefno.ToLower().Contains(searchText.ToLower().Trim())).
-                Cast<object>().ToList();
-
-            foreach (var productionTicketFinished in this.ListHeaders.Cast<CutSheetFinished>())
-            {
-                observableCollection.Add(productionTicketFinished);
-            }
-
-            return observableCollection;
-        }
-
-        /// <inheritdoc cref="Activity.Search(string)"/>
-        public override async Task SelectActivity(object selectedActivity)
-        {
-            if (selectedActivity is CutSheetFinished header)
-            {
-                this.SelectedActivity = header;
-                this.HdrFkRefno = header.ActivityFKRefno;
-                this.HdrRefno = header.ActivityRefno;
-                this.LocationMapRefno = header.LocationMapRefno;
-
-                if (this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc)
-                {
-                    // Set the current location to the header.
-                    if (LocationMap.GetInstance().CurrLocMap.WhsLocMapRefno != header.LocationMapRefno &&
-                            await LocationMapTasks.IsCompleteLocMap(header.LocationMapRefno))
-                    {
-                        LocationMap.GetInstance().CurrLocMap = await LocationMapTasks.GetSLocMapFromLocMapRefno(
-                            header.LocationMapRefno);
-                    }
-
-                    // Override and set the chosen location to the current location.
-                    if (LocationMap.GetInstance().ChosenLocMap.WhsLocMapRefno != header.LocationMapRefno &&
-                            await LocationMapTasks.IsCompleteLocMap(header.LocationMapRefno))
-                    {
-                        LocationMap.GetInstance().ChosenLocMap = LocationMap.GetInstance().CurrLocMap.Clone();
-                    }
-
-                    // Override and set any selected skid location to the current location.
-                    if (this.SkidInfo.CurrSkid?.SkidFkRefno > 0 &&
-                        this.SkidInfo.CurrSkid.LocMapRefno != header.LocationMapRefno &&
-                        await LocationMapTasks.IsCompleteLocMap(header.LocationMapRefno))
-                    {
-                        // NOTE: We may have to use a temp var to assign the current skid a new location.
-                        this.SkidInfo.CurrSkid.LocMap = LocationMap.GetInstance().CurrLocMap.Clone();
-                    }
-                }
-            }
-        }
-
-        /// <inheritdoc cref="Activity.Search(string)"/>
-        public override void AssignRefnoFromActivity(object selectedItem)
-        {
-            if (selectedItem is CutSheetFinished hdr)
-            {
-                this.HdrFkRefno = Convert.ToInt32(hdr.ActivityFKRefno);
-                this.HdrRefno = Convert.ToInt32(hdr.ActivityRefno);
-            }
-        }
-
-        /// <inheritdoc cref="Activity.Search(string)"/>
-        public override async Task Refresh(XDocument xmlParam)
-        {
-            if (!this.SysEnv.SysSettings.IsDisconnectedMode)
-            {
-                await this.Purge();
-                var tableFinished = new TableActivityCutSheetFinished();
-                await tableFinished.RequestHeaderData();
-            }
-        }
-
-        /// <inheritdoc cref="Activity.Search(string)"/>
-        public override async Task Purge()
-        {
-            var tableFinished = new TableActivityCutSheetFinished();
-            var tableFinishedItem = new TableActivityCutSheetFinishedItem();
-            var tableFinishedDetail = new TableActivityCutSheetFinishedDetail();
-
-            await tableFinishedDetail.PurgeData();
-            await tableFinishedItem.PurgeData();
-            await tableFinished.PurgeData();
-        }
-
-        /// <inheritdoc cref="Activity.Search(string)"/>
-        public override void GetFilter()
-        {
-            var ticketSettings = new CutSheetSettings().LoadData();
-
-            if (ticketSettings.IsApplyCutSheetDateFilter)
-            {
-                if (!SysCommon.IsEmptyDateTime(ticketSettings.CutSheetDateFilter))
-                {
-                    var dt = ticketSettings.CutSheetDateFilter;
-                    var minDate = new DateTime(dt.Year, dt.Month, dt.Day, 00, 00, 00);
-                    var maxDate = new DateTime(dt.Year, dt.Month, dt.Day, 23, 59, 59);
-
-                    this.ListCutSheetFinished = this.ListCutSheetFinished.Where(
-                        prodTicket => prodTicket.ActivityCutSheetDateTime >= minDate &&
-                        prodTicket.ActivityCutSheetDateTime <= maxDate).ToList();
-                }
-            }
-        }
-
-        /// <inheritdoc cref="Activity.Search(string)"/>
-        public override void GetFilter(XDocument data)
-        {
-            var ticketSettings = new CutSheetSettings().LoadData();
-
-            if (ticketSettings.IsApplyCutSheetDateFilter)
-            {
-                if (string.Compare(data.Root.Element("cutsheet_date").Value, string.Empty) > 0)
-                {
-                    var dt = DateTime.Parse(data.Root.Element("cutsheet_date").Value);
-                    var minDate = new DateTime(dt.Year, dt.Month, dt.Day, 00, 00, 00);
-                    var maxDate = new DateTime(dt.Year, dt.Month, dt.Day, 23, 59, 59);
-
-                    this.ListCutSheetFinished = this.ListCutSheetFinished.Where(
-                        prodTicket => prodTicket.ActivityCutSheetDateTime >= minDate &&
-                        prodTicket.ActivityCutSheetDateTime <= maxDate).ToList();
-                }
-            }
-        }
-
-        /// <summary>
-        /// Change the activity header status.
-        /// </summary>
-        /// <param name="selectedActivity"><see cref="object"/> Selected activity to change the status on.</param>
-        /// <returns>True if successful else false.</returns>
-        public override async Task<bool> ChangeStatus(object selectedActivity)
-        {
-            var result = false;
-            if (!this.SysEnv.SysSettings.IsDisconnectedMode)
-            {
-                result = await Device.InvokeOnMainThreadAsync(async () =>
-                    await Application.Current.MainPage.DisplayAlert(
-                        this.GetControlDescription(),
-                        "Complete this cut sheet?",
-                        "Yes", "No"));
-                if (result)
-                {
-                    // do xml request to debox
-                    var xml = "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
-                        + "<imclient>"
-                        + "<command>"
-                        + "<action>COMPLETE CUT SHEET</action>"
-                        + "</command>"
-                        + await SysCommon.GetRequestDefaults(false)
-                        + "<refno>" + this.HdrFkRefno + "</refno>"
-                        + "</imclient>";
-                    _ = SysCommon.SubmitComm(xml);
-                    result = true;
-                }
-            }
-
-            return result;
         }
     }
 }
