@@ -116,9 +116,6 @@
     <Compile Update="Activity\ActivityHdrProductionTicketFilter.xaml.cs">
       <DependentUpon>ActivityHdrProductionTicketFilter.xaml</DependentUpon>
     </Compile>
-    <Compile Update="Activity\ActivityItem.xaml.cs">
-      <DependentUpon>ActivityItem.xaml</DependentUpon>
-    </Compile>
     <Compile Update="Activity\ActivityHdrReceivingFilter.xaml.cs">
       <DependentUpon>ActivityHdrReceivingFilter.xaml</DependentUpon>
     </Compile>
