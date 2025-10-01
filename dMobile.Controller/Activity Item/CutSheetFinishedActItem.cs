@@ -16,7 +16,6 @@ namespace dMobile.Controller.Activity_Item
     using dMobile.GroundWork;
     using dMobile.Resources.Services;
     using dMobile.Resources.Types.Items;
-    using SQLite;
     using Xamarin.Forms;
 
     /// <summary>
@@ -63,8 +62,12 @@ namespace dMobile.Controller.Activity_Item
                     labelCode.SetBinding(Label.TextProperty, new Binding("ProductCode"));
                     labelBc.SetBinding(Label.TextProperty, new Binding("ProductUnitBC"));
                     labelUnit.SetBinding(Label.TextProperty, new Binding("BaseUnitCode"));
-                    labelQty.SetBinding(Label.TextProperty, new Binding("ActivityItemCutSheetBaseQuantity", BindingMode.Default, null, null, "{0:F3}"));
-                    labelExpQty.SetBinding(Label.TextProperty, new Binding("ActivityItemCutSheetBaseQuantityExpected", BindingMode.Default, null, null, "{0:F3}"));
+                    labelQty.SetBinding(
+                        Label.TextProperty,
+                        new Binding("ActivityItemCutSheetBaseQuantity", BindingMode.Default, null, null, "{0:F3}"));
+                    labelExpQty.SetBinding(
+                        Label.TextProperty,
+                        new Binding("ActivityItemCutSheetBaseQuantityExpected", BindingMode.Default, null, null, "{0:F3}"));
 
                     // Add labels to grid
                     gridData.Children.Add(labelCode);
@@ -100,35 +103,34 @@ namespace dMobile.Controller.Activity_Item
         }
 
         /// <summary>
-        /// Defines the columnWidth0.
+        /// Gets or sets the ColumnWidth0.
         /// </summary>
         private double ColumnWidth0 { get; set; }
 
         /// <summary>
-        /// Defines the columnWidth1.
+        /// Gets or sets the ColumnWidth1.
         /// </summary>
         private double ColumnWidth1 { get; set; }
 
         /// <summary>
-        /// Defines the columnWidth2.
+        /// Gets or sets the ColumnWidth2.
         /// </summary>
         private double ColumnWidth2 { get; set; }
 
         /// <summary>
-        /// Defines the columnWidth3.
+        /// Gets or sets the ColumnWidth3.
         /// </summary>
         private double ColumnWidth3 { get; set; }
 
         /// <summary>
-        /// Defines the columnWidth4.
+        /// Gets or sets the ColumnWidth4.
         /// </summary>
         private double ColumnWidth4 { get; set; }
 
         /// <summary>
-        /// Defines the listCutSheetFinishedItems.
+        /// Gets or sets the list of cut sheet finished items.
         /// </summary>
-        private List<CutSheetFinishedItem> ListCutSheetFinishedItems { get; set; } =
-            new List<CutSheetFinishedItem>();
+        private List<CutSheetFinishedItem> ListCutSheetFinishedItems { get; set; } = new List<CutSheetFinishedItem>();
 
         /// <inheritdoc/>
         public override Color GetShippedReceivedCountedDisplayTextColor()
@@ -144,10 +146,7 @@ namespace dMobile.Controller.Activity_Item
             return displayColor;
         }
 
-        /// <summary>
-        /// Set the activity item selected activity item.
-        /// </summary>
-        /// <param name="actItemFoundRefno"><see cref="int"/> Activity item reference number to look up.</param>
+        /// <inheritdoc/>
         public override void SetSelectedActivityItemFromList(int actItemFoundRefno)
         {
             this.SelectedListIdx = -1;
@@ -172,19 +171,13 @@ namespace dMobile.Controller.Activity_Item
             }
         }
 
-        /// <summary>
-        /// Gets or sets a value indicating whether allowed to add skid detail.
-        /// </summary>
-        /// <returns><see cref="bool"/> True if allowed to add skid detail.</returns>
+        /// <inheritdoc/>
         public override bool IsAllowAddSkidDetail()
         {
             return false;
         }
 
-        /// <summary>
-        /// The IsCatchAsk.
-        /// </summary>
-        /// <returns>.</returns>
+        /// <inheritdoc/>
         public override bool IsCatchAsk()
         {
             var isCatchAsk = this.ProdInfo.IsCatchAsk;
@@ -197,10 +190,7 @@ namespace dMobile.Controller.Activity_Item
             return isCatchAsk;
         }
 
-        /// <summary>
-        /// Check if the product is catch count.
-        /// </summary>
-        /// <returns><see cref="bool"/> True if catch count, else false.</returns>
+        /// <inheritdoc/>
         public override bool IsCatchAskZero()
         {
             var result = false;
@@ -212,11 +202,7 @@ namespace dMobile.Controller.Activity_Item
             return result;
         }
 
-        /// <summary>
-        /// Find the list item index of the item that matches the activity item foreign key reference number.
-        /// </summary>
-        /// <param name="activityItemFkRefno"><see cref="int"/> Activity item foreign key reference number.</param>
-        /// <returns><see cref="int"/> Activity list item found index, else -1.</returns>
+        /// <inheritdoc/>
         public override int FindActivityItemIndex(int activityItemFkRefno)
         {
             var foundIdx = -1;
@@ -234,12 +220,7 @@ namespace dMobile.Controller.Activity_Item
             return foundIdx;
         }
 
-        /// <summary>
-        /// Get the default location for the activity base on the sign quantity of the transaction.
-        /// </summary>
-        /// <param name="whsLocMapRefno"><see cref="int"/> Warehouse location map reference number.</param>
-        /// <param name="prodRefno"><see cref="int"/> Product reference number.</param>
-        /// <returns><see cref="int"/> Location map reference number.</returns>
+        /// <inheritdoc/>
         public override async Task<int> GetDefaultLocMapRefno(int whsLocMapRefno, int prodRefno)
         {
             var locMapRefno = 0;
@@ -278,49 +259,28 @@ namespace dMobile.Controller.Activity_Item
             return locMapRefno;
         }
 
-        /// <summary>
-        /// The GetUnableToParseItemFKRefnoMessage.
-        /// </summary>
-        /// <param name="actItemStringFkRefno">.</param>
-        /// <returns>.</returns>
+        /// <inheritdoc/>
         public override string GetUnableToParseItemFkRefnoMessage(string actItemStringFkRefno)
         {
             return $"Unable to parse production item# {actItemStringFkRefno}";
         }
 
-        /// <summary>
-        /// The GetUnableToFindItemFKRefnoMessage.
-        /// </summary>
-        /// <param name="actItemStringFkRefno">.</param>
-        /// <returns>.</returns>
+        /// <inheritdoc/>
         public override string GetUnableToFindItemFkRefnoMessage(string actItemStringFkRefno)
         {
             return $"Unable to find production item# {actItemStringFkRefno}";
         }
 
-        /// <summary>
-        /// The GetDataViewSortFKRefnoIdx.
-        /// </summary>
-        /// <returns>.</returns>
+        /// <inheritdoc/>
         public override string GetDataViewSortFkRefnoIdx()
         {
             return "ActivityItemStringFKRefno";
         }
 
-        /// <summary>
-        /// Insert a new adjustment activity item.
-        /// </summary>
-        /// <param name="data"><see cref="XDocument"/> Adjustment activity information to insert.</param>
-
-        /// <returns><see cref="Task"/> Task operation.</returns>
+        /// <inheritdoc/>
         public override async Task Insert(XDocument data)
         {
             var prodUnitRefno = int.Parse(data.Root.Element("ProductUnitRefno").Value);
-            if (prodUnitRefno <= 0)
-            {
-                throw new Exception("prodUnitRefno expected to be greater than zero.");
-            }
-
             this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
             this.ProdInfo.Scheme = await ProductInfoTasks.GetSchemeComponentsFromRefno(this.ProdInfo.Refno);
 
@@ -328,93 +288,43 @@ namespace dMobile.Controller.Activity_Item
             AddActivityItemToList(prodUnitRefno);
             return;
 
-            //////////////////////////////////////////////////////////////////////////
             async Task InsertActivityItemInTables(int prodUnitRefno)
             {
-                await Conn.RunInTransactionAsync(transaction =>
+                await Conn.RunInTransactionAsync(db =>
                 {
-                    try
-                    {
-                        transaction.Execute(
-                            "INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus, ActivityRefno," +
-                                " ActivityItemIsAdded) VALUES (?, ?, ?, ?)",
-                            Convert.ToInt32(SysCommon.ActSubTypes.CutSheetFinished),
-                            Convert.ToInt32(SysCommon.ActStatus.Inserted),
-                            Convert.ToInt32(this.ActHdr.HdrRefno),
-                            1);
+                    const int subType = (int)SysCommon.ActSubTypes.CutSheetFinished;
+                    const int status = (int)SysCommon.ActStatus.Inserted;
+                    var hdr = this.ActHdr.HdrRefno;
+                    var whsRef = LocationMap.GetInstance().CurrLocMap.WhsLocMapRefno;
+                    var desc = (data.Root.Element("ProductDescription")?.Value ?? string.Empty).TrimEnd() + " " +
+                        (data.Root.Element("ProductUnitSizeDescription")?.Value ?? string.Empty);
+                    db.Execute(
+                        "INSERT INTO tActivityItem (ActivityItemSubType, ActivityItemStatus, ActivityRefno," +
+                        " ActivityItemIsAdded) VALUES (?, ?, ?, ?)",
+                        subType, status, hdr, 1);
 
-                        this.ItemRefno = Convert.ToInt32(transaction.ExecuteScalar<int>(
-                            "SELECT last_insert_rowid() FROM tActivityItem"));
+                    this.ItemRefno = (int)db.ExecuteScalar<long>("SELECT last_insert_rowid()");
 
-                        var queryItemCutSheet = "INSERT INTO tActivityItemCutSheet (" +
-                                                  "ActivityItemRefno, " +
-                                                  "ActivityItemSubType, " +
-                                                  "ProductUnitRefno, " +
-                                                  "LocationMapRefno, " +
-                                                  "ActivityItemCutSheetQuantity, " +
-                                                  "ActivityItemCutSheetBaseQuantity, " +
-                                                  "ActivityItemCutSheetWeightQuantity, " +
-                                                  "ActivityItemCutSheetDescription, " +
-                                                  "ActivityItemCutSheetQuantityExpected, " +
-                                                  "ActivityItemCutSheetBaseQuantityExpected, " +
-                                                  "ActivityItemCutSheetWeightQuantityExpected" +
-                                                  ") VALUES (" +
-                                                  "?, " +
-                                                  "?, " +
-                                                  "?, " +
-                                                  "?, " +
-                                                  "?, " +
-                                                  "?, " +
-                                                  "?, " +
-                                                  "?, " +
-                                                  "?, " +
-                                                  "?, " +
-                                                  "?" +
-                                                  ")";
+                    db.Execute(
+                        "INSERT INTO tActivityItemCutSheet (ActivityItemRefno, ActivityItemSubType, ProductUnitRefno," +
+                        " LocationMapRefno, ActivityItemCutSheetQuantity, ActivityItemCutSheetBaseQuantity," +
+                        " ActivityItemCutSheetWeightQuantity, ActivityItemCutSheetDescription," +
+                        " ActivityItemCutSheetQuantityExpected, ActivityItemCutSheetBaseQuantityExpected," +
+                        " ActivityItemCutSheetWeightQuantityExpected) " +
+                        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                        this.ItemRefno, subType, prodUnitRefno, whsRef, 0m, 0m, 0m, desc, 0m, 0m, 0m);
 
-                        var locMap = LocationMap.GetInstance().CurrLocMap;
-                        var parametersItemCutSheet = new object[]
-                        {
-                            Convert.ToInt32(this.ItemRefno),
-                            Convert.ToInt32(SysCommon.ActSubTypes.CutSheetFinished),
-                            Convert.ToInt32(prodUnitRefno),
-                            Convert.ToInt32(locMap.WhsLocMapRefno),
-                            Convert.ToDecimal(0),
-                            Convert.ToDecimal(0),
-                            Convert.ToDecimal(0),
-                            Convert.ToString(data.Root.Element("ProductDescription").Value.ToString().TrimEnd() +
-                                             " " + data.Root.Element("ProductUnitSizeDescription").Value),
-                            Convert.ToDecimal(0),
-                            Convert.ToDecimal(0),
-                            Convert.ToDecimal(0),
-                        };
+                    var maxFk = (int)db.ExecuteScalar<long>(
+                        "SELECT IFNULL(MAX(ActivityItemFKRefno), 0) FROM tActivityItemCutSheetFinished");
+                    this.ItemFkRefno = maxFk + 1;
 
-                        transaction.Execute(queryItemCutSheet, parametersItemCutSheet);
-
-                        // Get temporary item FK refno for newly inserted line item.
-                        this.ItemFkRefno = Convert.ToInt32(transaction.ExecuteScalar<int>(
-                            "SELECT MAX(tActivityItemCutSheetFinished.ActivityItemFKRefno)" +
-                            $" FROM tActivityItemCutSheetFinished"));
-                        this.ItemFkRefno = this.ItemFkRefno + 1;
-
-                        transaction.Execute(
-                            "INSERT INTO tActivityItemCutSheetFinished (ActivityItemRefno, ActivityItemFKRefno," +
-                                " ActivityItemStringFKRefno) VALUES (?, ?, ?)",
-                            Convert.ToInt32(this.ItemRefno),
-                            Convert.ToInt32(this.ItemFkRefno),
-                            Convert.ToString(this.ItemFkRefno));
-                        transaction.Commit();
-                    }
-                    catch (SQLiteException ex)
-                    {
-                        transaction.Rollback();
-
-                        Console.WriteLine(ex);
-                    }
+                    db.Execute(
+                        "INSERT INTO tActivityItemCutSheetFinished (ActivityItemRefno, ActivityItemFKRefno," +
+                        " ActivityItemStringFKRefno) VALUES (?, ?, ?)",
+                        this.ItemRefno, this.ItemFkRefno, this.ItemFkRefno.ToString());
                 });
             }
 
-            //////////////////////////////////////////////////////////////////////////
             void AddActivityItemToList(int prodUnitRefno)
             {
                 var locMap = LocationMap.GetInstance().CurrLocMap;
@@ -445,11 +355,7 @@ namespace dMobile.Controller.Activity_Item
             }
         }
 
-        /// <summary>
-        /// The Refresh.
-        /// </summary>
-        /// <param name="data">.</param>
-        /// <returns>The <see cref="Task"/>.</returns>
+        /// <inheritdoc/>
         public override async Task Refresh(XDocument data)
         {
             if (this.SysEnv.SysSettings.IsDisconnectedMode)
@@ -473,12 +379,7 @@ namespace dMobile.Controller.Activity_Item
             }
         }
 
-        /// <summary>
-        /// The DesignGrid.
-        /// </summary>
-        /// <param name="gridMainActivity">The GridMainActivity<see cref="Grid"/>.</param>
-        /// <param name="listViewMainActivity">The ListViewMainActivity<see cref="ListView"/>.</param>
-        /// <returns>The <see cref="ObservableCollection{object}"/>.</returns>
+        /// <inheritdoc/>
         public override ObservableCollection<object> DesignGrid(ref Grid gridMainActivity, ref ListView listViewMainActivity)
         {
             this.PlaceNewItemsAtBottomOfList(this.ListItems);
@@ -492,11 +393,7 @@ namespace dMobile.Controller.Activity_Item
             return mainActivityItems;
         }
 
-        /// <summary>
-        ///     Create observable collection from list items.
-        /// </summary>
-        /// <param name="listItems">List of item objects.</param>
-        /// <returns>Created observable collection.</returns>
+        /// <inheritdoc/>
         public override ObservableCollection<object> CreateObservableCollectionFromListItems(List<object> listItems)
         {
             var mainActivityItems = new ObservableCollection<object>();
@@ -508,12 +405,7 @@ namespace dMobile.Controller.Activity_Item
             return mainActivityItems;
         }
 
-        /// <summary>
-        ///     Create observable collection from list items.
-        /// </summary>
-        /// <param name="listItems">List of item objects.</param>
-        /// <param name="filterSearch">Search filter text.</param>
-        /// <returns>Created observable collection.</returns>
+        /// <inheritdoc/>
         public override ObservableCollection<object> CreateObservableCollectionFromListItems(
             List<object> listItems,
             string filterSearch)
@@ -534,12 +426,11 @@ namespace dMobile.Controller.Activity_Item
             {
                 mainActivityItems = new ObservableCollection<object>();
                 var lowerSearchText = filterSearch.ToLower().Trim();
-                foreach (var item in listItems.Cast<CutSheetFinishedItem>())
+                foreach (var item in from item in listItems.Cast<CutSheetFinishedItem>()
+                                     where item.ProductCode.ToLower().Contains(lowerSearchText)
+                                     select item)
                 {
-                    if (item.ProductCode.ToLower().Contains(lowerSearchText))
-                    {
-                        mainActivityItems.Add(item);
-                    }
+                    mainActivityItems.Add(item);
                 }
 
                 this.ListItems = mainActivityItems.ToList();
@@ -548,14 +439,7 @@ namespace dMobile.Controller.Activity_Item
             return mainActivityItems;
         }
 
-        /// <summary>
-        ///     Sort the list items and place new items at the bottom of the list.
-        /// </summary>
-        /// <param name="listItems">List of items to sort.</param>
-        /// <remarks>
-        /// New items with negative foreign key item reference numbers will be placed at the bottom of
-        /// the new collection. The list items will not be sorted to match the new collection.
-        /// </remarks>
+        /// <inheritdoc/>
         public override void PlaceNewItemsAtBottomOfList(List<object> listItems)
         {
             var sortedItems = listItems
@@ -569,11 +453,7 @@ namespace dMobile.Controller.Activity_Item
             listItems.AddRange(sortedItems);
         }
 
-        /// <summary>
-        ///     Calculate the maximum data column widths.
-        /// </summary>
-        /// <param name="definition">Grid layout definition.</param>
-        /// <param name="itemsToMeasure">List of data items to measure in order to determine the max column width.</param>
+        /// <inheritdoc/>
         public override void CalcMaxDataColWidth(Grid definition, List<object> itemsToMeasure)
         {
             var gridService = DependencyService.Get<IGridService>();
@@ -584,12 +464,7 @@ namespace dMobile.Controller.Activity_Item
             }
         }
 
-        /// <summary>
-        ///    Calculate the maximum data column widths for one item.
-        /// </summary>
-        /// <param name="item">Item to compare to the max width.</param>
-        /// <param name="gridService">Grid service.</param>
-        /// <param name="columns">Column definitions to compare.</param>
+        /// <inheritdoc/>
         public override void CalcMaxDataColWidth(
             object item,
             IGridService gridService,
@@ -624,10 +499,7 @@ namespace dMobile.Controller.Activity_Item
             this.ColumnWidth4 = columnWidths[4];
         }
 
-        /// <summary>
-        ///     Define the grid layout for the activity item.
-        /// </summary>
-        /// <returns>New grid layout.</returns>
+        /// <inheritdoc/>
         public override Grid DefineGrid()
         {
             var labelCodeHeader = new Label { Text = "Code", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
@@ -675,11 +547,7 @@ namespace dMobile.Controller.Activity_Item
             return gridHeader;
         }
 
-        /// <summary>
-        /// The GetActivityItemList.
-        /// </summary>
-        /// <param name="isSubmitBatch">.</param>
-        /// <returns>List of activity items.</returns>
+        /// <inheritdoc/>
         public override async Task<List<object>> GetActivityItemList(bool isSubmitBatch)
         {
             // Use StringBuilder pooling and parameterized queries for better performance and security
@@ -826,13 +694,10 @@ namespace dMobile.Controller.Activity_Item
             return observableCollection;
         }
 
-        /// <summary>
-        /// Select an activity item.
-        /// </summary>
-        /// <param name="selectedActivityItem"><see cref="object"/> Selected activity object.</param>
-        public override async Task AssignActivityItem(object selectedActivityItem)
+        /// <inheritdoc/>
+        public override async Task AssignActivityItem(object activityItem)
         {
-            if (selectedActivityItem == null)
+            if (activityItem == null)
             {
                 this.SelectedListIdx = -1;
                 this.SelectedItem = null;
@@ -843,7 +708,7 @@ namespace dMobile.Controller.Activity_Item
                     Scheme = new ProdScheme()
                 };
             }
-            else if (selectedActivityItem is CutSheetFinishedItem item)
+            else if (activityItem is CutSheetFinishedItem item)
             {
                 this.SelectedListIdx = this.ListItems.IndexOf(item);
                 this.SelectedItem = item;
@@ -860,7 +725,6 @@ namespace dMobile.Controller.Activity_Item
 
             return;
 
-            //////////////////////////////////////////////////////////////////////////
             async Task AssignItemLocation(CutSheetFinishedItem item)
             {
                 // This code needs to be before the call to GetSelectedItemLocation, because the skid location may be
@@ -888,127 +752,116 @@ namespace dMobile.Controller.Activity_Item
                     this.LocMap = itemLocMap.Clone();
 
                     // Override the location with the product default if exists and complete.
-                    if (this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc)
+                    if (this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc &&
+                        await LocationMapTasks.IsCompleteLocMap(itemLocMap))
                     {
-                        // Only assign the current location if the map is complete else leave it alone.
-                        if (await LocationMapTasks.IsCompleteLocMap(itemLocMap))
+                        // Update the chosen location with the current when defaulting is turned on.
+                        LocationMap.GetInstance().CurrLocMap = itemLocMap.Clone();
+                        LocationMap.GetInstance().ChosenLocMap = itemLocMap.Clone();
+
+                        // Assign the skid the location, because defaulting is enabled.
+                        if (this.ActHdr.SkidInfo.CurrSkid.SkidFkRefno > 0)
                         {
-                            // Update the chosen location with the current when defaulting is turned on.
-                            LocationMap.GetInstance().CurrLocMap = itemLocMap.Clone();
-                            LocationMap.GetInstance().ChosenLocMap = itemLocMap.Clone();
-
-                            // Assign the skid the location, because defaulting is enabled.
-                            if (this.ActHdr.SkidInfo.CurrSkid.SkidFkRefno > 0)
-                            {
-                                this.ActHdr.SkidInfo.CurrSkid.LocMap = itemLocMap.Clone();
-                            }
-
-                            // Update the activity item location.
-                            this.LocMap = LocationMap.GetInstance().CurrLocMap.Clone();
+                            this.ActHdr.SkidInfo.CurrSkid.LocMap = itemLocMap.Clone();
                         }
+
+                        // Update the activity item location.
+                        this.LocMap = LocationMap.GetInstance().CurrLocMap.Clone();
                     }
                 }
             }
         }
 
-        /// <summary>
-        /// Get the activity item reference number from the product unit reference number and current location warehouse.
-        /// </summary>
-        /// <param name="prodUnitRefno"><see cref="int"/> Product unit reference number.</param>
-        /// <returns><see cref="int"/> Found activity item reference number else 0.</returns>
+        /// <inheritdoc/>
         public override async Task<int> GetActivityItemRefno(int prodUnitRefno, SLocMap locMap)
         {
-            var foundActItemRefno = 0;
-            var sql = new StringBuilder();
-            sql.Append("SELECT tActivityItem.ActivityItemRefno, ");
-            sql.Append("tActivityItemCutSheetFinished.ActivityItemFKRefno, ");
-            sql.Append("tActivityItemCutSheet.ProductUnitRefno, ");
-            sql.Append("tLocationMapWarehouse.LocationMapRefno ");
-            sql.Append("FROM tActivityItemCutSheet ");
-            sql.Append("INNER JOIN tActivityItem ON tActivityItem.ActivityItemRefno ");
-            sql.Append("= tActivityItemCutSheet.ActivityItemRefno ");
-            sql.Append("INNER JOIN tActivityItemCutSheetFinished ON tActivityItemCutSheetFinished.ActivityItemRefno ");
-            sql.Append("= tActivityItemCutSheet.ActivityItemRefno ");
-            sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno ");
-            sql.Append("= tActivityItemCutSheet.LocationMapRefno ");
-            sql.AppendFormat("WHERE tActivityItem.ActivityRefno = {0} ", this.ActHdr.HdrRefno);
-            sql.AppendFormat("AND tActivityItemCutSheet.LocationMapRefno = {0} ", locMap.WhsLocMapRefno);
-            sql.AppendFormat("AND tActivityItemCutSheet.ProductUnitRefno = {0} ", prodUnitRefno);
-            sql.AppendFormat("AND tActivityItem.ActivityItemSubType = {0}", Convert.ToInt32(SysCommon.ActSubTypes.CutSheetFinished));
+            // Query only the needed value with parameters and LIMIT 1
+            var subType = (int)SysCommon.ActSubTypes.CutSheetFinished;
+            const string sql = @"
+                SELECT ai.ActivityItemRefno
+                FROM tActivityItemCutSheet cs
+                INNER JOIN tActivityItem ai ON ai.ActivityItemRefno = cs.ActivityItemRefno
+                WHERE ai.ActivityRefno = ?
+                  AND cs.LocationMapRefno = ?
+                  AND cs.ProductUnitRefno = ?
+                  AND ai.ActivityItemSubType = ?
+                LIMIT 1";
 
-            var results = await Conn.QueryAsync<CutSheetFinishedItem>(sql.ToString());
-            if (results != null && results.Count > 0)
+            var refno = await Conn.ExecuteScalarAsync<int?>(
+                sql,
+                this.ActHdr.HdrRefno,
+                locMap.WhsLocMapRefno,
+                prodUnitRefno,
+                subType);
+
+            if (refno.GetValueOrDefault() > 0)
             {
-                foundActItemRefno = Convert.ToInt32(results[0].ActivityItemRefno);
+                return refno.Value;
             }
-            else
+
+            // Fallback to in-memory list (preserves original behavior)
+            foreach (var item in this.ListCutSheetFinishedItems)
             {
-                foreach (var item in this.ListCutSheetFinishedItems)
+                if (item.LocationMapRefno == locMap.WhsLocMapRefno && item.ProductUnitRefno == prodUnitRefno)
                 {
-                    if (item.LocationMapRefno == locMap.WhsLocMapRefno && item.ProductUnitRefno == prodUnitRefno)
-                    {
-                        foundActItemRefno = this.ItemRefno;
-                        break;
-                    }
+                    return this.ItemRefno;
                 }
             }
 
-            return foundActItemRefno;
+            return 0;
         }
 
-        /// <summary>
-        /// The CreateSubmitXML.
-        /// </summary>
-        /// <param name="data">.</param>
-        /// <returns>.</returns>
+        /// <inheritdoc/>
         public async override Task<string> CreateSubmitXml(XDocument data)
         {
-            var xmlString = new StringBuilder();
-            var settings = new XmlWriterSettings
-            {
-                Async = true,
-                Indent = false,
-            };
-            var xml = XmlWriter.Create(xmlString, settings);
-
+            // Use XmlWriter directly for fast, allocation-minimized XML generation
             var prodCode = data.Root.Element("ProductCode").Value.PadRight(10);
             var barCodeCode = data.Root.Element("ProductUnitBarCodeCode").Value.PadRight(20);
             var prodUnitIsBc = bool.Parse(data.Root.Element("ProductUnitIsBC").Value);
-            var baseUnitCode = data.Root.Element("BaseUnitCode").Value;
             var symbologyPrefix = data.Root.Element("ProductUnitBarCodeSymbologyPrefix").Value;
+            var requestDefaults = await SysCommon.GetRequestDefaults(false);
 
-            var request = XDocument.Parse(
-                "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
-                + "<imclient>"
-                + "<command>"
-                + "<action>SUBMIT PRODUCTION TICKET MATERIAL ITEM</action>"
-                + "</command>"
-                + await SysCommon.GetRequestDefaults(false)
-                + "<prod_id>" + prodCode + "</prod_id>"
-                + "<is_bc>" + prodUnitIsBc + "</is_bc>"
-                + "<symbology>" + symbologyPrefix + "</symbology>"
-                + "<gtin>" + barCodeCode + "</gtin>"
-                + "<whs_id></whs_id>"
-                + "<sect_refno></sect_refno>"
-                + "<slot_refno></slot_refno>"
-                + "<refno></refno>"
-                + "</imclient>");
+            var sb = new StringBuilder(256);
+            using (var writer = XmlWriter.Create(sb, new XmlWriterSettings { Indent = false, OmitXmlDeclaration = false }))
+            {
+                writer.WriteStartDocument();
+                writer.WriteStartElement("imclient");
+                writer.WriteStartElement("command");
+                writer.WriteElementString("action", "SUBMIT PRODUCTION TICKET MATERIAL ITEM");
+                writer.WriteEndElement(); // command
 
-            request.Save(xml);
-            await xml.FlushAsync();
-            xml.Close();
+                // Insert request defaults as raw XML
+                if (!string.IsNullOrEmpty(requestDefaults))
+                {
+                    var defaultsDoc = XDocument.Parse("<root>" + requestDefaults + "</root>");
+                    foreach (var elem in defaultsDoc.Root.Elements())
+                    {
+                        elem.WriteTo(writer);
+                    }
+                }
 
-            return xmlString.ToString();
+                writer.WriteElementString("prod_id", prodCode);
+                writer.WriteElementString("is_bc", prodUnitIsBc.ToString());
+                writer.WriteElementString("symbology", symbologyPrefix);
+                writer.WriteElementString("gtin", barCodeCode);
+                writer.WriteElementString("whs_id", string.Empty);
+                writer.WriteElementString("sect_refno", string.Empty);
+                writer.WriteElementString("slot_refno", string.Empty);
+                writer.WriteElementString("refno", string.Empty);
+                writer.WriteEndElement(); // imclient
+                writer.WriteEndDocument();
+                writer.Flush();
+            }
+
+            return sb.ToString();
         }
 
-        /// <summary>
-        /// The RefreshQuantity.
-        /// </summary>
-        /// <param name="selectedActivityItem">The selectedActivityItem<see cref="object"/>.</param>
-        /// <param name="quantity">.</param>
-        /// <param name="baseQuantity">.</param>
-        /// <param name="weightQuantity">.</param>
-        public override void ReplaceQuantityInActivityItem(object selectedActivityItem, decimal quantity, decimal baseQuantity, decimal weightQuantity)
+        /// <inheritdoc/>
+        public override void ReplaceQuantityInActivityItem(
+            object selectedActivityItem,
+            decimal quantity,
+            decimal baseQuantity,
+            decimal weightQuantity)
         {
             if (selectedActivityItem is CutSheetFinishedItem productionCutSheetFinishedItem)
             {
@@ -1018,14 +871,12 @@ namespace dMobile.Controller.Activity_Item
             }
         }
 
-        /// <summary>
-        /// The UpdateListItemQuantity.
-        /// </summary>
-        /// <param name="selectedActivityItem">The selectedActivityItem<see cref="object"/>.</param>
-        /// <param name="quantity">.</param>
-        /// <param name="baseQuantity">.</param>
-        /// <param name="weightQuantity">.</param>
-        public override void AddToQuantityInActivityItem(object selectedActivityItem, decimal quantity, decimal baseQuantity, decimal weightQuantity)
+        /// <inheritdoc/>
+        public override void AddToQuantityInActivityItem(
+            object selectedActivityItem,
+            decimal quantity,
+            decimal baseQuantity,
+            decimal weightQuantity)
         {
             if (selectedActivityItem is CutSheetFinishedItem productionCutSheetFinishedItem)
             {
@@ -1035,128 +886,88 @@ namespace dMobile.Controller.Activity_Item
             }
         }
 
-        /// <summary>
-        /// Update the activity item table data with the selected activity item object data.
-        /// </summary>
-        /// <param name="activityItem"><see cref="object"/> Activity item.</param>
-        /// <returns>The <see cref="Task"/> Task operation.</returns>
+        /// <inheritdoc/>
         public override async Task UpdateItemTableQuantity(object activityItem)
         {
             if (activityItem is CutSheetFinishedItem productionCutSheetFinishedItem)
             {
-                var query = "UPDATE tActivityItemCutSheet SET ActivityItemCutSheetQuantity = ?," +
-                            " ActivityItemCutSheetBaseQuantity = ?, ActivityItemCutSheetWeightQuantity = ?" +
-                            " WHERE ActivityItemRefno = ?";
+                const string query = "UPDATE tActivityItemCutSheet SET ActivityItemCutSheetQuantity = ?," +
+                    " ActivityItemCutSheetBaseQuantity = ?, ActivityItemCutSheetWeightQuantity = ?" +
+                    " WHERE ActivityItemRefno = ?";
                 var parameters = new object[]
                 {
                     productionCutSheetFinishedItem.ActivityItemCutSheetQuantity,
                     productionCutSheetFinishedItem.ActivityItemCutSheetBaseQuantity,
                     productionCutSheetFinishedItem.ActivityItemCutSheetWeightQuantity,
-                    productionCutSheetFinishedItem.ActivityItemRefno, };
+                    productionCutSheetFinishedItem.ActivityItemRefno,
+                };
 
                 await Conn.ExecuteAsync(query, parameters);
             }
         }
 
-        /// <summary>
-        /// Get the activity item foreign key reference number.
-        /// </summary>
-        /// <param name="resourceType"><see cref="object"/> Resource model type.</param>
-        /// <returns><see cref="int"/> Found activity item foreign key refno, else 0 if not found.</returns>
+        /// <inheritdoc/>
         public override int GetFkRefno(object resourceType)
         {
             object tmpFkItRefno = ((CutSheetFinishedItem)resourceType).ActivityItemFKRefno;
             return tmpFkItRefno == null ? 0 : Convert.ToInt32(tmpFkItRefno);
         }
 
-        /// <summary>
-        /// Get the activity item control description.
-        /// </summary>
-        /// <returns><see cref="string"/> Get activity item control description.</returns>
+        /// <inheritdoc/>
         public override string GetControlDescription()
         {
             return $"CutSheet ticket # {this.ActHdr.HdrFkRefno}";
         }
 
-        /// <summary>
-        /// The Delete.
-        /// </summary>
-        /// <returns>The <see cref="int"/>.</returns>
+        /// <inheritdoc/>
         public override Task<int> Delete()
         {
             throw new NotImplementedException();
         }
 
-        /// <summary>
-        /// The GetProdSchemeDataFromDetailFKRefno.
-        /// </summary>
-        /// <param name="actDetailFkRefno">The actDetailFKRefno<see cref="int"/>.</param>
-        /// <returns>The <see cref="Task{SActItemSchemeData}"/>.</returns>
+        /// <inheritdoc/>
         public override Task<ActItemSchemeData> GetProdSchemeDataFromDetailFkRefno(int actDetailFkRefno)
         {
             throw new NotImplementedException();
         }
 
-        /// <summary>
-        /// The GetComment.
-        /// </summary>
-        /// <param name="selectedActivityItem">The selectedActivityItem<see cref="object"/>.</param>
-        /// <returns>The <see cref="string"/>.</returns>
+        /// <inheritdoc/>
         public override Task<string> GetComment(object selectedActivityItem)
         {
             return Task.FromResult(string.Empty);
         }
 
-        /// <summary>
-        /// The Submit.
-        /// </summary>
-        /// <param name="data">The data<see cref="XDocument"/>.</param>
-        /// <param name="selectedActivityItem">The selectedActivityItem<see cref="object"/>.</param>
-        /// <returns>The <see cref="Task"/>.</returns>
+        /// <inheritdoc/>
         public override Task Submit(XDocument data, object selectedActivityItem)
         {
             throw new NotImplementedException();
         }
 
-        /// <summary>
-        /// The CreateDeleteXML.
-        /// </summary>
-        /// <param name="data">The data<see cref="XDocument"/>.</param>
-        /// <returns>The <see cref="string"/>.</returns>
+        /// <inheritdoc/>
         public override Task<string> CreateDeleteXml(XDocument data)
         {
             throw new NotImplementedException();
         }
 
-        /// <summary>
-        /// The Update.
-        /// </summary>
-        /// <param name="data">The data<see cref="XDocument"/>.</param>
-        /// <returns>The <see cref="Task"/>.</returns>
+        /// <inheritdoc/>
         public override Task Update(XDocument data)
         {
             throw new NotImplementedException();
         }
 
-        /// <summary>
-        /// The GetTotalQuantity.
-        /// </summary>
-        /// <returns>The <see cref="string"/>.</returns>
+        /// <inheritdoc/>
         public override Task<string> GetTotalQuantity()
         {
             throw new NotImplementedException();
         }
 
-        /// <summary>
-        /// The GetLabelQuantity.
-        /// </summary>
-        /// <param name="isRepackQuantityOnly">The isRepackQuantityOnly<see cref="bool"/>.</param>
-        /// <returns>The <see cref="Task{SLabelQuantity}"/>.</returns>
+        /// <inheritdoc/>
         public override Task<SLabelQuantity> GetLabelQuantity(bool isRepackQuantityOnly)
         {
             throw new NotImplementedException();
         }
 
+        /// <inheritdoc/>
         public override XDocument CreateDump()
         {
             throw new NotImplementedException();

@@ -536,7 +536,7 @@ namespace dMobile.View.Activity
                         if (selectedActivity != null)
                         {
                             this.Activity.AssignRefnoFromActivity(selectedActivity);
-                            var form = new FormDialogContainer(EDialogTypes.ActivityItem, this.Activity,
+                            var form = new FormDialogContainer(EDialogTypes.ActivityItemSingle, this.Activity,
                                 this.ActSubType);
                             _ = await Device.InvokeOnMainThreadAsync(async () =>
                                 await form.DisplayControl.ShowDialog());

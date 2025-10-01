@@ -1145,16 +1145,10 @@ namespace dMobile.View.Activity
                 var dspOverrideMsg = false;
                 if (this.SysEnv.SysSettings.IsDefaultLocToProductDefaultLoc)
                 {
-                    if ((this.ActSubType == SysCommon.ActSubTypes.PhysicalCounts &&
-                         this.SysEnv.SysSettings.IsPhysicalDoNotDefaultProductLocation) ||
-                        (this.ActSubType == SysCommon.ActSubTypes.CycleCounts &&
-                         this.SysEnv.SysSettings.IsCycleDoNotDefaultProductLocation))
-                    {
-                    }
-                    else
-                    {
-                        dspOverrideMsg = true;
-                    }
+                    dspOverrideMsg = (this.ActSubType != SysCommon.ActSubTypes.PhysicalCounts ||
+                         !this.SysEnv.SysSettings.IsPhysicalDoNotDefaultProductLocation) &&
+                        (this.ActSubType != SysCommon.ActSubTypes.CycleCounts ||
+                         !this.SysEnv.SysSettings.IsCycleDoNotDefaultProductLocation);
                 }
 
                 if (dspOverrideMsg)

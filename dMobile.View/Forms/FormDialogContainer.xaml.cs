@@ -193,7 +193,6 @@ namespace dMobile.View.Forms
         {
             return modelType switch
             {
-                EDialogTypes.ActivityItem => new ActivityItem(activity, actSubType),
                 EDialogTypes.SelectActivityItem => new SelectActivityItem(activity, actSubType),
                 EDialogTypes.ActivityItemSingle => new ActivityItemSingle(activity, actSubType),
                 EDialogTypes.SkidInfo => new ActivityHdrSkidInfo(actSubType, activity, activityType),
