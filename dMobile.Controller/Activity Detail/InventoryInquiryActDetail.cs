@@ -260,7 +260,7 @@ namespace dMobile.Controller.Activity_Detail
             }
             catch (Exception ex)
             {
-                throw new Exception("Refresh inventory inquiry details failed.", ex);
+                throw new BaseException("Refresh inventory inquiry details failed.", ex);
             }
         }
 

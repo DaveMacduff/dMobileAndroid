@@ -275,8 +275,8 @@ namespace dMobile.Controller.Activity_Item
             data = data ?? throw new ArgumentNullException(nameof(data));
             _ = data.Root ?? throw new ArgumentNullException(nameof(data.Root));
             _ = data.Root.Element("itm_refno")?.Value ??
-                throw new Exception("xml 'itm_refno' element is does not exist.");
-            _ = data.Root.Element("alt_qty")?.Value ?? throw new Exception("xml 'alt_qty' element is does not exist.");
+                throw new BaseException("xml 'itm_refno' element is does not exist.");
+            _ = data.Root.Element("alt_qty")?.Value ?? throw new BaseException("xml 'alt_qty' element is does not exist.");
 
             var itmRefno = int.Parse(data.Root.Element("itm_refno")?.Value!);
             var altQty = decimal.Parse(data.Root.Element("alt_qty")?.Value!);
@@ -312,13 +312,13 @@ namespace dMobile.Controller.Activity_Item
                         var msg = $"The resulting quantity transferred {transferred + actItemTransQuantity}" +
                                   $" {this.ProdInfo.UnitCode} will be greater than the quantity required {required}" +
                                   $" {this.ProdInfo.UnitCode}.";
-                        throw new Exception(msg);
+                        throw new BaseException(msg);
                     }
                 }
                 else
                 {
                     const string msg = "The selected item is not a transfer item type.";
-                    throw new Exception(msg);
+                    throw new BaseException(msg);
                 }
             }
 
@@ -392,7 +392,7 @@ namespace dMobile.Controller.Activity_Item
             var prodUnitRefno = int.Parse(data.Root.Element("ProductUnitRefno").Value);
             if (prodUnitRefno <= 0)
             {
-                throw new Exception("prodUnitRefno expected to be greater than zero.");
+                throw new BaseException("prodUnitRefno expected to be greater than zero.");
             }
 
             this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);

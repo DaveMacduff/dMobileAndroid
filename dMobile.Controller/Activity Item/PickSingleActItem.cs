@@ -258,7 +258,7 @@ namespace dMobile.Controller.Activity_Item
                     }
                     else
                     {
-                        throw new Exception(errorDetail);
+                        throw new BaseException(errorDetail);
                     }
                 }
                 else
@@ -510,7 +510,7 @@ namespace dMobile.Controller.Activity_Item
                 }
                 else
                 {
-                    throw new Exception(errorDetail);
+                    throw new BaseException(errorDetail);
                 }
             }
             else

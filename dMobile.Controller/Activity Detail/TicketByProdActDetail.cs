@@ -221,7 +221,7 @@ namespace dMobile.Controller.Activity_Detail
                     Convert.ToInt32(this.DetailFkRefno));
                 if (rowsAffected <= 0)
                 {
-                    throw new Exception("Unable to insert activity detail in disconnected mode.");
+                    throw new BaseException("Unable to insert activity detail in disconnected mode.");
                 }
             }
 
@@ -284,7 +284,7 @@ namespace dMobile.Controller.Activity_Detail
 
             if (xmlDoc.DocumentElement == null)
             {
-                throw new Exception("xmlDoc.DocumentElement == null");
+                throw new BaseException("xmlDoc.DocumentElement == null");
             }
 
             this.DetailFkRefno = int.Parse(xmlDoc.DocumentElement["ser_refno"] !.InnerText);
@@ -312,7 +312,7 @@ namespace dMobile.Controller.Activity_Detail
                             this.ActItem.ItemRefno);
                         if (rowsAffected < 0)
                         {
-                            throw new Exception(
+                            throw new BaseException(
                                 "Unable to locate and update the production ticket by product activity line item" +
                                 " with a new foreign key upon inserting.");
                         }
@@ -333,7 +333,7 @@ namespace dMobile.Controller.Activity_Detail
 
                     if (rowsAffected < 0)
                     {
-                        throw new Exception("Unable to locate and update the activity detail status to no change.");
+                        throw new BaseException("Unable to locate and update the activity detail status to no change.");
                     }
 
                     break;
@@ -351,7 +351,7 @@ namespace dMobile.Controller.Activity_Detail
 
                     if (rowsAffected < 0)
                     {
-                        throw new Exception("Unable to locate and update the activity detail status to no change.");
+                        throw new BaseException("Unable to locate and update the activity detail status to no change.");
                     }
 
                     break;
@@ -384,7 +384,7 @@ namespace dMobile.Controller.Activity_Detail
 
                     if (rowsAffected < 0)
                     {
-                        throw new Exception("Unable to locate and update the activity detail status to no change.");
+                        throw new BaseException("Unable to locate and update the activity detail status to no change.");
                     }
 
                     break;
@@ -402,7 +402,7 @@ namespace dMobile.Controller.Activity_Detail
 
                     if (rowsAffected < 0)
                     {
-                        throw new Exception("Unable to locate and update the activity detail status to no change.");
+                        throw new BaseException("Unable to locate and update the activity detail status to no change.");
                     }
 
                     break;

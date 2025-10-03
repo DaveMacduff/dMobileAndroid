@@ -152,7 +152,7 @@ namespace dMobile.Controller.Activity
             }
             catch (SQLiteException ex)
             {
-                throw new Exception("Database exception occurred. Purging bar code association failed.", ex);
+                throw new BaseException("Database exception occurred. Purging bar code association failed.", ex);
             }
         }
 

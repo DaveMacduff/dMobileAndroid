@@ -486,7 +486,7 @@ namespace dMobile.Controller.Activity
                 }
                 else
                 {
-                    throw new Exception($"Release order# {this.HdrFkRefno} failed.");
+                    throw new BaseException($"Release order# {this.HdrFkRefno} failed.");
                 }
             }
 
@@ -517,7 +517,7 @@ namespace dMobile.Controller.Activity
                 // Do not warn if product is out of stock WO# 12054
                 if (rowsAffected > 0)
                 {
-                    throw new Exception(string.Format("Order# {0} quantity under check failed." + Environment.NewLine + "{1} Items exist where the quantity shipped is less than the quantity ordered.", this.HdrFkRefno, rowsAffected));
+                    throw new BaseException(string.Format("Order# {0} quantity under check failed." + Environment.NewLine + "{1} Items exist where the quantity shipped is less than the quantity ordered.", this.HdrFkRefno, rowsAffected));
                 }
             }
             else
@@ -559,7 +559,7 @@ namespace dMobile.Controller.Activity
                     var docError = new XmlDocument();
                     docError.LoadXml(responseData);
                     var errorDetail = docError.DocumentElement["detail"].InnerText;
-                    throw new Exception(string.Format(
+                    throw new BaseException(string.Format(
                         "Order# {0} quantity under check failed." +
                         Environment.NewLine + "{1}",
                         this.HdrFkRefno,
@@ -572,7 +572,7 @@ namespace dMobile.Controller.Activity
                     Environment.NewLine + "{1}",
                     this.HdrFkRefno,
                     ex.Message);
-                    throw new Exception(msg);
+                    throw new BaseException(msg);
                 }
             }
         }
@@ -1183,7 +1183,7 @@ namespace dMobile.Controller.Activity
                     docError.LoadXml(responseData);
                     var errorDetail = docError.DocumentElement["detail"].InnerText;
 
-                    throw new Exception(string.Format("Release order# {0} by order item section {1} failed." +
+                    throw new BaseException(string.Format("Release order# {0} by order item section {1} failed." +
                         Environment.NewLine + errorDetail, this.HdrFkRefno.ToString(), locMap.SectName));
                 }
 

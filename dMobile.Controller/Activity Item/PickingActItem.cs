@@ -614,7 +614,7 @@ namespace dMobile.Controller.Activity_Item
             var prodUnitRefno = int.Parse(data.Root.Element("ProductUnitRefno").Value);
             if (prodUnitRefno <= 0)
             {
-                throw new Exception("prodUnitRefno expected to be greater than zero.");
+                throw new BaseException("prodUnitRefno expected to be greater than zero.");
             }
 
             this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);
@@ -1720,7 +1720,7 @@ namespace dMobile.Controller.Activity_Item
             }
             catch (SQLiteException ex)
             {
-                throw new Exception("Database exception occurred.", ex);
+                throw new BaseException("Database exception occurred.", ex);
             }
 
             return msg;

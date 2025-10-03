@@ -1138,7 +1138,7 @@ namespace dMobile.Controller.Activity_Item
             }
             catch (SQLiteException ex)
             {
-                throw new Exception("Database exception occurred.", ex);
+                throw new BaseException("Database exception occurred.", ex);
             }
 
             return msg;

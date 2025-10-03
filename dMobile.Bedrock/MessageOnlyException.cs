@@ -23,7 +23,7 @@ namespace dMobile.Bedrock
         /// </summary>
         /// <param name="message">.</param>
         public MessageOnlyException(string message)
-            : base(ModifyMessage(message))
+            : base(RemoveMSGBOXToken(message))
         {
         }
 
@@ -33,16 +33,16 @@ namespace dMobile.Bedrock
         /// <param name="message">.</param>
         /// <param name="inner">.</param>
         public MessageOnlyException(string message, Exception inner)
-            : base(ModifyMessage(message), inner)
+            : base(RemoveMSGBOXToken(message), inner)
         {
         }
 
         /// <summary>
-        /// The ModifyMessage.
+        /// Remove MSGBOX- token from message if it exists.
         /// </summary>
-        /// <param name="message">.</param>
-        /// <returns>.</returns>
-        private static string ModifyMessage(string message)
+        /// <param name="message">Message to clean.</param>
+        /// <returns>Cleaned message.</returns>
+        private static string RemoveMSGBOXToken(string message)
         {
             var msgToken = "MSGBOX-";
             string errMsg;

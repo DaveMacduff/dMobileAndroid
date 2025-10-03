@@ -278,7 +278,7 @@ namespace dMobile.Controller.Activity_Detail
                 }
                 else
                 {
-                    throw new Exception(errorDetail);
+                    throw new BaseException(errorDetail);
                 }
             }
             else

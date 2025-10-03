@@ -186,7 +186,7 @@ namespace dMobile.Controller.Activity
                         docError.LoadXml(responseData);
                         var errorDetail = docError.DocumentElement["detail"].InnerText;
 
-                        throw new Exception(string.Format("Release order # {0} to invoice status failed." + Environment.NewLine + errorDetail, this.HdrFkRefno, null));
+                        throw new BaseException(string.Format("Release order # {0} to invoice status failed." + Environment.NewLine + errorDetail, this.HdrFkRefno, null));
                     }
 
                     isResult = true;

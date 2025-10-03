@@ -89,7 +89,7 @@ namespace dMobile.Controller.Activity_Item
                 var isAddKey = true;
                 foreach (var item in this.ResourceDictionary)
                 {
-                    if (item.Key == "dataTemplateRawFinishedItem")
+                    if (item.Key == "dataTemplateFinishedItem")
                     {
                         isAddKey = false;
                     }
@@ -97,14 +97,11 @@ namespace dMobile.Controller.Activity_Item
 
                 if (isAddKey)
                 {
-                    this.ResourceDictionary.Add("dataTemplateRawFinishedItem", dataTemplate);
+                    this.ResourceDictionary.Add("dataTemplateFinishedItem", dataTemplate);
                 }
             }
         }
 
-        /// <summary>
-        /// Gets or sets the ColumnWidth0.
-        /// </summary>
         private double ColumnWidth0 { get; set; }
 
         /// <summary>
@@ -262,13 +259,13 @@ namespace dMobile.Controller.Activity_Item
         /// <inheritdoc/>
         public override string GetUnableToParseItemFkRefnoMessage(string actItemStringFkRefno)
         {
-            return $"Unable to parse production item# {actItemStringFkRefno}";
+            return $"Unable to parse cut sheet item# {actItemStringFkRefno}";
         }
 
         /// <inheritdoc/>
         public override string GetUnableToFindItemFkRefnoMessage(string actItemStringFkRefno)
         {
-            return $"Unable to find production item# {actItemStringFkRefno}";
+            return $"Unable to find cut sheet item# {actItemStringFkRefno}";
         }
 
         /// <inheritdoc/>
@@ -388,7 +385,7 @@ namespace dMobile.Controller.Activity_Item
             this.CalcMaxDataColWidth(gridItems, mainActivityItems.ToList());
             gridMainActivity.Children.Add(gridItems);
 
-            listViewMainActivity.ItemTemplate = (DataTemplate)this.ResourceDictionary["dataTemplateRawFinishedItem"];
+            listViewMainActivity.ItemTemplate = (DataTemplate)this.ResourceDictionary["dataTemplateFinishedItem"];
 
             return mainActivityItems;
         }
@@ -502,11 +499,16 @@ namespace dMobile.Controller.Activity_Item
         /// <inheritdoc/>
         public override Grid DefineGrid()
         {
-            var labelCodeHeader = new Label { Text = "Code", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            var labelBcHeader = new Label { Text = "BC", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            var labelUnitHeader = new Label { Text = string.Empty, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            var labelQtyHeader = new Label { Text = "Qty", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
-            var labelExpQtyHeader = new Label { Text = "Exp Qty", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelCodeHeader = new Label
+                { Text = "Code", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelBcHeader = new Label
+                { Text = "BC", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelUnitHeader = new Label
+                { Text = string.Empty, VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelQtyHeader = new Label
+                { Text = "Qty", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
+            var labelExpQtyHeader = new Label
+                { Text = "Exp Qty", VerticalOptions = LayoutOptions.Center, FontAttributes = FontAttributes.Bold };
 
             this.ColumnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(labelCodeHeader.Text);
             this.ColumnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(labelBcHeader.Text);
@@ -537,13 +539,13 @@ namespace dMobile.Controller.Activity_Item
             gridHeader.Children.Add(labelExpQtyHeader);
 
             // Set label columns
-            Grid.SetColumn(labelCodeHeader, 0);
-            Grid.SetColumn(labelBcHeader, 1);
-            Grid.SetColumn(labelUnitHeader, 2);
-            Grid.SetColumn(labelQtyHeader, 3);
-            Grid.SetColumn(labelExpQtyHeader, 4);
+            Grid.SetColumn(labelCodeHeader, value: 0);
+            Grid.SetColumn(labelBcHeader, value: 1);
+            Grid.SetColumn(labelUnitHeader, value: 2);
+            Grid.SetColumn(labelQtyHeader, value: 3);
+            Grid.SetColumn(labelExpQtyHeader, value: 4);
 
-            Grid.SetRow(gridHeader, 0);
+            Grid.SetRow(gridHeader, value: 0);
             return gridHeader;
         }
 
@@ -776,7 +778,7 @@ namespace dMobile.Controller.Activity_Item
         public override async Task<int> GetActivityItemRefno(int prodUnitRefno, SLocMap locMap)
         {
             // Query only the needed value with parameters and LIMIT 1
-            var subType = (int)SysCommon.ActSubTypes.CutSheetFinished;
+            const int subType = (int)SysCommon.ActSubTypes.CutSheetFinished;
             const string sql = @"
                 SELECT ai.ActivityItemRefno
                 FROM tActivityItemCutSheet cs
@@ -976,7 +978,7 @@ namespace dMobile.Controller.Activity_Item
         /// <inheritdoc />
         public override DataTemplate GetDataTemplate()
         {
-            return (DataTemplate)this.ResourceDictionary["dataTemplateRawFinishedItem"];
+            return (DataTemplate)this.ResourceDictionary["dataTemplateFinishedItem"];
         }
 
         /// <inheritdoc />

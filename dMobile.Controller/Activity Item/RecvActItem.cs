@@ -323,7 +323,7 @@ namespace dMobile.Controller.Activity_Item
                     }
                     else
                     {
-                        throw new Exception(errorDetail);
+                        throw new BaseException(errorDetail);
                     }
                 }
             }
@@ -1311,7 +1311,7 @@ namespace dMobile.Controller.Activity_Item
 
                 if (received + actItemRecvQuantity > ordered)
                 {
-                    throw new Exception(
+                    throw new BaseException(
                         $"The resulting quantity received {received + actItemRecvQuantity}" +
                         $" {this.ProdInfo.UnitCode} will be greater than the quantity ordered {ordered}" +
                         $" {this.ProdInfo.UnitCode}.");

@@ -288,7 +288,7 @@ namespace dMobile.Controller.Activity_Item
             var prodUnitRefno = int.Parse(data.Root.Element("ProductUnitRefno").Value);
             if (prodUnitRefno <= 0)
             {
-                throw new Exception("prodUnitRefno expected to be greater than zero.");
+                throw new BaseException("prodUnitRefno expected to be greater than zero.");
             }
 
             this.ProdInfo = await ProductInfoTasks.GetInfoFromUnitRefno(prodUnitRefno);

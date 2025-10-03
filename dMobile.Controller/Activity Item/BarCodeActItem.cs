@@ -133,7 +133,7 @@ namespace dMobile.Controller.Activity_Item
             }
             else
             {
-                throw new Exception($"Unable to location the product unit refno {prodUnitRefno} in tProductUnit.");
+                throw new BaseException($"Unable to location the product unit refno {prodUnitRefno} in tProductUnit.");
             }
 
             // Check if the bar code is already associated to this product or another product

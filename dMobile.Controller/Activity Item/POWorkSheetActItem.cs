@@ -251,7 +251,7 @@ namespace dMobile.Controller.Activity_Item
             var prodUnitRefno = int.Parse(data.Root!.Element("ProductUnitRefno") !.Value);
             if (prodUnitRefno <= 0)
             {
-                throw new Exception("prodUnitRefno expected to be greater than zero.");
+                throw new BaseException("prodUnitRefno expected to be greater than zero.");
             }
 
             var altQty = Math.Round(decimal.Parse(data.Root.Element("alt_qty") !.Value), 3);
@@ -281,7 +281,7 @@ namespace dMobile.Controller.Activity_Item
                     throw new MessageOnlyException(errorDetail);
                 }
 
-                throw new Exception(errorDetail);
+                throw new BaseException(errorDetail);
             }
 
             this.NewActItemFkRefno = int.Parse(xmlDoc.DocumentElement["itm_refno"].InnerText);
@@ -458,7 +458,7 @@ namespace dMobile.Controller.Activity_Item
                         throw new MessageOnlyException(errorDetail);
                     }
 
-                    throw new Exception(errorDetail);
+                    throw new BaseException(errorDetail);
                 }
 
                 this.NewActItemFkRefno = int.Parse(xmlDoc.DocumentElement["itm_refno"].InnerText);

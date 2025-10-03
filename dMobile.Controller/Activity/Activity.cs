@@ -276,7 +276,7 @@ namespace dMobile.Controller.Activity
             }
             catch (SQLiteException ex)
             {
-                throw new Exception("Database exception occurred. Create activity failed.", ex);
+                throw new BaseException("Database exception occurred. Create activity failed.", ex);
             }
         }
     }

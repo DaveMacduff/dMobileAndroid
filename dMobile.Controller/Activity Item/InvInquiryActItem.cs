@@ -399,7 +399,7 @@ namespace dMobile.Controller.Activity_Item
             }
             catch (Exception ex)
             {
-                throw new Exception("Refresh inventory inquiry items failed.", ex);
+                throw new BaseException("Refresh inventory inquiry items failed.", ex);
             }
         }
 

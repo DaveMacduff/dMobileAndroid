@@ -199,7 +199,7 @@ namespace dMobile.Controller.Activity_Detail
                 }
                 else
                 {
-                    throw new Exception("FillSchemeDataVarInfoFromSchemeDataVarNo in" +
+                    throw new BaseException("FillSchemeDataVarInfoFromSchemeDataVarNo in" +
                                         " clsActivityDetail returned no results");
                 }
             }
@@ -229,7 +229,7 @@ namespace dMobile.Controller.Activity_Detail
                 }
                 else
                 {
-                    throw new Exception("FillSchemeDataVarInfoFromSchemeDataVarCode in" +
+                    throw new BaseException("FillSchemeDataVarInfoFromSchemeDataVarCode in" +
                                         " ActDetail returned no results");
                 }
             }
@@ -603,7 +603,7 @@ namespace dMobile.Controller.Activity_Detail
             }
             else
             {
-                throw new Exception("Expected actDetail parameter to be of type ActivityDetail.");
+                throw new BaseException("Expected actDetail parameter to be of type ActivityDetail.");
             }
 
             return;
@@ -690,7 +690,7 @@ namespace dMobile.Controller.Activity_Detail
 
                     if (isDupSchemeId)
                     {
-                        throw new Exception("Duplicate scheme ID!" + Environment.NewLine + this.UniqueSchemeId);
+                        throw new BaseException("Duplicate scheme ID!" + Environment.NewLine + this.UniqueSchemeId);
                     }
                 }
             }
@@ -1259,7 +1259,7 @@ namespace dMobile.Controller.Activity_Detail
                 ////    var isDupSchemeId = await ProductInfoTasks.IsDuplicateUniqueSchemeId(this.UniqueSchemeId);
                 ////    if (isDupSchemeId)
                 ////    {
-                ////        throw new Exception("Duplicate scheme ID!" + Environment.NewLine + this.UniqueSchemeId);
+                ////        throw new BaseException("Duplicate scheme ID!" + Environment.NewLine + this.UniqueSchemeId);
                 ////    }
                 ////}
 
@@ -1350,7 +1350,7 @@ namespace dMobile.Controller.Activity_Detail
                     }
                     else
                     {
-                        throw new Exception("drSchemeVar.Read() failed.");
+                        throw new BaseException("drSchemeVar.Read() failed.");
                     }
                 }
 
@@ -1395,7 +1395,7 @@ namespace dMobile.Controller.Activity_Detail
             }
             catch (SQLiteException ex)
             {
-                throw new Exception(
+                throw new BaseException(
                     "Database exception occurred. Inserting detail in disconnected mode failed.",
                     ex);
             }

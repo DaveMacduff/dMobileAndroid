@@ -91,22 +91,22 @@ namespace dMobile.Controller.Activity_Detail
         }
 
         /// <summary>
-        /// Gets or sets the grid column 0 width...
+        /// Gets or sets the grid column 0 width.
         /// </summary>
         public double ColumnWidth0 { get; set; } = 0;
 
         /// <summary>
-        /// Gets or sets the grid column 1 width...
+        /// Gets or sets the grid column 1 width.
         /// </summary>
         public double ColumnWidth1 { get; set; } = 0;
 
         /// <summary>
-        /// Gets or sets the grid column 2 width...
+        /// Gets or sets the grid column 2 width.
         /// </summary>
         public double ColumnWidth2 { get; set; } = 0;
 
         /// <summary>
-        /// Gets or sets the grid column 3 width...
+        /// Gets or sets the grid column 3 width.
         /// </summary>
         public double ColumnWidth3 { get; set; } = 0;
 
@@ -148,11 +148,7 @@ namespace dMobile.Controller.Activity_Detail
             return this.ActExtra;
         }
 
-        /// <summary>
-        /// The InsertSkid.
-        /// </summary>
-        /// <param name="skidInfo">.</param>
-        /// <returns>The <see cref="Task"/>.</returns>
+        /// <inheritdoc/>
         public override async Task InsertSkid(SysSkidInfo skidInfo)
         {
             var request = XDocument.Parse(
@@ -172,11 +168,7 @@ namespace dMobile.Controller.Activity_Detail
             this.WeightQuantity = decimal.Parse(xmlDoc.DocumentElement["wt_qty"].InnerText);
         }
 
-        /// <summary>
-        /// The DeleteSkid.
-        /// </summary>
-        /// <param name="skidInfo">.</param>
-        /// <returns>The <see cref="Task"/>.</returns>
+        /// <inheritdoc/>
         public override async Task DeleteSkid(SysSkidInfo skidInfo)
         {
             if (!this.SysEnv.SysSettings.IsDisconnectedMode)
@@ -187,11 +179,7 @@ namespace dMobile.Controller.Activity_Detail
             }
         }
 
-        /// <summary>
-        /// The Insert.
-        /// </summary>
-        /// <param name="data">.</param>
-        /// <returns>The <see cref="Task"/>.</returns>
+        /// <inheritdoc/>
         public override async Task Insert(XDocument data)
         {
             this.FillActDetailObjFromXml(data);
@@ -218,22 +206,19 @@ namespace dMobile.Controller.Activity_Detail
                     Convert.ToInt32(this.DetailFkRefno));
                 if (rowsAffected <= 0)
                 {
-                    throw new Exception("Unable to insert activity detail in disconnected mode.");
+                    throw new BaseException("Unable to insert activity detail in disconnected mode.");
                 }
             }
         }
 
-        /// <summary>
-        /// The Delete.
-        /// </summary>
-        /// <returns>The <see cref="int"/>.</returns>
+        /// <inheritdoc/>
         public override async Task<int> Delete()
         {
             if (!this.SysEnv.SysSettings.IsDisconnectedMode)
             {
                 var xmlDelete = await this.CreateDeleteXml(XDocument.Parse(
                     "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?><params></params>"));
-                var responseData = SysCommon.SubmitComm(xmlDelete);
+                _ = SysCommon.SubmitComm(xmlDelete);
             }
 
             // Delete from database
@@ -259,12 +244,7 @@ namespace dMobile.Controller.Activity_Detail
             }
         }
 
-        /// <summary>
-        /// The Submit.
-        /// </summary>
-        /// <param name="selectedActivityDetail">The selectedActivityDetail<see cref="object"/>.</param>
-        /// <param name="data">.</param>
-        /// <returns>The <see cref="Task"/>.</returns>
+        /// <inheritdoc/>
         public override async Task Submit(object selectedActivityDetail, XDocument data)
         {
             int rowsAffected;
@@ -276,7 +256,7 @@ namespace dMobile.Controller.Activity_Detail
 
             if (xmlDoc.DocumentElement == null)
             {
-                throw new Exception("xmlDoc.DocumentElement == null");
+                throw new BaseException("xmlDoc.DocumentElement == null");
             }
 
             this.DetailFkRefno = int.Parse(xmlDoc.DocumentElement["ser_refno"] !.InnerText);
@@ -304,7 +284,7 @@ namespace dMobile.Controller.Activity_Detail
                             this.ActItem.ItemRefno);
                         if (rowsAffected < 0)
                         {
-                            throw new Exception(
+                            throw new BaseException(
                                 "Unable to locate and update the cutsheet material activity line item with a new foreign" +
                                 " key upon inserting.");
                         }
@@ -319,7 +299,7 @@ namespace dMobile.Controller.Activity_Detail
 
                     if (rowsAffected < 0)
                     {
-                        throw new Exception(
+                        throw new BaseException(
                             "Unable to locate and update the activity line item with a new foreign" +
                             " key upon inserting.");
                     }
@@ -337,7 +317,7 @@ namespace dMobile.Controller.Activity_Detail
 
                     if (rowsAffected < 0)
                     {
-                        throw new Exception("Unable to locate and update the activity detail status to no change.");
+                        throw new BaseException("Unable to locate and update the activity detail status to no change.");
                     }
 
                     break;
@@ -355,7 +335,7 @@ namespace dMobile.Controller.Activity_Detail
 
                     if (rowsAffected < 0)
                     {
-                        throw new Exception("Unable to locate and update the activity detail status to no change.");
+                        throw new BaseException("Unable to locate and update the activity detail status to no change.");
                     }
 
                     break;
@@ -373,13 +353,13 @@ namespace dMobile.Controller.Activity_Detail
 
                     if (rowsAffected < 0)
                     {
-                        throw new Exception("Unable to locate and update the activity detail status to no change.");
+                        throw new BaseException("Unable to locate and update the activity detail status to no change.");
                     }
 
                     break;
 
                 default:
-                    throw new ArgumentOutOfRangeException();
+                    throw new BaseException("Unknown activity item status upon submitting.");
             }
 
             switch (this.ActStatus)
@@ -406,7 +386,7 @@ namespace dMobile.Controller.Activity_Detail
 
                     if (rowsAffected < 0)
                     {
-                        throw new Exception("Unable to locate and update the activity detail status to no change.");
+                        throw new BaseException("Unable to locate and update the activity detail status to no change.");
                     }
 
                     break;
@@ -424,20 +404,17 @@ namespace dMobile.Controller.Activity_Detail
 
                     if (rowsAffected < 0)
                     {
-                        throw new Exception("Unable to locate and update the activity detail status to no change.");
+                        throw new BaseException("Unable to locate and update the activity detail status to no change.");
                     }
 
                     break;
 
                 default:
-                    throw new ArgumentOutOfRangeException();
+                    throw new BaseException("Unknown activity item status upon submitting.");
             }
         }
 
-        /// <summary>
-        /// The Refresh.
-        /// </summary>
-        /// <returns>The <see cref="Task"/>.</returns>
+        /// <inheritdoc/>
         public override async Task Refresh()
         {
             if (this.SysEnv.SysSettings.IsDisconnectedMode)
@@ -459,380 +436,334 @@ namespace dMobile.Controller.Activity_Detail
             }
         }
 
-        /// <summary>
-        /// The GetRefno.
-        /// </summary>
-        /// <param name="selectedActivityDetail">The selectedActivityDetail<see cref="object"/>.</param>
-        /// <returns>.</returns>
+        /// <inheritdoc/>
         public override int GetRefno(object selectedActivityDetail)
         {
             return (selectedActivityDetail as CutSheetMaterialDetail).ActivityDetailRefno;
         }
 
-        /// <summary>
-        /// The GetFKRefno.
-        /// </summary>
-        /// <param name="selectedActivityDetail">The selectedActivityDetail<see cref="object"/>.</param>
-        /// <returns>.</returns>
+        /// <inheritdoc/>
         public override int GetFkRefno(object selectedActivityDetail)
         {
             return (selectedActivityDetail as CutSheetMaterialDetail).ActivityDetailFKRefno;
         }
 
-        /// <summary>
-        /// Get a data view of the activity detail.
-        /// </summary>
-        /// <param name="isSubmitBatch">.</param>
-        /// <returns>Data view result of the query.</returns>
+        /// <inheritdoc/>
         public override async Task<List<object>> GetActivityDetailList(bool isSubmitBatch)
         {
-            var sql = new StringBuilder();
+            var itemRefno = this.ActItem.ItemRefno;
+            const int statusNoChange = (int)SysCommon.ActStatus.NoChange;
+            string sql;
+            object[] parameters;
 
             if (isSubmitBatch)
             {
-                sql.Append("SELECT tActivityDetail.ActivityDetailRefno,");
-                sql.Append("tActivityDetail.LocationMapRefno AS LocationMapRefno,");
-                sql.Append("tActivityDetailCutSheetMaterial.ActivityDetailFKRefno,");
-                sql.Append("tUnit.UnitCode AS UnitCode,");
-                sql.Append("aUnitWeight.UnitCode AS WtUnitCode,");
-                sql.Append("aUnitBase.UnitCode AS BaseUnitCode,");
-                sql.Append("tProduct.ProductCode AS ProductCode,");
-                sql.Append("tProduct.ProductRefno AS ProductRefno,");
-                sql.Append("tProduct.ProductDescription AS ProductDescription,");
-                sql.Append("tProductUnit.ProductUnitBC AS ProductUnitBC,");
-                sql.Append("tProductUnit.ProductUnitIsBC AS ProductUnitIsBC,");
-                sql.Append("tProductUnit.ProductUnitSizeDescription AS ProductUnitSizeDescription,");
-                sql.Append("tActivityDetail.ActivityDetailQuantity AS ActivityDetailQuantity,");
-                sql.Append("tActivityDetail.ActivityDetailBaseQuantity AS ActivityDetailBaseQuantity,");
-                sql.Append("tActivityDetail.ActivityDetailWeightQuantity AS ActivityDetailWeightQuantity,");
-                sql.Append("tActivityDetail.ActivityDetailLogisticUnitBestBeforeSellByDate AS ActivityDetailLogisticUnitBestBeforeSellByDate,");
-                sql.Append("tActivityDetail.ActivityDetailSchemeID AS ActivityDetailSchemeID,");
-                sql.Append("tActivityDetail.ActivityDetailUniqueSchemeID AS ActivityDetailUniqueSchemeID,");
-                sql.Append("tActivityDetail.ActivityDetailSingleTradeItemSerialNumber AS ActivityDetailSingleTradeItemSerialNumber,");
-                sql.Append("tActivityDetail.ActivityDetailLogisticUnitBatchLotNumber AS ActivityDetailLogisticUnitBatchLotNumber,");
-                sql.Append("tActivityDetail.ActivityDetailLogisticUnitExpiryUseByDate AS ActivityDetailLogisticUnitExpiryUseByDate,");
-                sql.Append("tActivityDetail.ActivityDetailLogisticUnitProductionDate AS ActivityDetailLogisticUnitProductionDate,");
-                sql.Append("tActivityDetail.ActivityDetailLogisticUnitSkidNumber AS ActivityDetailLogisticUnitSkidNumber,");
-                sql.Append("tLocationMapSlot.LocationMapSlotCode AS LocationCode,");
-                sql.Append("CAST(tLocationMapSlot.LocationMapSlotName AS NVARCHAR(22)) AS LocationName,");
-                sql.Append("\'Slot\' AS Location,");
-                sql.Append("tProductSchemeVariant.ProductSchemeVariantCode AS ProductSchemeVariantCode,");
-                sql.Append("tProductSchemeVariant.ProductSchemeVariantNo AS ProductSchemeVariantNo,");
-                sql.Append("tProductSchemeVariant.ProductSchemeVariantDescription AS ProductSchemeVariantDescription,");
-                sql.Append("tActivityDetail.ActivityDetailStatus AS ActivityDetailStatus,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra1Text AS ActivityDetailExtra1Text,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra2Text AS ActivityDetailExtra2Text,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra3Text AS ActivityDetailExtra3Text,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra4Text AS ActivityDetailExtra4Text,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra5Date AS ActivityDetailExtra5Date ");
-                sql.Append("FROM tActivityDetailCutSheetMaterial ");
-                sql.Append("INNER JOIN tActivityDetail ON tActivityDetail.ActivityDetailRefno ");
-                sql.Append("= tActivityDetailCutSheetMaterial.ActivityDetailRefno ");
-                sql.Append("INNER JOIN tProductUnit ON tProductUnit.ProductUnitRefno = tActivityDetail.ProductUnitRefno ");
-                sql.Append("INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno ");
-                sql.Append("INNER JOIN tUnit AS aUnitWeight ON aUnitWeight.UnitRefno = tProductUnit.WtUnitRefno ");
-                sql.Append("INNER JOIN tUnit AS aUnitBase ON aUnitBase.UnitRefno = tProductUnit.BaseUnitRefno ");
-                sql.Append("INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno ");
-                sql.Append("INNER JOIN tLocationMapSlot ON tLocationMapSlot.LocationMapRefno ");
-                sql.Append("= tActivityDetail.LocationMapRefno ");
-                sql.Append("LEFT JOIN tActivityDetailProductSchemeVariantXRef ON ");
-                sql.Append("tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno = ");
-                sql.Append("tActivityDetailCutSheetMaterial.ActivityDetailRefno ");
-                sql.Append("LEFT JOIN tProductSchemeVariant ON tProductSchemeVariant.ProductSchemeVariantRefno = ");
-                sql.Append("tActivityDetailProductSchemeVariantXRef.ProductSchemeVariantRefno ");
-                sql.Append("LEFT JOIN tActivityDetailExtra ON tActivityDetailExtra.ActivityDetailRefno = ");
-                sql.Append("tActivityDetail.ActivityDetailRefno ");
-                sql.AppendFormat("WHERE tActivityDetail.ActivityItemRefno = {0} ", this.ActItem.ItemRefno);
-                sql.AppendFormat("AND tActivityDetail.ActivityDetailStatus <> {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
-                sql.Append("UNION ");
-                sql.Append("SELECT tActivityDetail.ActivityDetailRefno,");
-                sql.Append("tActivityDetail.LocationMapRefno,");
-                sql.Append("tActivityDetailCutSheetMaterial.ActivityDetailFKRefno,");
-                sql.Append("tUnit.UnitCode,");
-                sql.Append("aUnitWeight.UnitCode AS WtUnitCode,");
-                sql.Append("aUnitBase.UnitCode AS BaseUnitCode,");
-                sql.Append("tProduct.ProductCode,");
-                sql.Append("tProduct.ProductRefno,");
-                sql.Append("tProduct.ProductDescription,");
-                sql.Append("tProductUnit.ProductUnitBC,");
-                sql.Append("tProductUnit.ProductUnitIsBC,");
-                sql.Append("tProductUnit.ProductUnitSizeDescription,");
-                sql.Append("tActivityDetail.ActivityDetailQuantity,");
-                sql.Append("tActivityDetail.ActivityDetailBaseQuantity,");
-                sql.Append("tActivityDetail.ActivityDetailWeightQuantity,");
-                sql.Append("tActivityDetail.ActivityDetailLogisticUnitBestBeforeSellByDate,");
-                sql.Append("tActivityDetail.ActivityDetailSchemeID,");
-                sql.Append("tActivityDetail.ActivityDetailUniqueSchemeID,");
-                sql.Append("tActivityDetail.ActivityDetailSingleTradeItemSerialNumber,");
-                sql.Append("tActivityDetail.ActivityDetailLogisticUnitBatchLotNumber,");
-                sql.Append("tActivityDetail.ActivityDetailLogisticUnitExpiryUseByDate,");
-                sql.Append("tActivityDetail.ActivityDetailLogisticUnitProductionDate,");
-                sql.Append("tActivityDetail.ActivityDetailLogisticUnitSkidNumber,");
-                sql.Append("tLocationMapSection.LocationMapSectionCode AS LocationCode,");
-                sql.Append("CAST(tLocationMapSection.LocationMapSectionName AS NVARCHAR(22)) AS LocationName,");
-                sql.Append("\'Section\' AS Location,");
-                sql.Append("tProductSchemeVariant.ProductSchemeVariantCode,");
-                sql.Append("tProductSchemeVariant.ProductSchemeVariantNo,");
-                sql.Append("tProductSchemeVariant.ProductSchemeVariantDescription,");
-                sql.Append("tActivityDetail.ActivityDetailStatus,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra1Text,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra2Text,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra3Text,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra4Text,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra5Date ");
-                sql.Append("FROM tActivityDetailCutSheetMaterial ");
-                sql.Append("INNER JOIN tActivityDetail ON tActivityDetail.ActivityDetailRefno = ");
-                sql.Append("tActivityDetailCutSheetMaterial.ActivityDetailRefno ");
-                sql.Append("INNER JOIN tProductUnit ON tProductUnit.ProductUnitRefno = tActivityDetail.ProductUnitRefno ");
-                sql.Append("INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno ");
-                sql.Append("INNER JOIN tUnit AS aUnitWeight ON aUnitWeight.UnitRefno = tProductUnit.WtUnitRefno ");
-                sql.Append("INNER JOIN tUnit AS aUnitBase ON aUnitBase.UnitRefno = tProductUnit.BaseUnitRefno ");
-                sql.Append("INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno ");
-                sql.Append("INNER JOIN tLocationMapSection ON tLocationMapSection.LocationMapRefno = ");
-                sql.Append("tActivityDetail.LocationMapRefno ");
-                sql.Append("LEFT JOIN tActivityDetailProductSchemeVariantXRef ON ");
-                sql.Append("tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno = ");
-                sql.Append("tActivityDetailCutSheetMaterial.ActivityDetailRefno ");
-                sql.Append("LEFT JOIN tProductSchemeVariant ON tProductSchemeVariant.ProductSchemeVariantRefno = ");
-                sql.Append("tActivityDetailProductSchemeVariantXRef.ProductSchemeVariantRefno ");
-                sql.Append("LEFT JOIN tActivityDetailExtra ON tActivityDetailExtra.ActivityDetailRefno ");
-                sql.Append("= tActivityDetail.ActivityDetailRefno ");
-                sql.AppendFormat("WHERE tActivityDetail.ActivityItemRefno = {0} ", this.ActItem.ItemRefno);
-                sql.AppendFormat("AND tActivityDetail.ActivityDetailStatus <> {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
-                sql.Append("UNION ");
-                sql.Append("SELECT tActivityDetail.ActivityDetailRefno,");
-                sql.Append("tActivityDetail.LocationMapRefno,");
-                sql.Append("tActivityDetailCutSheetMaterial.ActivityDetailFKRefno,");
-                sql.Append("tUnit.UnitCode,");
-                sql.Append("aUnitWeight.UnitCode AS WtUnitCode,");
-                sql.Append("aUnitBase.UnitCode AS BaseUnitCode,");
-                sql.Append("tProduct.ProductCode,");
-                sql.Append("tProduct.ProductRefno,");
-                sql.Append("tProduct.ProductDescription,");
-                sql.Append("tProductUnit.ProductUnitBC,");
-                sql.Append("tProductUnit.ProductUnitIsBC,");
-                sql.Append("tProductUnit.ProductUnitSizeDescription,");
-                sql.Append("tActivityDetail.ActivityDetailQuantity,");
-                sql.Append("tActivityDetail.ActivityDetailBaseQuantity,");
-                sql.Append("tActivityDetail.ActivityDetailWeightQuantity,");
-                sql.Append("tActivityDetail.ActivityDetailLogisticUnitBestBeforeSellByDate,");
-                sql.Append("tActivityDetail.ActivityDetailSchemeID,");
-                sql.Append("tActivityDetail.ActivityDetailUniqueSchemeID,");
-                sql.Append("tActivityDetail.ActivityDetailSingleTradeItemSerialNumber,");
-                sql.Append("tActivityDetail.ActivityDetailLogisticUnitBatchLotNumber,");
-                sql.Append("tActivityDetail.ActivityDetailLogisticUnitExpiryUseByDate,");
-                sql.Append("tActivityDetail.ActivityDetailLogisticUnitProductionDate,");
-                sql.Append("tActivityDetail.ActivityDetailLogisticUnitSkidNumber,");
-                sql.Append("tLocationMapWarehouse.LocationMapWarehouseCode AS LocationCode,");
-                sql.Append("tLocationMapWarehouse.LocationMapWarehouseName AS LocationName,");
-                sql.Append("\'Whs\' AS Location,");
-                sql.Append("tProductSchemeVariant.ProductSchemeVariantCode,");
-                sql.Append("tProductSchemeVariant.ProductSchemeVariantNo,");
-                sql.Append("tProductSchemeVariant.ProductSchemeVariantDescription,");
-                sql.Append("tActivityDetail.ActivityDetailStatus,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra1Text,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra2Text,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra3Text,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra4Text,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra5Date ");
-                sql.Append("FROM tActivityDetailCutSheetMaterial ");
-                sql.Append("INNER JOIN tActivityDetail ON tActivityDetail.ActivityDetailRefno ");
-                sql.Append("= tActivityDetailCutSheetMaterial.ActivityDetailRefno ");
-                sql.Append("INNER JOIN tProductUnit ON tProductUnit.ProductUnitRefno = tActivityDetail.ProductUnitRefno ");
-                sql.Append("INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno ");
-                sql.Append("INNER JOIN tUnit AS aUnitWeight ON aUnitWeight.UnitRefno = tProductUnit.WtUnitRefno ");
-                sql.Append("INNER JOIN tUnit AS aUnitBase ON aUnitBase.UnitRefno = tProductUnit.BaseUnitRefno ");
-                sql.Append("INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno ");
-                sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno ");
-                sql.Append("= tActivityDetail.LocationMapRefno ");
-                sql.Append("LEFT JOIN tActivityDetailProductSchemeVariantXRef ON ");
-                sql.Append("tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno ");
-                sql.Append("= tActivityDetailCutSheetMaterial.ActivityDetailRefno ");
-                sql.Append("LEFT JOIN tProductSchemeVariant ON tProductSchemeVariant.ProductSchemeVariantRefno ");
-                sql.Append("= tActivityDetailProductSchemeVariantXRef.ProductSchemeVariantRefno ");
-                sql.Append("LEFT JOIN tActivityDetailExtra ON tActivityDetailExtra.ActivityDetailRefno ");
-                sql.Append("= tActivityDetail.ActivityDetailRefno ");
-                sql.AppendFormat("WHERE tActivityDetail.ActivityItemRefno = {0} ", this.ActItem.ItemRefno);
-                sql.AppendFormat("AND tActivityDetail.ActivityDetailStatus <> {0} ", Convert.ToInt32(SysCommon.ActStatus.NoChange));
-                sql.Append("ORDER BY tActivityDetail.ActivityDetailRefno");
+                sql = @"
+                    SELECT tActivityDetail.ActivityDetailRefno,
+                           tActivityDetail.LocationMapRefno AS LocationMapRefno,
+                           tActivityDetailCutSheetMaterial.ActivityDetailFKRefno,
+                           tUnit.UnitCode AS UnitCode,
+                           aUnitWeight.UnitCode AS WtUnitCode,
+                           aUnitBase.UnitCode AS BaseUnitCode,
+                           tProduct.ProductCode AS ProductCode,
+                           tProduct.ProductRefno AS ProductRefno,
+                           tProduct.ProductDescription AS ProductDescription,
+                           tProductUnit.ProductUnitBC AS ProductUnitBC,
+                           tProductUnit.ProductUnitIsBC AS ProductUnitIsBC,
+                           tProductUnit.ProductUnitSizeDescription AS ProductUnitSizeDescription,
+                           tActivityDetail.ActivityDetailQuantity AS ActivityDetailQuantity,
+                           tActivityDetail.ActivityDetailBaseQuantity AS ActivityDetailBaseQuantity,
+                           tActivityDetail.ActivityDetailWeightQuantity AS ActivityDetailWeightQuantity,
+                           tActivityDetail.ActivityDetailLogisticUnitBestBeforeSellByDate AS ActivityDetailLogisticUnitBestBeforeSellByDate,
+                           tActivityDetail.ActivityDetailSchemeID AS ActivityDetailSchemeID,
+                           tActivityDetail.ActivityDetailUniqueSchemeID AS ActivityDetailUniqueSchemeID,
+                           tActivityDetail.ActivityDetailSingleTradeItemSerialNumber AS ActivityDetailSingleTradeItemSerialNumber,
+                           tActivityDetail.ActivityDetailLogisticUnitBatchLotNumber AS ActivityDetailLogisticUnitBatchLotNumber,
+                           tActivityDetail.ActivityDetailLogisticUnitExpiryUseByDate AS ActivityDetailLogisticUnitExpiryUseByDate,
+                           tActivityDetail.ActivityDetailLogisticUnitProductionDate AS ActivityDetailLogisticUnitProductionDate,
+                           tActivityDetail.ActivityDetailLogisticUnitSkidNumber AS ActivityDetailLogisticUnitSkidNumber,
+                           tLocationMapSlot.LocationMapSlotCode AS LocationCode,
+                           CAST(tLocationMapSlot.LocationMapSlotName AS NVARCHAR(22)) AS LocationName,
+                           'Slot' AS Location,
+                           tProductSchemeVariant.ProductSchemeVariantCode AS ProductSchemeVariantCode,
+                           tProductSchemeVariant.ProductSchemeVariantNo AS ProductSchemeVariantNo,
+                           tProductSchemeVariant.ProductSchemeVariantDescription AS ProductSchemeVariantDescription,
+                           tActivityDetail.ActivityDetailStatus AS ActivityDetailStatus,
+                           tActivityDetailExtra.ActivityDetailExtra1Text AS ActivityDetailExtra1Text,
+                           tActivityDetailExtra.ActivityDetailExtra2Text AS ActivityDetailExtra2Text,
+                           tActivityDetailExtra.ActivityDetailExtra3Text AS ActivityDetailExtra3Text,
+                           tActivityDetailExtra.ActivityDetailExtra4Text AS ActivityDetailExtra4Text,
+                           tActivityDetailExtra.ActivityDetailExtra5Date AS ActivityDetailExtra5Date
+                    FROM tActivityDetailCutSheetMaterial
+                    INNER JOIN tActivityDetail ON tActivityDetail.ActivityDetailRefno = tActivityDetailCutSheetMaterial.ActivityDetailRefno
+                    INNER JOIN tProductUnit ON tProductUnit.ProductUnitRefno = tActivityDetail.ProductUnitRefno
+                    INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno
+                    INNER JOIN tUnit AS aUnitWeight ON aUnitWeight.UnitRefno = tProductUnit.WtUnitRefno
+                    INNER JOIN tUnit AS aUnitBase ON aUnitBase.UnitRefno = tProductUnit.BaseUnitRefno
+                    INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno
+                    INNER JOIN tLocationMapSlot ON tLocationMapSlot.LocationMapRefno = tActivityDetail.LocationMapRefno
+                    LEFT JOIN tActivityDetailProductSchemeVariantXRef ON tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno = tActivityDetailCutSheetMaterial.ActivityDetailRefno
+                    LEFT JOIN tProductSchemeVariant ON tProductSchemeVariant.ProductSchemeVariantRefno = tActivityDetailProductSchemeVariantXRef.ProductSchemeVariantRefno
+                    LEFT JOIN tActivityDetailExtra ON tActivityDetailExtra.ActivityDetailRefno = tActivityDetail.ActivityDetailRefno
+                    WHERE tActivityDetail.ActivityItemRefno = ?
+                      AND tActivityDetail.ActivityDetailStatus <> ?
+                    UNION
+                    SELECT tActivityDetail.ActivityDetailRefno,
+                           tActivityDetail.LocationMapRefno,
+                           tActivityDetailCutSheetMaterial.ActivityDetailFKRefno,
+                           tUnit.UnitCode,
+                           aUnitWeight.UnitCode AS WtUnitCode,
+                           aUnitBase.UnitCode AS BaseUnitCode,
+                           tProduct.ProductCode,
+                           tProduct.ProductRefno,
+                           tProduct.ProductDescription,
+                           tProductUnit.ProductUnitBC,
+                           tProductUnit.ProductUnitIsBC,
+                           tProductUnit.ProductUnitSizeDescription,
+                           tActivityDetail.ActivityDetailQuantity,
+                           tActivityDetail.ActivityDetailBaseQuantity,
+                           tActivityDetail.ActivityDetailWeightQuantity,
+                           tActivityDetail.ActivityDetailLogisticUnitBestBeforeSellByDate,
+                           tActivityDetail.ActivityDetailSchemeID,
+                           tActivityDetail.ActivityDetailUniqueSchemeID,
+                           tActivityDetail.ActivityDetailSingleTradeItemSerialNumber,
+                           tActivityDetail.ActivityDetailLogisticUnitBatchLotNumber,
+                           tActivityDetail.ActivityDetailLogisticUnitExpiryUseByDate,
+                           tActivityDetail.ActivityDetailLogisticUnitProductionDate,
+                           tActivityDetail.ActivityDetailLogisticUnitSkidNumber,
+                           tLocationMapSection.LocationMapSectionCode AS LocationCode,
+                           CAST(tLocationMapSection.LocationMapSectionName AS NVARCHAR(22)) AS LocationName,
+                           'Section' AS Location,
+                           tProductSchemeVariant.ProductSchemeVariantCode,
+                           tProductSchemeVariant.ProductSchemeVariantNo,
+                           tProductSchemeVariant.ProductSchemeVariantDescription,
+                           tActivityDetail.ActivityDetailStatus,
+                           tActivityDetailExtra.ActivityDetailExtra1Text,
+                           tActivityDetailExtra.ActivityDetailExtra2Text,
+                           tActivityDetailExtra.ActivityDetailExtra3Text,
+                           tActivityDetailExtra.ActivityDetailExtra4Text,
+                           tActivityDetailExtra.ActivityDetailExtra5Date
+                    FROM tActivityDetailCutSheetMaterial
+                    INNER JOIN tActivityDetail ON tActivityDetail.ActivityDetailRefno = tActivityDetailCutSheetMaterial.ActivityDetailRefno
+                    INNER JOIN tProductUnit ON tProductUnit.ProductUnitRefno = tActivityDetail.ProductUnitRefno
+                    INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno
+                    INNER JOIN tUnit AS aUnitWeight ON aUnitWeight.UnitRefno = tProductUnit.WtUnitRefno
+                    INNER JOIN tUnit AS aUnitBase ON aUnitBase.UnitRefno = tProductUnit.BaseUnitRefno
+                    INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno
+                    INNER JOIN tLocationMapSection ON tLocationMapSection.LocationMapRefno = tActivityDetail.LocationMapRefno
+                    LEFT JOIN tActivityDetailProductSchemeVariantXRef ON tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno = tActivityDetailCutSheetMaterial.ActivityDetailRefno
+                    LEFT JOIN tProductSchemeVariant ON tProductSchemeVariant.ProductSchemeVariantRefno = tActivityDetailProductSchemeVariantXRef.ProductSchemeVariantRefno
+                    LEFT JOIN tActivityDetailExtra ON tActivityDetailExtra.ActivityDetailRefno = tActivityDetail.ActivityDetailRefno
+                    WHERE tActivityDetail.ActivityItemRefno = ?
+                      AND tActivityDetail.ActivityDetailStatus <> ?
+                    UNION
+                    SELECT tActivityDetail.ActivityDetailRefno,
+                           tActivityDetail.LocationMapRefno,
+                           tActivityDetailCutSheetMaterial.ActivityDetailFKRefno,
+                           tUnit.UnitCode,
+                           aUnitWeight.UnitCode AS WtUnitCode,
+                           aUnitBase.UnitCode AS BaseUnitCode,
+                           tProduct.ProductCode,
+                           tProduct.ProductRefno,
+                           tProduct.ProductDescription,
+                           tProductUnit.ProductUnitBC,
+                           tProductUnit.ProductUnitIsBC,
+                           tProductUnit.ProductUnitSizeDescription,
+                           tActivityDetail.ActivityDetailQuantity,
+                           tActivityDetail.ActivityDetailBaseQuantity,
+                           tActivityDetail.ActivityDetailWeightQuantity,
+                           tActivityDetail.ActivityDetailLogisticUnitBestBeforeSellByDate,
+                           tActivityDetail.ActivityDetailSchemeID,
+                           tActivityDetail.ActivityDetailUniqueSchemeID,
+                           tActivityDetail.ActivityDetailSingleTradeItemSerialNumber,
+                           tActivityDetail.ActivityDetailLogisticUnitBatchLotNumber,
+                           tActivityDetail.ActivityDetailLogisticUnitExpiryUseByDate,
+                           tActivityDetail.ActivityDetailLogisticUnitProductionDate,
+                           tActivityDetail.ActivityDetailLogisticUnitSkidNumber,
+                           tLocationMapWarehouse.LocationMapWarehouseCode AS LocationCode,
+                           tLocationMapWarehouse.LocationMapWarehouseName AS LocationName,
+                           'Whs' AS Location,
+                           tProductSchemeVariant.ProductSchemeVariantCode,
+                           tProductSchemeVariant.ProductSchemeVariantNo,
+                           tProductSchemeVariant.ProductSchemeVariantDescription,
+                           tActivityDetail.ActivityDetailStatus,
+                           tActivityDetailExtra.ActivityDetailExtra1Text,
+                           tActivityDetailExtra.ActivityDetailExtra2Text,
+                           tActivityDetailExtra.ActivityDetailExtra3Text,
+                           tActivityDetailExtra.ActivityDetailExtra4Text,
+                           tActivityDetailExtra.ActivityDetailExtra5Date
+                    FROM tActivityDetailCutSheetMaterial
+                    INNER JOIN tActivityDetail ON tActivityDetail.ActivityDetailRefno = tActivityDetailCutSheetMaterial.ActivityDetailRefno
+                    INNER JOIN tProductUnit ON tProductUnit.ProductUnitRefno = tActivityDetail.ProductUnitRefno
+                    INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno
+                    INNER JOIN tUnit AS aUnitWeight ON aUnitWeight.UnitRefno = tProductUnit.WtUnitRefno
+                    INNER JOIN tUnit AS aUnitBase ON aUnitBase.UnitRefno = tProductUnit.BaseUnitRefno
+                    INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno
+                    INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno = tActivityDetail.LocationMapRefno
+                    LEFT JOIN tActivityDetailProductSchemeVariantXRef ON tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno = tActivityDetailCutSheetMaterial.ActivityDetailRefno
+                    LEFT JOIN tProductSchemeVariant ON tProductSchemeVariant.ProductSchemeVariantRefno = tActivityDetailProductSchemeVariantXRef.ProductSchemeVariantRefno
+                    LEFT JOIN tActivityDetailExtra ON tActivityDetailExtra.ActivityDetailRefno = tActivityDetail.ActivityDetailRefno
+                    WHERE tActivityDetail.ActivityItemRefno = ?
+                      AND tActivityDetail.ActivityDetailStatus <> ?
+                    ORDER BY tActivityDetail.ActivityDetailRefno";
+                parameters = new object[] { itemRefno, statusNoChange, itemRefno, statusNoChange, itemRefno, statusNoChange };
             }
             else
             {
-                sql.Append("SELECT tActivityDetail.ActivityDetailRefno,");
-                sql.Append("tActivityDetail.LocationMapRefno AS LocationMapRefno,");
-                sql.Append("tActivityDetailCutSheetMaterial.ActivityDetailFKRefno,");
-                sql.Append("tUnit.UnitCode AS UnitCode,");
-                sql.Append("aUnitWeight.UnitCode AS WtUnitCode,");
-                sql.Append("aUnitBase.UnitCode AS BaseUnitCode,");
-                sql.Append("tProduct.ProductCode AS ProductCode,");
-                sql.Append("tProduct.ProductRefno AS ProductRefno,");
-                sql.Append("tProduct.ProductDescription AS ProductDescription,");
-                sql.Append("tProductUnit.ProductUnitBC AS ProductUnitBC,");
-                sql.Append("tProductUnit.ProductUnitIsBC AS ProductUnitIsBC,");
-                sql.Append("tProductUnit.ProductUnitSizeDescription AS ProductUnitSizeDescription,");
-                sql.Append("tActivityDetail.ActivityDetailQuantity AS ActivityDetailQuantity,");
-                sql.Append("tActivityDetail.ActivityDetailBaseQuantity AS ActivityDetailBaseQuantity,");
-                sql.Append("tActivityDetail.ActivityDetailWeightQuantity AS ActivityDetailWeightQuantity,");
-                sql.Append("tActivityDetail.ActivityDetailLogisticUnitBestBeforeSellByDate AS ActivityDetailLogisticUnitBestBeforeSellByDate,");
-                sql.Append("tActivityDetail.ActivityDetailSchemeID AS ActivityDetailSchemeID,");
-                sql.Append("tActivityDetail.ActivityDetailUniqueSchemeID AS ActivityDetailUniqueSchemeID,");
-                sql.Append("tActivityDetail.ActivityDetailSingleTradeItemSerialNumber AS ActivityDetailSingleTradeItemSerialNumber,");
-                sql.Append("tActivityDetail.ActivityDetailLogisticUnitBatchLotNumber AS ActivityDetailLogisticUnitBatchLotNumber,");
-                sql.Append("tActivityDetail.ActivityDetailLogisticUnitExpiryUseByDate AS ActivityDetailLogisticUnitExpiryUseByDate,");
-                sql.Append("tActivityDetail.ActivityDetailLogisticUnitProductionDate AS ActivityDetailLogisticUnitProductionDate,");
-                sql.Append("tActivityDetail.ActivityDetailLogisticUnitSkidNumber AS ActivityDetailLogisticUnitSkidNumber,");
-                sql.Append("tLocationMapSlot.LocationMapSlotCode AS LocationCode,");
-                sql.Append("CAST(tLocationMapSlot.LocationMapSlotName AS NVARCHAR(22)) AS LocationName,");
-                sql.Append("\'Slot\' AS Location,");
-                sql.Append("tProductSchemeVariant.ProductSchemeVariantCode AS ProductSchemeVariantCode,");
-                sql.Append("tProductSchemeVariant.ProductSchemeVariantNo AS ProductSchemeVariantNo,");
-                sql.Append("tProductSchemeVariant.ProductSchemeVariantDescription AS ProductSchemeVariantDescription,");
-                sql.Append("tActivityDetail.ActivityDetailStatus AS ActivityDetailStatus,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra1Text AS ActivityDetailExtra1Text,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra2Text AS ActivityDetailExtra2Text,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra3Text AS ActivityDetailExtra3Text,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra4Text AS ActivityDetailExtra4Text,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra5Date AS ActivityDetailExtra5Date ");
-                sql.Append("FROM tActivityDetailCutSheetMaterial ");
-                sql.Append("INNER JOIN tActivityDetail ON tActivityDetail.ActivityDetailRefno ");
-                sql.Append("= tActivityDetailCutSheetMaterial.ActivityDetailRefno ");
-                sql.Append("INNER JOIN tProductUnit ON tProductUnit.ProductUnitRefno = tActivityDetail.ProductUnitRefno ");
-                sql.Append("INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno ");
-                sql.Append("INNER JOIN tUnit AS aUnitWeight ON aUnitWeight.UnitRefno = tProductUnit.WtUnitRefno ");
-                sql.Append("INNER JOIN tUnit AS aUnitBase ON aUnitBase.UnitRefno = tProductUnit.BaseUnitRefno ");
-                sql.Append("INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno ");
-                sql.Append("INNER JOIN tLocationMapSlot ON tLocationMapSlot.LocationMapRefno ");
-                sql.Append("= tActivityDetail.LocationMapRefno ");
-                sql.Append("LEFT JOIN tActivityDetailProductSchemeVariantXRef ON ");
-                sql.Append("tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno = ");
-                sql.Append("tActivityDetailCutSheetMaterial.ActivityDetailRefno ");
-                sql.Append("LEFT JOIN tProductSchemeVariant ON tProductSchemeVariant.ProductSchemeVariantRefno ");
-                sql.Append("= tActivityDetailProductSchemeVariantXRef.ProductSchemeVariantRefno ");
-                sql.Append("LEFT JOIN tActivityDetailExtra ON tActivityDetailExtra.ActivityDetailRefno ");
-                sql.Append("= tActivityDetail.ActivityDetailRefno ");
-                sql.AppendFormat("WHERE tActivityDetail.ActivityItemRefno = {0} ", this.ActItem.ItemRefno);
-                sql.Append("UNION ");
-                sql.Append("SELECT tActivityDetail.ActivityDetailRefno,");
-                sql.Append("tActivityDetail.LocationMapRefno,");
-                sql.Append("tActivityDetailCutSheetMaterial.ActivityDetailFKRefno,");
-                sql.Append("tUnit.UnitCode,");
-                sql.Append("aUnitWeight.UnitCode AS WtUnitCode,");
-                sql.Append("aUnitBase.UnitCode AS BaseUnitCode,");
-                sql.Append("tProduct.ProductCode,");
-                sql.Append("tProduct.ProductRefno,");
-                sql.Append("tProduct.ProductDescription,");
-                sql.Append("tProductUnit.ProductUnitBC,");
-                sql.Append("tProductUnit.ProductUnitIsBC,");
-                sql.Append("tProductUnit.ProductUnitSizeDescription,");
-                sql.Append("tActivityDetail.ActivityDetailQuantity,");
-                sql.Append("tActivityDetail.ActivityDetailBaseQuantity,");
-                sql.Append("tActivityDetail.ActivityDetailWeightQuantity,");
-                sql.Append("tActivityDetail.ActivityDetailLogisticUnitBestBeforeSellByDate,");
-                sql.Append("tActivityDetail.ActivityDetailSchemeID,");
-                sql.Append("tActivityDetail.ActivityDetailUniqueSchemeID,");
-                sql.Append("tActivityDetail.ActivityDetailSingleTradeItemSerialNumber,");
-                sql.Append("tActivityDetail.ActivityDetailLogisticUnitBatchLotNumber,");
-                sql.Append("tActivityDetail.ActivityDetailLogisticUnitExpiryUseByDate,");
-                sql.Append("tActivityDetail.ActivityDetailLogisticUnitProductionDate,");
-                sql.Append("tActivityDetail.ActivityDetailLogisticUnitSkidNumber,");
-                sql.Append("tLocationMapSection.LocationMapSectionCode AS LocationCode,");
-                sql.Append("CAST(tLocationMapSection.LocationMapSectionName AS NVARCHAR(22)) AS LocationName,");
-                sql.Append("\'Section\' AS Location,");
-                sql.Append("tProductSchemeVariant.ProductSchemeVariantCode,");
-                sql.Append("tProductSchemeVariant.ProductSchemeVariantNo,");
-                sql.Append("tProductSchemeVariant.ProductSchemeVariantDescription,");
-                sql.Append("tActivityDetail.ActivityDetailStatus,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra1Text,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra2Text,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra3Text,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra4Text,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra5Date ");
-                sql.Append("FROM tActivityDetailCutSheetMaterial ");
-                sql.Append("INNER JOIN tActivityDetail ON tActivityDetail.ActivityDetailRefno ");
-                sql.Append("= tActivityDetailCutSheetMaterial.ActivityDetailRefno ");
-                sql.Append("INNER JOIN tProductUnit ON tProductUnit.ProductUnitRefno = tActivityDetail.ProductUnitRefno ");
-                sql.Append("INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno ");
-                sql.Append("INNER JOIN tUnit AS aUnitWeight ON aUnitWeight.UnitRefno = tProductUnit.WtUnitRefno ");
-                sql.Append("INNER JOIN tUnit AS aUnitBase ON aUnitBase.UnitRefno = tProductUnit.BaseUnitRefno ");
-                sql.Append("INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno ");
-                sql.Append("INNER JOIN tLocationMapSection ON tLocationMapSection.LocationMapRefno ");
-                sql.Append("= tActivityDetail.LocationMapRefno ");
-                sql.Append("LEFT JOIN tActivityDetailProductSchemeVariantXRef ON ");
-                sql.Append("tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno ");
-                sql.Append("= tActivityDetailCutSheetMaterial.ActivityDetailRefno ");
-                sql.Append("LEFT JOIN tProductSchemeVariant ON tProductSchemeVariant.ProductSchemeVariantRefno ");
-                sql.Append("= tActivityDetailProductSchemeVariantXRef.ProductSchemeVariantRefno ");
-                sql.Append("LEFT JOIN tActivityDetailExtra ON tActivityDetailExtra.ActivityDetailRefno ");
-                sql.Append("= tActivityDetail.ActivityDetailRefno ");
-                sql.AppendFormat("WHERE tActivityDetail.ActivityItemRefno = {0} ", this.ActItem.ItemRefno);
-                sql.Append("UNION ");
-                sql.Append("SELECT tActivityDetail.ActivityDetailRefno,");
-                sql.Append("tActivityDetail.LocationMapRefno,");
-                sql.Append("tActivityDetailCutSheetMaterial.ActivityDetailFKRefno,");
-                sql.Append("tUnit.UnitCode,");
-                sql.Append("aUnitWeight.UnitCode AS WtUnitCode,");
-                sql.Append("aUnitBase.UnitCode AS BaseUnitCode,");
-                sql.Append("tProduct.ProductCode,");
-                sql.Append("tProduct.ProductRefno,");
-                sql.Append("tProduct.ProductDescription,");
-                sql.Append("tProductUnit.ProductUnitBC,");
-                sql.Append("tProductUnit.ProductUnitIsBC,");
-                sql.Append("tProductUnit.ProductUnitSizeDescription,");
-                sql.Append("tActivityDetail.ActivityDetailQuantity,");
-                sql.Append("tActivityDetail.ActivityDetailBaseQuantity,");
-                sql.Append("tActivityDetail.ActivityDetailWeightQuantity,");
-                sql.Append("tActivityDetail.ActivityDetailLogisticUnitBestBeforeSellByDate,");
-                sql.Append("tActivityDetail.ActivityDetailSchemeID,");
-                sql.Append("tActivityDetail.ActivityDetailUniqueSchemeID,");
-                sql.Append("tActivityDetail.ActivityDetailSingleTradeItemSerialNumber,");
-                sql.Append("tActivityDetail.ActivityDetailLogisticUnitBatchLotNumber,");
-                sql.Append("tActivityDetail.ActivityDetailLogisticUnitExpiryUseByDate,");
-                sql.Append("tActivityDetail.ActivityDetailLogisticUnitProductionDate,");
-                sql.Append("tActivityDetail.ActivityDetailLogisticUnitSkidNumber,");
-                sql.Append("tLocationMapWarehouse.LocationMapWarehouseCode AS LocationCode,");
-                sql.Append("tLocationMapWarehouse.LocationMapWarehouseName AS LocationName,");
-                sql.Append("\'Whs\' AS Location,");
-                sql.Append("tProductSchemeVariant.ProductSchemeVariantCode,");
-                sql.Append("tProductSchemeVariant.ProductSchemeVariantNo,");
-                sql.Append("tProductSchemeVariant.ProductSchemeVariantDescription,");
-                sql.Append("tActivityDetail.ActivityDetailStatus,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra1Text,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra2Text,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra3Text,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra4Text,");
-                sql.Append("tActivityDetailExtra.ActivityDetailExtra5Date ");
-                sql.Append("FROM tActivityDetailCutSheetMaterial ");
-                sql.Append("INNER JOIN tActivityDetail ON tActivityDetail.ActivityDetailRefno ");
-                sql.Append("= tActivityDetailCutSheetMaterial.ActivityDetailRefno ");
-                sql.Append("INNER JOIN tProductUnit ON tProductUnit.ProductUnitRefno = tActivityDetail.ProductUnitRefno ");
-                sql.Append("INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno ");
-                sql.Append("INNER JOIN tUnit AS aUnitWeight ON aUnitWeight.UnitRefno = tProductUnit.WtUnitRefno ");
-                sql.Append("INNER JOIN tUnit AS aUnitBase ON aUnitBase.UnitRefno = tProductUnit.BaseUnitRefno ");
-                sql.Append("INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno ");
-                sql.Append("INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno ");
-                sql.Append("= tActivityDetail.LocationMapRefno ");
-                sql.Append("LEFT JOIN tActivityDetailProductSchemeVariantXRef ON ");
-                sql.Append("tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno ");
-                sql.Append("= tActivityDetailCutSheetMaterial.ActivityDetailRefno ");
-                sql.Append("LEFT JOIN tProductSchemeVariant ON tProductSchemeVariant.ProductSchemeVariantRefno ");
-                sql.Append("= tActivityDetailProductSchemeVariantXRef.ProductSchemeVariantRefno ");
-                sql.Append("LEFT JOIN tActivityDetailExtra ON tActivityDetailExtra.ActivityDetailRefno ");
-                sql.Append("= tActivityDetail.ActivityDetailRefno ");
-                sql.AppendFormat("WHERE tActivityDetail.ActivityItemRefno = {0} ", this.ActItem.ItemRefno);
-                sql.Append("ORDER BY tActivityDetail.ActivityDetailRefno");
+                sql = @"
+                    SELECT tActivityDetail.ActivityDetailRefno,
+                           tActivityDetail.LocationMapRefno AS LocationMapRefno,
+                           tActivityDetailCutSheetMaterial.ActivityDetailFKRefno,
+                           tUnit.UnitCode AS UnitCode,
+                           aUnitWeight.UnitCode AS WtUnitCode,
+                           aUnitBase.UnitCode AS BaseUnitCode,
+                           tProduct.ProductCode AS ProductCode,
+                           tProduct.ProductRefno AS ProductRefno,
+                           tProduct.ProductDescription AS ProductDescription,
+                           tProductUnit.ProductUnitBC AS ProductUnitBC,
+                           tProductUnit.ProductUnitIsBC AS ProductUnitIsBC,
+                           tProductUnit.ProductUnitSizeDescription AS ProductUnitSizeDescription,
+                           tActivityDetail.ActivityDetailQuantity AS ActivityDetailQuantity,
+                           tActivityDetail.ActivityDetailBaseQuantity AS ActivityDetailBaseQuantity,
+                           tActivityDetail.ActivityDetailWeightQuantity AS ActivityDetailWeightQuantity,
+                           tActivityDetail.ActivityDetailLogisticUnitBestBeforeSellByDate AS ActivityDetailLogisticUnitBestBeforeSellByDate,
+                           tActivityDetail.ActivityDetailSchemeID AS ActivityDetailSchemeID,
+                           tActivityDetail.ActivityDetailUniqueSchemeID AS ActivityDetailUniqueSchemeID,
+                           tActivityDetail.ActivityDetailSingleTradeItemSerialNumber AS ActivityDetailSingleTradeItemSerialNumber,
+                           tActivityDetail.ActivityDetailLogisticUnitBatchLotNumber AS ActivityDetailLogisticUnitBatchLotNumber,
+                           tActivityDetail.ActivityDetailLogisticUnitExpiryUseByDate AS ActivityDetailLogisticUnitExpiryUseByDate,
+                           tActivityDetail.ActivityDetailLogisticUnitProductionDate AS ActivityDetailLogisticUnitProductionDate,
+                           tActivityDetail.ActivityDetailLogisticUnitSkidNumber AS ActivityDetailLogisticUnitSkidNumber,
+                           tLocationMapSlot.LocationMapSlotCode AS LocationCode,
+                           CAST(tLocationMapSlot.LocationMapSlotName AS NVARCHAR(22)) AS LocationName,
+                           'Slot' AS Location,
+                           tProductSchemeVariant.ProductSchemeVariantCode AS ProductSchemeVariantCode,
+                           tProductSchemeVariant.ProductSchemeVariantNo AS ProductSchemeVariantNo,
+                           tProductSchemeVariant.ProductSchemeVariantDescription AS ProductSchemeVariantDescription,
+                           tActivityDetail.ActivityDetailStatus AS ActivityDetailStatus,
+                           tActivityDetailExtra.ActivityDetailExtra1Text AS ActivityDetailExtra1Text,
+                           tActivityDetailExtra.ActivityDetailExtra2Text AS ActivityDetailExtra2Text,
+                           tActivityDetailExtra.ActivityDetailExtra3Text AS ActivityDetailExtra3Text,
+                           tActivityDetailExtra.ActivityDetailExtra4Text AS ActivityDetailExtra4Text,
+                           tActivityDetailExtra.ActivityDetailExtra5Date AS ActivityDetailExtra5Date
+                    FROM tActivityDetailCutSheetMaterial
+                    INNER JOIN tActivityDetail ON tActivityDetail.ActivityDetailRefno = tActivityDetailCutSheetMaterial.ActivityDetailRefno
+                    INNER JOIN tProductUnit ON tProductUnit.ProductUnitRefno = tActivityDetail.ProductUnitRefno
+                    INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno
+                    INNER JOIN tUnit AS aUnitWeight ON aUnitWeight.UnitRefno = tProductUnit.WtUnitRefno
+                    INNER JOIN tUnit AS aUnitBase ON aUnitBase.UnitRefno = tProductUnit.BaseUnitRefno
+                    INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno
+                    INNER JOIN tLocationMapSlot ON tLocationMapSlot.LocationMapRefno = tActivityDetail.LocationMapRefno
+                    LEFT JOIN tActivityDetailProductSchemeVariantXRef ON tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno = tActivityDetailCutSheetMaterial.ActivityDetailRefno
+                    LEFT JOIN tProductSchemeVariant ON tProductSchemeVariant.ProductSchemeVariantRefno = tActivityDetailProductSchemeVariantXRef.ProductSchemeVariantRefno
+                    LEFT JOIN tActivityDetailExtra ON tActivityDetailExtra.ActivityDetailRefno = tActivityDetail.ActivityDetailRefno
+                    WHERE tActivityDetail.ActivityItemRefno = ?
+                    UNION
+                    SELECT tActivityDetail.ActivityDetailRefno,
+                           tActivityDetail.LocationMapRefno,
+                           tActivityDetailCutSheetMaterial.ActivityDetailFKRefno,
+                           tUnit.UnitCode,
+                           aUnitWeight.UnitCode AS WtUnitCode,
+                           aUnitBase.UnitCode AS BaseUnitCode,
+                           tProduct.ProductCode,
+                           tProduct.ProductRefno,
+                           tProduct.ProductDescription,
+                           tProductUnit.ProductUnitBC,
+                           tProductUnit.ProductUnitIsBC,
+                           tProductUnit.ProductUnitSizeDescription,
+                           tActivityDetail.ActivityDetailQuantity,
+                           tActivityDetail.ActivityDetailBaseQuantity,
+                           tActivityDetail.ActivityDetailWeightQuantity,
+                           tActivityDetail.ActivityDetailLogisticUnitBestBeforeSellByDate,
+                           tActivityDetail.ActivityDetailSchemeID,
+                           tActivityDetail.ActivityDetailUniqueSchemeID,
+                           tActivityDetail.ActivityDetailSingleTradeItemSerialNumber,
+                           tActivityDetail.ActivityDetailLogisticUnitBatchLotNumber,
+                           tActivityDetail.ActivityDetailLogisticUnitExpiryUseByDate,
+                           tActivityDetail.ActivityDetailLogisticUnitProductionDate,
+                           tActivityDetail.ActivityDetailLogisticUnitSkidNumber,
+                           tLocationMapSection.LocationMapSectionCode AS LocationCode,
+                           CAST(tLocationMapSection.LocationMapSectionName AS NVARCHAR(22)) AS LocationName,
+                           'Section' AS Location,
+                           tProductSchemeVariant.ProductSchemeVariantCode,
+                           tProductSchemeVariant.ProductSchemeVariantNo,
+                           tProductSchemeVariant.ProductSchemeVariantDescription,
+                           tActivityDetail.ActivityDetailStatus,
+                           tActivityDetailExtra.ActivityDetailExtra1Text,
+                           tActivityDetailExtra.ActivityDetailExtra2Text,
+                           tActivityDetailExtra.ActivityDetailExtra3Text,
+                           tActivityDetailExtra.ActivityDetailExtra4Text,
+                           tActivityDetailExtra.ActivityDetailExtra5Date
+                    FROM tActivityDetailCutSheetMaterial
+                    INNER JOIN tActivityDetail ON tActivityDetail.ActivityDetailRefno = tActivityDetailCutSheetMaterial.ActivityDetailRefno
+                    INNER JOIN tProductUnit ON tProductUnit.ProductUnitRefno = tActivityDetail.ProductUnitRefno
+                    INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno
+                    INNER JOIN tUnit AS aUnitWeight ON aUnitWeight.UnitRefno = tProductUnit.WtUnitRefno
+                    INNER JOIN tUnit AS aUnitBase ON aUnitBase.UnitRefno = tProductUnit.BaseUnitRefno
+                    INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno
+                    INNER JOIN tLocationMapSection ON tLocationMapSection.LocationMapRefno = tActivityDetail.LocationMapRefno
+                    LEFT JOIN tActivityDetailProductSchemeVariantXRef ON tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno = tActivityDetailCutSheetMaterial.ActivityDetailRefno
+                    LEFT JOIN tProductSchemeVariant ON tProductSchemeVariant.ProductSchemeVariantRefno = tActivityDetailProductSchemeVariantXRef.ProductSchemeVariantRefno
+                    LEFT JOIN tActivityDetailExtra ON tActivityDetailExtra.ActivityDetailRefno = tActivityDetail.ActivityDetailRefno
+                    WHERE tActivityDetail.ActivityItemRefno = ?
+                    UNION
+                    SELECT tActivityDetail.ActivityDetailRefno,
+                           tActivityDetail.LocationMapRefno,
+                           tActivityDetailCutSheetMaterial.ActivityDetailFKRefno,
+                           tUnit.UnitCode,
+                           aUnitWeight.UnitCode AS WtUnitCode,
+                           aUnitBase.UnitCode AS BaseUnitCode,
+                           tProduct.ProductCode,
+                           tProduct.ProductRefno,
+                           tProduct.ProductDescription,
+                           tProductUnit.ProductUnitBC,
+                           tProductUnit.ProductUnitIsBC,
+                           tProductUnit.ProductUnitSizeDescription,
+                           tActivityDetail.ActivityDetailQuantity,
+                           tActivityDetail.ActivityDetailBaseQuantity,
+                           tActivityDetail.ActivityDetailWeightQuantity,
+                           tActivityDetail.ActivityDetailLogisticUnitBestBeforeSellByDate,
+                           tActivityDetail.ActivityDetailSchemeID,
+                           tActivityDetail.ActivityDetailUniqueSchemeID,
+                           tActivityDetail.ActivityDetailSingleTradeItemSerialNumber,
+                           tActivityDetail.ActivityDetailLogisticUnitBatchLotNumber,
+                           tActivityDetail.ActivityDetailLogisticUnitExpiryUseByDate,
+                           tActivityDetail.ActivityDetailLogisticUnitProductionDate,
+                           tActivityDetail.ActivityDetailLogisticUnitSkidNumber,
+                           tLocationMapWarehouse.LocationMapWarehouseCode AS LocationCode,
+                           tLocationMapWarehouse.LocationMapWarehouseName AS LocationName,
+                           'Whs' AS Location,
+                           tProductSchemeVariant.ProductSchemeVariantCode,
+                           tProductSchemeVariant.ProductSchemeVariantNo,
+                           tProductSchemeVariant.ProductSchemeVariantDescription,
+                           tActivityDetail.ActivityDetailStatus,
+                           tActivityDetailExtra.ActivityDetailExtra1Text,
+                           tActivityDetailExtra.ActivityDetailExtra2Text,
+                           tActivityDetailExtra.ActivityDetailExtra3Text,
+                           tActivityDetailExtra.ActivityDetailExtra4Text,
+                           tActivityDetailExtra.ActivityDetailExtra5Date
+                    FROM tActivityDetailCutSheetMaterial
+                    INNER JOIN tActivityDetail ON tActivityDetail.ActivityDetailRefno = tActivityDetailCutSheetMaterial.ActivityDetailRefno
+                    INNER JOIN tProductUnit ON tProductUnit.ProductUnitRefno = tActivityDetail.ProductUnitRefno
+                    INNER JOIN tUnit ON tUnit.UnitRefno = tProductUnit.UnitRefno
+                    INNER JOIN tUnit AS aUnitWeight ON aUnitWeight.UnitRefno = tProductUnit.WtUnitRefno
+                    INNER JOIN tUnit AS aUnitBase ON aUnitBase.UnitRefno = tProductUnit.BaseUnitRefno
+                    INNER JOIN tProduct ON tProduct.ProductRefno = tProductUnit.ProductRefno
+                    INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapRefno = tActivityDetail.LocationMapRefno
+                    LEFT JOIN tActivityDetailProductSchemeVariantXRef ON tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno = tActivityDetailCutSheetMaterial.ActivityDetailRefno
+                    LEFT JOIN tProductSchemeVariant ON tProductSchemeVariant.ProductSchemeVariantRefno = tActivityDetailProductSchemeVariantXRef.ProductSchemeVariantRefno
+                    LEFT JOIN tActivityDetailExtra ON tActivityDetailExtra.ActivityDetailRefno = tActivityDetail.ActivityDetailRefno
+                    WHERE tActivityDetail.ActivityItemRefno = ?
+                    ORDER BY tActivityDetail.ActivityDetailRefno";
+                parameters = new object[] { itemRefno, itemRefno, itemRefno };
             }
 
-            this.MaterialDetails = await Conn.QueryAsync<CutSheetMaterialDetail>(sql.ToString());
+            this.MaterialDetails = await Conn.QueryAsync<CutSheetMaterialDetail>(sql, parameters);
             this.ListDetails = this.MaterialDetails.Cast<object>().ToList();
             return this.ListDetails;
         }
 
-        /// <summary>
-        /// The DesignGrid.
-        /// </summary>
-        /// <param name="gridMain">The gridMain<see cref="Grid"/>.</param>
-        /// <param name="listViewMain">The listViewMain<see cref="ListView"/>.</param>
-        /// <returns>The <see cref="ObservableCollection{object}"/>.</returns>
+        /// <inheritdoc/>
         public override ObservableCollection<object> DesignGrid(ref Grid gridMain, ref ListView listViewMain)
         {
             var observableCollection = new ObservableCollection<object>();
@@ -920,198 +851,7 @@ namespace dMobile.Controller.Activity_Detail
             return observableCollection;
         }
 
-        /// <inheritdoc cref="ActivityDetail.Search(string)"/>
-        public override ObservableCollection<object> Search(string searchText)
-        {
-            var observableCollection = new ObservableCollection<object>();
-            this.ListDetails = this.MaterialDetails.Where(adjDetail =>
-                adjDetail.ActivityDetailSchemeID.ToUpper().Contains(searchText.ToUpper().Trim())).Cast<object>().ToList();
-
-            foreach (var productionCutSheetMaterialDetail in this.ListDetails.Cast<CutSheetMaterialDetail>())
-            {
-                observableCollection.Add(productionCutSheetMaterialDetail);
-            }
-
-            return observableCollection;
-        }
-
-        /// <summary>
-        /// The CreateSubmitXML.
-        /// </summary>
-        /// <param name="detailData">.</param>
-        /// <returns>.</returns>
-        public override async Task<string> CreateSubmitXml(XDocument detailData)
-        {
-            var xmlString = new StringBuilder();
-            var settings = new XmlWriterSettings
-            {
-                Async = true,
-                Indent = false,
-            };
-            var xml = XmlWriter.Create(xmlString, settings);
-
-            XDocument request;
-            if (detailData.Document.Root.Element("skid_data") == null)
-            {
-                request = XDocument.Parse(
-                    "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
-                    + "<imclient>"
-                    + "<command>"
-                    + "<action>SUBMIT CUT SHEET MATERIAL DETAIL</action>"
-                    + "<whs_id>0</whs_id>"
-                    + "<sect_refno>0</sect_refno>"
-                    + "</command>"
-                    + await SysCommon.GetRequestDefaults(false)
-                    + this.GetRequestDetailDefaults()
-                    + "<skid_fk_refno>" + this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFkRefno + "</skid_fk_refno>"
-                    + "</imclient>");
-            }
-            else
-            {
-                request = XDocument.Parse(
-                    "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
-                    + "<imclient>"
-                    + "<command>"
-                    + "<action>SUBMIT CUT SHEET MATERIAL DETAIL SKID</action>"
-                    + "<whs_id>0</whs_id>"
-                    + "<sect_refno>0</sect_refno>"
-                    + "</command>"
-                    + await SysCommon.GetRequestDefaults(false)
-                    + "<skid_data>" + detailData.Root.Element("skid_data").Value + "</skid_data>"
-                    + "<whs_id>" + this.LocMap.CurrLocMap.WhsFkRefno + "</whs_id>"
-                    + "<refno>" + this.ActItem.ActHdr.HdrFkRefno + "</refno>"
-                    + "<itm_refno>" + this.ActItem.ItemFkRefno + "</itm_refno>"
-                    + "<is_negate_qty>false</is_negate_qty>"
-                    + "<extra1>" + this.ActExtra.Text1 + "</extra1>"
-                    + "<extra2>" + this.ActExtra.Text2 + "</extra2>"
-                    + "<extra3>" + this.ActExtra.Text3 + "</extra3>"
-                    + "<extra4>" + this.ActExtra.Text4 + "</extra4>"
-                    + "<extra5>" + this.ActExtra.DateTime1 + "</extra5>"
-                    + "</imclient>");
-            }
-
-            request.Save(xml);
-            await xml.FlushAsync();
-            xml.Close();
-
-            return xmlString.ToString();
-        }
-
-        /// <summary>
-        /// The CreateDeleteXML.
-        /// </summary>
-        /// <param name="detailData">.</param>
-        /// <returns>.</returns>
-        public override async Task<string> CreateDeleteXml(XDocument detailData)
-        {
-            var xmlString = new StringBuilder();
-            var settings = new XmlWriterSettings
-            {
-                Async = true,
-                Indent = false,
-            };
-            var xml = XmlWriter.Create(xmlString, settings);
-
-            XDocument request;
-            if (detailData.Document.Root.Element("skid_data") == null)
-            {
-                request = XDocument.Parse(
-                    "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
-                    + "<imclient>"
-                    + "<command>"
-                    + "<action>DELETE CUT SHEET MATERIAL DETAIL</action>"
-                    + "<whs_id>0</whs_id>"
-                    + "<sect_refno>0</sect_refno>"
-                    + "</command>"
-                    + await SysCommon.GetRequestDefaults(false)
-                    + this.GetRequestDetailDefaults()
-                    + "<skid_fk_refno>" + this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFkRefno + "</skid_fk_refno>"
-                    + "</imclient>");
-            }
-            else
-            {
-                request = XDocument.Parse(
-                    "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
-                    + "<imclient>"
-                    + "<command>"
-                    + "<action>DELETE CUT SHEET MATERIAL DETAIL SKID</action>"
-                    + "<whs_id>0</whs_id>"
-                    + "<sect_refno>0</sect_refno>"
-                    + "</command>"
-                    + await SysCommon.GetRequestDefaults(false)
-                    + "<skid_data>" + detailData.Root.Element("skid_data").Value + "</skid_data>"
-                    + "<whs_id>" + this.LocMap.CurrLocMap.WhsFkRefno + "</whs_id>"
-                    + "<refno>" + this.ActItem.ActHdr.HdrFkRefno + "</refno>"
-                    + "<itm_refno>" + this.ActItem.ItemFkRefno + "</itm_refno>"
-                    + "<is_negate_qty>false</is_negate_qty>"
-                    + "</imclient>");
-            }
-
-            request.Save(xml);
-            await xml.FlushAsync();
-            xml.Close();
-
-            return xmlString.ToString();
-        }
-
-        /// <summary>
-        /// Get the activity item control description.
-        /// </summary>
-        /// <returns><see cref="string"/> Get activity item control description.</returns>
-        public override string GetControlDescription()
-        {
-            return $"Material # {this.ActItem.ActHdr.HdrFkRefno}";
-        }
-
-        /// <summary>
-        /// Find or insert an activity detail into the list details.
-        /// </summary>
-        /// <returns><see cref="ActivityDetail"/> Activity detail.</returns>
-        public override ActivityDetail GatherDetail()
-        {
-            CutSheetMaterialDetail detail = null;
-            if (this.ListDetails != null)
-            {
-                detail = new CutSheetMaterialDetail
-                {
-                    // KLUDGE: Restore the new detail reference number's that got over written somehow.
-                    ActivityDetailRefno = this.SysEnv.InsertedDetailRefno,
-                    ActivityDetailFKRefno = this.SysEnv.InsertedDetailFkRefno,
-                };
-
-                this.GatherProductDetail(detail);
-                this.GatherQuantityDetail(detail);
-                this.GatherSchemeDetail(detail);
-                this.GatherExtraDetail(detail);
-                this.GatherLocationDetail(detail);
-
-                detail.ActivityDetailSchemeID = this.SchemeId;
-                detail.ActivityDetailUniqueSchemeID = this.UniqueSchemeId;
-                detail.ActivityDetailStatus = (int)SysCommon.ActStatus.Inserted;
-            }
-
-            return detail;
-        }
-
-        /// <summary>
-        /// Update detail in the detail list.
-        /// </summary>
-        /// <param name="listDetailIdx"><see cref="int"/> Zero based list detail index.</param>
-        public override void UpdateListDetail(int listDetailIdx)
-        {
-            var detail = (CutSheetMaterialDetail)this.ListDetails[listDetailIdx];
-            detail.ActivityDetailQuantity += Math.Round(this.Quantity, 3);
-            detail.ActivityDetailBaseQuantity += Math.Round(this.BaseQuantity, 3);
-            detail.ActivityDetailWeightQuantity += Math.Round(this.WeightQuantity, 3);
-        }
-
-        /// <summary>
-        /// Design the activity grid.
-        /// </summary>
-        /// <param name="gridMain"><see cref="Grid"/> Activity grid.</param>
-        /// <param name="actDetail"><see cref="ActivityDetail"/> Activity detail.</param>
-        /// <param name="mainActivityItems"><see cref="ObservableCollection(object)"/> Main activity items list.</param>
-        /// <returns><see cref="DataTemplate"/> Data template.</returns>
+        /// <inheritdoc/>
         public override DataTemplate DesignGrid(
             ref Grid gridMain,
             ActivityDetail actDetail,
@@ -1211,6 +951,175 @@ namespace dMobile.Controller.Activity_Detail
             return (DataTemplate)this.ResDict["dataTemplateMaterialDetail"];
         }
 
+        /// <inheritdoc cref="ActivityDetail.Search(string)"/>
+        public override ObservableCollection<object> Search(string searchText)
+        {
+            var observableCollection = new ObservableCollection<object>();
+            this.ListDetails = this.MaterialDetails.Where(adjDetail =>
+                adjDetail.ActivityDetailSchemeID.ToUpper().Contains(searchText.ToUpper().Trim())).Cast<object>().ToList();
+
+            foreach (var productionCutSheetMaterialDetail in this.ListDetails.Cast<CutSheetMaterialDetail>())
+            {
+                observableCollection.Add(productionCutSheetMaterialDetail);
+            }
+
+            return observableCollection;
+        }
+
+        /// <inheritdoc/>
+        public override async Task<string> CreateSubmitXml(XDocument data)
+        {
+            var xmlString = new StringBuilder();
+            var settings = new XmlWriterSettings
+            {
+                Async = true,
+                Indent = false,
+            };
+            var xml = XmlWriter.Create(xmlString, settings);
+
+            XDocument request;
+            if (data.Document.Root.Element("skid_data") == null)
+            {
+                request = XDocument.Parse(
+                    "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
+                    + "<imclient>"
+                    + "<command>"
+                    + "<action>SUBMIT CUT SHEET MATERIAL DETAIL</action>"
+                    + "<whs_id>0</whs_id>"
+                    + "<sect_refno>0</sect_refno>"
+                    + "</command>"
+                    + await SysCommon.GetRequestDefaults(false)
+                    + this.GetRequestDetailDefaults()
+                    + "<skid_fk_refno>" + this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFkRefno + "</skid_fk_refno>"
+                    + "</imclient>");
+            }
+            else
+            {
+                request = XDocument.Parse(
+                    "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
+                    + "<imclient>"
+                    + "<command>"
+                    + "<action>SUBMIT CUT SHEET MATERIAL DETAIL SKID</action>"
+                    + "<whs_id>0</whs_id>"
+                    + "<sect_refno>0</sect_refno>"
+                    + "</command>"
+                    + await SysCommon.GetRequestDefaults(false)
+                    + "<skid_data>" + data.Root.Element("skid_data").Value + "</skid_data>"
+                    + "<whs_id>" + this.LocMap.CurrLocMap.WhsFkRefno + "</whs_id>"
+                    + "<refno>" + this.ActItem.ActHdr.HdrFkRefno + "</refno>"
+                    + "<itm_refno>" + this.ActItem.ItemFkRefno + "</itm_refno>"
+                    + "<is_negate_qty>false</is_negate_qty>"
+                    + "<extra1>" + this.ActExtra.Text1 + "</extra1>"
+                    + "<extra2>" + this.ActExtra.Text2 + "</extra2>"
+                    + "<extra3>" + this.ActExtra.Text3 + "</extra3>"
+                    + "<extra4>" + this.ActExtra.Text4 + "</extra4>"
+                    + "<extra5>" + this.ActExtra.DateTime1 + "</extra5>"
+                    + "</imclient>");
+            }
+
+            request.Save(xml);
+            await xml.FlushAsync();
+            xml.Close();
+
+            return xmlString.ToString();
+        }
+
+        /// <inheritdoc/>
+        public override async Task<string> CreateDeleteXml(XDocument data)
+        {
+            var xmlString = new StringBuilder();
+            var settings = new XmlWriterSettings
+            {
+                Async = true,
+                Indent = false,
+            };
+            var xml = XmlWriter.Create(xmlString, settings);
+
+            XDocument request;
+            if (data.Document.Root.Element("skid_data") == null)
+            {
+                request = XDocument.Parse(
+                    "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
+                    + "<imclient>"
+                    + "<command>"
+                    + "<action>DELETE CUT SHEET MATERIAL DETAIL</action>"
+                    + "<whs_id>0</whs_id>"
+                    + "<sect_refno>0</sect_refno>"
+                    + "</command>"
+                    + await SysCommon.GetRequestDefaults(false)
+                    + this.GetRequestDetailDefaults()
+                    + "<skid_fk_refno>" + this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFkRefno + "</skid_fk_refno>"
+                    + "</imclient>");
+            }
+            else
+            {
+                request = XDocument.Parse(
+                    "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
+                    + "<imclient>"
+                    + "<command>"
+                    + "<action>DELETE CUT SHEET MATERIAL DETAIL SKID</action>"
+                    + "<whs_id>0</whs_id>"
+                    + "<sect_refno>0</sect_refno>"
+                    + "</command>"
+                    + await SysCommon.GetRequestDefaults(false)
+                    + "<skid_data>" + data.Root.Element("skid_data").Value + "</skid_data>"
+                    + "<whs_id>" + this.LocMap.CurrLocMap.WhsFkRefno + "</whs_id>"
+                    + "<refno>" + this.ActItem.ActHdr.HdrFkRefno + "</refno>"
+                    + "<itm_refno>" + this.ActItem.ItemFkRefno + "</itm_refno>"
+                    + "<is_negate_qty>false</is_negate_qty>"
+                    + "</imclient>");
+            }
+
+            request.Save(xml);
+            await xml.FlushAsync();
+            xml.Close();
+
+            return xmlString.ToString();
+        }
+
+        /// <inheritdoc/>
+        public override string GetControlDescription()
+        {
+            return $"Material # {this.ActItem.ActHdr.HdrFkRefno}";
+        }
+
+        /// <inheritdoc/>
+        public override ActivityDetail GatherDetail()
+        {
+            CutSheetMaterialDetail detail = null;
+            if (this.ListDetails != null)
+            {
+                detail = new CutSheetMaterialDetail
+                {
+                    // KLUDGE: Restore the new detail reference number's that got over written somehow.
+                    ActivityDetailRefno = this.SysEnv.InsertedDetailRefno,
+                    ActivityDetailFKRefno = this.SysEnv.InsertedDetailFkRefno,
+                };
+
+                this.GatherProductDetail(detail);
+                this.GatherQuantityDetail(detail);
+                this.GatherSchemeDetail(detail);
+                this.GatherExtraDetail(detail);
+                this.GatherLocationDetail(detail);
+
+                detail.ActivityDetailSchemeID = this.SchemeId;
+                detail.ActivityDetailUniqueSchemeID = this.UniqueSchemeId;
+                detail.ActivityDetailStatus = (int)SysCommon.ActStatus.Inserted;
+            }
+
+            return detail;
+        }
+
+        /// <inheritdoc/>
+        public override void UpdateListDetail(int listDetailIdx)
+        {
+            var detail = (CutSheetMaterialDetail)this.ListDetails[listDetailIdx];
+            detail.ActivityDetailQuantity += Math.Round(this.Quantity, 3);
+            detail.ActivityDetailBaseQuantity += Math.Round(this.BaseQuantity, 3);
+            detail.ActivityDetailWeightQuantity += Math.Round(this.WeightQuantity, 3);
+        }
+
+        /// <inheritdoc/>
         public override XDocument CreateDump()
         {
             throw new NotImplementedException();
