@@ -71,7 +71,7 @@ namespace dMobile.GroundWork
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging move inventory items failed.", true);
 
-                    throw new Exception("Database exception occurred. Purging move inventory items failed.", ex);
+                    throw new BaseException("Database exception occurred. Purging move inventory items failed.", ex);
                 }
             });
         }

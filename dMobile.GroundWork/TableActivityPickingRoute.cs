@@ -42,7 +42,7 @@ namespace dMobile.GroundWork
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging sales order routes failed.", true);
 
-                throw new Exception("Database exception occurred. Purging sales order routes failed.", ex);
+                throw new BaseException("Database exception occurred. Purging sales order routes failed.", ex);
             }
         }
     }

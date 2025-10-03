@@ -132,14 +132,14 @@ namespace dMobile.GroundWork
                             EventArgs.Empty,
                             $"Purging {this.LowerCaseName} details failed.",
                             true);
-                        throw new Exception(
+                        throw new BaseException(
                             $"Database exception occurred. Purging {this.LowerCaseName} details failed.",
                             sqlEx);
                     }
                     catch (Exception ex)
                     {
                         transaction.Rollback();
-                        throw new Exception(
+                        throw new BaseException(
                             $"Database exception occurred. Purging {this.LowerCaseName} details failed.",
                             ex);
                     }
@@ -161,7 +161,7 @@ namespace dMobile.GroundWork
             }
             else
             {
-                throw new Exception("drActItemMaterial.Read() failed.");
+                throw new BaseException("drActItemMaterial.Read() failed.");
             }
 
             return await SendComm(await this.CreateRequest(actItemMaterialFKRefno));
@@ -221,7 +221,7 @@ namespace dMobile.GroundWork
                                 if (results == null ||
                                     results?.Count == 0)
                                 {
-                                    throw new Exception(
+                                    throw new BaseException(
                                         "No results in tActivityItemCutSheet for ActivityItemRefno " +
                                         refno +
                                         Environment.NewLine +
@@ -350,7 +350,7 @@ namespace dMobile.GroundWork
                                 "Saving sheet material details failed.",
                                 false);
 
-                            throw new Exception(
+                            throw new BaseException(
                                 "Database exception occurred. Saving sheet material details failed." +
                                 Environment.NewLine +
                                 errMsg,

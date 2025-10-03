@@ -142,14 +142,14 @@ namespace dMobile.GroundWork
                             EventArgs.Empty,
                             $"Purging {this.LowerCaseName} details failed.",
                             true);
-                        throw new Exception(
+                        throw new BaseException(
                             $"Database exception occurred. Purging {this.LowerCaseName} details failed.",
                             sqlEx);
                     }
                     catch (Exception ex)
                     {
                         transaction.Rollback();
-                        throw new Exception(
+                        throw new BaseException(
                             $"Database exception occurred. Purging {this.LowerCaseName} details failed.",
                             ex);
                     }
@@ -170,7 +170,7 @@ namespace dMobile.GroundWork
             }
             else
             {
-                throw new Exception("drItemFinished.Read() failed.");
+                throw new BaseException("drItemFinished.Read() failed.");
             }
 
             return await SendComm(await this.CreateRequest(actItemCutSheetFKRefno));
@@ -230,7 +230,7 @@ namespace dMobile.GroundWork
 
                                 if (results == null || results.Count == 0)
                                 {
-                                    throw new Exception(
+                                    throw new BaseException(
                                         "No results for ActivityItemRefno ." +
                                         refno +
                                         " in tActivityItemCutSheet." +
@@ -363,7 +363,7 @@ namespace dMobile.GroundWork
                                 "Saving finished cut sheet details failed.",
                                 false);
 
-                            throw new Exception(
+                            throw new BaseException(
                                 "Database exception occurred. Saving finished cut sheet details failed." +
                                 Environment.NewLine +
                                 errMsg,

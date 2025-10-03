@@ -172,7 +172,7 @@ namespace dMobile.GroundWork
                                     }
                                     else
                                     {
-                                        throw new Exception(
+                                        throw new BaseException(
                                             "drWhs.Read() failed." + Environment.NewLine + errMsg);
                                     }
 

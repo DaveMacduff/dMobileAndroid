@@ -133,7 +133,7 @@ namespace dMobile.GroundWork
                             EventArgs.Empty,
                             $"Purging {this.LowerCaseName} items failed.",
                             true);
-                        throw new Exception(
+                        throw new BaseException(
                             $"Database exception occurred. Purging {this.LowerCaseName} items failed.",
                             ex);
                     }
@@ -174,7 +174,7 @@ namespace dMobile.GroundWork
             }
             else
             {
-                throw new Exception("drRecv.Read() failed.");
+                throw new BaseException("drRecv.Read() failed.");
             }
 
             return await SendComm(await this.CreateRequest(recvFKRefno));
@@ -383,7 +383,7 @@ namespace dMobile.GroundWork
                                 EventArgs.Empty,
                                 "Saving receiving items failed.",
                                 false);
-                            throw new Exception(
+                            throw new BaseException(
                                 "Database exception occurred. Saving receiving items failed.",
                                 ex);
                         }

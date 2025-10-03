@@ -285,7 +285,7 @@ namespace dMobile.GroundWork
                                 "Saving physical counts failed.",
                                 true);
 
-                            throw new Exception(
+                            throw new BaseException(
                                 "Database exception occurred. Saving physical counts failed.",
                                 ex);
                         }

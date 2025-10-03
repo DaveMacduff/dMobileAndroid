@@ -7,6 +7,7 @@ namespace dMobile.GroundWork
     using System;
     using System.Collections.Generic;
     using System.Data;
+    using System.Globalization;
     using System.Text;
     using System.Threading.Tasks;
     using System.Xml;
@@ -97,14 +98,14 @@ namespace dMobile.GroundWork
                         EventArgs.Empty,
                         $"Purging {this.LowerCaseName} details failed.",
                         true);
-                    throw new Exception(
+                    throw new BaseException(
                         $"Database exception occurred. Purging {this.LowerCaseName} details failed.",
                         sqlEx);
                 }
                 catch (Exception ex)
                 {
                     transaction.Rollback();
-                    throw new Exception($"Database exception occurred. Purging {this.LowerCaseName} details failed.", ex);
+                    throw new BaseException($"Database exception occurred. Purging {this.LowerCaseName} details failed.", ex);
                 }
             });
         }
@@ -162,7 +163,9 @@ namespace dMobile.GroundWork
 
                             whsLocMapRefno = GetWhsLocMapRefnoFromDataRow(drow, transaction);
                             parametersActivityCutSheet.Add(whsLocMapRefno);
-                            var dt = DateTime.Parse(Convert.ToDateTime(drow["ActivityCutSheetDateTime"]).ToShortDateString());
+                            var dt = DateTime.Parse(
+                                Convert.ToDateTime(drow["ActivityCutSheetDateTime"]).ToShortDateString(),
+                                CultureInfo.CurrentCulture);
                             parametersActivityCutSheet.Add(dt);
                             parametersActivityCutSheet.Add(drow["ActivityCutSheetDescription"].ToString());
                             transaction.Execute(queryActivityCutSheet, parametersActivityCutSheet.ToArray());
@@ -210,7 +213,7 @@ namespace dMobile.GroundWork
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving finished cut sheets failed.", false);
 
-                    throw new Exception("Database exception occurred. Saving finished cut sheets failed.", ex);
+                    throw new BaseException("Database exception occurred. Saving finished cut sheets failed.", ex);
                 }
             });
         }

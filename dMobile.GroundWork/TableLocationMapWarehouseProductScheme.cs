@@ -47,12 +47,12 @@ namespace dMobile.GroundWork
             {
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding warehouse product schemes failed.", true);
-                throw new Exception("Database exception occurred. Seeding warehouse product schemes failed.", ex);
+                throw new BaseException("Database exception occurred. Seeding warehouse product schemes failed.", ex);
             }
             catch (Exception ex)
             {
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Seeding warehouse product schemes failed.", true);
-                throw new Exception("Seeding warehouse product schemes failed.", ex);
+                throw new BaseException("Seeding warehouse product schemes failed.", ex);
             }
         }
 
@@ -72,7 +72,7 @@ namespace dMobile.GroundWork
             }
             catch (SQLiteException ex)
             {
-                throw new Exception("Database exception occurred. Warehouse product schemes status failed.", ex);
+                throw new BaseException("Database exception occurred. Warehouse product schemes status failed.", ex);
             }
 
             return rowsAffected;
@@ -97,7 +97,7 @@ namespace dMobile.GroundWork
             {
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging warehouse product schemes failed.", true);
-                throw new Exception("Database exception occurred. Purge warehouse product schemes failed.", ex);
+                throw new BaseException("Database exception occurred. Purge warehouse product schemes failed.", ex);
             }
         }
 

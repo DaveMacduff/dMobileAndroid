@@ -133,14 +133,14 @@ namespace dMobile.GroundWork
                             EventArgs.Empty,
                             "Purging transfer details failed.",
                             true);
-                        throw new Exception(
+                        throw new BaseException(
                             "Database exception occurred. Purging transfer details failed.",
                             sqlEx);
                     }
                     catch (Exception ex)
                     {
                         transaction.Rollback();
-                        throw new Exception(
+                        throw new BaseException(
                             "Database exception occurred. Purging transfer details failed.",
                             ex);
                     }
@@ -171,7 +171,7 @@ namespace dMobile.GroundWork
             }
             else
             {
-                throw new Exception(
+                throw new BaseException(
                     "drItem.Read() failed. " +
                     $"Unable to locate to activity item transfer refno {activityFkRefno} in tActivityItemTransfer.");
             }
@@ -238,7 +238,7 @@ namespace dMobile.GroundWork
                                     if (resultsActivityItemTransfer == null ||
                                         resultsActivityItemTransfer?.Count == 0)
                                     {
-                                        throw new Exception(
+                                        throw new BaseException(
                                             $"Unable to locate the activity item transfer refno {refno} in tActivityItemTransfer." +
                                             Environment.NewLine +
                                             errMsg);
@@ -396,7 +396,7 @@ namespace dMobile.GroundWork
                                 "Saving transfer details failed.",
                                 false);
 
-                            throw new Exception(
+                            throw new BaseException(
                                 "Database exception occurred. Saving transfer details failed." +
                                 Environment.NewLine +
                                 errMsg,

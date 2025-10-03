@@ -113,7 +113,7 @@ namespace dMobile.GroundWork
                             EventArgs.Empty,
                             $"Purging {this.LowerCaseName} items failed.",
                             true);
-                        throw new Exception(
+                        throw new BaseException(
                             $"Database exception occurred. Purging {this.LowerCaseName} items failed.",
                             ex);
                     }
@@ -153,7 +153,7 @@ namespace dMobile.GroundWork
             }
             else
             {
-                throw new Exception(
+                throw new BaseException(
                     "No results in tActivityAdjustment for ActivityRefno " + activityFkRefno);
             }
 
@@ -314,10 +314,10 @@ namespace dMobile.GroundWork
                                 "saving adjustment items failed.",
                                 true);
 
-                            throw new Exception(
+                            throw new BaseException(
                                 "Database exception occurred. Saving adjustment items failed.",
                                 ex);
-                            throw new Exception(
+                            throw new BaseException(
                                 "Database exception occurred. Saving adjustment items failed.",
                                 ex);
                         }

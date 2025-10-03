@@ -59,7 +59,7 @@ namespace dMobile.GroundWork
                     else
                     {
                         var msg = $"No results in tLocationMapWarehouse for LocationMapRefno {whsLocMapRefno}";
-                        throw new Exception(msg);
+                        throw new BaseException(msg);
                     }
                 }
 
@@ -77,7 +77,7 @@ namespace dMobile.GroundWork
                     EventArgs.Empty,
                     $"Seeding {this.LowerCaseName} failed.",
                     suppressStatusOutMessage: true);
-                throw new Exception($"Seeding {this.LowerCaseName} failed.", ex);
+                throw new BaseException($"Seeding {this.LowerCaseName} failed.", ex);
             }
         }
 
@@ -96,7 +96,7 @@ namespace dMobile.GroundWork
             }
             catch (SQLiteException ex)
             {
-                throw new Exception($"Database exception occurred. {this.ProperCaseName} status failed.", ex);
+                throw new BaseException($"Database exception occurred. {this.ProperCaseName} status failed.", ex);
             }
 
             return rowsAffected;
@@ -199,7 +199,7 @@ namespace dMobile.GroundWork
                     var rowsAffected = await conn.ExecuteAsync(query);
                     if (slots.Count != rowsAffected)
                     {
-                        throw new Exception("Failed to insert all rows into tLocationMapSlot");
+                        throw new BaseException("Failed to insert all rows into tLocationMapSlot");
                     }
 
                     // Drop the temporary table

@@ -427,7 +427,7 @@ namespace dMobile.GroundWork
                                 parametersInsertDetail.ToArray());
                             if (rowsAffected <= 0)
                             {
-                                throw new Exception(
+                                throw new BaseException(
                                     "Insert into ActivityDetail failed. Rows affected <= 0");
                             }
 

@@ -142,14 +142,14 @@ namespace dMobile.GroundWork
                             EventArgs.Empty,
                             $"Purging {this.LowerCaseName} details failed.",
                             true);
-                        throw new Exception(
+                        throw new BaseException(
                             $"Database exception occurred. Purging {this.LowerCaseName} details failed.",
                             sqlEx);
                     }
                     catch (Exception ex)
                     {
                         transaction.Rollback();
-                        throw new Exception(
+                        throw new BaseException(
                             $"Database exception occurred. Purging {this.LowerCaseName} details failed.",
                             ex);
                     }
@@ -176,14 +176,14 @@ namespace dMobile.GroundWork
                 }
                 else
                 {
-                    throw new Exception("No results found in tActivityItemProductionByProduct");
+                    throw new BaseException("No results found in tActivityItemProductionByProduct");
                 }
 
                 return await SendComm(await this.CreateRequest(actItemFKRefno));
             }
             catch (SQLiteException ex)
             {
-                throw new Exception(
+                throw new BaseException(
                     "Database Exception occurred. ActivityItemProductionByProductModel Send. ",
                     ex);
             }
@@ -242,7 +242,7 @@ namespace dMobile.GroundWork
 
                                 if (results == null || (results.Count == 0))
                                 {
-                                    throw new Exception(
+                                    throw new BaseException(
                                         "No results found in tActivityItemProduction for ActivityItemRefno " +
                                         refno +
                                         Environment.NewLine +
@@ -375,7 +375,7 @@ namespace dMobile.GroundWork
                                 "Saving ticket add-product details failed.",
                                 false);
 
-                            throw new Exception(
+                            throw new BaseException(
                                 "Database exception occurred. Saving ticket add-product details failed." +
                                 Environment.NewLine +
                                 errMsg,

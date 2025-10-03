@@ -147,7 +147,7 @@ namespace dMobile.GroundWork
             }
             else
             {
-                throw new Exception(
+                throw new BaseException(
                     $"Unable to locate the transfer refno {activityFkRefno} in tActivityTransfer.");
             }
 
@@ -240,7 +240,7 @@ namespace dMobile.GroundWork
 
                                         if (locMapRefno == 0)
                                         {
-                                            throw new Exception(
+                                            throw new BaseException(
                                                 "Unable to indentify the location map reference number.");
                                         }
 
@@ -331,7 +331,7 @@ namespace dMobile.GroundWork
                                 EventArgs.Empty,
                                 "Saving transfer items failed.",
                                 false);
-                            throw new Exception(
+                            throw new BaseException(
                                 "Database exception occurred. Saving transfer items failed.",
                                 ex);
                         }

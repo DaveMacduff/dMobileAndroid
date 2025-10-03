@@ -48,7 +48,7 @@ namespace dMobile.GroundWork
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging warehouses failed.", true);
 
-                throw new Exception("Database exception occurred. Purging warehouses failed.", ex);
+                throw new BaseException("Database exception occurred. Purging warehouses failed.", ex);
             }
         }
 
@@ -70,13 +70,13 @@ namespace dMobile.GroundWork
                 }
                 else
                 {
-                    throw new Exception(
+                    throw new BaseException(
                         $"Unable to locate warehouse refno using the warehouse fk refno {locMapWhsFKRefno} in tLocationMapWarehouse.");
                 }
             }
             catch (SQLiteException ex)
             {
-                throw new Exception("Database exception occurred. GetLocMapWhsRefnoFromLocWhsFKRefno failed.", ex);
+                throw new BaseException("Database exception occurred. GetLocMapWhsRefnoFromLocWhsFKRefno failed.", ex);
             }
 
             return whsLocMapRefno;
@@ -100,13 +100,13 @@ namespace dMobile.GroundWork
                 }
                 else
                 {
-                    throw new Exception(
+                    throw new BaseException(
                         $"Unable to locate warehouse FkRefno using the warehouse refno {locMapWhsRefno} in tLocationMapWarehouse.");
                 }
             }
             catch (SQLiteException ex)
             {
-                throw new Exception("Database exception occurred. GetLocMapWhsFKRefnoFromLocMapWhsRefno failed.", ex);
+                throw new BaseException("Database exception occurred. GetLocMapWhsFKRefnoFromLocMapWhsRefno failed.", ex);
             }
 
             return locMapWhsFKRefno;
@@ -127,7 +127,7 @@ namespace dMobile.GroundWork
             }
             catch (SQLiteException ex)
             {
-                throw new Exception("Database exception occurred. Warehouses status failed.", ex);
+                throw new BaseException("Database exception occurred. Warehouses status failed.", ex);
             }
 
             return rowsAffected;

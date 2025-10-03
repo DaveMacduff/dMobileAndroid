@@ -43,11 +43,11 @@ namespace dMobile.GroundWork
 
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} details failed.", true);
 
-                throw new Exception($"Database exception occurred. Purging {this.LowerCaseName} details failed.", ex);
+                throw new BaseException($"Database exception occurred. Purging {this.LowerCaseName} details failed.", ex);
             }
             catch (Exception ex)
             {
-                throw new Exception($"Exception occurred. Purging {this.LowerCaseName} details failed.", ex);
+                throw new BaseException($"Exception occurred. Purging {this.LowerCaseName} details failed.", ex);
             }
         }
     }

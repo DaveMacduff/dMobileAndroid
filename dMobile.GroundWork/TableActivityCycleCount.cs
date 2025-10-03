@@ -302,7 +302,7 @@ namespace dMobile.GroundWork
                                 "Saving cycle counts failed.",
                                 true);
 
-                            throw new Exception(
+                            throw new BaseException(
                                 "Database exception occurred. Saving cycle counts failed.",
                                 ex);
                         }

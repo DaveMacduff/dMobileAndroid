@@ -68,14 +68,14 @@ namespace dMobile.GroundWork
                     transaction.Rollback();
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} failed.", true);
-                    throw new Exception($"Database exception occurred. Purging {this.LowerCaseName} failed.", ex);
+                    throw new BaseException($"Database exception occurred. Purging {this.LowerCaseName} failed.", ex);
                 }
                 catch (Exception ex)
                 {
                     transaction.Rollback();
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Exception occurred.", true);
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} failed.", true);
-                    throw new Exception($"Exception occurred. Purging {this.LowerCaseName} failed.", ex);
+                    throw new BaseException($"Exception occurred. Purging {this.LowerCaseName} failed.", ex);
                 }
             });
         }

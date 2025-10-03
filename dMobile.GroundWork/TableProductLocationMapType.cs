@@ -68,7 +68,7 @@ namespace dMobile.GroundWork
                     $"Seeding {this.LowerCaseName} failed.",
                     true);
 
-                throw new Exception($"Seeding {this.LowerCaseName} failed.", ex);
+                throw new BaseException($"Seeding {this.LowerCaseName} failed.", ex);
             }
         }
 
@@ -102,7 +102,7 @@ namespace dMobile.GroundWork
                     $"{this.ProperCaseName} status failed.",
                     false);
 
-                throw new Exception(
+                throw new BaseException(
                     $"Database exception occurred. {this.ProperCaseName} status failed.",
                     ex);
             }
@@ -132,7 +132,7 @@ namespace dMobile.GroundWork
                     $"Database exception occurred. Purging {this.LowerCaseName}.",
                     true);
 
-                throw new Exception($"Database exception occurred. Purging {this.LowerCaseName}.", ex);
+                throw new BaseException($"Database exception occurred. Purging {this.LowerCaseName}.", ex);
             }
         }
 
@@ -217,7 +217,7 @@ namespace dMobile.GroundWork
                     var rowsAffected = await conn.ExecuteAsync(query);
                     if (prodLoc.Count != rowsAffected)
                     {
-                        throw new Exception(
+                        throw new BaseException(
                             "Failed to insert all rows into tProductLocationMapType");
                     }
 

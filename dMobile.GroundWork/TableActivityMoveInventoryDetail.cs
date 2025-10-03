@@ -111,12 +111,12 @@ namespace dMobile.GroundWork
                     transaction.Rollback();
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging move inventory details failed.", true);
-                    throw new Exception("Database exception occurred. Purging move inventory details failed.", sqlEx);
+                    throw new BaseException("Database exception occurred. Purging move inventory details failed.", sqlEx);
                 }
                 catch (Exception ex)
                 {
                     transaction.Rollback();
-                    throw new Exception("Database exception occurred. Purging move inventory details failed.", ex);
+                    throw new BaseException("Database exception occurred. Purging move inventory details failed.", ex);
                 }
             });
         }

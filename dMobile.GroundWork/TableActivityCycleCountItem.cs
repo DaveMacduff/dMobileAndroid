@@ -100,7 +100,7 @@ namespace dMobile.GroundWork
                     EventArgs.Empty,
                     $"Purging {this.LowerCaseName} items failed.",
                     true);
-                throw new Exception(
+                throw new BaseException(
                     $"Database exception occurred. Purging {this.LowerCaseName} items failed.",
                     ex);
             }
@@ -140,7 +140,7 @@ namespace dMobile.GroundWork
             }
             else
             {
-                throw new Exception(
+                throw new BaseException(
                     "No results in tActivityCount for ActivityRefno " + activityFkRefno);
             }
 
@@ -238,7 +238,7 @@ namespace dMobile.GroundWork
                         var rowsAffected = await conn.ExecuteAsync(query);
                         if (countItems.Count != rowsAffected)
                         {
-                            throw new Exception("Failed to insert all rows into tActivityItemCount");
+                            throw new BaseException("Failed to insert all rows into tActivityItemCount");
                         }
 
                         // Drop the temporary table
@@ -279,7 +279,7 @@ namespace dMobile.GroundWork
                     "Request physical count items failed.",
                     true);
 
-                throw new Exception(
+                throw new BaseException(
                     "Database exception occurred. Saving cycle count items failed.",
                     ex);
             }

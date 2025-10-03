@@ -150,7 +150,7 @@ namespace dMobile.GroundWork
                             EventArgs.Empty,
                             "Purging adjustment details failed.",
                             true);
-                        throw new Exception(
+                        throw new BaseException(
                             $"Database exception occurred. Purging {this.LowerCaseName} details failed.",
                             sqlEx);
                     }
@@ -161,7 +161,7 @@ namespace dMobile.GroundWork
                             transaction.Rollback();
                         }
 
-                        throw new Exception(
+                        throw new BaseException(
                             $"Exception occurred. Purging {this.LowerCaseName} details failed.",
                             ex);
                     }
@@ -188,7 +188,7 @@ namespace dMobile.GroundWork
                 activityFkRefno);
             if (results.Count <= 0)
             {
-                throw new Exception(
+                throw new BaseException(
                     $"Unable to find {activityFkRefno} in tActivityItemAdjustment.");
             }
 
@@ -247,7 +247,7 @@ namespace dMobile.GroundWork
                                 errMsg =
                                     "No results in tActivityItemAdjustment for ActivityItemRefno " +
                                     refno.ToString();
-                                throw new Exception(errMsg);
+                                throw new BaseException(errMsg);
                             }
 
                             // Iterate through the detail rows and insert them.
@@ -312,7 +312,7 @@ namespace dMobile.GroundWork
                             "Saving adjustment details failed.",
                             true);
 
-                        throw new Exception(
+                        throw new BaseException(
                             "Database exception occurred. Saving adjustment details failed." +
                             Environment.NewLine +
                             errMsg,
@@ -403,7 +403,7 @@ namespace dMobile.GroundWork
                     }
                     else
                     {
-                        throw new Exception("drSchemeVar.Read() failed.");
+                        throw new BaseException("drSchemeVar.Read() failed.");
                     }
                 }
             }
@@ -533,7 +533,7 @@ namespace dMobile.GroundWork
 
                 if (locMapRefno == 0)
                 {
-                    throw new Exception(
+                    throw new BaseException(
                         string.Format(
                             "Unable to identify the location map reference number. {0}Whs FK Refno" +
                             " {1}{2}Section FK Refno {3}{4} Slot FK Refno {5}",
@@ -634,7 +634,7 @@ namespace dMobile.GroundWork
 
             const string errMsg =
                 "The created request activity detail xml string length has a zero length.";
-            request = request.Length <= 0 ? throw new Exception(errMsg) : request;
+            request = request.Length <= 0 ? throw new BaseException(errMsg) : request;
 
             return request.ToString();
         }

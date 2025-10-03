@@ -123,14 +123,14 @@ namespace dMobile.GroundWork
                             EventArgs.Empty,
                             $"Purging {this.LowerCaseName} details failed.",
                             true);
-                        throw new Exception(
+                        throw new BaseException(
                             $"Database exception occurred. Purging {this.LowerCaseName} details failed.",
                             sqlEx);
                     }
                     catch (Exception ex)
                     {
                         transaction.Rollback();
-                        throw new Exception(
+                        throw new BaseException(
                             $"Database exception occurred. Purging {this.LowerCaseName} details failed.",
                             ex);
                     }
@@ -152,7 +152,7 @@ namespace dMobile.GroundWork
             }
             else
             {
-                throw new Exception(
+                throw new BaseException(
                     "No results in tActivityProductionMaterial for ActivityRefno " +
                     activityFkRefno.ToString() +
                     "Send");
@@ -328,7 +328,7 @@ namespace dMobile.GroundWork
                                 EventArgs.Empty,
                                 "Saving ticket material items failed.",
                                 false);
-                            throw new Exception(
+                            throw new BaseException(
                                 "Database exception occurred. Saving ticket material items failed.",
                                 ex);
                         }

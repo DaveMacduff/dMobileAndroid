@@ -137,14 +137,14 @@ namespace dMobile.GroundWork
                             EventArgs.Empty,
                             $"Purging {this.LowerCaseName} details failed.",
                             true);
-                        throw new Exception(
+                        throw new BaseException(
                             $"Database exception occurred. Purging {this.LowerCaseName} details failed.",
                             sqlEx);
                     }
                     catch (Exception ex)
                     {
                         transaction.Rollback();
-                        throw new Exception(
+                        throw new BaseException(
                             $"Database exception occurred. Purging {this.LowerCaseName} details failed.",
                             ex);
                     }
@@ -177,7 +177,7 @@ namespace dMobile.GroundWork
                 }
                 else
                 {
-                    throw new Exception(
+                    throw new BaseException(
                         "No results in tActivityItemCount for ActivityItemRefno " +
                         activityFkRefno);
                 }
@@ -186,7 +186,7 @@ namespace dMobile.GroundWork
             }
             catch (SQLiteException ex)
             {
-                throw new Exception(
+                throw new BaseException(
                     "Database exception occurred. Send cycle count details failed. ",
                     ex);
             }
@@ -249,7 +249,7 @@ namespace dMobile.GroundWork
                                     if (countItems == null ||
                                         (countItems != null && countItems.Count == 0))
                                     {
-                                        throw new Exception("drItemCount.Read() failed.");
+                                        throw new BaseException("drItemCount.Read() failed.");
                                     }
 
                                     foreach (DataRow drow in ds.Tables["tActivityDetailCount"].Rows)
@@ -383,7 +383,7 @@ namespace dMobile.GroundWork
                                 "Saving cycle count details failed.",
                                 true);
 
-                            throw new Exception(
+                            throw new BaseException(
                                 "Database exception occurred. Saving cycle count details failed." +
                                 Environment.NewLine +
                                 errMsg,

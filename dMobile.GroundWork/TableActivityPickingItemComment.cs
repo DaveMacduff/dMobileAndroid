@@ -42,7 +42,7 @@ namespace dMobile.GroundWork
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purge sales order item comments failed.", true);
 
-                throw new Exception("Database exception occurred. Purging sales order item comments failed.", ex);
+                throw new BaseException("Database exception occurred. Purging sales order item comments failed.", ex);
             }
         }
     }

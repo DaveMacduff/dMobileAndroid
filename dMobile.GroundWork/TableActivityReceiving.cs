@@ -260,7 +260,7 @@ namespace dMobile.GroundWork
                                 EventArgs.Empty,
                                 "Saving receiving failed.",
                                 false);
-                            throw new Exception(
+                            throw new BaseException(
                                 "Database exception occurred. Saving receiving failed.",
                                 ex);
                         }

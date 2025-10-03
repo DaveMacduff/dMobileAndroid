@@ -144,14 +144,14 @@ namespace dMobile.GroundWork
                             EventArgs.Empty,
                             $"Purging {this.LowerCaseName} details failed.",
                             true);
-                        throw new Exception(
+                        throw new BaseException(
                             $"Database exception occurred. Purging {this.LowerCaseName} details failed.",
                             sqlEx);
                     }
                     catch (Exception ex)
                     {
                         transaction.Rollback();
-                        throw new Exception(
+                        throw new BaseException(
                             $"Database exception occurred. Purging {this.LowerCaseName} details failed.",
                             ex);
                     }
@@ -182,7 +182,7 @@ namespace dMobile.GroundWork
             }
             else
             {
-                throw new Exception("drItemReturns.Read() failed.");
+                throw new BaseException("drItemReturns.Read() failed.");
             }
 
             return await SendComm(await this.CreateRequest(actItemRetFKRefno));
@@ -243,7 +243,7 @@ namespace dMobile.GroundWork
                                 if (results == null ||
                                     results?.Count == 0)
                                 {
-                                    throw new Exception(
+                                    throw new BaseException(
                                         "No results in tActivityItemReturns for ActivityItemRefno " +
                                         refno.ToString());
                                 }
@@ -373,7 +373,7 @@ namespace dMobile.GroundWork
                                 "Saving sales return details failed.",
                                 false);
 
-                            throw new Exception(
+                            throw new BaseException(
                                 "Database exception occurred. Saving sales return details failed." +
                                 Environment.NewLine +
                                 errMsg,

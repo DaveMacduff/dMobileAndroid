@@ -39,7 +39,7 @@ namespace dMobile.GroundWork
             catch (Exception ex)
             {
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Seeding {this.LowerCaseName} failed.", true);
-                throw new Exception($"Seeding {this.LowerCaseName} failed.", ex);
+                throw new BaseException($"Seeding {this.LowerCaseName} failed.", ex);
             }
         }
 
@@ -70,7 +70,7 @@ namespace dMobile.GroundWork
         //              }
         //              else
         //              {
-        //                throw new Exception(
+        //                throw new BaseException(
         // #if MULTILANGUAGE
         //                    Translator.GetInstance().Translate(TranslatorVocabulary.DrschemereadFailed) + Environment.NewLine + Translator.GetInstance().Translate(TranslatorVocabulary.SchemeCode) + schemeCode + "\'");
         // #else
@@ -80,7 +80,7 @@ namespace dMobile.GroundWork
         //            }
         //            else
         //            {
-        //              throw new Exception(
+        //              throw new BaseException(
         // #if MULTILANGUAGE
         //                  Translator.GetInstance().Translate(TranslatorVocabulary.UnableToLocateTheProductSchemeCodeInTproductscheme)
         //                  + Environment.NewLine + Translator.GetInstance().Translate(TranslatorVocabulary.SchemeCode) + schemeCode + "\'");
@@ -97,9 +97,9 @@ namespace dMobile.GroundWork
         //      catch (SQLiteException ex)
         //      {
         // #if MULTILANGUAGE
-        //        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredGetprodschemerefnofromprodschemecodeFailed), ex);
+        //        throw new BaseException(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredGetprodschemerefnofromprodschemecodeFailed), ex);
         // #else
-        //        throw new Exception("Database exception occurred. GetProdSchemeRefnoFromProdSchemeCode failed.", ex);
+        //        throw new BaseException("Database exception occurred. GetProdSchemeRefnoFromProdSchemeCode failed.", ex);
         // #endif
         //      }
 
@@ -122,7 +122,7 @@ namespace dMobile.GroundWork
             }
             catch (SQLiteException ex)
             {
-                throw new Exception($"Database exception occurred. {this.ProperCaseName} status failed.", ex);
+                throw new BaseException($"Database exception occurred. {this.ProperCaseName} status failed.", ex);
             }
 
             return rowsAffected;
@@ -148,7 +148,7 @@ namespace dMobile.GroundWork
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} failed.", true);
 
-                throw new Exception($"Database exception occurred. Purge {this.LowerCaseName} failed.", ex);
+                throw new BaseException($"Database exception occurred. Purge {this.LowerCaseName} failed.", ex);
             }
         }
 

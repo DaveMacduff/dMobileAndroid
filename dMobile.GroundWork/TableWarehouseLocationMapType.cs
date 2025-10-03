@@ -59,7 +59,7 @@ namespace dMobile.GroundWork
                     $"Seeding {this.LowerCaseName} failed.",
                     true);
 
-                throw new Exception($"Seeding {this.LowerCaseName} failed.", ex);
+                throw new BaseException($"Seeding {this.LowerCaseName} failed.", ex);
             }
 
             return;
@@ -75,7 +75,7 @@ namespace dMobile.GroundWork
                 {
                     var reqErr = new XmlDocument();
                     reqErr.LoadXml(responseData);
-                    throw new Exception(reqErr.DocumentElement!["detail"]!.InnerText);
+                    throw new BaseException(reqErr.DocumentElement!["detail"]!.InnerText);
                 }
 
                 await this.Save(responseData);
@@ -92,7 +92,7 @@ namespace dMobile.GroundWork
                 {
                     var reqErr = new XmlDocument();
                     reqErr.LoadXml(responseData);
-                    throw new Exception(reqErr.DocumentElement!["detail"] !.InnerText);
+                    throw new BaseException(reqErr.DocumentElement!["detail"] !.InnerText);
                 }
 
                 await this.Save(responseData);
@@ -109,7 +109,7 @@ namespace dMobile.GroundWork
                 {
                     var reqErr = new XmlDocument();
                     reqErr.LoadXml(responseData);
-                    throw new Exception(reqErr.DocumentElement["detail"].InnerText);
+                    throw new BaseException(reqErr.DocumentElement["detail"].InnerText);
                 }
 
                 await this.Save(responseData);
@@ -149,7 +149,7 @@ namespace dMobile.GroundWork
                     "warehouse locations status failed.",
                     false);
 
-                throw new Exception(
+                throw new BaseException(
                     "Database exception occurred. Warehouse location status failed.",
                     ex);
             }
@@ -186,7 +186,7 @@ namespace dMobile.GroundWork
                     "Purging warehouse locations.",
                     true);
 
-                throw new Exception(
+                throw new BaseException(
                     "Database exception occurred. Purging warehouse locations.",
                     ex);
             }
@@ -258,7 +258,7 @@ namespace dMobile.GroundWork
                     var rowsAffected = await conn.ExecuteAsync(query);
                     if (whsTypes.Count != rowsAffected)
                     {
-                        throw new Exception("Failed to insert all rows into tLocationMapSlot");
+                        throw new BaseException("Failed to insert all rows into tLocationMapSlot");
                     }
 
                     // Drop the temporary table

@@ -123,14 +123,14 @@ namespace dMobile.GroundWork
                             EventArgs.Empty,
                             $"Purging {this.LowerCaseName} details failed.",
                             true);
-                        throw new Exception(
+                        throw new BaseException(
                             $"Database exception occurred. Purging {this.LowerCaseName} details failed.",
                             sqlEx);
                     }
                     catch (Exception ex)
                     {
                         transaction.Rollback();
-                        throw new Exception(
+                        throw new BaseException(
                             $"Database exception occurred. Purging {this.LowerCaseName} details failed.",
                             ex);
                     }
@@ -152,7 +152,7 @@ namespace dMobile.GroundWork
             }
             else
             {
-                throw new Exception("drFinished.Read() failed.");
+                throw new BaseException("drFinished.Read() failed.");
             }
 
             return await SendComm(await this.CreateRequest(actProductionFKRefno));
@@ -320,7 +320,7 @@ namespace dMobile.GroundWork
                                 "Saving finished ticket items failed.",
                                 false);
 
-                            throw new Exception(
+                            throw new BaseException(
                                 "Database exception occurred. Saving finished ticket items failed.",
                                 ex);
                         }

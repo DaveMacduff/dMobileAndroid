@@ -284,7 +284,7 @@ namespace dMobile.GroundWork
                                 "Saving transfers to failed.",
                                 false);
 
-                            throw new Exception(
+                            throw new BaseException(
                                 "Database exception occurred. Saving transfers to failed.",
                                 ex);
                         }

@@ -45,7 +45,7 @@ namespace dMobile.GroundWork
             catch (Exception ex)
             {
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Seeding {this.LowerCaseName} failed.", true);
-                throw new Exception($"Seeding {this.LowerCaseName} failed.", ex);
+                throw new BaseException($"Seeding {this.LowerCaseName} failed.", ex);
             }
         }
 
@@ -77,15 +77,15 @@ namespace dMobile.GroundWork
         //              else
         //              {
         // #if MULTILANGUAGE
-        //                throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DrroutereadFailed));
+        //                throw new BaseException(Translator.GetInstance().Translate(TranslatorVocabulary.DrroutereadFailed));
         // #else
-        //                throw new Exception("drRoute.Read() failed.");
+        //                throw new BaseException("drRoute.Read() failed.");
         // #endif
         //              }
         //            }
         //            else
         //            {
-        //              throw new Exception(
+        //              throw new BaseException(
         // #if MULTILANGUAGE
         //                string.Format(Translator.GetInstance().Translate(TranslatorVocabulary.UnableToLocateRouteRefnoFromRouteCodeInTroute), routeCode));
         // #else
@@ -100,9 +100,9 @@ namespace dMobile.GroundWork
         //      catch (SQLiteException ex)
         //      {
         // #if MULTILANGUAGE
-        //        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredGetirouterefnofromroutecodeFailed), ex);
+        //        throw new BaseException(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredGetirouterefnofromroutecodeFailed), ex);
         // #else
-        //        throw new Exception("Database exception occurred. GetiRouteRefnoFromRouteCode failed.", ex);
+        //        throw new BaseException("Database exception occurred. GetiRouteRefnoFromRouteCode failed.", ex);
         // #endif
         //      }
 
@@ -124,7 +124,7 @@ namespace dMobile.GroundWork
             }
             catch (SQLiteException ex)
             {
-                throw new Exception("Database exception occurred. Routes status failed.", ex);
+                throw new BaseException("Database exception occurred. Routes status failed.", ex);
             }
 
             return rowsAffected;
@@ -148,7 +148,7 @@ namespace dMobile.GroundWork
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging routes failed.", true);
 
-                throw new Exception("Database exception occurred. Purging routes failed.", ex);
+                throw new BaseException("Database exception occurred. Purging routes failed.", ex);
             }
         }
 

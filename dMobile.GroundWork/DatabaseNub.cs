@@ -344,7 +344,7 @@ namespace dMobile.GroundWork
             if (result != CreateTableResult.Created)
             {
                 // Throw an exception if the table creation failed.
-                throw new Exception("Failed to create table ActivityDetailExtraModel");
+                throw new BaseException("Failed to create table ActivityDetailExtraModel");
             }
         }
 

@@ -145,7 +145,7 @@ namespace dMobile.GroundWork
                             EventArgs.Empty,
                             $"Purging {this.LowerCaseName} failed.",
                             true);
-                        throw new Exception(
+                        throw new BaseException(
                             $"Database exception occurred. Purging {this.LowerCaseName} failed.",
                             ex);
                     }
@@ -186,7 +186,7 @@ namespace dMobile.GroundWork
             }
             else
             {
-                throw new Exception("drReturns.Read() failed.");
+                throw new BaseException("drReturns.Read() failed.");
             }
 
             return await SendComm(await this.CreateRequest(returnsFKRefno));
@@ -368,7 +368,7 @@ namespace dMobile.GroundWork
                                 "Saving sales return items failed.",
                                 false);
 
-                            throw new Exception(
+                            throw new BaseException(
                                 "Database exception occurred. Saving sales return items failed.",
                                 ex);
                         }

@@ -145,14 +145,14 @@ namespace dMobile.GroundWork
                             EventArgs.Empty,
                             $"Purging {this.LowerCaseName} details failed.",
                             true);
-                        throw new Exception(
+                        throw new BaseException(
                             $"Database exception occurred. Purging {this.LowerCaseName} details failed.",
                             sqlEx);
                     }
                     catch (Exception ex)
                     {
                         transaction.Rollback();
-                        throw new Exception(
+                        throw new BaseException(
                             $"Database exception occurred. Purging {this.LowerCaseName} details failed.",
                             ex);
                     }
@@ -178,7 +178,7 @@ namespace dMobile.GroundWork
                 activityFkRefno);
             if (results.Count <= 0)
             {
-                throw new Exception($"Unable to find {activityFkRefno} in tActivityItemReceiving.");
+                throw new BaseException($"Unable to find {activityFkRefno} in tActivityItemReceiving.");
             }
 
             var request = await this.CreateRequest(results[0].ActivityItemFKRefno);
@@ -232,7 +232,7 @@ namespace dMobile.GroundWork
                                     errMsg =
                                         "No results in tActivityItemReceiving for ActivityItemRefno " +
                                         refno.ToString();
-                                    throw new Exception(errMsg);
+                                    throw new BaseException(errMsg);
                                 }
 
                                 var currentRow = 0;
@@ -302,7 +302,7 @@ namespace dMobile.GroundWork
                                     {
                                         errMsg =
                                             "Insert into ActivityDetail failed. Rows affected <= 0";
-                                        throw new Exception(errMsg);
+                                        throw new BaseException(errMsg);
                                     }
 
                                     var actDetailRefno = Convert.ToInt32(
@@ -312,7 +312,7 @@ namespace dMobile.GroundWork
                                     {
                                         errMsg =
                                             "Failed to find row id after activity detail insert.";
-                                        throw new Exception(errMsg);
+                                        throw new BaseException(errMsg);
                                     }
 
                                     var detailFkRefno =
@@ -330,7 +330,7 @@ namespace dMobile.GroundWork
                                     {
                                         errMsg =
                                             "Insert into ActivityDetailReceiving failed. Rows affected <= 0";
-                                        throw new Exception(errMsg);
+                                        throw new BaseException(errMsg);
                                     }
 
                                     SaveCommonDetailVariant(
@@ -382,7 +382,7 @@ namespace dMobile.GroundWork
                                 "Saving receiving details failed.",
                                 true);
 
-                            throw new Exception(
+                            throw new BaseException(
                                 "Database exception occurred. Saving receiving details failed." +
                                 Environment.NewLine +
                                 errMsg,
@@ -443,7 +443,7 @@ namespace dMobile.GroundWork
 
             const string errMsg =
                 "The created request activity detail xml string length has a zero length.";
-            request = request.Length <= 0 ? throw new Exception(errMsg) : request;
+            request = request.Length <= 0 ? throw new BaseException(errMsg) : request;
 
             return request.ToString();
         }

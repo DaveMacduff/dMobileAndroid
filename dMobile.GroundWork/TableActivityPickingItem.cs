@@ -150,7 +150,7 @@ namespace dMobile.GroundWork
                 else
                 {
                     var msg = $"No results in tActivityPicking for ActivityRefno {activityFkRefno}";
-                    throw new Exception(msg);
+                    throw new BaseException(msg);
                 }
 
                 response =
@@ -158,13 +158,13 @@ namespace dMobile.GroundWork
             }
             catch (SQLiteException sqlEx)
             {
-                throw new Exception(
+                throw new BaseException(
                     "Database exception occurred. Unable to get the sales order items.",
                     sqlEx);
             }
             catch (Exception ex)
             {
-                throw new Exception(
+                throw new BaseException(
                     "Database exception occurred. Unable to get the sales order items.",
                     ex);
             }

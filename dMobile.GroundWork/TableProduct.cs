@@ -59,13 +59,13 @@ namespace dMobile.GroundWork
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Seeding {this.LowerCaseName} failed.", true);
 
-                throw new Exception($"Database exception occurred. Seeding {this.LowerCaseName} failed.", ex);
+                throw new BaseException($"Database exception occurred. Seeding {this.LowerCaseName} failed.", ex);
             }
             catch (Exception ex)
             {
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Seeding {this.LowerCaseName} failed.", true);
 
-                throw new Exception($"Seeding {this.LowerCaseName} failed.", ex);
+                throw new BaseException($"Seeding {this.LowerCaseName} failed.", ex);
             }
         }
 
@@ -87,7 +87,7 @@ namespace dMobile.GroundWork
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} failed.", true);
 
-                throw new Exception($"Database exception occurred. Purging {this.LowerCaseName} failed.", ex);
+                throw new BaseException($"Database exception occurred. Purging {this.LowerCaseName} failed.", ex);
             }
         }
 
@@ -109,13 +109,13 @@ namespace dMobile.GroundWork
                 }
                 else
                 {
-                    throw new Exception(
+                    throw new BaseException(
                         $"Unable to locate product Refno from {this.LowerCaseName} FK Refno {prodFKRefno} in tProduct");
                 }
             }
             catch (SQLiteException ex)
             {
-                throw new Exception("Database exception occurred. GetProdRefnoFromProdFKRefno failed.", ex);
+                throw new BaseException("Database exception occurred. GetProdRefnoFromProdFKRefno failed.", ex);
             }
 
             return prodRefno;
@@ -136,7 +136,7 @@ namespace dMobile.GroundWork
             }
             catch (SQLiteException ex)
             {
-                throw new Exception($"Database exception occurred. {this.ProperCaseName} status failed.", ex);
+                throw new BaseException($"Database exception occurred. {this.ProperCaseName} status failed.", ex);
             }
 
             return rowsAffected;
@@ -225,7 +225,7 @@ namespace dMobile.GroundWork
                     var rowsAffected = await conn.ExecuteAsync(query);
                     if (products.Count != rowsAffected)
                     {
-                        throw new Exception("Failed to insert all rows into tProduct");
+                        throw new BaseException("Failed to insert all rows into tProduct");
                     }
 
                     // Drop the temporary table

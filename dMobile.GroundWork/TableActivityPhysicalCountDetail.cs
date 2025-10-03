@@ -118,12 +118,12 @@ namespace dMobile.GroundWork
                     transaction.Rollback();
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} details failed.", true);
-                    throw new Exception($"Database exception occurred. Purging {this.LowerCaseName} details failed.", sqlEx);
+                    throw new BaseException($"Database exception occurred. Purging {this.LowerCaseName} details failed.", sqlEx);
                 }
                 catch (Exception ex)
                 {
                     transaction.Rollback();
-                    throw new Exception($"Database exception occurred. Purging {this.LowerCaseName} details failed.", ex);
+                    throw new BaseException($"Database exception occurred. Purging {this.LowerCaseName} details failed.", ex);
                 }
             });
         }
@@ -152,7 +152,7 @@ namespace dMobile.GroundWork
             }
             else
             {
-                throw new Exception("No results in tActivityItemCount for ActivityItemRefno " + activityFkRefno);
+                throw new BaseException("No results in tActivityItemCount for ActivityItemRefno " + activityFkRefno);
             }
 
             return await SendComm(await this.CreateRequest(actItemCountFkRefno));
@@ -189,7 +189,7 @@ namespace dMobile.GroundWork
 
                             if (resultCountItems == null || (resultCountItems != null && resultCountItems.Count == 0))
                             {
-                                throw new Exception("drItemCount.Read() failed.");
+                                throw new BaseException("drItemCount.Read() failed.");
                             }
 
                             foreach (DataRow drow in ds.Tables["tActivityDetailCount"].Rows)
@@ -266,7 +266,7 @@ namespace dMobile.GroundWork
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving physical count details failed.", true);
 
-                    throw new Exception("Database exception occurred. Saving physical count details failed." + Environment.NewLine + errMsg, ex);
+                    throw new BaseException("Database exception occurred. Saving physical count details failed." + Environment.NewLine + errMsg, ex);
                 }
             });
         }

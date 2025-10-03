@@ -45,7 +45,7 @@ namespace dMobile.GroundWork
             catch (Exception ex)
             {
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Seeding {this.LowerCaseName} failed.", true);
-                throw new Exception($"Seeding {this.LowerCaseName} failed.", ex);
+                throw new BaseException($"Seeding {this.LowerCaseName} failed.", ex);
             }
         }
 
@@ -68,7 +68,7 @@ namespace dMobile.GroundWork
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} failed.", true);
 
-                throw new Exception($"Database exception occurred. Purging {this.LowerCaseName} failed.", ex);
+                throw new BaseException($"Database exception occurred. Purging {this.LowerCaseName} failed.", ex);
             }
         }
 
@@ -87,7 +87,7 @@ namespace dMobile.GroundWork
             }
             catch (SQLiteException ex)
             {
-                throw new Exception($"Database exception occurred. {this.ProperCaseName} status failed.", ex);
+                throw new BaseException($"Database exception occurred. {this.ProperCaseName} status failed.", ex);
             }
 
             return rowsAffected;
@@ -169,7 +169,7 @@ namespace dMobile.GroundWork
                         var rowsAffected = await conn.ExecuteAsync(query);
                         if (barcodes.Count != rowsAffected)
                         {
-                            throw new Exception("Failed to insert all rows into tProductUnitBarCode");
+                            throw new BaseException("Failed to insert all rows into tProductUnitBarCode");
                         }
                     }
                     catch (SQLiteException sqlEx)
@@ -204,7 +204,7 @@ namespace dMobile.GroundWork
                             {
                                 if (sqlEx2.Message.Contains("UNIQUE constraint failed"))
                                 {
-                                    throw new Exception($"Seeding {this.LowerCaseName} failed. Duplicate {barCodeInfo}");
+                                    throw new BaseException($"Seeding {this.LowerCaseName} failed. Duplicate {barCodeInfo}");
                                 }
                                 else
                                 {

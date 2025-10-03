@@ -6,6 +6,7 @@ namespace dMobile.GroundWork
 {
     using System;
     using System.Data;
+    using System.Globalization;
     using System.Text;
     using System.Threading.Tasks;
     using System.Xml;
@@ -107,14 +108,14 @@ namespace dMobile.GroundWork
                             EventArgs.Empty,
                             $"Purging {this.LowerCaseName} details failed.",
                             true);
-                        throw new Exception(
+                        throw new BaseException(
                             $"Database exception occurred. Purging {this.LowerCaseName} details failed.",
                             sqlEx);
                     }
                     catch (Exception ex)
                     {
                         transaction.Rollback();
-                        throw new Exception(
+                        throw new BaseException(
                             $"Database exception occurred. Purging {this.LowerCaseName} details failed.",
                             ex);
                     }
@@ -202,7 +203,7 @@ namespace dMobile.GroundWork
                                         actRefno,
                                         Convert.ToInt32(SysCommon.ActSubTypes.CutSheetMaterial),
                                         whsLocMapRefno,
-                                        DateTime.Parse(dt.ToShortDateString()),
+                                        DateTime.Parse(dt.ToShortDateString(), CultureInfo.CurrentCulture),
                                         Convert.ToString(drow["ActivityCutSheetDescription"])
                                     };
 
@@ -274,7 +275,7 @@ namespace dMobile.GroundWork
                                 EventArgs.Empty,
                                 "Saving sheet materials failed.",
                                 false);
-                            throw new Exception(
+                            throw new BaseException(
                                 "Database exception occurred. Saving cut sheet materials failed.",
                                 ex);
                         }

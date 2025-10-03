@@ -58,7 +58,7 @@ namespace dMobile.GroundWork
                     EventArgs.Empty,
                     $"Seeding {this.LowerCaseName} failed.",
                     true);
-                throw new Exception($"Seeding {this.LowerCaseName} failed.", ex);
+                throw new BaseException($"Seeding {this.LowerCaseName} failed.", ex);
             }
         }
 
@@ -98,7 +98,7 @@ namespace dMobile.GroundWork
                     "Purging location map types failed.",
                     true);
 
-                throw new Exception(
+                throw new BaseException(
                     "Database exception occurred. Purging location map types failed.",
                     ex);
             }
@@ -125,7 +125,7 @@ namespace dMobile.GroundWork
             }
             catch (SQLiteException ex)
             {
-                throw new Exception(
+                throw new BaseException(
                     "Database exception occurred. Location map types status failed.",
                     ex);
             }
@@ -184,7 +184,7 @@ namespace dMobile.GroundWork
                     ////    case SysCommon.LocMapTypes.IsTracked:
                     ////        break;
                     ////    default:
-                    ////        throw new Exception($"Undefined location map type {locMapType}");
+                    ////        throw new BaseException($"Undefined location map type {locMapType}");
                     ////}
 
                     var locMapFkRefno = Convert.ToInt32(row["LocationMapFKRefno"]);
@@ -238,7 +238,7 @@ namespace dMobile.GroundWork
                 if (result == null)
                 {
                     var msg = $"Unable to find foreign key {locMapFkRefno} in warehouses.";
-                    throw new Exception(msg);
+                    throw new BaseException(msg);
                 }
 
                 return result.LocationMapRefno;
@@ -255,7 +255,7 @@ namespace dMobile.GroundWork
                 if (result == null)
                 {
                     var msg = $"Unable to find foreign key {locMapFkRefno} in sections.";
-                    throw new Exception(msg);
+                    throw new BaseException(msg);
                 }
 
                 return result.LocationMapRefno;
@@ -272,7 +272,7 @@ namespace dMobile.GroundWork
                 if (result == null)
                 {
                     var msg = $"Unable to find foreign key {locMapFkRefno} in slots.";
-                    throw new Exception(msg);
+                    throw new BaseException(msg);
                 }
 
                 return result.LocationMapRefno;

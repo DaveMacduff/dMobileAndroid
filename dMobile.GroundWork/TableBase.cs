@@ -476,7 +476,7 @@ namespace dMobile.GroundWork
                     {
                         var reqErr = new XmlDocument();
                         reqErr.LoadXml(reqData);
-                        throw new Exception(reqErr.DocumentElement?["detail"] !.InnerText);
+                        throw new BaseException(reqErr.DocumentElement?["detail"] !.InnerText);
                     }
 
                     await this.Save(reqData);
@@ -495,7 +495,7 @@ namespace dMobile.GroundWork
                     EventArgs.Empty,
                     $"Seeding {this.LowerCaseName} failed.",
                     true);
-                throw new Exception($"Seeding {this.LowerCaseName} failed.", ex);
+                throw new BaseException($"Seeding {this.LowerCaseName} failed.", ex);
             }
         }
 
@@ -521,7 +521,7 @@ namespace dMobile.GroundWork
             }
             catch (SQLiteException ex)
             {
-                throw new Exception(
+                throw new BaseException(
                     $"Database exception occurred. {this.ProperCaseName} status failed.",
                     ex);
             }
@@ -567,7 +567,7 @@ namespace dMobile.GroundWork
                     EventArgs.Empty,
                     $"Data status {this.LowerCaseName} items failed.",
                     true);
-                throw new Exception(
+                throw new BaseException(
                     $"Database exception occurred. {this.ProperCaseName} items status failed.",
                     ex);
             }
@@ -608,7 +608,7 @@ namespace dMobile.GroundWork
             }
             catch (SQLiteException ex)
             {
-                throw new Exception(
+                throw new BaseException(
                     $"Database exception occurred. {this.ProperCaseName} details status failed.",
                     ex);
             }
@@ -694,14 +694,14 @@ namespace dMobile.GroundWork
                         results[0].ProductSchemeVariantRefno);
                     if (rowsAffected <= 0)
                     {
-                        throw new Exception(
+                        throw new BaseException(
                             "Insert into activity detail product scheme variant xref returned rows" +
                             " affected <= 0.");
                     }
                 }
                 else
                 {
-                    throw new Exception(
+                    throw new BaseException(
                         $"Unable to locate product scheme no {schemeVariantNo} in tProductSchemeVariant");
                 }
             }
@@ -773,7 +773,7 @@ namespace dMobile.GroundWork
             var rowsAffected = conn.Execute(query, parameters.ToArray());
             if (rowsAffected <= 0)
             {
-                throw new Exception("Insert into activity detail extra return rows affected <= 0.");
+                throw new BaseException("Insert into activity detail extra return rows affected <= 0.");
             }
         }
 
@@ -854,7 +854,7 @@ namespace dMobile.GroundWork
                 var msg = $"Unable to identify the location map reference number. {Environment.NewLine}" +
                           $"Whs FK Refno {locMapWhsFkRefno}{Environment.NewLine}Section" +
                           $" FK Refno {locMapSectFkRefno}{Environment.NewLine} Slot FK Refno {locMapSlotFkRefno}";
-                throw new Exception(msg);
+                throw new BaseException(msg);
             }
 
             return Convert.ToInt32(locMapRefno);
@@ -930,7 +930,7 @@ namespace dMobile.GroundWork
             var msg = $"Unable to identify the location map reference number. {Environment.NewLine}" +
                       $"Whs FK Refno {locMapWhsFkRefno}{Environment.NewLine}Section" +
                       $" FK Refno {locMapSectFkRefno}{Environment.NewLine} Slot FK Refno {locMapSlotFkRefno}";
-            throw new Exception(msg);
+            throw new BaseException(msg);
 
             static async Task<int> GetLocationMapRefnoAsync(SQLiteAsyncConnection conn, string query, int fkRefno)
             {
@@ -1075,12 +1075,12 @@ namespace dMobile.GroundWork
             }
             else
             {
-                throw new Exception("No query result was returned.");
+                throw new BaseException("No query result was returned.");
             }
 
             if (locMapRefno == 0)
             {
-                throw new Exception(
+                throw new BaseException(
                     "Unable to locate the location map reference number.");
             }
 
@@ -1108,12 +1108,12 @@ namespace dMobile.GroundWork
             }
             else
             {
-                throw new Exception("No query result was returned.");
+                throw new BaseException("No query result was returned.");
             }
 
             if (locMapRefno == 0)
             {
-                throw new Exception(
+                throw new BaseException(
                     "Unable to locate the location map reference number.");
             }
 
@@ -1160,7 +1160,7 @@ namespace dMobile.GroundWork
             }
             else
             {
-                throw new Exception(
+                throw new BaseException(
                     "drProduct.Read() failed. Unable to locate the product refno from the product foreign key" +
                     " reference number in tProduct.");
             }
@@ -1176,7 +1176,7 @@ namespace dMobile.GroundWork
             }
             else
             {
-                throw new Exception("drUnit.Read() failed.");
+                throw new BaseException("drUnit.Read() failed.");
             }
 
             var productUnitResults = conn.Query<ProductUnitModel>(
@@ -1193,7 +1193,7 @@ namespace dMobile.GroundWork
             }
             else
             {
-                throw new Exception(
+                throw new BaseException(
                     "drProdUnit.Read() failed. Unable to locate the product unit refno from the" +
                     " product foreign key reference number, broken case and unit code in tProductUnit.");
             }
@@ -1246,14 +1246,14 @@ namespace dMobile.GroundWork
 
             if (productResults == null || productResults.Count == 0)
             {
-                throw new Exception(
+                throw new BaseException(
                     "drProduct.Read() failed. Unable to locate the product refno from the product foreign key" +
                     " reference number in tProduct.");
             }
 
             if (unitResults == null || unitResults.Count == 0)
             {
-                throw new Exception("drUnit.Read() failed.");
+                throw new BaseException("drUnit.Read() failed.");
             }
 
             var prodRefno = productResults[0].ProductRefno;
@@ -1267,7 +1267,7 @@ namespace dMobile.GroundWork
 
             if (productUnitResults == null || productUnitResults.Count == 0)
             {
-                throw new Exception(
+                throw new BaseException(
                     "Unable to locate the product unit refno from the product foreign key reference number, broken" +
                     " case and unit code in tProductUnit.");
             }

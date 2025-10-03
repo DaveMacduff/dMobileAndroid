@@ -59,7 +59,7 @@ namespace dMobile.GroundWork
                     "Purging sales return item comments failed.",
                     true);
 
-                throw new Exception(
+                throw new BaseException(
                     "Database exception occurred. Purging sales return item comments failed.",
                     ex);
             }

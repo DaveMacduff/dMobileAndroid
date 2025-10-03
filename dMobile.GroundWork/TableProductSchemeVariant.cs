@@ -44,7 +44,7 @@ namespace dMobile.GroundWork
             catch (Exception ex)
             {
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Seeding {this.LowerCaseName} failed.", true);
-                throw new Exception($"Seeding {this.LowerCaseName} failed.", ex);
+                throw new BaseException($"Seeding {this.LowerCaseName} failed.", ex);
             }
         }
 
@@ -69,7 +69,7 @@ namespace dMobile.GroundWork
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} failed.", true);
 
-                throw new Exception($"Database exception occurred. Purging {this.LowerCaseName} failed.", ex);
+                throw new BaseException($"Database exception occurred. Purging {this.LowerCaseName} failed.", ex);
             }
         }
 
@@ -101,15 +101,15 @@ namespace dMobile.GroundWork
         //              else
         //              {
         // #if MULTILANGUAGE
-        //                throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DrschemevarreadFailed));
+        //                throw new BaseException(Translator.GetInstance().Translate(TranslatorVocabulary.DrschemevarreadFailed));
         // #else
-        //                throw new Exception("drSchemeVar.Read() failed.");
+        //                throw new BaseException("drSchemeVar.Read() failed.");
         // #endif
         //              }
         //            }
         //            else
         //            {
-        //              throw new Exception(
+        //              throw new BaseException(
         //                  string.Format(
         // #if MULTILANGUAGE
         //                  Translator.GetInstance().Translate(TranslatorVocabulary.UnableToLocateProductSchemeVariantNumberInTproductschemevariant),
@@ -126,9 +126,9 @@ namespace dMobile.GroundWork
         //      catch (SQLiteException ex)
         //      {
         // #if MULTILANGUAGE
-        //        throw new Exception(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredGetprodschemevarrefnofromprodschemevarnoFailed), ex);
+        //        throw new BaseException(Translator.GetInstance().Translate(TranslatorVocabulary.DatabaseExceptionOccurredGetprodschemevarrefnofromprodschemevarnoFailed), ex);
         // #else
-        //        throw new Exception("Database exception occurred. GetProdSchemeVarRefnoFromProdSchemeVarNo failed.", ex);
+        //        throw new BaseException("Database exception occurred. GetProdSchemeVarRefnoFromProdSchemeVarNo failed.", ex);
         // #endif
         //      }
         //    return schemeVarRefno;
@@ -150,7 +150,7 @@ namespace dMobile.GroundWork
             }
             catch (SQLiteException ex)
             {
-                throw new Exception("Database exception occurred. Product scheme variants status failed.", ex);
+                throw new BaseException("Database exception occurred. Product scheme variants status failed.", ex);
             }
 
             return rowsAffected;

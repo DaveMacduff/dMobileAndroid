@@ -57,7 +57,7 @@ namespace dMobile.GroundWork
                     $"Seeding {this.LowerCaseName} failed.",
                     true);
 
-                throw new Exception($"Seeding {this.LowerCaseName} failed.", ex);
+                throw new BaseException($"Seeding {this.LowerCaseName} failed.", ex);
             }
         }
 
@@ -98,7 +98,7 @@ namespace dMobile.GroundWork
                     $"Purging {this.LowerCaseName} failed.",
                     true);
 
-                throw new Exception(
+                throw new BaseException(
                     $"Database exception occurred. Purging {this.LowerCaseName} failed.",
                     ex);
             }
@@ -137,7 +137,7 @@ namespace dMobile.GroundWork
                     $"{this.ProperCaseName} status failed.",
                     true);
 
-                throw new Exception(
+                throw new BaseException(
                     $"Database exception occurred. {this.ProperCaseName} status failed.",
                     ex);
             }

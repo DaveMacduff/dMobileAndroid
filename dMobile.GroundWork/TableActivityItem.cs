@@ -48,13 +48,13 @@ namespace dMobile.GroundWork
                     transaction.Rollback();
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging activity items failed.", true);
-                    throw new Exception("Database exception occurred. Purging activity items failed.", ex);
+                    throw new BaseException("Database exception occurred. Purging activity items failed.", ex);
                 }
                 catch (Exception ex)
                 {
                     transaction.Rollback();
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging activity items failed.", true);
-                    throw new Exception("Database exception occurred. Purging activity items failed.", ex);
+                    throw new BaseException("Database exception occurred. Purging activity items failed.", ex);
                 }
             });
         }

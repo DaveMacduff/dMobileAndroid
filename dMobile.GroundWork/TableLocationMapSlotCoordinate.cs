@@ -47,7 +47,7 @@ namespace dMobile.GroundWork
                 // Handle database exceptions.
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} failed.", true);
-                throw new Exception($"Database exception occurred. Purging {this.LowerCaseName} failed.", ex);
+                throw new BaseException($"Database exception occurred. Purging {this.LowerCaseName} failed.", ex);
             }
         }
 
@@ -66,7 +66,7 @@ namespace dMobile.GroundWork
             }
             catch (SQLiteException ex)
             {
-                throw new Exception($"Database exception occurred. {this.ProperCaseName} status failed.", ex);
+                throw new BaseException($"Database exception occurred. {this.ProperCaseName} status failed.", ex);
             }
 
             return rowsAffected;

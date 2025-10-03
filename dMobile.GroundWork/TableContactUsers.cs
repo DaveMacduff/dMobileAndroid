@@ -46,7 +46,7 @@ namespace dMobile.GroundWork
                     {
                         var reqErr = new XmlDocument();
                         reqErr.LoadXml(reqData);
-                        throw new Exception(reqErr.DocumentElement!["detail"] !.InnerText);
+                        throw new BaseException(reqErr.DocumentElement!["detail"] !.InnerText);
                     }
 
                     await this.Save(reqData);
@@ -65,7 +65,7 @@ namespace dMobile.GroundWork
                     EventArgs.Empty,
                     $"Seeding {this.LowerCaseName} failed.",
                     true);
-                throw new Exception($"Seeding {this.LowerCaseName} failed.", ex);
+                throw new BaseException($"Seeding {this.LowerCaseName} failed.", ex);
             }
         }
 
@@ -90,7 +90,7 @@ namespace dMobile.GroundWork
             }
             catch (SQLiteException ex)
             {
-                throw new Exception("Database exception occurred. Users status failed.", ex);
+                throw new BaseException("Database exception occurred. Users status failed.", ex);
             }
 
             return rowsAffected;
@@ -119,7 +119,7 @@ namespace dMobile.GroundWork
                     "Purging users failed.",
                     true);
 
-                throw new Exception("Database exception occurred. Purging users failed.", ex);
+                throw new BaseException("Database exception occurred. Purging users failed.", ex);
             }
         }
 
@@ -146,7 +146,7 @@ namespace dMobile.GroundWork
                     "Purging tContact failed.",
                     true);
 
-                throw new Exception("Database exception occurred. Purging tContact failed.", ex);
+                throw new BaseException("Database exception occurred. Purging tContact failed.", ex);
             }
         }
 
@@ -258,7 +258,7 @@ namespace dMobile.GroundWork
                         catch (SQLiteException ex)
                         {
                             transaction.Rollback();
-                            throw new Exception(
+                            throw new BaseException(
                                 "Database exception occurred. Seeding system users failed." +
                                 Environment.NewLine +
                                 errMsg,

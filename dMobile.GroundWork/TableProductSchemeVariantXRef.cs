@@ -44,7 +44,7 @@ namespace dMobile.GroundWork
             catch (Exception ex)
             {
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Seeding {this.LowerCaseName} failed.", true);
-                throw new Exception($"Seeding {this.LowerCaseName} failed.", ex);
+                throw new BaseException($"Seeding {this.LowerCaseName} failed.", ex);
             }
         }
 
@@ -65,7 +65,7 @@ namespace dMobile.GroundWork
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging product scheme variant xref failed.", true);
 
-                throw new Exception("Database exception occurred. Purging product scheme variant xref failed.", ex);
+                throw new BaseException("Database exception occurred. Purging product scheme variant xref failed.", ex);
             }
         }
 
@@ -84,7 +84,7 @@ namespace dMobile.GroundWork
             }
             catch (SQLiteException ex)
             {
-                throw new Exception("Database exception occurred. Product scheme variant xref status failed.", ex);
+                throw new BaseException("Database exception occurred. Product scheme variant xref status failed.", ex);
             }
 
             return rowsAffected;
@@ -132,7 +132,7 @@ namespace dMobile.GroundWork
                     var rowsAffected = await conn.ExecuteAsync(query);
                     if (variantXRefs.Count != rowsAffected)
                     {
-                        throw new Exception("Failed to insert all rows into tLocationMapSlot");
+                        throw new BaseException("Failed to insert all rows into tLocationMapSlot");
                     }
 
                     // Drop the temporary table

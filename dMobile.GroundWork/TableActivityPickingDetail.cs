@@ -142,14 +142,14 @@ namespace dMobile.GroundWork
                             EventArgs.Empty,
                             $"Purging {this.LowerCaseName} details failed.",
                             true);
-                        throw new Exception(
+                        throw new BaseException(
                             $"Database exception occurred. Purging {this.LowerCaseName} details failed.",
                             sqlEx);
                     }
                     catch (Exception ex)
                     {
                         transaction.Rollback();
-                        throw new Exception(
+                        throw new BaseException(
                             $"Database exception occurred. Purging {this.LowerCaseName} details failed.",
                             ex);
                     }
@@ -180,7 +180,7 @@ namespace dMobile.GroundWork
             }
             else
             {
-                throw new Exception("drItemPick.Read() failed.");
+                throw new BaseException("drItemPick.Read() failed.");
             }
 
             return await SendComm(await this.CreateRequest(actItemPickFkRefno));
@@ -239,7 +239,7 @@ namespace dMobile.GroundWork
                                 if (resultPickingItems == null ||
                                     resultPickingItems is { Count: 0 })
                                 {
-                                    throw new Exception(
+                                    throw new BaseException(
                                         "No results in tActivityItemPicking for ActivityItemRefno " +
                                         refno);
                                 }
@@ -384,7 +384,7 @@ namespace dMobile.GroundWork
                                 "Saving sales order details failed.",
                                 false);
 
-                            throw new Exception(
+                            throw new BaseException(
                                 "Database exception occurred. Saving sales order details failed." +
                                 Environment.NewLine +
                                 errMsg,

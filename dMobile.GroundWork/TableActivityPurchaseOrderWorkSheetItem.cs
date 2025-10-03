@@ -90,12 +90,12 @@ namespace dMobile.GroundWork
                     transaction.Rollback();
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} details failed.", true);
-                    throw new Exception($"Database exception occurred. Purging {this.LowerCaseName} details failed.", sqlEx);
+                    throw new BaseException($"Database exception occurred. Purging {this.LowerCaseName} details failed.", sqlEx);
                 }
                 catch (Exception ex)
                 {
                     transaction.Rollback();
-                    throw new Exception($"Database exception occurred. Purging {this.LowerCaseName} details failed.", ex);
+                    throw new BaseException($"Database exception occurred. Purging {this.LowerCaseName} details failed.", ex);
                 }
             });
         }
@@ -208,7 +208,7 @@ namespace dMobile.GroundWork
 
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", false);
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving work sheet items failed.", false);
-                    throw new Exception("Database exception occurred. Saving work sheet items failed.", ex);
+                    throw new BaseException("Database exception occurred. Saving work sheet items failed.", ex);
                 }
             });
         }

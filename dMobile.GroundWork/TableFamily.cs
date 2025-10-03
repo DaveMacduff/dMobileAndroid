@@ -54,7 +54,7 @@ namespace dMobile.GroundWork
                     $"Seeding {this.LowerCaseName} failed.",
                     true);
 
-                throw new Exception($"Seeding {this.LowerCaseName} failed.", ex);
+                throw new BaseException($"Seeding {this.LowerCaseName} failed.", ex);
             }
         }
 
@@ -80,7 +80,7 @@ namespace dMobile.GroundWork
             }
             catch (SQLiteException ex)
             {
-                throw new Exception("Families status failed.", ex);
+                throw new BaseException("Families status failed.", ex);
             }
 
             return rowsAffected;
@@ -118,7 +118,7 @@ namespace dMobile.GroundWork
                     "Purging families failed.",
                     true);
 
-                throw new Exception("Database exception occurred. Purging families failed.", ex);
+                throw new BaseException("Database exception occurred. Purging families failed.", ex);
             }
         }
 
