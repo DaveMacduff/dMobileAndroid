@@ -40,7 +40,7 @@ namespace dMobile.GroundWork
                 var responseData = await this.SendRequest(string.Empty);
                 await this.SaveOpt(responseData);
 
-                ////var resultsFamily = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<FamilyModel>("SELECT * FROM tFamily");
+                ////var resultsFamily = await Conn.QueryAsync<FamilyModel>("SELECT * FROM tFamily");
 
                 ////if (resultsFamily?.Count > 0)
                 ////{
@@ -78,7 +78,7 @@ namespace dMobile.GroundWork
             {
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName}.", true);
 
-                await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync("DELETE FROM tProduct");
+                await Conn.ExecuteAsync("DELETE FROM tProduct");
 
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} complete.", true);
             }
@@ -101,7 +101,7 @@ namespace dMobile.GroundWork
             int prodRefno;
             try
             {
-                var results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<ProductModel>("SELECT * FROM tProduct WHERE ProductFKRefno = ?", Convert.ToInt32(prodFKRefno));
+                var results = await Conn.QueryAsync<ProductModel>("SELECT * FROM tProduct WHERE ProductFKRefno = ?", Convert.ToInt32(prodFKRefno));
 
                 if (results?.Count > 0)
                 {
@@ -130,7 +130,7 @@ namespace dMobile.GroundWork
             int rowsAffected;
             try
             {
-                rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SqlConn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tProduct"));
+                rowsAffected = Convert.ToInt32(await Conn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tProduct"));
 
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"{rowsAffected} products.", true);
             }
@@ -148,7 +148,6 @@ namespace dMobile.GroundWork
         /// <param name="data"></param>
         protected async Task SaveOpt(string responseData)
         {
-            var conn = DatabaseConnection.GetInstance().SqlConn;
             using var dataSet = new DataSet();
             dataSet.ReadXml(SysCommon.GetXmlReader(ref responseData), XmlReadMode.Auto);
             if (dataSet.Tables.Count > 0)
@@ -191,8 +190,8 @@ namespace dMobile.GroundWork
                                 + ",ProductAcceptDays INTEGER"
                                 + ")";
 
-                    await conn.ExecuteAsync(query);
-                    await conn.InsertAllAsync(products);
+                    await Conn.ExecuteAsync(query);
+                    await Conn.InsertAllAsync(products);
 
                     query = @"INSERT INTO tProduct 
                     (FamilyRefno,
@@ -222,7 +221,7 @@ namespace dMobile.GroundWork
                     Seg.ProductAcceptDays
                     FROM Seg
                     INNER JOIN tFamily ON tFamily.FamilyCode = Seg.FamilyCode";
-                    var rowsAffected = await conn.ExecuteAsync(query);
+                    var rowsAffected = await Conn.ExecuteAsync(query);
                     if (products.Count != rowsAffected)
                     {
                         throw new BaseException("Failed to insert all rows into tProduct");
@@ -230,7 +229,7 @@ namespace dMobile.GroundWork
 
                     // Drop the temporary table
                     const string dropTempTableQuery = "DROP TABLE IF EXISTS Seg";
-                    await conn.ExecuteAsync(dropTempTableQuery);
+                    await Conn.ExecuteAsync(dropTempTableQuery);
 
                     this.DataAccessStatusOutHandler(
                         this,

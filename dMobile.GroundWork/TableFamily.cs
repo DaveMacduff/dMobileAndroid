@@ -97,7 +97,7 @@ namespace dMobile.GroundWork
             {
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging families.", true);
 
-                await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync("DELETE FROM tFamily");
+                await Conn.ExecuteAsync("DELETE FROM tFamily");
 
                 this.DataAccessStatusOutHandler(
                     this,
@@ -125,7 +125,6 @@ namespace dMobile.GroundWork
         /// <inheritdoc cref="TableBase.Save(string)"/>
         protected override async Task Save(string responseData)
         {
-            var conn = DatabaseConnection.GetInstance().SqlConn;
             using var dataSet = new DataSet();
             dataSet.ReadXml(SysCommon.GetXmlReader(ref responseData), XmlReadMode.Auto);
             if (dataSet.Tables.Count > 0)
@@ -142,7 +141,7 @@ namespace dMobile.GroundWork
                         });
                 }
 
-                await conn.InsertAllAsync(families);
+                await Conn.InsertAllAsync(families);
                 this.DataAccessStatusOutHandler(
                     this,
                     EventArgs.Empty,

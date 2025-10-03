@@ -64,7 +64,7 @@ namespace dMobile.GroundWork
             {
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName}.", true);
 
-                await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync("DELETE FROM tProductUnit");
+                await Conn.ExecuteAsync("DELETE FROM tProductUnit");
 
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} complete.", true);
             }
@@ -92,7 +92,7 @@ namespace dMobile.GroundWork
 
         // try
         //            {
-        //                using (SQLiteCommand cmndGetProductUnit = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+        //                using (SQLiteCommand cmndGetProductUnit = Conn.CreateCommand())
         //                {
         //                    cmndGetProductUnit.CommandText = "tProductUnit";
         //                    cmndGetProductUnit.IndexName = "UQ_ProductUnitOnProductRefnoAndUnitRefnoAndProductUnitIsBC";
@@ -160,7 +160,7 @@ namespace dMobile.GroundWork
             int rowsAffected;
             try
             {
-                rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SqlConn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tProductUnit"));
+                rowsAffected = Convert.ToInt32(await Conn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tProductUnit"));
 
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"{rowsAffected} product units.", true);
             }
@@ -220,7 +220,6 @@ namespace dMobile.GroundWork
         /// <param name="responseData"></param>
         private async Task SaveOpt(string responseData)
         {
-            var conn = DatabaseConnection.GetInstance().SqlConn;
             using var dataSet = new DataSet();
             dataSet.ReadXml(SysCommon.GetXmlReader(ref responseData), XmlReadMode.Auto);
             if (dataSet.Tables.Count > 0)
@@ -256,8 +255,8 @@ namespace dMobile.GroundWork
                                 + "IsDefault BIT, "
                                 + "BoxCount NUMERIC(10, 4), "
                                 + "WeightTolerance NUMERIC(6, 3))";
-                    await conn.ExecuteAsync(query);
-                    await conn.InsertAllAsync(prodUnits);
+                    await Conn.ExecuteAsync(query);
+                    await Conn.InsertAllAsync(prodUnits);
 
                     query = "INSERT INTO tProductUnit (" +
                         "ProductRefno" +
@@ -289,7 +288,7 @@ namespace dMobile.GroundWork
                         " INNER JOIN tUnit SellUnit ON SellUnit.UnitCode = Seg.UnitCode" +
                         " INNER JOIN tUnit BaseUnit ON BaseUnit.UnitCode = Seg.BaseUnitCode" +
                         " INNER JOIN tUnit WeightUnit ON WeightUnit.UnitCode = Seg.WeightUnitCode";
-                    var rowsAffected = await conn.ExecuteAsync(query);
+                    var rowsAffected = await Conn.ExecuteAsync(query);
                     if (prodUnits.Count != rowsAffected)
                     {
                         throw new BaseException("Failed to insert all rows into tProductUnit");
@@ -297,7 +296,7 @@ namespace dMobile.GroundWork
 
                     // Drop the temporary table
                     const string dropTempTableQuery = "DROP TABLE IF EXISTS Seg";
-                    await conn.ExecuteAsync(dropTempTableQuery);
+                    await Conn.ExecuteAsync(dropTempTableQuery);
                 }
 
                 this.DataAccessStatusOutHandler(

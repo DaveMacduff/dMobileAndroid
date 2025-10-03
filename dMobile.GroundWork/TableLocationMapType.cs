@@ -151,7 +151,6 @@ namespace dMobile.GroundWork
         /// <inheritdoc cref="TableBase.Save(string)"/>
         protected override async Task Save(string responseData)
         {
-            var conn = DatabaseConnection.GetInstance().SqlConn;
             using var dataSet = new DataSet();
             dataSet.ReadXml(SysCommon.GetXmlReader(ref responseData), XmlReadMode.Auto);
             if (dataSet.Tables.Count > 0)
@@ -209,7 +208,7 @@ namespace dMobile.GroundWork
                     locTypes.Add(locType);
                 }
 
-                await conn.InsertAllAsync(locTypes);
+                await Conn.InsertAllAsync(locTypes);
                 this.DataAccessStatusOutHandler(
                     this,
                     EventArgs.Empty,
@@ -232,7 +231,7 @@ namespace dMobile.GroundWork
             {
                 const string query = "SELECT LocationMapRefno FROM tLocationMapWarehouse" +
                                      " WHERE LocationMapWarehouseFKRefno = ?";
-                var result = await conn.FindWithQueryAsync<LocationMapWarehouseModel>(
+                var result = await Conn.FindWithQueryAsync<LocationMapWarehouseModel>(
                     query,
                     locMapFkRefno);
                 if (result == null)
@@ -249,7 +248,7 @@ namespace dMobile.GroundWork
             {
                 const string query = "SELECT LocationMapRefno FROM tLocationMapSection" +
                                      " WHERE LocationMapSectionFKRefno = ?";
-                var result = await conn.FindWithQueryAsync<LocationMapSectionModel>(
+                var result = await Conn.FindWithQueryAsync<LocationMapSectionModel>(
                     query,
                     locMapFkRefno);
                 if (result == null)
@@ -266,7 +265,7 @@ namespace dMobile.GroundWork
             {
                 const string query = "SELECT LocationMapRefno FROM tLocationMapSlot" +
                                      " WHERE LocationMapSlotFKRefno = ?";
-                var result = await conn.FindWithQueryAsync<LocationMapSlotModel>(
+                var result = await Conn.FindWithQueryAsync<LocationMapSlotModel>(
                     query,
                     locMapFkRefno);
                 if (result == null)

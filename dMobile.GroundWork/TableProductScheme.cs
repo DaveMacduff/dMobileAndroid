@@ -54,7 +54,7 @@ namespace dMobile.GroundWork
 
         // try
         //      {
-        //        using (SQLiteCommand cmndScheme = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+        //        using (SQLiteCommand cmndScheme = Conn.CreateCommand())
         //        {
         //          cmndScheme.CommandText = "tProductScheme";
         //          cmndScheme.IndexName = "UQ_ProductSchemeOnProductSchemeCode";
@@ -116,7 +116,7 @@ namespace dMobile.GroundWork
             int rowsAffected;
             try
             {
-                rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SqlConn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tProductScheme"));
+                rowsAffected = Convert.ToInt32(await Conn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tProductScheme"));
 
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"{rowsAffected} {this.LowerCaseName}.", true);
             }
@@ -139,7 +139,7 @@ namespace dMobile.GroundWork
             {
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName}.", true);
 
-                await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync("DELETE FROM tProductScheme");
+                await Conn.ExecuteAsync("DELETE FROM tProductScheme");
 
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} failed.", true);
             }
@@ -155,7 +155,6 @@ namespace dMobile.GroundWork
         /// <inheritdoc cref="TableBase.Save(string)"/>
         protected override async Task Save(string responseData)
         {
-            var conn = DatabaseConnection.GetInstance().SqlConn;
             using var dataSet = new DataSet();
             dataSet.ReadXml(SysCommon.GetXmlReader(ref responseData), XmlReadMode.Auto);
             if (dataSet.Tables.Count > 0)
@@ -199,7 +198,7 @@ namespace dMobile.GroundWork
                         });
                     }
 
-                    await conn.InsertAllAsync(schemes);
+                    await Conn.InsertAllAsync(schemes);
                     this.DataAccessStatusOutHandler(
                         this,
                         EventArgs.Empty,

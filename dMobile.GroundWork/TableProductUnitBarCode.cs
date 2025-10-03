@@ -58,8 +58,8 @@ namespace dMobile.GroundWork
             {
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName}.", true);
 
-                await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync("DELETE FROM tActivityItemBarCodeAssociationXRef");
-                await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync("DELETE FROM tProductUnitBarCode");
+                await Conn.ExecuteAsync("DELETE FROM tActivityItemBarCodeAssociationXRef");
+                await Conn.ExecuteAsync("DELETE FROM tProductUnitBarCode");
 
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} complete.", true);
             }
@@ -81,7 +81,7 @@ namespace dMobile.GroundWork
             int rowsAffected;
             try
             {
-                rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SqlConn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tProductUnitBarCode"));
+                rowsAffected = Convert.ToInt32(await Conn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tProductUnitBarCode"));
 
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"{rowsAffected} {this.LowerCaseName}.", true);
             }
@@ -109,7 +109,6 @@ namespace dMobile.GroundWork
         /// <param name="responseData"></param>
         protected async Task SaveOpt(string responseData)
         {
-            var conn = DatabaseConnection.GetInstance().SqlConn;
             using var dataSet = new DataSet();
             dataSet.ReadXml(SysCommon.GetXmlReader(ref responseData), XmlReadMode.Auto);
             if (dataSet.Tables.Count > 0)
@@ -142,8 +141,8 @@ namespace dMobile.GroundWork
                         "ProductUnitBarCodeSymbologyEnum INTEGER NOT NULL," +
                         "ProductUnitBarCodeModifier1 VARCHAR(1) NOT NULL" +
                         ")";
-                    await conn.ExecuteAsync(query);
-                    await conn.InsertAllAsync(barcodes);
+                    await Conn.ExecuteAsync(query);
+                    await Conn.InsertAllAsync(barcodes);
 
                     try
                     {
@@ -166,7 +165,7 @@ namespace dMobile.GroundWork
                                 " INNER JOIN tProductUnit pu ON pu.ProductRefno = prod.ProductRefno" +
                                 " AND pu.UnitRefno = unit.UnitRefno" +
                                 " AND pu.ProductUnitIsBC = Seg.ProductUnitIsBC";
-                        var rowsAffected = await conn.ExecuteAsync(query);
+                        var rowsAffected = await Conn.ExecuteAsync(query);
                         if (barcodes.Count != rowsAffected)
                         {
                             throw new BaseException("Failed to insert all rows into tProductUnitBarCode");
@@ -193,11 +192,11 @@ namespace dMobile.GroundWork
                                         " INNER JOIN tProductUnit pu ON pu.ProductRefno = prod.ProductRefno" +
                                         " AND pu.UnitRefno = unit.UnitRefno" +
                                         " AND pu.ProductUnitIsBC = Seg.ProductUnitIsBC";
-                                var barCodes = await conn.QueryAsync<ProductUnitBarCodeModel>(query);
+                                var barCodes = await Conn.QueryAsync<ProductUnitBarCodeModel>(query);
                                 foreach (var barCode in barCodes)
                                 {
                                     barCodeInfo = $"{barCode.ProductUnitBarCodeCode} - {barCode.ProductUnitBarCodeModifier1}";
-                                    await conn.InsertAsync(barCode);
+                                    await Conn.InsertAsync(barCode);
                                 }
                             }
                             catch (SQLiteException sqlEx2)
@@ -220,7 +219,7 @@ namespace dMobile.GroundWork
 
                     // Drop the temporary table
                     const string dropTempTableQuery = "DROP TABLE IF EXISTS Seg";
-                    await conn.ExecuteAsync(dropTempTableQuery);
+                    await Conn.ExecuteAsync(dropTempTableQuery);
                 }
 
                 this.DataAccessStatusOutHandler(

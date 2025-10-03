@@ -34,8 +34,7 @@ namespace dMobile.GroundWork
         public override async Task PurgeData()
         {
             this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging transfers from.", true);
-            var conn = DatabaseConnection.GetInstance().SqlConn;
-            await conn.RunInTransactionAsync(
+            await Conn.RunInTransactionAsync(
                 transaction =>
                 {
                     try

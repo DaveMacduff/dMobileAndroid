@@ -7,6 +7,7 @@ namespace dMobile.GroundWork
     using System;
     using System.Collections.Generic;
     using System.Data;
+    using System.Globalization;
     using System.Text;
     using System.Threading.Tasks;
     using System.Xml;
@@ -38,14 +39,13 @@ namespace dMobile.GroundWork
         /// <returns><see cref="Task" /> Task operation.</returns>
         public override async Task PurgeData()
         {
-            var conn = DatabaseConnection.GetInstance().SqlConn;
             var subType = Convert.ToInt32(this.CurrentSubType);
             this.DataAccessStatusOutHandler(
                 this,
                 EventArgs.Empty,
                 $"Purging {this.LowerCaseName} details.",
                 true);
-            await conn.RunInTransactionAsync(
+            await Conn.RunInTransactionAsync(
                 transaction =>
                 {
                     try
@@ -182,8 +182,7 @@ namespace dMobile.GroundWork
         {
             const string query =
                 "SELECT * FROM tActivityItemAdjustment WHERE ActivityItemFKRefno = ?";
-            var conn = DatabaseConnection.GetInstance().SqlConn;
-            var results = await conn.QueryAsync<ActivityItemAdjustmentModel>(
+            var results = await Conn.QueryAsync<ActivityItemAdjustmentModel>(
                 query,
                 activityFkRefno);
             if (results.Count <= 0)
@@ -200,8 +199,7 @@ namespace dMobile.GroundWork
         protected override async Task Save(string responseData, int refno)
         {
             var errMsg = string.Empty;
-            var conn = DatabaseConnection.GetInstance().SqlConn;
-            await conn.RunInTransactionAsync(
+            await Conn.RunInTransactionAsync(
                 transaction =>
                 {
                     try
@@ -340,7 +338,6 @@ namespace dMobile.GroundWork
                 });
             return;
 
-            //////////////////////////////////////////////////////////////////////////
             static void InsertActivityDetailExtraInfo(
                 SQLiteConnection transaction,
                 int actDetailRefno,
@@ -374,7 +371,6 @@ namespace dMobile.GroundWork
                 transaction.Execute(queryExtra, parametersExtra.ToArray());
             }
 
-            //////////////////////////////////////////////////////////////////////////
             static void InsertActivityDetailProductSchemeXRef(
                 SQLiteConnection transaction,
                 int actDetailRefno,
@@ -390,7 +386,7 @@ namespace dMobile.GroundWork
                     var resultsProductSchemeVariant =
                         transaction.Query<ProductSchemeVariantModel>(
                             query,
-                            DateTime.Parse(emptyDate));
+                            DateTime.Parse(emptyDate, CultureInfo.CurrentCulture));
 
                     if (resultsProductSchemeVariant?.Count > 0)
                     {
@@ -408,7 +404,6 @@ namespace dMobile.GroundWork
                 }
             }
 
-            //////////////////////////////////////////////////////////////////////////
             static string InsertActivityDetailAdjustment(
                 SQLiteConnection transaction,
                 string errMsg,
@@ -419,8 +414,7 @@ namespace dMobile.GroundWork
                 var query = "SELECT last_insert_rowid() FROM tActivityDetail";
                 actDetailRefno = Convert.ToInt32(transaction.ExecuteScalar<int>(query));
                 var actDetailAdjFkRefno = Convert.ToInt32(drow["ActivityDetailFKRefno"]);
-                errMsg +=
-                    $"{Environment.NewLine}Detail foreign key reference number {actDetailAdjFkRefno}";
+                errMsg += $"{Environment.NewLine}Detail foreign key reference number {actDetailAdjFkRefno}";
 
                 // Create the activity detail adjustment record.
                 query =
@@ -433,7 +427,6 @@ namespace dMobile.GroundWork
                 return errMsg;
             }
 
-            //////////////////////////////////////////////////////////////////////////
             static void InsertActivityDetail(
                 int actItemAdjRefno,
                 SQLiteConnection transaction,
@@ -548,7 +541,6 @@ namespace dMobile.GroundWork
                 return locMapRefno;
             }
 
-            //////////////////////////////////////////////////////////////////////////
             static List<object> CreateParameterList(
                 int actItemAdjRefno,
                 int productUnitRefno,
@@ -575,26 +567,26 @@ namespace dMobile.GroundWork
                 paramList.Add(
                     string.IsNullOrEmpty(
                         drow["ActivityDetailLogisticUnitBestBeforeSellByDate"].ToString())
-                        ? DateTime.Parse(emptyDate)
+                        ? DateTime.Parse(emptyDate, CultureInfo.CurrentCulture)
                         : Convert.ToDateTime(
                             drow["ActivityDetailLogisticUnitBestBeforeSellByDate"]));
                 paramList.Add(
                     string.IsNullOrEmpty(
                         drow["ActivityDetailLogisticUnitExpiryUseByDate"].ToString())
-                        ? DateTime.Parse(emptyDate)
+                        ? DateTime.Parse(emptyDate, CultureInfo.CurrentCulture)
                         : Convert.ToDateTime(drow["ActivityDetailLogisticUnitExpiryUseByDate"]));
                 paramList.Add(
                     string.IsNullOrEmpty(
                         drow["ActivityDetailLogisticUnitProductionDate"].ToString())
-                        ? DateTime.Parse(emptyDate)
+                        ? DateTime.Parse(emptyDate, CultureInfo.CurrentCulture)
                         : Convert.ToDateTime(drow["ActivityDetailLogisticUnitProductionDate"]));
                 paramList.Add(
                     string.IsNullOrEmpty(drow["ActivityDetailLogisticUnitDueDate"].ToString())
-                        ? DateTime.Parse(emptyDate)
+                        ? DateTime.Parse(emptyDate, CultureInfo.CurrentCulture)
                         : Convert.ToDateTime(drow["ActivityDetailLogisticUnitDueDate"]));
                 paramList.Add(
                     string.IsNullOrEmpty(drow["ActivityDetailLogisticUnitPackagingDate"].ToString())
-                        ? DateTime.Parse(emptyDate)
+                        ? DateTime.Parse(emptyDate, CultureInfo.CurrentCulture)
                         : Convert.ToDateTime(drow["ActivityDetailLogisticUnitPackagingDate"]));
                 paramList.Add(drow["ActivityDetailLogisticUnitSkidCode"].ToString());
                 return paramList;

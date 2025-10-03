@@ -121,11 +121,6 @@ namespace dMobile.Bedrock
             {
                 dataConnUniq = new DatabaseConnection();
                 databaseFullPath = Path.Combine(databasePath, DatabaseNameValue);
-
-                // connString = new SQLiteConnectionString(databaseFullPath);
-                // foreign keys=true HAS to be specified or SQLite will not enforce foreign key constraints
-                // connString = "Data Source = '" + databaseFullPath + "'; foreign keys=true;";
-                // connString = "Data Source = '" + databasePath + databaseName + "'; Password = " + databasePassword;
             }
 
             Open();
@@ -138,8 +133,12 @@ namespace dMobile.Bedrock
         /// </summary>
         public static void Open()
         {
-            if (File.Exists(databaseFullPath) & sqlConn == null)
+            if (File.Exists(databaseFullPath) && sqlConn == null)
             {
+                // connString = new SQLiteConnectionString(databaseFullPath)
+                // foreign keys=true HAS to be specified or SQLite will not enforce foreign key constraints
+                // connString = "Data Source = '" + databaseFullPath + "'; foreign keys=true;"
+                // connString = "Data Source = '" + databasePath + databaseName + "'; Password = " + databasePassword
                 sqlConn = new SQLiteAsyncConnection(
                     databaseFullPath,
                     SQLiteOpenFlags.Create | SQLiteOpenFlags.FullMutex | SQLiteOpenFlags.ReadWrite);

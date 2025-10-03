@@ -56,58 +56,57 @@ namespace dMobile.GroundWork
                     EventArgs.Empty,
                     $"Purging {this.LowerCaseName}.",
                     true);
-                var conn = DatabaseConnection.GetInstance().SqlConn;
-                var query = @"DELETE FROM tActivityItemBarCodeAssociationXRef
-                WHERE tActivityItemBarCodeAssociationXRef.ActivityItemRefno <= 0";
-                await conn.ExecuteAsync(query);
+                    var query = @"DELETE FROM tActivityItemBarCodeAssociationXRef
+                        WHERE tActivityItemBarCodeAssociationXRef.ActivityItemRefno <= 0";
+                await Conn.ExecuteAsync(query);
                 query = @"DELETE FROM tActivityItemBarCodeAssociationXRef
-                WHERE tActivityItemBarCodeAssociationXRef.ActivityItemRefno
-                    NOT IN (SELECT tActivityItem.ActivityItemRefno FROM tActivityItem)";
-                await conn.ExecuteAsync(query);
+                    WHERE tActivityItemBarCodeAssociationXRef.ActivityItemRefno
+                        NOT IN (SELECT tActivityItem.ActivityItemRefno FROM tActivityItem)";
+                await Conn.ExecuteAsync(query);
                 query = @"DELETE FROM tActivityItemReasonCodeXRef
-                WHERE tActivityItemReasonCodeXRef.ActivityItemRefno <= 0";
-                await conn.ExecuteAsync(query);
+                    WHERE tActivityItemReasonCodeXRef.ActivityItemRefno <= 0";
+                await Conn.ExecuteAsync(query);
                 query = @"DELETE FROM tActivityItemReasonCodeXRef
-                WHERE tActivityItemReasonCodeXRef.ActivityItemRefno
-                    NOT IN (SELECT tActivityItem.ActivityItemRefno FROM tActivityItem)";
-                await conn.ExecuteAsync(query);
+                    WHERE tActivityItemReasonCodeXRef.ActivityItemRefno
+                        NOT IN (SELECT tActivityItem.ActivityItemRefno FROM tActivityItem)";
+                await Conn.ExecuteAsync(query);
                 query = @"DELETE FROM tActivityItemPickingComment
-                WHERE tActivityItemPickingComment.ActivityItemRefno <= 0";
-                await conn.ExecuteAsync(query);
+                    WHERE tActivityItemPickingComment.ActivityItemRefno <= 0";
+                await Conn.ExecuteAsync(query);
                 query = @"DELETE FROM tActivityItemPickingComment
-                WHERE tActivityItemPickingComment.ActivityItemRefno
-                    NOT IN (SELECT tActivityItem.ActivityItemRefno FROM tActivityItem)";
-                await conn.ExecuteAsync(query);
+                    WHERE tActivityItemPickingComment.ActivityItemRefno
+                        NOT IN (SELECT tActivityItem.ActivityItemRefno FROM tActivityItem)";
+                await Conn.ExecuteAsync(query);
                 query = @"DELETE FROM tActivityItemPicking
-                WHERE tActivityItemPicking.ActivityItemRefno <= 0
-                    OR tActivityItemPicking.ActivityItemFKRefno <= 0";
-                await conn.ExecuteAsync(query);
+                    WHERE tActivityItemPicking.ActivityItemRefno <= 0
+                        OR tActivityItemPicking.ActivityItemFKRefno <= 0";
+                await Conn.ExecuteAsync(query);
                 query = @"DELETE FROM tActivityItemPicking
-                WHERE tActivityItemPicking.ActivityItemRefno
-                    NOT IN (SELECT tActivityItem.ActivityItemRefno FROM tActivityItem)";
-                await conn.ExecuteAsync(query);
+                    WHERE tActivityItemPicking.ActivityItemRefno
+                        NOT IN (SELECT tActivityItem.ActivityItemRefno FROM tActivityItem)";
+                await Conn.ExecuteAsync(query);
                 query = @"DELETE FROM tActivityItem
-                WHERE tActivityItem.ActivityRefno
-                    NOT IN (SELECT tActivity.ActivityRefno FROM tActivity)";
-                await conn.ExecuteAsync(query);
+                    WHERE tActivityItem.ActivityRefno
+                        NOT IN (SELECT tActivity.ActivityRefno FROM tActivity)";
+                await Conn.ExecuteAsync(query);
                 query = "DELETE FROM tActivityItem WHERE tActivityItem.ActivityRefno <= 0";
-                await conn.ExecuteAsync(query);
+                await Conn.ExecuteAsync(query);
                 query = "DELETE FROM tActivityItemBarCodeAssociationXRef " +
                     "WHERE tActivityItemBarCodeAssociationXRef.ActivityItemRefno IN " +
                     "(SELECT tActivityItem.ActivityItemRefno FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = ?)";
-                await conn.ExecuteAsync(query, this.CurrentSubType);
+                await Conn.ExecuteAsync(query, this.CurrentSubType);
                 query = @"DELETE FROM tActivityItemReasonCodeXRef
-                WHERE tActivityItemReasonCodeXRef.ActivityItemRefno IN
-                (SELECT tActivityItem.ActivityItemRefno FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = ?)";
-                await conn.ExecuteAsync(query, this.CurrentSubType);
+                    WHERE tActivityItemReasonCodeXRef.ActivityItemRefno IN
+                    (SELECT tActivityItem.ActivityItemRefno FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = ?)";
+                await Conn.ExecuteAsync(query, this.CurrentSubType);
                 query = @"DELETE FROM tActivityItemPickingComment
-                WHERE tActivityItemPickingComment.ActivityItemRefno IN
-                (SELECT tActivityItem.ActivityItemRefno FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = ?)";
-                await conn.ExecuteAsync(query, this.CurrentSubType);
+                    WHERE tActivityItemPickingComment.ActivityItemRefno IN
+                    (SELECT tActivityItem.ActivityItemRefno FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = ?)";
+                await Conn.ExecuteAsync(query, this.CurrentSubType);
                 query = "DELETE FROM tActivityItemPicking WHERE tActivityItemPicking.ActivityItemSubType = ?";
-                await conn.ExecuteAsync(query, this.CurrentSubType);
+                await Conn.ExecuteAsync(query, this.CurrentSubType);
                 query = "DELETE FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = ?";
-                await conn.ExecuteAsync(query, this.CurrentSubType);
+                await Conn.ExecuteAsync(query, this.CurrentSubType);
                 this.DataAccessStatusOutHandler(
                     this,
                     EventArgs.Empty,
@@ -129,18 +128,15 @@ namespace dMobile.GroundWork
         ///     Send a request for the sales order activity line items.
         /// </summary>
         /// <param name="activityFkRefno">The activity foreign key reference number.</param>
-        /// <param name="xmlCriteria"><see cref="XDocument" /> Line item filter criteria.</param>
+        /// <param name="criteria"><see cref="XDocument" /> Line item filter criteria.</param>
         /// <returns><see cref="string" /> Request response data.</returns>
-        protected override async Task<string> SendRequest(
-            int activityFkRefno,
-            XDocument xmlCriteria)
+        protected override async Task<string> SendRequest(int activityFkRefno, XDocument criteria)
         {
             string response;
             try
             {
                 int actPickFkRefno;
-                var conn = DatabaseConnection.GetInstance().SqlConn;
-                var results = await conn.QueryAsync<ActivityPickingModel>(
+                    var results = await Conn.QueryAsync<ActivityPickingModel>(
                     "SELECT * FROM tActivityPicking WHERE ActivityFKRefno = ?",
                     activityFkRefno);
                 if (results?.Count > 0)
@@ -154,7 +150,7 @@ namespace dMobile.GroundWork
                 }
 
                 response =
-                    await SendComm(await this.CreateRequest(actPickFkRefno, xmlCriteria));
+                    await SendComm(await this.CreateRequest(actPickFkRefno, criteria));
             }
             catch (SQLiteException sqlEx)
             {
@@ -175,7 +171,6 @@ namespace dMobile.GroundWork
         /// <inheritdoc cref="TableBase.Save(string, int)"/>
         protected override async Task Save(string responseData, int refno)
         {
-            var conn = DatabaseConnection.GetInstance().SqlConn;
             using var dataSet = new DataSet();
             dataSet.ReadXml(SysCommon.GetXmlReader(ref responseData), XmlReadMode.Auto);
             if (dataSet.Tables.Count > 0)
@@ -241,8 +236,8 @@ namespace dMobile.GroundWork
                             "ActivityItemPickingWeightQuantityAvailable DECIMAL(11, 3)," +
                             "ActivityItemPickingComment VARCHAR(254)" +
                             ")";
-                        await conn.ExecuteAsync(query);
-                        await conn.InsertAllAsync(items);
+                        await Conn.ExecuteAsync(query);
+                        await Conn.InsertAllAsync(items);
 
                         query = "INSERT INTO tActivityItemPicking (" +
                             "ActivityItemRefno," +
@@ -290,7 +285,7 @@ namespace dMobile.GroundWork
                             " INNER JOIN tProductUnit prodUnit ON prodUnit.ProductRefno = prod.ProductRefno" +
                             " AND prodUnit.UnitRefno = tUnit.UnitRefno" +
                             " AND prodUnit.ProductUnitIsBC = Seg.ProductUnitIsBC";
-                        await conn.ExecuteAsync(query);
+                        await Conn.ExecuteAsync(query);
 
                         query = "INSERT INTO tActivityItemPickingComment (" +
                             "ActivityItemRefno," +
@@ -300,13 +295,13 @@ namespace dMobile.GroundWork
                             "Seg.ActivityItemPickingComment as ActivityItemPickingCommentComment" +
                             " FROM Seg" +
                             " WHERE COALESCE(Seg.ActivityItemPickingComment, '') != ''";
-                        await conn.ExecuteAsync(query);
+                        await Conn.ExecuteAsync(query);
                     }
                     finally
                     {
                         // Drop the temporary table
                         const string dropTempTableQuery = "DROP TABLE IF EXISTS Seg";
-                        await conn.ExecuteAsync(dropTempTableQuery);
+                        await Conn.ExecuteAsync(dropTempTableQuery);
                     }
                 }
             }
@@ -321,7 +316,7 @@ namespace dMobile.GroundWork
                     ",ActivityItemStatus" +
                     ",ActivityRefno" +
                     ",ActivityItemIsAdded) VALUES (?, ?, ?, ?)";
-                await conn.ExecuteAsync(
+                await Conn.ExecuteAsync(
                     query,
                     Convert.ToInt32(SysCommon.ActSubTypes.Picking),
                     Convert.ToInt32(SysCommon.ActStatus.NoChange),
@@ -332,7 +327,7 @@ namespace dMobile.GroundWork
                 ////    " FROM tActivityItem" +
                 ////    $" WHERE tActivityItem.ActivityItemSubType = {Convert.ToInt32(SysCommon.ActSubTypes.Picking)}" +
                 ////    " ORDER BY tActivityItem.ActivityItemRefno DESC LIMIT 1";
-                return Convert.ToInt32(await conn.ExecuteScalarAsync<int>(query));
+                return Convert.ToInt32(await Conn.ExecuteScalarAsync<int>(query));
             }
         }
 

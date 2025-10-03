@@ -57,7 +57,7 @@ namespace dMobile.GroundWork
             int rowsAffected;
             try
             {
-                rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SqlConn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tUnit"));
+                rowsAffected = Convert.ToInt32(await Conn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tUnit"));
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"{rowsAffected} {this.LowerCaseName}.", true);
             }
             catch (SQLiteException ex)
@@ -79,7 +79,7 @@ namespace dMobile.GroundWork
             {
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName}.", true);
 
-                await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync("DELETE FROM tUnit");
+                await Conn.ExecuteAsync("DELETE FROM tUnit");
 
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} complete.", true);
             }
@@ -95,7 +95,6 @@ namespace dMobile.GroundWork
         /// <inheritdoc cref="TableBase.Save(string)"/>
         protected override async Task Save(string responseData)
         {
-            var conn = DatabaseConnection.GetInstance().SqlConn;
             using var dataSet = new DataSet();
             dataSet.ReadXml(SysCommon.GetXmlReader(ref responseData), XmlReadMode.Auto);
             if (dataSet.Tables.Count > 0)
@@ -113,7 +112,7 @@ namespace dMobile.GroundWork
                         units.Add(unit);
                     }
 
-                    await conn.InsertAllAsync(units);
+                    await Conn.InsertAllAsync(units);
                 }
 
                 this.DataAccessStatusOutHandler(

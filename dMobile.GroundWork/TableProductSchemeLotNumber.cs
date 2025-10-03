@@ -148,7 +148,6 @@ namespace dMobile.GroundWork
         /// <inheritdoc cref="TableBase.Save(string)"/>
         protected override async Task Save(string responseData)
         {
-            var conn = DatabaseConnection.GetInstance().SqlConn;
             using var dataSet = new DataSet();
             dataSet.ReadXml(SysCommon.GetXmlReader(ref responseData), XmlReadMode.Auto);
             if (dataSet.Tables.Count > 0)
@@ -169,7 +168,7 @@ namespace dMobile.GroundWork
                             });
                     }
 
-                    await conn.InsertAllAsync(schemeLots);
+                    await Conn.InsertAllAsync(schemeLots);
                 }
 
                 this.DataAccessStatusOutHandler(

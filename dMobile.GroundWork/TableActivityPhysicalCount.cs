@@ -42,8 +42,7 @@ namespace dMobile.GroundWork
                 $"Purging {this.LowerCaseName}.",
                 true);
             var subType = Convert.ToInt32(this.CurrentSubType);
-            var conn = DatabaseConnection.GetInstance().SqlConn;
-            await conn.RunInTransactionAsync(
+            await Conn.RunInTransactionAsync(
                 transaction =>
                 {
                     try

@@ -42,37 +42,36 @@ namespace dMobile.GroundWork
                     EventArgs.Empty,
                     $"Purging {this.LowerCaseName}.",
                     true);
-                var conn = DatabaseConnection.GetInstance().SqlConn;
-                var query = @"DELETE FROM tActivityPickingRoute
+                    var query = @"DELETE FROM tActivityPickingRoute
                     WHERE tActivityPickingRoute.PickingActivityRefno <= 0
                         OR tActivityPickingRoute.RouteRefno <= 0";
-                await conn.ExecuteAsync(query);
+                await Conn.ExecuteAsync(query);
                 query = @"DELETE FROM tActivityPickingRoute
                     WHERE tActivityPickingRoute.PickingActivityRefno
                         NOT IN (SELECT tActivity.ActivityRefno FROM tActivity)";
-                await conn.ExecuteAsync(query);
+                await Conn.ExecuteAsync(query);
                 query = @"DELETE FROM tActivityPickingRoute
                     WHERE tActivityPickingRoute.RouteRefno
                         NOT IN (SELECT tRoute.RouteRefno FROM tRoute)";
-                await conn.ExecuteAsync(query);
+                await Conn.ExecuteAsync(query);
                 query = @"DELETE FROM tActivityPicking
                     WHERE tActivityPicking.ActivityRefno <= 0
                         OR tActivityPicking.ActivityFKRefno <= 0";
-                await conn.ExecuteAsync(query);
+                await Conn.ExecuteAsync(query);
                 query = @"DELETE FROM tActivityPicking
                     WHERE tActivityPicking.ActivityRefno
                         NOT IN (SELECT tActivity.ActivityRefno FROM tActivity)";
-                await conn.ExecuteAsync(query);
+                await Conn.ExecuteAsync(query);
                 query = "DELETE FROM tActivity WHERE tActivity.ActivityRefno <= 0";
-                await conn.ExecuteAsync(query, this.CurrentSubType);
+                await Conn.ExecuteAsync(query, this.CurrentSubType);
                 query = @"DELETE FROM tActivityPickingRoute
                     WHERE PickingActivityRefno IN
                         (SELECT ActivityRefno FROM tActivity WHERE ActivitySubType = ?)";
-                await conn.ExecuteAsync(query, this.CurrentSubType);
+                await Conn.ExecuteAsync(query, this.CurrentSubType);
                 query = "DELETE FROM tActivityPicking WHERE ActivitySubType = ?";
-                await conn.ExecuteAsync(query, this.CurrentSubType);
+                await Conn.ExecuteAsync(query, this.CurrentSubType);
                 query = "DELETE FROM tActivity WHERE ActivitySubType = ?";
-                await conn.ExecuteAsync(query, this.CurrentSubType);
+                await Conn.ExecuteAsync(query, this.CurrentSubType);
                 this.DataAccessStatusOutHandler(
                     this,
                     EventArgs.Empty,
@@ -93,7 +92,6 @@ namespace dMobile.GroundWork
         /// <inheritdoc cref="TableBase.Save(string)"/>
         protected override async Task Save(string responseData)
         {
-            var conn = DatabaseConnection.GetInstance().SqlConn;
             using var dataSet = new DataSet();
             dataSet.ReadXml(SysCommon.GetXmlReader(ref responseData), XmlReadMode.Auto);
             if (dataSet.Tables.Count > 0)
@@ -148,8 +146,8 @@ namespace dMobile.GroundWork
                                              "ActivityPickingRouteStop INTEGER NOT NULL" +
                                              ")";
 
-                        await conn.ExecuteAsync(query);
-                        await conn.InsertAllAsync(orders);
+                        await Conn.ExecuteAsync(query);
+                        await Conn.InsertAllAsync(orders);
 
                         const string query1 = "INSERT INTO tActivityPicking " +
                                               "(" +
@@ -190,13 +188,13 @@ namespace dMobile.GroundWork
                                               " FROM Seg" +
                                               " INNER JOIN tRoute ON tRoute.RouteCode = Seg.ActivityPickingRouteCode";
 
-                        await Task.WhenAll(conn.ExecuteAsync(query1), conn.ExecuteAsync(query2));
+                        await Task.WhenAll(Conn.ExecuteAsync(query1), Conn.ExecuteAsync(query2));
                     }
                     finally
                     {
                         // Drop the temporary table
                         const string dropTempTableQuery = "DROP TABLE IF EXISTS Seg";
-                        await conn.ExecuteAsync(dropTempTableQuery);
+                        await Conn.ExecuteAsync(dropTempTableQuery);
                     }
                 }
             }
@@ -206,13 +204,13 @@ namespace dMobile.GroundWork
             async Task<int> GetActivityRefno()
             {
                 var query = "INSERT INTO tActivity (ActivityStatus, ActivitySubType) VALUES (?, ?)";
-                await conn.ExecuteAsync(query, 0, Convert.ToInt32(SysCommon.ActSubTypes.Picking));
+                await Conn.ExecuteAsync(query, 0, Convert.ToInt32(SysCommon.ActSubTypes.Picking));
 
                 query = "SELECT last_insert_rowid()";
                 ////query = "SELECT tActivity.ActivityRefno FROM tActivity" +
                 ////        $" WHERE tActivity.ActivitySubType = {Convert.ToInt32(SysCommon.ActSubTypes.Picking)}" +
                 ////        " ORDER BY tActivity.ActivityRefno DESC LIMIT 1";
-                return Convert.ToInt32(await conn.ExecuteScalarAsync<int>(query));
+                return Convert.ToInt32(await Conn.ExecuteScalarAsync<int>(query));
             }
         }
 

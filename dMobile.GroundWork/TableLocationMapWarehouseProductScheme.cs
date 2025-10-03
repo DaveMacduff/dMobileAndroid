@@ -30,7 +30,7 @@ namespace dMobile.GroundWork
                 await this.Save(responseData);
 
                 ////this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"For family {family.FamilyCode}", true);
-                ////var resultsFamily = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<tFamilyModel>("SELECT * FROM tFamily");
+                ////var resultsFamily = await Conn.QueryAsync<tFamilyModel>("SELECT * FROM tFamily");
                 ////if (resultsFamily?.Count > 0)
                 ////{
                 ////    foreach (var family in resultsFamily)
@@ -66,7 +66,7 @@ namespace dMobile.GroundWork
             int rowsAffected;
             try
             {
-                rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SqlConn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tLocationMapWarehouseProductScheme"));
+                rowsAffected = Convert.ToInt32(await Conn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tLocationMapWarehouseProductScheme"));
 
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"{rowsAffected} warehouse product schemes.", true);
             }
@@ -89,7 +89,7 @@ namespace dMobile.GroundWork
             {
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging warehouse product schemes.", true);
 
-                await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync("DELETE FROM tLocationMapWarehouseProductScheme");
+                await Conn.ExecuteAsync("DELETE FROM tLocationMapWarehouseProductScheme");
 
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging warehouse product schemes failed.", true);
             }
@@ -104,7 +104,6 @@ namespace dMobile.GroundWork
         /// <inheritdoc cref="TableBase.Save(string)"/>
         protected override async Task Save(string responseData)
         {
-            var conn = DatabaseConnection.GetInstance().SqlConn;
             using var dataSet = new DataSet();
             dataSet.ReadXml(SysCommon.GetXmlReader(ref responseData), XmlReadMode.Auto);
             if (dataSet.Tables.Count > 0)
@@ -125,8 +124,8 @@ namespace dMobile.GroundWork
                                 + "ProductFKRefno INTEGER NOT NULL,"
                                 + "LocationMapWarehouseFKRefno INTEGER NOT NULL"
                                 + ")";
-                    await conn.ExecuteAsync(query);
-                    await conn.InsertAllAsync(whsProdSchemes);
+                    await Conn.ExecuteAsync(query);
+                    await Conn.InsertAllAsync(whsProdSchemes);
 
                     query = "INSERT INTO tLocationMapWarehouseProductScheme (" +
                             "WarehouseLocationMapRefno" +
@@ -139,11 +138,11 @@ namespace dMobile.GroundWork
                             " INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapWarehouseFKRefno = Seg.LocationMapWarehouseFKRefno" +
                             " INNER JOIN tProduct ON tProduct.ProductFKRefno = Seg.ProductFKRefno" +
                             " INNER JOIN tProductScheme ON tProductScheme.ProductSchemeCode = Seg.ProductSchemeCode";
-                    await conn.ExecuteAsync(query);
+                    await Conn.ExecuteAsync(query);
 
                     // Drop the temporary table
                     const string dropTempTableQuery = "DROP TABLE IF EXISTS Seg";
-                    await conn.ExecuteAsync(dropTempTableQuery);
+                    await Conn.ExecuteAsync(dropTempTableQuery);
 
                     this.DataAccessStatusOutHandler(
                         this,

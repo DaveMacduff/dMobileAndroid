@@ -200,7 +200,6 @@ namespace dMobile.GroundWork
             ////cWhsLocation.WarehouseLocationMapType, ;
             ////cWhsLocation.WarehouseLocationMapFKRefno
 
-            var conn = DatabaseConnection.GetInstance().SqlConn;
             using var dataSet = new DataSet();
             dataSet.ReadXml(SysCommon.GetXmlReader(ref responseData), XmlReadMode.Auto);
             if (dataSet.Tables.Count > 0)
@@ -228,8 +227,8 @@ namespace dMobile.GroundWork
                         "WarehouseLocationMapType INTEGER NOT NULL," +
                         "WarehouseLocationMapFKRefno INTEGER NOT NULL" +
                         ")";
-                    await conn.ExecuteAsync(query);
-                    await conn.InsertAllAsync(whsTypes);
+                    await Conn.ExecuteAsync(query);
+                    await Conn.InsertAllAsync(whsTypes);
 
                     query = "INSERT INTO tWarehouseLocationMapType (" +
                         "LocationMapRefno" +
@@ -255,7 +254,7 @@ namespace dMobile.GroundWork
                         " FROM Seg" +
                         " INNER JOIN tLocationMapSlot Slot ON Slot.LocationMapSlotFKRefno = Seg.LocationMapFKRefno" +
                         $" WHERE Seg.LocationMapSubType = {(int)SysCommon.LocMapSubTypes.Slot}";
-                    var rowsAffected = await conn.ExecuteAsync(query);
+                    var rowsAffected = await Conn.ExecuteAsync(query);
                     if (whsTypes.Count != rowsAffected)
                     {
                         throw new BaseException("Failed to insert all rows into tLocationMapSlot");
@@ -263,7 +262,7 @@ namespace dMobile.GroundWork
 
                     // Drop the temporary table
                     const string dropTempTableQuery = "DROP TABLE IF EXISTS Seg";
-                    await conn.ExecuteAsync(dropTempTableQuery);
+                    await Conn.ExecuteAsync(dropTempTableQuery);
 
                     this.DataAccessStatusOutHandler(
                         this,

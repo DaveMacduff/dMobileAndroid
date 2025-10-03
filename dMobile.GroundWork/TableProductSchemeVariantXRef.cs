@@ -58,7 +58,7 @@ namespace dMobile.GroundWork
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging product scheme variant xref.", true);
 
                 // Note should tProductSchemeVariants be purged too?
-                await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync("DELETE FROM tProductSchemeVariantXRef");
+                await Conn.ExecuteAsync("DELETE FROM tProductSchemeVariantXRef");
             }
             catch (SQLiteException ex)
             {
@@ -78,7 +78,7 @@ namespace dMobile.GroundWork
             int rowsAffected;
             try
             {
-                rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SqlConn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tProductSchemeVariantXRef"));
+                rowsAffected = Convert.ToInt32(await Conn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tProductSchemeVariantXRef"));
 
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"{rowsAffected} product scheme variant xrefs.", true);
             }
@@ -95,7 +95,6 @@ namespace dMobile.GroundWork
         {
             ////select distinct cast(iv_grade.scheme as varchar(10)) as ProductSchemeCode, ;
             ////cast(iv_grade.variant_no as integer) as ProductSchemeVariantNo;
-            var conn = DatabaseConnection.GetInstance().SqlConn;
             using var dataSet = new DataSet();
             dataSet.ReadXml(SysCommon.GetXmlReader(ref responseData), XmlReadMode.Auto);
             if (dataSet.Tables.Count > 0)
@@ -118,8 +117,8 @@ namespace dMobile.GroundWork
                         "ProductSchemeCode VARCHAR(10)" +
                         ",ProductSchemeVariantNo INTEGER" +
                         ")";
-                    await conn.ExecuteAsync(query);
-                    await conn.InsertAllAsync(variantXRefs);
+                    await Conn.ExecuteAsync(query);
+                    await Conn.InsertAllAsync(variantXRefs);
 
                     query = "INSERT INTO tProductSchemeVariantXRef (" +
                         "ProductSchemeRefno" +
@@ -129,7 +128,7 @@ namespace dMobile.GroundWork
                         "FROM Seg " +
                         "JOIN tProductScheme scheme ON scheme.ProductSchemeCode = Seg.ProductSchemeCode " +
                         "JOIN tProductSchemeVariant schemeVar ON schemeVar.ProductSchemeVariantNo = Seg.ProductSchemeVariantNo";
-                    var rowsAffected = await conn.ExecuteAsync(query);
+                    var rowsAffected = await Conn.ExecuteAsync(query);
                     if (variantXRefs.Count != rowsAffected)
                     {
                         throw new BaseException("Failed to insert all rows into tLocationMapSlot");
@@ -137,7 +136,7 @@ namespace dMobile.GroundWork
 
                     // Drop the temporary table
                     const string dropTempTableQuery = "DROP TABLE IF EXISTS Seg";
-                    await conn.ExecuteAsync(dropTempTableQuery);
+                    await Conn.ExecuteAsync(dropTempTableQuery);
 
                     this.DataAccessStatusOutHandler(
                         this,

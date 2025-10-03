@@ -28,11 +28,10 @@ namespace dMobile.GroundWork
         /// <returns><see cref="Task"/> Task completed.</returns>
         public override async Task PurgeData()
         {
-            var conn = DatabaseConnection.GetInstance().SqlConn;
             var subType = Convert.ToInt32(this.CurrentSubType);
             this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging convert unit details.", true);
 
-            await conn.RunInTransactionAsync(transaction =>
+            await Conn.RunInTransactionAsync(transaction =>
             {
                 try
                 {

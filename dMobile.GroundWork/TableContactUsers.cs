@@ -131,7 +131,7 @@ namespace dMobile.GroundWork
         {
             try
             {
-                await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync("DELETE FROM tContact");
+                await Conn.ExecuteAsync("DELETE FROM tContact");
             }
             catch (SQLiteException ex)
             {
@@ -270,7 +270,6 @@ namespace dMobile.GroundWork
         /// <inheritdoc cref="TableBase.Save(string)"/>
         protected override async Task Save(string responseData)
         {
-            var conn = DatabaseConnection.GetInstance().SqlConn;
             using var dataSet = new DataSet();
             dataSet.ReadXml(SysCommon.GetXmlReader(ref responseData), XmlReadMode.Auto);
             if (dataSet.Tables.Count > 0)
@@ -281,13 +280,13 @@ namespace dMobile.GroundWork
                 {
                     var row = dataSet.Tables["tContactUser"].Rows[idx];
                     var query = "INSERT INTO tContact (ContactSubType) VALUES (?)";
-                    await conn.ExecuteAsync(
+                    await Conn.ExecuteAsync(
                         query,
                         Convert.ToInt32(SysCommon.ContactSubTypes.User));
                     query = "SELECT last_insert_rowid()";
                     ////query = "SELECT tContact.ContactRefno FROM tContact" +
                     ////        " ORDER BY tContact.ContactRefno DESC LIMIT 1";
-                    var contactRefno = Convert.ToInt32(await conn.ExecuteScalarAsync<int>(query));
+                    var contactRefno = Convert.ToInt32(await Conn.ExecuteScalarAsync<int>(query));
 
                     // Decided not to check for duplicates. Just insert all.
                     // Assume duplicates have been removed at the comm server, including user 30 and 99.
@@ -312,7 +311,7 @@ namespace dMobile.GroundWork
                     users.Add(user);
                 }
 
-                await conn.InsertAllAsync(users);
+                await Conn.InsertAllAsync(users);
                 this.DataAccessStatusOutHandler(
                     this,
                     EventArgs.Empty,

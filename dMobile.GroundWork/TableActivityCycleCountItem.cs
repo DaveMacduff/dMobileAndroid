@@ -42,7 +42,6 @@ namespace dMobile.GroundWork
                 $"Purging existing {this.LowerCaseName} items.",
                 true);
 
-            var conn = DatabaseConnection.GetInstance().SqlConn;
             try
             {
                 // Corruption recovery cleanup.
@@ -79,7 +78,7 @@ namespace dMobile.GroundWork
 
                 foreach (var query in queries)
                 {
-                    await conn.ExecuteAsync(query, this.CurrentSubType);
+                    await Conn.ExecuteAsync(query, this.CurrentSubType);
                 }
 
                 this.DataAccessStatusOutHandler(
@@ -156,8 +155,7 @@ namespace dMobile.GroundWork
                 using var ds = new DataSet();
                 ds.ReadXml(SysCommon.GetXmlReader(ref responseData), XmlReadMode.Auto);
                 this.StatusOut("Saving cycle count items.");
-                var conn = DatabaseConnection.GetInstance().SqlConn;
-                if (ds.Tables.Count > 0)
+                    if (ds.Tables.Count > 0)
                 {
                     var rows = ds.Tables["tActivityItemCount"].Rows;
                     if (rows.Count > 0)
@@ -174,10 +172,10 @@ namespace dMobile.GroundWork
                                 ActivityItemStringFKRefno = Convert.ToString(drow["f02"]),
                                 LocationMapRefno = await GetReceivedDataLocationAsync(
                                     drow,
-                                    conn,
+                                    Conn,
                                     true,
                                     SysCommon.ActSubTypes.CycleCounts),
-                                ProductUnitRefno = await GetProductUnitRefnoFromDataRowAsync(drow, conn, true),
+                                ProductUnitRefno = await GetProductUnitRefnoFromDataRowAsync(drow, Conn, true),
                                 ActivityItemCountQuantityOnHand = Convert.ToDecimal(drow["f09"]),
                                 ActivityItemCountBaseQuantityOnHand = Convert.ToDecimal(drow["f10"]),
                                 ActivityItemCountWeightQuantityOnHand = Convert.ToDecimal(drow["f11"]),
@@ -203,8 +201,8 @@ namespace dMobile.GroundWork
                             "ActivityItemCountBaseQuantity DECIMAL(11, 3) NOT NULL," +
                             "ActivityItemCountWeightQuantity DECIMAL(11, 3) NOT NULL" +
                             ")";
-                        await conn.ExecuteAsync(query);
-                        await conn.InsertAllAsync(countItems);
+                        await Conn.ExecuteAsync(query);
+                        await Conn.InsertAllAsync(countItems);
 
                         query = @"
                     INSERT INTO tActivityItemCount (
@@ -235,7 +233,7 @@ namespace dMobile.GroundWork
                         Seg.ActivityItemCountBaseQuantity, 
                         Seg.ActivityItemCountWeightQuantity
                     FROM Seg";
-                        var rowsAffected = await conn.ExecuteAsync(query);
+                        var rowsAffected = await Conn.ExecuteAsync(query);
                         if (countItems.Count != rowsAffected)
                         {
                             throw new BaseException("Failed to insert all rows into tActivityItemCount");
@@ -243,7 +241,7 @@ namespace dMobile.GroundWork
 
                         // Drop the temporary table
                         const string dropTempTableQuery = "DROP TABLE IF EXISTS Seg";
-                        await conn.ExecuteAsync(dropTempTableQuery);
+                        await Conn.ExecuteAsync(dropTempTableQuery);
 
                         this.StatusOut("Request cycle count items complete.");
                     }
@@ -252,7 +250,7 @@ namespace dMobile.GroundWork
                 ///////////////////////////////////////////////////////////
                 async Task<int> GetActivityItemRefno()
                 {
-                    await conn.ExecuteAsync(
+                    await Conn.ExecuteAsync(
                             @"INSERT INTO tActivityItem
                             (ActivityItemSubType, ActivityItemStatus, ActivityRefno, ActivityItemIsAdded)
                             VALUES (?, ?, ?, ?)",
@@ -262,7 +260,7 @@ namespace dMobile.GroundWork
                             0);
 
                     var actItemRefno = Convert.ToInt32(
-                        await conn.ExecuteScalarAsync<int>("SELECT last_insert_rowid() FROM tActivityItem"));
+                        await Conn.ExecuteScalarAsync<int>("SELECT last_insert_rowid() FROM tActivityItem"));
                     return actItemRefno;
                 }
             }

@@ -33,13 +33,12 @@ namespace dMobile.GroundWork
         /// <inheritdoc cref="TableBase.PurgeData()"/>
         public override async Task PurgeData()
         {
-            var conn = DatabaseConnection.GetInstance().SqlConn;
             this.DataAccessStatusOutHandler(
                 this,
                 EventArgs.Empty,
                 $"Purging {this.LowerCaseName} items.",
                 true);
-            await conn.RunInTransactionAsync(
+            await Conn.RunInTransactionAsync(
                 transaction =>
                 {
                     try
@@ -161,8 +160,7 @@ namespace dMobile.GroundWork
         /// <inheritdoc cref="TableBase.Save(string, int)"/>
         protected override async Task Save(string responseData, int refno)
         {
-            await DatabaseConnection.GetInstance()
-                .SqlConn.RunInTransactionAsync(
+            await Conn.RunInTransactionAsync(
                     transaction =>
                     {
                         try

@@ -33,7 +33,7 @@ namespace dMobile.GroundWork
             {
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging sales order routes.", true);
 
-                await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync("DELETE FROM tActivityPickingRoute");
+                await Conn.ExecuteAsync("DELETE FROM tActivityPickingRoute");
 
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging sales order routes complete.", true);
             }

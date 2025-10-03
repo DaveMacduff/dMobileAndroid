@@ -90,7 +90,7 @@ namespace dMobile.GroundWork
             int rowsAffected;
             try
             {
-                rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SqlConn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tLocationMapSlot"));
+                rowsAffected = Convert.ToInt32(await Conn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tLocationMapSlot"));
 
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"{rowsAffected} slots.", false);
             }
@@ -120,7 +120,6 @@ namespace dMobile.GroundWork
         /// <inheritdoc cref="TableBase.Save(string)"/>
         protected override async Task Save(string responseData)
         {
-            var conn = DatabaseConnection.GetInstance().SqlConn;
             using var dataSet = new DataSet();
             dataSet.ReadXml(SysCommon.GetXmlReader(ref responseData), XmlReadMode.Auto);
             if (dataSet.Tables.Count > 0)
@@ -158,8 +157,8 @@ namespace dMobile.GroundWork
                                 + "LocationMapSlotCoordinate2Code VARCHAR(10) NOT NULL,"
                                 + "LocationMapSlotCoordinate3Code VARCHAR(10) NOT NULL"
                                 + ")";
-                    await conn.ExecuteAsync(query);
-                    await conn.InsertAllAsync(slots);
+                    await Conn.ExecuteAsync(query);
+                    await Conn.InsertAllAsync(slots);
 
                     query = "INSERT INTO tLocationMapSlot (" +
                         "LocationMapRefno" +
@@ -196,7 +195,7 @@ namespace dMobile.GroundWork
                         $" INNER JOIN tLocationMapSlotCoordinate Coord3 ON Coord3.LocationMapSlotCoordinateEnum = {Convert.ToInt32(SysCommon.LocMapSlotCoordTypes.Coord3)}" +
                         " AND Coord3.WarehouseLocationMapRefno = Sect.WarehouseLocationMapRefno" +
                         " AND Coord3.LocationMapSlotCoordinateCode = Seg.LocationMapSlotCoordinate3Code";
-                    var rowsAffected = await conn.ExecuteAsync(query);
+                    var rowsAffected = await Conn.ExecuteAsync(query);
                     if (slots.Count != rowsAffected)
                     {
                         throw new BaseException("Failed to insert all rows into tLocationMapSlot");
@@ -204,7 +203,7 @@ namespace dMobile.GroundWork
 
                     // Drop the temporary table
                     const string dropTempTableQuery = "DROP TABLE IF EXISTS Seg";
-                    await conn.ExecuteAsync(dropTempTableQuery);
+                    await Conn.ExecuteAsync(dropTempTableQuery);
                 }
 
                 this.DataAccessStatusOutHandler(
@@ -227,10 +226,10 @@ namespace dMobile.GroundWork
             async Task<int> GetLocationMapRefno()
             {
                 var query = "INSERT INTO tLocationMap (LocationMapSubType) VALUES (?)";
-                await conn.ExecuteAsync(query, Convert.ToInt32(SysCommon.LocMapSubTypes.Slot));
+                await Conn.ExecuteAsync(query, Convert.ToInt32(SysCommon.LocMapSubTypes.Slot));
                 query = "SELECT last_insert_rowid()";
                 ////query = "SELECT tLocationMap.LocationMapRefno FROM tLocationMap ORDER BY LocationMapRefno DESC LIMIT 1";
-                var locMapRefno = Convert.ToInt32(await conn.ExecuteScalarAsync<int>(query));
+                var locMapRefno = Convert.ToInt32(await Conn.ExecuteScalarAsync<int>(query));
                 return locMapRefno;
             }
         }

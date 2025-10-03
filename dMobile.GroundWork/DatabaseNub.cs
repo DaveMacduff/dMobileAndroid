@@ -249,17 +249,17 @@ namespace dMobile.GroundWork
         }
 
         /// <inheritdoc/>
-        public void RegNubListenerStatOut(IDatabaseNub databaseNubEvent)
+        public void RegNubListenerStatOut(IDatabaseNub databaseNub)
         {
             // Register a listener for nub status output events.
-            this.OnNubStatOut += databaseNubEvent.OnNubStatOut;
+            this.OnNubStatOut += databaseNub.OnNubStatOut;
         }
 
         /// <inheritdoc/>
-        public void UnregNubListenerStatOut(IDatabaseNub databaseNubEvent)
+        public void UnregNubListenerStatOut(IDatabaseNub databaseNub)
         {
             // Unregister a listener for nub status output events.
-            this.OnNubStatOut -= databaseNubEvent.OnNubStatOut;
+            this.OnNubStatOut -= databaseNub.OnNubStatOut;
         }
 
         /// <summary>

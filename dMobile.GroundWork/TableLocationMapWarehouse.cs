@@ -39,7 +39,7 @@ namespace dMobile.GroundWork
             {
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging warehouses.", true);
 
-                await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync("DELETE FROM tLocationMapWarehouse WHERE LocationMapSubType = ?", Convert.ToInt32(SysCommon.LocMapSubTypes.Warehouse));
+                await Conn.ExecuteAsync("DELETE FROM tLocationMapWarehouse WHERE LocationMapSubType = ?", Convert.ToInt32(SysCommon.LocMapSubTypes.Warehouse));
 
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging warehouses complete.", true);
             }
@@ -62,7 +62,7 @@ namespace dMobile.GroundWork
             int whsLocMapRefno;
             try
             {
-                var results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<LocationMapWarehouseModel>("SELECT * FROM tLocationMapWarehouse WHERE LocationMapWarehouseFKRefno = ?", Convert.ToInt32(locMapWhsFKRefno));
+                var results = await Conn.QueryAsync<LocationMapWarehouseModel>("SELECT * FROM tLocationMapWarehouse WHERE LocationMapWarehouseFKRefno = ?", Convert.ToInt32(locMapWhsFKRefno));
 
                 if (results?.Count > 0)
                 {
@@ -92,7 +92,7 @@ namespace dMobile.GroundWork
             int locMapWhsFKRefno;
             try
             {
-                var results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<LocationMapWarehouseModel>("SELECT * FROM tLocationMapWarehouse WHERE LocationMapRefno = ?", locMapWhsRefno);
+                var results = await Conn.QueryAsync<LocationMapWarehouseModel>("SELECT * FROM tLocationMapWarehouse WHERE LocationMapRefno = ?", locMapWhsRefno);
 
                 if (results?.Count > 0)
                 {
@@ -121,7 +121,7 @@ namespace dMobile.GroundWork
             int rowsAffected;
             try
             {
-                rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SqlConn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tLocationMapWarehouse"));
+                rowsAffected = Convert.ToInt32(await Conn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tLocationMapWarehouse"));
 
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"{rowsAffected} warehouses.", true);
             }
@@ -145,7 +145,6 @@ namespace dMobile.GroundWork
         /// <inheritdoc cref="TableBase.Save(string)"/>
         protected override async Task Save(string responseData)
         {
-            var conn = DatabaseConnection.GetInstance().SqlConn;
             using var dataSet = new DataSet();
             dataSet.ReadXml(SysCommon.GetXmlReader(ref responseData), XmlReadMode.Auto);
             if (dataSet.Tables.Count > 0)
@@ -182,7 +181,7 @@ namespace dMobile.GroundWork
                     warehouses.Add(warehouse);
                 }
 
-                await conn.InsertAllAsync(warehouses);
+                await Conn.InsertAllAsync(warehouses);
                 this.DataAccessStatusOutHandler(
                     this,
                     EventArgs.Empty,
@@ -203,9 +202,9 @@ namespace dMobile.GroundWork
             async Task<int> GetLocationMapRefno()
             {
                 var query = "INSERT INTO tLocationMap (LocationMapSubType) VALUES (?)";
-                await conn.ExecuteAsync(query, Convert.ToInt32(SysCommon.LocMapSubTypes.Warehouse));
+                await Conn.ExecuteAsync(query, Convert.ToInt32(SysCommon.LocMapSubTypes.Warehouse));
                 query = "SELECT last_insert_rowid() FROM tLocationMap";
-                var locMapRefno = Convert.ToInt32(await conn.ExecuteScalarAsync<int>(query));
+                var locMapRefno = Convert.ToInt32(await Conn.ExecuteScalarAsync<int>(query));
                 return locMapRefno;
             }
         }

@@ -54,7 +54,7 @@ namespace dMobile.GroundWork
             int rowsAffected;
             try
             {
-                rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SqlConn.ExecuteScalarAsync<int>(
+                rowsAffected = Convert.ToInt32(await Conn.ExecuteScalarAsync<int>(
                     "SELECT COUNT(*) FROM tLocationMapSection"));
 
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"{rowsAffected} sections.", true);
@@ -85,7 +85,6 @@ namespace dMobile.GroundWork
         /// <inheritdoc cref="TableBase.Save(string)"/>
         protected override async Task Save(string responseData)
         {
-            var conn = DatabaseConnection.GetInstance().SqlConn;
             using var dataSet = new DataSet();
             dataSet.ReadXml(SysCommon.GetXmlReader(ref responseData), XmlReadMode.Auto);
             if (dataSet.Tables.Count > 0)
@@ -119,8 +118,8 @@ namespace dMobile.GroundWork
                                 + "LocationMapSectionName VARCHAR(10) NOT NULL,"
                                 + "LocationMapSectionBarCode VARCHAR(13) NOT NULL"
                                 + ")";
-                    await conn.ExecuteAsync(query);
-                    await conn.InsertAllAsync(sections);
+                    await Conn.ExecuteAsync(query);
+                    await Conn.InsertAllAsync(sections);
 
                     query = "INSERT INTO tLocationMapSection (" +
                             "LocationMapRefno" +
@@ -139,11 +138,11 @@ namespace dMobile.GroundWork
                             ",Seg.LocationMapSectionBarCode" +
                             " FROM Seg" +
                             " INNER JOIN tLocationMapWarehouse ON tLocationMapWarehouse.LocationMapWarehouseFKRefno = Seg.LocationMapWarehouseFKRefno";
-                    await conn.ExecuteAsync(query);
+                    await Conn.ExecuteAsync(query);
 
                     // Drop the temporary table
                     const string dropTempTableQuery = "DROP TABLE IF EXISTS Seg";
-                    await conn.ExecuteAsync(dropTempTableQuery);
+                    await Conn.ExecuteAsync(dropTempTableQuery);
 
                     this.DataAccessStatusOutHandler(
                         this,
@@ -166,10 +165,10 @@ namespace dMobile.GroundWork
             async Task<int> GetLocationMapRefno()
             {
                 var query = "INSERT INTO tLocationMap (LocationMapSubType) VALUES (?)";
-                await conn.ExecuteAsync(query, Convert.ToInt32(SysCommon.LocMapSubTypes.Section));
+                await Conn.ExecuteAsync(query, Convert.ToInt32(SysCommon.LocMapSubTypes.Section));
                 query = "SELECT last_insert_rowid()";
                 ////query = "SELECT tLocationMap.LocationMapRefno FROM tLocationMap ORDER BY LocationMapRefno DESC LIMIT 1";
-                var locMapRefno = Convert.ToInt32(await conn.ExecuteScalarAsync<int>(query));
+                var locMapRefno = Convert.ToInt32(await Conn.ExecuteScalarAsync<int>(query));
                 return locMapRefno;
             }
         }

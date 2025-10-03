@@ -60,7 +60,7 @@ namespace dMobile.GroundWork
 
         // try
         //      {
-        //        using (SQLiteCommand cmndRoute = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+        //        using (SQLiteCommand cmndRoute = Conn.CreateCommand())
         //        {
         //          cmndRoute.CommandText = "tRoute";
         //          cmndRoute.IndexName = "UQ_RouteOnRouteCode";
@@ -118,7 +118,7 @@ namespace dMobile.GroundWork
             int rowsAffected;
             try
             {
-                rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SqlConn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tRoute"));
+                rowsAffected = Convert.ToInt32(await Conn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tRoute"));
 
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"{rowsAffected} routes.", true);
             }
@@ -139,7 +139,7 @@ namespace dMobile.GroundWork
             {
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging routes.", true);
 
-                await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync("DELETE FROM tRoute");
+                await Conn.ExecuteAsync("DELETE FROM tRoute");
 
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging routes complete.", true);
             }
@@ -155,7 +155,6 @@ namespace dMobile.GroundWork
         /// <inheritdoc cref="TableBase.Save(string)"/>
         protected override async Task Save(string responseData)
         {
-            var conn = DatabaseConnection.GetInstance().SqlConn;
             using var dataSet = new DataSet();
             dataSet.ReadXml(SysCommon.GetXmlReader(ref responseData), XmlReadMode.Auto);
             if (dataSet.Tables.Count > 0)
@@ -177,7 +176,7 @@ namespace dMobile.GroundWork
                             });
                     }
 
-                    await conn.InsertAllAsync(routes);
+                    await Conn.InsertAllAsync(routes);
                 }
 
                 this.DataAccessStatusOutHandler(

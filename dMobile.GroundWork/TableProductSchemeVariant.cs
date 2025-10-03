@@ -59,8 +59,8 @@ namespace dMobile.GroundWork
             {
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName}.", true);
 
-                await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync("DELETE FROM tProductSchemeVariantXRef");
-                await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync("DELETE FROM tProductSchemeVariant");
+                await Conn.ExecuteAsync("DELETE FROM tProductSchemeVariantXRef");
+                await Conn.ExecuteAsync("DELETE FROM tProductSchemeVariant");
 
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging product scheme variants complete.", true);
             }
@@ -84,7 +84,7 @@ namespace dMobile.GroundWork
 
         // try
         //      {
-        //        using (SQLiteCommand cmndSchemeVar = DatabaseConnection.GetInstance().SQLConn.CreateCommand())
+        //        using (SQLiteCommand cmndSchemeVar = Conn.CreateCommand())
         //        {
         //          cmndSchemeVar.CommandText = "tProductSchemeVariant";
         //          cmndSchemeVar.IndexName = "UQ_ProductSchemeVariantOnProductSchemeVariantNo";
@@ -144,7 +144,7 @@ namespace dMobile.GroundWork
             int rowsAffected;
             try
             {
-                rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SqlConn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tProductSchemeVariant"));
+                rowsAffected = Convert.ToInt32(await Conn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tProductSchemeVariant"));
 
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"{rowsAffected} product scheme variants.", false);
             }
@@ -159,7 +159,6 @@ namespace dMobile.GroundWork
         /// <inheritdoc cref="TableBase.Save(string)"/>
         protected override async Task Save(string responseData)
         {
-            var conn = DatabaseConnection.GetInstance().SqlConn;
             using var dataSet = new DataSet();
             dataSet.ReadXml(SysCommon.GetXmlReader(ref responseData), XmlReadMode.Auto);
             if (dataSet.Tables.Count > 0)
@@ -180,7 +179,7 @@ namespace dMobile.GroundWork
                         variants.Add(variant);
                     }
 
-                    await conn.InsertAllAsync(variants);
+                    await Conn.InsertAllAsync(variants);
 
                     this.DataAccessStatusOutHandler(
                         this,

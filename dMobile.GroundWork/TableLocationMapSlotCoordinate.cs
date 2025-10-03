@@ -39,7 +39,7 @@ namespace dMobile.GroundWork
             {
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName}.", true);
                 const string query = "DELETE FROM tLocationMapSlotCoordinate";
-                await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync(query);
+                await Conn.ExecuteAsync(query);
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} complete.", true);
             }
             catch (SQLiteException ex)
@@ -60,7 +60,7 @@ namespace dMobile.GroundWork
             int rowsAffected;
             try
             {
-                rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SqlConn.
+                rowsAffected = Convert.ToInt32(await Conn.
                     ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tLocationMapSlotCoordinate"));
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"{rowsAffected} slot coordinates.", true);
             }
@@ -75,7 +75,6 @@ namespace dMobile.GroundWork
         /// <inheritdoc cref="TableBase.Save(string)"/>
         protected override async Task Save(string responseData)
         {
-            var conn = DatabaseConnection.GetInstance().SqlConn;
             using var dataSet = new DataSet();
             dataSet.ReadXml(SysCommon.GetXmlReader(ref responseData), XmlReadMode.Auto);
             if (dataSet.Tables.Count > 0)
@@ -97,7 +96,7 @@ namespace dMobile.GroundWork
                 }
 
                 // Insert all coordinates into the database.
-                await conn.InsertAllAsync(coords);
+                await Conn.InsertAllAsync(coords);
                 this.DataAccessStatusOutHandler(
                     this,
                     EventArgs.Empty,
@@ -123,7 +122,7 @@ namespace dMobile.GroundWork
                 const string query = "SELECT LocationMapRefno FROM tLocationMapWarehouse" +
                                      " WHERE LocationMapWarehouseFKRefno = ?";
                 var whsLocMapRefno = Convert.ToInt32(
-                    await conn.ExecuteScalarAsync<int>(query, whsFkRefno));
+                    await Conn.ExecuteScalarAsync<int>(query, whsFkRefno));
                 return whsLocMapRefno;
             }
         }

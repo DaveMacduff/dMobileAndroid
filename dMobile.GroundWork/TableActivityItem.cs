@@ -19,8 +19,7 @@ namespace dMobile.GroundWork
         public override async Task PurgeData(SysCommon.ActSubTypes actSubType)
         {
             this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging activity items.", true);
-            var conn = DatabaseConnection.GetInstance().SqlConn;
-            await conn.RunInTransactionAsync(transaction =>
+            await Conn.RunInTransactionAsync(transaction =>
             {
                 try
                 {

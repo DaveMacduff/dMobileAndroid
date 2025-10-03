@@ -36,7 +36,6 @@ namespace dMobile.GroundWork
         /// <returns><see cref="Task" /> Task completed.</returns>
         public override async Task PurgeData()
         {
-            var conn = DatabaseConnection.GetInstance().SqlConn;
             var subType = Convert.ToInt32(this.CurrentSubType);
             this.DataAccessStatusOutHandler(
                 this,
@@ -44,7 +43,7 @@ namespace dMobile.GroundWork
                 $"Purging {this.LowerCaseName} details.",
                 true);
 
-            await conn.RunInTransactionAsync(
+            await Conn.RunInTransactionAsync(
                 transaction =>
                 {
                     try
@@ -171,9 +170,8 @@ namespace dMobile.GroundWork
         /// <exception cref="Exception">Thrown if no records are found for the specified <paramref name="activityFkRefno"/> in the database.</exception>
         protected override async Task<string> SendRequest(int activityFkRefno)
         {
-            var conn = DatabaseConnection.GetInstance().SqlConn;
             const string query = "SELECT * FROM tActivityItemReceiving WHERE ActivityItemFKRefno = ?";
-            var results = await conn.QueryAsync<ActivityItemReceivingModel>(
+            var results = await Conn.QueryAsync<ActivityItemReceivingModel>(
                 query,
                 activityFkRefno);
             if (results.Count <= 0)

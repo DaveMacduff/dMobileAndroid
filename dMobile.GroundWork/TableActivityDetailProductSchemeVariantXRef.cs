@@ -9,6 +9,9 @@ namespace dMobile.GroundWork
     using Bedrock;
     using SQLite;
 
+    /// <summary>
+    /// The Activity Detail Product Scheme Variant XRef table.
+    /// </summary>
     public class TableActivityDetailProductSchemeVariantXRef : TableBase
     {
         /// <summary>
@@ -21,10 +24,6 @@ namespace dMobile.GroundWork
             this.ProperCaseName = "Product scheme variant xref";
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <remarks></remarks>
         /// <inheritdoc/>
         public override async Task PurgeData()
         {
@@ -33,7 +32,7 @@ namespace dMobile.GroundWork
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} details.", true);
 
                 const string query = "DELETE FROM tActivityDetailProductSchemeVariantXRef";
-                await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync(query);
+                await Conn.ExecuteAsync(query);
 
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} details complete.", true);
             }

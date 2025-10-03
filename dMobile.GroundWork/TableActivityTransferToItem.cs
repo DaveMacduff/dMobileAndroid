@@ -40,8 +40,7 @@ namespace dMobile.GroundWork
                 EventArgs.Empty,
                 $"Purging {this.LowerCaseName}.",
                 true);
-            var conn = DatabaseConnection.GetInstance().SqlConn;
-            await conn.RunInTransactionAsync(
+            await Conn.RunInTransactionAsync(
                 transaction =>
                 {
                     try

@@ -34,8 +34,7 @@ namespace dMobile.GroundWork
                 EventArgs.Empty,
                 $"Purging existing {this.LowerCaseName} items.",
                 true);
-            var conn = DatabaseConnection.GetInstance().SqlConn;
-            await conn.RunInTransactionAsync(
+            await Conn.RunInTransactionAsync(
                 transaction =>
                 {
                     try

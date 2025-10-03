@@ -33,7 +33,7 @@ namespace dMobile.GroundWork
             {
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging sales order item comments.", true);
 
-                await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync("DELETE FROM tActivityItemPickingComment");
+                await Conn.ExecuteAsync("DELETE FROM tActivityItemPickingComment");
 
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging sales order item comments complete.", true);
             }

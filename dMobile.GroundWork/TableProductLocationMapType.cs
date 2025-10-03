@@ -150,7 +150,6 @@ namespace dMobile.GroundWork
         /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
         protected async Task SaveOpt(string responseData, int locMapWhsFKRefno)
         {
-            var conn = DatabaseConnection.GetInstance().SqlConn;
             using var dataSet = new DataSet();
             dataSet.ReadXml(SysCommon.GetXmlReader(ref responseData), XmlReadMode.Auto);
             if (dataSet.Tables.Count > 0)
@@ -179,8 +178,8 @@ namespace dMobile.GroundWork
                                 "ProductUnitLocationMapType INTEGER, " +
                                 "ProductFKRefno INTEGER" +
                                 ")";
-                    await conn.ExecuteAsync(query);
-                    await conn.InsertAllAsync(prodLoc);
+                    await Conn.ExecuteAsync(query);
+                    await Conn.InsertAllAsync(prodLoc);
                     query = "INSERT INTO tProductLocationMapType (" +
                             "ProductRefno" +
                             ",WarehouseLocationMapRefno" +
@@ -214,7 +213,7 @@ namespace dMobile.GroundWork
                             " INNER JOIN tLocationMapSlot slot ON slot.LocationMapSlotFKRefno = Seg.LocationMapFKRefno" +
                             " INNER JOIN tLocationMapWarehouse whs ON whs.LocationMapRefno = slot.WarehouseLocationMapRefno" +
                             $" WHERE Seg.LocationMapSubType = {(int)SysCommon.LocMapSubTypes.Slot}";
-                    var rowsAffected = await conn.ExecuteAsync(query);
+                    var rowsAffected = await Conn.ExecuteAsync(query);
                     if (prodLoc.Count != rowsAffected)
                     {
                         throw new BaseException(
@@ -223,7 +222,7 @@ namespace dMobile.GroundWork
 
                     // Drop the temporary table
                     const string dropTempTableQuery = "DROP TABLE IF EXISTS Seg";
-                    await conn.ExecuteAsync(dropTempTableQuery);
+                    await Conn.ExecuteAsync(dropTempTableQuery);
                 }
 
                 this.DataAccessStatusOutHandler(

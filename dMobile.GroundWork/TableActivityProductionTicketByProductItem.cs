@@ -33,13 +33,12 @@ namespace dMobile.GroundWork
         /// <inheritdoc/>
         public override async Task PurgeData()
         {
-            var conn = DatabaseConnection.GetInstance().SqlConn;
             this.DataAccessStatusOutHandler(
                 this,
                 EventArgs.Empty,
                 $"Purging {this.LowerCaseName} items.",
                 true);
-            await conn.RunInTransactionAsync(
+            await Conn.RunInTransactionAsync(
                 transaction =>
                 {
                     try

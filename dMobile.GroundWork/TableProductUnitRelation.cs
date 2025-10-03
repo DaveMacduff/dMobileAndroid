@@ -41,7 +41,7 @@ namespace dMobile.GroundWork
                 await this.SaveOpt(responseData);
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"{this.LowerCaseName} seeded.", true);
 
-                ////var results = await DatabaseConnection.GetInstance().SqlConn.QueryAsync<FamilyModel>("SELECT * FROM tFamily");
+                ////var results = await Conn.QueryAsync<FamilyModel>("SELECT * FROM tFamily");
 
                 ////if (results?.Count > 0)
                 ////{
@@ -81,7 +81,7 @@ namespace dMobile.GroundWork
             {
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging product uom relations.", true);
 
-                await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync("DELETE FROM tProductUnitRelation");
+                await Conn.ExecuteAsync("DELETE FROM tProductUnitRelation");
 
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging product uom relations complete.", true);
             }
@@ -103,7 +103,7 @@ namespace dMobile.GroundWork
             int rowsAffected;
             try
             {
-                rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SqlConn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tProductUnitRelation"));
+                rowsAffected = Convert.ToInt32(await Conn.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM tProductUnitRelation"));
 
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"{rowsAffected} product unit relations.", false);
             }
@@ -131,7 +131,6 @@ namespace dMobile.GroundWork
         /// <param name="responseData"></param>
         protected async Task SaveOpt(string responseData)
         {
-            var conn = DatabaseConnection.GetInstance().SqlConn;
             using var dataSet = new DataSet();
             dataSet.ReadXml(SysCommon.GetXmlReader(ref responseData), XmlReadMode.Auto);
             if (dataSet.Tables.Count > 0)
@@ -158,8 +157,8 @@ namespace dMobile.GroundWork
                         ",ProductFKRefno INTEGER NOT NULL" +
                         ",ProductUnitCode VARCHAR(2) NOT NULL" +
                         ",ProductBaseUnitCode VARCHAR(2) NOT NULL)";
-                    await conn.ExecuteAsync(query);
-                    await conn.InsertAllAsync(prodUnitRelations);
+                    await Conn.ExecuteAsync(query);
+                    await Conn.InsertAllAsync(prodUnitRelations);
 
                     query = "INSERT INTO tProductUnitRelation (" +
                         "ProductUnit1Refno" +
@@ -177,7 +176,7 @@ namespace dMobile.GroundWork
                         " INNER JOIN tProductUnit pu2 ON pu2.ProductRefno = prod.ProductRefno" +
                             " AND pu2.UnitRefno = (SELECT UnitRefno FROM tUnit WHERE UnitCode = Seg.ProductBaseUnitCode)" +
                             " AND pu2.ProductUnitIsBC = Seg.ProductUnitIsBC";
-                    var rowsAffected = await conn.ExecuteAsync(query);
+                    var rowsAffected = await Conn.ExecuteAsync(query);
                     if (prodUnitRelations.Count != rowsAffected)
                     {
                         throw new BaseException("Failed to insert all rows into tProductUnitRelation");
@@ -185,7 +184,7 @@ namespace dMobile.GroundWork
 
                     // Drop the temporary table
                     const string dropTempTableQuery = "DROP TABLE IF EXISTS Seg";
-                    await conn.ExecuteAsync(dropTempTableQuery);
+                    await Conn.ExecuteAsync(dropTempTableQuery);
                 }
 
                 this.DataAccessStatusOutHandler(

@@ -9,6 +9,7 @@ namespace dMobile.GroundWork
     using System;
     using System.Collections.Generic;
     using System.Data;
+    using System.Globalization;
     using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
@@ -53,6 +54,11 @@ namespace dMobile.GroundWork
         /// Define the on access progress out event.
         /// </summary>
         public event DataAccessProgressOutEventHandler OnDataAccessProgressOut;
+
+        /// <summary>
+        /// Gets or sets the SQLite async connection.
+        /// </summary>
+        protected static SQLiteAsyncConnection Conn { get; set; } = DatabaseConnection.GetInstance().SqlConn;
 
         /// <summary>
         /// Gets or sets the message text activity lower case name.
@@ -511,8 +517,7 @@ namespace dMobile.GroundWork
                 const string query = "SELECT COUNT(tActivity.ActivityRefno)" +
                                      " FROM tActivity" +
                                      " WHERE tActivity.ActivitySubType = ?";
-                var conn = DatabaseConnection.GetInstance().SqlConn;
-                rowsAffected = await conn.ExecuteScalarAsync<int>(query, (int)this.CurrentSubType);
+                    rowsAffected = await Conn.ExecuteScalarAsync<int>(query, (int)this.CurrentSubType);
                 this.DataAccessStatusOutHandler(
                     this,
                     EventArgs.Empty,
@@ -754,7 +759,7 @@ namespace dMobile.GroundWork
 
                 parameters.Add(
                     string.IsNullOrEmpty(Convert.ToString(drow["f23"]))
-                        ? DateTime.Parse(emptyDate)
+                        ? DateTime.Parse(emptyDate, CultureInfo.CurrentCulture)
                         : Convert.ToDateTime(drow["f23"]));
             }
             else
@@ -766,7 +771,7 @@ namespace dMobile.GroundWork
 
                 parameters.Add(
                     string.IsNullOrEmpty(Convert.ToString(drow["ActivityDetailExtra5"]))
-                        ? DateTime.Parse(emptyDate)
+                        ? DateTime.Parse(emptyDate, CultureInfo.CurrentCulture)
                         : Convert.ToDateTime(drow["ActivityDetailExtra5"]));
             }
 
@@ -939,7 +944,7 @@ namespace dMobile.GroundWork
                     return 0;
                 }
 
-                var results = await conn.QueryAsync<LocationMapModel>(query, fkRefno);
+                var results = await Conn.QueryAsync<LocationMapModel>(query, fkRefno);
                 return results.Count > 0 ? results[0].LocationMapRefno : 0;
             }
         }
@@ -971,27 +976,27 @@ namespace dMobile.GroundWork
 
                 detailParameters.Add(
                     string.IsNullOrEmpty(Convert.ToString(drow["f13"]))
-                        ? DateTime.Parse(emptyDate)
+                        ? DateTime.Parse(emptyDate, CultureInfo.CurrentCulture)
                         : Convert.ToDateTime(drow["f13"]));
 
                 detailParameters.Add(
                     string.IsNullOrEmpty(Convert.ToString(drow["f14"]))
-                        ? DateTime.Parse(emptyDate)
+                        ? DateTime.Parse(emptyDate, CultureInfo.CurrentCulture)
                         : Convert.ToDateTime(drow["f14"]));
 
                 detailParameters.Add(
                     string.IsNullOrEmpty(Convert.ToString(drow["f12"]))
-                        ? DateTime.Parse(emptyDate)
+                        ? DateTime.Parse(emptyDate, CultureInfo.CurrentCulture)
                         : Convert.ToDateTime(drow["f12"]));
 
                 detailParameters.Add(
                     string.IsNullOrEmpty(Convert.ToString(drow["f15"]))
-                        ? DateTime.Parse(emptyDate)
+                        ? DateTime.Parse(emptyDate, CultureInfo.CurrentCulture)
                         : Convert.ToDateTime(drow["f15"]));
 
                 detailParameters.Add(
                     string.IsNullOrEmpty(Convert.ToString(drow["f16"]))
-                        ? DateTime.Parse(emptyDate)
+                        ? DateTime.Parse(emptyDate, CultureInfo.CurrentCulture)
                         : Convert.ToDateTime(drow["f16"]));
 
                 detailParameters.Add(Convert.ToString(drow["f18"]));
@@ -1011,32 +1016,32 @@ namespace dMobile.GroundWork
                 detailParameters.Add(
                     string.IsNullOrEmpty(
                         Convert.ToString(drow["ActivityDetailLogisticUnitBestBeforeSellByDate"]))
-                        ? DateTime.Parse(emptyDate)
+                        ? DateTime.Parse(emptyDate, CultureInfo.CurrentCulture)
                         : Convert.ToDateTime(
                             drow["ActivityDetailLogisticUnitBestBeforeSellByDate"]));
 
                 detailParameters.Add(
                     string.IsNullOrEmpty(
                         Convert.ToString(drow["ActivityDetailLogisticUnitExpiryUseByDate"]))
-                        ? DateTime.Parse(emptyDate)
+                        ? DateTime.Parse(emptyDate, CultureInfo.CurrentCulture)
                         : Convert.ToDateTime(drow["ActivityDetailLogisticUnitExpiryUseByDate"]));
 
                 detailParameters.Add(
                     string.IsNullOrEmpty(
                         Convert.ToString(drow["ActivityDetailLogisticUnitProductionDate"]))
-                        ? DateTime.Parse(emptyDate)
+                        ? DateTime.Parse(emptyDate, CultureInfo.CurrentCulture)
                         : Convert.ToDateTime(drow["ActivityDetailLogisticUnitProductionDate"]));
 
                 detailParameters.Add(
                     string.IsNullOrEmpty(
                         Convert.ToString(drow["ActivityDetailLogisticUnitDueDate"]))
-                        ? DateTime.Parse(emptyDate)
+                        ? DateTime.Parse(emptyDate, CultureInfo.CurrentCulture)
                         : Convert.ToDateTime(drow["ActivityDetailLogisticUnitDueDate"]));
 
                 detailParameters.Add(
                     string.IsNullOrEmpty(
                         Convert.ToString(drow["ActivityDetailLogisticUnitPackagingDate"]))
-                        ? DateTime.Parse(emptyDate)
+                        ? DateTime.Parse(emptyDate, CultureInfo.CurrentCulture)
                         : Convert.ToDateTime(drow["ActivityDetailLogisticUnitPackagingDate"]));
 
                 detailParameters.Add(Convert.ToString(drow["ActivityDetailLogisticUnitSkidCode"]));
@@ -1064,7 +1069,7 @@ namespace dMobile.GroundWork
         protected static int GetWhsLocMapRefnoFromDataRow(DataRow drow, SQLiteAsyncConnection conn)
         {
             var locMapWhsFkRefno = Convert.ToInt32(drow["LocationMapWarehouseFKRefno"]);
-            var results = conn.QueryAsync<LocationMapWarehouseModel>(
+            var results = Conn.QueryAsync<LocationMapWarehouseModel>(
                 "SELECT * FROM tLocationMapWarehouse WHERE LocationMapWarehouseFKRefno = ?",
                 Convert.ToInt32(locMapWhsFkRefno));
 
@@ -1231,11 +1236,11 @@ namespace dMobile.GroundWork
                 prodUnitIsBc = Convert.ToBoolean(drow["ProductUnitIsBC"]);
             }
 
-            var productTask = conn.QueryAsync<ProductModel>(
+            var productTask = Conn.QueryAsync<ProductModel>(
                 "SELECT tProduct.ProductRefno FROM tProduct WHERE ProductFKRefno = ?",
                 prodFkRefno);
 
-            var unitTask = conn.QueryAsync<UnitModel>(
+            var unitTask = Conn.QueryAsync<UnitModel>(
                 "SELECT tUnit.UnitRefno FROM tUnit WHERE UnitCode = ?",
                 unitCode);
 
@@ -1258,7 +1263,7 @@ namespace dMobile.GroundWork
 
             var prodRefno = productResults[0].ProductRefno;
             var unitRefno = unitResults[0].UnitRefno;
-            var productUnitResults = await conn.QueryAsync<ProductUnitModel>(
+            var productUnitResults = await Conn.QueryAsync<ProductUnitModel>(
                 "SELECT tProductUnit.ProductUnitRefno FROM tProductUnit WHERE ProductRefno = ? AND UnitRefno = ?" +
                 " AND ProductUnitIsBC = ?",
                 prodRefno,

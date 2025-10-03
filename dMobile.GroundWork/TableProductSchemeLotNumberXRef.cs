@@ -57,8 +57,8 @@ namespace dMobile.GroundWork
             {
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging product scheme lot number xref.", true);
 
-                await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync("DELETE FROM tProductSchemeLotNumber");
-                await DatabaseConnection.GetInstance().SqlConn.ExecuteAsync("DELETE FROM tProductSchemeLotNumberXRef");
+                await Conn.ExecuteAsync("DELETE FROM tProductSchemeLotNumber");
+                await Conn.ExecuteAsync("DELETE FROM tProductSchemeLotNumberXRef");
 
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Purging product scheme lot number xref complete.", true);
             }
@@ -80,7 +80,7 @@ namespace dMobile.GroundWork
             int rowsAffected;
             try
             {
-                rowsAffected = Convert.ToInt32(await DatabaseConnection.GetInstance().SqlConn.ExecuteScalarAsync<int>(
+                rowsAffected = Convert.ToInt32(await Conn.ExecuteScalarAsync<int>(
                     "SELECT COUNT(*) FROM tProductSchemeLotNumberXRef"));
 
                 this.DataAccessStatusOutHandler(this, EventArgs.Empty,
@@ -97,7 +97,6 @@ namespace dMobile.GroundWork
         /// <inheritdoc cref="TableBase.Save(string)"/>
         protected override async Task Save(string responseData)
         {
-            var conn = DatabaseConnection.GetInstance().SqlConn;
             using var dataSet = new DataSet();
             dataSet.ReadXml(SysCommon.GetXmlReader(ref responseData), XmlReadMode.Auto);
             if (dataSet.Tables.Count > 0)
@@ -122,8 +121,8 @@ namespace dMobile.GroundWork
                                 + "ProductSchemeCode VARCHAR(10) NOT NULL,"
                                 + "ProductSchemeLotNumberCode VARCHAR(20) NOT NULL"
                                 + ")";
-                    await conn.ExecuteAsync(query);
-                    await conn.InsertAllAsync(schemeLotsXRef);
+                    await Conn.ExecuteAsync(query);
+                    await Conn.InsertAllAsync(schemeLotsXRef);
 
                     query = "INSERT INTO tProductSchemeLotNumberXRef (" +
                         "ProductSchemeRefno" +
@@ -133,7 +132,7 @@ namespace dMobile.GroundWork
                         " FROM Seg " +
                         " INNER JOIN tProductScheme ON Seg.ProductSchemeCode = tProductScheme.ProductSchemeCode " +
                         " INNER JOIN tProductSchemeLotNumber ON Seg.ProductSchemeLotNumberCode = tProductSchemeLotNumber.ProductSchemeLotNumberCode";
-                    var rowsAffected = await conn.ExecuteAsync(query);
+                    var rowsAffected = await Conn.ExecuteAsync(query);
                     if (schemeLotsXRef.Count != rowsAffected)
                     {
                         throw new BaseException("Failed to insert all rows into tLocationMapSlot");
@@ -141,7 +140,7 @@ namespace dMobile.GroundWork
 
                     // Drop the temporary table
                     const string dropTempTableQuery = "DROP TABLE IF EXISTS Seg";
-                    await conn.ExecuteAsync(dropTempTableQuery);
+                    await Conn.ExecuteAsync(dropTempTableQuery);
                 }
 
                 this.DataAccessStatusOutHandler(
