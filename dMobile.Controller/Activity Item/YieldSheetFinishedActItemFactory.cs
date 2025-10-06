@@ -1,13 +1,13 @@
-// <copyright file="CutSheetFinishedActItemFactory.cs" company="InterSect Business Systems Inc">
+// <copyright file="YieldSheetFinishedActItemFactory.cs" company="InterSect Business Systems Inc">
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
 namespace dMobile.Controller.Activity_Item
 {
     /// <summary>
-    /// Defines the <see cref="CutSheetFinishedActItemFactory" />.
+    /// Defines the <see cref="YieldSheetFinishedActItemFactory" />.
     /// </summary>
-    public class CutSheetFinishedActItemFactory : ActItemFactory
+    public class YieldSheetFinishedActItemFactory : ActItemFactory
     {
         /// <summary>
         /// The GetActItem.
@@ -16,7 +16,7 @@ namespace dMobile.Controller.Activity_Item
         /// <returns>The <see cref="ActItem"/>.</returns>
         public override ActItem GetActItem(Activity.Activity activity)
         {
-            return new CutSheetFinishedActItem(activity);
+            return new YieldSheetFinishedActItem(activity);
         }
     }
 }

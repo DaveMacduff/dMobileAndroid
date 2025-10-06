@@ -378,13 +378,6 @@ namespace dMobile.View.Menus
 
         private async void CmdCutFinished_Clicked(object sender, EventArgs e)
         {
-            ////await Device.InvokeOnMainThreadAsync(async () =>
-            ////    await this.DisplayAlert(
-            ////        "Under construction",
-            ////        "Cut sheet finished goods is under development.",
-            ////        "OK"));
-            ////return;
-
             this.DisableControls();
             this.UnloadControl();
 
@@ -394,13 +387,6 @@ namespace dMobile.View.Menus
 
         private async void CmdCutMaterial_Clicked(object sender, EventArgs e)
         {
-            ////await Device.InvokeOnMainThreadAsync(async () =>
-            ////    await this.DisplayAlert(
-            ////        "Under construction",
-            ////        "Cut sheet raw material is under development.",
-            ////        "OK"));
-            ////return;
-
             this.DisableControls();
             this.UnloadControl();
 
@@ -410,13 +396,6 @@ namespace dMobile.View.Menus
 
         private async void CmdYieldFinished_Clicked(object sender, EventArgs e)
         {
-            await Device.InvokeOnMainThreadAsync(async () =>
-                await this.DisplayAlert(
-                    "Under construction",
-                    "Yield sheet finished goods is under development.",
-                    "OK"));
-            return;
-
             this.DisableControls();
             this.UnloadControl();
 
@@ -426,13 +405,6 @@ namespace dMobile.View.Menus
 
         private async void CmdYieldMaterial_Clicked(object sender, EventArgs e)
         {
-            await Device.InvokeOnMainThreadAsync(async () =>
-                await this.DisplayAlert(
-                    "Under construction",
-                    "Cut sheet raw material is under development.",
-                    "OK"));
-            return;
-
             this.DisableControls();
             this.UnloadControl();
 
