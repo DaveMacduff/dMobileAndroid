@@ -829,7 +829,7 @@ namespace dMobile.Controller.Activity_Item
                 writer.WriteStartDocument();
                 writer.WriteStartElement("imclient");
                 writer.WriteStartElement("command");
-                writer.WriteElementString("action", "SUBMIT PRODUCTION TICKET MATERIAL ITEM");
+                writer.WriteElementString("action", "SUBMIT CUT SHEET FINISHED ITEM");
                 writer.WriteEndElement(); // command
 
                 // Insert request defaults as raw XML

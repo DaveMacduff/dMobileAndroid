@@ -650,7 +650,7 @@ namespace dMobile.Controller.Activity
                                 break;
                         }
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
                         throw new MessageOnlyException("Items that have not been reviewed exist for this order.");
                     }
