@@ -33,73 +33,39 @@ namespace dMobile.GroundWork
         /// <inheritdoc/>
         public override async Task PurgeData()
         {
-            var subType = Convert.ToInt32(this.CurrentSubType);
+            var subType = (int)this.CurrentSubType;
             this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} details.", true);
             await Conn.RunInTransactionAsync(transaction =>
             {
                 try
                 {
-                    var query = @"
-                        DELETE FROM tActivityCutSheetFinished
-                            WHERE tActivityCutSheetFinished.ActivityRefno <= ?
-                                OR tActivityCutSheetFinished.ActivityFKRefno <= 0";
-                    transaction.Execute(query);
-
-                    query = @"
-                        DELETE FROM tActivityCutSheetFinished
-                            WHERE tActivityCutSheetFinished.ActivityRefno
-                                NOT IN (SELECT tActivityCutSheet.ActivityRefno FROM tActivityCutSheet)";
-                    transaction.Execute(query);
-
-                    query = @"
-                        DELETE FROM tActivityCutSheetFinished
-                            WHERE tActivityCutSheetFinished.ActivityRefno
-                                NOT IN (SELECT tActivity.ActivityRefno FROM tActivity)";
-                    transaction.Execute(query);
-
-                    query = @"
-                        DELETE FROM tActivityCutSheet
-                            WHERE tActivityCutSheet.ActivityRefno <= 0";
-                    transaction.Execute(query);
-
-                    query = @"
-                        DELETE FROM tActivityCutSheet
-                            WHERE tActivityCutSheet.ActivityRefno
-                                NOT IN (SELECT tActivity.ActivityRefno FROM tActivity)";
-                    transaction.Execute(query);
-
-                    query = "DELETE FROM tActivity WHERE tActivity.ActivityRefno <= 0";
-                    transaction.Execute(query);
+                    // Corruption recovery cleanup.
+                    transaction.Execute(@"DELETE FROM tActivityCutSheetFinished 
+                        WHERE tActivityCutSheetFinished.ActivityRefno <= 0 OR tActivityCutSheetFinished.ActivityFKRefno <= 0");
+                    transaction.Execute(@"DELETE FROM tActivityCutSheetFinished 
+                        WHERE tActivityCutSheetFinished.ActivityRefno 
+                            NOT IN (SELECT tActivityCutSheet.ActivityRefno FROM tActivityCutSheet)");
+                    transaction.Execute(@"DELETE FROM tActivityCutSheetFinished 
+                        WHERE tActivityCutSheetFinished.ActivityRefno NOT IN (SELECT tActivity.ActivityRefno FROM tActivity)");
+                    transaction.Execute(@"DELETE FROM tActivityCutSheet WHERE tActivityCutSheet.ActivityRefno <= 0");
+                    transaction.Execute(@"DELETE FROM tActivityCutSheet 
+                        WHERE tActivityCutSheet.ActivityRefno NOT IN (SELECT tActivity.ActivityRefno FROM tActivity)");
+                    transaction.Execute(@"DELETE FROM tActivity WHERE tActivity.ActivityRefno <= 0");
 
                     // Regular purge.
-                    query = "DELETE FROM tActivityCutSheetFinished";
-                    transaction.Execute(query, subType);
-
-                    query = "DELETE FROM tActivityCutSheet WHERE tActivityCutSheet.ActivitySubType = ?";
-                    transaction.Execute(query, subType);
-
-                    query = "DELETE FROM tActivity WHERE tActivity.ActivitySubType = ?";
-                    transaction.Execute(query, subType);
+                    transaction.Execute(@"DELETE FROM tActivityCutSheetFinished", subType);
+                    transaction.Execute(@"DELETE FROM tActivityCutSheet WHERE tActivityCutSheet.ActivitySubType = ?", subType);
+                    transaction.Execute(@"DELETE FROM tActivity WHERE tActivity.ActivitySubType = ?", subType);
 
                     transaction.Commit();
-                    this.DataAccessStatusOutHandler(
-                        this,
-                        EventArgs.Empty,
-                        $"Purging {this.LowerCaseName} details complete.",
-                        true);
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} details complete.", true);
                 }
                 catch (SQLiteException sqlEx)
                 {
                     transaction.Rollback();
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
-                    this.DataAccessStatusOutHandler(
-                        this,
-                        EventArgs.Empty,
-                        $"Purging {this.LowerCaseName} details failed.",
-                        true);
-                    throw new BaseException(
-                        $"Database exception occurred. Purging {this.LowerCaseName} details failed.",
-                        sqlEx);
+                    this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Purging {this.LowerCaseName} details failed.", true);
+                    throw new BaseException($"Database exception occurred. Purging {this.LowerCaseName} details failed.", sqlEx);
                 }
                 catch (Exception ex)
                 {
@@ -118,81 +84,55 @@ namespace dMobile.GroundWork
                 {
                     using var ds = new DataSet();
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Reading received responseData.", false);
-
                     ds.ReadXml(SysCommon.GetXmlReader(ref responseData), XmlReadMode.Auto);
-
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving finished cut sheets.", false);
 
                     if (ds.Tables.Count != 0)
                     {
-                        var progMax = Convert.ToInt32(ds.Tables["tActivityCutSheet"].Rows.Count);
-
+                        var table = ds.Tables["tActivityCutSheet"];
+                        var progMax = table.Rows.Count;
                         this.DataAccessStatusOutHandler(this, EventArgs.Empty, $"Records {progMax}", false);
-
                         var actRefno = 0;
                         var progValue = 0;
                         var whsLocMapRefno = 0;
-
                         this.DataAccessProgressOutHandler(this, EventArgs.Empty, 0, 0, progMax);
 
-                        foreach (DataRow drow in ds.Tables["tActivityCutSheet"].Rows)
+                        foreach (DataRow drow in table.Rows)
                         {
                             transaction.Execute("INSERT INTO tActivity (ActivityStatus, ActivitySubType) VALUES (?, ?)",
                                 0,
-                                Convert.ToInt32(SysCommon.ActSubTypes.CutSheetFinished));
-                            actRefno = Convert.ToInt32(transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivity"));
-                            const string queryActivityCutSheet = "INSERT INTO tActivityCutSheet (" +
-                                "ActivityRefno, " +
-                                "ActivitySubType, " +
-                                "WarehouseLocationMapRefno, " +
-                                "ActivityCutSheetDateTime, " +
-                                "ActivityCutSheetDescription" +
-                                ") VALUES (" +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?" +
-                                ")";
+                                (int)SysCommon.ActSubTypes.CutSheetFinished);
+                            actRefno = transaction.ExecuteScalar<int>("SELECT last_insert_rowid() FROM tActivity");
                             var parametersActivityCutSheet = new List<object>
                             {
                                 actRefno,
-                                Convert.ToInt32(SysCommon.ActSubTypes.CutSheetFinished)
+                                (int)SysCommon.ActSubTypes.CutSheetFinished
                             };
-
                             whsLocMapRefno = GetWhsLocMapRefnoFromDataRow(drow, transaction);
                             parametersActivityCutSheet.Add(whsLocMapRefno);
-                            var dt = DateTime.Parse(
-                                Convert.ToDateTime(drow["ActivityCutSheetDateTime"]).ToShortDateString(),
-                                CultureInfo.CurrentCulture);
+                            var dt = DateTime.Parse(Convert.ToDateTime(drow["ActivityCutSheetDateTime"]).ToShortDateString(), CultureInfo.CurrentCulture);
                             parametersActivityCutSheet.Add(dt);
                             parametersActivityCutSheet.Add(drow["ActivityCutSheetDescription"].ToString());
-                            transaction.Execute(queryActivityCutSheet, parametersActivityCutSheet.ToArray());
+                            transaction.Execute(@"INSERT INTO tActivityCutSheet (ActivityRefno, ActivitySubType,
+                                    WarehouseLocationMapRefno, ActivityCutSheetDateTime, ActivityCutSheetDescription)
+                                    VALUES (?, ?, ?, ?, ?)",
+                                parametersActivityCutSheet.ToArray());
 
                             var actCutSheetFKRefno = Convert.ToInt32(drow["ActivityFKRefno"]);
-                            const string queryActivityCutSheetFinished = "INSERT INTO tActivityCutSheetFinished (" +
-                                "ActivityRefno, " +
-                                "ActivityFKRefno, " +
-                                "ActivityStringFKRefno, " +
-                                "ActivityCutSheetFinishedDefaultLogisticUnitBatchLotNumber" +
-                                ") VALUES (" +
-                                "?, " +
-                                "?, " +
-                                "?, " +
-                                "?" +
-                                ")";
                             var parametersActivityCutSheetFinished = new object[]
                             {
-                                    actRefno,
-                                    actCutSheetFKRefno,
-                                    actCutSheetFKRefno.ToString(),
-                                    string.Empty,
+                                actRefno,
+                                actCutSheetFKRefno,
+                                actCutSheetFKRefno.ToString(),
+                                string.Empty,
                             };
-
-                            transaction.Execute(queryActivityCutSheetFinished, parametersActivityCutSheetFinished);
+                            transaction.Execute(@"INSERT INTO tActivityCutSheetFinished (ActivityRefno, 
+                                    ActivityFKRefno, ActivityStringFKRefno, ActivityCutSheetFinishedDefaultLogisticUnitBatchLotNumber) 
+                                    VALUES (?, ?, ?, ?)",
+                                parametersActivityCutSheetFinished);
 
                             progValue++;
-                            if (progValue % 10 == 0)
+                            if ((progValue & 0x7F) == 0) // update every 128 records
                             {
                                 this.DataAccessProgressOutHandler(this, EventArgs.Empty, progValue, 0, progMax);
                             }
@@ -202,16 +142,13 @@ namespace dMobile.GroundWork
                     }
 
                     transaction.Commit();
-
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving finished cut sheets complete.", false);
                 }
                 catch (SQLiteException ex)
                 {
                     transaction.Rollback();
-
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Database exception occurred.", true);
                     this.DataAccessStatusOutHandler(this, EventArgs.Empty, "Saving finished cut sheets failed.", false);
-
                     throw new BaseException("Database exception occurred. Saving finished cut sheets failed.", ex);
                 }
             });
@@ -220,28 +157,32 @@ namespace dMobile.GroundWork
         /// <inheritdoc cref="TableBase.CreateRequest()"/>
         protected override async Task<string> CreateRequest()
         {
-            var xmlString = new StringBuilder();
-            var settings = new XmlWriterSettings
+            var sb = new StringBuilder(256);
+            using (var writer = XmlWriter.Create(sb, new XmlWriterSettings { Indent = false, OmitXmlDeclaration = false }))
             {
-                Async = true,
-                Indent = false,
-            };
-            var xml = XmlWriter.Create(xmlString, settings);
+                writer.WriteStartDocument();
+                writer.WriteStartElement("imclient");
+                writer.WriteStartElement("command");
+                writer.WriteElementString("action", "REQUEST CUT SHEET FINISHED");
 
-            var request = XDocument.Parse(
-                "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>"
-                + "<imclient>"
-                + "<command>"
-                + "<action>REQUEST CUT SHEET FINISHED</action>"
-                + await SysCommon.GetRequestDefaults(false)
-                + "</command>"
-                + "</imclient>");
+                // Insert request defaults as raw XML
+                var requestDefaults = await SysCommon.GetRequestDefaults(false);
+                if (!string.IsNullOrEmpty(requestDefaults))
+                {
+                    var defaultsDoc = XDocument.Parse("<root>" + requestDefaults + "</root>");
+                    foreach (var elem in defaultsDoc.Root.Elements())
+                    {
+                        elem.WriteTo(writer);
+                    }
+                }
 
-            request.Save(xml);
-            await xml.FlushAsync();
-            xml.Close();
+                writer.WriteEndElement(); // command
+                writer.WriteEndElement(); // imclient
+                writer.WriteEndDocument();
+                writer.Flush();
+            }
 
-            return xmlString.ToString();
+            return sb.ToString();
         }
     }
 }
