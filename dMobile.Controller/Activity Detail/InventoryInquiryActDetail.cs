@@ -110,23 +110,23 @@ namespace dMobile.Controller.Activity_Detail
         }
 
         /// <inheritdoc/>
-        public override async Task<ActDetailExtra> GetExtraInfoAsync(object selectedItem)
+        public override async Task<ActDetailExtraDisplayInfo> GetExtraInfoAsync(object selectedItem)
         {
             await Task.Run(() =>
             {
                 if (this.ActItem.ProdInfo.Refno <= 0)
                 {
-                    this.ActExtra.Text1 = "PRODUCT: All";
+                    this.ActExtraDisplayInfo.Text1 = "PRODUCT: All";
                 }
                 else
                 {
-                    this.ActExtra.Text1 = $"PRODUCT: {ProductInfoTasks.GetCurrReadableProdBcUnit(this.ActItem.ProdInfo)}";
+                    this.ActExtraDisplayInfo.Text1 = $"PRODUCT: {ProductInfoTasks.GetCurrReadableProdBcUnit(this.ActItem.ProdInfo)}";
                 }
 
-                this.ActExtra.Text2 = $"LOCATION: {LocationMapTasks.GetCurrentReadableLocation()}";
+                this.ActExtraDisplayInfo.Text2 = $"LOCATION: {LocationMapTasks.GetCurrentReadableLocation()}";
             });
 
-            return this.ActExtra;
+            return this.ActExtraDisplayInfo;
         }
 
         /// <summary>

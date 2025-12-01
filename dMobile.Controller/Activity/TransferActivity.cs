@@ -369,7 +369,7 @@ namespace dMobile.Controller.Activity
             //        this.DataViewHdrs.Sort = transferSettings.GetDataViewSortBy();
             //    }
             // }
-            this.listTransfers = await Conn.QueryAsync<Transfer>(sql.ToString());
+            this.listTransfers = await this.Conn.QueryAsync<Transfer>(sql.ToString());
 
             // The location map refno is not stored in the transfer header table. We need to set it here.
             foreach (var transfer in this.listTransfers)

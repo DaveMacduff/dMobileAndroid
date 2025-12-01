@@ -320,7 +320,7 @@ namespace dMobile.Controller.Activity_Detail
         }
 
         /// <inheritdoc/>
-        public override async Task<ActDetailExtra> GetExtraInfoAsync(object selectedItem)
+        public override async Task<ActDetailExtraDisplayInfo> GetExtraInfoAsync(object selectedItem)
         {
             if (selectedItem is AdjustmentDetail detail)
             {
@@ -333,13 +333,13 @@ namespace dMobile.Controller.Activity_Detail
                 DisplayAdjustedLocation(itemLocMap);
             }
 
-            return this.ActExtra;
+            return this.ActExtraDisplayInfo;
 
             void DisplayProductInfo(AdjustmentDetail detail)
             {
                 var prodDesc = detail.ProductDescription;
                 var prodUnitSizeDesc = detail.ProductUnitSizeDescription;
-                this.ActExtra.Text1 = prodDesc.Trim() + " " + prodUnitSizeDesc.Trim();
+                this.ActExtraDisplayInfo.Text1 = prodDesc.Trim() + " " + prodUnitSizeDesc.Trim();
             }
 
             async Task DisplayDefaultLocation(AdjustmentDetail detail, SLocMap itemLocMap)
@@ -350,13 +350,13 @@ namespace dMobile.Controller.Activity_Detail
                         SysCommon.ProdLocMapTypes.Picking);
                 var defaultReadableLocation = LocationMapTasks.GetReadableLocation(
                     await LocationMapTasks.GetSLocMapFromLocMapRefno(defLocMapRefno));
-                this.ActExtra.Text2 = "Default Location: " + defaultReadableLocation.Trim();
+                this.ActExtraDisplayInfo.Text2 = "Default Location: " + defaultReadableLocation.Trim();
             }
 
             void DisplayAdjustedLocation(SLocMap itemLocMap)
             {
                 var readableLocation = LocationMapTasks.GetReadableLocation(itemLocMap);
-                this.ActExtra.Text3 = "Adjusted Location: " + readableLocation.Trim();
+                this.ActExtraDisplayInfo.Text3 = "Adjusted Location: " + readableLocation.Trim();
             }
         }
 

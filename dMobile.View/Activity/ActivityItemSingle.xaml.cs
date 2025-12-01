@@ -62,8 +62,9 @@ namespace dMobile.View.Activity
             this.SearchTimer = new SysTimer(this.TimerTickCallback);
 
             // All other subtypes are defaulted to false, full skid scanning.
-            IsScanningPartialSkid = this.ActSubType == SysCommon.ActSubTypes.Receiving;
-            this.ChkPartialSkid.IsToggled = IsScanningPartialSkid;
+            this.IsScanningPartialSkid = this.ActSubType == SysCommon.ActSubTypes.Receiving;
+            this.ChkPartialSkid.IsToggled = this.IsScanningPartialSkid;
+            return;
 
             void InitBarCodeModifiers()
             {
@@ -113,13 +114,13 @@ namespace dMobile.View.Activity
 
         private List<object> ListItems { get; set; } = new List<object>();
 
-        private bool IsScanningPartialSkid { get; set; } = true;
+        private bool IsScanningPartialSkid { get; set; }
 
         private decimal ScannedSkidQuantity { get; set; } = 0;
 
-        private int LastFullSkidFKRefno { get; set; } = 0;
+        private int LastFullSkidFkRefno { get; set; } = 0;
 
-        private DataCollector DataCollector { get; set; } = null;
+        private DataCollector DataCollector { get; }
 
         private ProductInfo LastProductInfo { get; set; } = new ProductInfo();
 
@@ -225,8 +226,7 @@ namespace dMobile.View.Activity
             }
             catch (Exception ex)
             {
-                await Device.InvokeOnMainThreadAsync(
-                    async () =>
+                await Device.InvokeOnMainThreadAsync(async () =>
                     {
                         var errRpt = new FormErrorReport(ex);
                         _ = await errRpt.ShowDialog();
@@ -250,8 +250,7 @@ namespace dMobile.View.Activity
             }
             catch (Exception ex)
             {
-                await Device.InvokeOnMainThreadAsync(
-                    async () =>
+                await Device.InvokeOnMainThreadAsync(async () =>
                     {
                         var errRpt = new FormErrorReport(ex);
                         _ = await errRpt.ShowDialog();
@@ -272,8 +271,7 @@ namespace dMobile.View.Activity
             {
                 _ = base.OnBackButtonPressed();
 #pragma warning disable LindhartAnalyserMissingAwaitWarning
-                Task.Run(
-                    async () =>
+                Task.Run(async () =>
                     {
                         await this.ScannerDisable();
                         if (await this.CancelChanges())
@@ -342,8 +340,7 @@ namespace dMobile.View.Activity
                 catch (CommunicationException commEx)
                 {
                     // Question should a communication error, be reported as an error or just a messagebox?
-                    await Device.InvokeOnMainThreadAsync(
-                        async () =>
+                    await Device.InvokeOnMainThreadAsync(async () =>
                         {
                             var msg = $"Unable to load activity items.{Environment.NewLine}" +
                                       $"Because of a communication problem.{Environment.NewLine}" +
@@ -358,8 +355,7 @@ namespace dMobile.View.Activity
                 }
                 catch (Exception ex)
                 {
-                    await Device.InvokeOnMainThreadAsync(
-                        async () =>
+                    await Device.InvokeOnMainThreadAsync(async () =>
                         {
                             var msg = $"Unable to load activity items.{Environment.NewLine}" +
                                       $"General exception.{Environment.NewLine}" +
@@ -378,42 +374,32 @@ namespace dMobile.View.Activity
 
         private void DisplayCmdSetSkidData()
         {
-            if (this.LastSkidFkRefno != this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFkRefno)
+            this.CmdSetSkid.IsEnabled = true;
+            if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFkRefno > 0)
             {
-                this.CmdSetSkid.IsEnabled = true;
-                if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFkRefno > 0)
-                {
-                    this.CmdClearSkid.IsEnabled = true;
-                    var currSkid = this.ActItem.ActHdr.SkidInfo.CurrSkid;
-                    this.CmdSetSkid.Text = "Skid# " + currSkid.SkidCode;
-                }
-                else
-                {
-                    this.CmdClearSkid.IsEnabled = false;
-                    this.CmdSetSkid.Text = "Select Skid";
-                }
-
-                this.LastSkidFkRefno = this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFkRefno;
+                this.CmdClearSkid.IsEnabled = true;
+                var currSkid = this.ActItem.ActHdr.SkidInfo.CurrSkid;
+                this.CmdSetSkid.Text = "Skid# " + currSkid.SkidCode;
+            }
+            else
+            {
+                this.CmdClearSkid.IsEnabled = false;
+                this.CmdSetSkid.Text = "Select Skid";
             }
         }
 
         private void DisplayCmdSetLocationData()
         {
-            if (this.LastSkidFkRefno != this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFkRefno)
+            if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFkRefno > 0)
             {
-                if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFkRefno > 0)
-                {
-                    // If the skid is a new skid or empty, the location is enabled.
-                    // There is no new skid flag, so we check if the quantity is greater than 0.
-                    var currSkid = this.ActItem.ActHdr.SkidInfo.CurrSkid;
-                    this.CmdSetLocation.IsEnabled = currSkid.Quantity == 0;
-                }
-                else
-                {
-                    this.CmdSetLocation.IsEnabled = true;
-                }
-
-                this.LastSkidFkRefno = this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFkRefno;
+                // If the skid is a new skid or empty, the location is enabled.
+                // There is no new skid flag, so we check if the quantity is greater than 0.
+                var currSkid = this.ActItem.ActHdr.SkidInfo.CurrSkid;
+                this.CmdSetLocation.IsEnabled = currSkid.Quantity == 0;
+            }
+            else
+            {
+                this.CmdSetLocation.IsEnabled = true;
             }
 
             if (this.LastLocMapRefno != this.LocMap.CurrLocMap.LocMapRefno)
@@ -474,12 +460,10 @@ namespace dMobile.View.Activity
                     await FindOrCreateSkidLineItem(scanArgs.ParseInfo, lastSkid);
                     if (!this.IsScanningPartialSkid)
                     {
-                        await Device.InvokeOnMainThreadAsync(
-                        async () =>
+                        await Device.InvokeOnMainThreadAsync(async () =>
                         {
                             var actDetail = ActDetailFacade.GetActDetail(this.ActItem, this.ActSubType);
                             await actDetail.InsertSkid(this.ActItem.ActHdr.SkidInfo);
-                            this.LastFullSkidFKRefno = this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFkRefno;
                             this.ActItem.AddToQuantityInActivityItem(
                                 this.ActItem.SelectedItem,
                                 actDetail.Quantity,
@@ -499,13 +483,14 @@ namespace dMobile.View.Activity
                         });
                     }
 
-                    await Device.InvokeOnMainThreadAsync(
-                    async () =>
+                    await Device.InvokeOnMainThreadAsync(async () =>
                     {
                         this.DisplayCmdSetSkidData();
                         await this.DisplaySkidLocationData();
                     });
                 }
+
+                this.LastSkidFkRefno = this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFkRefno;
 
                 var isProductScanned = !string.IsNullOrEmpty(scanArgs.ParseInfo.ProductIdentifier);
                 if (isProductScanned)
@@ -522,8 +507,7 @@ namespace dMobile.View.Activity
             {
                 if (!ex.SuppressError)
                 {
-                    await Device.InvokeOnMainThreadAsync(
-                        async () =>
+                    await Device.InvokeOnMainThreadAsync(async () =>
                         {
                             var errRpt = new FormErrorReport(ex);
                             _ = await errRpt.ShowDialog();
@@ -534,8 +518,7 @@ namespace dMobile.View.Activity
             {
                 if (!ex.SuppressError)
                 {
-                    await Device.InvokeOnMainThreadAsync(
-                        async () =>
+                    await Device.InvokeOnMainThreadAsync(async () =>
                         {
                             var errRpt = new FormErrorReport(ex);
                             _ = await errRpt.ShowDialog();
@@ -545,8 +528,7 @@ namespace dMobile.View.Activity
             catch (MessageOnlyException msgEx)
             {
                 var msg = SysCommon.GetMessageFromMessageException(msgEx);
-                await Device.InvokeOnMainThreadAsync(
-                    async () =>
+                await Device.InvokeOnMainThreadAsync(async () =>
                         await Application.Current.MainPage.DisplayAlert(
                             this.GetControlDescription(),
                             msg,
@@ -554,8 +536,7 @@ namespace dMobile.View.Activity
             }
             catch (Exception ex)
             {
-                await Device.InvokeOnMainThreadAsync(
-                    async () =>
+                await Device.InvokeOnMainThreadAsync(async () =>
                     {
                         var errRpt = new FormErrorReport(ex);
                         _ = await errRpt.ShowDialog();
@@ -589,7 +570,7 @@ namespace dMobile.View.Activity
                     throw new MessageOnlyException(msg);
                 }
 
-                SLocMap tempSkidLocMap = await ChangeTheSkidLocationIfRequired(tempSkidInfo);
+                var tempSkidLocMap = await ChangeTheSkidLocationIfRequired(tempSkidInfo);
                 var tempProdInfo = tempSkidInfo.CurrSkid.ProdInfo;
                 if (tempProdInfo.UnitRefno == 0)
                 {
@@ -649,6 +630,8 @@ namespace dMobile.View.Activity
                         throw new MessageOnlyException(msg);
                     }
                 }
+
+                return;
 
                 async Task<SLocMap> ChangeTheSkidLocationIfRequired(SysSkidInfo tempSkidInfo)
                 {
@@ -761,7 +744,7 @@ namespace dMobile.View.Activity
             {
                 {
                     // Identify the product from the parse info.
-                    var prodUnitRefno = await DataCollector.IdentifyProductScanned(parse);
+                    var prodUnitRefno = await this.DataCollector.IdentifyProductScanned(parse);
                     ProductInfo scannedProdInfo = null;
                     if (this.LastProductInfo.UnitRefno == prodUnitRefno && prodUnitRefno != 0)
                     {
@@ -1241,6 +1224,8 @@ namespace dMobile.View.Activity
                         throw new MessageOnlyException(msg);
                     }
                 }
+
+                this.LastSkidFkRefno = this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFkRefno;
             }
             catch (CancelOperationException)
             {
@@ -1249,8 +1234,7 @@ namespace dMobile.View.Activity
             catch (MessageOnlyException msgEx)
             {
                 var msg = SysCommon.GetMessageFromMessageException(msgEx);
-                await Device.InvokeOnMainThreadAsync(
-                    async () =>
+                await Device.InvokeOnMainThreadAsync(async () =>
                         await Application.Current.MainPage.DisplayAlert(
                             this.GetControlDescription(),
                             msg,
@@ -1258,8 +1242,7 @@ namespace dMobile.View.Activity
             }
             catch (Exception ex)
             {
-                await Device.InvokeOnMainThreadAsync(
-                    async () =>
+                await Device.InvokeOnMainThreadAsync(async () =>
                     {
                         var errRpt = new FormErrorReport(ex);
                         _ = await errRpt.ShowDialog();
@@ -1335,8 +1318,7 @@ namespace dMobile.View.Activity
             }
             catch (Exception ex)
             {
-                await Device.InvokeOnMainThreadAsync(
-                    async () =>
+                await Device.InvokeOnMainThreadAsync(async () =>
                     {
                         var errRpt = new FormErrorReport(ex);
                         _ = await errRpt.ShowDialog();
@@ -1365,8 +1347,7 @@ namespace dMobile.View.Activity
             }
             catch (Exception ex)
             {
-                await Device.InvokeOnMainThreadAsync(
-                    async () => await this.DisplayAlert("Error", ex.Message, "OK"));
+                await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert("Error", ex.Message, "OK"));
             }
 
             return;
@@ -1391,8 +1372,7 @@ namespace dMobile.View.Activity
             }
             catch (Exception ex)
             {
-                await Device.InvokeOnMainThreadAsync(
-                    async () =>
+                await Device.InvokeOnMainThreadAsync(async () =>
                     {
                         var errRpt = new FormErrorReport(ex);
                         _ = await errRpt.ShowDialog();
@@ -1421,8 +1401,7 @@ namespace dMobile.View.Activity
             }
             catch (Exception ex)
             {
-                await Device.InvokeOnMainThreadAsync(
-                    async () =>
+                await Device.InvokeOnMainThreadAsync(async () =>
                     {
                         var errRpt = new FormErrorReport(ex);
                         _ = await errRpt.ShowDialog();
@@ -1476,8 +1455,7 @@ namespace dMobile.View.Activity
             catch (MessageOnlyException msgEx)
             {
                 var msg = SysCommon.GetMessageFromMessageException(msgEx);
-                await Device.InvokeOnMainThreadAsync(
-                    async () =>
+                await Device.InvokeOnMainThreadAsync(async () =>
                         await Application.Current.MainPage.DisplayAlert(
                             this.GetControlDescription(),
                             msg,
@@ -1485,8 +1463,7 @@ namespace dMobile.View.Activity
             }
             catch (Exception ex)
             {
-                await Device.InvokeOnMainThreadAsync(
-                    async () =>
+                await Device.InvokeOnMainThreadAsync(async () =>
                     {
                         var errRpt = new FormErrorReport(ex);
                         _ = await errRpt.ShowDialog();
@@ -1513,8 +1490,7 @@ namespace dMobile.View.Activity
             catch (MessageOnlyException msgEx)
             {
                 var msg = SysCommon.GetMessageFromMessageException(msgEx);
-                await Device.InvokeOnMainThreadAsync(
-                    async () =>
+                await Device.InvokeOnMainThreadAsync(async () =>
                         await Application.Current.MainPage.DisplayAlert(
                             this.ActItem.GetControlDescription(),
                             msg,
@@ -1524,8 +1500,7 @@ namespace dMobile.View.Activity
             {
                 if (!ex.SuppressError)
                 {
-                    await Device.InvokeOnMainThreadAsync(
-                        async () =>
+                    await Device.InvokeOnMainThreadAsync(async () =>
                         {
                             var errRpt = new FormErrorReport(this.ActSubType, ex);
                             _ = await errRpt.ShowDialog();
@@ -1537,8 +1512,7 @@ namespace dMobile.View.Activity
             }
             catch (Exception ex)
             {
-                await Device.InvokeOnMainThreadAsync(
-                    async () =>
+                await Device.InvokeOnMainThreadAsync(async () =>
                     {
                         var errRpt = new FormErrorReport(ex);
                         _ = await errRpt.ShowDialog();
@@ -1556,8 +1530,7 @@ namespace dMobile.View.Activity
             {
                 var prodInfoToAdd = await AskForProductToAdd();
                 this.ActItem.ActHdr.SkidInfo.CurrSkid = new SSkidInfo();
-                await Device.InvokeOnMainThreadAsync(
-                    async () =>
+                await Device.InvokeOnMainThreadAsync(async () =>
                     {
                         this.DisplayCmdSetSkidData();
                         await this.DisplaySkidLocationData();
@@ -1995,8 +1968,7 @@ namespace dMobile.View.Activity
             }
             catch (Exception ex)
             {
-                await Device.InvokeOnMainThreadAsync(
-                    async () =>
+                await Device.InvokeOnMainThreadAsync(async () =>
                     {
                         var errRpt = new FormErrorReport(ex);
                         _ = await errRpt.ShowDialog();
@@ -2049,6 +2021,8 @@ namespace dMobile.View.Activity
                 this.CmdAddSkid.IsEnabled = true;
             }
 
+            return;
+
             async Task PerformAddSkid()
             {
                 var selectedSkid = this.ActItem.ActHdr.SkidInfo.CurrSkid;
@@ -2067,7 +2041,7 @@ namespace dMobile.View.Activity
                     throw new CancelOperationException();
                 }
 
-                var isSkidUsed = this.LastFullSkidFKRefno == this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFkRefno;
+                var isSkidUsed = this.LastFullSkidFkRefno == this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFkRefno;
                 if (isSkidUsed)
                 {
                     // If the skid is already used, we will not allow adding it again.
@@ -2079,7 +2053,7 @@ namespace dMobile.View.Activity
                 await this.AssignAndDisplayLineItem(this.ActItem.ItemRefno);
 
                 await PerformAddDetail();
-                this.LastFullSkidFKRefno = this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFkRefno;
+                this.LastFullSkidFkRefno = this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFkRefno;
                 if (this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFkRefno == selectedSkid.SkidFkRefno)
                 {
                     this.ScannedSkidQuantity += this.ActDetail.Quantity;
@@ -2206,7 +2180,7 @@ namespace dMobile.View.Activity
 
         private void ChkPartialSkid_Toggled(object sender, ToggledEventArgs e)
         {
-            IsScanningPartialSkid = e.Value;
+            this.IsScanningPartialSkid = e.Value;
         }
     }
 }

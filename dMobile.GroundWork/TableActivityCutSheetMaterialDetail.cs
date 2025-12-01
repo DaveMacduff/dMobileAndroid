@@ -39,13 +39,18 @@ namespace dMobile.GroundWork
             {
                 try
                 {
-                    // Corruption recovery cleanup.
-                    transaction.Execute(@"DELETE FROM tActivityDetailProductSchemeVariantXRef 
-                        WHERE tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno <= 0 
-                        OR tActivityDetailProductSchemeVariantRefno <= 0");
-                    transaction.Execute(@"DELETE FROM tActivityDetailProductSchemeVariantXRef 
-                        WHERE tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno 
-                        NOT IN (SELECT tActivityDetail.ActivityDetailRefno FROM tActivityDetail)");
+                    var query = @"
+                        DELETE FROM tActivityDetailProductSchemeVariantXRef
+                            WHERE tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno <= 0
+                                OR tActivityDetailProductSchemeVariantXRef.ProductSchemeVariantRefno <= 0";
+                    transaction.Execute(query);
+
+                    query = @"
+                        DELETE FROM tActivityDetailProductSchemeVariantXRef
+                            WHERE tActivityDetailProductSchemeVariantXRef.ActivityDetailRefno
+                                NOT IN (SELECT tActivityDetail.ActivityDetailRefno FROM tActivityDetail)";
+                    transaction.Execute(query);
+
                     transaction.Execute(@"DELETE FROM tActivityDetailExtra WHERE tActivityDetailExtra.ActivityDetailRefno <= 0");
                     transaction.Execute(@"DELETE FROM tActivityDetailExtra 
                         WHERE tActivityDetailExtra.ActivityDetailRefno 

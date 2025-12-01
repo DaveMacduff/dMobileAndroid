@@ -183,7 +183,7 @@ namespace dMobile.Controller.Activity
                 parameters = new object[] { cutSheetFinished };
             }
 
-            var list = await Conn.QueryAsync<YieldSheetMaterial>(sql, parameters);
+            var list = await this.Conn.QueryAsync<YieldSheetMaterial>(sql, parameters);
 
             // Fast sort without reflection
             foreach (var sort in settings.GetDataViewSortBy())

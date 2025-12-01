@@ -173,7 +173,7 @@ namespace dMobile.Controller.Activity_Detail
         }
 
         /// <inheritdoc/>
-        public override async Task<ActDetailExtra> GetExtraInfoAsync(object selectedItem)
+        public override async Task<ActDetailExtraDisplayInfo> GetExtraInfoAsync(object selectedItem)
         {
             if (selectedItem is ReceiveDetail detail)
             {
@@ -186,13 +186,13 @@ namespace dMobile.Controller.Activity_Detail
                 DisplayReceivedLocation(itemLocMap);
             }
 
-            return this.ActExtra;
+            return this.ActExtraDisplayInfo;
 
             void DisplayProductInfo(ReceiveDetail detail)
             {
                 var prodDesc = detail.ProductDescription;
                 var prodUnitSizeDesc = detail.ProductUnitSizeDescription;
-                this.ActExtra.Text1 = prodDesc.Trim() + " " + prodUnitSizeDesc.Trim();
+                this.ActExtraDisplayInfo.Text1 = prodDesc.Trim() + " " + prodUnitSizeDesc.Trim();
             }
 
             async Task DisplayDefaultLocation(ReceiveDetail detail, SLocMap itemLocMap)
@@ -203,13 +203,13 @@ namespace dMobile.Controller.Activity_Detail
                         SysCommon.ProdLocMapTypes.Receiving);
                 var defProdLoc = LocationMapTasks.GetReadableLocation(
                     await LocationMapTasks.GetSLocMapFromLocMapRefno(defLocMapRefno));
-                this.ActExtra.Text2 = "Default Location: " + defProdLoc.Trim();
+                this.ActExtraDisplayInfo.Text2 = "Default Location: " + defProdLoc.Trim();
             }
 
             void DisplayReceivedLocation(SLocMap itemLocMap)
             {
                 var detailLoc = LocationMapTasks.GetReadableLocation(itemLocMap);
-                this.ActExtra.Text3 = "Received Location: " + detailLoc.Trim();
+                this.ActExtraDisplayInfo.Text3 = "Received Location: " + detailLoc.Trim();
             }
         }
 

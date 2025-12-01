@@ -949,6 +949,8 @@ namespace dMobile.View.Activity
                     this.ProductUnitRefno = prodInfo.UnitRefno;
                 }
 
+                return;
+
                 static void BarCodeRuleParseSumwaFarmFedWholeDuckUseWeightRangeToIdProduct(BarCodeParse barCodeParse)
                 {
                     if (barCodeParse.NetWeightMetricKg >= Convert.ToDecimal(11.00) &&

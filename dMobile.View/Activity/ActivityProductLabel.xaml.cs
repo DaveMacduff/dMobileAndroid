@@ -395,6 +395,8 @@ namespace dMobile.View.Activity
                         "OK"));
             }
 
+            return;
+
             void ShowProductInfo()
             {
                 this.ExtraInfoItems.Clear();

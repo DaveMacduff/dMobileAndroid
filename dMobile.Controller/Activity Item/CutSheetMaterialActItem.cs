@@ -313,7 +313,7 @@ namespace dMobile.Controller.Activity_Item
 
             async Task InsertActivityItemInTables(int prodUnitRefno)
             {
-                await Conn.RunInTransactionAsync(db =>
+                await this.Conn.RunInTransactionAsync(db =>
                 {
                     const int subType = (int)SysCommon.ActSubTypes.CutSheetMaterial;
                     const int status = (int)SysCommon.ActStatus.Inserted;
@@ -758,7 +758,7 @@ namespace dMobile.Controller.Activity_Item
                 parameters = new object[] { hdrRefno, subTypeMaterial, hdrRefno, subTypeMaterial, hdrRefno, subTypeMaterial };
             }
 
-            this.ListCutSheetMaterialItems = await Conn.QueryAsync<CutSheetMaterialItem>(sql, parameters);
+            this.ListCutSheetMaterialItems = await this.Conn.QueryAsync<CutSheetMaterialItem>(sql, parameters);
             this.ListItems = this.ListCutSheetMaterialItems.Cast<object>().ToList();
             return this.ListItems;
         }
@@ -879,7 +879,7 @@ namespace dMobile.Controller.Activity_Item
                   AND ai.ActivityItemSubType = ?
                 LIMIT 1";
 
-            var refno = await Conn.ExecuteScalarAsync<int?>(
+            var refno = await this.Conn.ExecuteScalarAsync<int?>(
                 sql,
                 this.ActHdr.HdrRefno,
                 locMap.WhsLocMapRefno,
@@ -955,11 +955,14 @@ namespace dMobile.Controller.Activity_Item
             decimal baseQuantity,
             decimal weightQuantity)
         {
-            if (selectedActivityItem is CutSheetMaterialItem productioCutSheetMaterialItem)
+            if (selectedActivityItem is CutSheetMaterialItem productionCutSheetMaterialItem)
             {
-                productioCutSheetMaterialItem.ActivityItemCutSheetQuantity = quantity;
-                productioCutSheetMaterialItem.ActivityItemCutSheetBaseQuantity = baseQuantity;
-                productioCutSheetMaterialItem.ActivityItemCutSheetWeightQuantity = weightQuantity;
+                productionCutSheetMaterialItem.ActivityItemCutSheetQuantity = quantity;
+                productionCutSheetMaterialItem.ActivityItemCutSheetBaseQuantity = baseQuantity;
+                productionCutSheetMaterialItem.ActivityItemCutSheetWeightQuantity = weightQuantity;
+                productionCutSheetMaterialItem.ActivityItemCutSheetQuantityExpected = quantity;
+                productionCutSheetMaterialItem.ActivityItemCutSheetBaseQuantityExpected = baseQuantity;
+                productionCutSheetMaterialItem.ActivityItemCutSheetWeightQuantityExpected = weightQuantity;
             }
         }
 
@@ -970,11 +973,14 @@ namespace dMobile.Controller.Activity_Item
             decimal baseQuantity,
             decimal weightQuantity)
         {
-            if (selectedActivityItem is CutSheetMaterialItem productioCutSheetMaterialItem)
+            if (selectedActivityItem is CutSheetMaterialItem productionCutSheetMaterialItem)
             {
-                productioCutSheetMaterialItem.ActivityItemCutSheetQuantity += quantity;
-                productioCutSheetMaterialItem.ActivityItemCutSheetBaseQuantity += baseQuantity;
-                productioCutSheetMaterialItem.ActivityItemCutSheetWeightQuantity += weightQuantity;
+                productionCutSheetMaterialItem.ActivityItemCutSheetQuantity += quantity;
+                productionCutSheetMaterialItem.ActivityItemCutSheetBaseQuantity += baseQuantity;
+                productionCutSheetMaterialItem.ActivityItemCutSheetWeightQuantity += weightQuantity;
+                productionCutSheetMaterialItem.ActivityItemCutSheetQuantityExpected += quantity;
+                productionCutSheetMaterialItem.ActivityItemCutSheetBaseQuantityExpected += baseQuantity;
+                productionCutSheetMaterialItem.ActivityItemCutSheetWeightQuantity += weightQuantity;
             }
         }
 
@@ -994,7 +1000,7 @@ namespace dMobile.Controller.Activity_Item
                     productioCutSheetMaterialItem.ActivityItemRefno
                 };
 
-                await Conn.ExecuteAsync(query, parameters);
+                await this.Conn.ExecuteAsync(query, parameters);
             }
         }
 

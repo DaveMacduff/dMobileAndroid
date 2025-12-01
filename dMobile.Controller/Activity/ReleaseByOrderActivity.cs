@@ -464,7 +464,7 @@ namespace dMobile.Controller.Activity
             //        this.DataViewHdrs.RowFilter = this.GetFilter();
             //    }
             // }
-            this.listPicking = await Conn.QueryAsync<Picking>(sql.ToString());
+            this.listPicking = await this.Conn.QueryAsync<Picking>(sql.ToString());
             this.ListHeaders = this.listPicking.Cast<object>().ToList();
             return this.ListHeaders;
         }

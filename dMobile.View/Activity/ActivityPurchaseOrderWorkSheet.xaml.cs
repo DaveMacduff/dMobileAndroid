@@ -498,6 +498,8 @@ namespace dMobile.View.Activity
                 }
             }
 
+            return;
+
             //////////////////////////////////////////////////////////////////////////
             void AppearingDpadDown()
             {

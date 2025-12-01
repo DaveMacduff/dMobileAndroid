@@ -323,7 +323,7 @@ namespace dMobile.Controller.Activity
                 _ = sql.Append(" INNER JOIN tActivity ON tActivity.ActivityRefno = tActivityAdjustment.ActivityRefno");
             }
 
-            this.ListAdjustments = await Conn.QueryAsync<Adjustment>(sql.ToString());
+            this.ListAdjustments = await this.Conn.QueryAsync<Adjustment>(sql.ToString());
 
             foreach (var sort in adjSettings.GetDataViewSortBy())
             {

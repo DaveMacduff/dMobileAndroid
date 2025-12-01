@@ -628,6 +628,8 @@ namespace dMobile.View
                 }
             }
 
+            return;
+
             static void BarCodeRuleParseSumwaFarmFedWholeDuckUseWeightRangeToIdProduct()
             {
                 if (BarCodeParse.NetWeightMetricKg >= Convert.ToDecimal(11.00) &&
@@ -784,6 +786,8 @@ namespace dMobile.View
                     xmlDoc = await SaveNewAssociation();
                 }
             }
+
+            return;
 
             async static void AskToAssociateBarCode()
             {

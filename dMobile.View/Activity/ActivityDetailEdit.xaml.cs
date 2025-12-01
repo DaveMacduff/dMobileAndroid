@@ -79,6 +79,7 @@ namespace dMobile.View.Activity
             InitControlState();
             this.ScannerEnable().FireAndForgetSafeAsync();
             this.LoadAndBindData().FireAndForgetSafeAsync();
+            return;
 
             void InitControlState()
             {
@@ -103,6 +104,7 @@ namespace dMobile.View.Activity
 
                 InitControlStateScheme();
                 InitControlStateExtra();
+                return;
 
                 // Enable scheme controls state.
                 void InitControlStateScheme()
@@ -1184,9 +1186,12 @@ namespace dMobile.View.Activity
                 await this.SetStartingFocus();
             }
 
+            return;
+
             void SubscribeKeyUpHandlers()
             {
                 MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), KeyUpHandlerCallback);
+                return;
 
                 async void KeyUpHandlerCallback(string keyPressed)
                 {

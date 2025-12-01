@@ -21,7 +21,6 @@ namespace dMobile.View.Activity
     using Controller.Activity_Detail;
     using Controller.Activity_Item;
     using Resources.Types.Details;
-    using Resources.Types.Items;
     using Forms;
     using Resources.Enums;
     using Xamarin.Forms;
@@ -82,7 +81,7 @@ namespace dMobile.View.Activity
             this.Title = this.ActDetail.GetControlDescription();
             this.DataCollector = new DataCollector(this.ActSubType, actItem);
             this.Timer = new SysTimer(this.TimerTickCallback);
-            IsFirstAppearance = true;
+            this.IsFirstAppearance = true;
         }
 
         private BarCodeScanner Scanner { get; } = ScannerEngine.GetInstance().Scanner;
@@ -234,8 +233,7 @@ namespace dMobile.View.Activity
             catch (MessageOnlyException msgEx)
             {
                 var msg = SysCommon.GetMessageFromMessageException(msgEx);
-                await Device.InvokeOnMainThreadAsync(
-                    async () =>
+                await Device.InvokeOnMainThreadAsync(async () =>
                         await Application.Current.MainPage.DisplayAlert(
                             this.ActDetail.GetControlDescription(),
                             msg,
@@ -244,8 +242,7 @@ namespace dMobile.View.Activity
             catch (Exception ex)
             {
                 isReadyToSave = false;
-                await Device.InvokeOnMainThreadAsync(
-                    async () =>
+                await Device.InvokeOnMainThreadAsync(async () =>
                     {
                         var errRpt = new FormErrorReport(this.ActSubType, ex);
                         _ = await errRpt.ShowDialog();
@@ -269,8 +266,7 @@ namespace dMobile.View.Activity
             catch (MessageOnlyException msgEx)
             {
                 var msg = SysCommon.GetMessageFromMessageException(msgEx);
-                await Device.InvokeOnMainThreadAsync(
-                    async () =>
+                await Device.InvokeOnMainThreadAsync(async () =>
                         await Application.Current.MainPage.DisplayAlert(
                             this.ActDetail.GetControlDescription(),
                             msg,
@@ -279,8 +275,7 @@ namespace dMobile.View.Activity
             catch (Exception ex)
             {
                 isReadyToClose = false;
-                await Device.InvokeOnMainThreadAsync(
-                    async () =>
+                await Device.InvokeOnMainThreadAsync(async () =>
                     {
                         var errRpt = new FormErrorReport(this.ActSubType, ex);
                         _ = await errRpt.ShowDialog();
@@ -301,10 +296,7 @@ namespace dMobile.View.Activity
             // NOTE: Do not need to set scanner off or on. Caller will handle.
             try
             {
-                if (await this.IsReadyToSave())
-                {
-                }
-                else
+                if (!await this.IsReadyToSave())
                 {
                     if (this.IsShowDataValidMsg)
                     {
@@ -324,8 +316,8 @@ namespace dMobile.View.Activity
                     !this.SysEnv.SysSettings.IsDisconnectedMode &&
                     this.SysEnv.SysSettings.IsPrintProductLabelsAsBatch && this.ActDetail.ListDetails.Count > 0)
                 {
-                    if (await Device.InvokeOnMainThreadAsync(
-                            async () => await this.DisplayAlert(
+                    if (await Device.InvokeOnMainThreadAsync(async () =>
+                            await this.DisplayAlert(
                                 "Print Label",
                                 "Print Product Labels",
                                 "Yes",
@@ -339,8 +331,7 @@ namespace dMobile.View.Activity
             {
                 var msg = SysCommon.GetMessageFromMessageException(msgEx);
                 isSaveComplete = false;
-                await Device.InvokeOnMainThreadAsync(
-                    async () =>
+                await Device.InvokeOnMainThreadAsync(async () =>
                         await Application.Current.MainPage.DisplayAlert(
                             this.ActDetail.GetControlDescription(),
                             msg,
@@ -349,8 +340,7 @@ namespace dMobile.View.Activity
             catch (Exception ex)
             {
                 isSaveComplete = false;
-                await Device.InvokeOnMainThreadAsync(
-                    async () =>
+                await Device.InvokeOnMainThreadAsync(async () =>
                     {
                         var errRpt = new FormErrorReport(this.ActSubType, ex);
                         _ = await errRpt.ShowDialog();
@@ -410,8 +400,7 @@ namespace dMobile.View.Activity
                         catch (MessageOnlyException msgEx)
                         {
                             var msg = SysCommon.GetMessageFromMessageException(msgEx);
-                            await Device.InvokeOnMainThreadAsync(
-                                async () =>
+                            await Device.InvokeOnMainThreadAsync(async () =>
                                     await Application.Current.MainPage.DisplayAlert(
                                         GetControlDescription(),
                                         msg,
@@ -419,8 +408,7 @@ namespace dMobile.View.Activity
                         }
                         catch (Exception ex)
                         {
-                            await Device.InvokeOnMainThreadAsync(
-                                async () =>
+                            await Device.InvokeOnMainThreadAsync(async () =>
                                 {
                                     var errRpt = new FormErrorReport(this.ActSubType, ex);
                                     _ = await errRpt.ShowDialog();
@@ -465,8 +453,7 @@ namespace dMobile.View.Activity
             {
                 var msg = SysCommon.GetMessageFromMessageException(msgEx);
                 cancelChanges = false;
-                await Device.InvokeOnMainThreadAsync(
-                    async () =>
+                await Device.InvokeOnMainThreadAsync(async () =>
                         await Application.Current.MainPage.DisplayAlert(
                             this.ActDetail.GetControlDescription(),
                             msg,
@@ -475,8 +462,7 @@ namespace dMobile.View.Activity
             catch (Exception ex)
             {
                 cancelChanges = false;
-                await Device.InvokeOnMainThreadAsync(
-                    async () =>
+                await Device.InvokeOnMainThreadAsync(async () =>
                     {
                         var errRpt = new FormErrorReport(this.ActSubType, ex);
                         _ = await errRpt.ShowDialog();
@@ -621,7 +607,6 @@ namespace dMobile.View.Activity
 
             return;
 
-            //////////////////////////////////////////////////////////////////////////
             void PopulateOptionsMenu()
             {
                 this.OptionsMenuItems.Clear();
@@ -714,8 +699,7 @@ namespace dMobile.View.Activity
             }
             catch (Exception ex)
             {
-                await Device.InvokeOnMainThreadAsync(
-                    async () =>
+                await Device.InvokeOnMainThreadAsync(async () =>
                     {
                         var errRpt = new FormErrorReport(this.ActSubType, ex);
                         _ = await errRpt.ShowDialog();
@@ -737,7 +721,7 @@ namespace dMobile.View.Activity
         {
             MessagingCenter.Subscribe<string>(
                 this,
-                EventTypes.OnKeyUp.ToString(),
+                nameof(EventTypes.OnKeyUp),
                 this.KeyUpHandlerCallback);
         }
 
@@ -755,40 +739,44 @@ namespace dMobile.View.Activity
                 // TODO: Verify key codes.
                 _ = Enum.TryParse(keyPressed, out Keycode keycode);
 
-                if (keycode == Keycode.Del ||
-                    keycode == Keycode.Clear)
+                switch (keycode)
                 {
-                    if (!this.IsSearchEntryFocused)
+                    case Keycode.Del:
+                    case Keycode.Clear:
                     {
-                        await AppearingDelKey();
+                        if (!this.IsSearchEntryFocused)
+                        {
+                            await AppearingDelKey();
+                        }
+
+                        break;
                     }
-                }
-                else if (keycode == Keycode.F1)
-                {
-                    await AppearingF1Key();
-                }
-                else if (keycode == Keycode.F3)
-                {
-                    await AppearingF3Key();
-                }
-                else if (keycode == Keycode.F4)
-                {
-                    await AppearingF4Key();
-                }
-                else if (keycode == Keycode.DpadDown)
-                {
-                    AppearingDpadDownKey();
-                }
-                else if (keycode == Keycode.DpadUp)
-                {
-                    AppearingDpadUp();
+
+                    case Keycode.F1:
+                        await AppearingF1Key();
+                        break;
+
+                    case Keycode.F3:
+                        await AppearingF3Key();
+                        break;
+
+                    case Keycode.F4:
+                        await AppearingF4Key();
+                        break;
+
+                    case Keycode.DpadDown:
+                        AppearingDpadDownKey();
+                        break;
+
+                    case Keycode.DpadUp:
+                        AppearingDpadUp();
+                        break;
                 }
             }
             catch (MessageOnlyException msgEx)
             {
                 var msg = SysCommon.GetMessageFromMessageException(msgEx);
-                await Device.InvokeOnMainThreadAsync(
-                    async () =>
+                await Device.InvokeOnMainThreadAsync(async () =>
                         await Application.Current.MainPage.DisplayAlert(
                             this.ActDetail.GetControlDescription(),
                             msg,
@@ -796,8 +784,7 @@ namespace dMobile.View.Activity
             }
             catch (Exception ex)
             {
-                await Device.InvokeOnMainThreadAsync(
-                    async () =>
+                await Device.InvokeOnMainThreadAsync(async () =>
                     {
                         var errRpt = new FormErrorReport(this.ActSubType, ex);
                         _ = await errRpt.ShowDialog();
@@ -807,6 +794,8 @@ namespace dMobile.View.Activity
             {
                 await this.ScannerEnable();
             }
+
+            return;
 
             async Task AppearingDelKey()
             {
@@ -868,8 +857,7 @@ namespace dMobile.View.Activity
                     var msg = msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1
                         ? msgEx.Message
                         : msgEx.Message["MSGBOX-".Length..];
-                    await Device.InvokeOnMainThreadAsync(
-                        async () =>
+                    await Device.InvokeOnMainThreadAsync(async () =>
                             await Application.Current.MainPage.DisplayAlert(
                                 GetControlDescription(),
                                 msg,
@@ -877,8 +865,7 @@ namespace dMobile.View.Activity
                 }
                 catch (Exception ex)
                 {
-                    await Device.InvokeOnMainThreadAsync(
-                        async () =>
+                    await Device.InvokeOnMainThreadAsync(async () =>
                         {
                             var errRpt = new FormErrorReport(this.ActSubType, ex);
                             _ = await errRpt.ShowDialog();
@@ -978,8 +965,7 @@ namespace dMobile.View.Activity
                 catch (MessageOnlyException msgEx)
                 {
                     var msg = SysCommon.GetMessageFromMessageException(msgEx);
-                    await Device.InvokeOnMainThreadAsync(
-                        async () =>
+                    await Device.InvokeOnMainThreadAsync(async () =>
                             await Application.Current.MainPage.DisplayAlert(
                                 this.ActDetail.GetControlDescription(),
                                 msg,
@@ -987,8 +973,7 @@ namespace dMobile.View.Activity
                 }
                 catch (Exception ex)
                 {
-                    await Device.InvokeOnMainThreadAsync(
-                        async () =>
+                    await Device.InvokeOnMainThreadAsync(async () =>
                         {
                             var errRpt = new FormErrorReport(this.ActSubType, ex);
                             _ = await errRpt.ShowDialog();
@@ -1010,8 +995,8 @@ namespace dMobile.View.Activity
 
                     if (!string.IsNullOrEmpty(msg))
                     {
-                        await Device.InvokeOnMainThreadAsync(
-                            async () => await this.DisplayAlert(
+                        await Device.InvokeOnMainThreadAsync(async () =>
+                            await this.DisplayAlert(
                                 this.ActDetail.GetControlDescription(),
                                 msg,
                                 "OK"));
@@ -1020,8 +1005,7 @@ namespace dMobile.View.Activity
                 catch (MessageOnlyException msgEx)
                 {
                     var msg = SysCommon.GetMessageFromMessageException(msgEx);
-                    await Device.InvokeOnMainThreadAsync(
-                        async () =>
+                    await Device.InvokeOnMainThreadAsync(async () =>
                             await Application.Current.MainPage.DisplayAlert(
                                 this.ActDetail.GetControlDescription(),
                                 msg,
@@ -1029,8 +1013,7 @@ namespace dMobile.View.Activity
                 }
                 catch (Exception ex)
                 {
-                    await Device.InvokeOnMainThreadAsync(
-                        async () =>
+                    await Device.InvokeOnMainThreadAsync(async () =>
                         {
                             var errRpt = new FormErrorReport(this.ActSubType, ex);
                             _ = await errRpt.ShowDialog();
@@ -1053,8 +1036,7 @@ namespace dMobile.View.Activity
                 catch (MessageOnlyException msgEx)
                 {
                     var msg = SysCommon.GetMessageFromMessageException(msgEx);
-                    await Device.InvokeOnMainThreadAsync(
-                        async () =>
+                    await Device.InvokeOnMainThreadAsync(async () =>
                             await Application.Current.MainPage.DisplayAlert(
                                 GetControlDescription(),
                                 msg,
@@ -1062,8 +1044,7 @@ namespace dMobile.View.Activity
                 }
                 catch (Exception ex)
                 {
-                    await Device.InvokeOnMainThreadAsync(
-                        async () =>
+                    await Device.InvokeOnMainThreadAsync(async () =>
                         {
                             var errorReport = new FormErrorReport(this.ActSubType, ex);
                             _ = await errorReport.ShowDialog();
@@ -1093,8 +1074,7 @@ namespace dMobile.View.Activity
                         ((PickingActDetail)this.ActDetail).UpdateConfirmedStatus(idx);
 
                         this.MainActivityItems[idx] = pickDetail;
-                        Device.BeginInvokeOnMainThread(
-                            () =>
+                        Device.BeginInvokeOnMainThread(() =>
                             {
                                 this.ListViewMainActivity.ItemsSource = this.MainActivityItems;
                                 this.ListViewMainActivity.ScrollTo(
@@ -1122,8 +1102,7 @@ namespace dMobile.View.Activity
                             }
 
                             this.MainActivityItems[idx] = returnDetail;
-                            Device.BeginInvokeOnMainThread(
-                                () =>
+                            Device.BeginInvokeOnMainThread(() =>
                                 {
                                     this.ListViewMainActivity.SelectedItem = returnDetail;
                                     this.ListViewMainActivity.ScrollTo(
@@ -1132,8 +1111,7 @@ namespace dMobile.View.Activity
                                         false);
                                 });
                         }
-                        else if (this.ListViewMainActivity
-                                     .SelectedItem is TransferDetail transferDetail)
+                        else if (this.ListViewMainActivity.SelectedItem is TransferDetail transferDetail)
                         {
                             transferDetail = (TransferDetail)this.ActDetail.ListDetails[
                                 this.MainActivityItems.IndexOf(this.ListViewMainActivity.SelectedItem)];
@@ -1203,15 +1181,11 @@ namespace dMobile.View.Activity
             void AppearingDpadDownKey()
             {
                 if (this.ListViewMainActivity.SelectedItem != null &&
-                    Convert.ToInt32(
-                        this.MainActivityItems.IndexOf(
-                            this.ListViewMainActivity.SelectedItem)) <
-                    this.MainActivityItems.Count - 1)
+                    Convert.ToInt32(this.MainActivityItems.IndexOf(this.ListViewMainActivity.SelectedItem)) <
+                        this.MainActivityItems.Count - 1)
                 {
-                    this.ListViewMainActivity.SelectedItem =
-                        this.MainActivityItems[this.MainActivityItems.IndexOf(
-                                                   this.ListViewMainActivity.SelectedItem) +
-                                               1];
+                    this.ListViewMainActivity.SelectedItem = this.MainActivityItems[this.MainActivityItems.IndexOf(
+                        this.ListViewMainActivity.SelectedItem) + 1];
                     this.ListViewMainActivity.ScrollTo(
                         this.ListViewMainActivity.SelectedItem,
                         ScrollToPosition.MakeVisible,
@@ -1222,15 +1196,11 @@ namespace dMobile.View.Activity
             void AppearingDpadUp()
             {
                 if (this.ListViewMainActivity.SelectedItem != null &&
-                    Convert.ToInt32(
-                        this.MainActivityItems.IndexOf(
-                            this.ListViewMainActivity.SelectedItem)) >
-                    0)
+                    Convert.ToInt32(this.MainActivityItems.IndexOf(this.ListViewMainActivity.SelectedItem)) > 0)
                 {
                     this.ListViewMainActivity.SelectedItem =
                         this.MainActivityItems[this.MainActivityItems.IndexOf(
-                                                   this.ListViewMainActivity.SelectedItem) -
-                                               1];
+                        this.ListViewMainActivity.SelectedItem) - 1];
                     this.ListViewMainActivity.ScrollTo(
                         this.ListViewMainActivity.SelectedItem,
                         ScrollToPosition.MakeVisible,
@@ -1272,8 +1242,7 @@ namespace dMobile.View.Activity
 
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
-            await Task.Run(
-                async () =>
+            await Task.Run(async () =>
                 {
                     try
                     {
@@ -1281,8 +1250,8 @@ namespace dMobile.View.Activity
                         if (scanArgs == null)
                         {
                             const string msg = "Scanner event fired but no data was received.";
-                            await Device.InvokeOnMainThreadAsync(
-                                async () => await Application.Current.MainPage.DisplayAlert(
+                            await Device.InvokeOnMainThreadAsync(async () =>
+                                await Application.Current.MainPage.DisplayAlert(
                                     this.ActDetail.GetControlDescription(),
                                     msg,
                                     Resource.OK));
@@ -1304,24 +1273,24 @@ namespace dMobile.View.Activity
                         }
                         else if (isFkRefnoScanned)
                         {
-                            await Device.InvokeOnMainThreadAsync(
-                                async () => await this.DisplayAlert(
+                            await Device.InvokeOnMainThreadAsync(async () =>
+                                await this.DisplayAlert(
                                     this.ActDetail.GetControlDescription(),
                                     "Scanning a header reference # is not supported here.",
                                     "OK"));
                         }
                         else if (isFkItemRefnoScanned)
                         {
-                            await Device.InvokeOnMainThreadAsync(
-                                async () => await this.DisplayAlert(
+                            await Device.InvokeOnMainThreadAsync(async () =>
+                                await this.DisplayAlert(
                                     this.ActDetail.GetControlDescription(),
                                     "Scanning an item reference # is not supported here.",
                                     "OK"));
                         }
                         else if (isFkDetailRefnoScanned)
                         {
-                            await Device.InvokeOnMainThreadAsync(
-                                async () => await this.DisplayAlert(
+                            await Device.InvokeOnMainThreadAsync(async () =>
+                                await this.DisplayAlert(
                                     this.ActDetail.GetControlDescription(),
                                     "Scanning a detail reference # is not supported here.",
                                     "OK"));
@@ -1350,8 +1319,7 @@ namespace dMobile.View.Activity
                     {
                         if (!ex.SuppressError)
                         {
-                            await Device.InvokeOnMainThreadAsync(
-                                async () =>
+                            await Device.InvokeOnMainThreadAsync(async () =>
                                 {
                                     var errRpt = new FormErrorReport(this.ActSubType, ex);
                                     _ = await errRpt.ShowDialog();
@@ -1361,17 +1329,15 @@ namespace dMobile.View.Activity
                     catch (MessageOnlyException msgEx)
                     {
                         var msg = SysCommon.GetMessageFromMessageException(msgEx);
-                        await Device.InvokeOnMainThreadAsync(
-                            async () =>
-                                await Application.Current.MainPage.DisplayAlert(
-                                    GetControlDescription(),
-                                    msg,
-                                    Resource.OK));
+                        await Device.InvokeOnMainThreadAsync(async () =>
+                            await Application.Current.MainPage.DisplayAlert(
+                                GetControlDescription(),
+                                msg,
+                                Resource.OK));
                     }
                     catch (Exception ex)
                     {
-                        await Device.InvokeOnMainThreadAsync(
-                            async () =>
+                        await Device.InvokeOnMainThreadAsync(async () =>
                             {
                                 var errRpt = new FormErrorReport(this.ActSubType, ex);
                                 _ = await errRpt.ShowDialog();
@@ -1402,11 +1368,10 @@ namespace dMobile.View.Activity
                         this.LocMap.ChosenLocMap = this.LocMap.CurrLocMap.Clone();
                         var currentSkidReadableLocation =
                             LocationMapTasks.GetCurrentReadableLocation();
-                        _ = await Device.InvokeOnMainThreadAsync(
-                            () =>
-                                this.CmdLocationText = "Location: " +
-                                                       Environment.NewLine +
-                                                       currentSkidReadableLocation);
+                        _ = await Device.InvokeOnMainThreadAsync(() =>
+                            this.CmdLocationText = "Location: " +
+                            Environment.NewLine +
+                            currentSkidReadableLocation);
                         throw new MessageOnlyException(
                             "Scanning a location is not supported when a skid with a location is selected.");
                     }
@@ -1427,9 +1392,8 @@ namespace dMobile.View.Activity
                 this.LocMap.CurrLocMap = scanLoc;
                 this.LocMap.ChosenLocMap = this.LocMap.CurrLocMap.Clone();
                 var currentReadableLocation = LocationMapTasks.GetCurrentReadableLocation();
-                _ = await Device.InvokeOnMainThreadAsync(
-                    () =>
-                        this.CmdLocationText = "Location: " + Environment.NewLine + currentReadableLocation);
+                _ = await Device.InvokeOnMainThreadAsync(() =>
+                    this.CmdLocationText = "Location: " + Environment.NewLine + currentReadableLocation);
             }
 
             async Task HandleSkidScanned()
@@ -1448,8 +1412,8 @@ namespace dMobile.View.Activity
                 var skidInfo = await SysSkidInfo.GetSkidInfoFromBarCodeOrCode(scanArgs.ParseInfo.Sscc18);
                 if (skidInfo.CurrSkid.SkidFkRefno == 0)
                 {
-                    _ = await Device.InvokeOnMainThreadAsync(
-                        () => this.CmdSelectSkidText = "Select Skid");
+                    _ = await Device.InvokeOnMainThreadAsync(() =>
+                        this.CmdSelectSkidText = "Select Skid");
                     throw new MessageOnlyException("Skid does not exist.");
                 }
 
@@ -1500,8 +1464,7 @@ namespace dMobile.View.Activity
                 await this.ActDetail.InsertSkid(skidInfo);
                 this.ActDetail.ActItem.ActHdr.SkidInfo = skidInfo;
 
-                await Device.InvokeOnMainThreadAsync(
-                    () =>
+                await Device.InvokeOnMainThreadAsync(() =>
                     {
                         this.CmdAddSkidIsEnabled = true;
                         this.CmdSelectSkidText = "Skid # " + skidInfo.CurrSkid.SkidCode;
@@ -1614,21 +1577,18 @@ namespace dMobile.View.Activity
                     this.ActDetail.ActItem.ProdInfo.Unit2BaseUnitFactor =
                         await ProductInfoTasks.GetUnitRelationFactor(this.ActDetail.ActItem.ProdInfo);
 
-                    await Device.InvokeOnMainThreadAsync(
-                        async () =>
+                    await Device.InvokeOnMainThreadAsync(async () =>
                         {
                             this.ActDetail.RegLayerListenerProgOut(this);
                             this.ActDetail.RegLayerListenerStatOut(this);
                             await this.ActDetail.Refresh();
-                            await Device.InvokeOnMainThreadAsync(
-                                () => this.ActDetail.ListDetails.Clear());
+                            await Device.InvokeOnMainThreadAsync(() => this.ActDetail.ListDetails.Clear());
                             this.ActDetail.ListDetails = await this.ActDetail.GetActivityDetailList(false);
                         });
                 }
                 catch (Exception ex)
                 {
-                    await Device.InvokeOnMainThreadAsync(
-                        async () =>
+                    await Device.InvokeOnMainThreadAsync(async () =>
                         {
                             var errRpt = new FormErrorReport(
                                 this.ActSubType,
@@ -1707,8 +1667,7 @@ namespace dMobile.View.Activity
                 }
 
                 // Goto the first one in the list if nothing found.
-                Device.BeginInvokeOnMainThread(
-                    () =>
+                Device.BeginInvokeOnMainThread(() =>
                     {
                         if (selectedItem == null)
                         {
@@ -1735,8 +1694,7 @@ namespace dMobile.View.Activity
                 this.ActDetail.DetailFkRefno = 0;
                 this.ActDetail.DetailRefno = 0;
                 this.SelectedActivityDetailFkRefno = 0;
-                Device.BeginInvokeOnMainThread(
-                    () => { this.ListViewMainActivity.SelectedItem = null; });
+                Device.BeginInvokeOnMainThread(() => { this.ListViewMainActivity.SelectedItem = null; });
             }
 
             return Task.CompletedTask;
@@ -1748,8 +1706,7 @@ namespace dMobile.View.Activity
         /// <returns>The <see cref="Task" />. Task operation.</returns>
         private async Task DesignGrid()
         {
-            await Device.InvokeOnMainThreadAsync(
-                () =>
+            await Device.InvokeOnMainThreadAsync(() =>
                 {
                     // Redesign the grid / list and rebind it to the refreshed list items.
                     this.MainActivityItems = this.ActDetail.DesignGrid(
@@ -1785,8 +1742,7 @@ namespace dMobile.View.Activity
             this.ActDetail.ListDetails.Add(insertedDetailType);
             this.SelectedActivityDetailFkRefno = insertedDetailType.ActivityDetailFKRefno;
             this.SysEnv.SysSettings.IsNewActivityDetailsAdded = true;
-            await Device.InvokeOnMainThreadAsync(
-                () =>
+            await Device.InvokeOnMainThreadAsync(() =>
                 {
                     this.ListViewMainActivity.ItemTemplate = this.ActDetail.DesignGrid(
                         ref this.GridMainActivity,
@@ -1804,8 +1760,7 @@ namespace dMobile.View.Activity
         /// <returns>The <see cref="Task" />.</returns>
         private async Task DisplayDataItem()
         {
-            await Device.InvokeOnMainThreadAsync(
-                async () =>
+            await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     this.ExtraInfoItems.Clear();
 
@@ -1890,8 +1845,7 @@ namespace dMobile.View.Activity
             {
                 if (!gatherEx.SuppressError)
                 {
-                    await Device.InvokeOnMainThreadAsync(
-                        async () =>
+                    await Device.InvokeOnMainThreadAsync(async () =>
                         {
                             var errRpt = new FormErrorReport(this.ActSubType, gatherEx);
                             _ = await errRpt.ShowDialog();
@@ -1901,8 +1855,7 @@ namespace dMobile.View.Activity
             catch (MessageOnlyException msgEx)
             {
                 var msg = SysCommon.GetMessageFromMessageException(msgEx);
-                await Device.InvokeOnMainThreadAsync(
-                    async () =>
+                await Device.InvokeOnMainThreadAsync(async () =>
                         await Application.Current.MainPage.DisplayAlert(
                             this.ActDetail.GetControlDescription(),
                             msg,
@@ -1910,14 +1863,15 @@ namespace dMobile.View.Activity
             }
             catch (Exception ex)
             {
-                await Device.InvokeOnMainThreadAsync(
-                    async () => await this.DisplayAlert("Error", ex.Message, "OK"));
+                await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert("Error", ex.Message, "OK"));
             }
             finally
             {
                 await Task.Run(this.LoadAndBindData);
                 await this.ScannerEnable();
             }
+
+            return;
 
             ActItemSchemeData InitDetailBeforeGather()
             {
@@ -1974,9 +1928,8 @@ namespace dMobile.View.Activity
                 {
                     var form = new FormAddManualDetailOverride();
 
-                    isAllowedAddManualDetail = await Device.InvokeOnMainThreadAsync(
-                        async () =>
-                            await form.ShowDialog() == DialogResult.OK);
+                    isAllowedAddManualDetail = await Device.InvokeOnMainThreadAsync(async () =>
+                        await form.ShowDialog() == DialogResult.OK);
                 }
 
                 return isAllowedAddManualDetail;
@@ -2022,13 +1975,11 @@ namespace dMobile.View.Activity
                 return;
             }
 
-            await Device.InvokeOnMainThreadAsync(
-                async () =>
+            await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     var currentReadableLocation = LocationMapTasks.GetCurrentReadableLocation();
-                    _ = await Device.InvokeOnMainThreadAsync(
-                        () => this.CmdLocationText =
-                            "Location: " + Environment.NewLine + currentReadableLocation);
+                    _ = await Device.InvokeOnMainThreadAsync(() =>
+                        this.CmdLocationText = "Location: " + Environment.NewLine + currentReadableLocation);
                 });
 
             var result = await this.DisplayActionSheet(
@@ -2052,6 +2003,8 @@ namespace dMobile.View.Activity
             {
                 CmdAddSkidClick();
             }
+
+            return;
 
             async void CmdLocationClick()
             {
@@ -2087,8 +2040,7 @@ namespace dMobile.View.Activity
                                     $"Warning selected location section '{this.LocMap.CurrLocMap.SectName}' does" +
                                     $" not match the filtered picking section '{sectName}'.";
 
-                                await Device.InvokeOnMainThreadAsync(
-                                    async () =>
+                                await Device.InvokeOnMainThreadAsync(async () =>
                                         await Application.Current.MainPage.DisplayAlert(
                                             this.ActDetail.ActItem.GetControlDescription(),
                                             msg,
@@ -2099,18 +2051,16 @@ namespace dMobile.View.Activity
                         this.LocMap.CurrLocMap = this.LocMap.ChosenLocMap.Clone();
                     }
 
-                    await Device.InvokeOnMainThreadAsync(
-                        () => Task.FromResult(
-                            this.CmdLocationText = "Location: " +
-                                                   Environment.NewLine +
-                                                   LocationMapTasks.GetCurrentReadableLocation()));
+                    await Device.InvokeOnMainThreadAsync(() =>
+                        Task.FromResult(
+                            this.CmdLocationText = "Location: " + Environment.NewLine +
+                            LocationMapTasks.GetCurrentReadableLocation()));
                     await this.DisplayDataItem();
                 }
                 catch (MessageOnlyException msgEx)
                 {
                     var msg = SysCommon.GetMessageFromMessageException(msgEx);
-                    await Device.InvokeOnMainThreadAsync(
-                        async () =>
+                    await Device.InvokeOnMainThreadAsync(async () =>
                             await Application.Current.MainPage.DisplayAlert(
                                 this.ActDetail.GetControlDescription(),
                                 msg,
@@ -2118,8 +2068,7 @@ namespace dMobile.View.Activity
                 }
                 catch (Exception ex)
                 {
-                    await Device.InvokeOnMainThreadAsync(
-                        async () =>
+                    await Device.InvokeOnMainThreadAsync(async () =>
                         {
                             var errRpt = new FormErrorReport(this.ActSubType, ex);
                             _ = await errRpt.ShowDialog();
@@ -2164,8 +2113,8 @@ namespace dMobile.View.Activity
                                 this.ActDetail.ActItem.ActHdr.SkidInfo = new SysSkidInfo();
                                 this.CmdSelectSkidText = "Select Skid";
                                 this.CmdAddSkidIsEnabled = false;
-                                await Device.InvokeOnMainThreadAsync(
-                                    async () => await this.DisplayAlert(
+                                await Device.InvokeOnMainThreadAsync(async () =>
+                                    await this.DisplayAlert(
                                         "Skid",
                                         "Skid product must match the selected line item product and warehouse.",
                                         "OK"));
@@ -2182,17 +2131,15 @@ namespace dMobile.View.Activity
                 catch (MessageOnlyException msgEx)
                 {
                     var msg = SysCommon.GetMessageFromMessageException(msgEx);
-                    await Device.InvokeOnMainThreadAsync(
-                        async () =>
-                            await Application.Current.MainPage.DisplayAlert(
-                                this.ActDetail.GetControlDescription(),
-                                msg,
-                                Resource.OK));
+                    await Device.InvokeOnMainThreadAsync(async () =>
+                        await Application.Current.MainPage.DisplayAlert(
+                            this.ActDetail.GetControlDescription(),
+                            msg,
+                            Resource.OK));
                 }
                 catch (Exception ex)
                 {
-                    await Device.InvokeOnMainThreadAsync(
-                        async () =>
+                    await Device.InvokeOnMainThreadAsync(async () =>
                         {
                             var errRpt = new FormErrorReport(this.ActSubType, ex);
                             _ = await errRpt.ShowDialog();
@@ -2204,13 +2151,12 @@ namespace dMobile.View.Activity
             {
                 try
                 {
-                    if (await CheckAllowedToAddSkid() && await Device.InvokeOnMainThreadAsync(
-                                async () =>
-                                    await this.DisplayAlert(
-                                        this.ActDetail.GetControlDescription(),
-                                        "Add the available skid quantity?",
-                                        "Yes",
-                                        "No")))
+                    if (await CheckAllowedToAddSkid() && await Device.InvokeOnMainThreadAsync(async () =>
+                        await this.DisplayAlert(
+                            this.ActDetail.GetControlDescription(),
+                            "Add the available skid quantity?",
+                            "Yes",
+                            "No")))
                     {
                         this.ActDetail.UniqueSchemeId =
                             ProductInfoTasks.GetUniqueSchemeIdFromSProdSchemeData(
@@ -2253,22 +2199,22 @@ namespace dMobile.View.Activity
                 catch (MessageOnlyException msgEx)
                 {
                     var msg = SysCommon.GetMessageFromMessageException(msgEx);
-                    await Device.InvokeOnMainThreadAsync(
-                        async () =>
-                            await Application.Current.MainPage.DisplayAlert(
-                                this.ActDetail.GetControlDescription(),
-                                msg,
-                                Resource.OK));
+                    await Device.InvokeOnMainThreadAsync(async () =>
+                        await Application.Current.MainPage.DisplayAlert(
+                            this.ActDetail.GetControlDescription(),
+                            msg,
+                            Resource.OK));
                 }
                 catch (Exception ex)
                 {
-                    await Device.InvokeOnMainThreadAsync(
-                        async () =>
+                    await Device.InvokeOnMainThreadAsync(async () =>
                         {
                             var errRpt = new FormErrorReport(this.ActSubType, ex);
                             _ = await errRpt.ShowDialog();
                         });
                 }
+
+                return;
 
                 async Task<bool> CheckAllowedToAddSkid()
                 {
@@ -2277,9 +2223,8 @@ namespace dMobile.View.Activity
                         this.ActSubType == SysCommon.ActSubTypes.Picking && !this.SysEnv.ContactLog.IsAllowedPickingModuleOverrideAddManualDetail)
                     {
                         var form = new FormAddManualDetailOverride();
-                        isAllowedAddManualDetail = await Device.InvokeOnMainThreadAsync(
-                            async () =>
-                                await form.ShowDialog() == DialogResult.OK);
+                        isAllowedAddManualDetail = await Device.InvokeOnMainThreadAsync(async () =>
+                            await form.ShowDialog() == DialogResult.OK);
                     }
 
                     return isAllowedAddManualDetail;

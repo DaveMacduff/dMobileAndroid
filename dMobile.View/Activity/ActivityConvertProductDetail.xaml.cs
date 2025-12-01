@@ -266,6 +266,7 @@ namespace dMobile.View.Activity
             base.OnAppearing();
             this.ListViewDisplayExtraInfo.ItemsSource = this.ExtraInfoItems;
             MessagingCenter.Subscribe<string>(this, nameof(EventTypes.OnKeyUp), KeyUpHandlerCallback);
+            return;
 
             async void KeyUpHandlerCallback(string keyPressed)
             {

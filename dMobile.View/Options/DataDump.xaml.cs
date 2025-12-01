@@ -519,6 +519,8 @@ namespace dMobile.View.Options
                 this.IsIndicatorRunning = false;
             }
 
+            return;
+
             //////////////////////////////////////////////////////////////////////////
             async Task RefreshDataStatus_GotFocus(object sender, EventArgs e)
             {

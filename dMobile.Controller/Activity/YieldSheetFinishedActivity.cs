@@ -292,7 +292,7 @@ namespace dMobile.Controller.Activity
                 parameters = new object[] { subTypeYieldSheetFinished };
             }
 
-            this.listYieldSheetFinished = await Conn.QueryAsync<YieldSheetFinished>(sql, parameters);
+            this.listYieldSheetFinished = await this.Conn.QueryAsync<YieldSheetFinished>(sql, parameters);
 
             // Replace reflection-based sorting with typed selectors
             foreach (var sort in ticketSettings.GetDataViewSortBy())

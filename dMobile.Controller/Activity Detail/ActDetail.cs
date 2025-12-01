@@ -66,7 +66,7 @@ namespace dMobile.Controller.Activity_Detail
 
         public bool Flag { get; set; }
 
-        public Color ItemBackColor => Flag ? Color.Green : Color.Red;
+        public Color ItemBackColor => this.Flag ? Color.Green : Color.Red;
 
         /// <summary>
         ///     Gets or sets the full class name.
@@ -87,6 +87,11 @@ namespace dMobile.Controller.Activity_Detail
         ///     Gets or sets the extra activity detail.
         /// </summary>
         public ActDetailExtra ActExtra { get; set; } = new ActDetailExtra();
+
+        /// <summary>
+        ///     Gets or sets the extra activity detail display info.
+        /// </summary>
+        public ActDetailExtraDisplayInfo ActExtraDisplayInfo { get; set; } = new ActDetailExtraDisplayInfo();
 
         /// <summary>
         ///     Gets or sets the activity detail reference number.
@@ -524,11 +529,11 @@ namespace dMobile.Controller.Activity_Detail
         /// Gets additional details associated with the current action.
         /// </summary>
         /// <param name="selectedItem"><see cref="object" /> Selected item.</param>
-        /// <returns>The <see cref="Task{ActDetailExtra}" /> Extra activity detail information.</returns>
-        public virtual async Task<ActDetailExtra> GetExtraInfoAsync(object selectedItem)
+        /// <returns>The <see cref="Task{ActDetailExtraDisplayInfo}" /> Extra activity detail information.</returns>
+        public virtual async Task<ActDetailExtraDisplayInfo> GetExtraInfoAsync(object selectedItem)
         {
-            await Task.Run(() => this.ActExtra = new ActDetailExtra());
-            return this.ActExtra;
+            await Task.Run(() => this.ActExtraDisplayInfo = new ActDetailExtraDisplayInfo());
+            return this.ActExtraDisplayInfo;
         }
 
         /// <summary>

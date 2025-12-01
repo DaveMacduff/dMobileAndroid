@@ -170,7 +170,7 @@ namespace dMobile.Controller.Activity_Detail
         public List<PickingDetail> ListPickingDetails { get; set; } = new List<PickingDetail>();
 
         /// <inheritdoc/>
-        public override async Task<ActDetailExtra> GetExtraInfoAsync(object selectedItem)
+        public override async Task<ActDetailExtraDisplayInfo> GetExtraInfoAsync(object selectedItem)
         {
             if (selectedItem is PickingDetail detail)
             {
@@ -185,14 +185,14 @@ namespace dMobile.Controller.Activity_Detail
                 DisplayOrdered();
             }
 
-            return this.ActExtra;
+            return this.ActExtraDisplayInfo;
 
             void DisplayProductInfo(PickingDetail detail)
             {
                 var prodCode = detail.ProductCode;
                 var prodDesc = detail.ProductDescription;
                 var prodUnitSizeDesc = detail.ProductUnitSizeDescription;
-                this.ActExtra.Text1 = prodCode.Trim() + " " + prodDesc.Trim() + " " + prodUnitSizeDesc.Trim();
+                this.ActExtraDisplayInfo.Text1 = prodCode.Trim() + " " + prodDesc.Trim() + " " + prodUnitSizeDesc.Trim();
             }
 
             async Task DisplayDefaultLocation(SLocMap itemLocMap, PickingDetail detail)
@@ -203,7 +203,7 @@ namespace dMobile.Controller.Activity_Detail
                         SysCommon.ProdLocMapTypes.Picking);
                 var defProdLoc = LocationMapTasks.GetReadableLocation(
                     await LocationMapTasks.GetSLocMapFromLocMapRefno(defLocMapRefno));
-                this.ActExtra.Text2 = "Default Location: " + defProdLoc.Trim();
+                this.ActExtraDisplayInfo.Text2 = "Default Location: " + defProdLoc.Trim();
             }
 
             void DisplayPickingLocation(SLocMap itemLocMap, PickingDetail detail)
@@ -212,11 +212,11 @@ namespace dMobile.Controller.Activity_Detail
                 if (detail.ActivityDetailIsConfirmed ||
                     !this.SysEnv.SysSettings.IsPickConfirmDet)
                 {
-                    this.ActExtra.Text3 = "Picked Location: " + detailLoc.Trim();
+                    this.ActExtraDisplayInfo.Text3 = "Picked Location: " + detailLoc.Trim();
                 }
                 else
                 {
-                    this.ActExtra.Text3 = "Picking Location: " + detailLoc.Trim();
+                    this.ActExtraDisplayInfo.Text3 = "Picking Location: " + detailLoc.Trim();
                 }
             }
 
@@ -228,7 +228,7 @@ namespace dMobile.Controller.Activity_Detail
                 var wtQty = ((this.ActItem.SelectedItem as PickingItem)!).
                     ActivityItemPickingWeightQuantityOrdered;
 
-                this.ActExtra.Text4 = "Ordered: " + SysCommon.NiceQuantityReadableString(
+                this.ActExtraDisplayInfo.Text4 = "Ordered: " + SysCommon.NiceQuantityReadableString(
                     this.ActItem.ProdInfo,
                     qty,
                     wtQty);

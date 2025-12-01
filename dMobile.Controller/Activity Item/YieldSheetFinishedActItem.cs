@@ -313,7 +313,7 @@ namespace dMobile.Controller.Activity_Item
 
             async Task InsertActivityItemInTables(int prodUnitRefno)
             {
-                await Conn.RunInTransactionAsync(db =>
+                await this.Conn.RunInTransactionAsync(db =>
                 {
                     const int subType = (int)SysCommon.ActSubTypes.YieldSheetFinished;
                     const int status = (int)SysCommon.ActStatus.Inserted;
@@ -758,7 +758,7 @@ namespace dMobile.Controller.Activity_Item
                 parameters = new object[] { hdrRefno, subTypeMaterial, hdrRefno, subTypeMaterial, hdrRefno, subTypeMaterial };
             }
 
-            this.ListYieldSheetFinishedItems = await Conn.QueryAsync<YieldSheetFinishedItem>(sql, parameters);
+            this.ListYieldSheetFinishedItems = await this.Conn.QueryAsync<YieldSheetFinishedItem>(sql, parameters);
             this.ListItems = this.ListYieldSheetFinishedItems.Cast<object>().ToList();
             return this.ListItems;
         }
@@ -879,7 +879,7 @@ namespace dMobile.Controller.Activity_Item
                   AND ai.ActivityItemSubType = ?
                 LIMIT 1";
 
-            var refno = await Conn.ExecuteScalarAsync<int?>(
+            var refno = await this.Conn.ExecuteScalarAsync<int?>(
                 sql,
                 this.ActHdr.HdrRefno,
                 locMap.WhsLocMapRefno,
@@ -955,11 +955,11 @@ namespace dMobile.Controller.Activity_Item
             decimal baseQuantity,
             decimal weightQuantity)
         {
-            if (selectedActivityItem is YieldSheetFinishedItem productioYieldSheetFinishedItem)
+            if (selectedActivityItem is YieldSheetFinishedItem productionYieldSheetFinishedItem)
             {
-                productioYieldSheetFinishedItem.ActivityItemYieldSheetQuantity = quantity;
-                productioYieldSheetFinishedItem.ActivityItemYieldSheetBaseQuantity = baseQuantity;
-                productioYieldSheetFinishedItem.ActivityItemYieldSheetWeightQuantity = weightQuantity;
+                productionYieldSheetFinishedItem.ActivityItemYieldSheetQuantity = quantity;
+                productionYieldSheetFinishedItem.ActivityItemYieldSheetBaseQuantity = baseQuantity;
+                productionYieldSheetFinishedItem.ActivityItemYieldSheetWeightQuantity = weightQuantity;
             }
         }
 
@@ -970,31 +970,31 @@ namespace dMobile.Controller.Activity_Item
             decimal baseQuantity,
             decimal weightQuantity)
         {
-            if (selectedActivityItem is YieldSheetFinishedItem productioYieldSheetFinishedItem)
+            if (selectedActivityItem is YieldSheetFinishedItem productionYieldSheetFinishedItem)
             {
-                productioYieldSheetFinishedItem.ActivityItemYieldSheetQuantity += quantity;
-                productioYieldSheetFinishedItem.ActivityItemYieldSheetBaseQuantity += baseQuantity;
-                productioYieldSheetFinishedItem.ActivityItemYieldSheetWeightQuantity += weightQuantity;
+                productionYieldSheetFinishedItem.ActivityItemYieldSheetQuantity += quantity;
+                productionYieldSheetFinishedItem.ActivityItemYieldSheetBaseQuantity += baseQuantity;
+                productionYieldSheetFinishedItem.ActivityItemYieldSheetWeightQuantity += weightQuantity;
             }
         }
 
         /// <inheritdoc/>
         public override async Task UpdateItemTableQuantity(object activityItem)
         {
-            if (activityItem is YieldSheetFinishedItem productioYieldSheetFinishedItem)
+            if (activityItem is YieldSheetFinishedItem productionYieldSheetFinishedItem)
             {
                 var query = "UPDATE tActivityItemYieldSheet SET ActivityItemYieldSheetQuantity = ?," +
                             " ActivityItemYieldSheetBaseQuantity = ?," +
                             " ActivityItemYieldSheetWeightQuantity = ? WHERE ActivityItemRefno = ?";
                 var parameters = new object[]
                 {
-                    productioYieldSheetFinishedItem.ActivityItemYieldSheetQuantity,
-                    productioYieldSheetFinishedItem.ActivityItemYieldSheetBaseQuantity,
-                    productioYieldSheetFinishedItem.ActivityItemYieldSheetWeightQuantity,
-                    productioYieldSheetFinishedItem.ActivityItemRefno
+                    productionYieldSheetFinishedItem.ActivityItemYieldSheetQuantity,
+                    productionYieldSheetFinishedItem.ActivityItemYieldSheetBaseQuantity,
+                    productionYieldSheetFinishedItem.ActivityItemYieldSheetWeightQuantity,
+                    productionYieldSheetFinishedItem.ActivityItemRefno
                 };
 
-                await Conn.ExecuteAsync(query, parameters);
+                await this.Conn.ExecuteAsync(query, parameters);
             }
         }
 

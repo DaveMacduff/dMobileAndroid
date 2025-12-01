@@ -287,7 +287,7 @@ namespace dMobile.Controller.Activity_Item
 
             async Task InsertActivityItemInTables(int prodUnitRefno)
             {
-                await Conn.RunInTransactionAsync(db =>
+                await this.Conn.RunInTransactionAsync(db =>
                 {
                     const int subType = (int)SysCommon.ActSubTypes.CutSheetFinished;
                     const int status = (int)SysCommon.ActStatus.Inserted;
@@ -674,7 +674,7 @@ namespace dMobile.Controller.Activity_Item
             }
 
             // Use parameterized query to avoid SQL injection and improve SQLite query plan caching
-            this.ListCutSheetFinishedItems = await Conn.QueryAsync<CutSheetFinishedItem>(sql, parameters);
+            this.ListCutSheetFinishedItems = await this.Conn.QueryAsync<CutSheetFinishedItem>(sql, parameters);
             this.ListItems = this.ListCutSheetFinishedItems.Cast<object>().ToList();
             return this.ListItems;
         }
@@ -789,7 +789,7 @@ namespace dMobile.Controller.Activity_Item
                   AND ai.ActivityItemSubType = ?
                 LIMIT 1";
 
-            var refno = await Conn.ExecuteScalarAsync<int?>(
+            var refno = await this.Conn.ExecuteScalarAsync<int?>(
                 sql,
                 this.ActHdr.HdrRefno,
                 locMap.WhsLocMapRefno,
@@ -870,6 +870,9 @@ namespace dMobile.Controller.Activity_Item
                 productionCutSheetFinishedItem.ActivityItemCutSheetQuantity = quantity;
                 productionCutSheetFinishedItem.ActivityItemCutSheetBaseQuantity = baseQuantity;
                 productionCutSheetFinishedItem.ActivityItemCutSheetWeightQuantity = weightQuantity;
+                productionCutSheetFinishedItem.ActivityItemCutSheetQuantityExpected = quantity;
+                productionCutSheetFinishedItem.ActivityItemCutSheetBaseQuantityExpected = baseQuantity;
+                productionCutSheetFinishedItem.ActivityItemCutSheetWeightQuantityExpected = weightQuantity;
             }
         }
 
@@ -885,6 +888,9 @@ namespace dMobile.Controller.Activity_Item
                 productionCutSheetFinishedItem.ActivityItemCutSheetQuantity += quantity;
                 productionCutSheetFinishedItem.ActivityItemCutSheetBaseQuantity += baseQuantity;
                 productionCutSheetFinishedItem.ActivityItemCutSheetWeightQuantity += weightQuantity;
+                productionCutSheetFinishedItem.ActivityItemCutSheetQuantityExpected += quantity;
+                productionCutSheetFinishedItem.ActivityItemCutSheetBaseQuantityExpected += baseQuantity;
+                productionCutSheetFinishedItem.ActivityItemCutSheetWeightQuantityExpected += weightQuantity;
             }
         }
 
@@ -904,7 +910,7 @@ namespace dMobile.Controller.Activity_Item
                     productionCutSheetFinishedItem.ActivityItemRefno,
                 };
 
-                await Conn.ExecuteAsync(query, parameters);
+                await this.Conn.ExecuteAsync(query, parameters);
             }
         }
 

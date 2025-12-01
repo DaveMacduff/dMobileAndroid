@@ -445,6 +445,7 @@ namespace dMobile.View.Activity
             base.OnAppearing();
             this.ListViewDisplayExtraInfo.ItemsSource = this.ExtraInfoItems;
             SubscribeKeyUpHandlers();
+            return;
 
             void SubscribeKeyUpHandlers()
             {
@@ -1716,18 +1717,21 @@ namespace dMobile.View.Activity
                         this.IsNewSkid = true;
                     }
 
+                    if (foundSkid.CurrSkid.SkidFkRefno != this.SkidInfo.CurrSkid.SkidFkRefno)
+                    {
+                        this.IsChangesMade = true;
+                    }
+
                     if (!this.IsNewSkid)
                     {
                         this.SkidInfo = foundSkid;
                         this.ProdInfo = this.SkidInfo.CurrSkid.ProdInfo;
                         this.LocMap = this.SkidInfo.CurrSkid.LocMap;
                         this.CallingSkidInfo = SysSkidInfo.DeepCopy(this.SkidInfo);
-                        this.IsChangesMade = false;
                     }
                     else
                     {
                         // New skid information will be set in the SaveChanges method.
-                        this.IsChangesMade = true;
                         if (this.ActivityType == SysShared.ActivityType.Items)
                         {
                             this.SkidInfo = new SysSkidInfo();

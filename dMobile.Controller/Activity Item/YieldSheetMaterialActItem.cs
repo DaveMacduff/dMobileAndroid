@@ -287,7 +287,7 @@ namespace dMobile.Controller.Activity_Item
 
             async Task InsertActivityItemInTables(int prodUnitRefno)
             {
-                await Conn.RunInTransactionAsync(db =>
+                await this.Conn.RunInTransactionAsync(db =>
                 {
                     const int subType = (int)SysCommon.ActSubTypes.YieldSheetMaterial;
                     const int status = (int)SysCommon.ActStatus.Inserted;
@@ -674,7 +674,7 @@ namespace dMobile.Controller.Activity_Item
             }
 
             // Use parameterized query to avoid SQL injection and improve SQLite query plan caching
-            this.ListYieldSheetMaterialItems = await Conn.QueryAsync<YieldSheetMaterialItem>(sql, parameters);
+            this.ListYieldSheetMaterialItems = await this.Conn.QueryAsync<YieldSheetMaterialItem>(sql, parameters);
             this.ListItems = this.ListYieldSheetMaterialItems.Cast<object>().ToList();
             return this.ListItems;
         }
@@ -789,7 +789,7 @@ namespace dMobile.Controller.Activity_Item
                   AND ai.ActivityItemSubType = ?
                 LIMIT 1";
 
-            var refno = await Conn.ExecuteScalarAsync<int?>(
+            var refno = await this.Conn.ExecuteScalarAsync<int?>(
                 sql,
                 this.ActHdr.HdrRefno,
                 locMap.WhsLocMapRefno,
@@ -904,7 +904,7 @@ namespace dMobile.Controller.Activity_Item
                     productionYieldSheetMaterialItem.ActivityItemRefno,
                 };
 
-                await Conn.ExecuteAsync(query, parameters);
+                await this.Conn.ExecuteAsync(query, parameters);
             }
         }
 

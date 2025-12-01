@@ -88,38 +88,38 @@ namespace dMobile.Controller.Activity_Detail
         }
 
         /// <summary>
-        /// Gets or sets the grid column 0 width...
+        /// Gets or sets the grid column 0 width.
         /// </summary>
         public double ColumnWidth0 { get; set; } = 0;
 
         /// <summary>
-        /// Gets or sets the grid column 1 width...
+        /// Gets or sets the grid column 1 width.
         /// </summary>
         public double ColumnWidth1 { get; set; } = 0;
 
         /// <summary>
-        /// Gets or sets the grid column 2 width...
+        /// Gets or sets the grid column 2 width.
         /// </summary>
         public double ColumnWidth2 { get; set; } = 0;
 
         /// <summary>
-        /// Gets or sets the grid column 3 width...
+        /// Gets or sets the grid column 3 width.
         /// </summary>
         public double ColumnWidth3 { get; set; } = 0;
 
         /// <summary>
-        /// Gets or sets the resource dictionary...
+        /// Gets or sets the resource dictionary.
         /// </summary>
         public ResourceDictionary ResourceDictionary { get; set; } = new ResourceDictionary();
 
         /// <summary>
         /// Gets or sets the ListTransferDetails
-        /// Gets or sets a list of picking details..
+        /// Gets or sets a list of picking details.
         /// </summary>
         public List<TransferDetail> ListTransferDetails { get; set; } = new List<TransferDetail>();
 
         /// <inheritdoc/>
-        public override async Task<ActDetailExtra> GetExtraInfoAsync(object selectedItem)
+        public override async Task<ActDetailExtraDisplayInfo> GetExtraInfoAsync(object selectedItem)
         {
             if (selectedItem is TransferDetail detail)
             {
@@ -138,12 +138,12 @@ namespace dMobile.Controller.Activity_Detail
 
                 var prodDesc = detail.ProductDescription;
                 var prodUnitSizeDesc = detail.ProductUnitSizeDescription;
-                this.ActExtra.Text1 = prodDesc.Trim() + " " + prodUnitSizeDesc.Trim();
-                this.ActExtra.Text2 = "Default Location: " + defProdLoc.Trim();
-                this.ActExtra.Text3 = "Transferred Location: " + detailLoc.Trim();
+                this.ActExtraDisplayInfo.Text1 = prodDesc.Trim() + " " + prodUnitSizeDesc.Trim();
+                this.ActExtraDisplayInfo.Text2 = "Default Location: " + defProdLoc.Trim();
+                this.ActExtraDisplayInfo.Text3 = "Transferred Location: " + detailLoc.Trim();
             }
 
-            return this.ActExtra;
+            return this.ActExtraDisplayInfo;
         }
 
         /// <summary>

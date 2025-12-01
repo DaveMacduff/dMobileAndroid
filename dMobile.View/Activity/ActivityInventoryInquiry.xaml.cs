@@ -333,12 +333,15 @@ namespace dMobile.View.Activity
                 await this.ScannerEnable();
             }
 
+            return;
+
             void SubscribeKeyUpHandlers()
             {
                 MessagingCenter.Subscribe<string>(
                     this,
                     EventTypes.OnKeyUp.ToString(),
                     KeyUpHandlerCallback);
+                return;
 
                 async void KeyUpHandlerCallback(string keyPressed)
                 {

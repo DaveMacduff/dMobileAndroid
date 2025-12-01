@@ -122,6 +122,8 @@ namespace dMobile.View
                 }
             }
 
+            return;
+
             static bool IsNebraskaBeefRuleMet(BarCodeParse barParse)
             {
                 return (barParse.Gtin.Contains("0740780")

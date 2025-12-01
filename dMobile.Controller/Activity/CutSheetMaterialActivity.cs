@@ -292,7 +292,7 @@ namespace dMobile.Controller.Activity
                 parameters = new object[] { subTypeCutSheetMaterial };
             }
 
-            this.listCutSheetMaterial = await Conn.QueryAsync<CutSheetMaterial>(sql, parameters);
+            this.listCutSheetMaterial = await this.Conn.QueryAsync<CutSheetMaterial>(sql, parameters);
 
             // Replace reflection-based sorting with typed selectors
             foreach (var sort in ticketSettings.GetDataViewSortBy())

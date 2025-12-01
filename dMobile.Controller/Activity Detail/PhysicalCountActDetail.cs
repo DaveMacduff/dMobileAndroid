@@ -121,7 +121,7 @@ namespace dMobile.Controller.Activity_Detail
         public List<CountDetail> ListCountDetails { get; set; } = new List<CountDetail>();
 
         /// <inheritdoc/>
-        public override async Task<ActDetailExtra> GetExtraInfoAsync(object selectedItem)
+        public override async Task<ActDetailExtraDisplayInfo> GetExtraInfoAsync(object selectedItem)
         {
             if (selectedItem is CountDetail detail)
             {
@@ -143,12 +143,12 @@ namespace dMobile.Controller.Activity_Detail
                 var prodDesc = detail.ProductDescription;
                 var prodUnitSizeDesc = detail.ProductUnitSizeDescription;
 
-                this.ActExtra.Text1 = prodDesc.Trim() + " " + prodUnitSizeDesc.Trim();
-                this.ActExtra.Text2 = "Default Location: " + defaultReadableLocation.Trim();
-                this.ActExtra.Text3 = "Counted Location: " + countReadableLocation.Trim();
+                this.ActExtraDisplayInfo.Text1 = prodDesc.Trim() + " " + prodUnitSizeDesc.Trim();
+                this.ActExtraDisplayInfo.Text2 = "Default Location: " + defaultReadableLocation.Trim();
+                this.ActExtraDisplayInfo.Text3 = "Counted Location: " + countReadableLocation.Trim();
             }
 
-            return this.ActExtra;
+            return this.ActExtraDisplayInfo;
         }
 
         /// <summary>

@@ -311,10 +311,12 @@ namespace dMobile.View.Activity
             SubscribeKeyUpHandlers();
             this.lstSkidStats.ItemsSource = this.ExtraInfoItems;
             this.txtSkidCode.Focus();
+            return;
 
             void SubscribeKeyUpHandlers()
             {
                 MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), KeyUpHandler);
+                return;
 
                 async void KeyUpHandler(string keyPressed)
                 {
@@ -359,6 +361,8 @@ namespace dMobile.View.Activity
                     {
                         await this.ScannerEnable();
                     }
+
+                    return;
 
                     async Task AppearingF1Key()
                     {

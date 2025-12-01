@@ -89,6 +89,7 @@ namespace dMobile.View.Activity
             this.DisplaySummary();
             this.ListViewDisplayExtraInfo.ItemsSource = this.ExtraInfoItems;
             this.IsFirstAppearance = true;
+            return;
 
             void ParseAndSeedBarCodeModifier()
             {
@@ -349,6 +350,8 @@ namespace dMobile.View.Activity
                 this.IsFirstAppearance = false;
                 await this.ScannerEnable();
             }
+
+            return;
 
             void SubscribeKeyUpHandlers()
             {
@@ -1217,6 +1220,8 @@ namespace dMobile.View.Activity
                 await this.ScannerEnable();
                 this.DisplaySummary();
             }
+
+            return;
 
             // Validate whether allowed to perform the click detail event.
             async Task ValidateCanPerformClick()

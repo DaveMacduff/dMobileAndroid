@@ -279,7 +279,7 @@ namespace dMobile.Controller.Activity
                 sql.AppendFormat("WHERE tActivityCount.ActivitySubType = {0}", Convert.ToInt32(SysCommon.ActSubTypes.CycleCounts));
             }
 
-            this.listCounts = await Conn.QueryAsync<Count>(sql.ToString());
+            this.listCounts = await this.Conn.QueryAsync<Count>(sql.ToString());
             foreach (var sort in this.CycleCountSettings.GetDataViewSortBy())
             {
                 if (sort.SortOrder == Resources.Enums.SortOrder.ASC)
