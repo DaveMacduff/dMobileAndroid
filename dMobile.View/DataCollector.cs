@@ -5,6 +5,7 @@
 namespace dMobile.View
 {
     using System;
+    using System.Runtime.CompilerServices;
     using System.Text;
     using System.Threading.Tasks;
     using System.Xml;
@@ -325,7 +326,41 @@ namespace dMobile.View
                 }
                 else
                 {
-                    ActDetail.WeightQuantity = prodInfo.UnitGrossWeight;
+                    decimal scanSysWeight = 0;
+                    switch (prodInfo.WeightUnitCode)
+                    {
+                        case "LB" when BarCodeParse.NetWeightMetricKg != 0:
+                            scanSysWeight = SysCommon.ConvertKg2Lb(BarCodeParse.NetWeightMetricKg);
+                            break;
+
+                        case "LB":
+                        {
+                            if (BarCodeParse.NetWeightNonMetricLb != 0)
+                            {
+                                scanSysWeight = BarCodeParse.NetWeightNonMetricLb;
+                            }
+
+                            break;
+                        }
+
+                        case "KG" when BarCodeParse.NetWeightNonMetricLb != 0:
+                            scanSysWeight = SysCommon.ConvertLb2Kg(BarCodeParse.NetWeightNonMetricLb);
+                            break;
+
+                        case "KG":
+                        {
+                            if (BarCodeParse.NetWeightMetricKg != 0)
+                            {
+                                scanSysWeight = BarCodeParse.NetWeightMetricKg;
+                            }
+
+                            break;
+                        }
+                    }
+
+                    // Calculate the weight quantity for non-catch weight products
+                    var quantity = Convert.ToInt32(scanSysWeight / prodInfo.UnitGrossWeight);
+                    ActDetail.WeightQuantity = prodInfo.UnitGrossWeight * (quantity == 0 ? 1 : quantity);
                 }
 
                 if (prodInfo.IsCatchWeight && BarCodeParse != null)
@@ -382,29 +417,23 @@ namespace dMobile.View
             {
                 decimal unitQuantity = 1;
                 await CheckBarCodeRuleAi21BoxCode(unitQuantity);
-
-                // If catch count is disabled the variable count is the base quantity not the unit quantity
-                if (!prodInfo.IsCatchCount && BarCodeParse != null && BarCodeParse.LogisticUnitVariableCount != 0
-                        && SysEnv.BarCodeSettings.IsRuleEnabled_Parse_Code_128_AI01_BC_AI30_exclusive)
-                {
-                    unitQuantity = BarCodeParse.LogisticUnitVariableCount;
-                }
-
                 await GatherBaseQuantity(unitQuantity);
 
                 if (prodInfo.UnitCode == "LB" || prodInfo.UnitCode == "KG")
                 {
-                    if (prodInfo.IsCatchWeight || prodInfo.UnitGrossWeight == 0)
-                    {
-                        ActDetail.Quantity = ActDetail.WeightQuantity;
-                    }
-                    else
-                    {
-                        ActDetail.Quantity = ActDetail.WeightQuantity / prodInfo.UnitGrossWeight;
-                    }
+                    ActDetail.Quantity = ActDetail.WeightQuantity;
                 }
                 else
                 {
+                    if (!prodInfo.IsCatchWeight)
+                    {
+                        var quantity = ActDetail.WeightQuantity / prodInfo.UnitGrossWeight;
+                        if (quantity > 1)
+                        {
+                            unitQuantity = quantity;
+                        }
+                    }
+
                     ActDetail.Quantity = unitQuantity;
                 }
 
@@ -437,27 +466,28 @@ namespace dMobile.View
                     var sysEnv = SysEnvironment.GetInstance();
                     if (prodInfo.BaseUnitCode == "LB" || prodInfo.BaseUnitCode == "KG")
                     {
-                        if (prodInfo.IsCatchWeight || prodInfo.UnitGrossWeight == 0)
-                        {
-                            ActDetail.BaseQuantity = ActDetail.WeightQuantity;
-                        }
-                        else
-                        {
-                            ActDetail.BaseQuantity = ActDetail.WeightQuantity / prodInfo.UnitGrossWeight;
-                        }
+                        ActDetail.BaseQuantity = ActDetail.WeightQuantity;
                     }
                     else
                     {
-                        if (BarCodeParse != null && prodInfo.IsCatchCount
-                                                 && BarCodeParse.LogisticUnitVariableCount != 0
-                                                 && sysEnv.BarCodeSettings.IsRuleEnabled_Parse_Code_128_AI01_BC_AI30_exclusive)
+                        // If catch count is disabled the variable count is the base quantity not the unit quantity
+                        if (!prodInfo.IsCatchCount && BarCodeParse != null && BarCodeParse.LogisticUnitVariableCount != 0
+                            && SysEnv.BarCodeSettings.IsRuleEnabled_Parse_Code_128_AI01_BC_AI30_exclusive)
                         {
                             ActDetail.BaseQuantity = BarCodeParse.LogisticUnitVariableCount;
                         }
                         else
                         {
-                            ActDetail.BaseQuantity = unitQty *
-                                                     await ProductInfoTasks.GetUnitRelationFactor(prodInfo);
+                            if (!prodInfo.IsCatchWeight)
+                            {
+                                var quantity = ActDetail.WeightQuantity / prodInfo.UnitGrossWeight;
+                                if (quantity > 1)
+                                {
+                                    unitQty = quantity;
+                                }
+                            }
+
+                            ActDetail.BaseQuantity = unitQty * await ProductInfoTasks.GetUnitRelationFactor(prodInfo);
                         }
                     }
                 }
