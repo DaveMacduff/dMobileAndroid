@@ -290,7 +290,7 @@ namespace dMobile.View
         }
 
         private static async Task<ActDetailAndStopForDetail> GatherProductQuantityData(
-            ActItemSchemeData tempItemSchemeData)
+            ActItemSchemeData defaultItemSchemeData)
         {
             var prodInfo = ActItem.ProdInfo;
             var barCodeRuleForcedEdit = false;
@@ -303,7 +303,7 @@ namespace dMobile.View
             }
             else
             {
-                GatherWeightQuantity(prodInfo);
+                GatherWeightQuantity();
                 GatherQuantityFromItem();
                 await GatherUnitQuantity();
                 NegateAdjustmentQuantity();
@@ -316,7 +316,7 @@ namespace dMobile.View
                 IsForceStopForEdit = barCodeRuleForcedEdit,
             };
 
-            void GatherWeightQuantity(ProductInfo prodInfo)
+            void GatherWeightQuantity()
             {
                 // Assign scanned weight and convert if needed
                 if (SysEnv.SysSettings.IsSetCatchWeightZero && prodInfo.IsCatchWeight)
@@ -363,30 +363,7 @@ namespace dMobile.View
                 }
             }
 
-            async Task GatherBaseQuantity(decimal unitQuantity)
-            {
-                var sysEnv = SysEnvironment.GetInstance();
-                if (prodInfo.BaseUnitCode == "LB" || prodInfo.BaseUnitCode == "KG")
-                {
-                    ActDetail.BaseQuantity = ActDetail.WeightQuantity;
-                }
-                else
-                {
-                    if (BarCodeParse != null && prodInfo.IsCatchCount
-                        && BarCodeParse.LogisticUnitVariableCount != 0
-                        && sysEnv.BarCodeSettings.IsRuleEnabled_Parse_Code_128_AI01_BC_AI30_exclusive)
-                    {
-                        ActDetail.BaseQuantity = BarCodeParse.LogisticUnitVariableCount;
-                    }
-                    else
-                    {
-                        ActDetail.BaseQuantity = unitQuantity *
-                            await ProductInfoTasks.GetUnitRelationFactor(prodInfo);
-                    }
-                }
-            }
-
-            void NegateAdjustmentQuantity()
+            static void NegateAdjustmentQuantity()
             {
                 // Negate the quantity if desired
                 if (ActItem.ActHdr.ActSubType == SysCommon.ActSubTypes.Adjustment)
@@ -406,7 +383,7 @@ namespace dMobile.View
                 decimal unitQuantity = 1;
                 await CheckBarCodeRuleAi21BoxCode(unitQuantity);
 
-                // If catch count is enabled the variable count is the base quantity not the unit quantity
+                // If catch count is disabled the variable count is the base quantity not the unit quantity
                 if (!prodInfo.IsCatchCount && BarCodeParse != null && BarCodeParse.LogisticUnitVariableCount != 0
                         && SysEnv.BarCodeSettings.IsRuleEnabled_Parse_Code_128_AI01_BC_AI30_exclusive)
                 {
@@ -417,7 +394,14 @@ namespace dMobile.View
 
                 if (prodInfo.UnitCode == "LB" || prodInfo.UnitCode == "KG")
                 {
-                    ActDetail.Quantity = ActDetail.WeightQuantity;
+                    if (prodInfo.IsCatchWeight || prodInfo.UnitGrossWeight == 0)
+                    {
+                        ActDetail.Quantity = ActDetail.WeightQuantity;
+                    }
+                    else
+                    {
+                        ActDetail.Quantity = ActDetail.WeightQuantity / prodInfo.UnitGrossWeight;
+                    }
                 }
                 else
                 {
@@ -447,23 +431,53 @@ namespace dMobile.View
 
                     return unitQty;
                 }
+
+                async Task GatherBaseQuantity(decimal unitQty)
+                {
+                    var sysEnv = SysEnvironment.GetInstance();
+                    if (prodInfo.BaseUnitCode == "LB" || prodInfo.BaseUnitCode == "KG")
+                    {
+                        if (prodInfo.IsCatchWeight || prodInfo.UnitGrossWeight == 0)
+                        {
+                            ActDetail.BaseQuantity = ActDetail.WeightQuantity;
+                        }
+                        else
+                        {
+                            ActDetail.BaseQuantity = ActDetail.WeightQuantity / prodInfo.UnitGrossWeight;
+                        }
+                    }
+                    else
+                    {
+                        if (BarCodeParse != null && prodInfo.IsCatchCount
+                                                 && BarCodeParse.LogisticUnitVariableCount != 0
+                                                 && sysEnv.BarCodeSettings.IsRuleEnabled_Parse_Code_128_AI01_BC_AI30_exclusive)
+                        {
+                            ActDetail.BaseQuantity = BarCodeParse.LogisticUnitVariableCount;
+                        }
+                        else
+                        {
+                            ActDetail.BaseQuantity = unitQty *
+                                                     await ProductInfoTasks.GetUnitRelationFactor(prodInfo);
+                        }
+                    }
+                }
             }
 
             void GatherQuantityFromItem()
             {
-                if (tempItemSchemeData.ActDetailQuantity != 0 && ActDetail.Quantity == 0)
+                if (defaultItemSchemeData.ActDetailQuantity != 0 && ActDetail.Quantity == 0)
                 {
-                    ActDetail.Quantity = tempItemSchemeData.ActDetailQuantity;
+                    ActDetail.Quantity = defaultItemSchemeData.ActDetailQuantity;
                 }
 
-                if (tempItemSchemeData.ActDetailBaseQuantity != 0 && ActDetail.BaseQuantity == 0)
+                if (defaultItemSchemeData.ActDetailBaseQuantity != 0 && ActDetail.BaseQuantity == 0)
                 {
-                    ActDetail.BaseQuantity = tempItemSchemeData.ActDetailBaseQuantity;
+                    ActDetail.BaseQuantity = defaultItemSchemeData.ActDetailBaseQuantity;
                 }
 
-                if (tempItemSchemeData.ActDetailWeightQuantity != 0 && ActDetail.WeightQuantity == 0)
+                if (defaultItemSchemeData.ActDetailWeightQuantity != 0 && ActDetail.WeightQuantity == 0)
                 {
-                    ActDetail.WeightQuantity = tempItemSchemeData.ActDetailWeightQuantity;
+                    ActDetail.WeightQuantity = defaultItemSchemeData.ActDetailWeightQuantity;
                 }
             }
         }

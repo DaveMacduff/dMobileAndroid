@@ -1521,13 +1521,13 @@ namespace dMobile.View.Activity
 
                 // A skid may contain 'default' scheme data, fill the activity detail
                 // with the default skid schema.
-                var tempItemProdSchemeData = new ActItemSchemeData();
-                var schemeData = DefaultSchemeDataFromCurrentSkidSchemeDetail(this.ActDetail);
-                tempItemProdSchemeData.ProdSchemeData = schemeData;
-                this.ActDetail.SchemeData = schemeData;
+                var defaultItemSchemeData = new ActItemSchemeData();
+                var skidSchemeData = this.DefaultSchemeDataFromCurrentSkidSchemeDetail(this.ActDetail);
+                defaultItemSchemeData.ProdSchemeData = skidSchemeData;
+                this.ActDetail.SchemeData = skidSchemeData;
                 await DataCollector.GatherProductData(
                     parse,
-                    tempItemProdSchemeData,
+                    defaultItemSchemeData,
                     this.ActDetail,
                     isForceStopForEditing: false);
                 await this.InsertActivityDetail(this.ActDetail);
