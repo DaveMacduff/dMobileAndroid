@@ -4,7 +4,6 @@
 
 namespace dMobile.View
 {
-    using System;
     using dMobile.BarCodeScanner;
     using dMobile.BarCodeScanner.BarCodeParsing;
     using dMobile.Bedrock;
@@ -12,7 +11,10 @@ namespace dMobile.View
     using dMobile.Controller.Activity_Detail;
     using dMobile.Controller.Activity_Item;
     using dMobile.Resources.Models.Products;
+    using dMobile.Resources.Types.Headers;
+    using dMobile.Resources.Types.Items;
     using SQLite;
+    using System;
 
     /// <summary>
     ///     Parse scheme data.

@@ -4,14 +4,6 @@
 
 namespace dMobile.View.Activity
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Collections.ObjectModel;
-    using System.Runtime.CompilerServices;
-    using System.Text;
-    using System.Threading.Tasks;
-    using System.Xml;
-    using System.Xml.Linq;
     using Android.Views;
     using BarCodeScanner.BarCodeParsing;
     using BarCodeScanner.BarCodeScanners;
@@ -20,9 +12,19 @@ namespace dMobile.View.Activity
     using Controller.Activity;
     using Controller.Activity_Detail;
     using Controller.Activity_Item;
-    using Resources.Types.Details;
+    using dMobile.Resources.Types.Headers;
+    using dMobile.Resources.Types.Items;
     using Forms;
     using Resources.Enums;
+    using Resources.Types.Details;
+    using System;
+    using System.Collections.Generic;
+    using System.Collections.ObjectModel;
+    using System.Runtime.CompilerServices;
+    using System.Text;
+    using System.Threading.Tasks;
+    using System.Xml;
+    using System.Xml.Linq;
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;
     using Resource = Resources.Properties.Resources;
@@ -1522,9 +1524,9 @@ namespace dMobile.View.Activity
                 // A skid may contain 'default' scheme data, fill the activity detail
                 // with the default skid schema.
                 var defaultItemSchemeData = new ActItemSchemeData();
-                var skidSchemeData = this.DefaultSchemeDataFromCurrentSkidSchemeDetail(this.ActDetail);
-                defaultItemSchemeData.ProdSchemeData = skidSchemeData;
-                this.ActDetail.SchemeData = skidSchemeData;
+                var initSchemeData = this.InitDetailBeforeGather(this.ActDetail);
+                defaultItemSchemeData.ProdSchemeData = initSchemeData;
+                this.ActDetail.SchemeData = initSchemeData;
                 await DataCollector.GatherProductData(
                     parse,
                     defaultItemSchemeData,
@@ -1535,12 +1537,7 @@ namespace dMobile.View.Activity
             }
         }
 
-        /// <summary>
-        ///     Default scheme data from the current skid scheme detail.
-        /// </summary>
-        /// <param name="actDetail"><see cref="ActDetail" /> Activity detail containing the skid information.</param>
-        /// <returns><see cref="ActDetail" /> Scheme data from current skid.</returns>
-        private ProductSchemeData DefaultSchemeDataFromCurrentSkidSchemeDetail(ActDetail actDetail)
+        private ProductSchemeData InitDetailBeforeGather(ActDetail actDetail)
         {
             // Did not use this.ActItem.ActHdr.SkidInfo.CurrSkid.LogisticUnitSkidCode
             // because of the length of the code and the fact isn't human-readable friendly.
@@ -1556,6 +1553,18 @@ namespace dMobile.View.Activity
                 schemeData.VariantNumber = curSkid.SchemeData.VariantNumber;
                 schemeData.VariantDescription = curSkid.SchemeData.VariantDescription;
             }
+
+            if (this.SysEnv.SysSettings.IsEnableDefaultDetailValues &&
+                this.ActDetail.ActItem.ProdInfo.Scheme.IsLotTrackedDefault &&
+                string.IsNullOrEmpty(schemeData.LogisticUnitBatchLotNumber) &&
+                this.ActDetail.ActItem.ActSubType == SysCommon.ActSubTypes.Receiving)
+            {
+                var poNummber = ((Receive)this.ActDetail.ActItem.ActHdr.SelectedActivity).ActivityReceivingPONumber;
+                var lineNumber = ((ReceiveItem)this.ActDetail.ActItem.SelectedItem).ActivityItemStringFKRefno;
+                schemeData.LogisticUnitBatchLotNumber = poNummber + "-" + lineNumber;
+            }
+
+            this.ActDetail.SchemeData = schemeData;
 
             return schemeData;
         }

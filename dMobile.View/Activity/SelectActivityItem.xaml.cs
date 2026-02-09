@@ -433,8 +433,7 @@ namespace dMobile.View.Activity
             }
             catch (Exception ex)
             {
-                await Device.InvokeOnMainThreadAsync(
-                    async () =>
+                await Device.InvokeOnMainThreadAsync(async () =>
                     {
                         var msg = $"Unable to load activity items.{Environment.NewLine}" +
                                     $"General exception.{Environment.NewLine}" +
@@ -494,8 +493,7 @@ namespace dMobile.View.Activity
 
             this.ActItem.SelectedListIdx = selectedIndex;
             await this.ActItem.AssignActivityItem(selectedItem);
-            Device.BeginInvokeOnMainThread(
-                () =>
+            Device.BeginInvokeOnMainThread(() =>
                 {
                     this.ListViewMainActivity.SelectedItem = this.ActItem.SelectedItem;
                     this.ListViewMainActivity.ScrollTo(
@@ -549,8 +547,7 @@ namespace dMobile.View.Activity
             }
             catch (Exception ex)
             {
-                await Device.InvokeOnMainThreadAsync(
-                    async () =>
+                await Device.InvokeOnMainThreadAsync(async () =>
                     {
                         var errRpt = new FormErrorReport(this.ActSubType, ex);
                         _ = await errRpt.ShowDialog();
@@ -567,8 +564,7 @@ namespace dMobile.View.Activity
                 if (scanArgs == null)
                 {
                     const string msg = "Scanner event fired but no data was received.";
-                    await Device.InvokeOnMainThreadAsync(
-                        async () => await Application.Current.MainPage.DisplayAlert(
+                    await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert(
                         this.GetControlDescription(),
                         msg,
                         Resource.OK));

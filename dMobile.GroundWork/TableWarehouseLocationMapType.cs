@@ -257,7 +257,7 @@ namespace dMobile.GroundWork
                     var rowsAffected = await Conn.ExecuteAsync(query);
                     if (whsTypes.Count != rowsAffected)
                     {
-                        throw new BaseException("Failed to insert all rows into tLocationMapSlot");
+                        throw new BaseException("Failed to insert all rows into tWarehouseLocationMapType");
                     }
 
                     // Drop the temporary table
@@ -267,7 +267,8 @@ namespace dMobile.GroundWork
                     this.DataAccessStatusOutHandler(
                         this,
                     EventArgs.Empty,
-                        $"{whsTypes.Count} warehouse map types for {this.WarehouseMapTypeName}.", true);
+                        $"{whsTypes.Count} warehouse map types for {this.WarehouseMapTypeName}.",
+                        true);
                 }
             }
             else

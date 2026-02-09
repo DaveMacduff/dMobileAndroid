@@ -4,19 +4,21 @@
 
 namespace dMobile.View.Activity
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Threading.Tasks;
-    using System.Xml.Linq;
     using BarCodeScanner.BarCodeParsing;
     using BarCodeScanner.BarCodeScanners;
     using Bedrock;
     using Controller.Activity_Detail;
     using Controller.Activity_Item;
     using dMobile.Controller.Activity;
+    using dMobile.Resources.Types.Headers;
+    using dMobile.Resources.Types.Items;
     using Forms;
     using Resources.Enums;
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Threading.Tasks;
+    using System.Xml.Linq;
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;
     using static dMobile.View.SysShared;
@@ -1892,6 +1894,7 @@ namespace dMobile.View.Activity
                 // the length of the code and the fact isn't human-readable friendly.
                 var tempItemProdSchemeData = new ActItemSchemeData();
                 var schemeData = this.ActDetail.SchemeData;
+
                 var skidInfo = this.ActDetail.ActItem.ActHdr.SkidInfo.CurrSkid;
                 if (skidInfo.SkidFkRefno == 0)
                 {
@@ -1918,6 +1921,19 @@ namespace dMobile.View.Activity
                 }
 
                 tempItemProdSchemeData.ProdSchemeData = schemeData;
+
+                if (this.SysEnv.SysSettings.IsEnableDefaultDetailValues &&
+                    this.ActItem.ProdInfo.Scheme.IsLotTrackedDefault &&
+                    string.IsNullOrEmpty(tempItemProdSchemeData.ProdSchemeData.LogisticUnitBatchLotNumber) &&
+                    this.ActItem.ActSubType == SysCommon.ActSubTypes.Receiving)
+                {
+                    schemeData = tempItemProdSchemeData.ProdSchemeData;
+                    var poNummber = ((Receive)this.ActItem.ActHdr.SelectedActivity).ActivityReceivingPONumber;
+                    var lineNumber = ((ReceiveItem)this.ActItem.SelectedItem).ActivityItemStringFKRefno;
+                    schemeData.LogisticUnitBatchLotNumber = poNummber + "-" + lineNumber;
+                    tempItemProdSchemeData.ProdSchemeData = schemeData;
+                }
+
                 this.ActDetail.SchemeData = schemeData;
                 return tempItemProdSchemeData;
             }

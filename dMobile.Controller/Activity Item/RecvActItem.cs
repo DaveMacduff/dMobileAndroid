@@ -1263,7 +1263,7 @@ namespace dMobile.Controller.Activity_Item
 
             // New items are identified with 0 < this.FkRefno, do not validate.
             if (this.SysEnv.SysSettings.RecvQtyOverWarn !=
-                SysCommon.ActReceivingQtyOverValLevels.NoValidationOrWarning &&
+                    SysCommon.ActReceivingQtyOverValLevels.NoValidationOrWarning &&
                 this.ItemFkRefno > 0)
             {
                 try

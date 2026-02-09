@@ -4,6 +4,16 @@
 
 namespace dMobile.Controller.Activity_Detail
 {
+    using Activity_Item;
+    using Bedrock;
+    using dMobile.Bedrock.Settings;
+    using dMobile.Resources.Types;
+    using dMobile.Resources.Types.Headers;
+    using dMobile.Resources.Types.Items;
+    using GroundWork;
+    using Resources.Models.Products;
+    using Resources.Types.Details;
+    using SQLite;
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
@@ -12,13 +22,6 @@ namespace dMobile.Controller.Activity_Detail
     using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
-    using Activity_Item;
-    using Bedrock;
-    using dMobile.Bedrock.Settings;
-    using GroundWork;
-    using Resources.Models.Products;
-    using Resources.Types.Details;
-    using SQLite;
     using Xamarin.Forms;
 
     /// <summary>
@@ -566,16 +569,16 @@ namespace dMobile.Controller.Activity_Detail
         }
 
         /// <summary>
-        ///     Select an activity detail.
+        /// Assigns activity detail information from the specified object to the current instance.
         /// </summary>
-        /// <param name="actDetail"><see cref="object" /> Activity detail to select.</param>
-        /// <returns>The <see cref="Task" /> Task operation.</returns>
-        /// <remarks>
-        ///     Assigns this.SelectedDetail.
-        ///     Handles verifying product default location.
-        ///     Current location is set to the selected skid location.
-        ///     Clears the selected skid if the line item product changed (Flag).
-        /// </remarks>
+        /// <remarks>This method updates various properties of the current instance based on the values
+        /// provided in the ActivityDetail object, including detail references, quantities, location mapping, and scheme
+        /// data. The method also performs additional assignments for extra detail fields and scheme-related
+        /// information. The operation is asynchronous due to the retrieval of location mapping data.</remarks>
+        /// <param name="actDetail">An object expected to be of type ActivityDetail containing the detail information to assign. Must not be
+        /// null and must be of type ActivityDetail.</param>
+        /// <returns>A task that represents the asynchronous operation.</returns>
+        /// <exception cref="BaseException">Thrown if actDetail is not of type ActivityDetail.</exception>
         public virtual async Task AssignActivityDetail(object actDetail)
         {
             if (actDetail is ActivityDetail detail)
@@ -613,7 +616,6 @@ namespace dMobile.Controller.Activity_Detail
 
             return;
 
-            //////////////////////////////////////////////////////////////////////////
             void AssignExtra()
             {
                 // Check for DBNull because extra detail is in a child table, left join from the data query.
@@ -642,7 +644,6 @@ namespace dMobile.Controller.Activity_Detail
                     : detail.ActivityDetailExtra5Date;
             }
 
-            //////////////////////////////////////////////////////////////////////////
             void AssignScheme()
             {
                 var tmpSchemeData = this.SchemeData;
@@ -663,6 +664,7 @@ namespace dMobile.Controller.Activity_Detail
                     : production;
 
                 tmpSchemeData.SingleTradeItemSerialNumber = detail.ActivityDetailSingleTradeItemSerialNumber;
+
                 tmpSchemeData.LogisticUnitBatchLotNumber = detail.ActivityDetailLogisticUnitBatchLotNumber;
 
                 // Check for DBNull because variants are in a child table, left join from the data query.
