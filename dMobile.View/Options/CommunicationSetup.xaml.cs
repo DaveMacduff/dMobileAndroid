@@ -123,9 +123,9 @@ namespace dMobile.View.Options
 
         private SysSocket SysSock { get; set; }
 
-        private bool IsControlLoaded { get; set; } = false;
+        private bool IsControlLoaded { get; set; }
 
-        private bool IsChangesMade { get; set; } = false;
+        private bool IsChangesMade { get; set; }
 
         private SysEnvironment SysEnv { get; set; }
 

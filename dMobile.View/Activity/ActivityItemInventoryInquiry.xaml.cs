@@ -45,11 +45,11 @@ namespace dMobile.View.Activity
             this.Title = this.GetControlDescription();
         }
 
-        private bool IsEnterTrapped { get; set; } = false;
+        private bool IsEnterTrapped { get; set; }
 
         private SysEnvironment SysEnv { get; set; }
 
-        private bool IsBarCodeHandlerRegistered { get; set; } = false;
+        private bool IsBarCodeHandlerRegistered { get; set; }
 
         private ActItem ActItem { get; set; }
 

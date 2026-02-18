@@ -184,7 +184,7 @@ namespace dMobile.View.Activity
 
         private bool IsFirstAppearance { get; set; }
 
-        private DataCollector DataCollector { get; set; } = null;
+        private DataCollector DataCollector { get; set; }
 
         /// <summary>
         /// Un-register the bar code scan event handler and disable the scanner.

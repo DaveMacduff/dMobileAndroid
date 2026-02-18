@@ -18,7 +18,7 @@ namespace dMobile.View.CustomPages.Modal
         /// <summary>
         /// Defines the loading.
         /// </summary>
-        private bool isPageLoading = false;
+        private bool isPageLoading;
 
         /// <summary>
         /// Defines the optionsIconSource.

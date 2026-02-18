@@ -93,22 +93,22 @@ namespace dMobile.Controller.Activity_Detail
         /// <summary>
         /// Gets or sets the grid column 0 width.
         /// </summary>
-        public double ColumnWidth0 { get; set; } = 0;
+        public double ColumnWidth0 { get; set; }
 
         /// <summary>
         /// Gets or sets the grid column 1 width.
         /// </summary>
-        public double ColumnWidth1 { get; set; } = 0;
+        public double ColumnWidth1 { get; set; }
 
         /// <summary>
         /// Gets or sets the grid column 2 width.
         /// </summary>
-        public double ColumnWidth2 { get; set; } = 0;
+        public double ColumnWidth2 { get; set; }
 
         /// <summary>
         /// Gets or sets the grid column 3 width.
         /// </summary>
-        public double ColumnWidth3 { get; set; } = 0;
+        public double ColumnWidth3 { get; set; }
 
         /// <summary>
         /// Gets or sets the resource dictionary.

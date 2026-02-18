@@ -24,13 +24,13 @@ namespace dMobile.Controller.Activity_Item
     /// </summary>
     public class PickSingleActItem : ActItem
     {
-        private double columnWidth0 = 0;
-        private double columnWidth1 = 0;
-        private double columnWidth2 = 0;
-        private double columnWidth3 = 0;
-        private double columnWidth4 = 0;
-        private double columnWidth5 = 0;
-        private double columnWidth6 = 0;
+        private double columnWidth0;
+        private double columnWidth1;
+        private double columnWidth2;
+        private double columnWidth3;
+        private double columnWidth4;
+        private double columnWidth5;
+        private double columnWidth6;
         private ResourceDictionary resourceDictionary = new ResourceDictionary();
         private List<PickingItem> listPickingItems = new List<PickingItem>();
 

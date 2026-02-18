@@ -43,7 +43,7 @@ namespace dMobile.View.Menus
         /// <summary>
         /// Gets or sets a value indicating whether this control is loaded.
         /// </summary>
-        private bool IsControlLoaded { get; set; } = false;
+        private bool IsControlLoaded { get; set; }
 
         /// <summary>
         /// Gets or sets the system environment instance.

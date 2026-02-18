@@ -57,7 +57,7 @@ namespace dMobile.Controller.Activity
         /// <summary>
         /// Gets or sets the activity foreign key reference number.
         /// </summary>
-        public int HdrFkRefno { get; set; } = 0;
+        public int HdrFkRefno { get; set; }
 
         /// <summary>
         /// Gets or sets the list of activity headers.
@@ -82,7 +82,7 @@ namespace dMobile.Controller.Activity
         /// <summary>
         /// Gets or sets the Refno.
         /// </summary>
-        public int HdrRefno { get; set; } = 0;
+        public int HdrRefno { get; set; }
 
         /// <summary>
         /// Gets or sets the DataEventArgs.
@@ -97,7 +97,7 @@ namespace dMobile.Controller.Activity
         /// <summary>
         /// Gets or sets the activity item list item selected index.
         /// </summary>
-        public int SelectedListItemIdx { get; set; } = 0;
+        public int SelectedListItemIdx { get; set; }
 
         /// <summary>
         /// Gets or sets the SysEnv.

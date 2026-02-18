@@ -26,57 +26,57 @@ namespace dMobile.Controller.Activity_Item
         /// <summary>
         /// Defines the columnWidth0.
         /// </summary>
-        private double columnWidth0 = 0;
+        private double columnWidth0;
 
         /// <summary>
         /// Defines the columnWidth1.
         /// </summary>
-        private double columnWidth1 = 0;
+        private double columnWidth1;
 
         /// <summary>
         /// Defines the columnWidth2.
         /// </summary>
-        private double columnWidth2 = 0;
+        private double columnWidth2;
 
         /// <summary>
         /// Defines the columnWidth3.
         /// </summary>
-        private double columnWidth3 = 0;
+        private double columnWidth3;
 
         /// <summary>
         /// Defines the columnWidth4.
         /// </summary>
-        private double columnWidth4 = 0;
+        private double columnWidth4;
 
         /// <summary>
         /// Defines the columnWidth5.
         /// </summary>
-        private double columnWidth5 = 0;
+        private double columnWidth5;
 
         /// <summary>
         /// Defines the columnWidth6.
         /// </summary>
-        private double columnWidth6 = 0;
+        private double columnWidth6;
 
         /// <summary>
         /// Defines the columnWidth7.
         /// </summary>
-        private double columnWidth7 = 0;
+        private double columnWidth7;
 
         /// <summary>
         /// Defines the columnWidth8.
         /// </summary>
-        private double columnWidth8 = 0;
+        private double columnWidth8;
 
         /// <summary>
         /// Defines the columnWidth9.
         /// </summary>
-        private double columnWidth9 = 0;
+        private double columnWidth9;
 
         /// <summary>
         /// Defines the columnWidth10.
         /// </summary>
-        private double columnWidth10 = 0;
+        private double columnWidth10;
 
         /// <summary>
         /// Defines the resourceDictionary.

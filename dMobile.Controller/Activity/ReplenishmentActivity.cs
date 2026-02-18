@@ -103,32 +103,32 @@ namespace dMobile.Controller.Activity
         /// <summary>
         /// Gets or sets the list view / from grid column 0 width. MoveType.
         /// </summary>
-        public double FromColWidth0 { get; set; } = 0;
+        public double FromColWidth0 { get; set; }
 
         /// <summary>
         /// Gets or sets the list view / from grid column 1 width. From Location.
         /// </summary>
-        public double FromColWidth1 { get; set; } = 0;
+        public double FromColWidth1 { get; set; }
 
         /// <summary>
         /// Gets or sets the list view / from grid column 2 width. Product Code.
         /// </summary>
-        public double FromColWidth2 { get; set; } = 0;
+        public double FromColWidth2 { get; set; }
 
         /// <summary>
         /// Gets or sets the list view / from grid column 2 width. Product BC.
         /// </summary>
-        public double FromColWidth3 { get; set; } = 0;
+        public double FromColWidth3 { get; set; }
 
         /// <summary>
         /// Gets or sets the list view / from grid column 2 width. Product unit.
         /// </summary>
-        public double FromColWidth4 { get; set; } = 0;
+        public double FromColWidth4 { get; set; }
 
         /// <summary>
         /// Gets or sets the list view / from grid column 2 width. Alt Qty.
         /// </summary>
-        public double FromColWidth5 { get; set; } = 0;
+        public double FromColWidth5 { get; set; }
 
         /// <summary>
         /// Gets or sets the list view / to grid column 0 width.

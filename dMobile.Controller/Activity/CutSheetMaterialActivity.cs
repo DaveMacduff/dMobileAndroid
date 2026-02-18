@@ -31,17 +31,17 @@ namespace dMobile.Controller.Activity
         /// <summary>
         /// Defines the columnWidth0.
         /// </summary>
-        private double columnWidth0 = 0;
+        private double columnWidth0;
 
         /// <summary>
         /// Defines the columnWidth1.
         /// </summary>
-        private double columnWidth1 = 0;
+        private double columnWidth1;
 
         /// <summary>
         /// Defines the columnWidth2.
         /// </summary>
-        private double columnWidth2 = 0;
+        private double columnWidth2;
 
         /// <summary>
         /// Defines the listCutSheetMaterial.

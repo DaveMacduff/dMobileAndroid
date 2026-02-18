@@ -4,6 +4,11 @@
 
 namespace dMobile.View.Activity
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Threading.Tasks;
+    using System.Xml.Linq;
     using BarCodeScanner.BarCodeParsing;
     using BarCodeScanner.BarCodeScanners;
     using Bedrock;
@@ -14,11 +19,6 @@ namespace dMobile.View.Activity
     using dMobile.Resources.Types.Items;
     using Forms;
     using Resources.Enums;
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Threading.Tasks;
-    using System.Xml.Linq;
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;
     using static dMobile.View.SysShared;
@@ -118,23 +118,23 @@ namespace dMobile.View.Activity
 
         private bool IsScanningPartialSkid { get; set; }
 
-        private decimal ScannedSkidQuantity { get; set; } = 0;
+        private decimal ScannedSkidQuantity { get; set; }
 
-        private int LastFullSkidFkRefno { get; set; } = 0;
+        private int LastFullSkidFkRefno { get; set; }
 
         private DataCollector DataCollector { get; }
 
         private ProductInfo LastProductInfo { get; set; } = new ProductInfo();
 
-        private int LastLocMapRefno { get; set; } = 0;
+        private int LastLocMapRefno { get; set; }
 
-        private int LastSkidLocMapRefno { get; set; } = 0;
+        private int LastSkidLocMapRefno { get; set; }
 
-        private int LastDefaultLocMapRefno { get; set; } = 0;
+        private int LastDefaultLocMapRefno { get; set; }
 
-        private int LastSkidFkRefno { get; set; } = 0;
+        private int LastSkidFkRefno { get; set; }
 
-        private int LastProdUnitRefno { get; set; } = 0;
+        private int LastProdUnitRefno { get; set; }
 
         /// <summary>
         ///     Unregister the bar code scan event handler and disable the scanner.

@@ -91,7 +91,7 @@ namespace dMobile.Bedrock.Settings
         /// <summary>
         /// Gets or sets a value indicating whether IsRuleEnabled_Parse_Code_128_AI01_BC_AI30_exclusive rule.
         /// </summary>
-        public bool IsRuleEnabled_Parse_Code_128_AI01_BC_AI30_exclusive { get; set; } = false;
+        public bool IsRuleEnabled_Parse_Code_128_AI01_BC_AI30_exclusive { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsRuleEnabled_Parse_Code_128_AI01_BC_AI30_exclusive rule description.
@@ -101,7 +101,7 @@ namespace dMobile.Bedrock.Settings
         /// <summary>
         /// Gets or sets a value indicating whether IsRuleEnabled_Parse_Code128_China_Seafood rule.
         /// </summary>
-        public bool IsRuleEnabled_Parse_Code128_China_Seafood { get; set; } = false;
+        public bool IsRuleEnabled_Parse_Code128_China_Seafood { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsRuleEnabled_Parse_Code128_China_Seafood rule description.
@@ -111,7 +111,7 @@ namespace dMobile.Bedrock.Settings
         /// <summary>
         /// Gets or sets a value indicating whether IsRuleEnabled_Parse_UCC_12_UPC_E_as_Deli_PLU rule.
         /// </summary>
-        public bool IsRuleEnabled_Parse_UCC_12_UPC_E_as_Deli_PLU { get; set; } = false;
+        public bool IsRuleEnabled_Parse_UCC_12_UPC_E_as_Deli_PLU { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsRuleEnabled_Parse_UCC_12_UPC_E_as_Deli_PLU rule description.
@@ -121,7 +121,7 @@ namespace dMobile.Bedrock.Settings
         /// <summary>
         /// Gets or sets a value indicating whether if we restrict the deli plu amount to 4 digits. (Down from 5).
         /// </summary>
-        public bool IsRuleEnabled_Parse_UCC_12_UPC_E_as_Deli_PLU_4_Digit_Amount { get; set; } = false;
+        public bool IsRuleEnabled_Parse_UCC_12_UPC_E_as_Deli_PLU_4_Digit_Amount { get; set; }
 
         /// <summary>
         /// Gets or sets the rule description of deli PLU amount restricted to 4 digits.
@@ -131,7 +131,7 @@ namespace dMobile.Bedrock.Settings
         /// <summary>
         /// Gets or sets a value indicating whether IsRuleEnabled_ProductBarCodeMinimumLengthRequirement4Digits rule.
         /// </summary>
-        public bool IsRuleEnabled_ProductBarCodeMinimumLengthRequirement4Digits { get; set; } = false;
+        public bool IsRuleEnabled_ProductBarCodeMinimumLengthRequirement4Digits { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsRuleEnabled_ProductBarCodeMinimumLengthRequirement4Digits rule
@@ -142,7 +142,7 @@ namespace dMobile.Bedrock.Settings
         /// <summary>
         /// Gets or sets a value indicating whether IsRuleEnabled_Parse_Code_128_AI01_Nossack_AI21_SkidNumber_BoxCount rule.
         /// </summary>
-        public bool IsRuleEnabled_Parse_Code_128_AI01_Nossack_AI21_SkidNumber_BoxCount { get; set; } = false;
+        public bool IsRuleEnabled_Parse_Code_128_AI01_Nossack_AI21_SkidNumber_BoxCount { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsRuleEnabled_Parse_Code_128_AI01_Nossack_AI21_SkidNumber_BoxCount
@@ -154,7 +154,7 @@ namespace dMobile.Bedrock.Settings
         /// Gets or sets a value indicating whether IsRuleEnabled_Recognize_Code_128_AI17_ExpiryDate_As_AI15_BestBeforeDate
         /// rule.
         /// </summary>
-        public bool IsRuleEnabled_Recognize_Code_128_AI17_ExpiryDate_As_AI15_BestBeforeDate { get; set; } = false;
+        public bool IsRuleEnabled_Recognize_Code_128_AI17_ExpiryDate_As_AI15_BestBeforeDate { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsRuleEnabled_Recognize_Code_128_AI17_ExpiryDate_As_AI15_BestBeforeDate
@@ -166,7 +166,7 @@ namespace dMobile.Bedrock.Settings
         /// Gets or sets a value indicating whether
         /// IsRuleEnabled_Recognize_Code_128_AI13_PackagingDate_As_AI11_ProductionDate rule.
         /// </summary>
-        public bool IsRuleEnabled_Recognize_Code_128_AI13_PackagingDate_As_AI11_ProductionDate { get; set; } = false;
+        public bool IsRuleEnabled_Recognize_Code_128_AI13_PackagingDate_As_AI11_ProductionDate { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether
@@ -177,7 +177,7 @@ namespace dMobile.Bedrock.Settings
         /// <summary>
         /// Gets or sets a value indicating whether IsRuleEnabled_ParseWOOLWICH_Code_128_RemoveSpaces rule.
         /// </summary>
-        public bool IsRuleEnabled_ParseWOOLWICH_Code_128_RemoveSpaces { get; set; } = false;
+        public bool IsRuleEnabled_ParseWOOLWICH_Code_128_RemoveSpaces { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsRuleEnabled_ParseWOOLWICH_Code_128_RemoveSpaces rule description.
@@ -187,7 +187,7 @@ namespace dMobile.Bedrock.Settings
         /// <summary>
         /// Gets or sets a value indicating whether IsRuleEnabled_ParseCode_128AsUCC_EAN_128_SymbolCompliant rule.
         /// </summary>
-        public bool IsRuleEnabled_ParseCode_128AsUCC_EAN_128_SymbolCompliant { get; set; } = false;
+        public bool IsRuleEnabled_ParseCode_128AsUCC_EAN_128_SymbolCompliant { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsRuleEnabled_ParseCode_128AsUCC_EAN_128_SymbolCompliant rule
@@ -198,7 +198,7 @@ namespace dMobile.Bedrock.Settings
         /// <summary>
         /// Gets or sets a value indicating whether IsRuleEnabled_ParseFINICA_Code_128_as_EAN_UCC_128 rule.
         /// </summary>
-        public bool IsRuleEnabled_ParseFINICA_Code_128_as_EAN_UCC_128 { get; set; } = false;
+        public bool IsRuleEnabled_ParseFINICA_Code_128_as_EAN_UCC_128 { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsRuleEnabled_ParseFINICA_Code_128_as_EAN_UCC_128 description rule.
@@ -208,7 +208,7 @@ namespace dMobile.Bedrock.Settings
         /// <summary>
         /// Gets or sets a value indicating whether IsRuleEnabled_NoCheckDigitInGlobalLocationNumber rule.
         /// </summary>
-        public bool IsRuleEnabled_NoCheckDigitInGlobalLocationNumber { get; set; } = false;
+        public bool IsRuleEnabled_NoCheckDigitInGlobalLocationNumber { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsRuleEnabled_NoCheckDigitInGlobalLocationNumber rule description.
@@ -229,7 +229,7 @@ namespace dMobile.Bedrock.Settings
         /// <summary>
         /// Gets or sets a value indicating whether IsRuleEnabled_Parse_OvationFielding_Lamb rule.
         /// </summary>
-        public bool IsRuleEnabled_Parse_Code128_OvationFielding_Lamb { get; set; } = false;
+        public bool IsRuleEnabled_Parse_Code128_OvationFielding_Lamb { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsRuleEnabled_Parse_OvationFielding_Lamb rule description.
@@ -239,7 +239,7 @@ namespace dMobile.Bedrock.Settings
         /// <summary>
         /// Gets or sets a value indicating whether IsRuleEnabled_Renees_Code_128_RemoveSpaces rule.
         /// </summary>
-        public bool IsRuleEnabled_Parse_Renees_Code_128_RemoveSpaces { get; set; } = false;
+        public bool IsRuleEnabled_Parse_Renees_Code_128_RemoveSpaces { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsRuleEnabled_Renees_Code_128_RemoveSpaces rule description.
@@ -249,7 +249,7 @@ namespace dMobile.Bedrock.Settings
         /// <summary>
         /// Gets or sets a value indicating whether IsRuleEnabled_Parse_LanzMeats_Code_128_AI10_as_AI21 rule.
         /// </summary>
-        public bool IsRuleEnabled_Parse_LanzMeats_Code_128_AI10_as_AI21 { get; set; } = false;
+        public bool IsRuleEnabled_Parse_LanzMeats_Code_128_AI10_as_AI21 { get; set; }
 
         /// <summary>
         /// Gets or sets a value IsRuleEnabled_Parse_LanzMeats_Code_128_AI10_as_AI21 rule description.
@@ -260,7 +260,7 @@ namespace dMobile.Bedrock.Settings
         /// Gets or sets a value indicating whether
         /// IsRuleEnabled_HeritageGlobalLocationIdentifierSecondPassIgnoreCheckDigit rule.
         /// </summary>
-        public bool IsRuleEnabled_HeritageGlobalLocationIdentifierSecondPassIgnoreCheckDigit { get; set; } = false;
+        public bool IsRuleEnabled_HeritageGlobalLocationIdentifierSecondPassIgnoreCheckDigit { get; set; }
 
         /// <summary>
         /// Gets or sets a value HeritageGlobalLocationIdentifierSecondPassIgnoreCheckDigit rule description.
@@ -271,7 +271,7 @@ namespace dMobile.Bedrock.Settings
         /// Gets or sets a value indicating whether
         /// IsRuleEnabled_ParseNossackBrokerMultiNationalProductFromChili rule.
         /// </summary>
-        public bool IsRuleEnabled_ParseNossackBrokerMultiNationalProductFromChili { get; set; } = false;
+        public bool IsRuleEnabled_ParseNossackBrokerMultiNationalProductFromChili { get; set; }
 
         /// <summary>
         /// Gets or sets a valueParseNossackBrokerMultiNationalProductFromChili rule description.
@@ -281,7 +281,7 @@ namespace dMobile.Bedrock.Settings
         /// <summary>
         /// Gets or sets a value indicating whether gets or sets if this will read the Nossack Greenlea Premier Meats barcodes.
         /// </summary>
-        public bool IsRuleEnabled_ParseEAN_UCC128_Nossack_GreenleaPremierMeats { get; set; } = false;
+        public bool IsRuleEnabled_ParseEAN_UCC128_Nossack_GreenleaPremierMeats { get; set; }
 
         /// <summary>
         /// Gets or sets a rule description for Nossack Greenlea Premier Meats barcode rule.
@@ -291,7 +291,7 @@ namespace dMobile.Bedrock.Settings
         /// <summary>
         /// Gets or sets a value indicating whether IsRuleEnabled_Parse_UCC_13_as_UPC_12_UPC_E rule.
         /// </summary>
-        public bool IsRuleEnabled_Parse_UCC_13_as_UPC_12_UPC_E { get; set; } = false;
+        public bool IsRuleEnabled_Parse_UCC_13_as_UPC_12_UPC_E { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsRuleEnabled_Parse_UCC_13_as_UPC_12_UPC_E rule description.
@@ -301,7 +301,7 @@ namespace dMobile.Bedrock.Settings
         /// <summary>
         /// Gets or sets a value indicating whether IsRuleEnabled_Parse_HelaSpiceCanada_Code_128 rule.
         /// </summary>
-        public bool IsRuleEnabled_Parse_HelaSpiceCanada_Code_128 { get; set; } = false;
+        public bool IsRuleEnabled_Parse_HelaSpiceCanada_Code_128 { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsRuleEnabled_Parse_HelaSpiceCanada_Code_128 rule description.
@@ -311,7 +311,7 @@ namespace dMobile.Bedrock.Settings
         /// <summary>
         /// Gets or sets a value indicating whether IsRuleEnabled_Parse_HelaSpiceCanada_Code_128 rule.
         /// </summary>
-        public bool IsRuleEnabled_NebraskaBeef_Parse_Lot_as_Serial_Code_128 { get; set; } = false;
+        public bool IsRuleEnabled_NebraskaBeef_Parse_Lot_as_Serial_Code_128 { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether IsRuleEnabled_Parse_HelaSpiceCanada_Code_128 rule description.
@@ -321,7 +321,7 @@ namespace dMobile.Bedrock.Settings
         /// <summary>
         /// Gets or sets a value indicating whether IsRuleEnabled_ParseNorthernCoop_AustraliaBeefTrim_Product25612 rule.
         /// </summary>
-        public bool IsRuleEnabled_ParseNorthernCoop_AustraliaBeefTrim_Product25612 { get; set; } = false;
+        public bool IsRuleEnabled_ParseNorthernCoop_AustraliaBeefTrim_Product25612 { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether ParseNorthernCoop_AustraliaBeefTrim_Product25612 description.
@@ -331,7 +331,7 @@ namespace dMobile.Bedrock.Settings
         /// <summary>
         /// Gets or sets a value indicating whether IsRuleEnabled_ParseSumwaFarmFedWholeDuck_UseWeightRangeToIDProduct rule.
         /// </summary>
-        public bool IsRuleEnabled_ParseSumwaFarmFedWholeDuck_UseWeightRangeToIDProduct { get; set; } = false;
+        public bool IsRuleEnabled_ParseSumwaFarmFedWholeDuck_UseWeightRangeToIDProduct { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether ParseSumwaFarmFedWholeDuck_UseWeightRangeToIDProduct description.
@@ -341,7 +341,7 @@ namespace dMobile.Bedrock.Settings
         /// <summary>
         /// Gets or sets a value indicating whether IsRuleEnabled_ParseEAN_UCC128_NossackProduct94600_ChileanBackRibs rule.
         /// </summary>
-        public bool IsRuleEnabled_ParseEAN_UCC128_NossackProduct94600_ChileanBackRibs { get; set; } = false;
+        public bool IsRuleEnabled_ParseEAN_UCC128_NossackProduct94600_ChileanBackRibs { get; set; }
 
         /// <summary>
         /// Gets or sets the ParseEAN_UCC128_NossackProduct94600_ChileanBackRibs description.
@@ -351,7 +351,7 @@ namespace dMobile.Bedrock.Settings
         /// <summary>
         /// Gets or sets a value indicating whether enables AI(02) to be read as AI(01) and AI(15) fix of DDMMYY -> YYMMDD.
         /// </summary>
-        public bool IsRuleEnabled_ParseEAN_UCC128_Dovre_KiiNaturalsCrisps { get; set; } = false;
+        public bool IsRuleEnabled_ParseEAN_UCC128_Dovre_KiiNaturalsCrisps { get; set; }
 
         /// <summary>
         /// Gets or sets the Enables AI(02) to be read as AI(01) and AI(15) fix of DDMMYY -> YYMMDD description.
@@ -361,7 +361,7 @@ namespace dMobile.Bedrock.Settings
         /// <summary>
         /// Gets or sets a value indicating whether ParseEAN_UCC128_NossackProduct51134_FrozenPorkCollarRemoveAI00 rule.
         /// </summary>
-        public bool IsRuleEnabled_ParseEAN_UCC128_NossackProduct51134_FrozenPorkCollarRemoveAI00 { get; set; } = false;
+        public bool IsRuleEnabled_ParseEAN_UCC128_NossackProduct51134_FrozenPorkCollarRemoveAI00 { get; set; }
 
         /// <summary>
         /// Gets or sets the ParseEAN_UCC128_NossackProduct51134_FrozenPorkCollarRemoveAI00 description.
@@ -374,7 +374,7 @@ namespace dMobile.Bedrock.Settings
         /// This allows the bar code to be fully parsed, even when a field or two is missing as long
         /// as they are non-tracked.
         /// </summary>
-        public bool IsRuleEnabled_ParseEAN_UCC128_SuppressAllParseErrorsForNonTrackedComponents { get; set; } = false;
+        public bool IsRuleEnabled_ParseEAN_UCC128_SuppressAllParseErrorsForNonTrackedComponents { get; set; }
 
         /// <summary>
         /// Gets or sets when enabled it will suppress error messages for non-tracked fields description.
@@ -386,7 +386,7 @@ namespace dMobile.Bedrock.Settings
         /// <summary>
         /// Gets or sets a value indicating whether strips invalid character 0x001A from the beginning of the string.
         /// </summary>
-        public bool IsRuleEnabled_Parse_Code128_CleanSubstituteCharacter { get; set; } = false;
+        public bool IsRuleEnabled_Parse_Code128_CleanSubstituteCharacter { get; set; }
 
         /// <summary>
         /// Gets or sets the strips invalid character 0x001A from the beginning of the string.
@@ -397,7 +397,7 @@ namespace dMobile.Bedrock.Settings
         /// Gets or sets a value indicating whether parse EAN / UCC Code 128 Bourvy Exports production date from the
         /// AI(21) serial number.
         /// </summary>
-        public bool IsRuleEnabled_ParseEAN_UCC128_BourvyExports_ProductionDate { get; set; } = false;
+        public bool IsRuleEnabled_ParseEAN_UCC128_BourvyExports_ProductionDate { get; set; }
 
         /// <summary>
         /// Gets or sets the parse EAN / UCC Code 128 Bourvy Exports production date from the AI(21) serial number string.

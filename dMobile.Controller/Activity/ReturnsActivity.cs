@@ -92,14 +92,14 @@ namespace dMobile.Controller.Activity
         /// <summary>
         /// 
         /// </summary>
-        public double ColumnWidth0 { get; set; } = 0;
+        public double ColumnWidth0 { get; set; }
 
         /// <summary>
         /// 
         /// </summary>
-        public double ColumnWidth1 { get; set; } = 0;
+        public double ColumnWidth1 { get; set; }
 
-        public double ColumnWidth2 { get; set; } = 0;
+        public double ColumnWidth2 { get; set; }
 
         public ResourceDictionary ResourceDictionary { get; set; } = new ResourceDictionary();
 

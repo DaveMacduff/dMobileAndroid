@@ -132,7 +132,7 @@ namespace dMobile.View.Activity
 
         public bool bEnterTrapped { get; set; } = false;
 
-        public bool IsControlLoaded { get; set; } = false;
+        public bool IsControlLoaded { get; set; }
 
         public TransferSettings TransSettings { get; set; } = new TransferSettings();
 
@@ -140,7 +140,7 @@ namespace dMobile.View.Activity
 
         public string strFullClassName { get; set; } = "dMobile.ucActivityHdrTransferFilter";
 
-        public bool bChangesMade { get; set; } = false;
+        public bool bChangesMade { get; set; }
 
         /// <summary>
         /// The OnAppearing.

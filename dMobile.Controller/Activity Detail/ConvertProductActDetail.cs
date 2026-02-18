@@ -29,42 +29,42 @@ namespace dMobile.Controller.Activity_Detail
         /// <summary>
         /// Gets or sets the ID.
         /// </summary>
-        public int Id { get; set; } = 0;
+        public int Id { get; set; }
 
         /// <summary>
         /// Gets or sets the grid column 0 width....
         /// </summary>
-        public double ColumnWidth0 { get; set; } = 0;
+        public double ColumnWidth0 { get; set; }
 
         /// <summary>
         /// Gets or sets the grid column 1 width....
         /// </summary>
-        public double ColumnWidth1 { get; set; } = 0;
+        public double ColumnWidth1 { get; set; }
 
         /// <summary>
         /// Gets or sets the grid column 2 width....
         /// </summary>
-        public double ColumnWidth2 { get; set; } = 0;
+        public double ColumnWidth2 { get; set; }
 
         /// <summary>
         /// Gets or sets the grid column 3 width....
         /// </summary>
-        public double ColumnWidth3 { get; set; } = 0;
+        public double ColumnWidth3 { get; set; }
 
         /// <summary>
         /// Gets or sets the grid column 4 width....
         /// </summary>
-        public double ColumnWidth4 { get; set; } = 0;
+        public double ColumnWidth4 { get; set; }
 
         /// <summary>
         /// Gets or sets the grid column 5 width....
         /// </summary>
-        public double ColumnWidth5 { get; set; } = 0;
+        public double ColumnWidth5 { get; set; }
 
         /// <summary>
         /// Gets or sets the grid column 6 width....
         /// </summary>
-        public double ColumnWidth6 { get; set; } = 0;
+        public double ColumnWidth6 { get; set; }
 
         /// <summary>
         /// Gets or sets the resource dictionary....

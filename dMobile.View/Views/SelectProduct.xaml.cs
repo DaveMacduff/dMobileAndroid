@@ -30,7 +30,7 @@ namespace dMobile.View.Views
         /// <summary>
         /// Defines the filterOnAllowConvertProduct.
         /// </summary>
-        private bool filterOnAllowConvertProduct = false;
+        private bool filterOnAllowConvertProduct;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SelectProduct"/> class.
@@ -179,7 +179,7 @@ namespace dMobile.View.Views
         /// <summary>
         /// Gets or sets a value indicating whether IsControlLoaded.
         /// </summary>
-        private bool IsControlLoaded { get; set; } = false;
+        private bool IsControlLoaded { get; set; }
 
         /// <summary>
         /// Gets or sets the SysEnv.
@@ -204,17 +204,17 @@ namespace dMobile.View.Views
         /// <summary>
         /// Gets or sets a value indicating whether IsChangesMade.
         /// </summary>
-        private bool IsChangesMade { get; set; } = false;
+        private bool IsChangesMade { get; set; }
 
         /// <summary>
         /// Gets or sets the ListProducts.
         /// </summary>
-        private List<Product> ListProducts { get; set; } = null;
+        private List<Product> ListProducts { get; set; }
 
         /// <summary>
         /// Gets or sets the ProdRefno.
         /// </summary>
-        private int ProdRefno { get; set; } = 0;
+        private int ProdRefno { get; set; }
 
         /// <summary>
         /// Gets or sets the ProductObservableCollection.

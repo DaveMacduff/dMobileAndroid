@@ -41,7 +41,7 @@ namespace dMobile.View.Forms
         /// <summary>
         /// Gets or sets the Quantity.
         /// </summary>
-        public int Quantity { get; set; } = 0;
+        public int Quantity { get; set; }
 
         /// <summary>
         /// On appearing event handler.

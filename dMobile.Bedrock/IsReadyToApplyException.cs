@@ -14,12 +14,12 @@ namespace dMobile.Bedrock
         /// <summary>
         /// Defines the isOverContinue.
         /// </summary>
-        private bool isOverContinue = false;
+        private bool isOverContinue;
 
         /// <summary>
         /// Gets or sets a value indicating whether SuppressError.
         /// </summary>
-        public bool SuppressError { get; set; } = false;
+        public bool SuppressError { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="IsReadyToApplyException"/> class.

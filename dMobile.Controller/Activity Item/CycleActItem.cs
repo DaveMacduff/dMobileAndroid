@@ -126,32 +126,32 @@ namespace dMobile.Controller.Activity_Item
         /// <summary>
         /// Gets or sets the grid column 0 width.
         /// </summary>
-        private double ColumnWidth0 { get; set; } = 0;
+        private double ColumnWidth0 { get; set; }
 
         /// <summary>
         /// Gets or sets the grid column 1 width.
         /// </summary>
-        private double ColumnWidth1 { get; set; } = 0;
+        private double ColumnWidth1 { get; set; }
 
         /// <summary>
         /// Gets or sets the grid column 2 width.
         /// </summary>
-        private double ColumnWidth2 { get; set; } = 0;
+        private double ColumnWidth2 { get; set; }
 
         /// <summary>
         /// Gets or sets the grid column 3 width.
         /// </summary>
-        private double ColumnWidth3 { get; set; } = 0;
+        private double ColumnWidth3 { get; set; }
 
         /// <summary>
         /// Gets or sets the grid column 4 width.
         /// </summary>
-        private double ColumnWidth4 { get; set; } = 0;
+        private double ColumnWidth4 { get; set; }
 
         /// <summary>
         /// Gets or sets the grid column 5 width.
         /// </summary>
-        private double ColumnWidth5 { get; set; } = 0;
+        private double ColumnWidth5 { get; set; }
 
         /// <summary>
         /// Gets or sets a list of count items.

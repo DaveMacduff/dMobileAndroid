@@ -66,12 +66,12 @@ namespace dMobile.View.Options
         /// <summary>
         /// Gets or sets a value indicating whether the control has been loaded.
         /// </summary>
-        public bool IsControlLoaded { get; set; } = false;
+        public bool IsControlLoaded { get; set; }
 
         /// <summary>
         /// Gets or sets a network interface.
         /// </summary>
-        public NetworkInterface Nic { get; set; } = null;
+        public NetworkInterface Nic { get; set; }
 
         /// <summary>
         /// Unregister the bar code scan event handler and disable the scanner.

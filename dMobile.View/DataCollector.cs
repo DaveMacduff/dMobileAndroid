@@ -40,7 +40,7 @@ namespace dMobile.View
             ActDetail = null;
         }
 
-        private static ActDetail ActDetail { get; set; } = null;
+        private static ActDetail ActDetail { get; set; }
 
         private static SysEnvironment SysEnv { get; } = SysEnvironment.GetInstance();
 

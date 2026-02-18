@@ -110,7 +110,7 @@ namespace dMobile.View.Activity
 
         private bool IsDataLoading { get; set; }
 
-        private DataCollector DataCollector { get; set; } = null;
+        private DataCollector DataCollector { get; set; }
 
         /// <summary>
         ///     Gets or sets the command location text.

@@ -116,7 +116,7 @@ namespace dMobile.View.Menus
             GC.WaitForPendingFinalizers();
         }
 
-        private bool IsControlLoaded { get; set; } = false;
+        private bool IsControlLoaded { get; set; }
 
         private SysEnvironment SysEnv { get; set; }
 

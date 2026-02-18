@@ -50,7 +50,7 @@ namespace dMobile.View
 
         private ProductSchemeData ProdSchemeData { get; set; } = new ProductSchemeData();
 
-        private bool DefaultSchemeDataAssigned { get; set; } = false;
+        private bool DefaultSchemeDataAssigned { get; set; }
 
         private SQLiteAsyncConnection Conn { get; } = DatabaseConnection.GetInstance().SqlConn;
 

@@ -170,7 +170,7 @@ namespace dMobile.View.Activity
         /// <summary>
         /// Gets or sets a value indicating whether IsControlLoaded.
         /// </summary>
-        public bool IsControlLoaded { get; set; } = false;
+        public bool IsControlLoaded { get; set; }
 
         /// <summary>
         /// Gets or sets the CountSettings.
@@ -190,7 +190,7 @@ namespace dMobile.View.Activity
         /// <summary>
         /// Gets or sets a value indicating whether bChangesMade.
         /// </summary>
-        public bool bChangesMade { get; set; } = false;
+        public bool bChangesMade { get; set; }
 
         /// <summary>
         /// Unregister the bar code scan event handler and disable the scanner.

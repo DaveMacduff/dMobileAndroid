@@ -177,13 +177,13 @@ namespace dMobile.View.Options
 
         private SubmitBatchSettings SubmitBatchSettings { get; set; } = new SubmitBatchSettings();
 
-        private bool IsChangesMade { get; set; } = false;
+        private bool IsChangesMade { get; set; }
 
         private ArrayList ActSubType { get; set; } = new ArrayList();
 
         private ArrayList ActStatus { get; set; } = new ArrayList();
 
-        private bool IsControlLoaded { get; set; } = false;
+        private bool IsControlLoaded { get; set; }
 
         private SysEnvironment SysEnv { get; set; } = SysEnvironment.GetInstance();
 

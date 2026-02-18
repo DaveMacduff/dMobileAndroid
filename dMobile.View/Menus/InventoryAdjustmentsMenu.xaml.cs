@@ -128,7 +128,7 @@ namespace dMobile.View.Menus
             return true;
         }
 
-        private bool IsControlLoaded { get; set; } = false;
+        private bool IsControlLoaded { get; set; }
 
         private AdjustmentSettings AdjSettings { get; set; }
 

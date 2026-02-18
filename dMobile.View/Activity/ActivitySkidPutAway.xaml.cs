@@ -112,7 +112,7 @@ namespace dMobile.View.Activity
 
         public ObservableCollection<object> MainActivityItems { get; set; }
 
-        private DataCollector DataCollector { get; set; } = null;
+        private DataCollector DataCollector { get; set; }
 
         /// <summary>
         ///     The OnAppearing.

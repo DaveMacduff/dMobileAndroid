@@ -89,12 +89,12 @@ namespace dMobile.Bedrock
         /// <summary>
         /// Number of times to attempt to send.
         /// </summary>
-        private int sendAttempts = 0;
+        private int sendAttempts;
 
         /// <summary>
         /// Defines the receiveAttempts.
         /// </summary>
-        private int receiveAttempts = 0;
+        private int receiveAttempts;
 
         /// <summary>
         /// Seconds to wait for a received response.

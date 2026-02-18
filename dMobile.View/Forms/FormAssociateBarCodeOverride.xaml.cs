@@ -55,17 +55,17 @@ namespace dMobile.View.Forms
         /// <summary>
         /// Gets or sets a value indicating whether bypass license all modules is enabled.
         /// </summary>
-        private bool IsEnableAllModuleBypassLicense { get; set; } = false;
+        private bool IsEnableAllModuleBypassLicense { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether is allowed to associate a bar code.
         /// </summary>
-        private bool IsAllowedAssocBarCode { get; set; } = false;
+        private bool IsAllowedAssocBarCode { get; set; }
 
         /// <summary>
         /// Gets or sets the staff user login code.
         /// </summary>
-        private int UserCode { get; set; } = 0;
+        private int UserCode { get; set; }
 
         /// <summary>
         /// Gets or sets the staff user login password.
@@ -75,7 +75,7 @@ namespace dMobile.View.Forms
         /// <summary>
         /// Gets or sets a value indicating whether the bar code handler is registered.
         /// </summary>
-        private bool IsBarCodeHandlerRegistered { get; set; } = false;
+        private bool IsBarCodeHandlerRegistered { get; set; }
 
         /// <summary>
         /// Gets or sets the bar code scanner instance.

@@ -17,7 +17,7 @@ namespace dMobile.View.CustomPages
         /// <summary>
         /// Defines the loading.
         /// </summary>
-        private bool isPageLoading = false;
+        private bool isPageLoading;
 
         /// <summary>
         /// 
@@ -27,7 +27,7 @@ namespace dMobile.View.CustomPages
         /// <summary>
         /// 
         /// </summary>
-        private bool isClosing = false;
+        private bool isClosing;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DMobileContentPage"/> class.

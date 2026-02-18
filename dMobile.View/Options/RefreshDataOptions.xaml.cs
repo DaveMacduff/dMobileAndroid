@@ -122,11 +122,11 @@ namespace dMobile.View.Options
 
         private bool IsDisplayShutDownMsg { get; set; } = true;
 
-        private bool IsChangesMade { get; set; } = false;
+        private bool IsChangesMade { get; set; }
 
-        private bool IsRefreshComplete { get; set; } = false;
+        private bool IsRefreshComplete { get; set; }
 
-        private bool IsControlLoaded { get; set; } = false;
+        private bool IsControlLoaded { get; set; }
 
         /// <summary>
         /// Unregister the bar code scan event handler and disable the scanner.

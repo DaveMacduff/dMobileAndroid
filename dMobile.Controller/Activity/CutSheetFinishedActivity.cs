@@ -86,11 +86,11 @@ namespace dMobile.Controller.Activity
 
         private ResourceDictionary ResDict { get; } = new ResourceDictionary();
 
-        private double Column0Width { get; set; } = 0;
+        private double Column0Width { get; set; }
 
-        private double Column1Width { get; set; } = 0;
+        private double Column1Width { get; set; }
 
-        private double Column2Width { get; set; } = 0;
+        private double Column2Width { get; set; }
 
         /// <inheritdoc cref="Activity.Search(string)"/>
         public override string GetFkRefnoIdx()

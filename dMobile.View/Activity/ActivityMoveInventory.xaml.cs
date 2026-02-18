@@ -217,7 +217,7 @@ namespace dMobile.View.Activity
         /// </summary>
         private ObservableCollection<object> MainActivityItems { get; set; }
 
-        private DataCollector DataCollector { get; set; } = null;
+        private DataCollector DataCollector { get; set; }
 
         /// <summary>
         /// Un-register the bar code scan event handler and disable the scanner.

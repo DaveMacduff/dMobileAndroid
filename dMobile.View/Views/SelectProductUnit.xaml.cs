@@ -87,7 +87,7 @@ namespace dMobile.View.Views
         /// <summary>
         /// Gets or sets a value indicating whether the bar code handler is registered.
         /// </summary>
-        private bool IsBarCodeHandlerRegistered { get; set; } = false;
+        private bool IsBarCodeHandlerRegistered { get; set; }
 
         /// <summary>
         /// Gets or sets the bar code scanner engine.
@@ -107,12 +107,12 @@ namespace dMobile.View.Views
         /// <summary>
         /// Gets or sets the product unit reference number filter.
         /// </summary>
-        private int ProdUnitRefnoFilter { get; set; } = 0;
+        private int ProdUnitRefnoFilter { get; set; }
 
         /// <summary>
         /// Gets or sets the product reference number filter.
         /// </summary>
-        private int ProdRefnoFilter { get; set; } = 0;
+        private int ProdRefnoFilter { get; set; }
 
         /// <summary>
         /// Gets or sets the product unit size description.
@@ -127,7 +127,7 @@ namespace dMobile.View.Views
         /// <summary>
         /// Gets or sets a value indicating whether the product unit is broken case.
         /// </summary>
-        private bool ProdUnitIsBC { get; set; } = false;
+        private bool ProdUnitIsBC { get; set; }
 
         /// <summary>
         /// Gets or sets the product unit code.
@@ -162,27 +162,27 @@ namespace dMobile.View.Views
         /// <summary>
         /// Gets or sets a value indicating whether changes have been made.
         /// </summary>
-        private bool IsChangesMade { get; set; } = false;
+        private bool IsChangesMade { get; set; }
 
         /// <summary>
         /// Gets or sets a list of product units.
         /// </summary>
-        private List<ProductUnit> ListProdUnits { get; set; } = null;
+        private List<ProductUnit> ListProdUnits { get; set; }
 
         /// <summary>
         /// Gets or sets the filtered list of product units.
         /// </summary>
-        private List<ProductUnit> FilteredListProdUnits { get; set; } = null;
+        private List<ProductUnit> FilteredListProdUnits { get; set; }
 
         /// <summary>
         /// Gets or sets the product unit reference number.
         /// </summary>
-        private int ProdUnitRefno { get; set; } = 0;
+        private int ProdUnitRefno { get; set; }
 
         /// <summary>
         /// Gets or sets the product reference number.
         /// </summary>
-        private int ProdRefno { get; set; } = 0;
+        private int ProdRefno { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether to performing loading data upon got focus.

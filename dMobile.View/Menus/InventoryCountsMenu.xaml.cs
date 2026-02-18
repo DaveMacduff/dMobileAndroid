@@ -112,7 +112,7 @@ namespace dMobile.View.Menus
             return true;
         }
 
-        private bool IsControlLoaded { get; set; } = false;
+        private bool IsControlLoaded { get; set; }
 
         private SysEnvironment SysEnv { get; set; }
 

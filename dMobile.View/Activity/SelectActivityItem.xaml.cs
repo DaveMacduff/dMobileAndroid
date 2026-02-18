@@ -110,7 +110,7 @@ namespace dMobile.View.Activity
 
         private int ResultItemRefno { get; set; }
 
-        private DataCollector DataCollector { get; set; } = null;
+        private DataCollector DataCollector { get; set; }
 
         /// <summary>
         /// Check if the activity item is ready to save.

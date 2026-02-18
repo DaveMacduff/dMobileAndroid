@@ -145,7 +145,7 @@ namespace dMobile.View.Activity
         /// </summary>
         private Color RemoveModeHeaderColor { get; set; }
 
-        private DataCollector DataCollector { get; set; } = null;
+        private DataCollector DataCollector { get; set; }
 
         /// <summary>
         ///     Unregister the bar code scan event handler and disable the scanner.
