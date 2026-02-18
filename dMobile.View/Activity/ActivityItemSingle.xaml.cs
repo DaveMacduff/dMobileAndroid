@@ -709,8 +709,7 @@ namespace dMobile.View.Activity
                         var sectName = ((PickingActivity)this.ActItem.ActHdr).PickingLocationMapFilter.SectName;
                         var msg = $"Warning scanned location section '{scannedLocMap.SectName}' does" +
                                   $" not match the filtered picking section '{sectName}'.";
-                        await Device.InvokeOnMainThreadAsync(
-                            async () => await Application.Current.MainPage.DisplayAlert(
+                        await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert(
                                 this.ActItem.GetControlDescription(),
                                 msg,
                                 Resource.OK));
@@ -721,8 +720,7 @@ namespace dMobile.View.Activity
             async Task<bool> AskToAssignProductToSkid(ProductInfo prodInfo)
             {
                 var isAssignProductToSkid = false;
-                await Device.InvokeOnMainThreadAsync(
-                    async () =>
+                await Device.InvokeOnMainThreadAsync(async () =>
                     {
                         var msg = "The current selected skid does not have a product assigned to it yet." +
                                   $"Do you wish to assign '{prodInfo.Code} {prodInfo.UnitBc.Trim()}" +
@@ -747,7 +745,7 @@ namespace dMobile.View.Activity
                 {
                     // Identify the product from the parse info.
                     var prodUnitRefno = await this.DataCollector.IdentifyProductScanned(parse);
-                    ProductInfo scannedProdInfo = null;
+                    ProductInfo scannedProdInfo;
                     if (this.LastProductInfo.UnitRefno == prodUnitRefno && prodUnitRefno != 0)
                     {
                         // The same product has been scanned again. No need to look it up again.
@@ -886,8 +884,7 @@ namespace dMobile.View.Activity
             var isAddNewItem = false;
             if (this.ActItem.IsAskCreateNewItem)
             {
-                await Device.InvokeOnMainThreadAsync(
-                    async () =>
+                await Device.InvokeOnMainThreadAsync(async () =>
                     {
                         var msg = "An item does not exist for this warehouse " +
                                   $"{this.LocMap.CurrLocMap.WhsCode} and product " +
@@ -950,8 +947,7 @@ namespace dMobile.View.Activity
 
         private async Task DisplayData()
         {
-            await Device.InvokeOnMainThreadAsync(
-                async () =>
+            await Device.InvokeOnMainThreadAsync(async () =>
                 {
                     this.DisplayCmdSetLocationData();
                     await this.DisplayLocationData();
@@ -1033,8 +1029,7 @@ namespace dMobile.View.Activity
             catch (MessageOnlyException msgEx)
             {
                 var msg = SysCommon.GetMessageFromMessageException(msgEx);
-                await Device.InvokeOnMainThreadAsync(
-                    async () =>
+                await Device.InvokeOnMainThreadAsync(async () =>
                         await Application.Current.MainPage.DisplayAlert(
                             this.GetControlDescription(),
                             msg,
@@ -1042,8 +1037,7 @@ namespace dMobile.View.Activity
             }
             catch (Exception ex)
             {
-                await Device.InvokeOnMainThreadAsync(
-                    async () =>
+                await Device.InvokeOnMainThreadAsync(async () =>
                     {
                         var errRpt = new FormErrorReport(ex);
                         _ = await errRpt.ShowDialog();
@@ -1086,8 +1080,7 @@ namespace dMobile.View.Activity
                             var msg = $"Warning selected location section '{this.LocMap.ChosenLocMap.SectName}' does" +
                                         $" not match the filtered picking section '{sectName}'.";
 
-                            await Device.InvokeOnMainThreadAsync(
-                                async () =>
+                            await Device.InvokeOnMainThreadAsync(async () =>
                                     await Application.Current.MainPage.DisplayAlert(
                                         this.ActItem.GetControlDescription(),
                                         msg,
@@ -1101,8 +1094,7 @@ namespace dMobile.View.Activity
             catch (MessageOnlyException msgEx)
             {
                 var msg = SysCommon.GetMessageFromMessageException(msgEx);
-                await Device.InvokeOnMainThreadAsync(
-                    async () =>
+                await Device.InvokeOnMainThreadAsync(async () =>
                         await Application.Current.MainPage.DisplayAlert(
                             this.GetControlDescription(),
                             msg,
@@ -1110,8 +1102,7 @@ namespace dMobile.View.Activity
             }
             catch (Exception ex)
             {
-                await Device.InvokeOnMainThreadAsync(
-                    async () =>
+                await Device.InvokeOnMainThreadAsync(async () =>
                     {
                         var errRpt = new FormErrorReport(ex);
                         _ = await errRpt.ShowDialog();
@@ -1795,8 +1786,7 @@ namespace dMobile.View.Activity
             {
                 if (!gatherEx.SuppressError)
                 {
-                    await Device.InvokeOnMainThreadAsync(
-                        async () =>
+                    await Device.InvokeOnMainThreadAsync(async () =>
                         {
                             var errRpt = new FormErrorReport(this.ActSubType, gatherEx);
                             _ = await errRpt.ShowDialog();
@@ -1806,8 +1796,7 @@ namespace dMobile.View.Activity
             catch (MessageOnlyException msgEx)
             {
                 var msg = SysCommon.GetMessageFromMessageException(msgEx);
-                await Device.InvokeOnMainThreadAsync(
-                    async () =>
+                await Device.InvokeOnMainThreadAsync(async () =>
                         await Application.Current.MainPage.DisplayAlert(
                             this.GetControlDescription(),
                             msg,
@@ -1815,8 +1804,7 @@ namespace dMobile.View.Activity
             }
             catch (Exception ex)
             {
-                await Device.InvokeOnMainThreadAsync(
-                    async () =>
+                await Device.InvokeOnMainThreadAsync(async () =>
                     {
                         var errRpt = new FormErrorReport(ex);
                         _ = await errRpt.ShowDialog();
@@ -1869,8 +1857,7 @@ namespace dMobile.View.Activity
                     this.ActSubType == SysCommon.ActSubTypes.Picking)
                 {
                     var form = new FormAddManualDetailOverride();
-                    isAllowedAddManualDetail = await Device.InvokeOnMainThreadAsync(
-                        async () =>
+                    isAllowedAddManualDetail = await Device.InvokeOnMainThreadAsync(async () =>
                             await form.ShowDialog() == DialogResult.OK);
                 }
 
@@ -2015,8 +2002,7 @@ namespace dMobile.View.Activity
             catch (MessageOnlyException msgEx)
             {
                 var msg = SysCommon.GetMessageFromMessageException(msgEx);
-                await Device.InvokeOnMainThreadAsync(
-                    async () =>
+                await Device.InvokeOnMainThreadAsync(async () =>
                         await Application.Current.MainPage.DisplayAlert(
                             this.GetControlDescription(),
                             msg,
@@ -2024,8 +2010,7 @@ namespace dMobile.View.Activity
             }
             catch (Exception ex)
             {
-                await Device.InvokeOnMainThreadAsync(
-                    async () =>
+                await Device.InvokeOnMainThreadAsync(async () =>
                     {
                         var errRpt = new FormErrorReport(ex);
                         _ = await errRpt.ShowDialog();
@@ -2176,8 +2161,7 @@ namespace dMobile.View.Activity
             catch (MessageOnlyException msgEx)
             {
                 var msg = SysCommon.GetMessageFromMessageException(msgEx);
-                await Device.InvokeOnMainThreadAsync(
-                    async () =>
+                await Device.InvokeOnMainThreadAsync(async () =>
                         await Application.Current.MainPage.DisplayAlert(
                             this.GetControlDescription(),
                             msg,
@@ -2185,8 +2169,7 @@ namespace dMobile.View.Activity
             }
             catch (Exception ex)
             {
-                await Device.InvokeOnMainThreadAsync(
-                    async () =>
+                await Device.InvokeOnMainThreadAsync(async () =>
                     {
                         var errRpt = new FormErrorReport(ex);
                         _ = await errRpt.ShowDialog();
