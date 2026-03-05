@@ -72,7 +72,7 @@ namespace dMobile.View
             // Cannot use the defaultSchemeDataAssigned directly because it is a reference parameter.
             this.DefaultSchemeDataAssigned = false;
 
-            NebraskBeefRule();
+            this.NebraskBeefRule();
 
             // <issue="13609"/>
             this.AssertSuppressedErrorsAgainstLabelScheme();
@@ -93,12 +93,12 @@ namespace dMobile.View
                 this.DefaultSchemeDataAssigned = true;
             }
 
-            if (AssignSerialNumber())
+            if (this.AssignSerialNumber())
             {
                 this.DefaultSchemeDataAssigned = true;
             }
 
-            if (AssignVariant())
+            if (this.AssignVariant())
             {
                 this.DefaultSchemeDataAssigned = true;
             }

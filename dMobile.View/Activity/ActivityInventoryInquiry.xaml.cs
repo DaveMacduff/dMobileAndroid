@@ -1126,7 +1126,7 @@ namespace dMobile.View.Activity
 
         private async void CmdDisplayDefault_Click(object sender, EventArgs e)
         {
-            await DisplayLocationDefaults();
+            await this.DisplayLocationDefaults();
         }
 
         private async Task DisplayLocationDefaults()

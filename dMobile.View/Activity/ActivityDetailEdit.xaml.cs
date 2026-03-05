@@ -855,7 +855,7 @@ namespace dMobile.View.Activity
                             }
                         }
 
-                        CheckBestBeforeAcceptedDays();
+                        this.CheckBestBeforeAcceptedDays();
                     }
 
                     void ValidateSchemeProductionDateTracked()
@@ -883,7 +883,7 @@ namespace dMobile.View.Activity
                             }
                         }
 
-                        CheckProductionAcceptedDays();
+                        this.CheckProductionAcceptedDays();
                     }
 
                     void ValidateSchemeIsVariantTracked()
@@ -1394,9 +1394,9 @@ namespace dMobile.View.Activity
                 if (prodInfo.Scheme.IsBestBeforeDateTracked)
                 {
                     if (editSchemeData.LogisticUnitBestBeforeSellByDate.Date == DateTime.Now.Date &&
-                        !SysCommon.IsEmptyDate(SysEnv.LastEnteredSchemeData.LogisticUnitBestBeforeSellByDate))
+                        !SysCommon.IsEmptyDate(this.SysEnv.LastEnteredSchemeData.LogisticUnitBestBeforeSellByDate))
                     {
-                        editSchemeData.LogisticUnitBestBeforeSellByDate = SysEnv.LastEnteredSchemeData.LogisticUnitBestBeforeSellByDate;
+                        editSchemeData.LogisticUnitBestBeforeSellByDate = this.SysEnv.LastEnteredSchemeData.LogisticUnitBestBeforeSellByDate;
                         this.dtBestBeforeDate.Date = editSchemeData.LogisticUnitBestBeforeSellByDate;
                     }
                     else
@@ -1408,9 +1408,9 @@ namespace dMobile.View.Activity
                 if (prodInfo.Scheme.IsProductionDateTracked)
                 {
                     if (editSchemeData.LogisticUnitProductionDate.Date == DateTime.Now.Date &&
-                        !SysCommon.IsEmptyDate(SysEnv.LastEnteredSchemeData.LogisticUnitProductionDate))
+                        !SysCommon.IsEmptyDate(this.SysEnv.LastEnteredSchemeData.LogisticUnitProductionDate))
                     {
-                        editSchemeData.LogisticUnitProductionDate = SysEnv.LastEnteredSchemeData.LogisticUnitProductionDate;
+                        editSchemeData.LogisticUnitProductionDate = this.SysEnv.LastEnteredSchemeData.LogisticUnitProductionDate;
                         this.dtProductionDate.Date = editSchemeData.LogisticUnitProductionDate;
                     }
                     else
@@ -1434,9 +1434,9 @@ namespace dMobile.View.Activity
                 if (prodInfo.Scheme.IsLotTracked)
                 {
                     if (string.IsNullOrEmpty(editSchemeData.LogisticUnitBatchLotNumber) &&
-                        !string.IsNullOrEmpty(SysEnv.LastEnteredSchemeData.LogisticUnitBatchLotNumber))
+                        !string.IsNullOrEmpty(this.SysEnv.LastEnteredSchemeData.LogisticUnitBatchLotNumber))
                     {
-                        editSchemeData.LogisticUnitBatchLotNumber = SysEnv.LastEnteredSchemeData.LogisticUnitBatchLotNumber;
+                        editSchemeData.LogisticUnitBatchLotNumber = this.SysEnv.LastEnteredSchemeData.LogisticUnitBatchLotNumber;
                         this.txtLotNo.Text = editSchemeData.LogisticUnitBatchLotNumber;
                     }
                     else
@@ -1448,11 +1448,11 @@ namespace dMobile.View.Activity
                 if (prodInfo.Scheme.IsVariantTracked)
                 {
                     if (string.IsNullOrEmpty(editSchemeData.VariantCode) &&
-                        !string.IsNullOrEmpty(SysEnv.LastEnteredSchemeData.VariantCode))
+                        !string.IsNullOrEmpty(this.SysEnv.LastEnteredSchemeData.VariantCode))
                     {
-                        editSchemeData.VariantNumber = SysEnv.LastEnteredSchemeData.VariantNumber;
-                        editSchemeData.VariantDescription = SysEnv.LastEnteredSchemeData.VariantDescription;
-                        editSchemeData.VariantCode = SysEnv.LastEnteredSchemeData.VariantCode;
+                        editSchemeData.VariantNumber = this.SysEnv.LastEnteredSchemeData.VariantNumber;
+                        editSchemeData.VariantDescription = this.SysEnv.LastEnteredSchemeData.VariantDescription;
+                        editSchemeData.VariantCode = this.SysEnv.LastEnteredSchemeData.VariantCode;
                         this.txtLotNo.Text = editSchemeData.VariantCode;
                     }
                     else

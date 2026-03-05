@@ -4,6 +4,7 @@
 
 namespace dMobile.View
 {
+    using System;
     using dMobile.BarCodeScanner;
     using dMobile.BarCodeScanner.BarCodeParsing;
     using dMobile.Bedrock;
@@ -11,10 +12,7 @@ namespace dMobile.View
     using dMobile.Controller.Activity_Detail;
     using dMobile.Controller.Activity_Item;
     using dMobile.Resources.Models.Products;
-    using dMobile.Resources.Types.Headers;
-    using dMobile.Resources.Types.Items;
     using SQLite;
-    using System;
 
     /// <summary>
     ///     Parse scheme data.
@@ -35,18 +33,18 @@ namespace dMobile.View
             SSkidInfo currSkid)
         {
             this.ProductSchemeInfo = prodScheme ?? throw new ArgumentNullException(nameof(prodScheme));
-            ////this.BarCodeData = barParse ?? throw new ArgumentNullException(nameof(barParse));
+            this.BarCodeData = barParse ?? throw new ArgumentNullException(nameof(barParse));
             this.DefaultSchemeData = defaultSchemeData ?? throw new ArgumentNullException(nameof(defaultSchemeData));
             this.CurrentSkid = currSkid ?? throw new ArgumentNullException(nameof(currSkid));
         }
 
-        private ProdScheme ProductSchemeInfo { get; } = new ProdScheme();
+        private ProdScheme ProductSchemeInfo { get; }
 
         private BarCodeParse BarCodeData { get; }
 
-        private ActItemSchemeData DefaultSchemeData { get; } = new ActItemSchemeData();
+        private ActItemSchemeData DefaultSchemeData { get; }
 
-        private SSkidInfo CurrentSkid { get; } = new SSkidInfo();
+        private SSkidInfo CurrentSkid { get; }
 
         private ProductSchemeData ProdSchemeData { get; set; } = new ProductSchemeData();
 
@@ -70,11 +68,11 @@ namespace dMobile.View
             // Cannot use the defaultSchemeDataAssigned directly because it is a reference parameter.
             this.DefaultSchemeDataAssigned = false;
 
-            NebraskBeefRule();
+            this.NebraskaBeefRule();
 
             // <issue="13609"/>
             this.AssertSuppressedErrorsAgainstScheme();
-            AssignSkidNumberFromSelectedSkid();
+            this.AssignSkidNumberFromSelectedSkid();
             if (this.AssignBestBefore())
             {
                 this.DefaultSchemeDataAssigned = true;
@@ -90,12 +88,12 @@ namespace dMobile.View
                 this.DefaultSchemeDataAssigned = true;
             }
 
-            if (AssignSerialNumber())
+            if (this.AssignSerialNumber())
             {
                 this.DefaultSchemeDataAssigned = true;
             }
 
-            if (AssignVariant())
+            if (this.AssignVariant())
             {
                 this.DefaultSchemeDataAssigned = true;
             }
@@ -211,6 +209,9 @@ namespace dMobile.View
                             // Unknown error, throw
                             details.ThrowOnlyOneError(i);
                             break;
+
+                        default:
+                            throw new ArgumentOutOfRangeException();
                     }
                 }
             }
@@ -223,7 +224,7 @@ namespace dMobile.View
             }
         }
 
-        private void NebraskBeefRule()
+        private void NebraskaBeefRule()
         {
             if (this.BarCodeData != null)
             {

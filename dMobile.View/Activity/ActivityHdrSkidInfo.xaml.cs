@@ -1172,7 +1172,7 @@ namespace dMobile.View.Activity
 
             async Task HandleProductScanned(BarCodeParse codeParse)
             {
-                var prodUnitRefno = await DataCollector.IdentifyProductScanned(codeParse);
+                var prodUnitRefno = await this.DataCollector.IdentifyProductScanned(codeParse);
                 if (prodUnitRefno <= 0)
                 {
                     const string msg =

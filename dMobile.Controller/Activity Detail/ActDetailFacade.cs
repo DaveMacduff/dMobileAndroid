@@ -41,10 +41,6 @@ namespace dMobile.Controller.Activity_Detail
                     actDetailFactory = new PickingActDetailFactory();
                     break;
 
-                case SysCommon.ActSubTypes.PickingSingle:
-                    actDetailFactory = new PickingActDetailFactory();
-                    break;
-
                 case SysCommon.ActSubTypes.Returns:
                     actDetailFactory = new ReturnsActDetailFactory();
                     break;

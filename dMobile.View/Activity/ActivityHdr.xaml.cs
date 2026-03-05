@@ -196,8 +196,7 @@ namespace dMobile.View.Activity
                 // This code should be moved into a picking header class inherited from ucActivityHdr.
                 if (this.SysEnv.SysSettings.IsPickConfirmExit)
                 {
-                    await Device.InvokeOnMainThreadAsync(
-                        async () =>
+                    await Device.InvokeOnMainThreadAsync(async () =>
                         {
                             isReadyToSavePicking = await this.AskConfirmExit();
                         });
@@ -241,8 +240,7 @@ namespace dMobile.View.Activity
             {
                 var msg = SysCommon.GetMessageFromMessageException(msgEx);
                 saveComplete = false;
-                await Device.InvokeOnMainThreadAsync(
-                    async () => await Application.Current.MainPage.DisplayAlert(
+                await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert(
                         this.ActHdr.GetControlDescription(),
                         msg,
                         Resource.OK));
@@ -250,8 +248,7 @@ namespace dMobile.View.Activity
             catch (Exception ex)
             {
                 saveComplete = false;
-                await Device.InvokeOnMainThreadAsync(
-                    async () =>
+                await Device.InvokeOnMainThreadAsync(async () =>
                     {
                         var errRpt = new FormErrorReport(this.ActSubType, ex);
                         _ = await errRpt.ShowDialog();
@@ -307,8 +304,7 @@ namespace dMobile.View.Activity
             {
                 var msg = SysCommon.GetMessageFromMessageException(msgEx);
                 cancelChanges = false;
-                await Device.InvokeOnMainThreadAsync(
-                    async () =>
+                await Device.InvokeOnMainThreadAsync(async () =>
                         await Application.Current.MainPage.DisplayAlert(
                             this.ActHdr.GetControlDescription(),
                             msg,
@@ -317,8 +313,7 @@ namespace dMobile.View.Activity
             catch (Exception ex)
             {
                 cancelChanges = false;
-                await Device.InvokeOnMainThreadAsync(
-                    async () =>
+                await Device.InvokeOnMainThreadAsync(async () =>
                     {
                         var errRpt = new FormErrorReport(this.ActSubType, ex);
                         _ = await errRpt.ShowDialog();
@@ -367,8 +362,7 @@ namespace dMobile.View.Activity
                 }
                 catch (Exception ex)
                 {
-                    Device.InvokeOnMainThreadAsync(
-                        () =>
+                    Device.InvokeOnMainThreadAsync(() =>
                         {
                             var errRpt = new FormErrorReport(this.ActSubType, ex);
                             _ = errRpt.ShowDialog();
@@ -428,8 +422,7 @@ namespace dMobile.View.Activity
             }
             catch (Exception ex)
             {
-                await Device.InvokeOnMainThreadAsync(
-                    async () =>
+                await Device.InvokeOnMainThreadAsync(async () =>
                     {
                         var errRpt = new FormErrorReport(this.ActSubType, ex);
                         _ = await errRpt.ShowDialog();
@@ -497,8 +490,7 @@ namespace dMobile.View.Activity
             }
             catch (Exception ex)
             {
-                await Device.InvokeOnMainThreadAsync(
-                    async () =>
+                await Device.InvokeOnMainThreadAsync(async () =>
                     {
                         var errRpt = new FormErrorReport(this.ActSubType, ex);
                         _ = await errRpt.ShowDialog();
@@ -659,8 +651,8 @@ namespace dMobile.View.Activity
                                     this.SysEnv.SysSettings.IsPickSinglePrintShipLabelFullQuantity);
                             }
 
-                            if (await Device.InvokeOnMainThreadAsync(
-                                async () => await this.ActHdr.ChangeStatus(this.ListViewMainActivity.SelectedItem)))
+                            if (await Device.InvokeOnMainThreadAsync(async () =>
+                                    await this.ActHdr.ChangeStatus(this.ListViewMainActivity.SelectedItem)))
                             {
                                 switch (this.ActSubType)
                                 {
@@ -701,8 +693,7 @@ namespace dMobile.View.Activity
                                                 var form = new FormDialogContainer(
                                                     EDialogTypes.ActivityDeboxLabelCount,
                                                     this.ActSubType);
-                                                if (await Device.InvokeOnMainThreadAsync(
-                                                    async () =>
+                                                if (await Device.InvokeOnMainThreadAsync(async () =>
                                                         await form.DisplayControl.ShowDialog() == DialogResult.OK))
                                                 {
                                                     var doc = await form.GetXml();
@@ -741,7 +732,6 @@ namespace dMobile.View.Activity
                                     case SysCommon.ActSubTypes.SkidInfo:
                                     case SysCommon.ActSubTypes.MoveSkid:
                                     case SysCommon.ActSubTypes.BreakSkid:
-                                    case SysCommon.ActSubTypes.PickingSingle:
                                     case SysCommon.ActSubTypes.PutAwaySkid:
                                     case SysCommon.ActSubTypes.AssignDefaultLocation:
                                     case SysCommon.ActSubTypes.InventoryInquiry:
@@ -764,6 +754,7 @@ namespace dMobile.View.Activity
                                     case SysCommon.ActSubTypes.YieldSheetFilter:
                                         break;
 
+                                    case SysCommon.ActSubTypes.InventoryInquiryActivitySingle:
                                     default:
                                         throw new ArgumentOutOfRangeException();
                                 }
@@ -781,8 +772,8 @@ namespace dMobile.View.Activity
                                             this.ActHdr,
                                             ShippingLabelQuantitySelectionMode.RepackOnly);
 
-                                        if (await Device.InvokeOnMainThreadAsync(
-                                            async () => await form.DisplayControl.ShowDialog() == DialogResult.OK))
+                                        if (await Device.InvokeOnMainThreadAsync(async () =>
+                                                await form.DisplayControl.ShowDialog() == DialogResult.OK))
                                         {
                                             var request = await form.GetXml();
 
@@ -803,8 +794,7 @@ namespace dMobile.View.Activity
                                             this.ActHdr,
                                             ShippingLabelQuantitySelectionMode.BothFullRepack);
 
-                                        if (await Device.InvokeOnMainThreadAsync(
-                                            async () =>
+                                        if (await Device.InvokeOnMainThreadAsync(async () =>
                                                 await form.DisplayControl.ShowDialog() == DialogResult.OK))
                                         {
                                             var request = await form.GetXml();
@@ -843,8 +833,7 @@ namespace dMobile.View.Activity
                     async Task KeyUpF5HandlerChangePickCriteria()
                     {
                         // Change pick selection.
-                        await Task.Run(
-                            async () =>
+                        await Task.Run(async () =>
                             {
                                 if (this.ActSubType == SysCommon.ActSubTypes.Picking && this.SysEnv.SysSettings.IsPrePickCrit)
                                 {
@@ -854,8 +843,8 @@ namespace dMobile.View.Activity
                                         EDialogTypes.ActivityPickingSelectCriteria,
                                         this.ActSubType);
 
-                                    if (await Device.InvokeOnMainThreadAsync(
-                                        async () => await form.DisplayControl.ShowDialog() == DialogResult.OK))
+                                    if (await Device.InvokeOnMainThreadAsync(async () =>
+                                            await form.DisplayControl.ShowDialog() == DialogResult.OK))
                                     {
                                         var locMap = LocationMap.GetInstance();
                                         var result = await form.GetXml();
@@ -900,8 +889,8 @@ namespace dMobile.View.Activity
                                 this.ActHdr,
                                 this.ActSubType);
                             this.IsChangesMade = false;
-                            _ = await Device.InvokeOnMainThreadAsync(
-                                async () => await form.DisplayControl.ShowDialog());
+                            _ = await Device.InvokeOnMainThreadAsync(async () =>
+                                await form.DisplayControl.ShowDialog());
                             await this.FindSelectedItemAsync(this.ActHdr.HdrRefno);
                         }
                     }
@@ -910,8 +899,7 @@ namespace dMobile.View.Activity
             catch (MessageOnlyException msgEx)
             {
                 var msg = SysCommon.GetMessageFromMessageException(msgEx);
-                await Device.InvokeOnMainThreadAsync(
-                    async () =>
+                await Device.InvokeOnMainThreadAsync(async () =>
                         await Application.Current.MainPage.DisplayAlert(
                             this.ActHdr.GetControlDescription(),
                             msg,
@@ -919,8 +907,7 @@ namespace dMobile.View.Activity
             }
             catch (Exception ex)
             {
-                await Device.InvokeOnMainThreadAsync(
-                    async () =>
+                await Device.InvokeOnMainThreadAsync(async () =>
                     {
                         var errRpt = new FormErrorReport(this.ActSubType, ex);
                         _ = await errRpt.ShowDialog();
@@ -940,8 +927,7 @@ namespace dMobile.View.Activity
         {
             var isReadyToClose = !this.IsChangesMade;
             await this.DisplayAlert(this.ActHdr.GetControlDescription(), "Confirm exit?", "Yes", "No")
-                .ContinueWith(
-                    result =>
+                .ContinueWith(result =>
                         {
                             if (!result.Result)
                             {
@@ -960,8 +946,7 @@ namespace dMobile.View.Activity
         /// <returns>The <see cref="Task" />. Task operation.</returns>
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
-            await Task.Run(
-                async () =>
+            await Task.Run(async () =>
                 {
                     try
                     {
@@ -1009,8 +994,7 @@ namespace dMobile.View.Activity
                     catch (MessageOnlyException msgEx)
                     {
                         var msg = SysCommon.GetMessageFromMessageException(msgEx);
-                        await Device.InvokeOnMainThreadAsync(
-                            async () =>
+                        await Device.InvokeOnMainThreadAsync(async () =>
                                 await Application.Current.MainPage.DisplayAlert(
                                     this.ActHdr.GetControlDescription(),
                                     msg,
@@ -1018,8 +1002,7 @@ namespace dMobile.View.Activity
                     }
                     catch (Exception ex)
                     {
-                        await Device.InvokeOnMainThreadAsync(
-                            async () =>
+                        await Device.InvokeOnMainThreadAsync(async () =>
                             {
                                 var errRpt = new FormErrorReport(this.ActSubType, ex);
                                 _ = await errRpt.ShowDialog();
@@ -1038,8 +1021,7 @@ namespace dMobile.View.Activity
                 if (scanArgs == null)
                 {
                     const string msg = "Scanner event fired but no data was received.";
-                    await Device.InvokeOnMainThreadAsync(
-                        async () => await Application.Current.MainPage.DisplayAlert(
+                    await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert(
                             this.ActHdr.GetControlDescription(),
                             msg,
                             Resource.OK));
@@ -1050,8 +1032,7 @@ namespace dMobile.View.Activity
             async Task BarCodeHandlerFkRefno(string actHdrStringFkRefno)
             {
                 // Remember that the headers have been filtered by the login warehouse.
-                var selectedActivity = this.ActHdr.ListHeaders.FirstOrDefault(
-                    activity => Convert.ToString(
+                var selectedActivity = this.ActHdr.ListHeaders.FirstOrDefault(activity => Convert.ToString(
                         activity.GetType().GetProperty(this.ActHdr.GetFkRefnoIdx())
                         ?.GetValue(activity)) == actHdrStringFkRefno);
                 if (selectedActivity != null)
@@ -1063,8 +1044,7 @@ namespace dMobile.View.Activity
                     }
                     else
                     {
-                        await Device.InvokeOnMainThreadAsync(
-                            async () =>
+                        await Device.InvokeOnMainThreadAsync(async () =>
                             {
                                 var form = new FormDialogContainer(
                                 EDialogTypes.ActivityItemSingle,
@@ -1109,8 +1089,8 @@ namespace dMobile.View.Activity
                                 EDialogTypes.ActivityItemSingle,
                                 this.ActHdr,
                                 this.ActSubType);
-                            _ = await Device.InvokeOnMainThreadAsync(
-                                async () => await form.DisplayControl.ShowDialog());
+                            _ = await Device.InvokeOnMainThreadAsync(async () =>
+                                await form.DisplayControl.ShowDialog());
                         }
 
                         await this.FindSelectedItemAsync(this.ActHdr.HdrRefno);
@@ -1130,8 +1110,7 @@ namespace dMobile.View.Activity
                 var msg = msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1
                     ? msgEx.Message
                     : msgEx.Message["MSGBOX-".Length..];
-                await Device.InvokeOnMainThreadAsync(
-                    async () =>
+                await Device.InvokeOnMainThreadAsync(async () =>
                         await Application.Current.MainPage.DisplayAlert(
                             this.ActHdr.GetControlDescription(),
                             msg,
@@ -1139,8 +1118,7 @@ namespace dMobile.View.Activity
             }
             catch (Exception ex)
             {
-                await Device.InvokeOnMainThreadAsync(
-                    async () =>
+                await Device.InvokeOnMainThreadAsync(async () =>
                     {
                         var errRpt = new FormErrorReport(this.ActSubType, ex);
                         _ = await errRpt.ShowDialog();
@@ -1187,10 +1165,11 @@ namespace dMobile.View.Activity
         private async Task DesignGrid()
         {
             // Bind the filtered activity items to the list view.
-            await Device.InvokeOnMainThreadAsync(
-                () =>
+            await Device.InvokeOnMainThreadAsync(() =>
                 {
-                    this.MainActivityItems = this.ActHdr.DesignGrid(ref this.GridMainActivity, ref this.ListViewMainActivity);
+                    this.MainActivityItems = this.ActHdr.DesignGrid(
+                        ref this.GridMainActivity,
+                        ref this.ListViewMainActivity);
                 });
 
             if (!string.IsNullOrEmpty(this.txtSearchHdr.Text))
@@ -1230,22 +1209,23 @@ namespace dMobile.View.Activity
                 {
                     // Goto the first one in the list.
                     this.ActHdr.SelectedListItemIdx = 0;
-                    Device.BeginInvokeOnMainThread(
-                        () =>
+                    Device.BeginInvokeOnMainThread(() =>
                         {
-                            this.ListViewMainActivity.SelectedItem = this.MainActivityItems[this.ActHdr.SelectedListItemIdx];
+                            this.ListViewMainActivity.SelectedItem =
+                                this.MainActivityItems[this.ActHdr.SelectedListItemIdx];
                         });
                     await this.ActHdr.SelectActivity(this.ListViewMainActivity.SelectedItem);
                 }
                 else
                 {
                     await this.ActHdr.SelectActivity(selectedItem);
-                    Device.BeginInvokeOnMainThread(
-                        () => { this.ListViewMainActivity.SelectedItem = this.ActHdr.SelectedActivity; });
+                    Device.BeginInvokeOnMainThread(() =>
+                    {
+                        this.ListViewMainActivity.SelectedItem = this.ActHdr.SelectedActivity;
+                    });
                 }
 
-                Device.BeginInvokeOnMainThread(
-                    () =>
+                Device.BeginInvokeOnMainThread(() =>
                     {
                         this.ListViewMainActivity.ScrollTo(
                             this.ListViewMainActivity.SelectedItem,
@@ -1295,8 +1275,7 @@ namespace dMobile.View.Activity
                 {
                     // Goto the first one in the list.
                     this.ActHdr.SelectedListItemIdx = 0;
-                    Device.BeginInvokeOnMainThread(
-                        () =>
+                    Device.BeginInvokeOnMainThread(() =>
                         {
                             this.ListViewMainActivity.SelectedItem = this.MainActivityItems[this.ActHdr.SelectedListItemIdx];
                         });
@@ -1305,15 +1284,13 @@ namespace dMobile.View.Activity
                 else
                 {
                     await this.ActHdr.SelectActivity(selectedItem);
-                    Device.BeginInvokeOnMainThread(
-                        () =>
+                    Device.BeginInvokeOnMainThread(() =>
                         {
                             this.ListViewMainActivity.SelectedItem = this.ActHdr.SelectedActivity;
                         });
                 }
 
-                Device.BeginInvokeOnMainThread(
-                    () =>
+                Device.BeginInvokeOnMainThread(() =>
                     {
                         this.ListViewMainActivity.ScrollTo(
                             this.ListViewMainActivity.SelectedItem,
@@ -1369,16 +1346,14 @@ namespace dMobile.View.Activity
                 // Do not set the IsChangesMade. MessageOnlyException is really not
                 // and error.
                 // Allow the validation to handle the setting for IsChangesMade.
-                await Device.InvokeOnMainThreadAsync(
-                    async () => await Application.Current.MainPage.DisplayAlert(
+                await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert(
                         this.ActHdr.GetControlDescription(),
                         msg,
                         Resource.OK));
             }
             catch (Exception ex)
             {
-                await Device.InvokeOnMainThreadAsync(
-                    async () =>
+                await Device.InvokeOnMainThreadAsync(async () =>
                     {
                         var errRpt = new FormErrorReport(this.ActSubType, ex);
                         _ = await errRpt.ShowDialog();
@@ -1412,17 +1387,16 @@ namespace dMobile.View.Activity
                         if (await ((PickingActivity)this.ActHdr).IsSalesOrderBeingPicked())
                         {
                             isAllowedToPick = false;
-                            if (this.SysEnv.ContactLog.IsAllowedPickingModuleOverridePicker && await Device.InvokeOnMainThreadAsync(
-                                        async () => await this.DisplayAlert(
-                                            "Picker Override",
-                                            "Do you wish to clear the current picker?",
-                                            "Yes",
-                                            "No")))
+                            if (this.SysEnv.ContactLog.IsAllowedPickingModuleOverridePicker &&
+                                await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(
+                                    "Picker Override",
+                                    "Do you wish to clear the current picker?",
+                                    "Yes",
+                                    "No")))
                             {
                                 if (await ((PickingActivity)this.ActHdr).ClearSalesOrderBeingPicked(false))
                                 {
-                                    await Device.InvokeOnMainThreadAsync(
-                                        async () =>
+                                    await Device.InvokeOnMainThreadAsync(async () =>
                                             await this.DisplayAlert(
                                                 "Picker Override",
                                                 "Picker cleared.",
@@ -1431,8 +1405,7 @@ namespace dMobile.View.Activity
                                 }
                                 else
                                 {
-                                    await Device.InvokeOnMainThreadAsync(
-                                        async () =>
+                                    await Device.InvokeOnMainThreadAsync(async () =>
                                             await this.DisplayAlert(
                                                 "Picker Override",
                                                 "Unable to clear the current picker.",
@@ -1443,7 +1416,7 @@ namespace dMobile.View.Activity
 
                         if (isAllowedToPick)
                         {
-                            this.ActSubType = SysCommon.ActSubTypes.PickingSingle;
+                            this.ActSubType = SysCommon.ActSubTypes.Picking;
                             var form = new FormDialogContainer(
                                 EDialogTypes.ActivityItemSingle,
                                 this.ActHdr,
@@ -1458,8 +1431,7 @@ namespace dMobile.View.Activity
             }
             catch (Exception ex)
             {
-                await Device.InvokeOnMainThreadAsync(
-                    async () =>
+                await Device.InvokeOnMainThreadAsync(async () =>
                     {
                         var errRpt = new FormErrorReport(this.ActSubType, ex);
                         _ = await errRpt.ShowDialog();
@@ -1484,8 +1456,7 @@ namespace dMobile.View.Activity
             }
             catch (Exception ex)
             {
-                await Device.InvokeOnMainThreadAsync(
-                    async () =>
+                await Device.InvokeOnMainThreadAsync(async () =>
                     {
                         var errRpt = new FormErrorReport(this.ActSubType, ex);
                         _ = await errRpt.ShowDialog();
@@ -1556,7 +1527,6 @@ namespace dMobile.View.Activity
                     var dlgType = this.ActSubType switch
                     {
                         SysCommon.ActSubTypes.Picking => EDialogTypes.ActivityHdrPickingFilter,
-                        SysCommon.ActSubTypes.PickingSingle => EDialogTypes.ActivityHdrPickingFilter,
                         SysCommon.ActSubTypes.Receiving => EDialogTypes.ActivityHdrReceivingFilter,
                         SysCommon.ActSubTypes.TransferFrom => EDialogTypes.ActivityHdrTransferFilter,
                         SysCommon.ActSubTypes.TransferTo => EDialogTypes.ActivityHdrTransferFilter,
@@ -1600,8 +1570,7 @@ namespace dMobile.View.Activity
                     };
 
                     var form = new FormDialogContainer(dlgType, this.ActSubType);
-                    await Device.InvokeOnMainThreadAsync(
-                        async () =>
+                    await Device.InvokeOnMainThreadAsync(async () =>
                         {
                             if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
                             {
@@ -1623,16 +1592,14 @@ namespace dMobile.View.Activity
                 // Do not set the IsChangesMade. MessageOnlyException is really not
                 // an error.
                 // Allow the validation to handle the setting for IsChangesMade.
-                await Device.InvokeOnMainThreadAsync(
-                    async () => await Application.Current.MainPage.DisplayAlert(
+                await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert(
                         this.ActHdr.GetControlDescription(),
                         msg,
                         Resource.OK));
             }
             catch (Exception ex)
             {
-                await Device.InvokeOnMainThreadAsync(
-                    async () =>
+                await Device.InvokeOnMainThreadAsync(async () =>
                     {
                         var errRpt = new FormErrorReport(this.ActSubType, ex);
                         _ = await errRpt.ShowDialog();

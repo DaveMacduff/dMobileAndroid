@@ -42,11 +42,11 @@ namespace dMobile.Controller.Activity_Item
                     break;
 
                 case SysCommon.ActSubTypes.Picking:
-                    actItemFactory = new PickingActItemFactory();
+                    actItemFactory = new PickSingleActItemFactory();
                     break;
 
-                case SysCommon.ActSubTypes.PickingSingle:
-                    actItemFactory = new PickSingleActItemFactory();
+                case SysCommon.ActSubTypes.PickingList:
+                    actItemFactory = new PickingActItemFactory();
                     break;
 
                 case SysCommon.ActSubTypes.Returns:

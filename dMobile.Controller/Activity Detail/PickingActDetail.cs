@@ -605,12 +605,12 @@ namespace dMobile.Controller.Activity_Detail
             if (!this.SysEnv.SysSettings.IsDisconnectedMode)
             {
                 await tableActPickingDetail.PurgeData();
-            }
 
-            this.DataLayerProgressOutHandler(this, EventArgs.Empty, 3);
-            await tableActPickingDetail.RequestDetailData(this.ActItem.ItemFkRefno, this.ActItem.ItemRefno);
-            this.DataLayerProgressOutHandler(this, EventArgs.Empty, 5);
-            tableActPickingDetail.UnregisterDataAccessListenerProgressOut(this);
+                this.DataLayerProgressOutHandler(this, EventArgs.Empty, 3);
+                await tableActPickingDetail.RequestDetailData(this.ActItem.ItemFkRefno, this.ActItem.ItemRefno);
+                this.DataLayerProgressOutHandler(this, EventArgs.Empty, 5);
+                tableActPickingDetail.UnregisterDataAccessListenerProgressOut(this);
+            }
         }
 
         /// <summary>

@@ -502,7 +502,7 @@ namespace dMobile.View.Activity
                         if (result)
                         {
                             this.ToProdInfo = scannedProdInfo;
-                            await AssignToProductText();
+                            await this.AssignToProductText();
                         }
                         else
                         {
@@ -516,7 +516,7 @@ namespace dMobile.View.Activity
                             }
 
                             this.FromProdInfo = scannedProdInfo;
-                            await AssignFromProductText();
+                            await this.AssignFromProductText();
                         }
                     }
 

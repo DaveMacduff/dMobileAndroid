@@ -19,19 +19,17 @@ namespace dMobile.View.Activity
     using Controller.Activity_Detail;
     using Controller.Activity_Item;
     using Resources.Enums;
-    using Resources.Types;
-    using CustomPages;
     using Forms;
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;
-    using Resource = dMobile.Resources.Properties.Resources;
     using Resources.Types.Details;
+    using Resource = dMobile.Resources.Properties.Resources;
 
     /// <summary>
     /// Defines the <see cref="ActivityMoveInventory" />.
     /// </summary>
     [XamlCompilation(XamlCompilationOptions.Compile)]
-    public partial class ActivityMoveInventory : DMobileContentPage, IAppArea, IDataLayerEventListener
+    public partial class ActivityMoveInventory : IAppArea, IDataLayerEventListener
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="ActivityMoveInventory"/> class.
@@ -407,7 +405,7 @@ namespace dMobile.View.Activity
             }
             catch (MessageOnlyException msgEx)
             {
-                var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1)
+                var msg = msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1
                     ? msgEx.Message
                     : msgEx.Message["MSGBOX-".Length..];
                 isSaveComplete = false;
@@ -589,8 +587,10 @@ namespace dMobile.View.Activity
                 var iTokens = Convert.ToInt32(Math.Ceiling(Convert.ToDouble(dataLayerEventArgs.StatusOutMsg.Length / tokenLength)));
                 for (var iTokenIdx = 0; iTokenIdx <= (iTokens * tokenLength) - 1; iTokenIdx++)
                 {
-                    var iTokenLength = Convert.ToInt32(dataLayerEventArgs.StatusOutMsg.Length - iTokenIdx > tokenLength
-                        ? tokenLength : dataLayerEventArgs.StatusOutMsg.Length - iTokenIdx);
+                    var iTokenLength = Convert.ToInt32(
+                        dataLayerEventArgs.StatusOutMsg.Length - iTokenIdx > tokenLength
+                        ? tokenLength 
+                        : dataLayerEventArgs.StatusOutMsg.Length - iTokenIdx);
                     this.ExtraInfoItems.Add(dataLayerEventArgs.StatusOutMsg.Substring(Convert.ToInt32(iTokenIdx), iTokenLength));
                     iTokenIdx += tokenLength;
                 }
@@ -1100,7 +1100,7 @@ namespace dMobile.View.Activity
             }
             catch (MessageOnlyException msgEx)
             {
-                var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1)
+                var msg = msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1
                     ? msgEx.Message
                     : msgEx.Message["MSGBOX-".Length..];
                 await Device.InvokeOnMainThreadAsync(async () =>
@@ -1253,7 +1253,7 @@ namespace dMobile.View.Activity
             }
             catch (MessageOnlyException msgEx)
             {
-                var msg = (msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1)
+                var msg = msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1
                     ? msgEx.Message
                     : msgEx.Message["MSGBOX-".Length..];
                 await Device.InvokeOnMainThreadAsync(async () =>
@@ -1262,7 +1262,7 @@ namespace dMobile.View.Activity
                         msg,
                         Resource.OK));
 
-                if (this.ActDetail.ListDetails.Count >= (listItemRowIdx + 1) && listItemRowIdx >= 0)
+                if (this.ActDetail.ListDetails.Count >= listItemRowIdx + 1 && listItemRowIdx >= 0)
                 {
                     _ = await Device.InvokeOnMainThreadAsync(() =>
                         this.ListViewMainActivity.SelectedItem = this.MainActivityItems[listItemRowIdx]);
@@ -1276,7 +1276,7 @@ namespace dMobile.View.Activity
                     _ = await errorReport.ShowDialog();
                 });
 
-                if (this.ActDetail.ListDetails.Count >= (listItemRowIdx + 1) && listItemRowIdx >= 0)
+                if (this.ActDetail.ListDetails.Count >= listItemRowIdx + 1 && listItemRowIdx >= 0)
                 {
                     _ = await Device.InvokeOnMainThreadAsync(() =>
                         this.ListViewMainActivity.SelectedItem = this.MainActivityItems[listItemRowIdx]);

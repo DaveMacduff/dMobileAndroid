@@ -251,7 +251,7 @@ namespace dMobile.Controller.Activity_Item
                     var errorDetail = string.Format(
                         "Order# {0} request shipping label(s) quantity failed." + Environment.NewLine + "{1}",
                         this.ItemFkRefno,
-                        xmlResult.DocumentElement["detail"].InnerText);
+                        (xmlResult.DocumentElement?["detail"] !).InnerText);
                     if (errorDetail.Contains("MSGBOX-"))
                     {
                         throw new MessageOnlyException(errorDetail);
@@ -261,55 +261,53 @@ namespace dMobile.Controller.Activity_Item
                         throw new BaseException(errorDetail);
                     }
                 }
-                else
+
+                if (!isRepackQuantityOnly)
                 {
-                    if (!isRepackQuantityOnly)
-                    {
-                        labelQty.FullQuantity = int.Parse(
-                            xmlResult.SelectSingleNode("/VFPData/FullCaseQuantity").FirstChild.Value);
+                    labelQty.FullQuantity = int.Parse(
+                        xmlResult.SelectSingleNode("/VFPData/FullCaseQuantity")?.FirstChild.Value!);
 
-                        labelQty.DryQuantity = int.Parse(
-                            xmlResult.SelectSingleNode("/VFPData/DryQuantity").FirstChild.Value);
+                    labelQty.DryQuantity = int.Parse(
+                        xmlResult.SelectSingleNode("/VFPData/DryQuantity")?.FirstChild.Value!);
 
-                        labelQty.FrozenQuantity = int.Parse(
-                            xmlResult.SelectSingleNode("/VFPData/FrozenQuantity").FirstChild.Value);
+                    labelQty.FrozenQuantity = int.Parse(
+                        xmlResult.SelectSingleNode("/VFPData/FrozenQuantity")?.FirstChild.Value!);
 
-                        labelQty.LiveQuantity = int.Parse(
-                            xmlResult.SelectSingleNode("/VFPData/LiveQuantity").FirstChild.Value);
+                    labelQty.LiveQuantity = int.Parse(
+                        xmlResult.SelectSingleNode("/VFPData/LiveQuantity")?.FirstChild.Value!);
 
-                        labelQty.FreshQuantity = int.Parse(
-                            xmlResult.SelectSingleNode("/VFPData/FreshQuantity").FirstChild.Value);
+                    labelQty.FreshQuantity = int.Parse(
+                        xmlResult.SelectSingleNode("/VFPData/FreshQuantity")?.FirstChild.Value!);
 
-                        labelQty.BundleQuantity = int.Parse(
-                            xmlResult.SelectSingleNode("/VFPData/BundleQuantity").FirstChild.Value);
+                    labelQty.BundleQuantity = int.Parse(
+                        xmlResult.SelectSingleNode("/VFPData/BundleQuantity")?.FirstChild.Value!);
 
-                        labelQty.PalletQuantity = int.Parse(
-                            xmlResult.SelectSingleNode("/VFPData/PalletQuantity").FirstChild.Value);
-                    }
-
-                    labelQty.RepackQuantity = int.Parse(
-                        xmlResult.SelectSingleNode("/VFPData/RepackQuantity").FirstChild.Value);
-
-                    labelQty.RepackDryQuantity = int.Parse(
-                        xmlResult.SelectSingleNode("/VFPData/RepackDryQuantity").FirstChild.Value);
-
-                    labelQty.RepackFrozenQuantity = int.Parse(
-                        xmlResult.SelectSingleNode("/VFPData/RepackFrozenQuantity").FirstChild.Value);
-
-                    labelQty.RepackLiveQuantity = int.Parse(
-                        xmlResult.SelectSingleNode("/VFPData/RepackLiveQuantity").FirstChild.Value);
-
-                    labelQty.RepackFreshQuantity = int.Parse(
-                        xmlResult.SelectSingleNode("/VFPData/RepackFreshQuantity").FirstChild.Value);
-
-                    // Used to determine if there should be a repack quantity gathered.
-                    labelQty.IsRepack = bool.Parse(xmlResult.SelectSingleNode("/VFPData/IsRepackCase").FirstChild.Value);
-                    labelQty.IsRepackLive = bool.Parse(xmlResult.SelectSingleNode("/VFPData/IsRepackLive").FirstChild.Value);
-                    labelQty.IsRepackFrozen = bool.Parse(
-                          xmlResult.SelectSingleNode("/VFPData/IsRepackFrozen").FirstChild.Value);
-                    labelQty.IsRepackFresh = bool.Parse(xmlResult.SelectSingleNode("/VFPData/IsRepackFresh").FirstChild.Value);
-                    labelQty.IsRepackDry = bool.Parse(xmlResult.SelectSingleNode("/VFPData/IsRepackDry").FirstChild.Value);
+                    labelQty.PalletQuantity = int.Parse(
+                        xmlResult.SelectSingleNode("/VFPData/PalletQuantity")?.FirstChild.Value!);
                 }
+
+                labelQty.RepackQuantity = int.Parse(
+                    xmlResult.SelectSingleNode("/VFPData/RepackQuantity")?.FirstChild.Value!);
+
+                labelQty.RepackDryQuantity = int.Parse(
+                    xmlResult.SelectSingleNode("/VFPData/RepackDryQuantity")?.FirstChild.Value!);
+
+                labelQty.RepackFrozenQuantity = int.Parse(
+                    xmlResult.SelectSingleNode("/VFPData/RepackFrozenQuantity")?.FirstChild.Value!);
+
+                labelQty.RepackLiveQuantity = int.Parse(
+                    xmlResult.SelectSingleNode("/VFPData/RepackLiveQuantity")?.FirstChild.Value!);
+
+                labelQty.RepackFreshQuantity = int.Parse(
+                    xmlResult.SelectSingleNode("/VFPData/RepackFreshQuantity")?.FirstChild.Value!);
+
+                // Used to determine if there should be a repack quantity gathered.
+                labelQty.IsRepack = bool.Parse(xmlResult.SelectSingleNode("/VFPData/IsRepackCase").FirstChild.Value);
+                labelQty.IsRepackLive = bool.Parse(xmlResult.SelectSingleNode("/VFPData/IsRepackLive").FirstChild.Value);
+                labelQty.IsRepackFrozen = bool.Parse(
+                    xmlResult.SelectSingleNode("/VFPData/IsRepackFrozen").FirstChild.Value);
+                labelQty.IsRepackFresh = bool.Parse(xmlResult.SelectSingleNode("/VFPData/IsRepackFresh").FirstChild.Value);
+                labelQty.IsRepackDry = bool.Parse(xmlResult.SelectSingleNode("/VFPData/IsRepackDry").FirstChild.Value);
             }
             catch (Exception ex)
             {
@@ -366,7 +364,7 @@ namespace dMobile.Controller.Activity_Item
             foreach (var item in this.ListItems)
             {
                 foundIdx++;
-                if (((PickingActItem)item).ItemFkRefno == activityItemFkRefno)
+                if (((PickSingleActItem)item).ItemFkRefno == activityItemFkRefno)
                 {
                     break;
                 }
@@ -393,23 +391,25 @@ namespace dMobile.Controller.Activity_Item
             {
                 try
                 {
-                    PickingModuleQuantityOverCheck(decimal.Parse(data.Root.Element("alt_qty").Value));
+                    if (data.Root != null)
+                    {
+                        PickingModuleQuantityOverCheck(decimal.Parse(data.Root.Element("alt_qty")?.Value!));
+                    }
                 }
                 catch (MessageOnlyException msgEx)
                 {
-                    var msg = msgEx.Message.IndexOf("MSGBOX-") == -1
+                    var msg = msgEx.Message.IndexOf("MSGBOX-", StringComparison.Ordinal) == -1
                         ? msgEx.Message
                         : msgEx.Message["MSGBOX-".Length..];
                     switch (this.SysEnv.SysSettings.PickQtyOverWarn)
                     {
                         case SysCommon.ActPickingQtyOverValLevels.ValidateWarnAndContinue:
-                            if (await Device.InvokeOnMainThreadAsync(
-                                    async () =>
-                                        await Application.Current.MainPage.DisplayAlert(
-                                            "Quantity Over",
-                                            msg + Environment.NewLine + "Continue?",
-                                            "Yes",
-                                            "No")))
+                            if (await Device.InvokeOnMainThreadAsync(async () =>
+                                await Application.Current.MainPage.DisplayAlert(
+                                    "Quantity Over",
+                                    msg + Environment.NewLine + "Continue?",
+                                    "Yes",
+                                    "No")))
                             {
                                 ////throw new IsReadyToApplyException(msg, true, true);
                                 break;
@@ -428,7 +428,6 @@ namespace dMobile.Controller.Activity_Item
                         default:
                             throw new ArgumentOutOfRangeException();
                     }
-
                 }
             }
 

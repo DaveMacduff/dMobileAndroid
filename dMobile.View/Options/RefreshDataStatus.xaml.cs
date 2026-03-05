@@ -2203,8 +2203,7 @@ namespace dMobile.View.Options
         /// </summary>
         private async Task RefreshDataPicking()
         {
-            if (this.SysEnv.RefreshOpt.SalesOrders ||
-                this.ActSubType == SysCommon.ActSubTypes.PurgeActivityData)
+            if (this.SysEnv.RefreshOpt.SalesOrders || this.ActSubType == SysCommon.ActSubTypes.PurgeActivityData)
             {
                 this.PickingDetail.RegisterDataAccessListenerStatusOut(this);
                 await this.PickingDetail.PurgeData();
@@ -2240,8 +2239,7 @@ namespace dMobile.View.Options
                     var headers = await activity.GetActivityList(false);
                     foreach (var header in headers)
                     {
-                        await Task.Run(
-                            async () =>
+                        await Task.Run(async () =>
                             {
                                 if (header is Picking pickingHeader)
                                 {

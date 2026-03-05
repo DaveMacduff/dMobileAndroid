@@ -44,10 +44,6 @@ namespace dMobile.Controller.Activity
                     actFactory = new PickingActivityFactory();
                     break;
 
-                case SysCommon.ActSubTypes.PickingSingle:
-                    actFactory = new PickingActivityFactory();
-                    break;
-
                 case SysCommon.ActSubTypes.ReleaseByOrder:
                     actFactory = new ReleaseByOrderActivityFactory();
                     break;

@@ -54,7 +54,7 @@ namespace dMobile.View.Activity
             this.Scanner = ScannerEngine.GetInstance().Scanner;
             this.ExtraInfoItems = new ObservableCollection<string>();
 
-            LoadAndBindData().FireAndForgetSafeAsync();
+            this.LoadAndBindData().FireAndForgetSafeAsync();
             ParseAndSeedBarCodeModifier();
             this.ScannerEnable().FireAndForgetSafeAsync();
             return;

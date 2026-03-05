@@ -55,7 +55,7 @@ namespace dMobile.View.Activity
 
             // Init activity detail object
             this.ActDetail = ActDetailFacade.GetActDetail(this.ActItem, this.ActSubType);
-            this.ActSubType = actSubType == SysCommon.ActSubTypes.PickingSingle ? SysCommon.ActSubTypes.Picking : actSubType;
+            this.ActSubType = actSubType;
 
             InitBarCodeModifiers();
             this.DataCollector = new DataCollector(this.ActSubType, this.ActItem);
@@ -106,7 +106,7 @@ namespace dMobile.View.Activity
 
         private ActDetail ActDetail { get; set; }
 
-        private SysCommon.ActSubTypes ActSubType { get; }
+        private SysCommon.ActSubTypes ActSubType { get; set; }
 
         private bool IsDataLoading { get; set; }
 
@@ -1419,6 +1419,7 @@ namespace dMobile.View.Activity
         {
             try
             {
+                this.ActSubType = SysCommon.ActSubTypes.PickingList;
                 this.CmdInvInquiry.IsEnabled = false;
                 await this.ScannerDisable();
                 var form = new FormDialogContainer(
@@ -1464,6 +1465,7 @@ namespace dMobile.View.Activity
             }
             finally
             {
+                this.ActSubType = SysCommon.ActSubTypes.Picking;
                 this.CmdInvInquiry.IsEnabled = true;
                 await this.ScannerEnable();
             }

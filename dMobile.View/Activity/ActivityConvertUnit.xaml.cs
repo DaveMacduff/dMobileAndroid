@@ -990,7 +990,7 @@ namespace dMobile.View.Activity
             _ = req.AppendFormat("<alt_unit>{0}</alt_unit>",
                 this.ActDetail.ListDetails[idx].GetType().GetProperty("UnitCode")
                     ?.GetValue(this.ActDetail.ListDetails[idx]));
-            _ = req.AppendFormat("<wt_unit>{0}</wt_unit>", ActItem.ProdInfo.WeightUnitCode);
+            _ = req.AppendFormat("<wt_unit>{0}</wt_unit>", this.ActItem.ProdInfo.WeightUnitCode);
             _ = req.AppendFormat("<base_unit>{0}</base_unit>",
                 this.ActDetail.ListDetails[idx].GetType().GetProperty("BaseUnitCode")
                     ?.GetValue(this.ActDetail.ListDetails[idx]));

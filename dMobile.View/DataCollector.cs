@@ -5,7 +5,6 @@
 namespace dMobile.View
 {
     using System;
-    using System.Runtime.CompilerServices;
     using System.Text;
     using System.Threading.Tasks;
     using System.Xml;
@@ -29,7 +28,7 @@ namespace dMobile.View
         /// <summary>
         /// Initializes a new instance of the <see cref="DataCollector"/> class.
         /// </summary>
-        /// <param name="actSubType">The activity sub type.</param>
+        /// <param name="actSubType">The activity subtype.</param>
         /// <param name="actItem"><see cref="ActItem" /> Activity item instance.</param>
         public DataCollector(SysCommon.ActSubTypes actSubType, ActItem actItem)
         {
@@ -54,8 +53,7 @@ namespace dMobile.View
 
         private static BarCodeParse BarCodeParse { get; set; }
 
-        private Controller.Activity.Activity ActBarCode { get; } = ActivityFacade.GetActivity(
-            SysCommon.ActSubTypes.BarCodeAssociation);
+        private Controller.Activity.Activity ActBarCode { get; }
 
         private ActItem ActItemBarCode { get; }
 
@@ -145,7 +143,7 @@ namespace dMobile.View
                     throw new GatherProductDataException("Cancelled from detail edit.", true);
                 }
 
-                XDocument xmlDoc = await ((IAppArea)form.DisplayControl).GetXml();
+                var xmlDoc = await ((IAppArea)form.DisplayControl).GetXml();
                 UpdateActDetailFromXml(xmlDoc);
             }
             else if (isStopForLabelDetail)
@@ -167,7 +165,7 @@ namespace dMobile.View
 
                 if (continueIsStopForLabelDetail)
                 {
-                    XDocument xmlDoc = await ((IAppArea)form.DisplayControl).GetXml();
+                    var xmlDoc = await ((IAppArea)form.DisplayControl).GetXml();
                     UpdateActDetailFromXml(xmlDoc);
                 }
             }
@@ -260,23 +258,23 @@ namespace dMobile.View
             var schemeData = ActDetail.SchemeData;
             if (xmlDoc.Root != null)
             {
-                schemeData.SingleTradeItemSerialNumber = xmlDoc.Root.Element("serial").Value;
-                schemeData.LogisticUnitProductionDate = DateTime.Parse(xmlDoc.Root.Element("pdate").Value);
-                schemeData.LogisticUnitBatchLotNumber = xmlDoc.Root.Element("lot_no").Value;
-                schemeData.LogisticUnitBestBeforeSellByDate = DateTime.Parse(xmlDoc.Root.Element("bdate").Value);
-                schemeData.VariantCode = xmlDoc.Root.Element("variant_code").Value;
-                schemeData.VariantNumber = int.Parse(xmlDoc.Root.Element("variant_no").Value);
+                schemeData.SingleTradeItemSerialNumber = xmlDoc.Root.Element("serial")?.Value;
+                schemeData.LogisticUnitProductionDate = DateTime.Parse(xmlDoc.Root.Element("pdate")?.Value);
+                schemeData.LogisticUnitBatchLotNumber = xmlDoc.Root.Element("lot_no")?.Value;
+                schemeData.LogisticUnitBestBeforeSellByDate = DateTime.Parse(xmlDoc.Root.Element("bdate")?.Value);
+                schemeData.VariantCode = xmlDoc.Root.Element("variant_code")?.Value;
+                schemeData.VariantNumber = int.Parse(xmlDoc.Root.Element("variant_no")?.Value ?? "0");
                 ActDetail.SchemeData = schemeData;
 
-                ActDetail.Quantity = decimal.Parse(xmlDoc.Root.Element("alt_qty").Value);
-                ActDetail.BaseQuantity = decimal.Parse(xmlDoc.Root.Element("base_qty").Value);
-                ActDetail.WeightQuantity = decimal.Parse(xmlDoc.Root.Element("wt_qty").Value);
+                ActDetail.Quantity = decimal.Parse(xmlDoc.Root.Element("alt_qty")?.Value ?? "0");
+                ActDetail.BaseQuantity = decimal.Parse(xmlDoc.Root.Element("base_qty")?.Value ?? "0");
+                ActDetail.WeightQuantity = decimal.Parse(xmlDoc.Root.Element("wt_qty")?.Value ?? "0");
 
-                ActDetail.ActExtra.Text1 = xmlDoc.Root.Element("extra1").Value;
-                ActDetail.ActExtra.Text2 = xmlDoc.Root.Element("extra2").Value;
-                ActDetail.ActExtra.Text3 = xmlDoc.Root.Element("extra3").Value;
-                ActDetail.ActExtra.Text4 = xmlDoc.Root.Element("extra4").Value;
-                ActDetail.ActExtra.DateTime1 = DateTime.Parse(xmlDoc.Root.Element("extra5").Value);
+                ActDetail.ActExtra.Text1 = xmlDoc.Root.Element("extra1")?.Value;
+                ActDetail.ActExtra.Text2 = xmlDoc.Root.Element("extra2")?.Value;
+                ActDetail.ActExtra.Text3 = xmlDoc.Root.Element("extra3")?.Value;
+                ActDetail.ActExtra.Text4 = xmlDoc.Root.Element("extra4")?.Value;
+                ActDetail.ActExtra.DateTime1 = DateTime.Parse(xmlDoc.Root.Element("extra5")?.Value);
             }
 
             ActDetail.SchemeId = ProductInfoTasks.GetActSchemeIdFromSProdSchemeData(
@@ -463,7 +461,6 @@ namespace dMobile.View
 
                 async Task GatherBaseQuantity(decimal unitQty)
                 {
-                    var sysEnv = SysEnvironment.GetInstance();
                     if (prodInfo.BaseUnitCode == "LB" || prodInfo.BaseUnitCode == "KG")
                     {
                         ActDetail.BaseQuantity = ActDetail.WeightQuantity;
@@ -556,7 +553,7 @@ namespace dMobile.View
                 if (BarCodeParse.SingleTradeItemSerialNumber.Length > 1 && weight > ActItem.ProdInfo.UnitGrossWeight * 4)
                 {
                     // 2 = For the first digit past the 01 in the AI(21).
-                    unitQty = decimal.Parse(BarCodeParse.SingleTradeItemSerialNumber.Substring(2)); 
+                    unitQty = decimal.Parse(BarCodeParse.SingleTradeItemSerialNumber.Substring(2));
                 }
             }
 
@@ -723,15 +720,17 @@ namespace dMobile.View
                 }
                 else
                 {
-                    throw new Exception("Unable to identify product scanned." + Environment.NewLine +
-                                        "ParseSumwaFarmFedWholeDuck_UseWeightRangeToIDProduct enabled.");
+                    throw new Exception(
+                        "Unable to identify product scanned." + Environment.NewLine +
+                        "ParseSumwaFarmFedWholeDuck_UseWeightRangeToIDProduct enabled.");
                 }
             }
         }
 
         private async Task SearchBarCodesForMatch()
         {
-            if (this.ProdUnitBarCode.ProductUnitBarCodeRefno == 0 && ProdUnitBarCode.ProductUnitRefno == 0)
+            if (this.ProdUnitBarCode.ProductUnitBarCodeRefno == 0 &&
+                this.ProdUnitBarCode.ProductUnitRefno == 0)
             {
                 const string query = @"
                         SELECT tProductUnitBarCode.ProductUnitBarCodeRefno,
@@ -747,8 +746,8 @@ namespace dMobile.View
 
                 if (results?.Count > 0)
                 {
-                    ProdUnitBarCode.ProductUnitBarCodeRefno = Convert.ToInt32(results[0].ProductUnitBarCodeRefno);
-                    ProdUnitBarCode.ProductUnitRefno = Convert.ToInt32(results[0].ProductUnitRefno);
+                    this.ProdUnitBarCode.ProductUnitBarCodeRefno = Convert.ToInt32(results[0].ProductUnitBarCodeRefno);
+                    this.ProdUnitBarCode.ProductUnitRefno = Convert.ToInt32(results[0].ProductUnitRefno);
                 }
             }
         }
@@ -764,16 +763,14 @@ namespace dMobile.View
             if (this.ProdUnitBarCode.ProductUnitBarCodeRefno == 0 && this.ProdUnitBarCode.ProductUnitRefno == 0 &&
                 !SysEnv.SysSettings.IsDisconnectedMode)
             {
-                decimal deliScaleWeight = 0;
                 var unitRefnoFromBarCode = await BarCodeCommon.GetDeliProdInfoFromBarCode(
                     BarCodeParse.ProductIdentifier,
                     SysEnv.CurrentBarCodeModifier1,
                     BarCodeParse.Symbology,
                     BarCodeParse.DeliScaleAmount);
 
-                var prod = unitRefnoFromBarCode.ProdInfo;
-                ProdUnitBarCode.ProductUnitRefno = unitRefnoFromBarCode.ProdInfo.UnitRefno;
-                deliScaleWeight = unitRefnoFromBarCode.DeliScaleWeight;
+                this.ProdUnitBarCode.ProductUnitRefno = unitRefnoFromBarCode.ProdInfo.UnitRefno;
+                var deliScaleWeight = unitRefnoFromBarCode.DeliScaleWeight;
                 var deliScaleWeightUnit = unitRefnoFromBarCode.DeliScaleWeightUnit;
 
                 switch (deliScaleWeightUnit)

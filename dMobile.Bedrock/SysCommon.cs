@@ -688,119 +688,119 @@ namespace dMobile.Bedrock
             BreakSkid = 24,
 
             /// <summary>
-            /// Defines the PickingSingle.
-            /// </summary>
-            PickingSingle = 25,
-
-            /// <summary>
             /// Defines the PutAwaySkid.
             /// </summary>
-            PutAwaySkid = 26,
+            PutAwaySkid = 25,
 
             /// <summary>
             /// Defines the AssignDefaultLocation.
             /// </summary>
-            AssignDefaultLocation = 27,
+            AssignDefaultLocation = 26,
 
             /// <summary>
             /// Defines the InventoryInquiry.
             /// </summary>
-            InventoryInquiry = 28,
+            InventoryInquiry = 27,
 
             /// <summary>
             /// Defines the InventoryReplenishment.
             /// </summary>
-            InventoryReplenishment = 29,
+            InventoryReplenishment = 28,
 
             /// <summary>
             /// Defines the LoginStartup.
             /// </summary>
-            LoginStartup = 30,
+            LoginStartup = 29,
 
             /// <summary>
             /// Defines the SplashStartup.
             /// </summary>
-            SplashStartup = 31,
+            SplashStartup = 30,
 
             /// <summary>
             /// Defines the PrintProductLabel.
             /// </summary>
-            PrintProductLabel = 32,
+            PrintProductLabel = 31,
 
             /// <summary>
             /// Defines the PickingSelectCriteria.
             /// </summary>
-            PickingSelectCriteria = 33,
+            PickingSelectCriteria = 32,
 
             /// <summary>
             /// Defines the PickingFilter.
             /// </summary>
-            PickingFilter = 34,
+            PickingFilter = 33,
 
             /// <summary>
             /// Defines the SubmitBatch.
             /// </summary>
-            SubmitBatch = 35,
+            SubmitBatch = 34,
 
             /// <summary>
             /// Defines the CommunicationSetup.
             /// </summary>
-            CommunicationSetup = 36,
+            CommunicationSetup = 35,
 
             /// <summary>
             /// Defines the SetupDefaults.
             /// </summary>
-            SetupDefaults = 37,
+            SetupDefaults = 36,
 
             /// <summary>
             /// Defines the InventoryInquirySummary.
             /// </summary>
-            InventoryInquirySummary = 38,
+            InventoryInquirySummary = 37,
 
             /// <summary>
             /// Defines the ConvertProduct.
             /// </summary>
-            ConvertProduct = 39,
+            ConvertProduct = 38,
 
             /// <summary>
             /// Defines the TransferTo.
             /// </summary>
-            TransferTo = 40,
+            TransferTo = 39,
 
             /// <summary>
             /// Defined the activity item inquiry single.
             /// </summary>
-            InventoryInquiryActivitySingle = 41,
+            InventoryInquiryActivitySingle = 40,
 
             /// <summary>
             /// Defined the cut sheet finished.
             /// </summary>
-            CutSheetFinished = 42,
+            CutSheetFinished = 41,
 
             /// <summary>
             /// Defined the cut sheet material.
             /// </summary>
-            CutSheetMaterial = 43,
+            CutSheetMaterial = 42,
 
             /// <summary>
             /// Defined the cut sheet filter.
             /// </summary>
-            CutSheetFilter = 44,
+            CutSheetFilter = 43,
 
             /// <summary>
             /// Defined the yield sheet finished.
             /// </summary>
-            YieldSheetFinished = 45,
+            YieldSheetFinished = 44,
 
             /// <summary>
             /// Defined the yield sheet material.
             /// </summary>
-            YieldSheetMaterial = 46,
+            YieldSheetMaterial = 45,
 
             /// <summary>
             /// Defined the yield sheet filter.
             /// </summary>
-            YieldSheetFilter = 47,
+            YieldSheetFilter = 46,
+
+            /// <summary>
+            /// Defines the Picking List.
+            /// </summary>
+            PickingList = 47,
         }
 
         /// <summary>
