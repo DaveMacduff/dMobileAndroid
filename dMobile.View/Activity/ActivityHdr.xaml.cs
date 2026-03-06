@@ -1373,60 +1373,51 @@ namespace dMobile.View.Activity
         {
             try
             {
-                await PerformKeyUpEnterEvent();
-                return;
-
-                async Task PerformKeyUpEnterEvent()
+                var isAllowedToPick = true;
+                if (!this.SysEnv.SysSettings.IsDisconnectedMode)
                 {
-                    await PerformKeyUpEnterEventForPickingActivity();
-                    return;
-
-                    async Task PerformKeyUpEnterEventForPickingActivity()
+                    if (await ((PickingActivity)this.ActHdr).IsSalesOrderBeingPicked())
                     {
-                        var isAllowedToPick = true;
-                        if (await ((PickingActivity)this.ActHdr).IsSalesOrderBeingPicked())
+                        isAllowedToPick = false;
+                        if (this.SysEnv.ContactLog.IsAllowedPickingModuleOverridePicker &&
+                            await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(
+                                "Picker Override",
+                                "Do you wish to clear the current picker?",
+                                "Yes",
+                                "No")))
                         {
-                            isAllowedToPick = false;
-                            if (this.SysEnv.ContactLog.IsAllowedPickingModuleOverridePicker &&
-                                await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(
-                                    "Picker Override",
-                                    "Do you wish to clear the current picker?",
-                                    "Yes",
-                                    "No")))
+                            if (await ((PickingActivity)this.ActHdr).ClearSalesOrderBeingPicked(false))
                             {
-                                if (await ((PickingActivity)this.ActHdr).ClearSalesOrderBeingPicked(false))
-                                {
-                                    await Device.InvokeOnMainThreadAsync(async () =>
-                                            await this.DisplayAlert(
-                                                "Picker Override",
-                                                "Picker cleared.",
-                                                "OK"));
-                                    isAllowedToPick = true;
-                                }
-                                else
-                                {
-                                    await Device.InvokeOnMainThreadAsync(async () =>
-                                            await this.DisplayAlert(
-                                                "Picker Override",
-                                                "Unable to clear the current picker.",
-                                                "OK"));
-                                }
+                                await Device.InvokeOnMainThreadAsync(async () =>
+                                    await this.DisplayAlert(
+                                        "Picker Override",
+                                        "Picker cleared.",
+                                        "OK"));
+                                isAllowedToPick = true;
+                            }
+                            else
+                            {
+                                await Device.InvokeOnMainThreadAsync(async () =>
+                                    await this.DisplayAlert(
+                                        "Picker Override",
+                                        "Unable to clear the current picker.",
+                                        "OK"));
                             }
                         }
-
-                        if (isAllowedToPick)
-                        {
-                            this.ActSubType = SysCommon.ActSubTypes.Picking;
-                            var form = new FormDialogContainer(
-                                EDialogTypes.ActivityItemSingle,
-                                this.ActHdr,
-                                this.ActSubType);
-                            this.IsChangesMade = false;
-                            _ = await Device.InvokeOnMainThreadAsync(async () => await form.DisplayControl.ShowDialog());
-                            this.ActSubType = SysCommon.ActSubTypes.Picking;
-                            await this.FindSelectedItemAsync(this.ActHdr.HdrRefno);
-                        }
                     }
+                }
+
+                if (isAllowedToPick)
+                {
+                    this.ActSubType = SysCommon.ActSubTypes.Picking;
+                    var form = new FormDialogContainer(
+                        EDialogTypes.ActivityItemSingle,
+                        this.ActHdr,
+                        this.ActSubType);
+                    this.IsChangesMade = false;
+                    _ = await Device.InvokeOnMainThreadAsync(async () => await form.DisplayControl.ShowDialog());
+                    this.ActSubType = SysCommon.ActSubTypes.Picking;
+                    await this.FindSelectedItemAsync(this.ActHdr.HdrRefno);
                 }
             }
             catch (Exception ex)
