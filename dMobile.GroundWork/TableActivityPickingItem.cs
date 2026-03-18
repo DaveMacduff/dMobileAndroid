@@ -32,18 +32,6 @@ namespace dMobile.GroundWork
         }
 
         /// <summary>
-        ///     The Request Item Data.
-        /// </summary>
-        /// <param name="actHdrFkRefno"> Activity header foreign key refno.</param>
-        /// <param name="actHdrRefno"> Activity header refno.</param>
-        /// <returns><see cref="Task" /> Task completed.</returns>
-        public override Task RequestItemData(int actHdrFkRefno, int actHdrRefno)
-        {
-            _ = base.RequestItemData(actHdrFkRefno, actHdrRefno);
-            return Task.CompletedTask;
-        }
-
-        /// <summary>
         ///     Purge the activity header data.
         /// </summary>
         /// <returns><see cref="Task" /> Task complete.</returns>
@@ -149,8 +137,7 @@ namespace dMobile.GroundWork
                     throw new BaseException(msg);
                 }
 
-                response =
-                    await SendComm(await this.CreateRequest(actPickFkRefno, criteria));
+                response = await SendComm(await this.CreateRequest(actPickFkRefno, criteria));
             }
             catch (SQLiteException sqlEx)
             {
@@ -308,7 +295,6 @@ namespace dMobile.GroundWork
 
             return;
 
-            ///////////////////////////////////////////////////////////
             async Task<int> GetActivityItemRefno()
             {
                 var query = "INSERT INTO tActivityItem (" +
@@ -402,8 +388,7 @@ namespace dMobile.GroundWork
             };
             var xml = XmlWriter.Create(xmlString, settings);
 
-            XDocument request;
-            request = XDocument.Parse(
+            var request = XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>" +
                 "<imclient>" +
                 "<command>" +

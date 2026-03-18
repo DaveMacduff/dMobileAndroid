@@ -2,8 +2,6 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
-using dMobile.View.Pages;
-
 namespace dMobile.View.Options
 {
     using System;
@@ -13,17 +11,20 @@ namespace dMobile.View.Options
     using System.Xml.Linq;
     using Android.Views;
     using Bedrock;
-    using Resources.Enums;
     using CustomPages;
+    using dMobile.View.Pages;
     using Forms;
+    using Resources.Enums;
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;
     using Resource = dMobile.Resources.Properties.Resources;
 
+    /// <summary>
+    /// Defines the <see cref="RefreshDataOptions" />
+    /// </summary>
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class RefreshDataOptions : DMobileContentPage, IAppArea
     {
-
         /// <summary>
         /// Initializes a new instance of the <see cref="RefreshDataOptions"/> class.
         /// </summary>
@@ -44,7 +45,10 @@ namespace dMobile.View.Options
                 }
                 catch (Exception ex)
                 {
-                    Device.BeginInvokeOnMainThread(() => this.DisplayAlert("Error", "ucRefreshDataOptions_GotFocus exception: " + ex.Message, "OK"));
+                    Device.BeginInvokeOnMainThread(() => this.DisplayAlert(
+                        "Error",
+                        "ucRefreshDataOptions_GotFocus exception: " + ex.Message,
+                        "OK"));
                 }
             }
 
@@ -63,7 +67,7 @@ namespace dMobile.View.Options
         }
 
         /// <summary>
-        /// The OnAppearing.
+        /// The OnAppearing
         /// </summary>
         protected override void OnAppearing()
         {
@@ -72,22 +76,26 @@ namespace dMobile.View.Options
                 this.IsIndicatorRunning = true;
                 base.OnAppearing();
 
-                MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), async (keyPressed) =>
-                {
-                    _ = Enum.TryParse(keyPressed, out Keycode keycode);
-
-                    if (keycode == Keycode.F1 && await this.SaveChanges())
+                MessagingCenter.Subscribe<string>(
+                    this,
+                    EventTypes.OnKeyUp.ToString(),
+                    async (keyPressed) =>
                     {
-                        await this.Close();
-                    }
-                });
+                        _ = Enum.TryParse(keyPressed, out Keycode keycode);
+
+                        if (keycode == Keycode.F1 &&
+                            await this.SaveChanges())
+                        {
+                            await this.Close();
+                        }
+                    });
 
                 this.IsIndicatorRunning = false;
             }
         }
 
         /// <summary>
-        /// The OnDisappearing.
+        /// The OnDisappearing
         /// </summary>
         protected override void OnDisappearing()
         {
@@ -98,7 +106,10 @@ namespace dMobile.View.Options
             GC.WaitForPendingFinalizers();
         }
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// The OnBackButtonPressed
+        /// </summary>
+        /// <returns>The <see cref="bool"/></returns>
         protected override bool OnBackButtonPressed()
         {
             Device.BeginInvokeOnMainThread(async () =>
@@ -118,40 +129,53 @@ namespace dMobile.View.Options
             return true;
         }
 
+        /// <summary>
+        /// Gets or sets the SysEnv
+        /// </summary>
         private SysEnvironment SysEnv { get; set; }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsDisplayShutDownMsg
+        /// </summary>
         private bool IsDisplayShutDownMsg { get; set; } = true;
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsChangesMade
+        /// </summary>
         private bool IsChangesMade { get; set; }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsRefreshComplete
+        /// </summary>
         private bool IsRefreshComplete { get; set; }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether IsControlLoaded
+        /// </summary>
         private bool IsControlLoaded { get; set; }
 
         /// <summary>
-        /// Unregister the bar code scan event handler and disable the scanner.
+        /// Unregister the bar code scan event handler and disable the scanner
         /// </summary>
-        /// <remarks></remarks>
+        /// <returns>The <see cref="Task"/></returns>
         public Task ScannerDisable()
         {
             return Task.CompletedTask;
         }
 
         /// <summary>
-        /// Registers the bar code scan event handler and enables the scanner.
+        /// Registers the bar code scan event handler and enables the scanner
         /// </summary>
-        /// <remarks></remarks>
+        /// <returns>The <see cref="Task"/></returns>
         public Task ScannerEnable()
         {
             return Task.CompletedTask;
         }
 
         /// <summary>
-        ///
+        /// The IsReadyToSave
         /// </summary>
         /// <returns></returns>
-        /// <remarks></remarks>
-        /// <inheritdoc/>
         public async Task<bool> IsReadyToSave()
         {
             var isReadyToSave = true;
@@ -159,7 +183,8 @@ namespace dMobile.View.Options
             try
             {
                 // if select all make sure all items are selected. including disconnected mode activities if applicable
-                if (this.chkSelectAll.IsToggled && this.SysEnv.SysSettings.IsDisconnectedMode)
+                if (this.chkSelectAll.IsToggled &&
+                    this.SysEnv.SysSettings.IsDisconnectedMode)
                 {
                     isReadyToSave = isReadyToSave && this.chkSystemData.IsToggled;
                     isReadyToSave = isReadyToSave && this.chkAdjustments.IsToggled;
@@ -210,11 +235,9 @@ namespace dMobile.View.Options
         }
 
         /// <summary>
-        ///
+        /// The IsReadyToClose
         /// </summary>
         /// <returns></returns>
-        /// <remarks></remarks>
-        /// <inheritdoc/>
         public async Task<bool> IsReadyToClose()
         {
             var isReadyToClose = true;
@@ -258,23 +281,19 @@ namespace dMobile.View.Options
             return isReadyToClose;
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <returns></returns>
-        /// <remarks></remarks>
-        /// <summary>
-        ///
-        /// </summary>
-        /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
         public async Task RefreshComplete()
         {
-            if (this.IsRefreshComplete && this.IsDisplayShutDownMsg)
+            if (this.IsRefreshComplete &&
+                this.IsDisplayShutDownMsg)
             {
                 this.IsDisplayShutDownMsg = false;
 
                 // Attempt to record logout
-                if (!this.SysEnv.SysSettings.IsDisconnectedMode && (this.SysEnv.CommSetup.HostIpAddressComponent1 + this.SysEnv.CommSetup.HostIpAddressComponent2 + this.SysEnv.CommSetup.HostIpAddressComponent3) != 0)
+                if (!this.SysEnv.SysSettings.IsDisconnectedMode &&
+                    this.SysEnv.CommSetup.HostIpAddressComponent1 +
+                    this.SysEnv.CommSetup.HostIpAddressComponent2 +
+                    this.SysEnv.CommSetup.HostIpAddressComponent3 !=
+                    0)
                 {
                     if (this.SysEnv.ContactLog.IsLoggedIn)
                     {
@@ -296,35 +315,40 @@ namespace dMobile.View.Options
                         }
                         finally
                         {
-                            Device.BeginInvokeOnMainThread(async () => await this.DisplayAlert(this.GetControlDescription(), "Please log back in for changes to be made in effect.", "OK"));
-                            _ = await Device.InvokeOnMainThreadAsync(() => Application.Current.MainPage = new NavigationPage(new SplashStartup()));
+                            Device.BeginInvokeOnMainThread(async () => await this.DisplayAlert(
+                                this.GetControlDescription(),
+                                "Please log back in for changes to be made in effect.",
+                                "OK"));
+                            _ = await Device.InvokeOnMainThreadAsync(() =>
+                                Application.Current.MainPage = new NavigationPage(new SplashStartup()));
                         }
                     }
                 }
                 else
                 {
-                    Device.BeginInvokeOnMainThread(async () => await this.DisplayAlert(this.GetControlDescription(), "Please log back in for changes to be made in effect.", "OK"));
-                    _ = await Device.InvokeOnMainThreadAsync(() => Application.Current.MainPage = new NavigationPage(new SplashStartup()));
+                    Device.BeginInvokeOnMainThread(async () => await this.DisplayAlert(
+                        this.GetControlDescription(),
+                        "Please log back in for changes to be made in effect.",
+                        "OK"));
+                    _ = await Device.InvokeOnMainThreadAsync(() =>
+                        Application.Current.MainPage = new NavigationPage(new SplashStartup()));
                 }
             }
         }
 
         /// <summary>
-        ///
+        /// The GetControlDescription
         /// </summary>
         /// <returns></returns>
-        /// <remarks></remarks>
         public string GetControlDescription()
         {
             return Resource.RefreshDataOptions;
         }
 
         /// <summary>
-        ///
+        /// The SaveChanges
         /// </summary>
         /// <returns></returns>
-        /// <remarks></remarks>
-        /// <inheritdoc/>
         public async Task<bool> SaveChanges()
         {
             var saveComplete = false;
@@ -334,14 +358,22 @@ namespace dMobile.View.Options
                 if (await this.IsReadyToSave())
                 {
                     this.SysEnv.RefreshOpt.SystemData = this.chkSystemData.IsToggled;
-                    this.SysEnv.RefreshOpt.Adjustments = Convert.ToBoolean(this.chkAdjustments.IsToggled && this.SysEnv.SysSettings.IsDisconnectedMode);
-                    this.SysEnv.RefreshOpt.PurchaseOrders = Convert.ToBoolean(this.chkPurchaseOrders.IsToggled && this.SysEnv.SysSettings.IsDisconnectedMode);
-                    this.SysEnv.RefreshOpt.SalesOrders = Convert.ToBoolean(this.chkSalesOrders.IsToggled && this.SysEnv.SysSettings.IsDisconnectedMode);
-                    this.SysEnv.RefreshOpt.ProductionTickets = Convert.ToBoolean(this.chkProductionTickets.IsToggled && this.SysEnv.SysSettings.IsDisconnectedMode);
-                    this.SysEnv.RefreshOpt.Replenishment = Convert.ToBoolean(this.chkReplenishment.IsToggled && this.SysEnv.SysSettings.IsDisconnectedMode);
-                    this.SysEnv.RefreshOpt.Counts = Convert.ToBoolean(this.chkCounts.IsToggled && this.SysEnv.SysSettings.IsDisconnectedMode);
-                    this.SysEnv.RefreshOpt.Transfers = Convert.ToBoolean(this.chkTransfers.IsToggled && this.SysEnv.SysSettings.IsDisconnectedMode);
-                    this.SysEnv.RefreshOpt.PurchaseOrderWorkSheet = Convert.ToBoolean(this.chkPurchaseOrderWorkSheet.IsToggled && this.SysEnv.SysSettings.IsDisconnectedMode);
+                    this.SysEnv.RefreshOpt.Adjustments = Convert.ToBoolean(
+                        this.chkAdjustments.IsToggled && this.SysEnv.SysSettings.IsDisconnectedMode);
+                    this.SysEnv.RefreshOpt.PurchaseOrders = Convert.ToBoolean(
+                        this.chkPurchaseOrders.IsToggled && this.SysEnv.SysSettings.IsDisconnectedMode);
+                    this.SysEnv.RefreshOpt.SalesOrders = Convert.ToBoolean(
+                        this.chkSalesOrders.IsToggled && this.SysEnv.SysSettings.IsDisconnectedMode);
+                    this.SysEnv.RefreshOpt.ProductionTickets = Convert.ToBoolean(
+                        this.chkProductionTickets.IsToggled && this.SysEnv.SysSettings.IsDisconnectedMode);
+                    this.SysEnv.RefreshOpt.Replenishment = Convert.ToBoolean(
+                        this.chkReplenishment.IsToggled && this.SysEnv.SysSettings.IsDisconnectedMode);
+                    this.SysEnv.RefreshOpt.Counts = Convert.ToBoolean(
+                        this.chkCounts.IsToggled && this.SysEnv.SysSettings.IsDisconnectedMode);
+                    this.SysEnv.RefreshOpt.Transfers = Convert.ToBoolean(
+                        this.chkTransfers.IsToggled && this.SysEnv.SysSettings.IsDisconnectedMode);
+                    this.SysEnv.RefreshOpt.PurchaseOrderWorkSheet = Convert.ToBoolean(
+                        this.chkPurchaseOrderWorkSheet.IsToggled && this.SysEnv.SysSettings.IsDisconnectedMode);
 
                     var tempRefreshOpt = this.SysEnv.RefreshOpt;
                     saveComplete = this.SysEnv.RefreshOpt.SaveData(ref tempRefreshOpt);
@@ -350,7 +382,10 @@ namespace dMobile.View.Options
                 }
                 else
                 {
-                    await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(this.GetControlDescription(), Resource.DataFailedValidationCheckYourData, Resource.OK));
+                    await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(
+                        this.GetControlDescription(),
+                        Resource.DataFailedValidationCheckYourData,
+                        Resource.OK));
                 }
             }
             catch (MessageOnlyException msgEx)
@@ -378,11 +413,9 @@ namespace dMobile.View.Options
         }
 
         /// <summary>
-        ///
+        /// The CancelChanges
         /// </summary>
         /// <returns></returns>
-        /// <remarks></remarks>
-        /// <inheritdoc/>
         public async Task<bool> CancelChanges()
         {
             var cancelChanges = true;
@@ -432,27 +465,22 @@ namespace dMobile.View.Options
         }
 
         /// <summary>
-        ///
+        /// The GetXml
         /// </summary>
         /// <returns></returns>
-        /// <remarks></remarks>
-        /// <inheritdoc/>
         public Task<XDocument> GetXml()
         {
             var xmldocParams = XDocument.Parse(
-                "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>"
-                + "<params>"
-                + "</params>");
+                "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" + "<params>" + "</params>");
 
             return Task.FromResult(xmldocParams);
         }
 
         /// <summary>
-        ///
+        /// The ucRefreshDataOptions_GotFocus
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        /// <remarks></remarks>
         private void ucRefreshDataOptions_GotFocus(object sender, EventArgs e)
         {
             if (!this.IsControlLoaded)
@@ -464,23 +492,36 @@ namespace dMobile.View.Options
         }
 
         /// <summary>
-        ///
+        /// The cmdRefreshData_Click
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        /// <remarks></remarks>
         private async void cmdRefreshData_Click(object sender, EventArgs e)
         {
             var isContinueRefresh = false;
 
-            if (this.SysEnv.SysSettings.IsDisconnectedMode && await SysCommon.CheckForUnSubmittedData())
+            if (this.SysEnv.SysSettings.IsDisconnectedMode &&
+                await SysCommon.CheckForUnSubmittedData())
             {
-                if (await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(this.GetControlDescription(), Resource.WarningUnsubmittedDataExistsAndWillBeLostContinueWithRefreshData, Resource.Yes, Resource.No)) && await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(this.GetControlDescription(), Resource.ConfirmRefreshData, Resource.Yes, Resource.No)))
+                if (await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(
+                          this.GetControlDescription(),
+                          Resource.WarningUnsubmittedDataExistsAndWillBeLostContinueWithRefreshData,
+                          Resource.Yes,
+                          Resource.No)) &&
+                    await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(
+                        this.GetControlDescription(),
+                        Resource.ConfirmRefreshData,
+                        Resource.Yes,
+                        Resource.No)))
                 {
                     isContinueRefresh = true;
                 }
             }
-            else if (await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(this.GetControlDescription(), "Confirm refresh data?", Resource.Yes, Resource.No)))
+            else if (await Device.InvokeOnMainThreadAsync(async () => await this.DisplayAlert(
+                           this.GetControlDescription(),
+                           "Confirm refresh data?",
+                           Resource.Yes,
+                           Resource.No)))
             {
                 isContinueRefresh = true;
             }
@@ -489,7 +530,9 @@ namespace dMobile.View.Options
             {
                 await Device.InvokeOnMainThreadAsync(async () =>
                 {
-                    var form = new FormDialogContainer(EDialogTypes.RefreshDataStatus, SysCommon.ActSubTypes.RefreshData);
+                    var form = new FormDialogContainer(
+                        EDialogTypes.RefreshDataStatus,
+                        SysCommon.ActSubTypes.RefreshData);
 
                     if (await form.DisplayControl.ShowDialog() == DialogResult.OK)
                     {
@@ -502,11 +545,10 @@ namespace dMobile.View.Options
         }
 
         /// <summary>
-        ///
+        /// The cmdDataStatus_Click
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        /// <remarks></remarks>
         private async void cmdDataStatus_Click(object sender, EventArgs e)
         {
             if (await this.SaveChanges())
@@ -517,11 +559,10 @@ namespace dMobile.View.Options
         }
 
         /// <summary>
-        ///
+        /// The chkSelectAll_Click
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        /// <remarks></remarks>
         private async void chkSelectAll_Click(object sender, EventArgs e)
         {
             this.chkSystemData.IsToggled = this.chkSelectAll.IsToggled && await GroundWork.Common.IsDataBaseDataExist();
@@ -540,44 +581,50 @@ namespace dMobile.View.Options
         }
 
         /// <summary>
-        ///
+        /// The IsAllItemsSelected
         /// </summary>
         /// <returns></returns>
-        /// <remarks></remarks>
         private bool IsAllItemsSelected()
         {
-            var isAllSelected = this.chkSystemData.IsToggled
-                                && Convert.ToBoolean(this.chkAdjustments.IsToggled && this.chkPurchaseOrders.IsToggled
-                                    && this.chkSalesOrders.IsToggled && this.chkProductionTickets.IsToggled && this.chkReplenishment.IsToggled
-                                    && this.chkCounts.IsToggled && this.chkTransfers.IsToggled
-                                    && this.chkPurchaseOrderWorkSheet.IsToggled ? true : false);
+            var isAllSelected = this.chkSystemData.IsToggled &&
+                                Convert.ToBoolean(
+                                    this.chkAdjustments.IsToggled &&
+                                    this.chkPurchaseOrders.IsToggled &&
+                                    this.chkSalesOrders.IsToggled &&
+                                    this.chkProductionTickets.IsToggled &&
+                                    this.chkReplenishment.IsToggled &&
+                                    this.chkCounts.IsToggled &&
+                                    this.chkTransfers.IsToggled &&
+                                    this.chkPurchaseOrderWorkSheet.IsToggled
+                                        ? true
+                                        : false);
             return isAllSelected;
         }
 
         /// <summary>
-        ///
+        /// The ClickHandler
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        /// <remarks></remarks>
         private async void ClickHandler(object sender, EventArgs e)
         {
-            if (!this.chkSelectAll.IsToggled && this.IsAllItemsSelected())
+            if (!this.chkSelectAll.IsToggled &&
+                this.IsAllItemsSelected())
             {
                 this.chkSelectAll.IsToggled = await GroundWork.Common.IsDataBaseDataExist();
             }
-            else if (this.chkSelectAll.IsToggled && !this.IsAllItemsSelected())
+            else if (this.chkSelectAll.IsToggled &&
+                     !this.IsAllItemsSelected())
             {
                 this.chkSelectAll.IsToggled = false;
             }
         }
 
         /// <summary>
-        ///
+        /// The IdentifyChangesMade
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        /// <remarks></remarks>
         private async void IdentifyChangesMade(object sender, ToggledEventArgs e)
         {
             try
@@ -645,7 +692,7 @@ namespace dMobile.View.Options
         }
 
         /// <summary>
-        ///
+        /// The ValidateEntry
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -714,9 +761,8 @@ namespace dMobile.View.Options
         }
 
         /// <summary>
-        ///
+        /// The LoadData
         /// </summary>
-        /// <remarks></remarks>
         private void LoadData()
         {
             _ = this.SysEnv.RefreshOpt.LoadData();

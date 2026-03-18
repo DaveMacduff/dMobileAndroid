@@ -757,9 +757,9 @@ namespace dMobile.Bedrock
         /// <returns>Connected socket instance.</returns>
         public async Task<SysSocketInfo> Connect(int port, TimeSpan timeout)
         {
-            port = (port == 0) ? this.DefSocketPort : port;
+            port = port == 0 ? this.DefSocketPort : port;
             const int defaultSecondsTimeout = 10;
-            timeout = (timeout == TimeSpan.Zero)
+            timeout = timeout == TimeSpan.Zero
                 ? new TimeSpan(0, 0, defaultSecondsTimeout)
                 : timeout;
             Socket socket = null;

@@ -195,7 +195,24 @@ namespace dMobile.Controller.Activity_Detail
             }
 
             // In order to support base tracking the DetailFKRefno is the itm_refno rather than the serial.refno.
-            this.DetailRefno = this.FindListDetailRefno(this.DetailFkRefno);
+            var detailRefno = this.FindListDetailRefno(this.DetailFkRefno);
+            if (detailRefno < 0)
+            {
+                var query = "SELECT tActivityDetail.ActivityDetailRefno FROM tActivityDetail" +
+                            " INNER JOIN tActivityDetailYieldSheetFinished ON tActivityDetailYieldSheetFinished.ActivityDetailRefno = tActivityDetail.ActivityDetailRefno " +
+                            $"WHERE tActivityDetailYieldSheetFinished.ActivityDetailFKRefno = {this.DetailFkRefno}";
+                detailRefno = await Conn.ExecuteScalarAsync<int>(
+                    query,
+                    this.DetailRefno,
+                    this.DetailFkRefno);
+                if (detailRefno == 0)
+                {
+                    detailRefno = -1;
+                }
+            }
+
+            this.DetailRefno = detailRefno;
+
             if (this.DetailRefno < 0)
             {
                 this.DetailRefno = await this.InsertDetailIntoTablesDetail();

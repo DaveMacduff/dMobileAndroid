@@ -247,7 +247,6 @@ namespace dMobile.GroundWork
                     }
                 }
 
-                ///////////////////////////////////////////////////////////
                 async Task<int> GetActivityItemRefno()
                 {
                     await Conn.ExecuteAsync(

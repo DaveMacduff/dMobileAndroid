@@ -12,11 +12,6 @@ namespace dMobile.Bedrock
     public class IsReadyToApplyException : Exception
     {
         /// <summary>
-        /// Defines the isOverContinue.
-        /// </summary>
-        private bool isOverContinue;
-
-        /// <summary>
         /// Gets or sets a value indicating whether SuppressError.
         /// </summary>
         public bool SuppressError { get; set; }
@@ -101,11 +96,6 @@ namespace dMobile.Bedrock
         /// <summary>
         /// Gets or sets a value indicating whether IsOverContinue.
         /// </summary>
-        public bool IsOverContinue
-        {
-            get => this.isOverContinue;
-
-            set => this.isOverContinue = value;
-        }
+        public bool IsOverContinue { get; set; }
     }
 }

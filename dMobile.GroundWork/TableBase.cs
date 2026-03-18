@@ -341,14 +341,14 @@ namespace dMobile.GroundWork
                 this.DataAccessStatusOutHandler(
                     this,
                     EventArgs.Empty,
-                    $"Seeding {this.LowerCaseName} items.",
+                    $"Seeding {this.LowerCaseName}.",
                     true);
                 var responseData = await this.SendRequest(actHdrFkRefno, criteria);
                 await this.Save(responseData, actHdrRefno);
                 this.DataAccessStatusOutHandler(
                     this,
                     EventArgs.Empty,
-                    $"Seeding {this.LowerCaseName} items complete.",
+                    $"Seeding {this.LowerCaseName} complete.",
                     true);
             }
             catch (SQLiteException)
@@ -361,7 +361,7 @@ namespace dMobile.GroundWork
                 this.DataAccessStatusOutHandler(
                     this,
                     EventArgs.Empty,
-                    $"Seeding {this.LowerCaseName} items failed.",
+                    $"Seeding {this.LowerCaseName} failed.",
                     true);
                 throw;
             }
@@ -375,7 +375,7 @@ namespace dMobile.GroundWork
                 this.DataAccessStatusOutHandler(
                     this,
                     EventArgs.Empty,
-                    $"Seeding {this.LowerCaseName} items failed.",
+                    $"Seeding {this.LowerCaseName} failed.",
                     true);
                 throw;
             }
@@ -389,7 +389,7 @@ namespace dMobile.GroundWork
                 this.DataAccessStatusOutHandler(
                     this,
                     EventArgs.Empty,
-                    $"Seeding {this.LowerCaseName} items failed.",
+                    $"Seeding {this.LowerCaseName} failed.",
                     true);
                 throw;
             }

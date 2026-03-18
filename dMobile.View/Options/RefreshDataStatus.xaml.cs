@@ -8,6 +8,7 @@ namespace dMobile.View.Options
     using System.Collections.ObjectModel;
     using System.IO;
     using System.Linq;
+    using System.Threading;
     using System.Threading.Tasks;
     using System.Xml.Linq;
     using Android.Views;
@@ -226,8 +227,7 @@ namespace dMobile.View.Options
         {
             get;
             set;
-        } =
-            new TableActivityDetailProductSchemeVariantXRef();
+        } = new TableActivityDetailProductSchemeVariantXRef();
 
         /// <summary>
         ///     Gets the table activity item bar code association xref.
@@ -717,7 +717,7 @@ namespace dMobile.View.Options
                 if (this.isFirstAppearance)
                 {
                     this.isFirstAppearance = false;
-                    await this.RefreshDataStatus_GotFocus(this, EventArgs.Empty);
+                    await this.LoadData(this, EventArgs.Empty);
                 }
 
                 this.IsIndicatorRunning = false;
@@ -774,31 +774,13 @@ namespace dMobile.View.Options
             return "Refresh Data Status";
         }
 
-        /// <summary>
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        /// <remarks></remarks>
-        private void ucRefreshDataStatus_GotFocus(object sender, EventArgs e)
-        {
-            // load refresh criteria
-            this.IsRefreshComplete = false;
-            this.SysEnv.RefreshOpt = this.SysEnv.RefreshOpt.LoadData();
-        }
-
-        /// <summary>
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        /// <remarks></remarks>
-        private async Task RefreshDataStatus_GotFocus(object sender, EventArgs e)
+        private async Task LoadData(object sender, EventArgs e)
         {
             var refreshLast = SysCommon.EmptyDateTime;
 
             this.IsIndicatorRunning = true;
 
-            await Task.Run(
-                async () =>
+            await Task.Run(async () =>
                 {
                     if (this.ActSubType == SysCommon.ActSubTypes.DataStatus)
                     {
@@ -815,8 +797,7 @@ namespace dMobile.View.Options
                                 ex,
                                 this.FullClassName,
                                 "tmrRefreshData_Tick");
-                            _ = await Device.InvokeOnMainThreadAsync(
-                                async () => await errRpt.ShowDialog());
+                            _ = await Device.InvokeOnMainThreadAsync(async () => await errRpt.ShowDialog());
                         }
                     }
                     else
@@ -827,7 +808,7 @@ namespace dMobile.View.Options
                             this.SysEnv.RefreshOpt.IsRefreshDataFailed = false;
                             this.SysEnv.RefreshOpt = this.SysEnv.RefreshOpt.LoadData();
 
-                            // if there is no data or we are purging reset the last refresh date
+                            // if there is no data, or we are purging reset the last refresh date
                             if (!await Common.IsDataBaseDataExist())
                             {
                                 this.SysEnv.RefreshOpt.RefreshedDataLast = SysCommon.EmptyDateTime;
@@ -868,8 +849,7 @@ namespace dMobile.View.Options
                             {
                                 this.StatusOut(Resource.RefreshDataCompleted);
                                 var span = DateTime.Now - this.RefreshTotal;
-                                this.StatusOut(
-                                    string.Format(Resource.RefreshMinutes0, span.TotalMinutes));
+                                this.StatusOut(string.Format(Resource.RefreshMinutes0, span.TotalMinutes));
                             }
 
                             this.IsRefreshComplete = true;
@@ -888,8 +868,7 @@ namespace dMobile.View.Options
                                 ex,
                                 this.FullClassName,
                                 "tmrRefreshData_Tick");
-                            _ = await Device.InvokeOnMainThreadAsync(
-                                async () => await errRpt.ShowDialog());
+                            _ = await Device.InvokeOnMainThreadAsync(async () => await errRpt.ShowDialog());
                         }
                         catch (Exception ex)
                         {
@@ -903,8 +882,7 @@ namespace dMobile.View.Options
                                 ex,
                                 this.FullClassName,
                                 "tmrRefreshData_Tick");
-                            _ = await Device.InvokeOnMainThreadAsync(
-                                async () => await errRpt.ShowDialog());
+                            _ = await Device.InvokeOnMainThreadAsync(async () => await errRpt.ShowDialog());
                         }
                         finally
                         {
@@ -912,8 +890,6 @@ namespace dMobile.View.Options
                             _ = this.SysEnv.RefreshOpt.SaveData(ref tempRefreshOpt3);
                         }
                     }
-
-                    // }
                 });
 
             this.IsIndicatorRunning = false;
@@ -2239,38 +2215,35 @@ namespace dMobile.View.Options
                     var headers = await activity.GetActivityList(false);
                     foreach (var header in headers)
                     {
-                        await Task.Run(async () =>
-                            {
-                                if (header is Picking pickingHeader)
-                                {
-                                    await this.PickingItem.RequestItemData(
-                                        pickingHeader.ActivityFKRefno,
-                                        pickingHeader.ActivityRefno);
+                        if (header is Picking pickingHeader)
+                        {
+                            await this.PickingItem.RequestItemData(
+                                pickingHeader.ActivityFKRefno,
+                                pickingHeader.ActivityRefno);
 
-                                    if (this.SysEnv.SysSettings.IsDisconnectedModeLoadDetail)
+                            if (this.SysEnv.SysSettings.IsDisconnectedModeLoadDetail)
+                            {
+                                var activityItem = ActItemFacade.GetActItem(
+                                    activity,
+                                    SysCommon.ActSubTypes.Picking);
+                                activityItem.ActHdr.HdrRefno = pickingHeader.ActivityRefno;
+                                var items = await activityItem.GetActivityItemList(false);
+                                foreach (var item in items)
+                                {
+                                    if (item is PickingItem pickingItem)
                                     {
-                                        var activityItem = ActItemFacade.GetActItem(
-                                            activity,
+                                        var activityDetail = ActDetailFacade.GetActDetail(
+                                            activityItem,
                                             SysCommon.ActSubTypes.Picking);
-                                        activityItem.ActHdr.HdrRefno = pickingHeader.ActivityRefno;
-                                        var items = await activityItem.GetActivityItemList(false);
-                                        foreach (var item in items)
-                                        {
-                                            if (item is PickingItem pickingItem)
-                                            {
-                                                var activityDetail = ActDetailFacade.GetActDetail(
-                                                    activityItem,
-                                                    SysCommon.ActSubTypes.Picking);
-                                                activityDetail.ActItem.ItemRefno =
-                                                    pickingItem.ActivityItemRefno;
-                                                await this.PickingDetail.RequestDetailData(
-                                                    pickingItem.ActivityItemFKRefno,
-                                                    pickingItem.ActivityItemRefno);
-                                            }
-                                        }
+                                        activityDetail.ActItem.ItemRefno =
+                                            pickingItem.ActivityItemRefno;
+                                        await this.PickingDetail.RequestDetailData(
+                                            pickingItem.ActivityItemFKRefno,
+                                            pickingItem.ActivityItemRefno);
                                     }
                                 }
-                            });
+                            }
+                        }
 
                         GC.Collect();
                         GC.WaitForPendingFinalizers();
