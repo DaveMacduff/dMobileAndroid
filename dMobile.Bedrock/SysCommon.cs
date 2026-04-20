@@ -1352,7 +1352,6 @@ namespace dMobile.Bedrock
 
             return receivedData;
 
-            ///////////////////////////////////////////////////////////
             int GetNextPort()
             {
                 // New port will be compared to the current port to determine if we have

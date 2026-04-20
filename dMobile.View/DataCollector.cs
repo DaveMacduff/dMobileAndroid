@@ -318,7 +318,7 @@ namespace dMobile.View
             void GatherWeightQuantity()
             {
                 // Assign scanned weight and convert if needed
-                if (SysEnv.SysSettings.IsSetCatchWeightZero && prodInfo.IsCatchWeight)
+                if ((SysEnv.SysSettings.IsSetCatchWeightZero && prodInfo.IsCatchWeight) || BarCodeParse == null)
                 {
                     barCodeRuleForcedEdit = true;
                 }
@@ -451,7 +451,7 @@ namespace dMobile.View
                             if (!prodInfo.IsCatchWeight)
                             {
                                 ActDetail.WeightQuantity = unitQty *
-                                    await ProductInfoTasks.GetUnitRelationFactor(prodInfo);
+                                                           await ProductInfoTasks.GetUnitRelationFactor(prodInfo);
                             }
                         }
                     }

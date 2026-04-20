@@ -12,8 +12,14 @@ namespace dMobile.Bedrock
     using System.Xml.Serialization;
 
     /// <summary>
-    /// Defines the <see cref="CommunicationSetup" />.
+    /// Represents the configuration settings required for establishing and managing communication parameters, such as
+    /// network addresses, socket ports, timeouts, and retry attempts.
     /// </summary>
+    /// <remarks>This class provides properties for specifying host IP address components, socket port ranges,
+    /// file paths for configuration storage, and timeout values for send and receive operations. It also includes
+    /// methods for serializing and deserializing the configuration to and from XML files, as well as generating device
+    /// identification XML. Instances of this class can be used to persist and restore communication settings across
+    /// application sessions.</remarks>
     [Serializable]
     public class CommunicationSetup
     {

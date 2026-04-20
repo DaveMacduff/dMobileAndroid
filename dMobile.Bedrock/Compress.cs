@@ -10,15 +10,22 @@ namespace dMobile.Bedrock
     using System.Text;
 
     /// <summary>
-    /// Defines the <see cref="Compress" />.
+    /// Provides static methods for compressing and decompressing strings using the GZip algorithm.
     /// </summary>
-    public class Compress
+    /// <remarks>The Compress class offers utility methods for working with GZip-compressed data in memory or
+    /// via temporary files. All methods are static and thread-safe. Use these methods to efficiently compress text data
+    /// for storage or transmission, and to restore compressed data to its original string form.</remarks>
+    public static class Compress
     {
         /// <summary>
-        /// This method compress an uncompressed string passed in using the gzip.
+        /// Compresses the specified string using the GZip algorithm and returns the compressed data as a byte array.
         /// </summary>
-        /// <param name="uncompressedString"><see cref="string"/> Uncompressed string to compress.</param>
-        /// <returns><see cref="byte"/> A byte array of the encrypted 'uncompressedString'.</returns>
+        /// <remarks>The caller is responsible for ensuring that the input string is not null. To
+        /// decompress the returned byte array, use a corresponding GZip decompression method and decode the result
+        /// using UTF-8.</remarks>
+        /// <param name="uncompressedString">The string to compress. The string is encoded using UTF-8 before
+        /// compression. Cannot be null.</param>
+        /// <returns>A byte array containing the GZip-compressed representation of the input string.</returns>
         public static byte[] Zip(string uncompressedString)
         {
             var arrBytData = Encoding.UTF8.GetBytes(uncompressedString);
@@ -36,10 +43,12 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// This method decompresses the compressed data passed in using gzip.
+        /// Decompresses a GZip-compressed byte array and returns the resulting string using UTF-8 encoding.
         /// </summary>
-        /// <param name="arrBytData"><see cref="byte"/> Byte array of compressed data.</param>
-        /// <returns><see cref="string"/> Decompressed string from compressed byte data.</returns>
+        /// <remarks>If the input data is not in a valid GZip format or cannot be decoded as UTF-8, an
+        /// exception may be thrown. The method assumes the decompressed data represents valid UTF-8 text.</remarks>
+        /// <param name="arrBytData">The byte array containing data compressed in the GZip format. Cannot be null.</param>
+        /// <returns>A string containing the decompressed data, decoded as UTF-8 text.</returns>
         public static string UnZip(byte[] arrBytData)
         {
             const int readBufferByteSize = 32768;
@@ -66,10 +75,14 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        /// This method decompresses the compressed data passed in using gzip and a temporary file.
+        /// Decompresses a GZip-compressed byte array and returns the resulting string using a temporary file for
+        /// intermediate storage.
         /// </summary>
-        /// <param name="arrBytData"><see cref="byte"/> Byte array of compressed data.</param>
-        /// <returns><see cref="string"/> Decompressed string from compressed byte data.</returns>
+        /// <remarks>This method uses a temporary file to store intermediate decompressed data. The
+        /// temporary file is deleted after the operation completes. If the input data does not represent valid
+        /// GZip-compressed content, an exception may be thrown.</remarks>
+        /// <param name="arrBytData">The byte array containing GZip-compressed data to decompress. Cannot be null.</param>
+        /// <returns>A string containing the decompressed contents of the input data, interpreted as UTF-8 text.</returns>
         public static string UnZipUsingTempFile(byte[] arrBytData)
         {
             const int readBufferByteSize = 32768;

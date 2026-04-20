@@ -14,117 +14,152 @@ namespace dMobile.Bedrock
     using Exception = System.Exception;
 
     /// <summary>
-    ///     Handles Communication via a socket to send and receive data.
+    /// Provides methods and properties for managing TCP socket connections, including connecting, disconnecting,
+    /// sending requests, and receiving responses. Supports configurable connection and retry parameters, and publishes
+    /// socket status events to registered listeners.
     /// </summary>
+    /// <remarks>The SysSocket class is designed for use in environments where robust socket communication and
+    /// error handling are required. It allows for event-driven status reporting via ISysSocketEventPublisher and
+    /// supports both synchronous and asynchronous connection workflows. Non-blocking sockets are not supported. Socket
+    /// errors are reported through status events and, in most cases, rethrown to the caller. Thread safety is not
+    /// guaranteed; callers should ensure appropriate synchronization if accessing instances from multiple
+    /// threads.</remarks>
     public class SysSocket : ISysSocketEventPublisher
     {
         /// <summary>
-        ///     The OnSysSocketStatusOutEventHandler.
+        /// Represents the method that handles socket status output events published by an ISysSocketEventPublisher.
         /// </summary>
-        /// <param name="sysSocketEventPublisher">The sysSocketEventPublisher<see cref="ISysSocketEventPublisher" />.</param>
-        /// <param name="sysSocketEventArgs">The sysSocketEventArgs<see cref="SysSocketEventArgs" />.</param>
+        /// <param name="sysSocketEventPublisher">The event publisher that raises the socket status event.</param>
+        /// <param name="sysSocketEventArgs">The event data containing information about the socket status.</param>
         private delegate void SysSocketStatusOutEventHandler(
             ISysSocketEventPublisher sysSocketEventPublisher,
             SysSocketEventArgs sysSocketEventArgs);
 
         /// <summary>
-        ///     Defines the OnSysSocketStatusOut.
+        /// Represents the event that is raised when the system socket status changes.
         /// </summary>
+        /// <remarks>Subscribe to this event to receive notifications about changes in the system socket's
+        /// status. The event provides status information through the associated event handler delegate.</remarks>
         private event SysSocketStatusOutEventHandler OnSysSocketStatusOut;
 
         /// <summary>
-        ///     Gets or sets the ServerIP.
+        /// Gets or sets the IP address of the server to which the client will connect.
         /// </summary>
         public string ServerIp { get; set; }
 
         /// <summary>
-        ///     Gets or sets the ReceiveBuffSize.
+        /// Gets or sets the size, in bytes, of the reception buffer used for incoming data.
         /// </summary>
         public int ReceiveBuffSize { get; set; } = 32768;
 
         /// <summary>
-        ///     Gets or sets the ConnTotalRetries.
+        /// Gets or sets the total number of retry attempts for a connection operation.
         /// </summary>
+        /// <remarks>Set this property to control how many times a connection operation will be retried
+        /// after a failure. A value less than 1 disables retries.</remarks>
         public int ConnTotalRetries { get; set; } = 1;
 
         /// <summary>
-        ///     Gets or sets the SendTotalRetries.
+        /// Gets or sets the total number of times to retry sending a message after a failure.
         /// </summary>
+        /// <remarks>Set this property to control how many retry attempts are made before the send
+        /// operation is considered failed. A value of 0 disables retries.</remarks>
         public int SendTotalRetries { get; set; } = 3;
 
         /// <summary>
-        ///     Gets or sets the ReceiveTotalRetries.
+        /// Gets or sets the total number of retry attempts allowed when receiving messages.
         /// </summary>
         public int ReceiveTotalRetries { get; set; } = 3;
 
         /// <summary>
-        ///     Gets or sets the DefSocketPort.
+        /// Gets or sets the default port number used for socket connections.
         /// </summary>
         public int DefSocketPort { get; set; } = 10000;
 
         /// <summary>
-        ///     Gets or sets the BasePort.
+        /// Gets or sets the base network port number used for connections.
         /// </summary>
+        /// <remarks>The base port typically serves as the starting point for allocating additional ports
+        /// for related services or endpoints. Ensure that the specified port is not already in use by another
+        /// application on the system.</remarks>
         public int BasePort { get; set; } = 10000;
 
         /// <summary>
-        ///     Gets or sets the MaxPorts.
+        /// Gets or sets the maximum number of ports that can be used.
         /// </summary>
         public int MaxPorts { get; set; } = 1;
 
         /// <summary>
-        ///     Gets or sets the SendTimeOutMilliseconds.
+        /// Gets or sets the timeout, in milliseconds, for sending data.
         /// </summary>
         public int SendTimeOutMilliseconds { get; set; } = 4101;
 
         /// <summary>
-        ///     Gets or sets the ReceiveTimeOutMilliseconds.
+        /// Gets or sets the timeout period, in milliseconds, to wait for a reception operation to complete.
         /// </summary>
+        /// <remarks>If a reception operation does not complete within the specified timeout period, it may
+        /// be aborted or result in a timeout error, depending on the implementation. The default value is 4102
+        /// milliseconds.</remarks>
         public int ReceiveTimeOutMilliseconds { get; set; } = 4102;
 
         /// <summary>
-        ///     Gets the system environment.
+        /// Gets the singleton instance of the system environment configuration for the application.
         /// </summary>
         private SysEnvironment SysEnv { get; } = SysEnvironment.GetInstance();
 
         /// <summary>
-        ///     Gets or sets the SendEOM.
+        /// Gets the end-of-message (EOM) marker used to indicate the end of a message in the communication
+        /// protocol.
         /// </summary>
-        private string SendEom { get; set; } = "</WAIT_EOM>" + (char)20;
+        /// <remarks>The EOM marker is typically appended to outgoing messages to signal message
+        /// completion to the receiving system. Ensure that the value matches the expected format of the communication
+        /// partner to avoid message parsing errors.</remarks>
+        private string SendEom { get; } = "</WAIT_EOM>" + (char)20;
 
         /// <summary>
-        ///     Gets or sets the ReceiveEOM.
+        /// Gets the end-of-message marker used to identify the conclusion of a received message.
         /// </summary>
-        private string ReceiveEom { get; set; } = "</EOM>" + (char)20;
+        private string ReceiveEom { get; } = "</EOM>" + (char)20;
 
         /// <summary>
-        ///     The UnregSockListenerStatusOut.
+        /// Unregisters a socket event listener from receiving status output events.
         /// </summary>
-        /// <param name="sysSocketEventListener">The sysSocketEventListener<see cref="ISysSocketEventListener" />.</param>
+        /// <remarks>After calling this method, the specified listener will no longer receive status
+        /// output events from this instance. If the listener was not previously registered, this method has no
+        /// effect.</remarks>
+        /// <param name="sysSocketEventListener">The socket event listener to remove from the status output event
+        /// notifications. Cannot be null.</param>
         public void UnregSockListenerStatusOut(ISysSocketEventListener sysSocketEventListener)
         {
             this.OnSysSocketStatusOut -= sysSocketEventListener.OnSysSocketStatusOut;
         }
 
         /// <summary>
-        ///     The RegSockListenerStatusOut.
+        /// Registers a listener to receive socket status update events.
         /// </summary>
-        /// <param name="sysSocketEventListener">The sysSocketEventListener<see cref="ISysSocketEventListener" />.</param>
+        /// <remarks>Use this method to subscribe to socket status notifications. Multiple listeners can
+        /// be registered by calling this method multiple times with different listener instances.</remarks>
+        /// <param name="sysSocketEventListener">An object that implements the ISysSocketEventListener interface.
+        /// The listener's OnSysSocketStatusOut method will be invoked when a socket status update occurs.</param>
         public void RegSockListenerStatusOut(ISysSocketEventListener sysSocketEventListener)
         {
             this.OnSysSocketStatusOut += sysSocketEventListener.OnSysSocketStatusOut;
         }
 
         /// <summary>
-        ///     Disconnect the socket.
+        /// Closes and disconnects the specified socket, attempting a graceful shutdown and handling common socket
+        /// errors.
         /// </summary>
-        /// <param name="socket">The socket<see cref="Socket" />.</param>
-        /// <remarks>
-        /// Most of the socket errors are currently caught and rethrown.
-        /// Handled errors close the socket, shutdown is not invoked.
-        /// And then rethrow the error.
-        /// Non-blocking sockets are not currently supported by dMobile.
-        /// </remarks>
+        /// <remarks>This method attempts to gracefully shut down the socket and will retry the operation
+        /// multiple times based on the configured retry count. It handles a variety of socket errors, closing the
+        /// socket as needed and reporting status messages via the OnSysSocketStatusOut event if it is subscribed. Some
+        /// socket errors will result in exceptions being thrown, while others are handled internally. After the
+        /// operation, the socket will be closed regardless of its previous state.
+        /// Non-blocking sockets are not currently supported by dMobile.</remarks>
+        /// <param name="socket">The socket to disconnect. Must not be null and should be in a connected or open state.</param>
+        /// <exception cref="ArgumentNullException">Thrown if the socket parameter is null.</exception>
+        /// <exception cref="Exception">Thrown if an unhandled or unexpected socket error occurs during the
+        /// disconnect operation.</exception>
         public void Disconnect(Socket socket)
         {
             _ = socket ?? throw new ArgumentNullException(nameof(socket));
@@ -750,23 +785,32 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        ///     Create and return a connection socket object.
+        /// Attempts to establish a TCP connection to the configured server using the specified port and timeout.
         /// </summary>
-        /// <param name="port"><see cref="int" /> Socket port to use.</param>
-        /// <param name="timeout"><see cref="TimeSpan" /> Timeout period.</param>
-        /// <returns>Connected socket instance.</returns>
+        /// <remarks>If the connection attempt fails due to a recoverable socket error, the method may set
+        /// <see cref="SysSocketInfo.TryNewPort"/> to <see langword="true"/> to indicate that a new port should be
+        /// tried. For unrecoverable errors, the method throws the corresponding exception. If a timeout occurs, the
+        /// method does not throw but instead reports the status via the <see cref="OnSysSocketStatusOut"/> event, if
+        /// subscribed. The method reports connection status and errors through the <see cref="OnSysSocketStatusOut"/>
+        /// event handler, if it is set.</remarks>
+        /// <param name="port">The port number to connect to. Specify 0 to use the default socket port.</param>
+        /// <param name="timeout">The maximum duration to wait for the connection to succeed before timing out. Specify <see
+        /// cref="TimeSpan.Zero"/> to use the default timeout of 10 seconds.</param>
+        /// <returns>A <see cref="SysSocketInfo"/> object containing information about the connection attempt. The <see
+        /// cref="SysSocketInfo.TryNewPort"/> property may be set to <see langword="true"/> if a new port should be
+        /// tried due to certain connection errors.</returns>
+        /// <exception cref="Exception">Thrown if an unhandled socket error occurs during the connection attempt.</exception>
         public async Task<SysSocketInfo> Connect(int port, TimeSpan timeout)
         {
             port = port == 0 ? this.DefSocketPort : port;
             const int defaultSecondsTimeout = 10;
-            timeout = timeout == TimeSpan.Zero
-                ? new TimeSpan(0, 0, defaultSecondsTimeout)
-                : timeout;
+            timeout = timeout == TimeSpan.Zero ? new TimeSpan(0, 0, defaultSecondsTimeout) : timeout;
             Socket socket = null;
             const int delayBetweenAttempts = 1000;
             var sockInfo = new SysSocketInfo();
             var sockEventArgs = new SysSocketEventArgs();
             using var cancellationTokenSource = new CancellationTokenSource(timeout);
+
             try
             {
                 // Create a Task to connect
@@ -1386,9 +1430,13 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        ///     Create and return a connected socket object.
+        /// Establishes a connection using the specified socket and the default port.
         /// </summary>
-        /// <param name="socket">The socket<see cref="Socket" />.</param>
+        /// <remarks>This method attempts to connect the provided socket to the default port defined by
+        /// the instance. If the connection fails, the method waits briefly before returning. The state of the socket
+        /// after the call indicates whether the connection was successful.</remarks>
+        /// <param name="socket">A reference to the <see cref="Socket"/> instance to use for the connection.
+        /// The socket will be initialized and connected if the operation succeeds.</param>
         public void Connect(ref Socket socket)
         {
             const int delayBetweenAttempts = 1000;
@@ -1399,11 +1447,21 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        ///     Create and return a connected socket object.
+        /// Attempts to establish a TCP connection to the server at the specified port, updating the provided socket and
+        /// indicating whether a new port should be tried based on the connection result.
         /// </summary>
-        /// <param name="socket">The socket<see cref="Socket" />.</param>
-        /// <param name="port"><see cref="int" /> Socket port to use.</param>
-        /// <param name="tryNewPort"><see cref="bool" /> Try a new port.</param>
+        /// <remarks>If the connection attempt fails due to certain recoverable socket errors (such as
+        /// connection refused or host unreachable), <paramref name="tryNewPort"/> is set to <see langword="true"/> to
+        /// indicate that the caller should attempt to connect using a different port. For unrecoverable or unexpected
+        /// errors, an exception is thrown. The method may block while waiting between retry attempts. Status messages
+        /// may be reported via an event if subscribed.</remarks>
+        /// <param name="socket">A reference to the socket instance to use for the connection. On successful
+        /// connection, this reference is updated to the connected socket. Cannot be null.</param>
+        /// <param name="port">The port number on the server to which the connection attempt is made.</param>
+        /// <param name="tryNewPort">A reference to a Boolean value that is set to <see langword="true"/> if the
+        /// connection attempt failed and a new port should be tried; otherwise, <see langword="false"/>.</param>
+        /// <exception cref="ArgumentNullException">Thrown if <paramref name="socket"/> is null.</exception>
+        /// <exception cref="Exception">Thrown if an unhandled socket error occurs during the connection attempt.</exception>
         public void Connect(ref Socket socket, int port, ref bool tryNewPort)
         {
             const int delayBetweenAttempts = 1000;
@@ -2024,17 +2082,24 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        ///     Send the request to the server.
+        /// Sends a request string to the specified socket and returns the total number of bytes sent.
         /// </summary>
-        /// <param name="socket">Socket instance.</param>
-        /// <param name="request">Request data to send.</param>
-        /// <returns>Total number of bytes sent.</returns>
-        /// <remarks>
-        /// Socket errors are currently all caught and rethrown. This may change in the future.
-        /// The only socket error not rethrown is SocketError.Success.
+        /// <remarks>This method attempts to send the entire request, including an end-of-message marker,
+        /// to the remote endpoint using the provided socket. If a <see cref="SocketException"/> occurs, it is rethrown
+        /// after optionally notifying any registered status event handlers. The method does not perform any retries on
+        /// failure. The caller is responsible for ensuring the socket is properly connected and disposed after
+        /// use.
         /// Non-blocking sockets are not currently supported by dMobile.
         /// If a socket error occurs, the socket port should be incremented and the connection retried.
         /// </remarks>
+        /// <param name="socket">The connected <see cref="Socket"/> instance to which the request will be sent.
+        /// The socket must be writable and in a connected state.</param>
+        /// <param name="request">The request string to send to the remote endpoint. The string is encoded as UTF-8
+        /// and may not be null.</param>
+        /// <returns>The total number of bytes sent to the socket, including any end-of-message marker appended to
+        /// the request.</returns>
+        /// <exception cref="Exception">Thrown if an unhandled socket error occurs that does not correspond to a
+        /// specific <see cref="SocketError"/> value.</exception>
         public int SendRequest(Socket socket, string request)
         {
             ////const int delayBetweenAttempts = 1000;
@@ -2654,10 +2719,19 @@ namespace dMobile.Bedrock
         }
 
         /// <summary>
-        ///     Read data from a socket.
+        /// Receives a response from the specified socket until the end-of-message (EOM) marker is detected.
         /// </summary>
-        /// <param name="socket">.</param>
-        /// <returns>A list of bytes from the socket.</returns>
+        /// <remarks>This method reads data from the socket in a loop until the configured EOM marker is
+        /// found in the received data. If a recognized socket error occurs, a corresponding SocketException is thrown.
+        /// The method removes the EOM marker from the returned data. The socket must be connected and operational;
+        /// otherwise, exceptions may be thrown. If a status event handler is registered, status messages are reported
+        /// during the reception process.</remarks>
+        /// <param name="socket">The connected socket from which to receive the response data. The socket must be in
+        /// a connected state and ready for reading.</param>
+        /// <returns>A list of bytes containing the received response data, excluding the EOM marker. The list will
+        /// be empty if no data is received.</returns>
+        /// <exception cref="Exception">Thrown if an unhandled or unknown socket error occurs during the reception
+        /// operation.</exception>
         public List<byte> ReceiveResponse(Socket socket)
         {
             var bytes = new byte[this.ReceiveBuffSize + 1];
@@ -2669,7 +2743,7 @@ namespace dMobile.Bedrock
                 ? this.SysEnv.SysSock.SendTimeOutMilliseconds * 1000
                 : 1000000;
 
-            var bytesReceived = default(int);
+            var bytesReceived = 0;
             do
             {
                 try
