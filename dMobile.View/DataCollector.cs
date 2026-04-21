@@ -414,7 +414,9 @@ namespace dMobile.View
             async Task GatherUnitQuantity()
             {
                 decimal unitQuantity = 1;
-                await CheckBarCodeRuleAi21BoxCode(unitQuantity);
+
+                // Get the unit quantity, and set the weight quantity if the bar code rule for AI21 box code is applied.
+                unitQuantity = await ApplyBarCodeRuleAi21BoxCode(unitQuantity);
                 await GatherBaseQuantity(unitQuantity);
 
                 if (prodInfo.UnitCode == "LB" || prodInfo.UnitCode == "KG")
@@ -423,21 +425,30 @@ namespace dMobile.View
                 }
                 else
                 {
-                    if (!prodInfo.IsCatchWeight)
+                    if (!prodInfo.IsCatchCount &&
+                        BarCodeParse != null && BarCodeParse.LogisticUnitVariableCount != 0)
                     {
-                        var quantity = ActDetail.WeightQuantity / prodInfo.UnitGrossWeight;
-                        if (quantity > 1)
-                        {
-                            unitQuantity = quantity;
-                        }
+                        ActDetail.Quantity = unitQuantity;
                     }
+                    else
+                    {
+                        if (!prodInfo.IsCatchWeight &&
+                            !SysEnv.BarCodeSettings.IsRuleEnabled_Parse_Code_128_AI01_Nossack_AI21_SkidNumber_BoxCount)
+                        {
+                            var quantity = ActDetail.WeightQuantity / prodInfo.UnitGrossWeight;
+                            if (quantity > 1)
+                            {
+                                unitQuantity = quantity;
+                            }
+                        }
 
-                    ActDetail.Quantity = unitQuantity;
+                        ActDetail.Quantity = unitQuantity;
+                    }
                 }
 
                 return;
 
-                async Task<decimal> CheckBarCodeRuleAi21BoxCode(decimal unitQty)
+                async Task<decimal> ApplyBarCodeRuleAi21BoxCode(decimal unitQty)
                 {
                     if (SysEnv.BarCodeSettings.IsRuleEnabled_Parse_Code_128_AI01_Nossack_AI21_SkidNumber_BoxCount)
                     {
@@ -450,8 +461,8 @@ namespace dMobile.View
                             barCodeRuleForcedEdit = true;
                             if (!prodInfo.IsCatchWeight)
                             {
-                                ActDetail.WeightQuantity = unitQty *
-                                                           await ProductInfoTasks.GetUnitRelationFactor(prodInfo);
+                                ActDetail.WeightQuantity =
+                                    unitQty * await ProductInfoTasks.GetUnitRelationFactor(prodInfo);
                             }
                         }
                     }
@@ -467,15 +478,15 @@ namespace dMobile.View
                     }
                     else
                     {
-                        // If catch count is disabled the variable count is the base quantity not the unit quantity
-                        if (!prodInfo.IsCatchCount && BarCodeParse != null && BarCodeParse.LogisticUnitVariableCount != 0
-                            && SysEnv.BarCodeSettings.IsRuleEnabled_Parse_Code_128_AI01_BC_AI30_exclusive)
+                        if (prodInfo.IsCatchCount &&
+                            BarCodeParse != null && BarCodeParse.LogisticUnitVariableCount != 0)
                         {
                             ActDetail.BaseQuantity = BarCodeParse.LogisticUnitVariableCount;
                         }
                         else
                         {
-                            if (!prodInfo.IsCatchWeight)
+                            if (!prodInfo.IsCatchWeight &&
+                                !SysEnv.BarCodeSettings.IsRuleEnabled_Parse_Code_128_AI01_Nossack_AI21_SkidNumber_BoxCount)
                             {
                                 var quantity = ActDetail.WeightQuantity / prodInfo.UnitGrossWeight;
                                 if (quantity > 1)
