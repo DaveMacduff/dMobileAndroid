@@ -337,3 +337,4 @@ ASALocalRun/
 .localhistory/
 AppOverride.config
 ProtectedAppOverride.config
+/.github/copilot-instructions.md
