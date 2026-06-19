@@ -7,13 +7,14 @@ using dMobile.View.Pages;
 
 namespace dMobile.Droid
 {
-    using System;
     using Android.App;
+    using Android.Content;
     using Android.Content.PM;
     using Android.OS;
     using Android.Views;
     using Bedrock;
     using Resources.Enums;
+    using System;
     using Xamarin.Forms;
 
     /// <summary>
@@ -24,9 +25,38 @@ namespace dMobile.Droid
         Icon = "@drawable/dtec_logo",
         Theme = "@style/MainTheme",
         ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation,
-        ScreenOrientation = ScreenOrientation.Portrait)]
+        ScreenOrientation = ScreenOrientation.Portrait,
+        LaunchMode = Android.Content.PM.LaunchMode.SingleTop)]
     public class MainActivity : Xamarin.Forms.Platform.Android.FormsAppCompatActivity
     {
+        // DataWedge intent action — configure this in your DataWedge profile
+        private const string ZebraIntentAction = "com.dmobile.ACTION";  // ← must match DataWedge
+        private const string ExtraDataKey = "com.symbol.datawedge.data_string";
+        private const string ExtraTypeKey = "com.symbol.datawedge.label_type";
+
+        protected override void OnNewIntent(Intent intent)
+        {
+            base.OnNewIntent(intent);
+
+            // Add this log line temporarily to confirm OnNewIntent IS being called at all
+            Android.Util.Log.Debug("ZEBRA", $"OnNewIntent fired. Action: {intent?.Action}");
+
+            if (intent?.Action != ZebraIntentAction)
+            {
+                Android.Util.Log.Debug("ZEBRA", $"Action mismatch. Expected: {ZebraIntentAction}, Got: {intent?.Action}");
+                return;
+            }
+
+            var barcodeData = intent.GetStringExtra(ExtraDataKey);
+            var barcodeType = intent.GetStringExtra(ExtraTypeKey);
+
+            Android.Util.Log.Debug("ZEBRA", $"Barcode: {barcodeData}, Type: {barcodeType}");
+
+            ZebraIntentScannerService.Instance.RaiseBarcodeScanned(
+                barcodeData ?? string.Empty,
+                barcodeType ?? string.Empty);
+        }
+
         /// <summary>
         /// Define the on key up.
         /// </summary>

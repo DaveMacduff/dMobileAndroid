@@ -34,9 +34,9 @@
     <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
     <PackageReference Include="Honeywell.BarcodeReader" Version="1.35.0.44" />
   </ItemGroup>
-	<ItemGroup>
-		<Reference Include="Mono.Android">
-		<HintPath>C:\Program Files\Microsoft Visual Studio\2022\Professional\Common7\IDE\ReferenceAssemblies\Microsoft\Framework\MonoAndroid\v9.0\Mono.Android.dll</HintPath>
-	</Reference>
-	</ItemGroup>
+    <ItemGroup>
+        <Reference Include="Mono.Android">
+        <HintPath>C:\Program Files\Microsoft Visual Studio\2022\Professional\Common7\IDE\ReferenceAssemblies\Microsoft\Framework\MonoAndroid\v9.0\Mono.Android.dll</HintPath>
+    </Reference>
+    </ItemGroup>
 </Project>

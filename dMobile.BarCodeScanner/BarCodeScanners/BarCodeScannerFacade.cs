@@ -5,6 +5,7 @@
 namespace dMobile.BarCodeScanner.BarCodeScanners
 {
     using System;
+    using Bedrock;
 
     /// <summary>
     /// This is the barcode scanner facade class that returns a generic barcode scanner object.
@@ -18,7 +19,13 @@ namespace dMobile.BarCodeScanner.BarCodeScanners
         /// <exception cref="NotSupportedException">Thrown when the barcode scanner type is unidentified.</exception>
         public static BarCodeScanner GetBarCodeScanner()
         {
-            BarCodeScannerFactory scannerFactory = new HoneywellBarCodeScannerFactory();
+            var scannerType = BarCodeScannerType.ZebraDataWedge;
+            BarCodeScannerFactory scannerFactory = scannerType switch
+            {
+                BarCodeScannerType.Honeywell => new HoneywellBarCodeScannerFactory(),
+                BarCodeScannerType.ZebraDataWedge => new ZebraDataWedgeScannerFactory(),
+                _ => throw new BaseException("Undefined barcode scanner type."),
+            };
             return scannerFactory.GetBarCodeScanner();
         }
     }

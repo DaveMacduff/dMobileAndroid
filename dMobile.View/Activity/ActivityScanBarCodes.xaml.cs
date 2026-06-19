@@ -4,11 +4,8 @@
 
 namespace dMobile.View.Activity
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Collections.ObjectModel;
-    using System.Threading.Tasks;
-    using System.Xml.Linq;
+    using Android.App;
+    using Android.Content;
     using Android.Views;
     using BarCodeScanner;
     using BarCodeScanner.BarCodeParsing;
@@ -16,18 +13,24 @@ namespace dMobile.View.Activity
     using Bedrock;
     using Controller.Activity;
     using Controller.Activity_Item;
-    using Resources.Models.Products;
-    using Resources.Types.Products;
     using Forms;
     using GroundWork;
     using Helpers;
     using Resources.Enums;
     using Resources.Models;
+    using Resources.Models.Products;
     using Resources.QueryResults;
     using Resources.Types;
+    using Resources.Types.Products;
     using SQLite;
+    using System;
+    using System.Collections.Generic;
+    using System.Collections.ObjectModel;
+    using System.Threading.Tasks;
+    using System.Xml.Linq;
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;
+    using static Android.Content.Res.Resources;
     using Resource = Resources.Properties.Resources;
 
     /// <summary>
@@ -59,7 +62,6 @@ namespace dMobile.View.Activity
             this.ScannerEnable().FireAndForgetSafeAsync();
             return;
 
-            //////////////////////////////////////////////////////////////////////////
             void ParseAndSeedBarCodeModifier()
             {
                 this.BarCodeModifier1Picker.IsVisible = false;
@@ -85,8 +87,10 @@ namespace dMobile.View.Activity
             }
         }
 
+        private readonly ZebraIntentScannerService _scanner = ZebraIntentScannerService.Instance;
+
         /// <summary>
-        ///     Gets the activity sub type.
+        ///     Gets the activity subtype.
         /// </summary>
         private SysCommon.ActSubTypes ActSubType { get; } = SysCommon.ActSubTypes.BarCodeAssociation;
 
@@ -103,7 +107,7 @@ namespace dMobile.View.Activity
         /// <summary>
         ///     Gets or sets the activity bar code instance.
         /// </summary>
-        private Activity ActBarCode { get; set; }
+        private Controller.Activity.Activity ActBarCode { get; set; }
 
         /// <summary>
         ///     Gets the bar code scanner instance.
@@ -130,14 +134,23 @@ namespace dMobile.View.Activity
         /// </summary>
         private int ProductUnitBarCodeRefno { get; set; }
 
+        private void OnBarcodeScanned(object sender, ZebraScanEventArgs e)
+        {
+            Device.BeginInvokeOnMainThread(() =>
+            {
+                // use e.BarcodeData and e.BarcodeType here
+            });
+        }
+
         /// <summary>
         ///     Unregister the bar code scan event handler and disable the scanner.
         /// </summary>
         /// <returns><see cref="Task" /> Task operation.</returns>
         public async Task ScannerDisable()
         {
-            this.Scanner.ClearBarCodeScanEventHandlers();
-            await this.Scanner.DisableScanning();
+            ////this.Scanner.ClearBarCodeScanEventHandlers();
+            ////await this.Scanner.DisableScanning();
+            this._scanner.BarcodeScanned -= this.OnBarcodeScanned;
         }
 
         /// <summary>
@@ -146,11 +159,12 @@ namespace dMobile.View.Activity
         /// <returns><see cref="Task" /> Task operation.</returns>
         public async Task ScannerEnable()
         {
-            await this.Scanner.EnableScanning();
-            if (!this.Scanner.IsBarCodeScanEventHandlerAdded())
-            {
-                this.Scanner.OnBarCodeScan += this.BarCodeHandler;
-            }
+            ////await this.Scanner.EnableScanning();
+            ////if (!this.Scanner.IsBarCodeScanEventHandlerAdded())
+            ////{
+            ////    this.Scanner.OnBarCodeScan += this.BarCodeHandler;
+            ////}
+            this._scanner.BarcodeScanned += this.OnBarcodeScanned;
         }
 
         /// <summary>
@@ -233,13 +247,11 @@ namespace dMobile.View.Activity
             SubscribeKeyUpHandlers();
             return;
 
-            //////////////////////////////////////////////////////////////////////////
             void SubscribeKeyUpHandlers()
             {
                 MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), KeyUpCallback);
                 return;
 
-                //////////////////////////////////////////////////////////////////////////
                 async void KeyUpCallback(string keyPressed)
                 {
                     _ = Enum.TryParse(keyPressed, out Keycode keycode);
@@ -273,7 +285,6 @@ namespace dMobile.View.Activity
             Device.BeginInvokeOnMainThread(BackButtonCallback);
             return true;
 
-            //////////////////////////////////////////////////////////////////////////
             async void BackButtonCallback()
             {
                 _ = base.OnBackButtonPressed();
@@ -348,7 +359,7 @@ namespace dMobile.View.Activity
                 if (scanArgs == null)
                 {
                     const string msg = "Scanner event fired but no data was received.";
-                    await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert(
+                    await Device.InvokeOnMainThreadAsync(async () => await Xamarin.Forms.Application.Current.MainPage.DisplayAlert(
                         this.GetControlDescription(),
                         msg,
                         Resource.OK));
@@ -1111,7 +1122,7 @@ namespace dMobile.View.Activity
             {
                 var msg = SysCommon.GetMessageFromMessageException(msgEx);
                 await Device.InvokeOnMainThreadAsync(async () =>
-                    await Application.Current.MainPage.DisplayAlert(
+                    await Xamarin.Forms.Application.Current.MainPage.DisplayAlert(
                         this.GetControlDescription(),
                         msg,
                         Resource.OK));
@@ -1248,5 +1259,7 @@ namespace dMobile.View.Activity
                 }
             }
         }
+
+
     }
 }
