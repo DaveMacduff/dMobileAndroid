@@ -20,11 +20,8 @@ namespace dMobile.View.Activity
     using Resources.Types.Products;
     using Forms;
     using GroundWork;
-    using Helpers;
     using Resources.Enums;
-    using Resources.Models;
     using Resources.QueryResults;
-    using Resources.Types;
     using SQLite;
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;
@@ -59,7 +56,6 @@ namespace dMobile.View.Activity
             this.ScannerEnable().FireAndForgetSafeAsync();
             return;
 
-            //////////////////////////////////////////////////////////////////////////
             void ParseAndSeedBarCodeModifier()
             {
                 this.BarCodeModifier1Picker.IsVisible = false;
@@ -86,7 +82,7 @@ namespace dMobile.View.Activity
         }
 
         /// <summary>
-        ///     Gets the activity sub type.
+        ///     Gets the activity subtype.
         /// </summary>
         private SysCommon.ActSubTypes ActSubType { get; } = SysCommon.ActSubTypes.BarCodeAssociation;
 
@@ -233,13 +229,11 @@ namespace dMobile.View.Activity
             SubscribeKeyUpHandlers();
             return;
 
-            //////////////////////////////////////////////////////////////////////////
             void SubscribeKeyUpHandlers()
             {
                 MessagingCenter.Subscribe<string>(this, EventTypes.OnKeyUp.ToString(), KeyUpCallback);
                 return;
 
-                //////////////////////////////////////////////////////////////////////////
                 async void KeyUpCallback(string keyPressed)
                 {
                     _ = Enum.TryParse(keyPressed, out Keycode keycode);
@@ -273,7 +267,6 @@ namespace dMobile.View.Activity
             Device.BeginInvokeOnMainThread(BackButtonCallback);
             return true;
 
-            //////////////////////////////////////////////////////////////////////////
             async void BackButtonCallback()
             {
                 _ = base.OnBackButtonPressed();
@@ -482,6 +475,17 @@ namespace dMobile.View.Activity
                         }
                     }
 
+                    if (prodInfo.IsCatchCount)
+                    {
+                        await this.AddScanMsg("Is catch count " + prodInfo.IsCatchCount);
+                    }
+                    else
+                    {
+                        await this.AddScanMsg("Is catch weight " + prodInfo.IsCatchWeight);
+                    }
+
+                    ////await this.AddScanMsg("Is catch ask " + prodInfo.IsCatchAsk);
+
                     // get product tracking scheme
                     if (prodSchemeRefno != 0)
                     {
@@ -621,10 +625,9 @@ namespace dMobile.View.Activity
 
                 const int lineLength = 30;
                 var rawDataLine = SysCommon.WordWrap2List(scanArgs.ParseInfo.Raw, lineLength);
-
-                for (var i = 0; i < rawDataLine.Count; i++)
+                foreach (var line in rawDataLine)
                 {
-                    await this.AddScanMsg(rawDataLine[i]);
+                    await this.AddScanMsg(line);
                 }
 
                 // <issue="13609" author="RD" date="2016/02/22">
@@ -643,10 +646,9 @@ namespace dMobile.View.Activity
                     foreach (var errorDetail in this.Parse.Details.ErrorDetails)
                     {
                         var lines = SysCommon.WordWrap2List(errorDetail.Exception.Message, lineLength);
-
-                        for (var i = 0; i < lines.Count; ++i)
+                        foreach (var line in lines)
                         {
-                            await this.AddScanMsg(lines[i]);
+                            await this.AddScanMsg(line);
                         }
                     }
                 }
@@ -671,7 +673,6 @@ namespace dMobile.View.Activity
 
             return;
 
-            //////////////////////////////////////////////////////////////////////////
             async Task BarCodeHandlerSscc18()
             {
                 await this.AddScanMsg("SSCC-18: " + scanArgs.ParseInfo.Sscc18);
@@ -685,39 +686,32 @@ namespace dMobile.View.Activity
                     try
                     {
                         this.lblProductData.Text = "Unidentified";
-                        var skid = await SysSkidInfo.GetSkidInfoFromBarCodeOrCode(
-                            scanArgs.ParseInfo.Sscc18);
-
-                        if (skid.CurrSkid.SkidFkRefno > 0)
-                        {
-                            //// AddScanMsg(sender, BarCodeScanArgs, "Skid identified")
-                            await this.AddScanMsg($"Code: {skid.CurrSkid.LogisticUnitSkidCode}");
-                            await this.AddScanMsg($"Refno: {skid.CurrSkid.SkidFkRefno}");
-                            await this.AddScanMsg($"Number: {skid.CurrSkid.SkidCode}");
-
-                            var locReadable = LocationMapTasks.GetReadableLocation(
-                                skid.CurrSkid.LocMap);
-
-                            var skidQty =
-                                $"Qty: {skid.CurrSkid.Quantity} {skid.CurrSkid.ProdInfo.UnitCode} @" +
-                                $" {skid.CurrSkid.WeightQuantity} {skid.CurrSkid.ProdInfo.WeightUnitCode}";
-
-                            await this.AddScanMsg($"Location: {locReadable}");
-                            await this.AddScanMsg($"Product: {ProductInfoTasks.GetCurrReadableProdBcUnit(skid.CurrSkid.ProdInfo)}");
-                            await this.AddScanMsg(skidQty);
-                            await this.AddScanMsg($"Put Away: {skid.CurrSkid.IsPutAway}");
-                            await this.AddScanMsg($"On Hold: {skid.CurrSkid.IsHold}");
-                            await this.AddScanMsg($"Cube: {skid.CurrSkid.Cube} {skid.CurrSkid.CubeUnit}");
-                            await this.AddScanMsg($"Height: {skid.CurrSkid.Height} {skid.CurrSkid.HeightUnit}");
-                            await this.AddScanMsg($"Ti/Hi: {skid.CurrSkid.Ti}/{skid.CurrSkid.Hi}");
-                            await this.AddScanMsg($"CHEP: {skid.CurrSkid.IsChep}");
-                            await this.AddScanMsg($"Completed: {skid.CurrSkid.IsCompleted}");
-                            await this.AddScanMsg($"Consumed: {skid.CurrSkid.IsConsumed}");
-                        }
-                        else
+                        var skid = await SysSkidInfo.GetSkidInfoFromBarCodeOrCode(scanArgs.ParseInfo.Sscc18);
+                        if (skid.CurrSkid.SkidFkRefno <= 0)
                         {
                             throw new Exception("Not associated to a skid.");
                         }
+
+                        //// AddScanMsg(sender, BarCodeScanArgs, "Skid identified")
+                        await this.AddScanMsg($"Code: {skid.CurrSkid.LogisticUnitSkidCode}");
+                        await this.AddScanMsg($"Refno: {skid.CurrSkid.SkidFkRefno}");
+                        await this.AddScanMsg($"Number: {skid.CurrSkid.SkidCode}");
+
+                        var locReadable = LocationMapTasks.GetReadableLocation(skid.CurrSkid.LocMap);
+                        await this.AddScanMsg($"Location: {locReadable}");
+                        await this.AddScanMsg($"Product: {ProductInfoTasks.GetCurrReadableProdBcUnit(skid.CurrSkid.ProdInfo)}");
+
+                        var skidQty = $"Qty: {skid.CurrSkid.Quantity} {skid.CurrSkid.ProdInfo.UnitCode} @" +
+                                      $" {skid.CurrSkid.WeightQuantity} {skid.CurrSkid.ProdInfo.WeightUnitCode}";
+                        await this.AddScanMsg(skidQty);
+                        await this.AddScanMsg($"Put Away: {skid.CurrSkid.IsPutAway}");
+                        await this.AddScanMsg($"On Hold: {skid.CurrSkid.IsHold}");
+                        await this.AddScanMsg($"Cube: {skid.CurrSkid.Cube} {skid.CurrSkid.CubeUnit}");
+                        await this.AddScanMsg($"Height: {skid.CurrSkid.Height} {skid.CurrSkid.HeightUnit}");
+                        await this.AddScanMsg($"Ti/Hi: {skid.CurrSkid.Ti}/{skid.CurrSkid.Hi}");
+                        await this.AddScanMsg($"CHEP: {skid.CurrSkid.IsChep}");
+                        await this.AddScanMsg($"Completed: {skid.CurrSkid.IsCompleted}");
+                        await this.AddScanMsg($"Consumed: {skid.CurrSkid.IsConsumed}");
                     }
                     catch (Exception)
                     {
@@ -726,7 +720,6 @@ namespace dMobile.View.Activity
                 }
             }
 
-            //////////////////////////////////////////////////////////////////////////
             async Task BarCodeHandlerLocationIdentifier()
             {
                 await this.AddScanMsg("Location identifier: " + scanArgs.ParseInfo.LocationIdentifier);
@@ -754,7 +747,6 @@ namespace dMobile.View.Activity
                 }
             }
 
-            //////////////////////////////////////////////////////////////////////////
             async Task BarCodeHandlerScheme()
             {
                 await DisplayParsedSchemeData();
@@ -779,6 +771,9 @@ namespace dMobile.View.Activity
 
                 async Task DisplayParsedWeights()
                 {
+                    ////var wtMsg = $"Average weight: {prodInfo.UnitGrossWeight:F3} {prodInfo.WeightUnitCode}";
+                    ////await this.AddScanMsg(wtMsg);
+
                     if (scanArgs.ParseInfo.NetWeightMetricKgFoundAi)
                     {
                         await this.AddScanMsg("Net weight metric KG: " + scanArgs.ParseInfo.NetWeightMetricKg);
@@ -800,7 +795,6 @@ namespace dMobile.View.Activity
                     }
                 }
 
-                //////////////////////////////////////////////////////////////////////////
                 async Task DisplayParsedSchemeData()
                 {
                     if (scanArgs.ParseInfo.ManufacturerSerialNumber != 0)
@@ -856,8 +850,8 @@ namespace dMobile.View.Activity
                         }
                         else
                         {
-                            await this.AddScanMsg("Production Date: " +
-                                                  scanArgs.ParseInfo.LogisticUnitProductionDate.ToShortDateString());
+                            await this.AddScanMsg(
+                                "Production Date: " + scanArgs.ParseInfo.LogisticUnitProductionDate.ToShortDateString());
                         }
                     }
                     else
@@ -932,22 +926,23 @@ namespace dMobile.View.Activity
                 }
             }
 
-            //////////////////////////////////////////////////////////////////////////
             async Task BarCodeHandlerProductIdentifierRuleSumwaDuck()
             {
                 // Do not look up gtin in bar code database for this rule, product will be identified by a range
                 // of fixed weights.
-                if (this.SysEnv.BarCodeSettings.IsRuleEnabled_ParseSumwaFarmFedWholeDuck_UseWeightRangeToIDProduct &&
-                    this.Parse.ProductIdentifier == "90695955110022")
+                if (!this.SysEnv.BarCodeSettings.IsRuleEnabled_ParseSumwaFarmFedWholeDuck_UseWeightRangeToIDProduct ||
+                    this.Parse.ProductIdentifier != "90695955110022")
                 {
-                    BarCodeRuleParseSumwaFarmFedWholeDuckUseWeightRangeToIdProduct(this.Parse);
-
-                    prodInfo = await ProductInfoTasks.GetInfoFromCodeBcUnit(
-                        this.Parse.ProductIdentifier,
-                        string.Empty,
-                        "CS");
-                    this.ProductUnitRefno = prodInfo.UnitRefno;
+                    return;
                 }
+
+                BarCodeRuleParseSumwaFarmFedWholeDuckUseWeightRangeToIdProduct(this.Parse);
+
+                prodInfo = await ProductInfoTasks.GetInfoFromCodeBcUnit(
+                    this.Parse.ProductIdentifier,
+                    string.Empty,
+                    "CS");
+                this.ProductUnitRefno = prodInfo.UnitRefno;
 
                 return;
 
@@ -1000,16 +995,16 @@ namespace dMobile.View.Activity
                     }
                     else
                     {
-                        throw new Exception("Unable to identify product scanned." + Environment.NewLine +
-                                            "ParseSumwaFarmFedWholeDuck_UseWeightRangeToIDProduct enabled.");
+                        throw new Exception(
+                            "Unable to identify product scanned." + Environment.NewLine +
+                            "ParseSumwaFarmFedWholeDuck_UseWeightRangeToIDProduct enabled.");
                     }
                 }
             }
 
-            //////////////////////////////////////////////////////////////////////////
             async Task<List<ProductUnitBarcodeQueryResult>> FindProductUnit(string prodIdentifier)
             {
-                var queryProductUnitBarcode = @"
+                const string queryProductUnitBarcode = @"
                     select tProductUnit.ProductUnitRefno,
                             tProductUnitBarCode.ProductUnitBarCodeRefno,
                             tLocationMapWarehouseProductScheme.ProductSchemeRefno AS WarehouseProductSchemeRefno,
@@ -1037,7 +1032,6 @@ namespace dMobile.View.Activity
                 return resultsProductUnitBarcode;
             }
 
-            //////////////////////////////////////////////////////////////////////////
             async Task DisplayProductAssocInfo(IReadOnlyList<ProductUnitBarcodeQueryResult> resultsProductUnitBarcode)
             {
                 // If product was found associated display it.  'ProductID+BC+UOM'
@@ -1074,7 +1068,6 @@ namespace dMobile.View.Activity
             {
                 Device.BeginInvokeOnMainThread(ModifierChangeError);
 
-                //////////////////////////////////////////////////////////////////////////
                 async void ModifierChangeError()
                 {
                     var errRpt = new FormErrorReport(this.ActSubType, ex);
@@ -1144,7 +1137,6 @@ namespace dMobile.View.Activity
 
             return;
 
-            //////////////////////////////////////////////////////////////////////////
             async Task<bool> CheckAllowedToAssignProduct()
             {
                 // Changed functionality to disallow product scanning everywhere.
@@ -1164,7 +1156,6 @@ namespace dMobile.View.Activity
                 return isAllowedAssocProdBarCode;
             }
 
-            //////////////////////////////////////////////////////////////////////////
             async Task AssignProduct()
             {
                 var form = new FormDialogContainer(EDialogTypes.SelectProductUnit, this.ActSubType);
@@ -1184,7 +1175,6 @@ namespace dMobile.View.Activity
 
                 return;
 
-                //////////////////////////////////////////////////////////////////////////
                 async Task DisplayProductAssocData(List<ProductUnit> productUnit)
                 {
                     var productDataText = string.Empty;
@@ -1205,7 +1195,6 @@ namespace dMobile.View.Activity
                     }
                 }
 
-                //////////////////////////////////////////////////////////////////////////
                 async Task<List<ProductUnit>> FindAssocProductInfo()
                 {
                     var queryProductUnit = @"
@@ -1222,7 +1211,6 @@ namespace dMobile.View.Activity
                     return productUnit;
                 }
 
-                //////////////////////////////////////////////////////////////////////////
                 async Task AssocBarCodeToProduct()
                 {
                     var svdProductIdentifier = this.Parse.ProductIdentifier;
