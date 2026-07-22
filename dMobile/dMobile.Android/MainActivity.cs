@@ -2,9 +2,6 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
-using dMobile.BarCodeScanner.BarCodeScanners;
-using dMobile.View.Pages;
-
 namespace dMobile.Droid
 {
     using Android.App;
@@ -12,6 +9,8 @@ namespace dMobile.Droid
     using Android.Content.PM;
     using Android.OS;
     using Android.Views;
+    using dMobile.BarCodeScanner.BarCodeScanners;
+    using dMobile.View.Pages;
     using Bedrock;
     using Resources.Enums;
     using System;
@@ -26,11 +25,15 @@ namespace dMobile.Droid
         Theme = "@style/MainTheme",
         ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation,
         ScreenOrientation = ScreenOrientation.Portrait,
+        Exported = true,
         LaunchMode = Android.Content.PM.LaunchMode.SingleTop)]
+    [IntentFilter(
+        new[] { "com.dmobile.ACTION" },
+        Categories = new[] { Intent.CategoryDefault })]
     public class MainActivity : Xamarin.Forms.Platform.Android.FormsAppCompatActivity
     {
         // DataWedge intent action — configure this in your DataWedge profile
-        private const string ZebraIntentAction = "com.dmobile.ACTION";  // ← must match DataWedge
+        private const string ZebraIntentAction = "com.dmobile.ACTION";
         private const string ExtraDataKey = "com.symbol.datawedge.data_string";
         private const string ExtraTypeKey = "com.symbol.datawedge.label_type";
 

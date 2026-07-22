@@ -4,43 +4,39 @@
 
 namespace dMobile.BarCodeScanner.BarCodeScanners
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Text;
     using System.Threading.Tasks;
 
     public class ZebraDataWedgeScanner : BarCodeScanner
     {
         private readonly ZebraIntentScannerService scanner = ZebraIntentScannerService.Instance;
+        
 
         public override Task OpenBarcodeReader()
         {
-            throw new NotImplementedException();
+            return Task.CompletedTask;
         }
 
         public override Task CloseBarcodeReader()
         {
-            throw new NotImplementedException();
+            return Task.CompletedTask;
         }
 
         public override Task EnableScanning()
         {
-            throw new NotImplementedException();
+            return Task.CompletedTask;
         }
 
         public override Task DisableScanning()
         {
-            throw new NotImplementedException();
+            return Task.CompletedTask;
         }
 
         public override void Terminate()
         {
-            throw new NotImplementedException();
         }
 
         public override void Dispose(bool disposing)
         {
-            throw new NotImplementedException();
         }
     }
 }

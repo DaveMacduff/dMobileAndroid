@@ -15,12 +15,9 @@ namespace dMobile.View.Activity
     using Controller.Activity_Item;
     using Forms;
     using GroundWork;
-    using Helpers;
     using Resources.Enums;
-    using Resources.Models;
     using Resources.Models.Products;
     using Resources.QueryResults;
-    using Resources.Types;
     using Resources.Types.Products;
     using SQLite;
     using System;
@@ -28,15 +25,22 @@ namespace dMobile.View.Activity
     using System.Collections.ObjectModel;
     using System.Threading.Tasks;
     using System.Xml.Linq;
+    using Android.Content.PM;
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;
-    using static Android.Content.Res.Resources;
     using Resource = Resources.Properties.Resources;
 
     /// <summary>
     ///     Define the bar code scanning activity.
     /// </summary>
     [XamlCompilation(XamlCompilationOptions.Compile)]
+    [Activity(
+        Label = "dMobile",
+        LaunchMode = Android.Content.PM.LaunchMode.SingleTop,
+        ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation)]
+    [IntentFilter(
+        new[] { "com.dmobile.ACTION" },
+        Categories = new[] { Intent.CategoryDefault })]
     public partial class ActivityScanBarCodes : IAppArea
     {
         /// <summary>
