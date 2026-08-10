@@ -52,7 +52,7 @@ namespace dMobile.Droid
 
             var barcodeData = intent.GetStringExtra(ExtraDataKey);
             var barcodeType = intent.GetStringExtra(ExtraTypeKey);
-
+            
             Android.Util.Log.Debug("ZEBRA", $"Barcode: {barcodeData}, Type: {barcodeType}");
 
             ZebraIntentScannerService.Instance.RaiseBarcodeScanned(

@@ -181,7 +181,6 @@ namespace dMobile.BarCodeScanner.BarCodeScanners
 
             return;
 
-            ///////////////////////////////////////////////////////////
             async void SetSettings(object s, EventArgs e)
             {
                 try
