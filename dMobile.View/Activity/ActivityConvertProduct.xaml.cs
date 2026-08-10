@@ -193,7 +193,14 @@ namespace dMobile.View.Activity
         public async Task ScannerDisable()
         {
             this.Scanner.ClearBarCodeScanEventHandlers();
-            await this.Scanner.DisableScanning();
+            if (this.SysEnv.IsZebraScanner)
+            {
+                this.Scanner.OnBarCodeScan -= this.BarCodeHandler;
+            }
+            else
+            {
+                await this.Scanner.DisableScanning();
+            }
         }
 
         /// <summary>
@@ -204,10 +211,15 @@ namespace dMobile.View.Activity
         {
             if (!this.Scanner.IsBarCodeScanEventHandlerAdded())
             {
-                this.Scanner.OnBarCodeScan += this.BarCodeHandler;
+                if (this.SysEnv.IsZebraScanner)
+                {
+                    this.Scanner.OnBarCodeScan += this.BarCodeHandler;
+                }
+                else
+                {
+                    await this.Scanner.EnableScanning();
+                }
             }
-
-            await this.Scanner.EnableScanning();
         }
 
         /// <summary>

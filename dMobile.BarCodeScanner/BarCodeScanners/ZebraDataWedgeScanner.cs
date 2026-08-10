@@ -4,14 +4,35 @@
 
 namespace dMobile.BarCodeScanner.BarCodeScanners
 {
-    using Android;
-    using Android.Content;
-    using Android.OS;
-    using System;
     using System.Threading.Tasks;
 
     public class ZebraDataWedgeScanner : BarCodeScanner
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ZebraDataWedgeScanner"/> class.
+        /// </summary>
+        public ZebraDataWedgeScanner()
+        {
+            ZebraIntentScannerService.Instance.BarcodeScanned += this.OnZebraIntentBarcodeScanned;
+        }
+
+        /// <summary>
+        /// Handles the BarcodeScanned event from the ZebraIntentScannerService.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The event data containing the scanned barcode.</param>
+        private async void OnZebraIntentBarcodeScanned(object sender, ZebraScanEventArgs e)
+        {
+            try
+            {
+                await this.RaiseBarCodeScan(new BarCodeScannerEventArgs(e.BarcodeData));
+            }
+            catch
+            {
+                // ignored
+            }
+        }
+
         /// <summary>
         /// Opens the scanner reader and loads symbology settings.
         /// </summary>
@@ -53,6 +74,7 @@ namespace dMobile.BarCodeScanner.BarCodeScanners
         /// </summary>
         public override void Terminate()
         {
+            ZebraIntentScannerService.Instance.BarcodeScanned -= this.OnZebraIntentBarcodeScanned;
         }
 
         /// <summary>

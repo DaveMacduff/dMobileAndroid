@@ -5,6 +5,7 @@
 namespace dMobile.Bedrock
 {
     using dMobile.Bedrock.Settings;
+    using System;
 
     /// <summary>
     /// System Environment Class.
@@ -264,6 +265,13 @@ namespace dMobile.Bedrock
         /// Gets or sets the inserted detail foreign key reference number.
         /// </summary>
         public int InsertedDetailFkRefno { get; set; }
+
+        /// <summary>
+        /// Gets a value indicating whether the device is a Zebra scanner.
+        /// </summary>
+        public bool IsZebraScanner =>
+            (Android.OS.Build.Manufacturer != null &&
+             Android.OS.Build.Manufacturer.Equals("Zebra Technologies", StringComparison.OrdinalIgnoreCase));
 
         // METHODS
 
