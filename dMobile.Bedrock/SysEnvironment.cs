@@ -267,9 +267,9 @@ namespace dMobile.Bedrock
         public int InsertedDetailFkRefno { get; set; }
 
         /// <summary>
-        /// Gets a value indicating whether the device is a Zebra scanner.
+        /// Gets a value indicating whether the device is a DataWedge intent scanner.
         /// </summary>
-        public bool IsZebraScanner =>
+        public bool IsZebraDataWedgeIntentScanner =>
             (Android.OS.Build.Manufacturer != null &&
              Android.OS.Build.Manufacturer.Equals("Zebra Technologies", StringComparison.OrdinalIgnoreCase));
 

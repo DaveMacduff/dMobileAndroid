@@ -4,6 +4,7 @@
 
 namespace dMobile.BarCodeScanner.BarCodeScanners
 {
+    using System;
     using System.Threading.Tasks;
 
     public class ZebraDataWedgeScanner : BarCodeScanner
@@ -25,7 +26,39 @@ namespace dMobile.BarCodeScanner.BarCodeScanners
         {
             try
             {
-                await this.RaiseBarCodeScan(new BarCodeScannerEventArgs(e.BarcodeData));
+                string barCodeData = e.BarcodeData;
+                switch (e.BarcodeType)
+                {
+                    case "LABEL-TYPE-CODE128":
+                        barCodeData = "]C0" + e.BarcodeData;
+                        break;
+
+                    case "LABEL-TYPE-UPCA":
+                        barCodeData = "]E0" + e.BarcodeData;
+                        break;
+
+                    case "LABEL-TYPE-EAN13":
+                        barCodeData = "]E0" + e.BarcodeData;
+                        break;
+
+                    case "LABEL-TYPE-EAN8":
+                        barCodeData = "]E4" + e.BarcodeData;
+                        break;
+
+                    case "LABEL-TYPE-UPCE":
+                        barCodeData = "]X0" + e.BarcodeData;
+                        break;
+
+                    case "LABEL-TYPE-CODE39":
+                        barCodeData = "]A" + e.BarcodeData;
+                        break;
+
+                    default:
+                        // Handle other barcode types or leave as is
+                        break;
+                }
+
+                await this.RaiseBarCodeScan(new BarCodeScannerEventArgs(barCodeData));
             }
             catch
             {
@@ -51,10 +84,6 @@ namespace dMobile.BarCodeScanner.BarCodeScanners
             return Task.CompletedTask;
         }
 
-        /// <summary>
-        /// Enables scanning on the barcode reader.
-        /// </summary>
-        /// <returns>A task representing the asynchronous operation.</returns>
         public override Task EnableScanning()
         {
             return Task.CompletedTask;

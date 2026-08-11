@@ -138,14 +138,6 @@ namespace dMobile.View.Activity
         /// </summary>
         private int ProductUnitBarCodeRefno { get; set; }
 
-        private void OnBarcodeScanned(object sender, ZebraScanEventArgs e)
-        {
-            Device.BeginInvokeOnMainThread(() =>
-            {
-                // use e.BarcodeData and e.BarcodeType here
-            });
-        }
-
         /// <summary>
         ///     Unregister the bar code scan event handler and disable the scanner.
         /// </summary>
@@ -153,7 +145,7 @@ namespace dMobile.View.Activity
         public async Task ScannerDisable()
         {
             this.Scanner.ClearBarCodeScanEventHandlers();
-            if (this.SysEnv.IsZebraScanner)
+            if (this.SysEnv.IsZebraDataWedgeIntentScanner)
             {
                 this.Scanner.OnBarCodeScan -= this.BarCodeHandler;
             }
@@ -171,7 +163,7 @@ namespace dMobile.View.Activity
         {
             if (!this.Scanner.IsBarCodeScanEventHandlerAdded())
             {
-                if (this.SysEnv.IsZebraScanner)
+                if (this.SysEnv.IsZebraDataWedgeIntentScanner)
                 {
                     this.Scanner.OnBarCodeScan += this.BarCodeHandler;
                 }

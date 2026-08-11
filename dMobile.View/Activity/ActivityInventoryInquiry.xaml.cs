@@ -113,7 +113,7 @@ namespace dMobile.View.Activity
         public async Task ScannerDisable()
         {
             this.Scanner.ClearBarCodeScanEventHandlers();
-            if (this.SysEnv.IsZebraScanner)
+            if (this.SysEnv.IsZebraDataWedgeIntentScanner)
             {
                 this.Scanner.OnBarCodeScan -= this.BarCodeHandler;
             }
@@ -131,7 +131,7 @@ namespace dMobile.View.Activity
         {
             if (!this.Scanner.IsBarCodeScanEventHandlerAdded())
             {
-                if (this.SysEnv.IsZebraScanner)
+                if (this.SysEnv.IsZebraDataWedgeIntentScanner)
                 {
                     this.Scanner.OnBarCodeScan += this.BarCodeHandler;
                 }
