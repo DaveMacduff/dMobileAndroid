@@ -38,7 +38,7 @@
                 <Label x:Name="lblLoginPassword" Grid.Row="3" Text="Password"/>
                 <Entry x:Name="txtLoginPassword"
                        Grid.Row="4"
-                       IsPassword="False"
+                       IsPassword="True"
                        Grid.ColumnSpan="2"
                        TextChanged="IdentifyChangesMade"/>
 

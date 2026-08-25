@@ -57,7 +57,6 @@ namespace dMobile.View.Activity
             this.lblProduct.Text = "Product:";
             this.lblProductData.Text = "Unidentified";
 
-            this.SysEnv = SysEnvironment.GetInstance();
             this.Scanner = ScannerEngine.GetInstance().Scanner;
             this.ExtraInfoItems = new ObservableCollection<string>();
 
@@ -120,8 +119,8 @@ namespace dMobile.View.Activity
 
         /// <summary>
         ///     Gets the system environment instance.
-        /// </summary>
-        private SysEnvironment SysEnv { get; }
+        /// </summary> 
+        private SysEnvironment SysEnv { get; } = SysEnvironment.GetInstance();
 
         /// <summary>
         ///     Gets the items list collection.

@@ -42,7 +42,6 @@ namespace dMobile.View.Activity
             this.cmdAdd.Text = "Add";
             this.cmdAdd.IsEnabled = false;
 
-            this.SysEnv = SysEnvironment.GetInstance();
             this.Scanner = ScannerEngine.GetInstance().Scanner;
 
             this.ActSubType = actSubTypes;
@@ -59,7 +58,7 @@ namespace dMobile.View.Activity
 
         private BarCodeScanner Scanner { get; }
 
-        private SysEnvironment SysEnv { get; }
+        private SysEnvironment SysEnv { get; } = SysEnvironment.GetInstance();
 
         private bool IsBarCodeHandlerRegistered { get; set; }
 

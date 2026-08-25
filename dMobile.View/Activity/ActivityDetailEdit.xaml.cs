@@ -40,7 +40,6 @@ namespace dMobile.View.Activity
             this.IsIndicatorRunning = false;
             this.IsFirstAppearance = true;
             this.ExtraInfoItems = new ObservableCollection<string>();
-            this.SysEnv = SysEnvironment.GetInstance();
             this.ActSubType = actSubTypes;
 
             this.lblQty.Text = "Quantity";
@@ -247,7 +246,7 @@ namespace dMobile.View.Activity
         /// <summary>
         ///     Gets the system environment object.
         /// </summary>
-        private SysEnvironment SysEnv { get; }
+        private SysEnvironment SysEnv { get; } = SysEnvironment.GetInstance();
 
         /// <summary>
         ///     Gets the activity subtype.

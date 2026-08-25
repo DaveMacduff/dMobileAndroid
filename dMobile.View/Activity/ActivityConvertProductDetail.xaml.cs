@@ -36,7 +36,6 @@ namespace dMobile.View.Activity
 
             this.IsIndicatorRunning = false;
             this.CmdAdd.Text = "Add";
-            this.SysEnv = SysEnvironment.GetInstance();
             this.Title = this.GetControlDescription();
 
             this.ActSubType = actSubTypes;
@@ -56,7 +55,7 @@ namespace dMobile.View.Activity
 
         private ProductInfo FromProduct { get; set; }
 
-        private SysEnvironment SysEnv { get; }
+        private SysEnvironment SysEnv { get; } = SysEnvironment.GetInstance();
 
         private BarCodeScanner Scanner { get; } = ScannerEngine.GetInstance().Scanner;
 

@@ -56,7 +56,6 @@ namespace dMobile.View.Activity
                 this.Activity = activity;
                 this.SelectMode = selectMode;
                 this.LabelQtyEdit = labelQtyEdit;
-                this.SysEnv = SysEnvironment.GetInstance();
                 this.ActSubType = actSubTypes;
             }
         }
@@ -65,7 +64,7 @@ namespace dMobile.View.Activity
 
         private SLabelQuantity LabelQtyEdit { get; set; } = new SLabelQuantity();
 
-        private SysEnvironment SysEnv { get; }
+        private SysEnvironment SysEnv { get; } = SysEnvironment.GetInstance();
 
         private SysCommon.ActSubTypes ActSubType { get; } = SysCommon.ActSubTypes.NotApplicable;
 

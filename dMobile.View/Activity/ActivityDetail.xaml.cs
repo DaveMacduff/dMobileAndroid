@@ -70,7 +70,6 @@ namespace dMobile.View.Activity
             this.MainActivityItems = new ObservableCollection<object>();
             this.ExtraInfoItems = new ObservableCollection<string>();
 
-            this.SysEnv = SysEnvironment.GetInstance();
             this.SysEnv.SysSettings.IsNewActivityDetailsAdded = false;
 
             this.LocMap = LocationMap.GetInstance();
@@ -88,7 +87,7 @@ namespace dMobile.View.Activity
 
         private BarCodeScanner Scanner { get; } = ScannerEngine.GetInstance().Scanner;
 
-        private SysEnvironment SysEnv { get; }
+        private SysEnvironment SysEnv { get; } = SysEnvironment.GetInstance();
 
         private LocationMap LocMap { get; }
 

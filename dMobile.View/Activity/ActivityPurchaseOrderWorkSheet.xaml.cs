@@ -48,7 +48,6 @@ namespace dMobile.View.Activity
             this.ExtraInfoItems = new ObservableCollection<string>();
             this.MainActivityItems = new ObservableCollection<object>();
             this.Scanner = ScannerEngine.GetInstance().Scanner;
-            this.SysEnv = SysEnvironment.GetInstance();
             this.LocMap = LocationMap.GetInstance();
 
             this.ActSubType = actSubType;
@@ -114,7 +113,7 @@ namespace dMobile.View.Activity
         /// <summary>
         ///     Gets the system environment instance.
         /// </summary>
-        private SysEnvironment SysEnv { get; }
+        private SysEnvironment SysEnv { get; } = SysEnvironment.GetInstance();
 
         /// <summary>
         ///     Gets the activity header instance.

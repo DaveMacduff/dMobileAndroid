@@ -55,7 +55,6 @@ namespace dMobile.View.Activity
             this.Title = this.GetControlDescription();
 
             this.Scanner = ScannerEngine.GetInstance().Scanner;
-            this.SysEnv = SysEnvironment.GetInstance();
             this.LocMap = LocationMap.GetInstance();
             ParseAndSeedBarCodeModifier();
 
@@ -111,7 +110,7 @@ namespace dMobile.View.Activity
 
         private LocationMap LocMap { get; }
 
-        private SysEnvironment SysEnv { get; }
+        private SysEnvironment SysEnv { get; } = SysEnvironment.GetInstance();
 
         private bool IsControlLoaded { get; set; }
 

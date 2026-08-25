@@ -50,7 +50,6 @@ namespace dMobile.View.Activity
             {
                 this.MainActivityItems = new ObservableCollection<object>();
                 this.ExtraInfoItems = new ObservableCollection<string>();
-                this.SysEnv = SysEnvironment.GetInstance();
                 this.LocMap = LocationMap.GetInstance();
                 this.OrigProdInfoOnSkid = new ProductInfo();
 
@@ -93,7 +92,7 @@ namespace dMobile.View.Activity
 
         private ActItem ActItem { get; set; }
 
-        private SysEnvironment SysEnv { get; }
+        private SysEnvironment SysEnv { get; } = SysEnvironment.GetInstance();
 
         private bool IsBarCodeHandlerRegistered { get; set; }
 

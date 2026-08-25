@@ -56,7 +56,6 @@ namespace dMobile.View.Activity
                 this.LocMap = LocationMap.GetInstance();
                 this.Scanner = ScannerEngine.GetInstance().Scanner;
                 this.ActSubType = SysCommon.ActSubTypes.PickingSelectCriteria;
-                this.SysEnv = SysEnvironment.GetInstance();
                 this.LocMapInfo = new SLocMap();
                 this.Title = this.GetControlDescription();
             }
@@ -82,7 +81,7 @@ namespace dMobile.View.Activity
 
         private bool IsControlLoaded { get; set; }
 
-        private SysEnvironment SysEnv { get; }
+        private SysEnvironment SysEnv { get; } = SysEnvironment.GetInstance();
 
         public ObservableCollection<object> WarehouseObservableCollection { get; set; }
         public ObservableCollection<object> SectionObservableCollection { get; set; }

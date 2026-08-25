@@ -44,7 +44,6 @@ namespace dMobile.View.Activity
             this.IsIndicatorRunning = false;
             this.MainActivityItems = new ObservableCollection<object>();
             this.ExtraInfoItems = new ObservableCollection<string>();
-            this.SysEnv = SysEnvironment.GetInstance();
             this.LocMap = LocationMap.GetInstance();
             this.Scanner = ScannerEngine.GetInstance().Scanner;
             this.Title = this.ActDetail.GetControlDescription();
@@ -66,7 +65,7 @@ namespace dMobile.View.Activity
         /// <summary>
         ///     Gets or sets the system environment instance.
         /// </summary>
-        private SysEnvironment SysEnv { get; }
+        private SysEnvironment SysEnv { get; } = SysEnvironment.GetInstance();
 
         /// <summary>
         ///     Gets or sets the location map.

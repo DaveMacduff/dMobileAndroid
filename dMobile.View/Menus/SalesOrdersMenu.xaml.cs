@@ -35,7 +35,6 @@ namespace dMobile.View.Menus
             this.CmdReturns.Text = "2) " + "Returns";
             this.CmdReleaseByOrder.Text = "3) " + "Release By Order #";
             this.CmdReleaseBySection.Text = "4) " + "Release By Section";
-            this.SysEnv = SysEnvironment.GetInstance();
         }
 
         /// <summary>
@@ -56,7 +55,7 @@ namespace dMobile.View.Menus
         /// <summary>
         ///     Gets the system environment.
         /// </summary>
-        private SysEnvironment SysEnv { get; }
+        private SysEnvironment SysEnv { get; } = SysEnvironment.GetInstance();
 
         /// <summary>
         ///     Unregister the bar code scan event handler and disable the scanner.

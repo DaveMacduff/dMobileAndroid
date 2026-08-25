@@ -39,7 +39,6 @@ namespace dMobile.View.Options
                 this.IsIndicatorRunning = false;
                 this.Title = this.GetControlDescription();
                 this.IsChangesMade = false;
-                this.SysEnv = SysEnvironment.GetInstance();
                 this.PrnSettings = new PrinterSettings().LoadData();
                 this.ActSubType = SysCommon.ActSubTypes.SetupDefaults;
                 this.themesList = new ObservableCollection<Theme>();
@@ -83,7 +82,7 @@ namespace dMobile.View.Options
             }
         }
 
-        private SysEnvironment SysEnv { get; }
+        private SysEnvironment SysEnv { get; } = SysEnvironment.GetInstance();
 
         /// <summary>
         ///     The OnAppearing.

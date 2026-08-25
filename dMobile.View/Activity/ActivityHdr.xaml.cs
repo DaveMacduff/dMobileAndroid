@@ -48,7 +48,6 @@ namespace dMobile.View.Activity
             this.cmdAdd.IsEnabled = false;
             this.FilterText = "Filter";
             this.FilterIsEnabled = true;
-            this.SysEnv = SysEnvironment.GetInstance();
             this.SysEnv.SysSettings.IsShowActivityFilterSelection = true;
             this.ActSubType = activitySubType;
             this.ActHdr = ActivityFacade.GetActivity(this.ActSubType);
@@ -76,7 +75,6 @@ namespace dMobile.View.Activity
             this.cmdAdd.IsEnabled = false;
             this.FilterText = "Filter";
             this.FilterIsEnabled = true;
-            this.SysEnv = SysEnvironment.GetInstance();
             this.SysEnv.SysSettings.IsShowActivityFilterSelection = true;
 
             this.ActSubType = activitySubType;
@@ -104,7 +102,7 @@ namespace dMobile.View.Activity
 
         private BarCodeScanner Scanner { get; }
 
-        private SysEnvironment SysEnv { get; }
+        private SysEnvironment SysEnv { get; } = SysEnvironment.GetInstance();
 
         private Activity ActHdr { get; }
 

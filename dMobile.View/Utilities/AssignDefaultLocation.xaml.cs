@@ -49,7 +49,6 @@ namespace dMobile.View.Utilities
 
             if (!DesignMode.IsDesignModeEnabled)
             {
-                this.SysEnv = SysEnvironment.GetInstance();
                 this.LocMap = LocationMap.GetInstance();
                 this.Scanner = ScannerEngine.GetInstance().Scanner;
                 this.LocMapDefPicking = new SLocMap();
@@ -162,7 +161,7 @@ namespace dMobile.View.Utilities
         /// <summary>
         ///     Gets or sets the system environment.
         /// </summary>
-        private SysEnvironment SysEnv { get; }
+        private SysEnvironment SysEnv { get; } = SysEnvironment.GetInstance();
 
         /// <summary>
         ///     Gets or sets a value indicating whether the bar code handler has been registered.

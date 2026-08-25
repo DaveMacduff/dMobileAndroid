@@ -38,7 +38,6 @@ namespace dMobile.View.Activity
 
             this.IsIndicatorRunning = false;
             this.Title = this.GetControlDescription();
-            this.SysEnv = SysEnvironment.GetInstance();
             this.Scanner = ScannerEngine.GetInstance().Scanner;
             this.ActSubType = actSubType;
             this.ActItem = ActItemFacade.GetActItem(activity, this.ActSubType);
@@ -80,7 +79,7 @@ namespace dMobile.View.Activity
             }
         }
 
-        private SysEnvironment SysEnv { get; }
+        private SysEnvironment SysEnv { get; } = SysEnvironment.GetInstance();
 
         private ActSubTypes ActSubType { get; }
 

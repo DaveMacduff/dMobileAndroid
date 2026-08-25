@@ -48,8 +48,6 @@ namespace dMobile.View.Activity
 
             if (!DesignMode.IsDesignModeEnabled)
             {
-                this.SysEnv = SysEnvironment.GetInstance();
-
                 this.ActSubType = actSubTypes;
                 this.ActDetailEdit = new ActDetailEdit();
                 this.ActDetail = actDetail;
@@ -67,7 +65,7 @@ namespace dMobile.View.Activity
         /// <summary>
         ///     Gets or sets the SysEnv.
         /// </summary>
-        private SysEnvironment SysEnv { get; }
+        private SysEnvironment SysEnv { get; } = SysEnvironment.GetInstance();
 
         /// <summary>
         ///     Gets or sets the ActSubType.

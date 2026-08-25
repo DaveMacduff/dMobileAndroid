@@ -43,7 +43,6 @@ namespace dMobile.View.Activity
 
             this.IsIndicatorRunning = false;
             this.LocMap = LocationMap.GetInstance();
-            this.SysEnv = SysEnvironment.GetInstance();
             this.ActSubType = actSubType;
 
             // Init activity header object
@@ -110,7 +109,7 @@ namespace dMobile.View.Activity
 
         private bool IsDataLoading { get; set; }
 
-        private SysEnvironment SysEnv { get; }
+        private SysEnvironment SysEnv { get; } = SysEnvironment.GetInstance();
 
         private SysTimer SearchTimer { get; }
 

@@ -50,7 +50,6 @@ namespace dMobile.View.Activity
             this.CmdSelectFromProduct.Text = "Select From Product";
             this.CmdDetail.Text = "Detail";
 
-            this.SysEnv = SysEnvironment.GetInstance();
             this.LocMap = LocationMap.GetInstance();
 
             ParseAndSeedBarCodeModifier();
@@ -130,7 +129,7 @@ namespace dMobile.View.Activity
 
         private LocationMap LocMap { get; set; }
 
-        private SysEnvironment SysEnv { get; }
+        private SysEnvironment SysEnv { get; } = SysEnvironment.GetInstance();
 
         private bool IsDataLoading { get; set; }
 

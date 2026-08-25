@@ -77,7 +77,7 @@ namespace dMobile.View.Options
 
         private bool IsControlLoaded { get; set; }
 
-        private SysEnvironment SysEnv { get; }
+        private SysEnvironment SysEnv { get; } = SysEnvironment.GetInstance();
 
         /// <summary>
         ///     The OnAppearing.

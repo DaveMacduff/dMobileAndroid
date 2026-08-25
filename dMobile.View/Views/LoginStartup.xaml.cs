@@ -47,7 +47,6 @@ namespace dMobile.View.Views
             this.lblLoginPassword.Text = Resource.Password;
             this.lblWarehouse.Text = Resource.Warehouse;
             this.lstWarehouse.Title = "Select Warehouse";
-            this.SysEnv = SysEnvironment.GetInstance();
         }
 
         /// <summary>
@@ -83,7 +82,7 @@ namespace dMobile.View.Views
         /// <summary>
         ///     Gets or sets the SysEnv.
         /// </summary>
-        private SysEnvironment SysEnv { get; }
+        private SysEnvironment SysEnv { get; } = SysEnvironment.GetInstance();
 
         /// <summary>
         ///     Gets or sets a value indicating whether IsEnableAllModuleBypassLicense.
