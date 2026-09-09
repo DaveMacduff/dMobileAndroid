@@ -218,34 +218,25 @@ namespace dMobile.View.Activity
         private DataCollector DataCollector { get; set; }
 
         /// <summary>
-        /// Un-register the bar code scan event handler and disable the scanner.
+        ///     Unregister the bar code scan event handler and disable the scanner.
         /// </summary>
-        /// <returns><see cref="Task"/> Task operation.</returns>
+        /// <returns><see cref="Task" /> Task operation.</returns>
         public async Task ScannerDisable()
         {
-            if (this.Scanner != null && this.IsBarCodeHandlerRegistered)
-            {
-                this.Scanner.ClearBarCodeScanEventHandlers();
-                await this.Scanner.DisableScanning();
-                this.IsBarCodeHandlerRegistered = false;
-            }
+            this.Scanner.ClearBarCodeScanEventHandlers();
+            await this.Scanner.DisableScanning();
         }
 
         /// <summary>
-        /// Registers the bar code scan event handler and enables the scanner.
+        ///     Registers the bar code scan event handler and enables the scanner.
         /// </summary>
-        /// <returns><see cref="Task"/> Task operation.</returns>
+        /// <returns><see cref="Task" /> Task operation.</returns>
         public async Task ScannerEnable()
         {
-            if (this.Scanner != null && !this.IsBarCodeHandlerRegistered)
+            if (!this.Scanner.IsBarCodeScanEventHandlerAdded())
             {
+                this.Scanner.OnBarCodeScan += this.BarCodeHandler;
                 await this.Scanner.EnableScanning();
-                if (!this.Scanner.IsBarCodeScanEventHandlerAdded())
-                {
-                    this.Scanner.OnBarCodeScan += this.BarCodeHandler;
-                }
-
-                this.IsBarCodeHandlerRegistered = true;
             }
         }
 

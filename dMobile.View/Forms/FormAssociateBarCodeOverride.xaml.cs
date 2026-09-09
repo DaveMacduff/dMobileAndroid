@@ -83,31 +83,25 @@ namespace dMobile.View.Forms
         private BarCodeScanner Scanner { get; set; } = ScannerEngine.GetInstance().Scanner;
 
         /// <summary>
-        /// Un-register the bar code scan event handler and disable the scanner.
+        ///     Unregister the bar code scan event handler and disable the scanner.
         /// </summary>
-        /// <returns><see cref="Task"/> Task operation.</returns>
+        /// <returns><see cref="Task" /> Task operation.</returns>
         public async Task ScannerDisable()
         {
-            if (this.Scanner != null)
-            {
-                this.Scanner.OnBarCodeScan -= new BarCodeScanner.BarCodeScanEventHandler(BarCodeHandler);
-                await this.Scanner.DisableScanning();
-            }
-
-            this.IsBarCodeHandlerRegistered = false;
+            this.Scanner.ClearBarCodeScanEventHandlers();
+            await this.Scanner.DisableScanning();
         }
 
         /// <summary>
-        /// Registers the bar code scan event handler and enables the scanner.
+        ///     Registers the bar code scan event handler and enables the scanner.
         /// </summary>
-        /// <returns><see cref="Task"/> Task operation.</returns>
+        /// <returns><see cref="Task" /> Task operation.</returns>
         public async Task ScannerEnable()
         {
-            if (!this.IsBarCodeHandlerRegistered)
+            if (!this.Scanner.IsBarCodeScanEventHandlerAdded())
             {
+                this.Scanner.OnBarCodeScan += this.BarCodeHandler;
                 await this.Scanner.EnableScanning();
-                this.Scanner.OnBarCodeScan += new BarCodeScanner.BarCodeScanEventHandler(BarCodeHandler);
-                this.IsBarCodeHandlerRegistered = true;
             }
         }
 
@@ -124,7 +118,7 @@ namespace dMobile.View.Forms
         /// </summary>
         /// <param name="sender"><see cref="object"/> Sender object.</param>
         /// <param name="scanArgs"><see cref="BarCodeScannerEventArgs"/> Scan event arguments.</param>
-        private static Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
+        private Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
             throw new NotImplementedException();
         }

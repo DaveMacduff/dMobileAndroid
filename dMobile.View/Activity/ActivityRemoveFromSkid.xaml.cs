@@ -113,12 +113,8 @@ namespace dMobile.View.Activity
         /// <returns><see cref="Task" /> Task operation.</returns>
         public async Task ScannerDisable()
         {
-            if (this.Scanner != null && this.IsBarCodeHandlerRegistered)
-            {
-                this.Scanner.ClearBarCodeScanEventHandlers();
-                await this.Scanner.DisableScanning();
-                this.IsBarCodeHandlerRegistered = false;
-            }
+            this.Scanner.ClearBarCodeScanEventHandlers();
+            await this.Scanner.DisableScanning();
         }
 
         /// <summary>
@@ -127,15 +123,10 @@ namespace dMobile.View.Activity
         /// <returns><see cref="Task" /> Task operation.</returns>
         public async Task ScannerEnable()
         {
-            if (this.Scanner != null && !this.IsBarCodeHandlerRegistered)
+            if (!this.Scanner.IsBarCodeScanEventHandlerAdded())
             {
+                this.Scanner.OnBarCodeScan += this.BarCodeHandler;
                 await this.Scanner.EnableScanning();
-                if (!this.Scanner.IsBarCodeScanEventHandlerAdded())
-                {
-                    this.Scanner.OnBarCodeScan += this.BarCodeHandler;
-                }
-
-                this.IsBarCodeHandlerRegistered = true;
             }
         }
 

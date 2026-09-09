@@ -295,14 +295,7 @@ namespace dMobile.View.Activity
         public async Task ScannerDisable()
         {
             this.Scanner.ClearBarCodeScanEventHandlers();
-            if (this.SysEnv.IsZebraDataWedgeIntentScanner)
-            {
-                this.Scanner.OnBarCodeScan -= this.BarCodeHandler;
-            }
-            else
-            {
-                await this.Scanner.DisableScanning();
-            }
+            await this.Scanner.DisableScanning();
         }
 
         /// <summary>
@@ -1767,8 +1760,10 @@ namespace dMobile.View.Activity
 
         private void CheckProductionAcceptedDays()
         {
-            if (this.ActSubType == SysCommon.ActSubTypes.Receiving && this.ActDetail.ActItem.ProdInfo.ProductAcceptDays > 0 && this.ActDetail.ActItem.ProdInfo.Scheme.IsProductionDateTracked &&
-                    this.ActDetail.SchemeData.LogisticUnitProductionDate > new DateTime(1900, 1, 1))
+            if (this.ActSubType == SysCommon.ActSubTypes.Receiving &&
+                this.ActDetail.ActItem.ProdInfo.ProductAcceptDays > 0 &&
+                this.ActDetail.ActItem.ProdInfo.Scheme.IsProductionDateTracked &&
+                this.ActDetail.SchemeData.LogisticUnitProductionDate > new DateTime(1900, 1, 1))
             {
                 var acceptDate = this.ActDetail.SchemeData.LogisticUnitProductionDate.AddDays(
                     this.ActDetail.ActItem.ProdInfo.ProductAcceptDays);
@@ -1782,8 +1777,10 @@ namespace dMobile.View.Activity
 
         private void CheckBestBeforeAcceptedDays()
         {
-            if (this.ActSubType == SysCommon.ActSubTypes.Receiving && this.ActDetail.ActItem.ProdInfo.ProductAcceptDays > 0 && this.ActDetail.ActItem.ProdInfo.Scheme.IsBestBeforeDateTracked &&
-                    this.ActDetail.SchemeData.LogisticUnitBestBeforeSellByDate > new DateTime(1900, 1, 1))
+            if (this.ActSubType == SysCommon.ActSubTypes.Receiving &&
+                this.ActDetail.ActItem.ProdInfo.ProductAcceptDays > 0 &&
+                this.ActDetail.ActItem.ProdInfo.Scheme.IsBestBeforeDateTracked &&
+                this.ActDetail.SchemeData.LogisticUnitBestBeforeSellByDate > new DateTime(1900, 1, 1))
             {
                 var acceptDate = DateTime.Now.AddDays(this.ActDetail.ActItem.ProdInfo.ProductAcceptDays);
                 if (this.ActDetail.SchemeData.LogisticUnitBestBeforeSellByDate <= acceptDate)

@@ -80,42 +80,25 @@ namespace dMobile.View.Activity
             new ObservableCollection<object>();
 
         /// <summary>
-        /// Unregister the bar code scan event handler and disable the scanner
+        ///     Unregister the bar code scan event handler and disable the scanner.
         /// </summary>
-        /// <returns><see cref="Task"/> Task operation</returns>
+        /// <returns><see cref="Task" /> Task operation.</returns>
         public async Task ScannerDisable()
         {
-            if (this.Scanner != null)
-            {
-                this.Scanner = ScannerEngine.GetInstance().Scanner;
-            }
-
-            var barCodeScanner = this.Scanner;
-            if (barCodeScanner != null)
-            {
-                barCodeScanner.OnBarCodeScan -=
-                    new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
-                await barCodeScanner.DisableScanning();
-            }
+            this.Scanner.ClearBarCodeScanEventHandlers();
+            await this.Scanner.DisableScanning();
         }
 
         /// <summary>
-        /// Registers the bar code scan event handler and enables the scanner
+        ///     Registers the bar code scan event handler and enables the scanner.
         /// </summary>
-        /// <returns><see cref="Task"/> Task operation</returns>
+        /// <returns><see cref="Task" /> Task operation.</returns>
         public async Task ScannerEnable()
         {
-            if (this.Scanner != null)
+            if (!this.Scanner.IsBarCodeScanEventHandlerAdded())
             {
-                this.Scanner = ScannerEngine.GetInstance().Scanner;
-            }
-
-            var barCodeScanner = this.Scanner;
-            if (barCodeScanner != null)
-            {
-                await barCodeScanner.EnableScanning();
-                barCodeScanner.OnBarCodeScan +=
-                    new BarCodeScanner.BarCodeScanEventHandler(this.BarCodeHandler);
+                this.Scanner.OnBarCodeScan += this.BarCodeHandler;
+                await this.Scanner.EnableScanning();
             }
         }
 

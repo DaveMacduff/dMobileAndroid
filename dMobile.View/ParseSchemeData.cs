@@ -33,7 +33,7 @@ namespace dMobile.View
             SSkidInfo currSkid)
         {
             this.ProductSchemeInfo = prodScheme ?? throw new ArgumentNullException(nameof(prodScheme));
-            ////this.BarCodeData = barParse ?? throw new ArgumentNullException(nameof(barParse));
+            this.BarCodeData = barParse ?? throw new ArgumentNullException(nameof(barParse));
             this.DefaultSchemeData = defaultSchemeData ?? throw new ArgumentNullException(nameof(defaultSchemeData));
             this.CurrentSkid = currSkid ?? throw new ArgumentNullException(nameof(currSkid));
         }
