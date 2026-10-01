@@ -1030,7 +1030,7 @@ namespace dMobile.View.Activity
         {
             this.ActDetail.DetailFkRefno = 0;
             var xmlDoc = this.ActDetail.GetXml(this.ActDetail);
-            this.ActDetail.FillActDetailObjFromXml(xmlDoc);
+            await this.ActDetail.FillActDetailObjFromXml(xmlDoc);
             _ = await this.ActDetail.Delete();
         }
 

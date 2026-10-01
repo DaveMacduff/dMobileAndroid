@@ -17,6 +17,7 @@ namespace dMobile.Controller.Activity_Detail
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
+    using System.Globalization;
     using System.Linq;
     using System.Text;
     using System.Threading.Tasks;
@@ -880,33 +881,14 @@ namespace dMobile.Controller.Activity_Detail
         /// <returns>.</returns>
         public bool IsSchemeComplete(ActItem actItem)
         {
-            var isComplete = !(actItem.ProdInfo.Scheme.IsBestBeforeDateTracked &&
-                                SysCommon.IsEmptyDateTime(this.SchemeData.LogisticUnitBestBeforeSellByDate));
+            var scheme = actItem.ProdInfo.Scheme;
+            var schemeData = this.SchemeData;
 
-            if (actItem.ProdInfo.Scheme.IsLotTracked &&
-                string.IsNullOrEmpty(this.SchemeData.LogisticUnitBatchLotNumber))
-            {
-                isComplete = false;
-            }
-
-            if (actItem.ProdInfo.Scheme.IsProductionDateTracked &&
-                SysCommon.IsEmptyDateTime(this.SchemeData.LogisticUnitProductionDate))
-            {
-                isComplete = false;
-            }
-
-            if (actItem.ProdInfo.Scheme.IsSerialTracked &&
-                string.IsNullOrEmpty(this.SchemeData.SingleTradeItemSerialNumber))
-            {
-                isComplete = false;
-            }
-
-            if (actItem.ProdInfo.Scheme.IsVariantTracked && this.SchemeData.VariantNumber == 0)
-            {
-                isComplete = false;
-            }
-
-            return isComplete;
+            return (!scheme.IsBestBeforeDateTracked || !SysCommon.IsEmptyDateTime(schemeData.LogisticUnitBestBeforeSellByDate))
+                   && (!scheme.IsLotTracked || !string.IsNullOrEmpty(schemeData.LogisticUnitBatchLotNumber))
+                   && (!scheme.IsProductionDateTracked || !SysCommon.IsEmptyDateTime(schemeData.LogisticUnitProductionDate))
+                   && (!scheme.IsSerialTracked || !string.IsNullOrEmpty(schemeData.SingleTradeItemSerialNumber))
+                   && (!scheme.IsVariantTracked || schemeData.VariantNumber != 0);
         }
 
         /// <summary>
@@ -925,34 +907,13 @@ namespace dMobile.Controller.Activity_Detail
         /// <returns><see cref="bool" /> True if the label scheme is complete else false.</returns>
         public bool IsLabelSchemeComplete(ProductSchemeData schemeData)
         {
-            var isComplete = !(this.ActItem.ProdInfo.Scheme.LabelInfo.IsBestBeforeDateTracked &&
-                               SysCommon.IsEmptyDateTime(schemeData.LogisticUnitBestBeforeSellByDate));
+            var labelInfo = this.ActItem.ProdInfo.Scheme.LabelInfo;
 
-            if (this.ActItem.ProdInfo.Scheme.LabelInfo.IsLotTracked &&
-                string.IsNullOrEmpty(schemeData.LogisticUnitBatchLotNumber))
-            {
-                isComplete = false;
-            }
-
-            if (this.ActItem.ProdInfo.Scheme.LabelInfo.IsProductionDateTracked &&
-                SysCommon.IsEmptyDateTime(schemeData.LogisticUnitProductionDate))
-            {
-                isComplete = false;
-            }
-
-            if (this.ActItem.ProdInfo.Scheme.LabelInfo.IsSerialTracked &&
-                string.IsNullOrEmpty(schemeData.SingleTradeItemSerialNumber))
-            {
-                isComplete = false;
-            }
-
-            if (this.ActItem.ProdInfo.Scheme.LabelInfo.IsVariantTracked &&
-                schemeData.VariantNumber == 0)
-            {
-                isComplete = false;
-            }
-
-            return isComplete;
+            return (!labelInfo.IsBestBeforeDateTracked || !SysCommon.IsEmptyDateTime(schemeData.LogisticUnitBestBeforeSellByDate))
+                   && (!labelInfo.IsLotTracked || !string.IsNullOrEmpty(schemeData.LogisticUnitBatchLotNumber))
+                   && (!labelInfo.IsProductionDateTracked || !SysCommon.IsEmptyDateTime(schemeData.LogisticUnitProductionDate))
+                   && (!labelInfo.IsSerialTracked || !string.IsNullOrEmpty(schemeData.SingleTradeItemSerialNumber))
+                   && (!labelInfo.IsVariantTracked || schemeData.VariantNumber != 0);
         }
 
         /// <summary>
@@ -966,7 +927,7 @@ namespace dMobile.Controller.Activity_Detail
         /// This is especially beneficial in Xamarin where memory and CPU are at a premium.
         /// The logic and output remain unchanged.
         /// </remarks>
-        public void FillActDetailObjFromXml(XDocument data)
+        public async Task FillActDetailObjFromXml(XDocument data)
         {
             if (data == null || data.Root == null)
             {
@@ -978,64 +939,75 @@ namespace dMobile.Controller.Activity_Detail
 
             string Get(string name) => elements.TryGetValue(name, out var v) ? v : null;
 
-            if (!string.IsNullOrEmpty(Get("ser_refno")))
+            var serRefno = Get("ser_refno");
+            if (!string.IsNullOrEmpty(serRefno))
             {
-                this.DetailFkRefno = int.Parse(Get("ser_refno"));
+                this.DetailFkRefno = int.Parse(serRefno, CultureInfo.InvariantCulture);
             }
 
-            if (!string.IsNullOrEmpty(Get("refno")))
+            var refno = Get("refno");
+            if (!string.IsNullOrEmpty(refno))
             {
-                this.DetailRefno = int.Parse(Get("refno"));
+                this.DetailRefno = int.Parse(refno, CultureInfo.InvariantCulture);
             }
 
-            if (!string.IsNullOrEmpty(Get("alt_qty")))
+            var altQty = Get("alt_qty");
+            if (!string.IsNullOrEmpty(altQty))
             {
-                this.Quantity = decimal.Parse(Get("alt_qty"));
+                this.Quantity = decimal.Parse(altQty, CultureInfo.InvariantCulture);
             }
 
-            if (!string.IsNullOrEmpty(Get("base_qty")))
+            var baseQty = Get("base_qty");
+            if (!string.IsNullOrEmpty(baseQty))
             {
-                this.BaseQuantity = decimal.Parse(Get("base_qty"));
+                this.BaseQuantity = decimal.Parse(baseQty, CultureInfo.InvariantCulture);
             }
 
-            if (!string.IsNullOrEmpty(Get("wt_qty")))
+            var wtQty = Get("wt_qty");
+            if (!string.IsNullOrEmpty(wtQty))
             {
-                this.WeightQuantity = decimal.Parse(Get("wt_qty"));
+                this.WeightQuantity = decimal.Parse(wtQty, CultureInfo.InvariantCulture);
             }
 
             var tmpSchemeData = this.SchemeData;
 
-            if (!string.IsNullOrEmpty(Get("bdate")))
+            var bDate = Get("bdate");
+            if (!string.IsNullOrEmpty(bDate))
             {
-                tmpSchemeData.LogisticUnitBestBeforeSellByDate = Convert.ToDateTime(Get("bdate"));
+                tmpSchemeData.LogisticUnitBestBeforeSellByDate = Convert.ToDateTime(bDate, CultureInfo.InvariantCulture);
             }
 
-            if (!string.IsNullOrEmpty(Get("pdate")))
+            var pDate = Get("pdate");
+            if (!string.IsNullOrEmpty(pDate))
             {
-                tmpSchemeData.LogisticUnitProductionDate = Convert.ToDateTime(Get("pdate"));
+                tmpSchemeData.LogisticUnitProductionDate = Convert.ToDateTime(pDate, CultureInfo.InvariantCulture);
             }
 
-            if (!string.IsNullOrEmpty(Get("serial")))
+            var serial = Get("serial");
+            if (!string.IsNullOrEmpty(serial))
             {
-                tmpSchemeData.SingleTradeItemSerialNumber = Get("serial");
+                tmpSchemeData.SingleTradeItemSerialNumber = serial;
             }
 
-            if (!string.IsNullOrEmpty(Get("lot_no")))
+            var lotNo = Get("lot_no");
+            if (!string.IsNullOrEmpty(lotNo))
             {
-                tmpSchemeData.LogisticUnitBatchLotNumber = Get("lot_no");
+                tmpSchemeData.LogisticUnitBatchLotNumber = lotNo;
             }
 
-            if (!string.IsNullOrEmpty(Get("variant_code")))
+            var variantCode = Get("variant_code");
+            if (!string.IsNullOrEmpty(variantCode))
             {
-                tmpSchemeData.VariantCode = Get("variant_code");
+                tmpSchemeData.VariantCode = variantCode;
             }
 
-            if (!string.IsNullOrEmpty(Get("variant_no")))
+            var variantNo = Get("variant_no");
+            if (!string.IsNullOrEmpty(variantNo))
             {
-                tmpSchemeData.VariantNumber = int.Parse(Get("variant_no"));
+                tmpSchemeData.VariantNumber = int.Parse(variantNo, CultureInfo.InvariantCulture);
             }
 
-            tmpSchemeData = FillSchemeDataVarInfoFromSchemeDataVarNo(tmpSchemeData).GetAwaiter().GetResult();
+            tmpSchemeData = await FillSchemeDataVarInfoFromSchemeDataVarNo(tmpSchemeData);
             this.SchemeData = tmpSchemeData;
 
             this.SchemeId = ProductInfoTasks.GetActSchemeIdFromSProdSchemeData(
@@ -1047,29 +1019,34 @@ namespace dMobile.Controller.Activity_Detail
                 this.ActItem.ProdInfo.Scheme,
                 this.SchemeData);
 
-            if (!string.IsNullOrEmpty(Get("extra1")))
+            var extra1 = Get("extra1");
+            if (!string.IsNullOrEmpty(extra1))
             {
-                this.ActExtra.Text1 = Get("extra1");
+                this.ActExtra.Text1 = extra1;
             }
 
-            if (!string.IsNullOrEmpty(Get("extra2")))
+            var extra2 = Get("extra2");
+            if (!string.IsNullOrEmpty(extra2))
             {
-                this.ActExtra.Text2 = Get("extra2");
+                this.ActExtra.Text2 = extra2;
             }
 
-            if (!string.IsNullOrEmpty(Get("extra3")))
+            var extra3 = Get("extra3");
+            if (!string.IsNullOrEmpty(extra3))
             {
-                this.ActExtra.Text3 = Get("extra3");
+                this.ActExtra.Text3 = extra3;
             }
 
-            if (!string.IsNullOrEmpty(Get("extra4")))
+            var extra4 = Get("extra4");
+            if (!string.IsNullOrEmpty(extra4))
             {
-                this.ActExtra.Text4 = Get("extra4");
+                this.ActExtra.Text4 = extra4;
             }
 
-            if (!string.IsNullOrEmpty(Get("extra5")))
+            var extra5 = Get("extra5");
+            if (!string.IsNullOrEmpty(extra5))
             {
-                this.ActExtra.DateTime1 = Convert.ToDateTime(Get("extra5"));
+                this.ActExtra.DateTime1 = Convert.ToDateTime(extra5, CultureInfo.InvariantCulture);
             }
         }
 

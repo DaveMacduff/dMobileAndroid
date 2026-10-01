@@ -837,6 +837,7 @@ namespace dMobile.Bedrock
 
                 // At this point, the connection has succeeded before the timeout.
                 // Proceed with using the socket...
+                socket.NoDelay = true;
             }
             catch (TimeoutException timeEx)
             {
@@ -1078,7 +1079,7 @@ namespace dMobile.Bedrock
 
                     case SocketError.IsConnected:
                         // The Socket is already connected.
-                        if (!socket!.Connected)
+                        if (!(socket?.Connected ?? false))
                         {
                             // Expected the socket connected flag to be true.
                             // Action: Quit and throw exception.
@@ -1222,7 +1223,9 @@ namespace dMobile.Bedrock
                             this.OnSysSocketStatusOut(this, sockEventArgs);
                         }
 
-                        throw;
+                        // Socket is already closed. Continue to clean up the socket.
+                        socket?.Close();
+                        break;
 
                     case SocketError.OperationNotSupported:
                         // The address family is not supported by the protocol family.
@@ -1493,6 +1496,7 @@ namespace dMobile.Bedrock
                 socket.Connect(endPoint);
                 if (socket.Connected)
                 {
+                    socket.NoDelay = true;
                     if (this.OnSysSocketStatusOut != null)
                     {
                         sockEventArgs.StatusOutMsg = "Connection successful.";
@@ -2734,36 +2738,15 @@ namespace dMobile.Bedrock
         /// operation.</exception>
         public List<byte> ReceiveResponse(Socket socket)
         {
-            var bytes = new byte[this.ReceiveBuffSize + 1];
-            var page = new List<byte>();
+            var bytes = new byte[this.ReceiveBuffSize];
+            using var page = new System.IO.MemoryStream();
             var sockEventArgs = new SysSocketEventArgs();
-
-            // Poll timeout is in microseconds. 1000000 microseconds = 1 second.
-            var pollTimeout = this.SysEnv.SysSock.SendTimeOutMilliseconds <= 0
-                ? this.SysEnv.SysSock.SendTimeOutMilliseconds * 1000
-                : 1000000;
 
             var bytesReceived = 0;
             do
             {
                 try
                 {
-                    if (socket.Poll(pollTimeout, SelectMode.SelectError))
-                    {
-                        // SelectMode.SelectError does not provide specific error details directly.
-                        // Typically, need to attempt a socket operation to get the error details.
-                        // Send an empty byte array to get the error details.
-                        socket.Send(Array.Empty<byte>());
-                    }
-                    else if (!socket.Poll(pollTimeout, SelectMode.SelectWrite))
-                    {
-                        // Socket is not ready for writing.
-                        // SelectMode.SelectWrite does not provide specific error details directly.
-                        // Typically, need to attempt a socket operation to get the error details.
-                        // Send an empty byte array to get the error details.
-                        socket.Send(Array.Empty<byte>());
-                    }
-
                     bytesReceived = socket.Receive(bytes, bytes.Length, SocketFlags.None);
 
                     if (this.OnSysSocketStatusOut != null)
@@ -2772,13 +2755,10 @@ namespace dMobile.Bedrock
                         this.OnSysSocketStatusOut(this, sockEventArgs);
                     }
 
-                    // Resize to what we received
-                    var bytesActuallyReceived = new byte[bytesReceived];
-                    Array.Copy(bytes, 0, bytesActuallyReceived, 0, bytesReceived);
-                    page.AddRange(bytesActuallyReceived);
+                    page.Write(bytes, 0, bytesReceived);
 
                     // Check for EOM
-                    var batch = Encoding.UTF8.GetString(bytesActuallyReceived, 0, bytesReceived);
+                    var batch = Encoding.UTF8.GetString(bytes, 0, bytesReceived);
                     if (batch.EndsWith(this.ReceiveEom))
                     {
                         if (this.OnSysSocketStatusOut != null)
@@ -3262,6 +3242,7 @@ namespace dMobile.Bedrock
 
                         case SocketError.Success:
                             // The Socket operation succeeded.
+                            // Not sure why this is a socket error. Perhaps a Poll() call?
                             if (this.OnSysSocketStatusOut != null)
                             {
                                 sockEventArgs.StatusOutMsg = "Socket operation succeeded.";
@@ -3358,20 +3339,19 @@ namespace dMobile.Bedrock
             }
             while (bytesReceived > 0);
 
-            // Remove the EOM
+            var result = page.ToArray();
             var eomBytData = Encoding.UTF8.GetBytes(this.ReceiveEom);
-            //// var eomIndex = page.LastIndexOf(eomBytData[eomBytData.Length - 1]);
-            var eomIndex = page.LastIndexOf(eomBytData[^1]);
+            var eomIndex = Array.LastIndexOf(result, eomBytData[^1]);
             if (eomIndex >= 0)
             {
-                // Determine start of EOM so we can trim it off
-                var eomStart = eomIndex - eomBytData.Length;
-
-                // Remove the EOM
-                page.RemoveRange(eomStart + 1, eomBytData.Length);
+                var eomStart = eomIndex - eomBytData.Length + 1;
+                if (eomStart > 0)
+                {
+                    return new List<byte>(result[..eomStart]);
+                }
             }
 
-            return page;
+            return new List<byte>(result);
         }
     }
 }

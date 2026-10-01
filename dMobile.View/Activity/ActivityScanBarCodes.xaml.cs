@@ -381,23 +381,26 @@ namespace dMobile.View.Activity
                         await DisplayProductAssocInfo(resultsProductUnitBarcode);
                     }
 
-                    if (this.ProductUnitRefno == 0)
-                    {
-                        await BarCodeHandlerProductIdentifierRuleSumwaDuck();
-                    }
+                    ////if (this.ProductUnitRefno == 0)
+                    ////{
+                    ////    await BarCodeHandlerProductIdentifierRuleSumwaDuck();
+                    ////}
 
                     if (this.ProductUnitRefno == 0)
                     {
                         try
                         {
-                            var unitRefnoFromBarcode = await BarCodeCommon.GetDeliProdInfoFromBarCode(
-                                prodIdentifier,
-                                this.SysEnv.CurrentBarCodeModifier1,
-                                this.Parse.Symbology,
-                                this.Parse.DeliScaleAmount);
-                            this.ProductUnitRefno = unitRefnoFromBarcode.ProdInfo.UnitRefno;
-                            var deliScaleWeight = unitRefnoFromBarcode.DeliScaleWeight;
-                            var deliScaleWeightUnit = unitRefnoFromBarcode.DeliScaleWeightUnit;
+                            ////var unitRefnoFromBarcode = await BarCodeCommon.GetDeliProdInfoFromBarCode(
+                            ////    prodIdentifier,
+                            ////    this.SysEnv.CurrentBarCodeModifier1,
+                            ////    this.Parse.Symbology,
+                            ////    this.Parse.DeliScaleAmount);
+                            ////this.ProductUnitRefno = unitRefnoFromBarcode.ProdInfo.UnitRefno;
+                            ////var deliScaleWeight = unitRefnoFromBarcode.DeliScaleWeight;
+                            ////var deliScaleWeightUnit = unitRefnoFromBarcode.DeliScaleWeightUnit;
+
+                            var deliScaleWeight = 0;
+                            var deliScaleWeightUnit = 0;
 
                             if (this.ProductUnitRefno == 0)
                             {

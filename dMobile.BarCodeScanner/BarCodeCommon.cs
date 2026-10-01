@@ -81,115 +81,111 @@ namespace dMobile.BarCodeScanner
             var sysEnv = SysEnvironment.GetInstance();
             var unitRefnoFromBarCode = new DeliProductInfo();
 
-            // Check if the system is not in disconnected mode.
-            if (!sysEnv.SysSettings.IsDisconnectedMode)
+            // Create an XML string builder and writer settings.
+            var xmlString = new StringBuilder();
+            var settings = new XmlWriterSettings
             {
-                // Create an XML string builder and writer settings.
-                var xmlString = new StringBuilder();
-                var settings = new XmlWriterSettings
-                {
-                    Async = true,
-                    Indent = false
-                };
-                var xml = XmlWriter.Create(xmlString, settings);
+                Async = true,
+                Indent = false
+            };
+            var xml = XmlWriter.Create(xmlString, settings);
 
-                // Get the revision and current date-time strings.
-                var revisionDateTime = sysEnv.RefreshOpt.RefreshedDataLast.ToString(
-                    "yyyy'-'MM'-'dd'T'HH':'mm':'ss");
-                var currentDateTime = DateTime.Now.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
+            // Get the revision and current date-time strings.
+            var revisionDateTime = sysEnv.RefreshOpt.RefreshedDataLast.ToString(
+                "yyyy'-'MM'-'dd'T'HH':'mm':'ss");
+            var currentDateTime = DateTime.Now.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss");
 
-                // Create an XML document for the request.
-                var result = new XmlDocument();
-                var request = new XDocument(
-                    new XDeclaration("1.0", "utf-16", "yes"),
-                    string.Empty,
+            // Create an XML document for the request.
+            var result = new XmlDocument();
+            var request = new XDocument(
+                new XDeclaration("1.0", "utf-16", "yes"),
+                string.Empty,
+                new XElement(
+                    "imclient",
                     new XElement(
-                        "imclient",
-                        new XElement(
-                            "command",
-                            new XElement("action", "REQUEST PRODUCT FROM BARCODE")),
-                        new XElement("device_id", sysEnv.DeviceId),
-                        new XElement("login_id", sysEnv.ContactLog.LoginID.ToString()),
-                        new XElement("revision_datetime", revisionDateTime),
-                        new XElement("stamp", currentDateTime),
-                        new XElement("barcode", productUnitBarCodeCode),
-                        new XElement("modifier1", productUnitBarCodeModifier1),
-                        new XElement("symbology", Convert.ToInt32(barCodeSymbology)),
-                        new XElement("barcode_amount", deliScaleAmount)));
+                        "command",
+                        new XElement("action", "REQUEST PRODUCT FROM BARCODE")),
+                    new XElement("device_id", sysEnv.DeviceId),
+                    new XElement("login_id", sysEnv.ContactLog.LoginID.ToString()),
+                    new XElement("revision_datetime", revisionDateTime),
+                    new XElement("stamp", currentDateTime),
+                    new XElement("barcode", productUnitBarCodeCode),
+                    new XElement("modifier1", productUnitBarCodeModifier1),
+                    new XElement("symbology", Convert.ToInt32(barCodeSymbology)),
+                    new XElement("barcode_amount", deliScaleAmount)));
 
-                // Save the request XML and flush the writer.
-                request.Save(xml);
-                await xml.FlushAsync();
-                xml.Close();
+            // Save the request XML and flush the writer.
+            request.Save(xml);
+            await xml.FlushAsync();
+            xml.Close();
 
-                // Submit the request and load the response XML.
-                var data = SysCommon.SubmitComm(xmlString.ToString());
-                result.LoadXml(data);
+            // Submit the request and load the response XML.
+            var data = SysCommon.SubmitComm(xmlString.ToString());
+            result.LoadXml(data);
 
-                // Parse the response XML to get the product and deli information.
-                if (result.SelectSingleNode("/VFPData/ProductFKRefno") !.HasChildNodes)
+            // Parse the response XML to get the product and deli information.
+            if (result.SelectSingleNode("/VFPData/ProductFKRefno") !.HasChildNodes)
+            {
+                unitRefnoFromBarCode.ProdInfo.FkRefno = Convert.ToInt32(
+                    result.SelectSingleNode("/VFPData/ProductFKRefno") !.FirstChild.Value);
+            }
+
+            if (result.SelectSingleNode("/VFPData/DeliScaleWeight") !.HasChildNodes)
+            {
+                unitRefnoFromBarCode.DeliScaleWeight = Convert.ToDecimal(
+                    result.SelectSingleNode("/VFPData/DeliScaleWeight") !.FirstChild.Value);
+            }
+
+            if (result.SelectSingleNode("/VFPData/DeliScaleWeightUnit") !.HasChildNodes)
+            {
+                unitRefnoFromBarCode.DeliScaleWeightUnit = Convert.ToString(
+                    result.SelectSingleNode("/VFPData/DeliScaleWeightUnit") !.FirstChild.Value);
+            }
+
+            // If the product reference number is not zero, get additional product information.
+            if (unitRefnoFromBarCode.ProdInfo.FkRefno != 0)
+            {
+                unitRefnoFromBarCode.ProdInfo.UnitIsBc = Convert.ToBoolean(
+                    result.SelectSingleNode("/VFPData/ProductUnitIsBC") !.FirstChild.Value);
+                unitRefnoFromBarCode.ProdInfo.UnitCode = result.SelectSingleNode(
+                    "/VFPData/ProductUnitCode") !.FirstChild.Value;
+
+                // Query the database for product information.
+                var productList = await DatabaseConnection.GetInstance()
+                    .SqlConn.QueryAsync<ProductModel>(
+                        "SELECT * FROM tProduct WHERE ProductFKRefno = ?",
+                        Convert.ToInt32(unitRefnoFromBarCode.ProdInfo.FkRefno));
+
+                if (productList != null &&
+                    productList.Count > 0)
                 {
-                    unitRefnoFromBarCode.ProdInfo.FkRefno = Convert.ToInt32(
-                        result.SelectSingleNode("/VFPData/ProductFKRefno") !.FirstChild.Value);
-                }
+                    unitRefnoFromBarCode.ProdInfo.Refno = productList[0].ProductRefno;
 
-                if (result.SelectSingleNode("/VFPData/DeliScaleWeight") !.HasChildNodes)
-                {
-                    unitRefnoFromBarCode.DeliScaleWeight = Convert.ToDecimal(
-                        result.SelectSingleNode("/VFPData/DeliScaleWeight") !.FirstChild.Value);
-                }
+                    // Query the database for unit information.
+                    var unitList = await DatabaseConnection.GetInstance()
+                        .SqlConn.QueryAsync<UnitModel>(
+                            "SELECT * FROM tUnit WHERE UnitCode = ?",
+                            Convert.ToString(unitRefnoFromBarCode.ProdInfo.UnitCode));
 
-                if (result.SelectSingleNode("/VFPData/DeliScaleWeightUnit") !.HasChildNodes)
-                {
-                    unitRefnoFromBarCode.DeliScaleWeightUnit = Convert.ToString(
-                        result.SelectSingleNode("/VFPData/DeliScaleWeightUnit") !.FirstChild.Value);
-                }
-
-                // If the product reference number is not zero, get additional product information.
-                if (unitRefnoFromBarCode.ProdInfo.FkRefno != 0)
-                {
-                    unitRefnoFromBarCode.ProdInfo.UnitIsBc = Convert.ToBoolean(
-                        result.SelectSingleNode("/VFPData/ProductUnitIsBC") !.FirstChild.Value);
-                    unitRefnoFromBarCode.ProdInfo.UnitCode = result.SelectSingleNode(
-                        "/VFPData/ProductUnitCode") !.FirstChild.Value;
-
-                    // Query the database for product information.
-                    var productList = await DatabaseConnection.GetInstance()
-                        .SqlConn.QueryAsync<ProductModel>(
-                            "SELECT * FROM tProduct WHERE ProductFKRefno = ?",
-                            Convert.ToInt32(unitRefnoFromBarCode.ProdInfo.FkRefno));
-
-                    if (productList != null &&
-                        productList.Count > 0)
+                    if (unitList != null &&
+                        unitList.Count > 0)
                     {
-                        unitRefnoFromBarCode.ProdInfo.Refno = productList[0].ProductRefno;
+                        var unitRefno = unitList[0].UnitRefno;
 
-                        // Query the database for unit information.
-                        var unitList = await DatabaseConnection.GetInstance()
-                            .SqlConn.QueryAsync<UnitModel>(
-                                "SELECT * FROM tUnit WHERE UnitCode = ?",
-                                Convert.ToString(unitRefnoFromBarCode.ProdInfo.UnitCode));
+                        // Query the database for product unit information.
+                        var productUnitList = await DatabaseConnection.GetInstance()
+                            .SqlConn.QueryAsync<ProductUnitModel>(
+                                "SELECT * FROM tProductUnit WHERE ProductRefno = ?" +
+                                " AND UnitRefno = ? AND ProductUnitIsBC = ?",
+                                unitRefnoFromBarCode.ProdInfo.Refno,
+                                unitRefno,
+                                unitRefnoFromBarCode.ProdInfo.UnitIsBc);
 
-                        if (unitList != null &&
-                            unitList.Count > 0)
+                        if (productUnitList != null &&
+                            productUnitList.Count > 0)
                         {
-                            var unitRefno = unitList[0].UnitRefno;
-
-                            // Query the database for product unit information.
-                            var productUnitList = await DatabaseConnection.GetInstance()
-                                .SqlConn.QueryAsync<ProductUnitModel>(
-                                    "SELECT * FROM tProductUnit WHERE ProductRefno = ?" +
-                                    " AND UnitRefno = ? AND ProductUnitIsBC = ?",
-                                    unitRefnoFromBarCode.ProdInfo.Refno,
-                                    unitRefno,
-                                    unitRefnoFromBarCode.ProdInfo.UnitIsBc);
-
-                            if (productUnitList != null &&
-                                productUnitList.Count > 0)
-                            {
-                                unitRefnoFromBarCode.ProdInfo.UnitRefno =
-                                    productUnitList[0].ProductUnitRefno;
-                            }
+                            unitRefnoFromBarCode.ProdInfo.UnitRefno =
+                                productUnitList[0].ProductUnitRefno;
                         }
                     }
                 }

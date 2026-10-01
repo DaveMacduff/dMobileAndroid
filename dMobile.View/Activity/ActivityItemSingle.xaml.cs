@@ -4,11 +4,6 @@
 
 namespace dMobile.View.Activity
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Threading.Tasks;
-    using System.Xml.Linq;
     using BarCodeScanner.BarCodeParsing;
     using BarCodeScanner.BarCodeScanners;
     using Bedrock;
@@ -19,6 +14,11 @@ namespace dMobile.View.Activity
     using dMobile.Resources.Types.Items;
     using Forms;
     using Resources.Enums;
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Threading.Tasks;
+    using System.Xml.Linq;
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;
     using static dMobile.View.SysShared;
@@ -412,6 +412,8 @@ namespace dMobile.View.Activity
 
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
+            var stopWatch = new System.Diagnostics.Stopwatch();
+            stopWatch.Start();
             try
             {
                 await this.ScannerDisable();
@@ -422,33 +424,35 @@ namespace dMobile.View.Activity
                     throw new MessageOnlyException(barMsg);
                 }
 
-                var isFkRefnoScanned = !string.IsNullOrEmpty(scanArgs.ParseInfo.ActFkRefno);
+                var parse = scanArgs.ParseInfo;
+
+                var isFkRefnoScanned = !string.IsNullOrEmpty(parse.ActFkRefno);
                 if (isFkRefnoScanned)
                 {
                     const string msg = "Scanning an activity header bar code is not supported here.";
                     throw new MessageOnlyException(msg);
                 }
 
-                var isFkDetailRefnoScanned = !string.IsNullOrEmpty(scanArgs.ParseInfo.ActDetailFkRefno);
+                var isFkDetailRefnoScanned = !string.IsNullOrEmpty(parse.ActDetailFkRefno);
                 if (isFkDetailRefnoScanned)
                 {
                     const string msg = "Scanning an activity detail bar code is not supported here.";
                     throw new MessageOnlyException(msg);
                 }
 
-                var isFkItemRefnoScanned = !string.IsNullOrEmpty(scanArgs.ParseInfo.ActItemFkRefno);
+                var isFkItemRefnoScanned = !string.IsNullOrEmpty(parse.ActItemFkRefno);
                 if (isFkItemRefnoScanned)
                 {
-                    await BarCodeHandlerLineItemIdentifier(scanArgs.ParseInfo);
+                    await BarCodeHandlerLineItemIdentifier(parse);
                 }
 
-                var isLocationBarCodeScanned = !string.IsNullOrEmpty(scanArgs.ParseInfo.LocationIdentifier);
+                var isLocationBarCodeScanned = !string.IsNullOrEmpty(parse.LocationIdentifier);
                 if (isLocationBarCodeScanned)
                 {
-                    await BarCodeHandlerLocationIdentifier(scanArgs.ParseInfo);
+                    await BarCodeHandlerLocationIdentifier(parse);
                 }
 
-                var isSkidScanned = !string.IsNullOrEmpty(scanArgs.ParseInfo.Sscc18);
+                var isSkidScanned = !string.IsNullOrEmpty(parse.Sscc18);
                 if (isSkidScanned)
                 {
                     if (this.SysEnv.SysSettings.IsDisconnectedMode)
@@ -457,10 +461,14 @@ namespace dMobile.View.Activity
                     }
 
                     var lastSkid = this.ActItem.ActHdr.SkidInfo.CurrSkid;
-                    await FindOrCreateSkidLineItem(scanArgs.ParseInfo, lastSkid);
-                    if (!this.IsScanningPartialSkid)
+                    await FindOrCreateSkidLineItem(parse, lastSkid);
+
+                    // Combined into a single UI-thread dispatch (was two separate
+                    // Device.InvokeOnMainThreadAsync round trips) since both run
+                    // back-to-back with no intervening background work.
+                    await Device.InvokeOnMainThreadAsync(async () =>
                     {
-                        await Device.InvokeOnMainThreadAsync(async () =>
+                        if (!this.IsScanningPartialSkid)
                         {
                             var actDetail = ActDetailFacade.GetActDetail(this.ActItem, this.ActSubType);
                             await actDetail.InsertSkid(this.ActItem.ActHdr.SkidInfo);
@@ -480,11 +488,8 @@ namespace dMobile.View.Activity
                             }
 
                             await this.AssignAndDisplayLineItem(this.ActItem.ItemRefno);
-                        });
-                    }
+                        }
 
-                    await Device.InvokeOnMainThreadAsync(async () =>
-                    {
                         this.DisplayCmdSetSkidData();
                         await this.DisplaySkidLocationData();
                     });
@@ -492,11 +497,14 @@ namespace dMobile.View.Activity
 
                 this.LastSkidFkRefno = this.ActItem.ActHdr.SkidInfo.CurrSkid.SkidFkRefno;
 
-                var isProductScanned = !string.IsNullOrEmpty(scanArgs.ParseInfo.ProductIdentifier);
+                var isProductScanned = !string.IsNullOrEmpty(parse.ProductIdentifier);
                 if (isProductScanned)
                 {
-                    await FindOrCreateProductLineItem(scanArgs.ParseInfo);
-                    await CreateDetail(scanArgs.ParseInfo);
+                    System.Diagnostics.Debug.WriteLine($"Time to identify product {stopWatch.ElapsedMilliseconds} ms");
+                    await FindOrCreateProductLineItem(parse);
+                    System.Diagnostics.Debug.WriteLine($"Time to find item {stopWatch.ElapsedMilliseconds} ms");
+                    await CreateDetail(parse);
+                    System.Diagnostics.Debug.WriteLine($"Time to create detail {stopWatch.ElapsedMilliseconds} ms");
                 }
             }
             catch (TaskCanceledException)
@@ -545,6 +553,8 @@ namespace dMobile.View.Activity
             finally
             {
                 await this.ScannerEnable();
+                stopWatch.Stop();
+                System.Diagnostics.Debug.WriteLine($"BarCodeHandler took {stopWatch.ElapsedMilliseconds} ms");
             }
 
             return;

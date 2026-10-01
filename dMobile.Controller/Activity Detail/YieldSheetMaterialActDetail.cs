@@ -196,7 +196,7 @@ namespace dMobile.Controller.Activity_Detail
         /// <inheritdoc/>
         public override async Task Insert(XDocument data)
         {
-            this.FillActDetailObjFromXml(data);
+            await this.FillActDetailObjFromXml(data);
 
             // Get temporary item FK refno for newly inserted line item.
             this.DetailFkRefno = await Conn.ExecuteScalarAsync<int>(

@@ -240,7 +240,7 @@ namespace dMobile.Controller.Activity_Detail
         /// <returns>The <see cref="Task"/> Task.</returns>
         public override async Task Insert(XDocument data)
         {
-            this.FillActDetailObjFromXml(data);
+            await this.FillActDetailObjFromXml(data);
 
             // Get temporary item FK refno for newly inserted line item, used in disconnected mode.
             this.DetailFkRefno = await Conn.ExecuteScalarAsync<int>(

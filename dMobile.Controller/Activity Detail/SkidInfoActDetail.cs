@@ -233,7 +233,7 @@ namespace dMobile.Controller.Activity_Detail
         /// <returns><see cref="Task"/> Task operation.</returns>
         public override async Task Insert(XDocument data)
         {
-            this.FillActDetailObjFromXml(data);
+            await this.FillActDetailObjFromXml(data);
 
             var xmlSend = await this.CreateSubmitXml(XDocument.Parse(
                 "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?><params></params>"));
