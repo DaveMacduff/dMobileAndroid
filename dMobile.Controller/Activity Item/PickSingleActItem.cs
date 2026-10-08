@@ -2,19 +2,20 @@
 // Copyright (c) InterSect Business Systems Inc. All rights reserved.
 // </copyright>
 
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml;
-using System.Xml.Linq;
 using dMobile.Bedrock;
 using dMobile.GroundWork;
 using dMobile.Resources.Models.Items;
 using dMobile.Resources.Services;
 using dMobile.Resources.Types.Items;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Data;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Xml;
+using System.Xml.Linq;
 using Xamarin.Forms;
 
 namespace dMobile.Controller.Activity_Item
@@ -466,6 +467,56 @@ namespace dMobile.Controller.Activity_Item
                 }
             }
         }
+
+////        /// <summary>
+////        /// Perform quantity under check for ALL line items.
+////        /// </summary>
+////        /// <returns></returns>
+////        /// <remarks></remarks>
+////        private void AllItemsQuantityUnderCheck()
+////        {
+////            if (this.SysEnv.SysSettings.PickQtyUnderWarn
+////                != SysCommon.ActPickingQtyUnderValLevels.NoValidationOrWarning)
+////            {
+////                DataView dvItems = this.ActItem.DataViewItems;
+////                decimal available = 0;
+////                decimal shipped = 0;
+////                decimal ordered = 0;
+
+////                for (int currIdx = 0; currIdx <= this.ActItem.DataViewItems.Count - 1; currIdx++)
+////                {
+////                    available = (decimal)dvItems[currIdx]["ActivityItemPickingBaseQuantityAvailable"];
+////                    shipped = (decimal)dvItems[currIdx]["ActivityItemPickingQuantityShipped"];
+////                    ordered = (decimal)dvItems[currIdx]["ActivityItemPickingQuantityOrdered"];
+
+////                    if (this.SysEnv.SysSettings.IsPickShowItemQtyAvail)
+////                    {
+////                        // Do not warn if product is out of stock WO# 12054
+////                        if (0 < available && shipped < ordered)
+////                        {
+////                            throw new MessageOnlyException(
+////#if MULTILANGUAGE
+////                  Translator.GetInstance().Translate(TranslatorVocabulary.SomeLineItemsExistsWhereTheShippedQuantityIsLessThatTheQuantityOrdered));
+////#else
+////"Some line items exists where the shipped quantity is less that the quantity ordered.");
+////#endif
+////                        }
+////                    }
+////                    else
+////                    {
+////                        if (shipped < ordered)
+////                        {
+////                            throw new MessageOnlyException(
+////#if MULTILANGUAGE
+////                  Translator.GetInstance().Translate(TranslatorVocabulary.SomeLineItemsExistsWhereTheShippedQuantityIsLessThatTheQuantityOrdered));
+////#else
+////"Some line items exists where the shipped quantity is less that the quantity ordered.");
+////#endif
+////                        }
+////                    }
+////                }
+////            }
+////        }
 
         /// <summary>
         /// The GetProdSchemeDataFromDetailFKRefno.
