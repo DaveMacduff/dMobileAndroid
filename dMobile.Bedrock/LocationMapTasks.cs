@@ -1213,19 +1213,22 @@ namespace dMobile.Bedrock
         /// <returns><see cref="int"/> Warehouse location map reference number.</returns>
         public static async Task<int> GetWhsLocMapRefnoFromLocMapRefno(int locMapRefno)
         {
-            var locationSubType = Convert.ToInt32(await Conn.ExecuteScalarAsync<int>(
-                "SELECT LocationMapSubType FROM tLocationMap WHERE LocationMapRefno = ?",
-                locMapRefno));
+            var locationSubType = Convert.ToInt32(
+                await Conn.ExecuteScalarAsync<int>(
+                    "SELECT LocationMapSubType FROM tLocationMap WHERE LocationMapRefno = ?",
+                    locMapRefno));
 
             return (SysCommon.LocMapSubTypes)locationSubType switch
             {
-                SysCommon.LocMapSubTypes.Section => Convert.ToInt32(await Conn.ExecuteScalarAsync<int>(
-                    "SELECT WarehouseLocationMapRefno FROM tLocationMapSection WHERE LocationMapRefno = ?",
-                    locMapRefno)), // Access Section table for WarehouseLocationMapRefno
+                SysCommon.LocMapSubTypes.Section => Convert.ToInt32(
+                        await Conn.ExecuteScalarAsync<int>(
+                        "SELECT WarehouseLocationMapRefno FROM tLocationMapSection WHERE LocationMapRefno = ?",
+                        locMapRefno)), // Access Section table for WarehouseLocationMapRefno
 
-                SysCommon.LocMapSubTypes.Slot => Convert.ToInt32(await Conn.ExecuteScalarAsync<int>(
-                    "SELECT WarehouseLocationMapRefno FROM tLocationMapSlot WHERE LocationMapRefno = ?",
-                    locMapRefno)), // Access Slot table for WarehouseLocationMapRefno
+                SysCommon.LocMapSubTypes.Slot => Convert.ToInt32(
+                    await Conn.ExecuteScalarAsync<int>(
+                        "SELECT WarehouseLocationMapRefno FROM tLocationMapSlot WHERE LocationMapRefno = ?",
+                        locMapRefno)), // Access Slot table for WarehouseLocationMapRefno
 
                 SysCommon.LocMapSubTypes.Warehouse => locationSubType, // It already is a WarehouseLocationMapRefno
 

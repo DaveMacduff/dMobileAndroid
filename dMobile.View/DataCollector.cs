@@ -214,9 +214,9 @@ namespace dMobile.View
             barCodeParse = barCodeParse ?? throw new ArgumentNullException(nameof(barCodeParse));
             BarCodeParse = barCodeParse;
             this.ProdUnitBarCode = new ProductUnitBarCodeModel();
-            ////await this.SumwaFarmWholeDuckRule();
+            await this.SumwaFarmWholeDuckRule();
             await this.SearchBarCodesForMatch();
-            ////await this.SearchDeliBarCodeMatch();
+            await this.SearchDeliBarCodeMatch();
             await this.AssociateNewBarCode();
 
             return this.ProdUnitBarCode.ProductUnitRefno;

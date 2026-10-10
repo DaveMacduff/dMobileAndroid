@@ -135,6 +135,10 @@ namespace dMobile.View.Activity
 
         private int LastProdUnitRefno { get; set; }
 
+        private int LastActItemFoundRefno { get; set; }
+
+        private System.Diagnostics.Stopwatch TotalSecondsToScan { get; set; }
+
         /// <summary>
         ///     Unregister the bar code scan event handler and disable the scanner.
         /// </summary>
@@ -412,8 +416,9 @@ namespace dMobile.View.Activity
 
         private async Task BarCodeHandler(object sender, BarCodeScannerEventArgs scanArgs)
         {
-            var stopWatch = new System.Diagnostics.Stopwatch();
-            stopWatch.Start();
+            this.TotalSecondsToScan = new System.Diagnostics.Stopwatch();
+            this.TotalSecondsToScan.Start();
+
             try
             {
                 await this.ScannerDisable();
@@ -500,11 +505,8 @@ namespace dMobile.View.Activity
                 var isProductScanned = !string.IsNullOrEmpty(parse.ProductIdentifier);
                 if (isProductScanned)
                 {
-                    System.Diagnostics.Debug.WriteLine($"Time to identify product {stopWatch.ElapsedMilliseconds} ms");
                     await FindOrCreateProductLineItem(parse);
-                    System.Diagnostics.Debug.WriteLine($"Time to find item {stopWatch.ElapsedMilliseconds} ms");
                     await CreateDetail(parse);
-                    System.Diagnostics.Debug.WriteLine($"Time to create detail {stopWatch.ElapsedMilliseconds} ms");
                 }
             }
             catch (TaskCanceledException)
@@ -553,8 +555,27 @@ namespace dMobile.View.Activity
             finally
             {
                 await this.ScannerEnable();
-                stopWatch.Stop();
-                System.Diagnostics.Debug.WriteLine($"BarCodeHandler took {stopWatch.ElapsedMilliseconds} ms");
+                this.TotalSecondsToScan.Stop();
+                await Device.InvokeOnMainThreadAsync(() =>
+                    {
+                        try
+                        {
+                            var countData = this.ActItem.ListItems.Count > 0
+                                ? $"{this.ActItem.SelectedListIdx + 1} of {this.ActItem.ListItems.Count}" : "0 of 0";
+
+                            this.LblItemCountData.Text = countData +
+                                $" Scan time {this.TotalSecondsToScan.ElapsedMilliseconds} ms," +
+                                $" {this.SysEnv.CommStopWatch.ElapsedMilliseconds} ms";
+                            return Task.CompletedTask;
+                        }
+                        catch (Exception exception)
+                        {
+                            return Task.FromException(exception);
+                        }
+                    });
+
+                this.SysEnv.CommStopWatch.Reset();
+                this.TotalSecondsToScan.Reset();
             }
 
             return;
@@ -598,7 +619,11 @@ namespace dMobile.View.Activity
                     this.ActHdr.SkidInfo.CurrSkid.LocMap);
                 if (actItemFoundRefno > 0)
                 {
-                    await this.AssignAndDisplayLineItem(actItemFoundRefno);
+                    if (this.LastActItemFoundRefno != actItemFoundRefno)
+                    {
+                        this.LastActItemFoundRefno = actItemFoundRefno;
+                        await this.AssignAndDisplayLineItem(actItemFoundRefno);
+                    }
                 }
                 else
                 {
@@ -860,7 +885,10 @@ namespace dMobile.View.Activity
                     this.ActDetail.BaseQuantity,
                     this.ActDetail.WeightQuantity);
                 await this.ActItem.UpdateItemTableQuantity(this.ActItem.SelectedItem);
-                await this.AssignAndDisplayLineItem(this.ActItem.ItemRefno);
+
+                // Assigning the line item was performed finding the activity item or creating a new one.
+                ////await this.AssignAndDisplayLineItem(this.ActItem.ItemRefno);
+                await this.DisplayData();
             }
 
             void DefaultSchemeDataFromCurrentSkidSchemeDetail()

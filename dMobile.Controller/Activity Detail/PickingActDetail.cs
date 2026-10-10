@@ -339,7 +339,7 @@ namespace dMobile.Controller.Activity_Detail
         /// <returns>The <see cref="Task"/>.</returns>
         public override async Task Insert(XDocument data)
         {
-            this.FillActDetailObjFromXml(data);
+            await this.FillActDetailObjFromXml(data);
 
             // Get temporary item FK refno for newly inserted line item.
             this.DetailFkRefno = await Conn.ExecuteScalarAsync<int>(
@@ -348,7 +348,9 @@ namespace dMobile.Controller.Activity_Detail
 
             if (!this.SysEnv.SysSettings.IsDisconnectedMode)
             {
+                this.SysEnv.CommStopWatch.Start();
                 await this.Submit(this, data);
+                this.SysEnv.CommStopWatch.Stop();
             }
 
             // In order to support base tracking the DetailFKRefno is the itm_refno rather than the serial.refno.

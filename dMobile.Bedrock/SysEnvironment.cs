@@ -270,8 +270,17 @@ namespace dMobile.Bedrock
         /// Gets a value indicating whether the device is a DataWedge intent scanner.
         /// </summary>
         public bool IsZebraDataWedgeIntentScanner =>
-            (Android.OS.Build.Manufacturer != null &&
-             Android.OS.Build.Manufacturer.Equals("Zebra Technologies", StringComparison.OrdinalIgnoreCase));
+            Android.OS.Build.Manufacturer!.Equals("Zebra Technologies", StringComparison.OrdinalIgnoreCase);
+
+        /// <summary>
+        /// Gets a communication stopwatch for measuring communication time.
+        /// </summary>
+        public System.Diagnostics.Stopwatch CommStopWatch { get; } = new System.Diagnostics.Stopwatch();
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the socket is connected.
+        /// </summary>
+        public bool IsSocketConnected { get; set; }
 
         // METHODS
 
