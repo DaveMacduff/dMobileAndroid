@@ -120,6 +120,7 @@ namespace dMobile.View.Activity
         {
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
             _ = this.ScannerDisable();
+            SysCommon.ShutdownConnection();
             base.OnDisappearing();
             this.IsIndicatorRunning = false;
             GC.Collect();

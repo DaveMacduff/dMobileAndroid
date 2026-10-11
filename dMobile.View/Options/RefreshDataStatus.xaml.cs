@@ -730,6 +730,7 @@ namespace dMobile.View.Options
         protected override void OnDisappearing()
         {
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
+            SysCommon.ShutdownConnection();
             base.OnDisappearing();
             this.IsIndicatorRunning = false;
             GC.Collect();

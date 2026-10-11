@@ -409,7 +409,9 @@ namespace dMobile.View.Activity
         /// </summary>
         protected override async void OnDisappearing()
         {
+            SysCommon.ShutdownConnection();
             base.OnDisappearing();
+            this.IsIndicatorRunning = false;
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
             GC.Collect();
             GC.WaitForPendingFinalizers();

@@ -246,6 +246,7 @@ namespace dMobile.View.Activity
             try
             {
                 MessagingCenter.Unsubscribe<string>(this, nameof(EventTypes.OnKeyUp));
+                SysCommon.ShutdownConnection();
                 base.OnDisappearing();
                 this.IsIndicatorRunning = false;
                 this.SearchTimer.Stop();

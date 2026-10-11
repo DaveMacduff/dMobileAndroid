@@ -326,7 +326,9 @@ namespace dMobile.View.Activity
         {
             try
             {
+                SysCommon.ShutdownConnection();
                 base.OnDisappearing();
+                this.IsIndicatorRunning = false;
                 this.ListViewMainActivity.ItemTapped -= this.ListViewMainActivity_ItemTapped;
                 MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
                 GC.Collect();
@@ -334,8 +336,7 @@ namespace dMobile.View.Activity
             }
             catch (Exception ex)
             {
-                await Device.InvokeOnMainThreadAsync(
-                    async () =>
+                await Device.InvokeOnMainThreadAsync(async () =>
                     {
                         var errRpt = new FormErrorReport(this.ActSubType, ex);
                         _ = await errRpt.ShowDialog();

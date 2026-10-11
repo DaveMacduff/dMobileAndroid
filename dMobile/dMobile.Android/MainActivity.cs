@@ -4,16 +4,16 @@
 
 namespace dMobile.Droid
 {
+    using System;
     using Android.App;
     using Android.Content;
     using Android.Content.PM;
     using Android.OS;
     using Android.Views;
+    using Bedrock;
     using dMobile.BarCodeScanner.BarCodeScanners;
     using dMobile.View.Pages;
-    using Bedrock;
     using Resources.Enums;
-    using System;
     using Xamarin.Forms;
 
     /// <summary>
@@ -52,7 +52,7 @@ namespace dMobile.Droid
 
             var barcodeData = intent.GetStringExtra(ExtraDataKey);
             var barcodeType = intent.GetStringExtra(ExtraTypeKey);
-            
+
             Android.Util.Log.Debug("ZEBRA", $"Barcode: {barcodeData}, Type: {barcodeType}");
 
             ZebraIntentScannerService.Instance.RaiseBarcodeScanned(
@@ -112,6 +112,15 @@ namespace dMobile.Droid
             base.OnResume();
             var scanner = ScannerEngine.GetInstance().Scanner;
             scanner.OpenBarcodeReader().FireAndForgetSafeAsync();
+        }
+
+        /// <summary>
+        /// On destroy activity event handler.
+        /// </summary>
+        protected override void OnDestroy()
+        {
+            SysCommon.ShutdownConnection();
+            base.OnDestroy();
         }
     }
 }

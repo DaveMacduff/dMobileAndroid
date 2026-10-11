@@ -317,7 +317,9 @@ namespace dMobile.View.Activity
         {
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
             await this.ucActivityHdrReleaseByOrder_LostFocus(this, EventArgs.Empty);
+            SysCommon.ShutdownConnection();
             base.OnDisappearing();
+            this.IsIndicatorRunning = false;
             GC.Collect();
             GC.WaitForPendingFinalizers();
         }

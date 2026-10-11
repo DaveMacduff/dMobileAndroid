@@ -4,11 +4,12 @@
 
 namespace dMobile.View.Forms
 {
+    using Android.Views;
+    using CustomPages.Modal;
+    using dMobile.Bedrock;
+    using Resources.Enums;
     using System;
     using System.ComponentModel;
-    using Android.Views;
-    using Resources.Enums;
-    using CustomPages.Modal;
     using Xamarin.Forms;
     using Xamarin.Forms.Xaml;
 
@@ -79,6 +80,7 @@ namespace dMobile.View.Forms
         protected override void OnDisappearing()
         {
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
+            SysCommon.ShutdownConnection();
             base.OnDisappearing();
             this.IsIndicatorRunning = false;
             GC.Collect();

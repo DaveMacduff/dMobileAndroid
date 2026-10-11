@@ -341,7 +341,9 @@ namespace dMobile.View.Activity
         protected override void OnDisappearing()
         {
             MessagingCenter.Unsubscribe<string>(this, nameof(EventTypes.OnKeyUp));
+            SysCommon.ShutdownConnection();
             base.OnDisappearing();
+            this.IsIndicatorRunning = false;
             GC.Collect();
             GC.WaitForPendingFinalizers();
         }

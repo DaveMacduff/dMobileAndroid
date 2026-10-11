@@ -700,6 +700,7 @@ namespace dMobile.View.Activity
             this.ListViewMoveFrom.ItemTapped -= this.ListViewMoveFrom_ItemTapped;
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
             await this.ScannerDisable();
+            SysCommon.ShutdownConnection();
             base.OnDisappearing();
             this.IsIndicatorRunning = false;
             GC.Collect();

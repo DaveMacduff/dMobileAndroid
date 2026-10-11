@@ -321,6 +321,7 @@ namespace dMobile.View.Activity
         protected override async void OnDisappearing()
         {
             await this.ScannerDisable();
+            SysCommon.ShutdownConnection();
             base.OnDisappearing();
             this.IsIndicatorRunning = false;
             GC.Collect();

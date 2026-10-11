@@ -47,6 +47,10 @@ namespace dMobile.Bedrock
         /// </summary>
         public static readonly DateTime EmptyDateTime = new DateTime(1900, 1, 1, 0, 0, 0, DateTimeKind.Local);
 
+        private static readonly Lazy<SysSocketConnectionManager> ConnManagerLazy =
+            new Lazy<SysSocketConnectionManager>(() =>
+                new SysSocketConnectionManager(SysEnvironment.GetInstance().SysSock));
+
         /// <summary>
         ///     Defines the show error message type.
         /// </summary>
@@ -1000,6 +1004,8 @@ namespace dMobile.Bedrock
             Slot = 3,
         }
 
+        private static SysSocketConnectionManager ConnManager => ConnManagerLazy.Value;
+
         /// <summary>
         ///     Replace XML reserved characters in a string with the XML entity references.
         /// </summary>
@@ -1313,62 +1319,37 @@ namespace dMobile.Bedrock
         /// <returns><see cref="string"/> Communication response.</returns>
         public static string SubmitComm(string sendData)
         {
-            var receivedData = string.Empty;
             var sysEnv = SysEnvironment.GetInstance();
-            Socket sysSock = null;
-            var port = sysEnv.SysSock.DefSocketPort;
             const int numberOfPasses = 2;
-            var success = false;
             var maxAttempts = sysEnv.SysSock.MaxPorts * numberOfPasses;
             maxAttempts = maxAttempts > 1 ? maxAttempts - 1 : 1;
+
             for (var attempt = 1; attempt <= maxAttempts; attempt++)
             {
+                var socket = ConnManager.GetConnectedSocket();
+                if (socket == null)
+                {
+                    // Connect attempt failed (e.g. refused); manager has already queued
+                    // the next port for the following attempt.
+                    continue;
+                }
+
                 try
                 {
-                    var tryNewPort = false;
-                    sysEnv.SysSock.Connect(ref sysSock, port, ref tryNewPort);
-                    sysEnv.IsSocketConnected = true;
-
-                    if (tryNewPort)
-                    {
-                        port = GetNextPort();
-                    }
-                    else
-                    {
-                        sysEnv.SysSock.SendRequest(sysSock, sendData);
-                        var compressedData = sysEnv.SysSock.ReceiveResponse(sysSock);
-                        receivedData = Compress.UnZip(compressedData.ToArray());
-                        CheckCommResponseForErrors(receivedData);
-                        success = true;
-                    }
+                    sysEnv.SysSock.SendRequest(socket, sendData);
+                    var compressedData = sysEnv.SysSock.ReceiveResponse(socket);
+                    var receivedData = Compress.UnZip(compressedData.ToArray());
+                    CheckCommResponseForErrors(receivedData);
+                    return receivedData;
                 }
-                finally
+                catch (SocketException)
                 {
-                    sysEnv.SysSock.Disconnect(sysSock);
-                }
-
-                if (success)
-                {
-                    break;
+                    // Connection is bad; drop it and cycle to the next port on retry.
+                    ConnManager.InvalidateConnection(cycleToNextPort: true);
                 }
             }
 
-            return receivedData;
-
-            int GetNextPort()
-            {
-                // New port will be compared to the current port to determine if we have
-                // tried all ports. Or if we have tried all ports, we will start over at the
-                // base port. Depending on the error code, we will assign the new port to the
-                // current port.
-                var newPort = port + 1;
-                if (newPort > sysEnv.SysSock.BasePort + (sysEnv.SysSock.MaxPorts - 1))
-                {
-                    newPort = sysEnv.SysSock.BasePort;
-                }
-
-                return newPort;
-            }
+            throw new CommunicationException("Unable to submit communication after retrying.");
         }
 
         /// <summary>
@@ -1786,6 +1767,17 @@ namespace dMobile.Bedrock
                 ? applyEx.Message
                 : applyEx.Message["MSGBOX-".Length..];
             return msg;
+        }
+
+        /// <summary>
+        ///     ShutdownConnection
+        /// </summary>
+        public static void ShutdownConnection()
+        {
+            if (ConnManagerLazy.IsValueCreated)
+            {
+                ConnManagerLazy.Value.Dispose();
+            }
         }
 
         /// <summary>

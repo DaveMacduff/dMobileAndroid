@@ -435,7 +435,9 @@ namespace dMobile.View.Activity
             this.ListViewMainActivity.ItemTapped -= this.ListViewMainActivity_ItemTapped;
             this.SearchTextTimer.Stop();
             MessagingCenter.Unsubscribe<string>(this, EventTypes.OnKeyUp.ToString());
+            SysCommon.ShutdownConnection();
             base.OnDisappearing();
+            this.IsIndicatorRunning = false;
             GC.Collect();
             GC.WaitForPendingFinalizers();
         }

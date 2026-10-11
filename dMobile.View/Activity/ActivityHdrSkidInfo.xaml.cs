@@ -546,14 +546,15 @@ namespace dMobile.View.Activity
             try
             {
                 MessagingCenter.Unsubscribe<string>(this, nameof(EventTypes.OnKeyUp));
+                SysCommon.ShutdownConnection();
                 base.OnDisappearing();
+                this.IsIndicatorRunning = false;
                 GC.Collect();
                 GC.WaitForPendingFinalizers();
             }
             catch (Exception ex)
             {
-                await Device.InvokeOnMainThreadAsync(
-                    async () =>
+                await Device.InvokeOnMainThreadAsync(async () =>
                     {
                         var errRpt = new FormErrorReport(ex);
                         _ = await errRpt.ShowDialog();

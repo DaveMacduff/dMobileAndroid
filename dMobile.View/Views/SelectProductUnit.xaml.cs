@@ -467,7 +467,9 @@ namespace dMobile.View.Views
         protected override async void OnDisappearing()
         {
             await this.ActDisappearing();
+            SysCommon.ShutdownConnection();
             base.OnDisappearing();
+            this.IsIndicatorRunning = false;
             GC.Collect();
             GC.WaitForPendingFinalizers();
         }

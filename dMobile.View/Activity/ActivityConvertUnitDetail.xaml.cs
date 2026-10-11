@@ -440,6 +440,7 @@ namespace dMobile.View.Activity
         protected override async void OnDisappearing()
         {
             await this.ActDisappearing();
+            SysCommon.ShutdownConnection();
             base.OnDisappearing();
             this.IsIndicatorRunning = false;
             GC.Collect();

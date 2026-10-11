@@ -521,6 +521,7 @@ namespace dMobile.View.Activity
                             _ = await this.CancelChanges();
                         }
 
+                        SysCommon.ShutdownConnection();
                         await this.Close();
                     }
                     else if (keycode == Keycode.Del || keycode == Keycode.Clear)
@@ -742,6 +743,7 @@ namespace dMobile.View.Activity
         protected override async void OnDisappearing()
         {
             await this.ActDisappearing();
+            SysCommon.ShutdownConnection();
             base.OnDisappearing();
             this.IsIndicatorRunning = false;
             GC.Collect();
@@ -776,6 +778,7 @@ namespace dMobile.View.Activity
                     {
                         this.DialogResult = DialogResult.OK;
                         _ = base.OnBackButtonPressed();
+                        SysCommon.ShutdownConnection();
                         await this.Close();
                     }
                     else
@@ -783,6 +786,7 @@ namespace dMobile.View.Activity
                         this.DialogResult = DialogResult.None;
                         _ = base.OnBackButtonPressed();
                         _ = await this.CancelChanges();
+                        SysCommon.ShutdownConnection();
                         await this.Close();
                     }
                 }
