@@ -247,7 +247,9 @@ namespace dMobile.Controller.Activity_Detail
 
             if (!this.SysEnv.SysSettings.IsDisconnectedMode)
             {
+                this.SysEnv.CommStopWatch.Start();
                 await this.Submit(this, data);
+                this.SysEnv.CommStopWatch.Stop();
             }
 
             // In order to support base tracking the DetailFKRefno is the itm_refno rather than the serial.refno.
