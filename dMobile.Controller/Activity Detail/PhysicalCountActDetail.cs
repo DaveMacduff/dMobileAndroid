@@ -248,7 +248,7 @@ namespace dMobile.Controller.Activity_Detail
             if (!this.SysEnv.SysSettings.IsDisconnectedMode)
             {
                 this.SysEnv.CommStopWatch.Start();
-                await this.Submit(this, data);
+                await this.Submit(this.SelectedDetail, data);
                 this.SysEnv.CommStopWatch.Stop();
             }
 

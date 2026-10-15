@@ -74,6 +74,8 @@ namespace dMobile.View
             ActDetail actDetail,
             bool isForceStopForEditing = false)
         {
+            var timePast = new System.Diagnostics.Stopwatch();
+            timePast.Start();
             ActDetail = actDetail;
             BarCodeParse = barParse;
 
@@ -88,10 +90,18 @@ namespace dMobile.View
                 LocMap.CurrLocMap = sLocMapAndRefno.SLocMap;
             }
 
+            Console.WriteLine("GatherProductData: Time to get default item scheme data: " + timePast.ElapsedMilliseconds + " ms");
+            
+            timePast.Restart();
             var defaultLabelSchemeDataAssigned = GatherSchemeData(defaultItemSchemeData);
+            Console.WriteLine("GatherProductData: Time to get item scheme data: " + timePast.ElapsedMilliseconds + " ms");
+
+            timePast.Restart();
             var actDetailAndStopForDetail = await GatherProductQuantityData(defaultItemSchemeData);
+            Console.WriteLine("GatherProductData: Time to get product quantity data: " + timePast.ElapsedMilliseconds + " ms");
 
             // isForceStopForEditing may be set to true from the calling method. Such as from an add detail button event.
+            timePast.Restart();
             if (isForceStopForEditing)
             {
                 actDetailAndStopForDetail.IsForceStopForEdit = true;
@@ -102,6 +112,8 @@ namespace dMobile.View
                     actDetailAndStopForDetail,
                     defaultLabelSchemeDataAssigned);
             }
+            Console.WriteLine("GatherProductData: Time to get stop for detail: " + timePast.ElapsedMilliseconds + " ms");
+            timePast.Restart();
 
             var isStopForLabelDetail = false;
             if ((ActSubType == SysCommon.ActSubTypes.Receiving ||
