@@ -495,38 +495,38 @@ namespace dMobile.Bedrock
         /// <returns><see cref="string"/> Product scheme single trade item serial number.</returns>
         public static string GetProdSchemeSingleTradeItemSerialNumber()
         {
-            var singleTradeItemSerialNumber = string.Empty;
-            if (!SysEnv.SysSettings.IsDisconnectedMode)
-            {
-                var xmlString = new StringBuilder();
-                var xml = XmlWriter.Create(xmlString);
-                var deviceId = SysEnv.DeviceId;
-                var revision = SysEnv.RefreshOpt.RefreshedDataLast.ToString(
-                    "yyyy\'-\'MM\'-\'dd\'T\'HH\':\'mm\':\'ss");
-                var loginId = SysEnv.ContactLog.LoginID.ToString();
-                var current = DateTime.Now.ToString("yyyy\'-\'MM\'-\'dd\'T\'HH\':\'mm\':\'ss");
-                var request = XDocument.Parse(
-                    "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" +
-                    "<imclient>" +
-                    "<command>" +
-                    "<action>REQUEST PRODUCT SCHEME SERIAL NUMBER</action>" +
-                    "</command>" +
-                    "<device_id>" + deviceId + "</device_id>" +
-                    "<login_id>" + loginId + "</login_id>" +
-                    "<revision_datetime>" + revision + "</revision_datetime>" +
-                    "<stamp>" + current + "</stamp>" +
-                    "</imclient>");
-                request.Save(xml);
-                xml.Flush();
-                xml.Close();
+            var singleTradeItemSerialNumber = SysSerialNumber.GetNextSerialNumber().ToString().TrimEnd();
+            ////if (!SysEnv.SysSettings.IsDisconnectedMode)
+            ////{
+            ////    var xmlString = new StringBuilder();
+            ////    var xml = XmlWriter.Create(xmlString);
+            ////    var deviceId = SysEnv.DeviceId;
+            ////    var revision = SysEnv.RefreshOpt.RefreshedDataLast.ToString(
+            ////        "yyyy\'-\'MM\'-\'dd\'T\'HH\':\'mm\':\'ss");
+            ////    var loginId = SysEnv.ContactLog.LoginID.ToString();
+            ////    var current = DateTime.Now.ToString("yyyy\'-\'MM\'-\'dd\'T\'HH\':\'mm\':\'ss");
+            ////    var request = XDocument.Parse(
+            ////        "<?xml version=\"1.0\" encoding=\"utf-16\" standalone=\"yes\"?>" +
+            ////        "<imclient>" +
+            ////        "<command>" +
+            ////        "<action>REQUEST PRODUCT SCHEME SERIAL NUMBER</action>" +
+            ////        "</command>" +
+            ////        "<device_id>" + deviceId + "</device_id>" +
+            ////        "<login_id>" + loginId + "</login_id>" +
+            ////        "<revision_datetime>" + revision + "</revision_datetime>" +
+            ////        "<stamp>" + current + "</stamp>" +
+            ////        "</imclient>");
+            ////    request.Save(xml);
+            ////    xml.Flush();
+            ////    xml.Close();
 
-                var responseData = SysCommon.SubmitComm(xmlString.ToString());
-                var xmlResult = new XmlDocument();
-                xmlResult.LoadXml(responseData);
+            ////    var responseData = SysCommon.SubmitComm(xmlString.ToString());
+            ////    var xmlResult = new XmlDocument();
+            ////    xmlResult.LoadXml(responseData);
 
-                singleTradeItemSerialNumber = xmlResult.SelectSingleNode(
-                    "/VFPData/SingleTradeUnitSerialNumber") !.FirstChild.Value.PadRight(20);
-            }
+            ////    singleTradeItemSerialNumber = xmlResult.SelectSingleNode(
+            ////        "/VFPData/SingleTradeUnitSerialNumber") !.FirstChild.Value.PadRight(20);
+            ////}
 
             return singleTradeItemSerialNumber;
         }

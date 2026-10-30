@@ -417,7 +417,6 @@ namespace dMobile.Controller.Activity_Detail
 
             return 0;
 
-            //////////////////////////////////////////////////////////////////////////
             async void DeleteFromTables(SQLiteConnection delete)
             {
                 await conn.ExecuteAsync(
