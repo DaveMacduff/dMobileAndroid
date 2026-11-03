@@ -1,0 +1,11 @@
+# pack-refs with: peeled fully-peeled sorted 
+cadf436b6493a6a23a055f97c92ab5c69f951014 refs/heads/ChangeEdit
+d40111896bb2a83f8237db34d8a6fad321feb72e refs/heads/ConnectionManager
+d60e3c396f04ccf1518c1a904703415dc268a078 refs/heads/DEV-5814b
+9af76c9f2ba02bf25b2bddc1b08db6a334956f64 refs/heads/DEV-5896
+bd5ec607836f24682f5ff3a90ff3d159a07d9b5e refs/heads/DEV-5899
+62e6fd371c892d4449f8d64db3927c9d17cb71f6 refs/heads/DEV-5936
+2c29ba2c1aa58fd1aa5f160fa6f716817fa6515f refs/heads/ZebraIntentScan
+8d5af9979d80954393ecb4983d11bb4271ec5a11 refs/heads/main
+8d5af9979d80954393ecb4983d11bb4271ec5a11 refs/heads/master
+e29b536becc94bfe2f7e807833d9788bcde3b9a5 refs/heads/upgrade-to-NET10

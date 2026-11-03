@@ -50,7 +50,7 @@ namespace dMobile.Bedrock
         /// <summary>
         /// Gets or sets the size, in bytes, of the reception buffer used for incoming data.
         /// </summary>
-        public int ReceiveBuffSize { get; set; } = 32768;
+        public int ReceiveBuffSize { get; set; } = 16384;
 
         /// <summary>
         /// Gets or sets the total number of retry attempts for a connection operation.
@@ -163,7 +163,7 @@ namespace dMobile.Bedrock
         public void Disconnect(Socket socket)
         {
             _ = socket ?? throw new ArgumentNullException(nameof(socket));
-            const int delayBetweenAttempts = 1000;
+            const int delayBetweenAttempts = 500;
             var sockEventArgs = new SysSocketEventArgs();
             for (var attempt = 1; attempt <= this.ConnTotalRetries; attempt++)
             {
@@ -806,7 +806,7 @@ namespace dMobile.Bedrock
             const int defaultSecondsTimeout = 10;
             timeout = timeout == TimeSpan.Zero ? new TimeSpan(0, 0, defaultSecondsTimeout) : timeout;
             Socket socket = null;
-            const int delayBetweenAttempts = 1000;
+            const int delayBetweenAttempts = 500;
             var sockInfo = new SysSocketInfo();
             var sockEventArgs = new SysSocketEventArgs();
             using var cancellationTokenSource = new CancellationTokenSource(timeout);
@@ -1442,11 +1442,11 @@ namespace dMobile.Bedrock
         /// The socket will be initialized and connected if the operation succeeds.</param>
         public void Connect(ref Socket socket)
         {
-            const int delayBetweenAttempts = 1000;
+            ////const int delayBetweenAttempts = 1000;
             var port = this.DefSocketPort;
             var tryNewPort = false;
             this.Connect(ref socket, port, ref tryNewPort);
-            Thread.Sleep(delayBetweenAttempts);
+            ////Thread.Sleep(delayBetweenAttempts);
         }
 
         /// <summary>
@@ -1467,7 +1467,7 @@ namespace dMobile.Bedrock
         /// <exception cref="Exception">Thrown if an unhandled socket error occurs during the connection attempt.</exception>
         public void Connect(ref Socket socket, int port, ref bool tryNewPort)
         {
-            const int delayBetweenAttempts = 1000;
+            const int delayBetweenAttempts = 500;
             var sockEventArgs = new SysSocketEventArgs();
             if (this.OnSysSocketStatusOut != null)
             {
@@ -2115,7 +2115,7 @@ namespace dMobile.Bedrock
             var sockEventArgs = new SysSocketEventArgs();
 
             // Poll timeout is in microseconds. 1000000 microseconds = 1 second.
-            var pollTimeout = this.SysEnv.SysSock.SendTimeOutMilliseconds <= 0
+            var pollTimeout = this.SysEnv.SysSock.SendTimeOutMilliseconds > 0
                 ? this.SysEnv.SysSock.SendTimeOutMilliseconds * 1000
                 : 1000000;
 
@@ -2123,19 +2123,15 @@ namespace dMobile.Bedrock
             {
                 try
                 {
-                    if (socket.Poll(pollTimeout, SelectMode.SelectError))
+                    if (socket.Poll(0, SelectMode.SelectError))
                     {
-                        // SelectMode.SelectError does not provide specific error details directly.
-                        // Typically, need to attempt a socket operation to get the error details.
-                        // Send an empty byte array to get the error details.
+                        // Instant, non-blocking check: is there an error right now?
                         socket.Send(Array.Empty<byte>());
                     }
                     else if (!socket.Poll(pollTimeout, SelectMode.SelectWrite))
                     {
-                        // Socket is not ready for writing.
-                        // SelectMode.SelectWrite does not provide specific error details directly.
-                        // Typically, need to attempt a socket operation to get the error details.
-                        // Send an empty byte array to get the error details.
+                        // Genuinely wait up to the configured send timeout for
+                        // the socket to become writable before giving up.
                         socket.Send(Array.Empty<byte>());
                     }
 
