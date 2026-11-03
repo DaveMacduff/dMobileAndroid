@@ -12,6 +12,7 @@ namespace dMobile.View.Activity
     using System.Threading.Tasks;
     using System.Xml.Linq;
     using Android.Views;
+    using Android.Widget;
     using BarCodeScanner.BarCodeParsing;
     using BarCodeScanner.BarCodeScanners;
     using Bedrock;
@@ -438,8 +439,6 @@ namespace dMobile.View.Activity
             SysCommon.ShutdownConnection();
             base.OnDisappearing();
             this.IsIndicatorRunning = false;
-            GC.Collect();
-            GC.WaitForPendingFinalizers();
         }
 
         /// <summary>

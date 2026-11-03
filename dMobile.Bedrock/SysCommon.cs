@@ -1335,15 +1335,9 @@ namespace dMobile.Bedrock
 
                 try
                 {
-                    var s = System.Diagnostics.Stopwatch.StartNew();
                     sysEnv.SysSock.SendRequest(socket, sendData);
-                    Console.WriteLine($"SendRequest took {s.ElapsedMilliseconds} ms");
-                    var r = System.Diagnostics.Stopwatch.StartNew();
                     var compressedData = sysEnv.SysSock.ReceiveResponse(socket);
-                    Console.WriteLine($"ReceiveResponse took {r.ElapsedMilliseconds} ms");
-                    var z = System.Diagnostics.Stopwatch.StartNew();
                     var receivedData = Compress.UnZip(compressedData.ToArray());
-                    Console.WriteLine($"UnZip took {z.ElapsedMilliseconds} ms");
                     CheckCommResponseForErrors(receivedData);
                     return receivedData;
                 }

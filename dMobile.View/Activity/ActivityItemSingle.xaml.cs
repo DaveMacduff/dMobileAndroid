@@ -564,9 +564,12 @@ namespace dMobile.View.Activity
                             var countData = this.ActItem.ListItems.Count > 0
                                 ? $"{this.ActItem.SelectedListIdx + 1} of {this.ActItem.ListItems.Count}" : "0 of 0";
 
+                            ////this.LblItemCountData.Text = countData +
+                            ////    $" Scan time {this.TotalSecondsToScan.ElapsedMilliseconds} ms," +
+                            ////    $" {this.SysEnv.CommStopWatch.ElapsedMilliseconds} ms";
+
                             this.LblItemCountData.Text = countData +
-                                $" Scan time {this.TotalSecondsToScan.ElapsedMilliseconds} ms," +
-                                $" {this.SysEnv.CommStopWatch.ElapsedMilliseconds} ms";
+                                                         $" Scan time {this.TotalSecondsToScan.ElapsedMilliseconds} ms,";
                             return Task.CompletedTask;
                         }
                         catch (Exception exception)
