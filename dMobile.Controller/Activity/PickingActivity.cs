@@ -925,22 +925,61 @@ namespace dMobile.Controller.Activity
             }
 
             this.listPicking = await this.Conn.QueryAsync<Picking>(sql);
+
+            // Fast sort without reflection
             foreach (var sort in pickingSettings.GetDataViewSortBy())
             {
-                if (sort.SortOrder == Resources.Enums.SortOrder.ASC)
-                {
-                    this.listPicking = this.listPicking.OrderBy(picking => picking.GetType().GetProperty(sort.SortValue).GetValue(picking)).ToList();
-                }
-                else
-                {
-                    this.listPicking = this.listPicking.OrderByDescending(picking => picking.GetType().GetProperty(sort.SortValue).GetValue(picking)).ToList();
-                }
+                this.listPicking = ApplySort(
+                    this.listPicking,
+                    sort.SortValue,
+                    sort.SortOrder == Resources.Enums.SortOrder.ASC).ToList();
             }
 
             this.GetFilter();
 
             this.ListHeaders = this.listPicking.Cast<object>().ToList();
             return this.ListHeaders;
+
+            static IEnumerable<Picking> ApplySort(IEnumerable<Picking> src, string key, bool asc)
+            {
+                return key switch
+                {
+                    nameof(Picking.ActivityStringFKRefno) => asc
+                        ? src.OrderBy(x => x.ActivityStringFKRefno)
+                        : src.OrderByDescending(x => x.ActivityStringFKRefno),
+                    nameof(Picking.ActivityFKRefno) => asc
+                        ? src.OrderBy(x => x.ActivityFKRefno)
+                        : src.OrderByDescending(x => x.ActivityFKRefno),
+                    nameof(Picking.ActivityPickingOrderedDateTime) => asc
+                        ? src.OrderBy(x => x.ActivityPickingOrderedDateTime)
+                        : src.OrderByDescending(x => x.ActivityPickingOrderedDateTime),
+                    nameof(Picking.ActivityPickingDeliveryDateTime) => asc
+                        ? src.OrderBy(x => x.ActivityPickingDeliveryDateTime)
+                        : src.OrderByDescending(x => x.ActivityPickingDeliveryDateTime),
+                    nameof(Picking.ActivityPickingCustomerContactName) => asc
+                        ? src.OrderBy(x => x.ActivityPickingCustomerContactName)
+                        : src.OrderByDescending(x => x.ActivityPickingCustomerContactName),
+                    nameof(Picking.ActivityPickingCustomerShipToInfo) => asc
+                        ? src.OrderBy(x => x.ActivityPickingCustomerShipToInfo)
+                        : src.OrderByDescending(x => x.ActivityPickingCustomerShipToInfo),
+                    nameof(Picking.RouteCode) => asc
+                        ? src.OrderBy(x => x.RouteCode)
+                        : src.OrderByDescending(x => x.RouteCode),
+                    nameof(Picking.RouteDescription) => asc
+                        ? src.OrderBy(x => x.RouteDescription)
+                        : src.OrderByDescending(x => x.RouteDescription),
+                    nameof(Picking.RouteDayOfWeek) => asc
+                        ? src.OrderBy(x => x.RouteDayOfWeek)
+                        : src.OrderByDescending(x => x.RouteDayOfWeek),
+                    nameof(Picking.RouteStop) => asc
+                        ? src.OrderBy(x => x.RouteStop)
+                        : src.OrderByDescending(x => x.RouteStop),
+                    nameof(Picking.LocationMapWarehouseName) => asc
+                        ? src.OrderBy(x => x.LocationMapWarehouseName)
+                        : src.OrderByDescending(x => x.LocationMapWarehouseName),
+                    _ => src,   // unknown sort key: no-op
+                };
+            }
         }
 
         /// <inheritdoc cref="Activity.Search(string)"/>
@@ -1021,11 +1060,12 @@ namespace dMobile.Controller.Activity
         /// <returns>The <see cref="Task"/>.</returns>
         public override async Task Refresh(XDocument data)
         {
-            if (!this.SysEnv.SysSettings.IsDisconnectedMode)
+            if (!this.SysEnv.SysSettings.IsDisconnectedMode && !this.ShouldThrottleRefresh())
             {
                 var actPicking = new TableActivityPicking();
                 await this.Purge();
                 await actPicking.RequestHeaderData(data);
+                this.MarkRefreshed();
             }
         }
 

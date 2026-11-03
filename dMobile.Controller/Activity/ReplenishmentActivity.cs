@@ -454,11 +454,12 @@ namespace dMobile.Controller.Activity
         /// <returns>The <see cref="Task"/> Task operation.</returns>
         public override async Task Refresh(XDocument data)
         {
-            if (!this.SysEnv.SysSettings.IsDisconnectedMode)
+            if (!this.SysEnv.SysSettings.IsDisconnectedMode && !this.ShouldThrottleRefresh())
             {
                 await this.Purge();
                 var replen = new TableActivityReplenishment();
                 await replen.RequestHeaderData();
+                this.MarkRefreshed();
             }
         }
 

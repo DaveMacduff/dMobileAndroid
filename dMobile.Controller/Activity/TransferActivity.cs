@@ -377,26 +377,48 @@ namespace dMobile.Controller.Activity
                 transfer.LocationMapRefno = LocationMap.GetInstance().LoginWhsLocMapRefno;
             }
 
+            // Fast sort without reflection
             foreach (var sort in new TransferSettings().LoadData().GetDataViewSortBy())
             {
-                if (sort.SortOrder == Resources.Enums.SortOrder.ASC)
-                {
-                    this.listTransfers = this.listTransfers.OrderBy(
-                            transfer => transfer.GetType().GetProperty(sort.SortValue).GetValue(transfer))
-                        .ToList();
-                }
-                else
-                {
-                    this.listTransfers = this.listTransfers.OrderByDescending(
-                            transfer => transfer.GetType().GetProperty(sort.SortValue).GetValue(transfer))
-                        .ToList();
-                }
+                this.listTransfers = ApplySort(
+                    this.listTransfers,
+                    sort.SortValue,
+                    sort.SortOrder == Resources.Enums.SortOrder.ASC).ToList();
             }
 
             this.GetFilter();
 
             this.ListHeaders = this.listTransfers.Cast<object>().ToList();
             return this.ListHeaders;
+
+            static IEnumerable<Transfer> ApplySort(IEnumerable<Transfer> src, string key, bool asc)
+            {
+                return key switch
+                {
+                    nameof(Transfer.ActivityStringFKRefno) => asc
+                        ? src.OrderBy(x => x.ActivityStringFKRefno)
+                        : src.OrderByDescending(x => x.ActivityStringFKRefno),
+                    nameof(Transfer.ActivityFKRefno) => asc
+                        ? src.OrderBy(x => x.ActivityFKRefno)
+                        : src.OrderByDescending(x => x.ActivityFKRefno),
+                    nameof(Transfer.ActivityTransferArrivalDateTime) => asc
+                        ? src.OrderBy(x => x.ActivityTransferArrivalDateTime)
+                        : src.OrderByDescending(x => x.ActivityTransferArrivalDateTime),
+                    nameof(Transfer.ActivityTransferDateTime) => asc
+                        ? src.OrderBy(x => x.ActivityTransferDateTime)
+                        : src.OrderByDescending(x => x.ActivityTransferDateTime),
+                    nameof(Transfer.ActivityTransferDescription) => asc
+                        ? src.OrderBy(x => x.ActivityTransferDescription)
+                        : src.OrderByDescending(x => x.ActivityTransferDescription),
+                    nameof(Transfer.LocationMapWarehouseName) => asc
+                        ? src.OrderBy(x => x.LocationMapWarehouseName)
+                        : src.OrderByDescending(x => x.LocationMapWarehouseName),
+                    nameof(Transfer.LocationMapWarehouseDescription) => asc
+                        ? src.OrderBy(x => x.LocationMapWarehouseDescription)
+                        : src.OrderByDescending(x => x.LocationMapWarehouseDescription),
+                    _ => src,   // unknown sort key: no-op
+                };
+            }
         }
 
         /// <inheritdoc cref="Activity.Search(string)"/>
@@ -495,7 +517,7 @@ namespace dMobile.Controller.Activity
         /// <returns>The <see cref="Task"/>.</returns>
         public override async Task Refresh(XDocument data)
         {
-            if (!this.SysEnv.SysSettings.IsDisconnectedMode)
+            if (!this.SysEnv.SysSettings.IsDisconnectedMode && !this.ShouldThrottleRefresh())
             {
                 await this.Purge();
                 if (this.ActSubType == SysCommon.ActSubTypes.TransferFrom)
@@ -508,6 +530,8 @@ namespace dMobile.Controller.Activity
                     var tableActTransfer = new TableActivityTransferTo();
                     await tableActTransfer.RequestHeaderData();
                 }
+
+                this.MarkRefreshed();
             }
         }
 

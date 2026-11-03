@@ -325,23 +325,47 @@ namespace dMobile.Controller.Activity
 
             this.ListAdjustments = await this.Conn.QueryAsync<Adjustment>(sql.ToString());
 
+            // Fast sort without reflection
             foreach (var sort in adjSettings.GetDataViewSortBy())
             {
-                if (sort.SortOrder == Resources.Enums.SortOrder.ASC)
-                {
-                    this.ListAdjustments = this.ListAdjustments.OrderBy(
-                        adj => adj.GetType().GetProperty(sort.SortValue) !.GetValue(adj)).ToList();
-                }
-                else
-                {
-                    this.ListAdjustments = this.ListAdjustments.OrderByDescending(
-                        adj => adj.GetType().GetProperty(sort.SortValue) !.GetValue(adj)).ToList();
-                }
+                this.ListAdjustments = ApplySort(
+                    this.ListAdjustments,
+                    sort.SortValue,
+                    sort.SortOrder == Resources.Enums.SortOrder.ASC).ToList();
             }
 
             this.GetFilter();
             this.ListHeaders = this.ListAdjustments.Cast<object>().ToList();
             return this.ListHeaders;
+
+            static IEnumerable<Adjustment> ApplySort(IEnumerable<Adjustment> src, string key, bool asc)
+            {
+                return key switch
+                {
+                    nameof(Adjustment.ActivityStringFKRefno) => asc
+                        ? src.OrderBy(x => x.ActivityStringFKRefno)
+                        : src.OrderByDescending(x => x.ActivityStringFKRefno),
+                    nameof(Adjustment.ActivityFKRefno) => asc
+                        ? src.OrderBy(x => x.ActivityFKRefno)
+                        : src.OrderByDescending(x => x.ActivityFKRefno),
+                    nameof(Adjustment.ActivityAdjustmentDateTime) => asc
+                        ? src.OrderBy(x => x.ActivityAdjustmentDateTime)
+                        : src.OrderByDescending(x => x.ActivityAdjustmentDateTime),
+                    nameof(Adjustment.ActivityAdjustmentDescription) => asc
+                        ? src.OrderBy(x => x.ActivityAdjustmentDescription)
+                        : src.OrderByDescending(x => x.ActivityAdjustmentDescription),
+                    nameof(Adjustment.ActivityAdjustmentType) => asc
+                        ? src.OrderBy(x => x.ActivityAdjustmentType)
+                        : src.OrderByDescending(x => x.ActivityAdjustmentType),
+                    nameof(Adjustment.ActivityAdjustmentTypeDescription) => asc
+                        ? src.OrderBy(x => x.ActivityAdjustmentTypeDescription)
+                        : src.OrderByDescending(x => x.ActivityAdjustmentTypeDescription),
+                    nameof(Adjustment.LocationMapWarehouseName) => asc
+                        ? src.OrderBy(x => x.LocationMapWarehouseName)
+                        : src.OrderByDescending(x => x.LocationMapWarehouseName),
+                    _ => src,   // unknown sort key: no-op
+                };
+            }
         }
 
         /// <inheritdoc cref="Activity.Search(string)"/>
@@ -442,11 +466,12 @@ namespace dMobile.Controller.Activity
         /// <returns>The <see cref="Task"/> Task operation.</returns>
         public override async Task Refresh(XDocument data)
         {
-            if (!this.SysEnv.SysSettings.IsDisconnectedMode)
+            if (!this.SysEnv.SysSettings.IsDisconnectedMode && !this.ShouldThrottleRefresh())
             {
                 await this.Purge();
                 var adj = new TableActivityAdjustment();
                 await adj.RequestHeaderData();
+                this.MarkRefreshed();
             }
         }
 

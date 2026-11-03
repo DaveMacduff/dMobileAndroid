@@ -103,9 +103,10 @@ namespace dMobile.Controller.Activity
         /// <returns>The <see cref="Task"/>.</returns>
         public override async Task Refresh(XDocument data)
         {
-            if (!this.SysEnv.SysSettings.IsDisconnectedMode)
+            if (!this.SysEnv.SysSettings.IsDisconnectedMode && !this.ShouldThrottleRefresh())
             {
                 await this.Purge();
+                this.MarkRefreshed();
             }
         }
 

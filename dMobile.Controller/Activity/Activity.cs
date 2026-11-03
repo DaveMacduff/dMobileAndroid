@@ -110,11 +110,43 @@ namespace dMobile.Controller.Activity
         protected SQLiteAsyncConnection Conn { get; set; } = DatabaseConnection.GetInstance().SqlConn;
 
         /// <summary>
+        /// Gets the minimum amount of time that must elapse between successive full
+        /// data refreshes (<see cref="Purge"/> + request header data) for this activity type.
+        /// Guards against redundant network/DB round trips when a page is re-appeared in quick
+        /// succession (e.g., rapid back/forward navigation).
+        /// </summary>
+        protected virtual TimeSpan RefreshThrottleInterval { get; } = TimeSpan.FromSeconds(30);
+
+        /// <summary>
+        /// Gets or sets the UTC timestamp of the last time this activity type performed a full
+        /// data refresh (<see cref="Purge"/> + request header data).
+        /// </summary>
+        private DateTime LastRefreshUtc { get; set; } = DateTime.MinValue;
+
+        /// <summary>
         /// Perform a data refresh.
         /// </summary>
         /// <param name="data">The data<see cref="XDocument"/>.</param>
         /// <returns>The <see cref="Task"/>.</returns>
         public abstract Task Refresh(XDocument data);
+
+        /// <summary>
+        /// Determine whether a full data refresh (<see cref="Purge"/> + request header data)
+        /// should be skipped because one was already performed within <see cref="RefreshThrottleInterval"/>.
+        /// </summary>
+        /// <returns><see cref="bool"/> True if the refresh should be skipped (throttled).</returns>
+        protected bool ShouldThrottleRefresh()
+        {
+            return DateTime.UtcNow - this.LastRefreshUtc < this.RefreshThrottleInterval;
+        }
+
+        /// <summary>
+        /// Record that a full data refresh was just performed, resetting the throttle window.
+        /// </summary>
+        protected void MarkRefreshed()
+        {
+            this.LastRefreshUtc = DateTime.UtcNow;
+        }
 
         /// <summary>
         /// Search for a text match.

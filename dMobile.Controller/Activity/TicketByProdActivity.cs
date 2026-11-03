@@ -203,7 +203,8 @@ namespace dMobile.Controller.Activity
             foreach (var productionTicket in observableCollection.Cast<ProductionTicketByProduct>())
             {
                 var dataColumnWidth0 = DependencyService.Get<IGridService>().CalculateTextWidth(productionTicket.ActivityStringFKRefno);
-                var dataColumnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(Convert.ToString(productionTicket.ActivityProductionDateTime.ToString("MM/dd/yyyy")));
+//                var dataColumnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(Convert.ToString(productionTicket.ActivityProductionDateTime.ToString("MM/dd/yyyy")));
+                var dataColumnWidth1 = DependencyService.Get<IGridService>().CalculateTextWidth(productionTicket.ActivityProductionDateTime.ToString("MM/dd/yyyy"));
                 var dataColumnWidth2 = DependencyService.Get<IGridService>().CalculateTextWidth(productionTicket.ActivityProductionDescription);
 
                 if (dataColumnWidth0 > this.columnWidth0)
@@ -323,22 +324,42 @@ namespace dMobile.Controller.Activity
             // }
             this.listProductionTicketByProducts = await this.Conn.QueryAsync<ProductionTicketByProduct>(sql.ToString());
 
+            // Fast sort without reflection
             foreach (var sort in ticketSettings.GetDataViewSortBy())
             {
-                if (sort.SortOrder == Resources.Enums.SortOrder.ASC)
-                {
-                    this.listProductionTicketByProducts = this.listProductionTicketByProducts.OrderBy(prodTicket => prodTicket.GetType().GetProperty(sort.SortValue).GetValue(prodTicket)).ToList();
-                }
-                else
-                {
-                    this.listProductionTicketByProducts = this.listProductionTicketByProducts.OrderByDescending(prodTicket => prodTicket.GetType().GetProperty(sort.SortValue).GetValue(prodTicket)).ToList();
-                }
+                this.listProductionTicketByProducts = ApplySort(
+                    this.listProductionTicketByProducts,
+                    sort.SortValue,
+                    sort.SortOrder == Resources.Enums.SortOrder.ASC).ToList();
             }
 
             this.GetFilter();
 
             this.ListHeaders = this.listProductionTicketByProducts.Cast<object>().ToList();
             return this.ListHeaders;
+
+            static IEnumerable<ProductionTicketByProduct> ApplySort(IEnumerable<ProductionTicketByProduct> src, string key, bool asc)
+            {
+                return key switch
+                {
+                    nameof(ProductionTicketByProduct.ActivityStringFKRefno) => asc
+                        ? src.OrderBy(x => x.ActivityStringFKRefno)
+                        : src.OrderByDescending(x => x.ActivityStringFKRefno),
+                    nameof(ProductionTicketByProduct.ActivityFKRefno) => asc
+                        ? src.OrderBy(x => x.ActivityFKRefno)
+                        : src.OrderByDescending(x => x.ActivityFKRefno),
+                    nameof(ProductionTicketByProduct.ActivityProductionDateTime) => asc
+                        ? src.OrderBy(x => x.ActivityProductionDateTime)
+                        : src.OrderByDescending(x => x.ActivityProductionDateTime),
+                    nameof(ProductionTicketByProduct.ActivityProductionDescription) => asc
+                        ? src.OrderBy(x => x.ActivityProductionDescription)
+                        : src.OrderByDescending(x => x.ActivityProductionDescription),
+                    nameof(ProductionTicketByProduct.LocationMapWarehouseName) => asc
+                        ? src.OrderBy(x => x.LocationMapWarehouseName)
+                        : src.OrderByDescending(x => x.LocationMapWarehouseName),
+                    _ => src,   // unknown sort key: no-op
+                };
+            }
         }
 
         /// <inheritdoc cref="Activity.Search(string)"/>
@@ -431,11 +452,12 @@ namespace dMobile.Controller.Activity
         /// <returns>The <see cref="Task"/>.</returns>
         public override async Task Refresh(XDocument data)
         {
-            if (!this.SysEnv.SysSettings.IsDisconnectedMode)
+            if (!this.SysEnv.SysSettings.IsDisconnectedMode && !this.ShouldThrottleRefresh())
             {
                 await this.Purge();
                 var tableActTicketByProduct = new TableActivityProductionTicketByProduct();
                 await tableActTicketByProduct.RequestHeaderData();
+                this.MarkRefreshed();
             }
         }
 

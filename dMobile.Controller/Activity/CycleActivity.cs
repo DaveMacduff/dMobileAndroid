@@ -280,24 +280,46 @@ namespace dMobile.Controller.Activity
             }
 
             this.listCounts = await this.Conn.QueryAsync<Count>(sql.ToString());
+
+            // Fast sort without reflection
             foreach (var sort in this.CycleCountSettings.GetDataViewSortBy())
             {
-                if (sort.SortOrder == Resources.Enums.SortOrder.ASC)
-                {
-                    this.listCounts = this.listCounts.OrderBy(
-                        adj => adj.GetType().GetProperty(sort.SortValue) !.GetValue(adj)).ToList();
-                }
-                else
-                {
-                    this.listCounts = this.listCounts.OrderByDescending(
-                        adj => adj.GetType().GetProperty(sort.SortValue) !.GetValue(adj)).ToList();
-                }
+                this.listCounts = ApplySort(
+                    this.listCounts,
+                    sort.SortValue,
+                    sort.SortOrder == Resources.Enums.SortOrder.ASC).ToList();
             }
 
             this.GetFilter();
 
             this.ListHeaders = this.listCounts.Cast<object>().ToList();
             return this.ListHeaders;
+
+            static IEnumerable<Count> ApplySort(IEnumerable<Count> src, string key, bool asc)
+            {
+                return key switch
+                {
+                    nameof(Count.ActivityStringFKRefno) => asc
+                        ? src.OrderBy(x => x.ActivityStringFKRefno)
+                        : src.OrderByDescending(x => x.ActivityStringFKRefno),
+                    nameof(Count.ActivityFKRefno) => asc
+                        ? src.OrderBy(x => x.ActivityFKRefno)
+                        : src.OrderByDescending(x => x.ActivityFKRefno),
+                    nameof(Count.ActivityCountDateTime) => asc
+                        ? src.OrderBy(x => x.ActivityCountDateTime)
+                        : src.OrderByDescending(x => x.ActivityCountDateTime),
+                    nameof(Count.ActivityCountTypeDescription) => asc
+                        ? src.OrderBy(x => x.ActivityCountTypeDescription)
+                        : src.OrderByDescending(x => x.ActivityCountTypeDescription),
+                    nameof(Count.ActivityCountDescription) => asc
+                        ? src.OrderBy(x => x.ActivityCountDescription)
+                        : src.OrderByDescending(x => x.ActivityCountDescription),
+                    nameof(Count.ActivityCountType) => asc
+                        ? src.OrderBy(x => x.ActivityCountType)
+                        : src.OrderByDescending(x => x.ActivityCountType),
+                    _ => src,   // unknown sort key: no-op
+                };
+            }
         }
 
         /// <inheritdoc cref="Activity.Search(string)"/>
@@ -369,11 +391,12 @@ namespace dMobile.Controller.Activity
         /// <inheritdoc />
         public override async Task Refresh(XDocument data)
         {
-            if (!this.SysEnv.SysSettings.IsDisconnectedMode)
+            if (!this.SysEnv.SysSettings.IsDisconnectedMode && !this.ShouldThrottleRefresh())
             {
                 await this.Purge();
                 var cycleCount = new TableActivityCycleCount();
                 await cycleCount.RequestHeaderData();
+                this.MarkRefreshed();
             }
         }
 

@@ -324,22 +324,42 @@ namespace dMobile.Controller.Activity
             // }
             this.listProductionTicketMaterial = await this.Conn.QueryAsync<ProductionTicketMaterial>(sql.ToString());
 
+            // Fast sort without reflection
             foreach (var sort in ticketSettings.GetDataViewSortBy())
             {
-                if (sort.SortOrder == Resources.Enums.SortOrder.ASC)
-                {
-                    this.listProductionTicketMaterial = this.listProductionTicketMaterial.OrderBy(prodTicket => prodTicket.GetType().GetProperty(sort.SortValue).GetValue(prodTicket)).ToList();
-                }
-                else
-                {
-                    this.listProductionTicketMaterial = this.listProductionTicketMaterial.OrderByDescending(prodTicket => prodTicket.GetType().GetProperty(sort.SortValue).GetValue(prodTicket)).ToList();
-                }
+                this.listProductionTicketMaterial = ApplySort(
+                    this.listProductionTicketMaterial,
+                    sort.SortValue,
+                    sort.SortOrder == Resources.Enums.SortOrder.ASC).ToList();
             }
 
             this.GetFilter();
 
             this.ListHeaders = this.listProductionTicketMaterial.Cast<object>().ToList();
             return this.ListHeaders;
+
+            static IEnumerable<ProductionTicketMaterial> ApplySort(IEnumerable<ProductionTicketMaterial> src, string key, bool asc)
+            {
+                return key switch
+                {
+                    nameof(ProductionTicketMaterial.ActivityStringFKRefno) => asc
+                        ? src.OrderBy(x => x.ActivityStringFKRefno)
+                        : src.OrderByDescending(x => x.ActivityStringFKRefno),
+                    nameof(ProductionTicketMaterial.ActivityFKRefno) => asc
+                        ? src.OrderBy(x => x.ActivityFKRefno)
+                        : src.OrderByDescending(x => x.ActivityFKRefno),
+                    nameof(ProductionTicketMaterial.ActivityProductionDateTime) => asc
+                        ? src.OrderBy(x => x.ActivityProductionDateTime)
+                        : src.OrderByDescending(x => x.ActivityProductionDateTime),
+                    nameof(ProductionTicketMaterial.ActivityProductionDescription) => asc
+                        ? src.OrderBy(x => x.ActivityProductionDescription)
+                        : src.OrderByDescending(x => x.ActivityProductionDescription),
+                    nameof(ProductionTicketMaterial.LocationMapWarehouseName) => asc
+                        ? src.OrderBy(x => x.LocationMapWarehouseName)
+                        : src.OrderByDescending(x => x.LocationMapWarehouseName),
+                    _ => src,   // unknown sort key: no-op
+                };
+            }
         }
 
         /// <inheritdoc cref="Activity.Search(string)"/>
@@ -441,11 +461,12 @@ namespace dMobile.Controller.Activity
         /// <returns>The <see cref="Task"/>.</returns>
         public override async Task Refresh(XDocument data)
         {
-            if (!this.SysEnv.SysSettings.IsDisconnectedMode)
+            if (!this.SysEnv.SysSettings.IsDisconnectedMode && !this.ShouldThrottleRefresh())
             {
                 await this.Purge();
                 var tableTicketMaterial = new TableActivityProductionTicketMaterial();
                 await tableTicketMaterial.RequestHeaderData();
+                this.MarkRefreshed();
             }
         }
 

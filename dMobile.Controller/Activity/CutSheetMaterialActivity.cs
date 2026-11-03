@@ -391,11 +391,12 @@ namespace dMobile.Controller.Activity
         /// <inheritdoc cref="Activity.Refresh(XDocument)"/>/>
         public override async Task Refresh(XDocument data)
         {
-            if (!this.SysEnv.SysSettings.IsDisconnectedMode)
+            if (!this.SysEnv.SysSettings.IsDisconnectedMode && !this.ShouldThrottleRefresh())
             {
                 await this.Purge();
                 var tableCutSheetMaterial = new TableActivityCutSheetMaterial();
                 await tableCutSheetMaterial.RequestHeaderData();
+                this.MarkRefreshed();
             }
         }
 

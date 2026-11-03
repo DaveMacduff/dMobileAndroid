@@ -1165,6 +1165,17 @@ namespace dMobile.View.Activity
             // Bind the filtered activity items to the list view.
             await Device.InvokeOnMainThreadAsync(() =>
                 {
+                    // Remove any previously rendered header sub-grid(s) before the subtype's
+                    // DesignGrid() rebuilds and re-adds one, otherwise header grids accumulate
+                    // on every refresh. The ListView itself (defined in XAML) must be preserved.
+                    var staleHeaderGrids = this.GridMainActivity.Children
+                        .OfType<Grid>()
+                        .ToList();
+                    foreach (var staleHeaderGrid in staleHeaderGrids)
+                    {
+                        this.GridMainActivity.Children.Remove(staleHeaderGrid);
+                    }
+
                     this.MainActivityItems = this.ActHdr.DesignGrid(
                         ref this.GridMainActivity,
                         ref this.ListViewMainActivity);
@@ -1186,20 +1197,25 @@ namespace dMobile.View.Activity
         {
             if (this.ActHdr.ListHeaders.Count > 0 && this.MainActivityItems.Count > 0)
             {
-                // Iterate through the list of headers looking for a foreign key match.
-                // Faster than LINQ.
-                this.ActHdr.SelectedListItemIdx = 0;
                 object selectedItem = null;
-                foreach (var hdr in this.ActHdr.ListHeaders)
-                {
-                    this.ActHdr.AssignRefnoFromActivity(hdr);
-                    if (this.SelectedActivityFkRefno == this.ActHdr.HdrFkRefno)
-                    {
-                        selectedItem = hdr;
-                        break;
-                    }
 
-                    this.ActHdr.SelectedListItemIdx++;
+                // Skip the linear scan entirely when there is no previously selected item to find.
+                if (this.SelectedActivityFkRefno != 0)
+                {
+                    // Iterate through the list of headers looking for a foreign key match.
+                    // Faster than LINQ.
+                    this.ActHdr.SelectedListItemIdx = 0;
+                    foreach (var hdr in this.ActHdr.ListHeaders)
+                    {
+                        this.ActHdr.AssignRefnoFromActivity(hdr);
+                        if (this.SelectedActivityFkRefno == this.ActHdr.HdrFkRefno)
+                        {
+                            selectedItem = hdr;
+                            break;
+                        }
+
+                        this.ActHdr.SelectedListItemIdx++;
+                    }
                 }
 
                 // Select the first header if no match was found, else select the item.
