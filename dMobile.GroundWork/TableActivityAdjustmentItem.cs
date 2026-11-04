@@ -279,14 +279,14 @@ namespace dMobile.GroundWork
                                         0,
                                         progMax);
                                 }
-
-                                this.DataAccessProgressOutHandler(
-                                    this,
-                                    EventArgs.Empty,
-                                    progMax,
-                                    0,
-                                    progMax);
                             }
+
+                            this.DataAccessProgressOutHandler(
+                                this,
+                                EventArgs.Empty,
+                                progMax,
+                                0,
+                                progMax);
                         }
 
                         transaction.Commit();
@@ -312,9 +312,6 @@ namespace dMobile.GroundWork
                             "saving adjustment items failed.",
                             true);
 
-                        throw new BaseException(
-                            "Database exception occurred. Saving adjustment items failed.",
-                            ex);
                         throw new BaseException(
                             "Database exception occurred. Saving adjustment items failed.",
                             ex);
