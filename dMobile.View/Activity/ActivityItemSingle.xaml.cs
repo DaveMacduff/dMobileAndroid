@@ -176,10 +176,149 @@ namespace dMobile.View.Activity
         /// The IsReadyToClose.
         /// </summary>
         /// <returns>.</returns>
-        public Task<bool> IsReadyToClose()
+        public async Task<bool> IsReadyToClose()
         {
-            const bool isReadyToClose = true;
-            return Task.FromResult(isReadyToClose);
+            var performUnderCheck = this.ActSubType switch
+            {
+                SysCommon.ActSubTypes.Picking =>
+                    this.SysEnv.SysSettings.PickQtyUnderWarn != SysCommon.ActPickingQtyUnderValLevels.NoValidationOrWarning,
+                SysCommon.ActSubTypes.Receiving =>
+                    this.SysEnv.SysSettings.RecvQtyUnderWarn != SysCommon.ActReceivingQtyUnderValLevels.NoValidationOrWarning,
+                SysCommon.ActSubTypes.TransferFrom =>
+                    this.SysEnv.SysSettings.TransQtyUnderWarn != SysCommon.ActTransfersQtyUnderValLevels.NoValidationOrWarning,
+                SysCommon.ActSubTypes.TransferTo =>
+                    this.SysEnv.SysSettings.TransQtyUnderWarn != SysCommon.ActTransfersQtyUnderValLevels.NoValidationOrWarning,
+                _ => false
+            };
+
+            return !performUnderCheck || await this.QuantityUnderMessage();
+        }
+
+        /// <summary>
+        ///     Quantity under message. This is used to check if the picking item has a quantity that has not been shipped.
+        /// </summary>
+        /// <returns><see cref="Task" /> Task operation.</returns>
+        private async Task<bool> QuantityUnderMessage()
+        {
+            var differenceFound = false;
+            foreach (var item in this.ListItems)
+            {
+                if (item is PickingItem pickActItem)
+                {
+                    var diff = pickActItem.ActivityItemPickingQuantityOrdered - pickActItem.ActivityItemPickingQuantityShipped;
+                    if (diff > 0)
+                    {
+                        if (this.SysEnv.SysSettings.PickQtyUnderWarn == SysCommon.ActPickingQtyUnderValLevels.ValidateWarnAndContinue)
+                        {
+                            const string msg = "Item(s) exist with a quantity difference that has not been" +
+                                               " shipped. Are you sure you want to cancel?";
+                            await this.DisplayAlert(this.ActHdr.GetControlDescription(), msg, "Yes", "No")
+                                .ContinueWith(result =>
+                                {
+                                    if (!result.Result)
+                                    {
+                                        differenceFound = true;
+                                    }
+                                });
+
+                            if (differenceFound)
+                            {
+                                break;
+                            }
+                        }
+
+                        if (this.SysEnv.SysSettings.PickQtyUnderWarn == SysCommon.ActPickingQtyUnderValLevels.ValidateWarnAndStop)
+                        {
+                            const string msg = "Item(s) exist with a quantity difference that has not been" +
+                                               " shipped. Please correct the differences.";
+                            await Application.Current.MainPage.DisplayAlert(
+                                this.ActItem.GetControlDescription(),
+                                msg,
+                                Resource.OK);
+                            differenceFound = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (item is ReceiveItem recvActItem)
+                {
+                    var diff = recvActItem.ActivityItemReceivingQuantityOrdered - recvActItem.ActivityItemReceivingQuantityReceived;
+                    if (diff > 0)
+                    {
+                        if (this.SysEnv.SysSettings.RecvQtyUnderWarn == SysCommon.ActReceivingQtyUnderValLevels.ValidateWarnAndContinue)
+                        {
+                            const string msg = "Item(s) exist with a quantity difference that has not been" +
+                                               " shipped. Are you sure you want to cancel?";
+                            await this.DisplayAlert(this.ActHdr.GetControlDescription(), msg, "Yes", "No")
+                                .ContinueWith(result =>
+                                {
+                                    if (!result.Result)
+                                    {
+                                        differenceFound = true;
+                                    }
+                                });
+
+                            if (differenceFound)
+                            {
+                                break;
+                            }
+                        }
+
+                        if (this.SysEnv.SysSettings.RecvQtyUnderWarn == SysCommon.ActReceivingQtyUnderValLevels.ValidateWarnAndStop)
+                        {
+                            const string msg = "Item(s) exist with a quantity difference that has not been" +
+                                               " shipped. Please correct the differences.";
+                            await Application.Current.MainPage.DisplayAlert(
+                                this.ActItem.GetControlDescription(),
+                                msg,
+                                Resource.OK);
+                            differenceFound = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (item is TransferItem transActItem)
+                {
+                    var diff = transActItem.ActivityItemTransferRequiredQuantity - transActItem.ActivityItemTransferQuantity;
+                    if (diff > 0)
+                    {
+                        if (this.SysEnv.SysSettings.TransQtyUnderWarn == SysCommon.ActTransfersQtyUnderValLevels.ValidateWarnAndContinue)
+                        {
+                            const string msg = "Item(s) exist with a quantity difference that has not been" +
+                                               " shipped. Are you sure you want to cancel?";
+                            await this.DisplayAlert(this.ActHdr.GetControlDescription(), msg, "Yes", "No")
+                                .ContinueWith(result =>
+                                {
+                                    if (!result.Result)
+                                    {
+                                        differenceFound = true;
+                                    }
+                                });
+
+                            if (differenceFound)
+                            {
+                                break;
+                            }
+                        }
+
+                        if (this.SysEnv.SysSettings.TransQtyUnderWarn == SysCommon.ActTransfersQtyUnderValLevels.ValidateWarnAndStop)
+                        {
+                            const string msg = "Item(s) exist with a quantity difference that has not been" +
+                                               " shipped. Please correct the differences.";
+                            await Application.Current.MainPage.DisplayAlert(
+                                this.ActItem.GetControlDescription(),
+                                msg,
+                                Resource.OK);
+                            differenceFound = true;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            return !differenceFound;
         }
 
         /// <summary>
@@ -196,10 +335,48 @@ namespace dMobile.View.Activity
         /// The CancelChanges.
         /// </summary>
         /// <returns>.</returns>
-        public Task<bool> CancelChanges()
+        public async Task<bool> CancelChanges()
         {
-            const bool cancelChanges = true;
-            return Task.FromResult(cancelChanges);
+            var cancelChanges = true;
+            try
+            {
+                // IsReadyToClose checks if any changes where made.
+                if (await this.IsReadyToClose())
+                {
+                    // Expect the control to close.
+                }
+                else
+                {
+                    // If changes where made.
+                    // By reloading, restoring the last valid state we should be able to close the control
+                    // on the second CancelChanges attempt.
+                    // Methods that could be called to restore the control to a closable state.
+                    // ClearProperties();
+                    // DisplayData();
+                    cancelChanges = false;
+                }
+            }
+            catch (MessageOnlyException msgEx)
+            {
+                var msg = SysCommon.GetMessageFromMessageException(msgEx);
+                cancelChanges = false;
+                await Device.InvokeOnMainThreadAsync(async () =>
+                    await Application.Current.MainPage.DisplayAlert(
+                        this.ActHdr.GetControlDescription(),
+                        msg,
+                        Resource.OK));
+            }
+            catch (Exception ex)
+            {
+                cancelChanges = false;
+                await Device.InvokeOnMainThreadAsync(async () =>
+                {
+                    var errRpt = new FormErrorReport(this.ActSubType, ex);
+                    _ = await errRpt.ShowDialog();
+                });
+            }
+
+            return cancelChanges;
         }
 
         /// <summary>
@@ -269,23 +446,28 @@ namespace dMobile.View.Activity
         /// <returns>The <see cref="bool"/>.</returns>
         protected override bool OnBackButtonPressed()
         {
-            Device.BeginInvokeOnMainThread(BackButtonCallback);
+            Device.BeginInvokeOnMainThread(PerformBackButton);
             return true;
 
-            void BackButtonCallback()
+            async void PerformBackButton()
             {
-                _ = base.OnBackButtonPressed();
-#pragma warning disable LindhartAnalyserMissingAwaitWarning
-                Task.Run(async () =>
+                try
+                {
+                    if (await this.CancelChanges())
                     {
                         await this.ScannerDisable();
-                        if (await this.CancelChanges())
-                        {
-                            this.DialogResult = DialogResult.None;
-                            await this.Close();
-                        }
-                    });
-#pragma warning restore LindhartAnalyserMissingAwaitWarning
+                        _ = base.OnBackButtonPressed();
+                        await this.Close();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Device.InvokeOnMainThreadAsync(() =>
+                    {
+                        var errRpt = new FormErrorReport(this.ActSubType, ex);
+                        _ = errRpt.ShowDialog();
+                    }).Wait();
+                }
             }
         }
 
@@ -1459,7 +1641,7 @@ namespace dMobile.View.Activity
         {
             try
             {
-                this.ActSubType = SysCommon.ActSubTypes.PickingList;
+                this.ActSubType = SysCommon.ActSubTypes.PickingItemsList;
                 this.CmdInvInquiry.IsEnabled = false;
                 await this.ScannerDisable();
                 var form = new FormDialogContainer(

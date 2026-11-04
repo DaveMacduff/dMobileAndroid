@@ -804,7 +804,72 @@ namespace dMobile.Bedrock
             /// <summary>
             /// Defines the Picking List.
             /// </summary>
-            PickingList = 47,
+            PickingItemsList = 47,
+
+            /// <summary>
+            /// Represents the identifier for the receive items list.
+            /// </summary>
+            ReceiveItemsList = 48,
+
+            /// <summary>
+            /// Represents the identifier for the transfer items list.
+            /// </summary>  
+            TransferItemsList = 49,
+
+            /// <summary>
+            /// Define the identifier for the adjustment items list.
+            /// </summary>
+            AdjustmentItemsList = 50,
+
+            /// <summary>
+            /// Define the identifier for the physical count items list.
+            /// </summary>
+            PhysicalCountItemsList = 51,
+
+            /// <summary>
+            /// Define the identifier for the cycle count items list.
+            /// </summary>
+            CycleCountItemsList = 52,
+
+            /// <summary>
+            /// Represents the value for the return items list.
+            /// </summary>
+            ReturnItemsList = 53,
+
+            /// <summary>
+            /// Represents the identifier for finished goods items.
+            /// </summary>
+            FinishedGoodsItemsList = 54,
+
+            /// <summary>
+            /// Defines the identifier for raw material items.
+            /// </summary>
+            RawMaterialItemsList = 55,
+
+            /// <summary>
+            /// Defines the identifier for by products items.
+            /// </summary>
+            ByProductsItemsList = 56,
+
+            /// <summary>
+            /// Defines the identifier for cut sheet finished items.
+            /// </summary>
+            CutSheetFinishedItemsList = 57,
+
+            /// <summary>
+            /// Defines the identifier for cut sheet material items.
+            /// </summary>
+            CutSheetMaterialItemsList = 58,
+
+            /// <summary>
+            /// Defines the identifier for yield sheet finished items.
+            /// </summary>
+            YieldSheetFinishedItemsList = 59,
+
+            /// <summary>
+            /// Defines the identifier for yield sheet material items.
+            /// </summary>
+            YieldSheetMaterialItemsList = 60,
         }
 
         /// <summary>

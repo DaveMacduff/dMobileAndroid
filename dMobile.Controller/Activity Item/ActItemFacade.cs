@@ -29,15 +29,18 @@ namespace dMobile.Controller.Activity_Item
                     actItemFactory = new BarCodeActItemFactory();
                     break;
 
+                case SysCommon.ActSubTypes.PhysicalCountItemsList:
                 case SysCommon.ActSubTypes.PhysicalCounts:
                     actItemFactory = new PhysicalActItemFactory();
                     break;
 
+                case SysCommon.ActSubTypes.CycleCountItemsList:
                 case SysCommon.ActSubTypes.CycleCounts:
                     actItemFactory = new CycleActItemFactory();
                     break;
 
                 case SysCommon.ActSubTypes.Receiving:
+                case SysCommon.ActSubTypes.ReceiveItemsList:
                     actItemFactory = new RecvActItemFactory();
                     break;
 
@@ -45,34 +48,37 @@ namespace dMobile.Controller.Activity_Item
                     actItemFactory = new PickSingleActItemFactory();
                     break;
 
-                case SysCommon.ActSubTypes.PickingList:
+                case SysCommon.ActSubTypes.PickingItemsList:
                     actItemFactory = new PickingActItemFactory();
                     break;
 
+                case SysCommon.ActSubTypes.ReturnItemsList:
                 case SysCommon.ActSubTypes.Returns:
                     actItemFactory = new ReturnsActItemFactory();
                     break;
 
+                case SysCommon.ActSubTypes.TransferItemsList:
                 case SysCommon.ActSubTypes.TransferFrom:
-                    actItemFactory = new TransferActItemFactory();
-                    break;
-
                 case SysCommon.ActSubTypes.TransferTo:
                     actItemFactory = new TransferActItemFactory();
                     break;
 
+                case SysCommon.ActSubTypes.AdjustmentItemsList:
                 case SysCommon.ActSubTypes.Adjustment:
                     actItemFactory = new AdjActItemFactory();
                     break;
 
+                case SysCommon.ActSubTypes.FinishedGoodsItemsList:
                 case SysCommon.ActSubTypes.TicketFinished:
                     actItemFactory = new TicketFinishedActItemFactory();
                     break;
 
+                case SysCommon.ActSubTypes.RawMaterialItemsList:
                 case SysCommon.ActSubTypes.TicketMaterial:
                     actItemFactory = new TicketMaterialActItemFactory();
                     break;
 
+                case SysCommon.ActSubTypes.ByProductsItemsList:
                 case SysCommon.ActSubTypes.TicketAddProduct:
                     actItemFactory = new TicketByProdActItemFactory();
                     break;
@@ -117,12 +123,24 @@ namespace dMobile.Controller.Activity_Item
                     actItemFactory = new ConvertProductActItemFactory();
                     break;
 
+                case SysCommon.ActSubTypes.CutSheetFinishedItemsList:
                 case SysCommon.ActSubTypes.CutSheetFinished:
                     actItemFactory = new CutSheetFinishedActItemFactory();
                     break;
 
+                case SysCommon.ActSubTypes.CutSheetMaterialItemsList:
                 case SysCommon.ActSubTypes.CutSheetMaterial:
                     actItemFactory = new CutSheetMaterialActItemFactory();
+                    break;
+
+                case SysCommon.ActSubTypes.YieldSheetFinishedItemsList:
+                case SysCommon.ActSubTypes.YieldSheetFinished:
+                    actItemFactory = new YieldSheetFinishedActItemFactory();
+                    break;
+
+                case SysCommon.ActSubTypes.YieldSheetMaterialItemsList:
+                case SysCommon.ActSubTypes.YieldSheetMaterial:
+                    actItemFactory = new YieldSheetMaterialActItemFactory();
                     break;
             }
 
