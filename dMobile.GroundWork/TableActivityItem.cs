@@ -23,19 +23,14 @@ namespace dMobile.GroundWork
             {
                 try
                 {
-                    // Corruption recovery cleanup.
+                    // Corruption recovery cleanup: delete invalid and orphaned items in one pass
                     var query = @"
                         DELETE FROM tActivityItem
-                            WHERE tActivityItem.ActivityRefno
-                                NOT IN (SELECT tActivity.ActivityRefno FROM tActivity)";
+                            WHERE tActivityItem.ActivityItemRefno <= 0
+                            OR tActivityItem.ActivityRefno NOT IN (SELECT tActivity.ActivityRefno FROM tActivity)";
                     transaction.Execute(query);
 
-                    query = @"
-                        DELETE FROM tActivityItem
-                            WHERE tActivityItem.ActivityItemRefno <= 0";
-                    transaction.Execute(query);
-
-                    // Regular purge.
+                    // Regular purge: delete by subtype
                     query = "DELETE FROM tActivityItem WHERE tActivityItem.ActivityItemSubType = ?";
                     transaction.Execute(query, actSubType);
 

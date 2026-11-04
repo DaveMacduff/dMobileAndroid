@@ -5,6 +5,8 @@
 // ReSharper disable InconsistentNaming
 namespace dMobile.GroundWork
 {
+    using Bedrock;
+    using SQLite;
     using System;
     using System.Collections.Generic;
     using System.Data;
@@ -12,7 +14,6 @@ namespace dMobile.GroundWork
     using System.Threading.Tasks;
     using System.Xml;
     using System.Xml.Linq;
-    using Bedrock;
 
     /// <summary>
     ///     Defines the <see cref="TableActivityPicking" />.
@@ -99,118 +100,119 @@ namespace dMobile.GroundWork
                 var rows = dataSet.Tables[0].Rows;
                 if (rows.Count > 0)
                 {
-                    try
+                    await Conn.RunInTransactionAsync(conn =>
                     {
-                        var orders = new List<Seg>();
-                        foreach (DataRow row in rows)
+                        try
                         {
-                            var refno = await GetActivityRefno();
-                            var order = new Seg
+                            var orders = new List<Seg>(rows.Count);
+                            foreach (DataRow row in rows)
                             {
-                                ActivityRefno = refno,
-                                ActivitySubType = Convert.ToInt32(SysCommon.ActSubTypes.Picking),
-                                ActivityFKRefno = Convert.ToInt32(row["ActivityFKRefno"]),
-                                ActivityStringFKRefno = Convert.ToString(row["ActivityFKRefno"]),
-                                LocationMapWarehouseFKRefno =
-                                    Convert.ToInt32(row["LocationMapWarehouseFKRefno"]),
-                                ActivityPickingOrderedDateTime =
-                                    Convert.ToDateTime(row["ActivityPickingOrderedDateTime"]),
-                                ActivityPickingDeliveryDateTime =
-                                    Convert.ToDateTime(row["ActivityPickingDeliveryDateTime"]),
-                                ActivityPickingCustomerContactName =
-                                    Convert.ToString(row["ActivityPickingCustomerContactName"]),
-                                ActivityPickingCustomerShipToInfo =
-                                    Convert.ToString(row["ActivityPickingCustomerShipToInfo"]),
-                                ActivityPickingIsReviewed = false,
-                                ActivityPickingRouteCode =
-                                    Convert.ToString(row["ActivityPickingRouteCode"]),
-                                ActivityPickingRouteStop =
-                                    Convert.ToInt32(row["ActivityPickingRouteStop"])
-                            };
-                            orders.Add(order);
+                                var refno = GetActivityRefno(conn);
+                                var order = new Seg
+                                {
+                                    ActivityRefno = refno,
+                                    ActivitySubType = Convert.ToInt32(SysCommon.ActSubTypes.Picking),
+                                    ActivityFKRefno = Convert.ToInt32(row["ActivityFKRefno"]),
+                                    ActivityStringFKRefno = Convert.ToString(row["ActivityFKRefno"]),
+                                    LocationMapWarehouseFKRefno =
+                                        Convert.ToInt32(row["LocationMapWarehouseFKRefno"]),
+                                    ActivityPickingOrderedDateTime =
+                                        Convert.ToDateTime(row["ActivityPickingOrderedDateTime"]),
+                                    ActivityPickingDeliveryDateTime =
+                                        Convert.ToDateTime(row["ActivityPickingDeliveryDateTime"]),
+                                    ActivityPickingCustomerContactName =
+                                        Convert.ToString(row["ActivityPickingCustomerContactName"]),
+                                    ActivityPickingCustomerShipToInfo =
+                                        Convert.ToString(row["ActivityPickingCustomerShipToInfo"]),
+                                    ActivityPickingIsReviewed = false,
+                                    ActivityPickingRouteCode =
+                                        Convert.ToString(row["ActivityPickingRouteCode"]),
+                                    ActivityPickingRouteStop =
+                                        Convert.ToInt32(row["ActivityPickingRouteStop"])
+                                };
+                                orders.Add(order);
+                            }
+
+                            const string query = "CREATE TEMP TABLE Seg" +
+                                                 "(" +
+                                                 "ActivityRefno INTEGER NOT NULL," +
+                                                 "ActivitySubType INTEGER NOT NULL," +
+                                                 "ActivityFKRefno INTEGER NOT NULL," +
+                                                 "ActivityStringFKRefno VARCHAR(10) NOT NULL," +
+                                                 "LocationMapWarehouseFKRefno INTEGER NOT NULL," +
+                                                 "ActivityPickingOrderedDateTime DATETIME NOT NULL," +
+                                                 "ActivityPickingDeliveryDateTime DATETIME NOT NULL," +
+                                                 "ActivityPickingCustomerContactName VARCHAR(40) NOT NULL," +
+                                                 "ActivityPickingCustomerShipToInfo VARCHAR(40) NOT NULL," +
+                                                 "ActivityPickingIsReviewed BIT NOT NULL," +
+                                                 "ActivityPickingRouteCode VARCHAR(5) NOT NULL," +
+                                                 "ActivityPickingRouteStop INTEGER NOT NULL" +
+                                                 ")";
+
+                            conn.Execute(query);
+                            conn.InsertAll(orders);
+
+                            const string query1 = "INSERT INTO tActivityPicking " +
+                                                  "(" +
+                                                  "ActivityRefno," +
+                                                  "ActivitySubType," +
+                                                  "ActivityFKRefno," +
+                                                  "ActivityStringFKRefno," +
+                                                  "WarehouseLocationMapRefno," +
+                                                  "ActivityPickingOrderedDateTime," +
+                                                  "ActivityPickingDeliveryDateTime," +
+                                                  "ActivityPickingCustomerContactName," +
+                                                  "ActivityPickingCustomerShipToInfo," +
+                                                  "ActivityPickingIsReviewed" +
+                                                  ")" +
+                                                  "SELECT Seg.ActivityRefno," +
+                                                  "Seg.ActivitySubType," +
+                                                  "Seg.ActivityFKRefno," +
+                                                  "Seg.ActivityStringFKRefno," +
+                                                  "whs.LocationMapRefno as WarehouseLocationMapRefno," +
+                                                  "Seg.ActivityPickingOrderedDateTime," +
+                                                  "Seg.ActivityPickingDeliveryDateTime," +
+                                                  "Seg.ActivityPickingCustomerContactName," +
+                                                  "Seg.ActivityPickingCustomerShipToInfo," +
+                                                  "Seg.ActivityPickingIsReviewed" +
+                                                  " FROM Seg" +
+                                                  " INNER JOIN tLocationMapWarehouse whs ON " +
+                                                  "whs.LocationMapWarehouseFKRefno = Seg.LocationMapWarehouseFKRefno";
+
+                            const string query2 = "INSERT INTO tActivityPickingRoute " +
+                                                  "(" +
+                                                  "PickingActivityRefno," +
+                                                  "RouteRefno," +
+                                                  "RouteStop" +
+                                                  ")" +
+                                                  "SELECT Seg.ActivityRefno," +
+                                                  "tRoute.RouteRefno," +
+                                                  "Seg.ActivityPickingRouteStop" +
+                                                  " FROM Seg" +
+                                                  " INNER JOIN tRoute ON tRoute.RouteCode = Seg.ActivityPickingRouteCode";
+
+                            conn.Execute(query1);
+                            conn.Execute(query2);
                         }
-
-                        const string query = "CREATE TEMP TABLE Seg" +
-                                             "(" +
-                                             "ActivityRefno INTEGER NOT NULL," +
-                                             "ActivitySubType INTEGER NOT NULL," +
-                                             "ActivityFKRefno INTEGER NOT NULL," +
-                                             "ActivityStringFKRefno VARCHAR(10) NOT NULL," +
-                                             "LocationMapWarehouseFKRefno INTEGER NOT NULL," +
-                                             "ActivityPickingOrderedDateTime DATETIME NOT NULL," +
-                                             "ActivityPickingDeliveryDateTime DATETIME NOT NULL," +
-                                             "ActivityPickingCustomerContactName VARCHAR(40) NOT NULL," +
-                                             "ActivityPickingCustomerShipToInfo VARCHAR(40) NOT NULL," +
-                                             "ActivityPickingIsReviewed BIT NOT NULL," +
-                                             "ActivityPickingRouteCode VARCHAR(5) NOT NULL," +
-                                             "ActivityPickingRouteStop INTEGER NOT NULL" +
-                                             ")";
-
-                        await Conn.ExecuteAsync(query);
-                        await Conn.InsertAllAsync(orders);
-
-                        const string query1 = "INSERT INTO tActivityPicking " +
-                                              "(" +
-                                              "ActivityRefno," +
-                                              "ActivitySubType," +
-                                              "ActivityFKRefno," +
-                                              "ActivityStringFKRefno," +
-                                              "WarehouseLocationMapRefno," +
-                                              "ActivityPickingOrderedDateTime," +
-                                              "ActivityPickingDeliveryDateTime," +
-                                              "ActivityPickingCustomerContactName," +
-                                              "ActivityPickingCustomerShipToInfo," +
-                                              "ActivityPickingIsReviewed" +
-                                              ")" +
-                                              "SELECT Seg.ActivityRefno," +
-                                              "Seg.ActivitySubType," +
-                                              "Seg.ActivityFKRefno," +
-                                              "Seg.ActivityStringFKRefno," +
-                                              "whs.LocationMapRefno as WarehouseLocationMapRefno," +
-                                              "Seg.ActivityPickingOrderedDateTime," +
-                                              "Seg.ActivityPickingDeliveryDateTime," +
-                                              "Seg.ActivityPickingCustomerContactName," +
-                                              "Seg.ActivityPickingCustomerShipToInfo," +
-                                              "Seg.ActivityPickingIsReviewed" +
-                                              " FROM Seg" +
-                                              " INNER JOIN tLocationMapWarehouse whs ON " +
-                                              "whs.LocationMapWarehouseFKRefno = Seg.LocationMapWarehouseFKRefno";
-
-                        const string query2 = "INSERT INTO tActivityPickingRoute " +
-                                              "(" +
-                                              "PickingActivityRefno," +
-                                              "RouteRefno," +
-                                              "RouteStop" +
-                                              ")" +
-                                              "SELECT Seg.ActivityRefno," +
-                                              "tRoute.RouteRefno," +
-                                              "Seg.ActivityPickingRouteStop" +
-                                              " FROM Seg" +
-                                              " INNER JOIN tRoute ON tRoute.RouteCode = Seg.ActivityPickingRouteCode";
-
-                        await Task.WhenAll(Conn.ExecuteAsync(query1), Conn.ExecuteAsync(query2));
-                    }
-                    finally
-                    {
-                        // Drop the temporary table
-                        const string dropTempTableQuery = "DROP TABLE IF EXISTS Seg";
-                        await Conn.ExecuteAsync(dropTempTableQuery);
-                    }
+                        finally
+                        {
+                            // Drop the temporary table
+                            const string dropTempTableQuery = "DROP TABLE IF EXISTS Seg";
+                            conn.Execute(dropTempTableQuery);
+                        }
+                    });
                 }
             }
 
             return;
 
-            async Task<int> GetActivityRefno()
+            int GetActivityRefno(SQLiteConnection conn)
             {
                 var query = "INSERT INTO tActivity (ActivityStatus, ActivitySubType) VALUES (?, ?)";
-                await Conn.ExecuteAsync(query, 0, Convert.ToInt32(SysCommon.ActSubTypes.Picking));
+                conn.Execute(query, 0, Convert.ToInt32(SysCommon.ActSubTypes.Picking));
 
                 query = "SELECT last_insert_rowid()";
-                ////query = "SELECT tActivity.ActivityRefno FROM tActivity" +
-                ////        $" WHERE tActivity.ActivitySubType = {Convert.ToInt32(SysCommon.ActSubTypes.Picking)}" +
-                ////        " ORDER BY tActivity.ActivityRefno DESC LIMIT 1";
-                return Convert.ToInt32(await Conn.ExecuteScalarAsync<int>(query));
+                return Convert.ToInt32(conn.ExecuteScalar<long>(query));
             }
         }
 

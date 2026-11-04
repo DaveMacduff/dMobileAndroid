@@ -475,14 +475,14 @@ namespace dMobile.View.Activity
                         this.IsIndicatorRunning = true;
                     }
 
-                    await this.RefreshDataBySubType();
+                    await this.RefreshDataBySubType();   // 1. Full network/DB round trip + local purge/reload
                     if (this.MainActivityItems == null || this.MainActivityItems.Count == 0)
                     {
                         Device.BeginInvokeOnMainThread(() => this.ExtraInfoItems.Clear());
                     }
                     else
                     {
-                        await this.FindSelectedItemAsync();
+                        await this.FindSelectedItemAsync();   // 2. Linear scan + per-row property copy
                     }
                 }
             }
@@ -1138,11 +1138,10 @@ namespace dMobile.View.Activity
             {
                 if (!this.SysEnv.SysSettings.IsDisconnectedMode)
                 {
-                    await this.ActHdr.Refresh(this.ActHdr.XmlDataCriteria);
+                    await this.ActHdr.Refresh(this.ActHdr.XmlDataCriteria);   // Purge + full re-download
                 }
-
-                this.ActHdr.ListHeaders = await this.ActHdr.GetActivityList(false);
-                await this.DesignGrid();
+                this.ActHdr.ListHeaders = await this.ActHdr.GetActivityList(false);  // Full SQL query + reflection sort
+                await this.DesignGrid();   // Rebuild grid + per-cell text measurement (see earlier answer)
             }
             catch (Exception ex)
             {
@@ -1615,5 +1614,5 @@ namespace dMobile.View.Activity
                 await this.ScannerEnable();
             }
         }
-    }
+   }
 }

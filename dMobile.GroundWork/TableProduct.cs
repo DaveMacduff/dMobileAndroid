@@ -175,61 +175,69 @@ namespace dMobile.GroundWork
                         products.Add(product);
                     }
 
-                    var query = "CREATE TEMP TABLE Seg"
-                                + " ("
-                                + "ProductFKRefno INTEGER NOT NULL"
-                                + ",ProductCode VARCHAR(10) NOT NULL"
-                                + ",ProductDescription VARCHAR(25) NOT NULL"
-                                + ",ProductIsCatchCount BIT NOT NULL"
-                                + ",ProductIsCatchWeight BIT NOT NULL"
-                                + ",ProductIsCatchAsk BIT NOT NULL"
-                                + ",FamilyCode VARCHAR(10) NOT NULL"
-                                + ",ProductBrandDescription VARCHAR(10) NOT NULL"
-                                + ",ProductIsCatchAskZero BIT NOT NULL"
-                                + ",ProductAllowConvertProduct BIT NOT NULL"
-                                + ",ProductAcceptDays INTEGER"
-                                + ")";
-
-                    await Conn.ExecuteAsync(query);
-                    await Conn.InsertAllAsync(products);
-
-                    query = @"INSERT INTO tProduct 
-                    (FamilyRefno,
-                    ProductSchemeRefno,
-                    ProductCode, 
-                    ProductFKRefno, 
-                    ProductDescription, 
-                    ProductIsCatchCount, 
-                    ProductIsCatchWeight, 
-                    ProductIsCatchAsk, 
-                    ProductIsCatchAskZero, 
-                    ProductBrandDescription, 
-                    ProductAllowConvertProduct, 
-                    ProductAcceptDays
-                    ) SELECT
-                    tFamily.FamilyRefno, 
-                    0,
-                    Seg.ProductCode, 
-                    Seg.ProductFKRefno, 
-                    Seg.ProductDescription, 
-                    Seg.ProductIsCatchCount, 
-                    Seg.ProductIsCatchWeight, 
-                    Seg.ProductIsCatchAsk, 
-                    Seg.ProductIsCatchAskZero, 
-                    Seg.ProductBrandDescription, 
-                    Seg.ProductAllowConvertProduct, 
-                    Seg.ProductAcceptDays
-                    FROM Seg
-                    INNER JOIN tFamily ON tFamily.FamilyCode = Seg.FamilyCode";
-                    var rowsAffected = await Conn.ExecuteAsync(query);
-                    if (products.Count != rowsAffected)
+                    await Conn.RunInTransactionAsync(conn =>
                     {
-                        throw new BaseException("Failed to insert all rows into tProduct");
-                    }
+                        try
+                        {
+                            const string query = "CREATE TEMP TABLE Seg"
+                                        + " ("
+                                        + "ProductFKRefno INTEGER NOT NULL"
+                                        + ",ProductCode VARCHAR(10) NOT NULL"
+                                        + ",ProductDescription VARCHAR(25) NOT NULL"
+                                        + ",ProductIsCatchCount BIT NOT NULL"
+                                        + ",ProductIsCatchWeight BIT NOT NULL"
+                                        + ",ProductIsCatchAsk BIT NOT NULL"
+                                        + ",FamilyCode VARCHAR(10) NOT NULL"
+                                        + ",ProductBrandDescription VARCHAR(10) NOT NULL"
+                                        + ",ProductIsCatchAskZero BIT NOT NULL"
+                                        + ",ProductAllowConvertProduct BIT NOT NULL"
+                                        + ",ProductAcceptDays INTEGER"
+                                        + ")";
 
-                    // Drop the temporary table
-                    const string dropTempTableQuery = "DROP TABLE IF EXISTS Seg";
-                    await Conn.ExecuteAsync(dropTempTableQuery);
+                            conn.Execute(query);
+                            conn.InsertAll(products);
+
+                            const string query1 = @"INSERT INTO tProduct 
+                            (FamilyRefno,
+                            ProductSchemeRefno,
+                            ProductCode, 
+                            ProductFKRefno, 
+                            ProductDescription, 
+                            ProductIsCatchCount, 
+                            ProductIsCatchWeight, 
+                            ProductIsCatchAsk, 
+                            ProductIsCatchAskZero, 
+                            ProductBrandDescription, 
+                            ProductAllowConvertProduct, 
+                            ProductAcceptDays
+                            ) SELECT
+                            tFamily.FamilyRefno, 
+                            0,
+                            Seg.ProductCode, 
+                            Seg.ProductFKRefno, 
+                            Seg.ProductDescription, 
+                            Seg.ProductIsCatchCount, 
+                            Seg.ProductIsCatchWeight, 
+                            Seg.ProductIsCatchAsk, 
+                            Seg.ProductIsCatchAskZero, 
+                            Seg.ProductBrandDescription, 
+                            Seg.ProductAllowConvertProduct, 
+                            Seg.ProductAcceptDays
+                            FROM Seg
+                            INNER JOIN tFamily ON tFamily.FamilyCode = Seg.FamilyCode";
+                            var rowsAffected = conn.Execute(query1);
+                            if (products.Count != rowsAffected)
+                            {
+                                throw new BaseException("Failed to insert all rows into tProduct");
+                            }
+                        }
+                        finally
+                        {
+                            // Drop the temporary table
+                            const string dropTempTableQuery = "DROP TABLE IF EXISTS Seg";
+                            conn.Execute(dropTempTableQuery);
+                        }
+                    });
 
                     this.DataAccessStatusOutHandler(
                         this,
@@ -246,7 +254,6 @@ namespace dMobile.GroundWork
                     true);
             }
         }
-
         /// <summary>
         /// The CreateRequest.
         /// </summary>

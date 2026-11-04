@@ -148,106 +148,110 @@ namespace dMobile.GroundWork
                 using var ds = new DataSet();
                 ds.ReadXml(SysCommon.GetXmlReader(ref responseData), XmlReadMode.Auto);
                 this.StatusOut("Saving physical count items.");
-                    if (ds.Tables.Count > 0)
+                if (ds.Tables.Count > 0)
                 {
                     var rows = ds.Tables["tActivityItemCount"].Rows;
                     if (rows.Count > 0)
                     {
-                        var countItems = new List<Seg>();
-                        var itemRefno = -1;
-                        foreach (DataRow drow in rows)
+                        await Conn.RunInTransactionAsync(conn =>
                         {
-                            itemRefno = await GetActivityItemRefno(itemRefno);
-                            var seg = new Seg
+                            var countItems = new List<Seg>();
+                            var itemRefno = -1;
+                            foreach (DataRow drow in rows)
                             {
-                                ActivityItemRefno = itemRefno,
-                                ActivityItemSubType = Convert.ToInt32(SysCommon.ActSubTypes.PhysicalCounts),
-                                ActivityItemFKRefno = Convert.ToInt32(drow["f02"]),
-                                ActivityItemStringFKRefno = Convert.ToString(drow["f02"]),
-                                LocationMapRefno = await GetReceivedDataLocationAsync(
-                                    drow,
-                                    Conn,
-                                    useShortElementNames: true,
-                                    SysCommon.ActSubTypes.PhysicalCounts),
-                                ProductUnitRefno = await GetProductUnitRefnoFromDataRowAsync(
-                                    drow,
-                                    Conn,
-                                    useShortElementNames: true),
-                                ActivityItemCountQuantityOnHand = Convert.ToDecimal(drow["f09"]),
-                                ActivityItemCountBaseQuantityOnHand = Convert.ToDecimal(drow["f10"]),
-                                ActivityItemCountWeightQuantityOnHand = Convert.ToDecimal(drow["f11"]),
-                                ActivityItemCountQuantity = Convert.ToDecimal(drow["f12"]),
-                                ActivityItemCountBaseQuantity = Convert.ToDecimal(drow["f13"]),
-                                ActivityItemCountWeightQuantity = Convert.ToDecimal(drow["f14"]),
-                            };
-                            countItems.Add(seg);
-                        }
+                                itemRefno = GetActivityItemRefno(conn, itemRefno);
+                                var seg = new Seg
+                                {
+                                    ActivityItemRefno = itemRefno,
+                                    ActivityItemSubType = Convert.ToInt32(SysCommon.ActSubTypes.PhysicalCounts),
+                                    ActivityItemFKRefno = Convert.ToInt32(drow["f02"]),
+                                    ActivityItemStringFKRefno = Convert.ToString(drow["f02"]),
+                                    LocationMapRefno = GetReceivedDataLocation(
+                                        drow,
+                                        conn,
+                                        useShortElementNames: true,
+                                        SysCommon.ActSubTypes.PhysicalCounts),
+                                    ProductUnitRefno = GetProductUnitRefnoFromDataRow(
+                                        drow,
+                                        conn,
+                                        useShortElementNames: true),
+                                    ActivityItemCountQuantityOnHand = Convert.ToDecimal(drow["f09"]),
+                                    ActivityItemCountBaseQuantityOnHand = Convert.ToDecimal(drow["f10"]),
+                                    ActivityItemCountWeightQuantityOnHand = Convert.ToDecimal(drow["f11"]),
+                                    ActivityItemCountQuantity = Convert.ToDecimal(drow["f12"]),
+                                    ActivityItemCountBaseQuantity = Convert.ToDecimal(drow["f13"]),
+                                    ActivityItemCountWeightQuantity = Convert.ToDecimal(drow["f14"]),
+                                };
+                                countItems.Add(seg);
+                            }
 
-                        var query = "CREATE TEMP TABLE Seg " +
-                            "(" +
-                            "ActivityItemRefno INTEGER NOT NULL," +
-                            "ActivityItemSubType INTEGER NOT NULL," +
-                            "ActivityItemFKRefno INTEGER NOT NULL," +
-                            "ActivityItemStringFKRefno VARCHAR(10) NOT NULL," +
-                            "ProductUnitRefno INTEGER NOT NULL," +
-                            "LocationMapRefno INTEGER NOT NULL," +
-                            "ActivityItemCountQuantityOnHand DECIMAL(11, 3) NOT NULL," +
-                            "ActivityItemCountBaseQuantityOnHand DECIMAL(11, 3) NOT NULL," +
-                            "ActivityItemCountWeightQuantityOnHand DECIMAL(11, 3) NOT NULL," +
-                            "ActivityItemCountQuantity DECIMAL(11, 3) NOT NULL," +
-                            "ActivityItemCountBaseQuantity DECIMAL(11, 3) NOT NULL," +
-                            "ActivityItemCountWeightQuantity DECIMAL(11, 3) NOT NULL" +
-                            ")";
-                        await Conn.ExecuteAsync(query);
-                        await Conn.InsertAllAsync(countItems);
+                            const string query = "CREATE TEMP TABLE Seg " +
+                                "(" +
+                                "ActivityItemRefno INTEGER NOT NULL," +
+                                "ActivityItemSubType INTEGER NOT NULL," +
+                                "ActivityItemFKRefno INTEGER NOT NULL," +
+                                "ActivityItemStringFKRefno VARCHAR(10) NOT NULL," +
+                                "ProductUnitRefno INTEGER NOT NULL," +
+                                "LocationMapRefno INTEGER NOT NULL," +
+                                "ActivityItemCountQuantityOnHand DECIMAL(11, 3) NOT NULL," +
+                                "ActivityItemCountBaseQuantityOnHand DECIMAL(11, 3) NOT NULL," +
+                                "ActivityItemCountWeightQuantityOnHand DECIMAL(11, 3) NOT NULL," +
+                                "ActivityItemCountQuantity DECIMAL(11, 3) NOT NULL," +
+                                "ActivityItemCountBaseQuantity DECIMAL(11, 3) NOT NULL," +
+                                "ActivityItemCountWeightQuantity DECIMAL(11, 3) NOT NULL" +
+                                ")";
+                            conn.Execute(query);
+                            conn.InsertAll(countItems);
 
-                        query = @"
-                    INSERT INTO tActivityItemCount (
-                        ActivityItemRefno, 
-                        ActivityItemSubType, 
-                        ActivityItemFKRefno, 
-                        ActivityItemStringFKRefno, 
-                        ProductUnitRefno, 
-                        LocationMapRefno, 
-                        ActivityItemCountQuantityOnHand, 
-                        ActivityItemCountBaseQuantityOnHand, 
-                        ActivityItemCountWeightQuantityOnHand, 
-                        ActivityItemCountQuantity, 
-                        ActivityItemCountBaseQuantity, 
-                        ActivityItemCountWeightQuantity
-                        ) 
-                    SELECT 
-                        Seg.ActivityItemRefno, 
-                        Seg.ActivityItemSubType, 
-                        Seg.ActivityItemFKRefno, 
-                        Seg.ActivityItemStringFKRefno, 
-                        Seg.ProductUnitRefno, 
-                        Seg.LocationMapRefno, 
-                        Seg.ActivityItemCountQuantityOnHand, 
-                        Seg.ActivityItemCountBaseQuantityOnHand, 
-                        Seg.ActivityItemCountWeightQuantityOnHand, 
-                        Seg.ActivityItemCountQuantity, 
-                        Seg.ActivityItemCountBaseQuantity, 
-                        Seg.ActivityItemCountWeightQuantity
-                    FROM Seg";
-                        var rowsAffected = await Conn.ExecuteAsync(query);
-                        if (countItems.Count != rowsAffected)
-                        {
-                            throw new BaseException("Failed to insert all rows into tActivityItemCount");
-                        }
+                            const string query1 = @"
+                        INSERT INTO tActivityItemCount (
+                            ActivityItemRefno, 
+                            ActivityItemSubType, 
+                            ActivityItemFKRefno, 
+                            ActivityItemStringFKRefno, 
+                            ProductUnitRefno, 
+                            LocationMapRefno, 
+                            ActivityItemCountQuantityOnHand, 
+                            ActivityItemCountBaseQuantityOnHand, 
+                            ActivityItemCountWeightQuantityOnHand, 
+                            ActivityItemCountQuantity, 
+                            ActivityItemCountBaseQuantity, 
+                            ActivityItemCountWeightQuantity
+                            ) 
+                        SELECT 
+                            Seg.ActivityItemRefno, 
+                            Seg.ActivityItemSubType, 
+                            Seg.ActivityItemFKRefno, 
+                            Seg.ActivityItemStringFKRefno, 
+                            Seg.ProductUnitRefno, 
+                            Seg.LocationMapRefno, 
+                            Seg.ActivityItemCountQuantityOnHand, 
+                            Seg.ActivityItemCountBaseQuantityOnHand, 
+                            Seg.ActivityItemCountWeightQuantityOnHand, 
+                            Seg.ActivityItemCountQuantity, 
+                            Seg.ActivityItemCountBaseQuantity, 
+                            Seg.ActivityItemCountWeightQuantity
+                        FROM Seg";
+                            var rowsAffected = conn.Execute(query1);
+                            if (countItems.Count != rowsAffected)
+                            {
+                                throw new BaseException("Failed to insert all rows into tActivityItemCount");
+                            }
 
-                        // Drop the temporary table
-                        const string dropTempTableQuery = "DROP TABLE IF EXISTS Seg";
-                        await Conn.ExecuteAsync(dropTempTableQuery);
+                            // Drop the temporary table
+                            const string dropTempTableQuery = "DROP TABLE IF EXISTS Seg";
+                            conn.Execute(dropTempTableQuery);
 
-                        this.StatusOut("Request physical count items complete.");
+                            this.StatusOut("Request physical count items complete.");
+                        });
                     }
                 }
 
-                ///////////////////////////////////////////////////////////
-                async Task<int> GetActivityItemRefno(int insertedActItemRefno)
+                return;
+
+                int GetActivityItemRefno(SQLiteConnection conn, int insertedActItemRefno)
                 {
-                    await Conn.ExecuteAsync(
+                    conn.Execute(
                             @"INSERT INTO tActivityItem
                             (ActivityItemSubType, ActivityItemStatus, ActivityRefno, ActivityItemIsAdded)
                             VALUES (?, ?, ?, ?)",
@@ -259,7 +263,7 @@ namespace dMobile.GroundWork
                     if (insertedActItemRefno == -1)
                     {
                         insertedActItemRefno = Convert.ToInt32(
-                            await Conn.ExecuteScalarAsync<int>("SELECT last_insert_rowid() FROM tActivityItem"));
+                            conn.ExecuteScalar<long>("SELECT last_insert_rowid() FROM tActivityItem"));
                     }
                     else
                     {

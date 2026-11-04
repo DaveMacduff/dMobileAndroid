@@ -165,155 +165,153 @@ namespace dMobile.GroundWork
                 var rows = dataSet.Tables[0].Rows;
                 if (rows.Count > 0)
                 {
-                    try
+                    await Conn.RunInTransactionAsync(conn =>
                     {
-                        var items = new List<Seg>();
-                        foreach (DataRow row in rows)
+                        try
                         {
-                            var itemRefno = await GetActivityItemRefno();
-                            var item = new Seg
+                            var items = new List<Seg>();
+                            foreach (DataRow row in rows)
                             {
-                                ActivityItemRefno = itemRefno,
-                                ActivityFKRefno = refno,
-                                ActivityPickingFKRefno = Convert.ToInt32(row["ActivityPickingFKRefno"]),
-                                ActivityItemFKRefno = Convert.ToInt32(row["ActivityItemFKRefno"]),
-                                ActivityItemStringFKRefno = Convert.ToString(row["ActivityItemFKRefno"]),
-                                ProductFKRefno = Convert.ToInt32(row["ProductFKRefno"]),
-                                ProductUnitIsBC = Convert.ToBoolean(row["ProductUnitIsBC"]),
-                                UnitCode = Convert.ToString(row["UnitCode"]),
-                                LocationMapWarehouseFKRefno = Convert.ToInt32(row["LocationMapWarehouseFKRefno"]),
-                                ActivityItemPickingCustomerProductUnitCode = Convert.ToString(row["ActivityItemPickingCustomerProductUnitCode"]),
-                                ActivityItemPickingDescription = Convert.ToString(row["ActivityItemPickingDescription"]),
-                                ActivityItemPickingQuantityOrdered = Convert.ToDecimal(row["ActivityItemPickingQuantityOrdered"]),
-                                ActivityItemPickingBaseQuantityOrdered = Convert.ToDecimal(row["ActivityItemPickingBaseQuantityOrdered"]),
-                                ActivityItemPickingWeightQuantityOrdered = Convert.ToDecimal(row["ActivityItemPickingWeightQuantityOrdered"]),
-                                ActivityItemPickingQuantityPicked = Convert.ToDecimal(row["ActivityItemPickingQuantityPicked"]),
-                                ActivityItemPickingBaseQuantityPicked = Convert.ToDecimal(row["ActivityItemPickingBaseQuantityPicked"]),
-                                ActivityItemPickingWeightQuantityPicked = Convert.ToDecimal(row["ActivityItemPickingWeightQuantityPicked"]),
-                                ActivityItemPickingQuantityAvailable = Convert.ToDecimal(row["ActivityItemPickingQuantityAvailable"]),
-                                ActivityItemPickingBaseQuantityAvailable = Convert.ToDecimal(row["ActivityItemPickingBaseQuantityAvailable"]),
-                                ActivityItemPickingWeightQuantityAvailable = Convert.ToDecimal(row["ActivityItemPickingWeightQuantityAvailable"]),
-                                ActivityItemPickingComment = Convert.ToString(row["ActivityItemPickingComment"])
-                            };
+                                var itemRefno = GetActivityItemRefno(conn);
+                                var item = new Seg
+                                {
+                                    ActivityItemRefno = itemRefno,
+                                    ActivityFKRefno = refno,
+                                    ActivityPickingFKRefno = Convert.ToInt32(row["ActivityPickingFKRefno"]),
+                                    ActivityItemFKRefno = Convert.ToInt32(row["ActivityItemFKRefno"]),
+                                    ActivityItemStringFKRefno = Convert.ToString(row["ActivityItemFKRefno"]),
+                                    ProductFKRefno = Convert.ToInt32(row["ProductFKRefno"]),
+                                    ProductUnitIsBC = Convert.ToBoolean(row["ProductUnitIsBC"]),
+                                    UnitCode = Convert.ToString(row["UnitCode"]),
+                                    LocationMapWarehouseFKRefno = Convert.ToInt32(row["LocationMapWarehouseFKRefno"]),
+                                    ActivityItemPickingCustomerProductUnitCode = Convert.ToString(row["ActivityItemPickingCustomerProductUnitCode"]),
+                                    ActivityItemPickingDescription = Convert.ToString(row["ActivityItemPickingDescription"]),
+                                    ActivityItemPickingQuantityOrdered = Convert.ToDecimal(row["ActivityItemPickingQuantityOrdered"]),
+                                    ActivityItemPickingBaseQuantityOrdered = Convert.ToDecimal(row["ActivityItemPickingBaseQuantityOrdered"]),
+                                    ActivityItemPickingWeightQuantityOrdered = Convert.ToDecimal(row["ActivityItemPickingWeightQuantityOrdered"]),
+                                    ActivityItemPickingQuantityPicked = Convert.ToDecimal(row["ActivityItemPickingQuantityPicked"]),
+                                    ActivityItemPickingBaseQuantityPicked = Convert.ToDecimal(row["ActivityItemPickingBaseQuantityPicked"]),
+                                    ActivityItemPickingWeightQuantityPicked = Convert.ToDecimal(row["ActivityItemPickingWeightQuantityPicked"]),
+                                    ActivityItemPickingQuantityAvailable = Convert.ToDecimal(row["ActivityItemPickingQuantityAvailable"]),
+                                    ActivityItemPickingBaseQuantityAvailable = Convert.ToDecimal(row["ActivityItemPickingBaseQuantityAvailable"]),
+                                    ActivityItemPickingWeightQuantityAvailable = Convert.ToDecimal(row["ActivityItemPickingWeightQuantityAvailable"]),
+                                    ActivityItemPickingComment = Convert.ToString(row["ActivityItemPickingComment"])
+                                };
 
-                            items.Add(item);
+                                items.Add(item);
+                            }
+
+                            const string query = "CREATE TEMP TABLE Seg (" +
+                                "ActivityItemRefno INTEGER PRIMARY KEY," +
+                                "ActivityFKRefno INTEGER," +
+                                "ActivityPickingFKRefno INTEGER," +
+                                "ActivityItemFKRefno INTEGER," +
+                                "ActivityItemStringFKRefno VARCHAR(10)," +
+                                "ActivityItemPickingFKRefno INTEGER," +
+                                "ProductFKRefno INTEGER," +
+                                "ProductUnitIsBC INTEGER," +
+                                "UnitCode VARCHAR(2)," +
+                                "LocationMapWarehouseFKRefno INTEGER," +
+                                "ActivityItemPickingCustomerProductUnitCode VARCHAR(10)," +
+                                "ActivityItemPickingDescription VARCHAR(40)," +
+                                "ActivityItemPickingQuantityOrdered DECIMAL(11, 3)," +
+                                "ActivityItemPickingBaseQuantityOrdered DECIMAL(11, 3)," +
+                                "ActivityItemPickingWeightQuantityOrdered DECIMAL(11, 3)," +
+                                "ActivityItemPickingQuantityPicked DECIMAL(11, 3)," +
+                                "ActivityItemPickingBaseQuantityPicked DECIMAL(11, 3)," +
+                                "ActivityItemPickingWeightQuantityPicked DECIMAL(11, 3)," +
+                                "ActivityItemPickingQuantityAvailable DECIMAL(11, 3)," +
+                                "ActivityItemPickingBaseQuantityAvailable DECIMAL(11, 3)," +
+                                "ActivityItemPickingWeightQuantityAvailable DECIMAL(11, 3)," +
+                                "ActivityItemPickingComment VARCHAR(254)" +
+                                ")";
+                            conn.Execute(query);
+                            conn.InsertAll(items);
+
+                            string query1 = "INSERT INTO tActivityItemPicking (" +
+                                "ActivityItemRefno," +
+                                "ActivityItemSubType," +
+                                "ActivityItemFKRefno," +
+                                "ActivityItemStringFKRefno," +
+                                "ProductUnitRefno," +
+                                "WarehouseLocationMapRefno," +
+                                "ActivityItemPickingQuantityOrdered," +
+                                "ActivityItemPickingBaseQuantityOrdered," +
+                                "ActivityItemPickingWeightQuantityOrdered," +
+                                "ActivityItemPickingQuantityShipped," +
+                                "ActivityItemPickingBaseQuantityShipped," +
+                                "ActivityItemPickingWeightQuantityShipped," +
+                                "ActivityItemPickingCustomerProductUnitCode," +
+                                "ActivityItemPickingDescription," +
+                                "ActivityItemPickingQuantityAvailable," +
+                                "ActivityItemPickingBaseQuantityAvailable," +
+                                "ActivityItemPickingWeightQuantityAvailable," +
+                                "ActivityItemPickingIsReviewed" +
+                                ") SELECT " +
+                                "Seg.ActivityItemRefno," +
+                                $"{(int)SysCommon.ActSubTypes.Picking} as ActivityItemSubType," +
+                                "Seg.ActivityItemFKRefno," +
+                                "Seg.ActivityItemStringFKRefno," +
+                                "prodUnit.ProductUnitRefno," +
+                                "whs.LocationMapRefno as WarehouseLocationMapRefno," +
+                                "Seg.ActivityItemPickingQuantityOrdered," +
+                                "Seg.ActivityItemPickingBaseQuantityOrdered," +
+                                "Seg.ActivityItemPickingWeightQuantityOrdered," +
+                                "Seg.ActivityItemPickingQuantityPicked," +
+                                "Seg.ActivityItemPickingBaseQuantityPicked," +
+                                "Seg.ActivityItemPickingWeightQuantityPicked," +
+                                "Seg.ActivityItemPickingCustomerProductUnitCode," +
+                                "Seg.ActivityItemPickingDescription," +
+                                "Seg.ActivityItemPickingQuantityAvailable," +
+                                "Seg.ActivityItemPickingBaseQuantityAvailable," +
+                                "Seg.ActivityItemPickingWeightQuantityAvailable," +
+                                "0 AS ActivityItemPickingIsReviewed" +
+                                " FROM Seg" +
+                                " INNER JOIN tLocationMapWarehouse whs ON whs.LocationMapWarehouseFKRefno =" +
+                                " Seg.LocationMapWarehouseFKRefno" +
+                                " INNER JOIN tProduct prod ON prod.ProductFKRefno = Seg.ProductFKRefno" +
+                                " INNER JOIN tUnit ON tUnit.UnitCode = Seg.UnitCode" +
+                                " INNER JOIN tProductUnit prodUnit ON prodUnit.ProductRefno = prod.ProductRefno" +
+                                " AND prodUnit.UnitRefno = tUnit.UnitRefno" +
+                                " AND prodUnit.ProductUnitIsBC = Seg.ProductUnitIsBC";
+                            conn.Execute(query1);
+
+                            const string query2 = "INSERT INTO tActivityItemPickingComment (" +
+                                "ActivityItemRefno," +
+                                "ActivityItemPickingCommentComment" +
+                                ") SELECT " +
+                                "Seg.ActivityItemRefno," +
+                                "Seg.ActivityItemPickingComment as ActivityItemPickingCommentComment" +
+                                " FROM Seg" +
+                                " WHERE COALESCE(Seg.ActivityItemPickingComment, '') != ''";
+                            conn.Execute(query2);
                         }
-
-                        var query = "CREATE TEMP TABLE Seg (" +
-                            "ActivityItemRefno INTEGER PRIMARY KEY," +
-                            "ActivityFKRefno INTEGER," +
-                            "ActivityPickingFKRefno INTEGER," +
-                            "ActivityItemFKRefno INTEGER," +
-                            "ActivityItemStringFKRefno VARCHAR(10)," +
-                            "ActivityItemPickingFKRefno INTEGER," +
-                            "ProductFKRefno INTEGER," +
-                            "ProductUnitIsBC INTEGER," +
-                            "UnitCode VARCHAR(2)," +
-                            "LocationMapWarehouseFKRefno INTEGER," +
-                            "ActivityItemPickingCustomerProductUnitCode VARCHAR(10)," +
-                            "ActivityItemPickingDescription VARCHAR(40)," +
-                            "ActivityItemPickingQuantityOrdered DECIMAL(11, 3)," +
-                            "ActivityItemPickingBaseQuantityOrdered DECIMAL(11, 3)," +
-                            "ActivityItemPickingWeightQuantityOrdered DECIMAL(11, 3)," +
-                            "ActivityItemPickingQuantityPicked DECIMAL(11, 3)," +
-                            "ActivityItemPickingBaseQuantityPicked DECIMAL(11, 3)," +
-                            "ActivityItemPickingWeightQuantityPicked DECIMAL(11, 3)," +
-                            "ActivityItemPickingQuantityAvailable DECIMAL(11, 3)," +
-                            "ActivityItemPickingBaseQuantityAvailable DECIMAL(11, 3)," +
-                            "ActivityItemPickingWeightQuantityAvailable DECIMAL(11, 3)," +
-                            "ActivityItemPickingComment VARCHAR(254)" +
-                            ")";
-                        await Conn.ExecuteAsync(query);
-                        await Conn.InsertAllAsync(items);
-
-                        query = "INSERT INTO tActivityItemPicking (" +
-                            "ActivityItemRefno," +
-                            "ActivityItemSubType," +
-                            "ActivityItemFKRefno," +
-                            "ActivityItemStringFKRefno," +
-                            "ProductUnitRefno," +
-                            "WarehouseLocationMapRefno," +
-                            "ActivityItemPickingQuantityOrdered," +
-                            "ActivityItemPickingBaseQuantityOrdered," +
-                            "ActivityItemPickingWeightQuantityOrdered," +
-                            "ActivityItemPickingQuantityShipped," +
-                            "ActivityItemPickingBaseQuantityShipped," +
-                            "ActivityItemPickingWeightQuantityShipped," +
-                            "ActivityItemPickingCustomerProductUnitCode," +
-                            "ActivityItemPickingDescription," +
-                            "ActivityItemPickingQuantityAvailable," +
-                            "ActivityItemPickingBaseQuantityAvailable," +
-                            "ActivityItemPickingWeightQuantityAvailable," +
-                            "ActivityItemPickingIsReviewed" +
-                            ") SELECT " +
-                            "Seg.ActivityItemRefno," +
-                            $"{(int)SysCommon.ActSubTypes.Picking} as ActivityItemSubType," +
-                            "Seg.ActivityItemFKRefno," +
-                            "Seg.ActivityItemStringFKRefno," +
-                            "prodUnit.ProductUnitRefno," +
-                            "whs.LocationMapRefno as WarehouseLocationMapRefno," +
-                            "Seg.ActivityItemPickingQuantityOrdered," +
-                            "Seg.ActivityItemPickingBaseQuantityOrdered," +
-                            "Seg.ActivityItemPickingWeightQuantityOrdered," +
-                            "Seg.ActivityItemPickingQuantityPicked," +
-                            "Seg.ActivityItemPickingBaseQuantityPicked," +
-                            "Seg.ActivityItemPickingWeightQuantityPicked," +
-                            "Seg.ActivityItemPickingCustomerProductUnitCode," +
-                            "Seg.ActivityItemPickingDescription," +
-                            "Seg.ActivityItemPickingQuantityAvailable," +
-                            "Seg.ActivityItemPickingBaseQuantityAvailable," +
-                            "Seg.ActivityItemPickingWeightQuantityAvailable," +
-                            "0 AS ActivityItemPickingIsReviewed" +
-                            " FROM Seg" +
-                            " INNER JOIN tLocationMapWarehouse whs ON whs.LocationMapWarehouseFKRefno =" +
-                            " Seg.LocationMapWarehouseFKRefno" +
-                            " INNER JOIN tProduct prod ON prod.ProductFKRefno = Seg.ProductFKRefno" +
-                            " INNER JOIN tUnit ON tUnit.UnitCode = Seg.UnitCode" +
-                            " INNER JOIN tProductUnit prodUnit ON prodUnit.ProductRefno = prod.ProductRefno" +
-                            " AND prodUnit.UnitRefno = tUnit.UnitRefno" +
-                            " AND prodUnit.ProductUnitIsBC = Seg.ProductUnitIsBC";
-                        await Conn.ExecuteAsync(query);
-
-                        query = "INSERT INTO tActivityItemPickingComment (" +
-                            "ActivityItemRefno," +
-                            "ActivityItemPickingCommentComment" +
-                            ") SELECT " +
-                            "Seg.ActivityItemRefno," +
-                            "Seg.ActivityItemPickingComment as ActivityItemPickingCommentComment" +
-                            " FROM Seg" +
-                            " WHERE COALESCE(Seg.ActivityItemPickingComment, '') != ''";
-                        await Conn.ExecuteAsync(query);
-                    }
-                    finally
-                    {
-                        // Drop the temporary table
-                        const string dropTempTableQuery = "DROP TABLE IF EXISTS Seg";
-                        await Conn.ExecuteAsync(dropTempTableQuery);
-                    }
+                        finally
+                        {
+                            // Drop the temporary table
+                            const string dropTempTableQuery = "DROP TABLE IF EXISTS Seg";
+                            conn.Execute(dropTempTableQuery);
+                        }
+                    });
                 }
             }
 
             return;
 
-            async Task<int> GetActivityItemRefno()
+            int GetActivityItemRefno(SQLiteConnection conn)
             {
-                var query = "INSERT INTO tActivityItem (" +
+                const string query = "INSERT INTO tActivityItem (" +
                     "ActivityItemSubType" +
                     ",ActivityItemStatus" +
                     ",ActivityRefno" +
                     ",ActivityItemIsAdded) VALUES (?, ?, ?, ?)";
-                await Conn.ExecuteAsync(
+                conn.Execute(
                     query,
                     Convert.ToInt32(SysCommon.ActSubTypes.Picking),
                     Convert.ToInt32(SysCommon.ActStatus.NoChange),
                     refno,
                     0);
-                query = "SELECT last_insert_rowid()";
-                ////query = "SELECT tActivityItem.ActivityItemRefno" +
-                ////    " FROM tActivityItem" +
-                ////    $" WHERE tActivityItem.ActivityItemSubType = {Convert.ToInt32(SysCommon.ActSubTypes.Picking)}" +
-                ////    " ORDER BY tActivityItem.ActivityItemRefno DESC LIMIT 1";
-                return Convert.ToInt32(await Conn.ExecuteScalarAsync<int>(query));
+                return Convert.ToInt32(conn.ExecuteScalar<long>("SELECT last_insert_rowid()"));
             }
         }
 
