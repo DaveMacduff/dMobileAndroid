@@ -672,16 +672,14 @@ namespace dMobile.View.Activity
             catch (MessageOnlyException msgEx)
             {
                 var msg = GetMessageFromMessageException(msgEx);
-                await Device.InvokeOnMainThreadAsync(
-                    async () => await Application.Current.MainPage.DisplayAlert(
+                await Device.InvokeOnMainThreadAsync(async () => await Application.Current.MainPage.DisplayAlert(
                         this.GetControlDescription(),
                         msg,
                         Resource.OK));
             }
             catch (Exception ex)
             {
-                await Device.InvokeOnMainThreadAsync(
-                    async () =>
+                await Device.InvokeOnMainThreadAsync(async () =>
                     {
                         var errRpt = new FormErrorReport(this.ActSubType, /*this,*/ ex);
                         _ = await errRpt.ShowDialog();
@@ -706,8 +704,7 @@ namespace dMobile.View.Activity
             }
             catch (Exception ex)
             {
-                await Device.InvokeOnMainThreadAsync(
-                    () =>
+                await Device.InvokeOnMainThreadAsync(() =>
                     {
                         var errRpt = new FormErrorReport(this.ActSubType, ex);
                         _ = errRpt.ShowDialog();
