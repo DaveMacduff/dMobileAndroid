@@ -813,7 +813,7 @@ namespace dMobile.Bedrock
 
             /// <summary>
             /// Represents the identifier for the transfer items list.
-            /// </summary>  
+            /// </summary>
             TransferItemsList = 49,
 
             /// <summary>

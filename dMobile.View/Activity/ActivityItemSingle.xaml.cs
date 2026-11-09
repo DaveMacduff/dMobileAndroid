@@ -180,14 +180,14 @@ namespace dMobile.View.Activity
         {
             var performUnderCheck = this.ActSubType switch
             {
-                SysCommon.ActSubTypes.Picking =>
-                    this.SysEnv.SysSettings.PickQtyUnderWarn != SysCommon.ActPickingQtyUnderValLevels.NoValidationOrWarning,
-                SysCommon.ActSubTypes.Receiving =>
-                    this.SysEnv.SysSettings.RecvQtyUnderWarn != SysCommon.ActReceivingQtyUnderValLevels.NoValidationOrWarning,
-                SysCommon.ActSubTypes.TransferFrom =>
-                    this.SysEnv.SysSettings.TransQtyUnderWarn != SysCommon.ActTransfersQtyUnderValLevels.NoValidationOrWarning,
-                SysCommon.ActSubTypes.TransferTo =>
-                    this.SysEnv.SysSettings.TransQtyUnderWarn != SysCommon.ActTransfersQtyUnderValLevels.NoValidationOrWarning,
+                SysCommon.ActSubTypes.Picking => this.SysEnv.SysSettings.PickQtyUnderWarn !=
+                                                 SysCommon.ActPickingQtyUnderValLevels.NoValidationOrWarning,
+                SysCommon.ActSubTypes.Receiving => this.SysEnv.SysSettings.RecvQtyUnderWarn !=
+                                                   SysCommon.ActReceivingQtyUnderValLevels.NoValidationOrWarning,
+                SysCommon.ActSubTypes.TransferFrom => this.SysEnv.SysSettings.TransQtyUnderWarn !=
+                                                      SysCommon.ActTransfersQtyUnderValLevels.NoValidationOrWarning,
+                SysCommon.ActSubTypes.TransferTo => this.SysEnv.SysSettings.TransQtyUnderWarn !=
+                                                    SysCommon.ActTransfersQtyUnderValLevels.NoValidationOrWarning,
                 _ => false
             };
 
@@ -221,10 +221,7 @@ namespace dMobile.View.Activity
                                     }
                                 });
 
-                            if (differenceFound)
-                            {
-                                break;
-                            }
+                            break;
                         }
 
                         if (this.SysEnv.SysSettings.PickQtyUnderWarn == SysCommon.ActPickingQtyUnderValLevels.ValidateWarnAndStop)
@@ -249,7 +246,7 @@ namespace dMobile.View.Activity
                         if (this.SysEnv.SysSettings.RecvQtyUnderWarn == SysCommon.ActReceivingQtyUnderValLevels.ValidateWarnAndContinue)
                         {
                             const string msg = "Item(s) exist with a quantity difference that has not been" +
-                                               " shipped. Are you sure you want to cancel?";
+                                               " received. Are you sure you want to cancel?";
                             await this.DisplayAlert(this.ActHdr.GetControlDescription(), msg, "Yes", "No")
                                 .ContinueWith(result =>
                                 {
@@ -259,16 +256,13 @@ namespace dMobile.View.Activity
                                     }
                                 });
 
-                            if (differenceFound)
-                            {
-                                break;
-                            }
+                            break;
                         }
 
                         if (this.SysEnv.SysSettings.RecvQtyUnderWarn == SysCommon.ActReceivingQtyUnderValLevels.ValidateWarnAndStop)
                         {
                             const string msg = "Item(s) exist with a quantity difference that has not been" +
-                                               " shipped. Please correct the differences.";
+                                               " received. Please correct the differences.";
                             await Application.Current.MainPage.DisplayAlert(
                                 this.ActItem.GetControlDescription(),
                                 msg,
@@ -287,7 +281,7 @@ namespace dMobile.View.Activity
                         if (this.SysEnv.SysSettings.TransQtyUnderWarn == SysCommon.ActTransfersQtyUnderValLevels.ValidateWarnAndContinue)
                         {
                             const string msg = "Item(s) exist with a quantity difference that has not been" +
-                                               " shipped. Are you sure you want to cancel?";
+                                               " transferred. Are you sure you want to cancel?";
                             await this.DisplayAlert(this.ActHdr.GetControlDescription(), msg, "Yes", "No")
                                 .ContinueWith(result =>
                                 {
@@ -297,16 +291,13 @@ namespace dMobile.View.Activity
                                     }
                                 });
 
-                            if (differenceFound)
-                            {
-                                break;
-                            }
+                            break;
                         }
 
                         if (this.SysEnv.SysSettings.TransQtyUnderWarn == SysCommon.ActTransfersQtyUnderValLevels.ValidateWarnAndStop)
                         {
                             const string msg = "Item(s) exist with a quantity difference that has not been" +
-                                               " shipped. Please correct the differences.";
+                                               " transferred. Please correct the differences.";
                             await Application.Current.MainPage.DisplayAlert(
                                 this.ActItem.GetControlDescription(),
                                 msg,
@@ -1639,9 +1630,29 @@ namespace dMobile.View.Activity
 
         private async void CmdItems_Click(object sender, EventArgs e)
         {
+            var svdActSubType = this.ActSubType;
             try
             {
-                this.ActSubType = SysCommon.ActSubTypes.PickingItemsList;
+                this.ActSubType = this.ActSubType switch
+                {
+                    SysCommon.ActSubTypes.Picking => SysCommon.ActSubTypes.PickingItemsList,
+                    SysCommon.ActSubTypes.Adjustment => SysCommon.ActSubTypes.AdjustmentItemsList,
+                    SysCommon.ActSubTypes.Receiving => SysCommon.ActSubTypes.ReceiveItemsList,
+                    SysCommon.ActSubTypes.TransferFrom => SysCommon.ActSubTypes.TransferItemsList,
+                    SysCommon.ActSubTypes.TransferTo => SysCommon.ActSubTypes.TransferItemsList,
+                    SysCommon.ActSubTypes.PhysicalCounts => SysCommon.ActSubTypes.PhysicalCountItemsList,
+                    SysCommon.ActSubTypes.CycleCounts => SysCommon.ActSubTypes.CycleCountItemsList,
+                    SysCommon.ActSubTypes.Returns => SysCommon.ActSubTypes.ReturnItemsList,
+                    SysCommon.ActSubTypes.TicketFinished => SysCommon.ActSubTypes.FinishedGoodsItemsList,
+                    SysCommon.ActSubTypes.TicketMaterial => SysCommon.ActSubTypes.RawMaterialItemsList,
+                    SysCommon.ActSubTypes.TicketAddProduct => SysCommon.ActSubTypes.ByProductsItemsList,
+                    SysCommon.ActSubTypes.CutSheetFinished => SysCommon.ActSubTypes.CutSheetFinishedItemsList,
+                    SysCommon.ActSubTypes.CutSheetMaterial => SysCommon.ActSubTypes.CutSheetMaterialItemsList,
+                    SysCommon.ActSubTypes.YieldSheetFinished => SysCommon.ActSubTypes.YieldSheetFinishedItemsList,
+                    SysCommon.ActSubTypes.YieldSheetMaterial => SysCommon.ActSubTypes.YieldSheetMaterialItemsList,
+                    _ => throw new MessageOnlyException("Activity type does not support displaying a list of items.")
+                };
+
                 this.CmdInvInquiry.IsEnabled = false;
                 await this.ScannerDisable();
                 var form = new FormDialogContainer(
@@ -1687,7 +1698,7 @@ namespace dMobile.View.Activity
             }
             finally
             {
-                this.ActSubType = SysCommon.ActSubTypes.Picking;
+                this.ActSubType = svdActSubType;
                 this.CmdInvInquiry.IsEnabled = true;
                 await this.ScannerEnable();
             }
